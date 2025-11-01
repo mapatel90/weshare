@@ -148,11 +148,11 @@ const RegisterForm = ({loginPath}) => {
                     setError(data.message || 'Registration failed')
                 }
             } else {
-                // Success - redirect to appropriate login page based on user type
-                const redirectPath = data.userRole === '3' 
-                    ? '/offtaker/login' 
-                    : '/investor/login'
-                router.push(redirectPath)
+                if (data.userRole == 3) {
+                    router.push('/offtaker/login')
+                } else {
+                    router.push('/investor/login')
+                }
             }
         } catch (err) {
             setError('An error occurred. Please try again.')
