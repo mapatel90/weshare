@@ -194,6 +194,7 @@
     "usernameAlreadyExists": "Username already exists",
     "emailAlreadyExists": "Email already exists",
     "userTypeRequired": "Please select user type",
+    "fullNameRequired": "Full name is required",
     "firstNameRequired": "First name is required",
     "lastNameRequired": "Last name is required"
   },

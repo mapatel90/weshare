@@ -5,6 +5,40 @@ import prisma from '../utils/prisma.js';
 
 const router = express.Router();
 
+// Check username availability
+router.get('/check-username', async (req, res) => {
+  try {
+    const { username } = req.query;
+
+    if (!username) {
+      return res.status(400).json({
+        success: false,
+        available: false,
+        message: 'Username is required'
+      });
+    }
+
+    // Check if username exists
+    const existingUser = await prisma.user.findUnique({
+      where: { username }
+    });
+
+    res.json({
+      success: true,
+      available: !existingUser,
+      message: existingUser ? 'Username already taken' : 'Username available'
+    });
+
+  } catch (error) {
+    console.error('Error checking username:', error);
+    res.status(500).json({
+      success: false,
+      available: false,
+      message: 'Error checking username'
+    });
+  }
+});
+
 // Register new user
 router.post('/register', async (req, res) => {
   try {

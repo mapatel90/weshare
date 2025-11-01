@@ -17,6 +17,7 @@ import {
 } from '@mui/material'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { useRouter } from 'next/navigation'
+import { apiGet, apiPost } from '@/lib/api'
 
 const RegisterForm = ({loginPath}) => {
     const { lang } = useLanguage()
@@ -26,35 +27,57 @@ const RegisterForm = ({loginPath}) => {
     const [userType, setUserType] = useState('3') // 3=Offtaker, 4=Investor
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState('')
-    
     // Form fields
-    const [firstName, setFirstName] = useState('')
-    const [lastName, setLastName] = useState('')
+    const [fullName, setFullName] = useState('')
     const [username, setUsername] = useState('')
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [confirmPassword, setConfirmPassword] = useState('')
     const [agreeTerms, setAgreeTerms] = useState(false)
-    
     // Field errors
-    const [firstNameError, setFirstNameError] = useState('')
-    const [lastNameError, setLastNameError] = useState('')
+    const [fullNameError, setFullNameError] = useState('')
     const [usernameError, setUsernameError] = useState('')
     const [emailError, setEmailError] = useState('')
     const [passwordError, setPasswordError] = useState('')
     const [confirmPasswordError, setConfirmPasswordError] = useState('')
+    
+    // Checking states
+    const [usernameChecking, setUsernameChecking] = useState(false)
 
     const validateEmail = (email) => {
         const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
         return re.test(email)
     }
 
+    const handleUsernameBlur = async () => {
+        if (!username.trim()) {
+            return
+        }
+
+        setUsernameChecking(true)
+        setUsernameError('')
+
+        try {
+            const qs = new URLSearchParams({ username }).toString()
+            const data = await apiGet(`/api/auth/check-username?${qs}`)
+            
+            console.log('Username check response:', data)
+
+            if (data.success && !data.available) {
+                setUsernameError(lang('validation.usernameAlreadyExists'))
+            }
+        } catch (err) {
+            console.error('Error checking username:', err)
+        } finally {
+            setUsernameChecking(false)
+        }
+    }
+
     const handleSubmit = async (e) => {
         e.preventDefault()
         setLoading(true)
         setError('')
-        setFirstNameError('')
-        setLastNameError('')
+        setFullNameError('')
         setUsernameError('')
         setEmailError('')
         setPasswordError('')
@@ -63,13 +86,8 @@ const RegisterForm = ({loginPath}) => {
         // Validation
         let isValid = true
 
-        if (!firstName.trim()) {
-            setFirstNameError(lang('validation.firstNameRequired'))
-            isValid = false
-        }
-
-        if (!lastName.trim()) {
-            setLastNameError(lang('validation.lastNameRequired'))
+        if (!fullName.trim()) {
+            setFullNameError(lang('validation.fullNameRequired'))
             isValid = false
         }
 
@@ -113,32 +131,28 @@ const RegisterForm = ({loginPath}) => {
         }
 
         try {
-            const response = await fetch('/api/auth/register', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    firstName,
-                    lastName,
-                    username,
-                    email,
-                    password,
-                    userRole: parseInt(userType)
-                })
+            const data = await apiPost('/api/auth/register', {
+                fullName,
+                username,
+                email,
+                password,
+                userRole: parseInt(userType)
             })
 
-            const data = await response.json()
-
-            if (!response.ok) {
-                if (data.field === 'username') {
+            if (!data.success) {
+                if (data.message && data.message.includes('username')) {
                     setUsernameError(lang('validation.usernameAlreadyExists'))
-                } else if (data.field === 'email') {
+                } else if (data.message && data.message.includes('email')) {
                     setEmailError(lang('validation.emailAlreadyExists'))
                 } else {
                     setError(data.message || 'Registration failed')
                 }
             } else {
-                // Success - redirect to login
-                router.push(loginPath + '?registered=true')
+                // Success - redirect to appropriate login page based on user type
+                const redirectPath = data.userRole === '3' 
+                    ? '/offtaker/login' 
+                    : '/investor/login'
+                router.push(redirectPath)
             }
         } catch (err) {
             setError('An error occurred. Please try again.')
@@ -196,50 +210,21 @@ const RegisterForm = ({loginPath}) => {
                     </RadioGroup>
                 </Box>
 
-                {/* First Name */}
+                {/* Full Name */}
                 <Box sx={{ mb: 3 }}>
                     <Typography variant="body2" sx={{ mb: 1, color: '#696969', fontWeight: 500 }}>
-                        {lang('authentication.firstName') || 'First Name'} *
+                        {lang('authentication.fullName') || 'Full Name'} *
                     </Typography>
                     <TextField
                         fullWidth
-                        placeholder={lang('authentication.firstName')}
-                        value={firstName}
+                        placeholder={lang('authentication.fullName')}
+                        value={fullName}
                         onChange={(e) => {
-                            setFirstName(e.target.value)
-                            if (firstNameError) setFirstNameError('')
+                            setFullName(e.target.value)
+                            if (fullNameError) setFullNameError('')
                         }}
-                        error={!!firstNameError}
-                        helperText={firstNameError}
-                        required
-                        variant="outlined"
-                        sx={{
-                            '& .MuiOutlinedInput-root': {
-                                backgroundColor: '#fff',
-                                borderRadius: '8px',
-                                '& fieldset': { borderColor: '#e0e0e0' },
-                                '&:hover fieldset': { borderColor: '#F6A623' },
-                                '&.Mui-focused fieldset': { borderColor: '#F6A623', borderWidth: '2px' },
-                            },
-                        }}
-                    />
-                </Box>
-
-                {/* Last Name */}
-                <Box sx={{ mb: 3 }}>
-                    <Typography variant="body2" sx={{ mb: 1, color: '#696969', fontWeight: 500 }}>
-                        {lang('authentication.lastName') || 'Last Name'} *
-                    </Typography>
-                    <TextField
-                        fullWidth
-                        placeholder={lang('authentication.lastName')}
-                        value={lastName}
-                        onChange={(e) => {
-                            setLastName(e.target.value)
-                            if (lastNameError) setLastNameError('')
-                        }}
-                        error={!!lastNameError}
-                        helperText={lastNameError}
+                        error={!!fullNameError}
+                        helperText={fullNameError}
                         required
                         variant="outlined"
                         sx={{
@@ -267,10 +252,12 @@ const RegisterForm = ({loginPath}) => {
                             setUsername(e.target.value)
                             if (usernameError) setUsernameError('')
                         }}
+                        onBlur={handleUsernameBlur}
                         error={!!usernameError}
-                        helperText={usernameError}
+                        helperText={usernameError || (usernameChecking ? 'Checking availability...' : '')}
                         required
                         variant="outlined"
+                        autoComplete="off"
                         sx={{
                             '& .MuiOutlinedInput-root': {
                                 backgroundColor: '#fff',
@@ -422,7 +409,7 @@ const RegisterForm = ({loginPath}) => {
                     fullWidth
                     variant="contained"
                     size="large"
-                    disabled={loading}
+                    disabled={loading || !agreeTerms}
                     sx={{
                         backgroundColor: '#F6A623',
                         color: '#fff',
@@ -431,6 +418,10 @@ const RegisterForm = ({loginPath}) => {
                         textTransform: 'none',
                         '&:hover': {
                             backgroundColor: '#e09620',
+                        },
+                        '&.Mui-disabled': {
+                            backgroundColor: '#cccccc',
+                            color: '#666666',
                         },
                     }}
                 >

@@ -12,6 +12,7 @@ async function main() {
     { id: 1, name: 'superadmin', status: 1 },
     { id: 2, name: 'staffadmin', status: 1 },
     { id: 3, name: 'offtaker', status: 1 },
+    { id: 4, name: 'investor', status: 1 },
   ];
 
   console.log("📝 Creating roles...");

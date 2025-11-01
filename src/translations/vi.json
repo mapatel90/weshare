@@ -194,6 +194,7 @@
     "usernameAlreadyExists": "Tên người dùng đã tồn tại",
     "emailAlreadyExists": "Email đã tồn tại",
     "userTypeRequired": "Vui lòng chọn loại người dùng",
+    "fullNameRequired": "Họ và tên là bắt buộc",
     "firstNameRequired": "Tên là bắt buộc",
     "lastNameRequired": "Họ là bắt buộc"
   },
