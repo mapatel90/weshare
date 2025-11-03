@@ -17,6 +17,7 @@
   "navigation": {
     "navigation": "Navigation",
     "home": "Home",
+    "goToHome": "Go to Home",
     "dashboard": "Dashboard",
     "customers": "Customers",
     "leads": "Leads",

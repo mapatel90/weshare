@@ -51,7 +51,7 @@ const LoginPage = () => {
                 <CardContent>
                     <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
                         <Link href="/" style={{ textDecoration: 'none', color: '#6c757d', fontSize: '0.9375rem' }}>
-                            <span style={{ marginRight: '0.25rem' }}>&#8592;</span> {lang('common.back')}
+                            <span style={{ marginRight: '0.25rem' }}>&#8592;</span> {lang('navigation.goToHome')}
                         </Link>
                     </Box>
                     <Box
