@@ -39,6 +39,7 @@ model User {
   zipcode     String?   @db.VarChar(20)
   status      Int       @default(0)
   is_deleted  Int       @default(0)
+  terms_accepted Int    @default(1)
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime  @default(now()) @updatedAt @map("updated_at")
   

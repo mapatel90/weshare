@@ -129,14 +129,14 @@ const RegisterForm = ({loginPath}) => {
             setLoading(false)
             return
         }
-
         try {
             const data = await apiPost('/api/auth/register', {
                 fullName,
                 username,
                 email,
                 password,
-                userRole: parseInt(userType)
+                userRole: parseInt(userType),
+                termsAccepted: agreeTerms ? 1 : 0
             })
 
             if (!data.success) {
@@ -148,7 +148,8 @@ const RegisterForm = ({loginPath}) => {
                     setError(data.message || 'Registration failed')
                 }
             } else {
-                if (data.userRole == 3) {
+                // Check userRole from data.data object
+                if (data.data && data.data.userRole == 3) {
                     router.push('/offtaker/login')
                 } else {
                     router.push('/investor/login')
