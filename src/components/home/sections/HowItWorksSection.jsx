@@ -88,7 +88,7 @@ const HowItWorksSection = () => {
                 onClick={() => setActiveTab('investor')}
                 type="button"
               >
-                <span className="circle"></span> {lang('home.howItWorks.investorTab')}
+                {activeTab === 'investor'} {lang('home.howItWorks.investorTab')}
               </button>
             </li>
             <li className="nav-item" role="presentation">
@@ -97,7 +97,7 @@ const HowItWorksSection = () => {
                 onClick={() => setActiveTab('offtaker')}
                 type="button"
               >
-                <span className="circle"></span> {lang('home.howItWorks.offtakerTab')}
+                {activeTab === 'offtaker'} {lang('home.howItWorks.offtakerTab')}
               </button>
             </li>
           </ul>
