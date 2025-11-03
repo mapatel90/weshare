@@ -333,10 +333,10 @@ const RoleTable = () => {
           </Box>
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2.5 }}>
-          <Button onClick={handleClose} color="error" variant="outlined">
+          <Button onClick={handleClose} color="error" variant="outlined" className="custom-orange-outline">
             {lang("common.cancel")}
           </Button>
-          <Button onClick={handleSubmit} variant="contained">
+          <Button onClick={handleSubmit} variant="contained" className="common-grey-color">
             {modalMode === "add" ? lang("common.save") : lang("common.update")}
           </Button>
         </DialogActions>

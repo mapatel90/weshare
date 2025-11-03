@@ -14,6 +14,14 @@ import { showErrorToast } from '@/utils/topTost'
 import { useAuth } from '@/contexts/AuthContext'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { apiPost } from '@/lib/api'
+import {
+    TextField,
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem,
+    FormHelperText,
+} from "@mui/material";
 
 const SettingGeneralForm = () => {
     const { lang } = useLanguage()
@@ -244,58 +252,80 @@ const SettingGeneralForm = () => {
                                     <input className="file-upload" type="file" accept="image/*" id='img' hidden onChange={handleImageChange} />
                                 </label>
                             </div>
-                            <InputTopLabel
-                                label={lang('common.name')}
-                                placeholder={lang('placeholders.your_company_name')}
-                                info={lang('placeholders.your_company_name')}
-                                value={formData.site_name}
-                                onChange={(e) => handleInputChange('site_name', e.target.value)}
-                            />
-                            <InputTopLabel
-                                label={lang('common.address')}
-                                placeholder={lang('placeholders.your_company_address')}
-                                info={lang('placeholders.your_company_address')}
-                                value={formData.site_address}
-                                onChange={(e) => handleInputChange('site_address', e.target.value)}
-                            />
-                            <SelectTopLabel
-                                label={lang('common.country')}
-                                placeholder={lang('placeholders.your_company_country')}
-                                info={lang('placeholders.your_company_country')}
-                                value={formData.site_country}
-                                onChange={handleCountrySelect}
-                                options={countries.map(country => ({
-                                    value: country.id,
-                                    label: country.name
-                                }))}
-                                loading={loadingCountries}
-                            />
-                            <SelectTopLabel
-                                label={lang('common.state')}
-                                placeholder={lang('placeholders.your_company_state')}
-                                info={lang('placeholders.your_company_state')}
-                                value={formData.site_state}
-                                onChange={handleStateSelect}
-                                options={states.map(state => ({
-                                    value: state.id,
-                                    label: state.name
-                                }))}
-                                loading={loadingStates}
-                                disabled={!formData.site_country}
-                            />
-                            <SelectTopLabel
-                                label={lang('common.city')}
-                                placeholder={lang('placeholders.your_company_city')}
-                                info={lang('placeholders.your_company_city')}
-                                value={formData.site_city}
-                                onChange={handleCitySelect}
-                                options={cities.map(city => ({
-                                    value: city.id,
-                                    label: city.name
-                                }))}
-                                loading={loadingCities}
-                                disabled={!formData.site_state}
-                            />
+                            <div className="mb-3">
+                                <TextField
+                                    fullWidth
+                                    label={lang('common.name')}
+                                    placeholder={lang('placeholders.your_company_name')}
+                                    value={formData.site_name}
+                                    onChange={(e) => handleInputChange('site_name', e.target.value)}
+                                    helperText={lang('placeholders.your_company_name')}
+                                />
+                            </div>
+                            <div className="mb-3">
+                                <TextField
+                                    fullWidth
+                                    label={lang('common.address')}
+                                    placeholder={lang('placeholders.your_company_address')}
+                                    value={formData.site_address}
+                                    onChange={(e) => handleInputChange('site_address', e.target.value)}
+                                    helperText={lang('placeholders.your_company_address')}
+                                />
+                            </div>
+                            <div className="mb-3">
+                                <FormControl fullWidth>
+                                    <InputLabel id="country-select-label">{lang('common.country')}</InputLabel>
+                                    <Select
+                                        labelId="country-select-label"
+                                        value={formData.site_country}
+                                        label={lang('common.country')}
+                                        onChange={handleCountrySelect}
+                                        disabled={loadingCountries}
+                                    >
+                                        <MenuItem value="">{lang('placeholders.your_company_country')}</MenuItem>
+                                        {countries.map(country => (
+                                            <MenuItem key={country.id} value={country.id}>{country.name}</MenuItem>
+                                        ))}
+                                    </Select>
+                                    <FormHelperText>{lang('placeholders.your_company_country')}</FormHelperText>
+                                </FormControl>
+                            </div>
+                            <div className="mb-3">
+                                <FormControl fullWidth>
+                                    <InputLabel id="state-select-label">{lang('common.state')}</InputLabel>
+                                    <Select
+                                        labelId="state-select-label"
+                                        value={formData.site_state}
+                                        label={lang('common.state')}
+                                        onChange={handleStateSelect}
+                                        disabled={loadingStates || !formData.site_country}
+                                    >
+                                        <MenuItem value="">{lang('placeholders.your_company_state')}</MenuItem>
+                                        {states.map(state => (
+                                            <MenuItem key={state.id} value={state.id}>{state.name}</MenuItem>
+                                        ))}
+                                    </Select>
+                                    <FormHelperText>{lang('placeholders.your_company_state')}</FormHelperText>
+                                </FormControl>
+                            </div>
+                            <div className="mb-3">
+                                <FormControl fullWidth>
+                                    <InputLabel id="city-select-label">{lang('common.city')}</InputLabel>
+                                    <Select
+                                        labelId="city-select-label"
+                                        value={formData.site_city}
+                                        label={lang('common.city')}
+                                        onChange={handleCitySelect}
+                                        disabled={loadingCities || !formData.site_state}
+                                    >
+                                        <MenuItem value="">{lang('placeholders.your_company_city')}</MenuItem>
+                                        {cities.map(city => (
+                                            <MenuItem key={city.id} value={city.id}>{city.name}</MenuItem>
+                                        ))}
+                                    </Select>
+                                    <FormHelperText>{lang('placeholders.your_company_city')}</FormHelperText>
+                                </FormControl>
+                            </div>
                             
                             {/* Debug info - remove after testing */}
                             {/* <div style={{ background: '#f8f9fa', padding: '10px', margin: '10px 0', fontSize: '12px' }}>
@@ -310,20 +340,26 @@ const SettingGeneralForm = () => {
                                 Loading Cities: {loadingCities ? 'Yes' : 'No'}
                             </div> */}
                             
-                            <InputTopLabel
-                                label={lang('common.zip')}
-                                placeholder={lang('placeholders.your_company_zip')}
-                                info={lang('placeholders.your_company_zip')}
-                                value={formData.site_zip}
-                                onChange={(e) => handleInputChange('site_zip', e.target.value)}
-                            />
-                            <InputTopLabel
-                                label={lang('common.phone')}
-                                placeholder={lang('placeholders.your_company_phone')}
-                                info={lang('placeholders.your_company_phone')}
-                                value={formData.site_phone}
-                                onChange={(e) => handleInputChange('site_phone', e.target.value)}
-                            />
+                            <div className="mb-3">
+                                <TextField
+                                    fullWidth
+                                    label={lang('common.zip')}
+                                    placeholder={lang('placeholders.your_company_zip')}
+                                    value={formData.site_zip}
+                                    onChange={(e) => handleInputChange('site_zip', e.target.value)}
+                                    helperText={lang('placeholders.your_company_zip')}
+                                />
+                            </div>
+                            <div className="mb-3">
+                                <TextField
+                                    fullWidth
+                                    label={lang('common.phone')}
+                                    placeholder={lang('placeholders.your_company_phone')}
+                                    value={formData.site_phone}
+                                    onChange={(e) => handleInputChange('site_phone', e.target.value)}
+                                    helperText={lang('placeholders.your_company_phone')}
+                                />
+                            </div>
                         </div>
                     </div>
                 </div>

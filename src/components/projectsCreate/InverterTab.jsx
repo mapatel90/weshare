@@ -1,11 +1,28 @@
 import React, { useEffect, useState } from 'react';
 import { apiGet, apiPost, apiPut, apiPatch } from '@/lib/api';
-import SelectDropdown from '@/components/shared/SelectDropdown';
 import Table from '@/components/shared/table/Table';
 import { FiEdit3, FiTrash2 } from 'react-icons/fi';
 import Swal from 'sweetalert2';
 import { showSuccessToast, showErrorToast } from '@/utils/topTost';
 import { useLanguage } from '@/contexts/LanguageContext';
+import {
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+    TextField,
+    Select,
+    MenuItem,
+    FormControl,
+    InputLabel,
+    FormHelperText,
+    Button,
+    CircularProgress,
+    Box,
+    IconButton,
+    Typography,
+} from "@mui/material";
+import { Close as CloseIcon } from "@mui/icons-material";
 
 const InverterTab = ({ projectId }) => {
   const { lang } = useLanguage();
@@ -236,82 +253,128 @@ const InverterTab = ({ projectId }) => {
     <div className="inverter-management">
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h6 className="fw-bold mb-0">{lang('inverter.inverter', 'Inverters')} {lang('projects.projectlist', 'Project List')}</h6>
-        <button type="button" className="btn btn-primary" onClick={openAddModal}>
+        {/* <button type="button" className="btn common-grey-color" onClick={openAddModal}>+ {lang('inverter.addInverter', 'Add Inverter')}</button> */}
+        <Button variant="contained" onClick={openAddModal} className="common-grey-color">
           + {lang('inverter.addInverter', 'Add Inverter')}
-        </button>
+        </Button>
       </div>
       {/* Modal */}
-      {showModal && (
-        <div className="modal fade show d-block" tabIndex={-1} role="dialog" style={{ background: 'rgba(0,0,0,0.35)' }}>
-          <div className="modal-dialog" role="document">
-            <form className="modal-content" onSubmit={handleSave}>
-              <div className="modal-header">
-                <h5 className="modal-title">{modalType === 'edit' ? lang('inverter.editInverter', 'Edit Inverter') : lang('inverter.addInverter', 'Add Inverter')}</h5>
-                <button type="button" className="btn-close" onClick={closeModal}></button>
-              </div>
-              <div className="modal-body">
-                {/* Dropdown for inverter */}
-                <div className="mb-3">
-                  <label className="form-label">{lang('inverter.inverter', 'Inverter')}</label>
-                  {console.log("🔍 Inverter List:", inverterList)}
-                  <SelectDropdown options={inverterList.map(inv => ({
-                    value: inv.id,
-                    label: inv.inverterName + ` - ` + inv.inverter_type_id + (inv.companyName ? ` (${inv.companyName})` : ""),
-                  }))}
-                    selectedOption={selectedInverter?.id}
-                    onSelectOption={opt => setSelectedInverter(inverterList.find(i => i.id === opt.value))}
-                    defaultSelect={lang('inverter.selectInverter', 'Select Inverter')}
+      <Dialog
+        open={showModal}
+        onClose={closeModal}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 2,
+          },
+        }}
+      >
+        <form onSubmit={handleSave}>
+          <DialogTitle
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              pb: 1,
+            }}
+          >
+            <Typography variant="h6" component="span">
+              {modalType === 'edit' ? lang('inverter.editInverter', 'Edit Inverter') : lang('inverter.addInverter', 'Add Inverter')}
+            </Typography>
+            <IconButton
+              aria-label="close"
+              onClick={closeModal}
+              sx={{
+                color: (theme) => theme.palette.grey[500],
+              }}
+            >
+              <CloseIcon />
+            </IconButton>
+          </DialogTitle>
+          <DialogContent>
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 3, pt: 2 }}>
+              {/* Dropdown for inverter */}
+              <FormControl fullWidth>
+                <InputLabel id="inverter-select-label">{lang('inverter.inverter', 'Inverter')}</InputLabel>
+                <Select
+                  labelId="inverter-select-label"
+                  value={selectedInverter?.id || ''}
+                  label={lang('inverter.inverter', 'Inverter')}
+                  onChange={(e) => {
+                    const inv = inverterList.find(i => i.id === e.target.value);
+                    setSelectedInverter(inv || null);
+                  }}
+                >
+                  <MenuItem value="">{lang('inverter.selectInverter', 'Select Inverter')}</MenuItem>
+                  {inverterList.map(inv => (
+                    <MenuItem key={inv.id} value={inv.id}>
+                      {inv.inverterName + ` - ` + inv.inverter_type_id + (inv.companyName ? ` (${inv.companyName})` : "")}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              {/* Show after select */}
+              {selectedInverter && (
+                <>
+                  <TextField
+                    label={lang('inverter.kilowatt', 'Kilowatt')}
+                    value={kilowatt}
+                    onChange={e => {
+                      setKilowatt(e.target.value);
+                      // Clear error as soon as valid
+                      if (kilowattError && /^[0-9]*\.?[0-9]+$/.test(e.target.value)) {
+                        setKilowattError('');
+                      }
+                    }}
+                    error={!!kilowattError}
+                    helperText={kilowattError}
+                    required
+                    fullWidth
+                    inputMode="decimal"
                   />
-                </div>
-                {/* Show after select */}
-                {selectedInverter && (
-                  <>
-                    <div className="mb-3">
-                      <label className="form-label">{lang('inverter.kilowatt', 'Kilowatt')}</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        value={kilowatt}
-                        onChange={e => {
-                          setKilowatt(e.target.value);
-                          // Clear error as soon as valid
-                          if (kilowattError && /^[0-9]*\.?[0-9]+$/.test(e.target.value)) {
-                            setKilowattError('');
-                          }
-                        }}
-                        required
-                      />
-                      {kilowattError && (
-                        <div className="text-danger small mt-1">{kilowattError}</div>
-                      )}
-                    </div>
-                    <div className="mb-3">
-                      <label className="form-label">{lang('inverter.serialNumber', 'Inverter Serial Number')}</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        value={serialNumber}
-                        onChange={e => setSerialNumber(e.target.value)}
-                        required
-                      />
-                    </div>
-                    <div className="mb-3">
-                      <label className="form-label">{lang('common.status', 'Status')}</label>
-                      <SelectDropdown options={STATUS_OPTIONS} selectedOption={status} onSelectOption={opt => setStatus(opt.value)} defaultSelect={lang('projects.selectStatus', 'Select Status')} searchable={false} />
-                    </div>
-                  </>
-                )}
-              </div>
-              <div className="modal-footer">
-                <button type="button" className="btn btn-secondary" onClick={closeModal}>{lang('common.cancel', 'Cancel')}</button>
-                <button type="submit" className="btn btn-primary" disabled={loading || !selectedInverter || !kilowatt}>
-                  {loading ? lang('common.loading', 'Loading...') : lang('common.save', 'Save')}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+                  <TextField
+                    label={lang('inverter.serialNumber', 'Inverter Serial Number')}
+                    value={serialNumber}
+                    onChange={e => setSerialNumber(e.target.value)}
+                    required
+                    fullWidth
+                  />
+                  <FormControl fullWidth>
+                    <InputLabel id="status-select-label">{lang('common.status', 'Status')}</InputLabel>
+                    <Select
+                      labelId="status-select-label"
+                      value={status}
+                      label={lang('common.status', 'Status')}
+                      onChange={(e) => setStatus(e.target.value)}
+                    >
+                      {STATUS_OPTIONS.map(option => (
+                        <MenuItem key={option.value} value={option.value}>
+                          {option.label}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </>
+              )}
+            </Box>
+          </DialogContent>
+          <DialogActions sx={{ px: 3, pb: 2.5 }}>
+            <Button onClick={closeModal} color="error" className="custom-orange-outline">
+              {lang('common.cancel', 'Cancel')}
+            </Button>
+            <Button 
+              type="submit" 
+              variant="contained" 
+              disabled={loading || !selectedInverter || !kilowatt}
+              startIcon={loading ? <CircularProgress size={16} /> : null}
+              className="common-grey-color"
+            >
+              {loading ? lang('common.loading', 'Loading...') : lang('common.save', 'Save')}
+            </Button>
+          </DialogActions>
+        </form>
+      </Dialog>
       {/* Enhanced Table */}
       <Table data={projectInverters} columns={columns} />
     </div>

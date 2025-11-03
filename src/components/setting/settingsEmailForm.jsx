@@ -9,6 +9,7 @@ import useSettings from "@/hooks/useSettings";
 import { showErrorToast, showSuccessToast } from "@/utils/topTost";
 import { apiPost } from "@/lib/api";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { TextField, FormControl, InputLabel, Select, MenuItem, FormHelperText, Button } from "@mui/material";
 
 export const settingOptions = [
   {
@@ -258,99 +259,53 @@ const SettingsEmailForm = () => {
               </div>
 
               <div className="mb-5">
-                <label className="form-label">
-                  {lang("smtp.protocolLabel")}{" "}
-                  <span className="text-danger">*</span>
-                </label>
-                <SelectDropdown
-                    options={SMTP}
-                  defaultSelect={
-                    formData.smtp_email || lang("smtp.protocolOptionSelect")
-                  }
-                  selectedOption={selectedOption}
-                  onSelectOption={(option) => {
-                    setSelectedOption(option);
-                    handleChange(
-                      "smtp_email",
-                      option?.value || lang("smtp.protocolOptionSelect")
-                    );
-                  }}
-                />
-                <small className="form-text text-muted">
-                  {lang("smtp.protocolHelp")}
-                </small>
+                <FormControl fullWidth>
+                  <InputLabel id="smtp-protocol-label">{lang("smtp.protocolLabel")}</InputLabel>
+                  <Select
+                    labelId="smtp-protocol-label"
+                    value={selectedOption?.value || formData.smtp_email || ""}
+                    label={lang("smtp.protocolLabel")}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setSelectedOption(SMTP.find(o => o.value === val) || null);
+                      handleChange("smtp_email", val);
+                    }}
+                  >
+                    {SMTP.map(opt => (
+                      <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
+                    ))}
+                  </Select>
+                  <FormHelperText>{lang("smtp.protocolHelp")}</FormHelperText>
+                </FormControl>
               </div>
 
-              <InputTopLabel
-                label={lang("smtp.fromAddressLabel")}
-                placeholder={"example@domain.com"}
-                info={lang("smtp.fromAddressInfo")}
-                value={formData.smtp_email_from_address}
-                onChange={(e) =>
-                  handleChange("smtp_email_from_address", e.target.value)
-                }
-              />
+              <div className="mb-4">
+                <TextField fullWidth label={lang("smtp.fromAddressLabel")} placeholder={"example@domain.com"} value={formData.smtp_email_from_address} onChange={(e)=>handleChange("smtp_email_from_address", e.target.value)} helperText={lang("smtp.fromAddressInfo")} />
+              </div>
 
-              <InputTopLabel
-                label={lang("smtp.fromNameLabel")}
-                placeholder={"Your Company Name"}
-                info={lang("smtp.fromNameInfo")}
-                value={formData.smtp_email_from_name}
-                onChange={(e) =>
-                  handleChange("smtp_email_from_name", e.target.value)
-                }
-              />
+              <div className="mb-4">
+                <TextField fullWidth label={lang("smtp.fromNameLabel")} placeholder={"Your Company Name"} value={formData.smtp_email_from_name} onChange={(e)=>handleChange("smtp_email_from_name", e.target.value)} helperText={lang("smtp.fromNameInfo")} />
+              </div>
 
-              <InputTopLabel
-                label={lang("smtp.hostLabel")}
-                placeholder={"smtp.gmail.com"}
-                info={lang("smtp.hostInfo")}
-                value={formData.smtp_email_host}
-                onChange={(e) =>
-                  handleChange("smtp_email_host", e.target.value)
-                }
-              />
+              <div className="mb-4">
+                <TextField fullWidth label={lang("smtp.hostLabel")} placeholder={"smtp.gmail.com"} value={formData.smtp_email_host} onChange={(e)=>handleChange("smtp_email_host", e.target.value)} helperText={lang("smtp.hostInfo")} />
+              </div>
 
-              <InputTopLabel
-                label={lang("smtp.userLabel")}
-                placeholder={"example@domain.com"}
-                info={lang("smtp.userInfo")}
-                value={formData.smtp_email_user}
-                onChange={(e) =>
-                  handleChange("smtp_email_user", e.target.value)
-                }
-              />
+              <div className="mb-4">
+                <TextField fullWidth label={lang("smtp.userLabel")} placeholder={"example@domain.com"} value={formData.smtp_email_user} onChange={(e)=>handleChange("smtp_email_user", e.target.value)} helperText={lang("smtp.userInfo")} />
+              </div>
 
-              <InputTopLabel
-                label={lang("smtp.passwordLabel")}
-                placeholder={"Enter your SMTP password"}
-                type="password"
-                info={lang("smtp.passwordInfo")}
-                value={formData.smtp_email_password}
-                onChange={(e) =>
-                  handleChange("smtp_email_password", e.target.value)
-                }
-              />
+              <div className="mb-4">
+                <TextField fullWidth type="password" label={lang("smtp.passwordLabel")} placeholder={"Enter your SMTP password"} value={formData.smtp_email_password} onChange={(e)=>handleChange("smtp_email_password", e.target.value)} helperText={lang("smtp.passwordInfo")} />
+              </div>
 
-              <InputTopLabel
-                label={lang("smtp.portLabel")}
-                placeholder={"465"}
-                info={lang("smtp.portInfo")}
-                value={formData.smtp_email_port}
-                onChange={(e) =>
-                  handleChange("smtp_email_port", e.target.value)
-                }
-              />
+              <div className="mb-4">
+                <TextField fullWidth label={lang("smtp.portLabel")} placeholder={"465"} value={formData.smtp_email_port} onChange={(e)=>handleChange("smtp_email_port", e.target.value)} helperText={lang("smtp.portInfo")} />
+              </div>
 
-              <InputTopLabel
-                label={lang("smtp.securityTypeLabel")}
-                placeholder={lang("smtp.securityTypeLabel")}
-                info={lang("smtp.securityTypeInfo")}
-                value={formData.smtp_email_security_type}
-                onChange={(e) =>
-                  handleChange("smtp_email_security_type", e.target.value)
-                }
-              />
+              <div className="mb-4">
+                <TextField fullWidth label={lang("smtp.securityTypeLabel")} placeholder={lang("smtp.securityTypeLabel")} value={formData.smtp_email_security_type} onChange={(e)=>handleChange("smtp_email_security_type", e.target.value)} helperText={lang("smtp.securityTypeInfo")} />
+              </div>
 
               <hr className="my-5" />
               <div className="mb-5">
@@ -363,6 +318,12 @@ const SettingsEmailForm = () => {
                 <label className="form-label">
                   {lang("smtp.testFieldLabel")}
                 </label>
+                {/* <div className="d-flex">
+                  <TextField fullWidth placeholder={lang("smtp.testPlaceholder")} value={testEmail} onChange={(e)=>setTestEmail(e.target.value)} />
+                  <Button variant="contained" onClick={handleSendTest} disabled={isSendingTest}>
+                    {isSendingTest ? lang("common.loading") : lang("smtp.testButton")}
+                  </Button>
+                </div> */}
                 <div className="input-group">
                   <input
                     type="text"

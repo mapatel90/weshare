@@ -8,7 +8,17 @@ import useOfftakerData from '@/hooks/useOfftakerData'
 import Swal from 'sweetalert2'
 import { showSuccessToast, showErrorToast } from '@/utils/topTost'
 import { useLanguage } from '@/contexts/LanguageContext'
-import InverterTab from './InverterTab';
+import InverterTab from './InverterTab'
+import {
+    TextField,
+    Select,
+    MenuItem,
+    FormControl,
+    InputLabel,
+    FormHelperText,
+    Button,
+    CircularProgress,
+} from "@mui/material";
 
 const ProjectEditContent = ({ projectId }) => {
     const router = useRouter()
@@ -251,55 +261,105 @@ const ProjectEditContent = ({ projectId }) => {
                                     <div className="card-body">
                                         <div className="row">
                                             <div className="col-md-4 mb-3">
-                                                <label className="form-label">{lang('projects.projectName', 'Project Name')} <span className="text-danger">*</span></label>
-                                                <input type="text" className={`form-control ${error.project_name ? 'is-invalid' : ''}`} name="project_name" value={formData.project_name} onChange={handleInputChange} />
+                                                <TextField
+                                                    fullWidth
+                                                    label={`${lang('projects.projectName', 'Project Name')} *`}
+                                                    name="project_name"
+                                                    value={formData.project_name}
+                                                    onChange={handleInputChange}
+                                                    placeholder={lang('projects.projectNamePlaceholder', 'Enter project name')}
+                                                    error={!!error.project_name}
+                                                    helperText={error.project_name}
+                                                />
                                             </div>
                                             <div className="col-md-4 mb-3">
-                                                <label className="form-label">{lang('projects.projectType', 'Project Type')} <span className="text-danger">*</span></label>
-                                                <select className={`form-control ${error.project_type_id ? 'is-invalid' : ''}`} name="project_type_id" value={formData.project_type_id} onChange={handleInputChange}>
-                                                    <option value="">{lang('projects.projectType', 'Project Type')}</option>
-                                                    {projectTypes.map(t => (
-                                                        <option key={t.id} value={t.id}>{t.type_name}</option>
-                                                    ))}
-                                                </select>
+                                                <FormControl fullWidth error={!!error.project_type_id}>
+                                                    <InputLabel id="project-type-select-label">{lang('projects.projectType', 'Project Type')} *</InputLabel>
+                                                    <Select
+                                                        labelId="project-type-select-label"
+                                                        name="project_type_id"
+                                                        value={formData.project_type_id || ''}
+                                                        label={`${lang('projects.projectType', 'Project Type')} *`}
+                                                        onChange={handleInputChange}
+                                                    >
+                                                        <MenuItem value="">{lang('projects.projectType', 'Project Type')}</MenuItem>
+                                                        {projectTypes.map(t => (
+                                                            <MenuItem key={t.id} value={t.id}>{t.type_name}</MenuItem>
+                                                        ))}
+                                                    </Select>
+                                                    {error.project_type_id && <FormHelperText>{error.project_type_id}</FormHelperText>}
+                                                </FormControl>
                                             </div>
                                             <div className="col-md-4 mb-3">
-                                                <label className="form-label">{lang('projects.selectOfftaker', 'Select Offtaker')} <span className="text-danger">*</span></label>
-                                                <select className={`form-control ${error.offtaker ? 'is-invalid' : ''}`} name="offtaker" value={formData.offtaker} onChange={handleOfftakerChange} disabled={loadingOfftakers}>
-                                                    <option value="">{lang('projects.selectOfftaker', 'Select Offtaker')}</option>
-                                                    {offtakers.map(o => (
-                                                        <option key={o.id} value={o.id}>{o.fullName}</option>
-                                                    ))}
-                                                </select>
+                                                <FormControl fullWidth error={!!error.offtaker}>
+                                                    <InputLabel id="offtaker-select-label">{lang('projects.selectOfftaker', 'Select Offtaker')} *</InputLabel>
+                                                    <Select
+                                                        labelId="offtaker-select-label"
+                                                        name="offtaker"
+                                                        value={formData.offtaker}
+                                                        label={`${lang('projects.selectOfftaker', 'Select Offtaker')} *`}
+                                                        onChange={handleOfftakerChange}
+                                                        disabled={loadingOfftakers}
+                                                    >
+                                                        <MenuItem value="">{lang('projects.selectOfftaker', 'Select Offtaker')}</MenuItem>
+                                                        {offtakers.map(o => (
+                                                            <MenuItem key={o.id} value={o.id}>{o.fullName}</MenuItem>
+                                                        ))}
+                                                    </Select>
+                                                    {error.offtaker && <FormHelperText>{error.offtaker}</FormHelperText>}
+                                                </FormControl>
                                             </div>
-                                            {/* New fields row: asking_price, lease_term, product_code */}
-                                            <div className="col-12">
-                                                <div className="row">
-                                                    <div className="col-md-4 mb-3">
-                                                        <label className="form-label">{lang('projects.askingPrice', 'Asking Price')} <span className="text-danger">*</span></label>
-                                                        <input type="text" className={`form-control ${error.asking_price ? 'is-invalid' : ''}`} name="asking_price" value={formData.asking_price || ''} onChange={handleInputChange} inputMode="decimal" />
-                                                        {error.asking_price && (<div className="invalid-feedback">{error.asking_price}</div>)}
-                                                    </div>
-                                                    <div className="col-md-4 mb-3">
-                                                        <label className="form-label">{lang('projects.leaseTerm', 'Lease Term')} ({lang('projects.year', 'year')}) <span className="text-danger">*</span></label>
-                                                        <input type="text" className={`form-control ${error.lease_term ? 'is-invalid' : ''}`} name="lease_term" value={formData.lease_term || ''} onChange={handleInputChange} inputMode="numeric" />
-                                                        {error.lease_term && (<div className="invalid-feedback">{error.lease_term}</div>)}
-                                                    </div>
-                                                    <div className="col-md-4 mb-3">
-                                                        <label className="form-label">{lang('projects.productCode', 'Product Code')} <span className="text-danger">*</span></label>
-                                                        <input type="text" className={`form-control ${error.product_code ? 'is-invalid' : ''}`} name="product_code" value={formData.product_code || ''} onChange={handleInputChange} />
-                                                        {error.product_code && (<div className="invalid-feedback">{error.product_code}</div>)}
-                                                    </div>
-                                                </div>
+                                        </div>
+                                        {/* row: asking_price, lease_term, product_code */}
+                                        <div className="row">
+                                            <div className="col-md-4 mb-3">
+                                                <TextField
+                                                    fullWidth
+                                                    label={`${lang('projects.askingPrice', 'Asking Price')} *`}
+                                                    name="asking_price"
+                                                    value={formData.asking_price || ''}
+                                                    onChange={handleInputChange}
+                                                    inputMode="decimal"
+                                                    error={!!error.asking_price}
+                                                    helperText={error.asking_price}
+                                                />
                                             </div>
-                                            {/* Description row */}
-                                            <div className="col-12">
-                                                <div className="row">
-                                                    <div className="col-md-12 mb-3">
-                                                        <label className="form-label">{lang('projects.projectDescription', 'Project Description')}</label>
-                                                        <textarea className={`form-control ${error.project_description ? 'is-invalid' : ''}`} name="project_description" value={formData.project_description || ''} onChange={handleInputChange} rows={4} />
-                                                    </div>
-                                                </div>
+                                            <div className="col-md-4 mb-3">
+                                                <TextField
+                                                    fullWidth
+                                                    label={`${lang('projects.leaseTerm', 'Lease Term')} ${lang('projects.year', 'year')} *`}
+                                                    name="lease_term"
+                                                    value={formData.lease_term || ''}
+                                                    onChange={handleInputChange}
+                                                    inputMode="numeric"
+                                                    error={!!error.lease_term}
+                                                    helperText={error.lease_term}
+                                                />
+                                            </div>
+                                            <div className="col-md-4 mb-3">
+                                                <TextField
+                                                    fullWidth
+                                                    label={`${lang('projects.productCode', 'Product Code')} *`}
+                                                    name="product_code"
+                                                    value={formData.product_code || ''}
+                                                    onChange={handleInputChange}
+                                                    error={!!error.product_code}
+                                                    helperText={error.product_code}
+                                                />
+                                            </div>
+                                        </div>
+                                        {/* Description full-width row */}
+                                        <div className="row">
+                                            <div className="col-md-12 mb-3">
+                                                <TextField
+                                                    fullWidth
+                                                    label={lang('projects.projectDescription', 'Project Description')}
+                                                    name="project_description"
+                                                    value={formData.project_description || ''}
+                                                    onChange={handleInputChange}
+                                                    multiline
+                                                    rows={4}
+                                                />
                                             </div>
                                         </div>
                                     </div>
@@ -312,78 +372,161 @@ const ProjectEditContent = ({ projectId }) => {
                                     <div className="card-body">
                                         <div className="row">
                                             <div className="col-md-6 mb-3">
-                                                <label className="form-label">{lang('projects.addressLine1', 'Address Line 1')}</label>
-                                                <input type="text" className={`form-control ${error.address1 ? 'is-invalid' : ''}`} name="address1" value={formData.address1} onChange={handleInputChange} />
+                                                <TextField
+                                                    fullWidth
+                                                    label={lang('projects.addressLine1', 'Address Line 1')}
+                                                    name="address1"
+                                                    value={formData.address1}
+                                                    onChange={handleInputChange}
+                                                    placeholder={lang('projects.addressLine1Placeholder', 'Enter address line 1')}
+                                                />
                                             </div>
                                             <div className="col-md-6 mb-3">
-                                                <label className="form-label">{lang('projects.addressLine2', 'Address Line 2')}</label>
-                                                <input type="text" className={`form-control ${error.address2 ? 'is-invalid' : ''}`} name="address2" value={formData.address2} onChange={handleInputChange} />
+                                                <TextField
+                                                    fullWidth
+                                                    label={lang('projects.addressLine2', 'Address Line 2')}
+                                                    name="address2"
+                                                    value={formData.address2}
+                                                    onChange={handleInputChange}
+                                                    placeholder={lang('projects.addressLine2Placeholder', 'Enter address line 2')}
+                                                />
                                             </div>
+
+                                            {/* Country */}
                                             <div className="col-md-3 mb-3">
-                                                <label className="form-label">{lang('projects.country', 'Country')}</label>
-                                                <select className={`form-select ${error.countryId ? 'is-invalid' : ''}`} value={formData.countryId} onChange={(e) => handleLocationChange('country', e.target.value)} disabled={loadingCountries}>
-                                                    <option value="">{lang('projects.selectCountry', 'Select Country')}</option>
-                                                    {countries.map(c => (<option key={c.id} value={c.id}>{c.name}</option>))}
-                                                </select>
+                                                <FormControl fullWidth error={!!error.countryId}>
+                                                    <InputLabel id="country-select-label">{lang('projects.country', 'Country')}</InputLabel>
+                                                    <Select
+                                                        labelId="country-select-label"
+                                                        value={formData.countryId}
+                                                        label={lang('projects.country', 'Country')}
+                                                        onChange={(e) => handleLocationChange('country', e.target.value)}
+                                                        disabled={loadingCountries}
+                                                    >
+                                                        <MenuItem value="">{lang('projects.selectCountry', 'Select Country')}</MenuItem>
+                                                        {countries.map(c => (
+                                                            <MenuItem key={c.id} value={c.id}>{c.name}</MenuItem>
+                                                        ))}
+                                                    </Select>
+                                                    {error.countryId && <FormHelperText>{error.countryId}</FormHelperText>}
+                                                </FormControl>
                                             </div>
+
+                                            {/* State */}
                                             <div className="col-md-3 mb-3">
-                                                <label className="form-label">{lang('projects.state', 'State')}</label>
-                                                <select className={`form-select ${error.stateId ? 'is-invalid' : ''}`} value={formData.stateId} onChange={(e) => handleLocationChange('state', e.target.value)} disabled={loadingStates || !formData.countryId}>
-                                                    <option value="">{lang('projects.selectState', 'Select State')}</option>
-                                                    {states.map(s => (<option key={s.id} value={s.id}>{s.name}</option>))}
-                                                </select>
+                                                <FormControl fullWidth error={!!error.stateId}>
+                                                    <InputLabel id="state-select-label">{lang('projects.state', 'State')}</InputLabel>
+                                                    <Select
+                                                        labelId="state-select-label"
+                                                        value={formData.stateId}
+                                                        label={lang('projects.state', 'State')}
+                                                        onChange={(e) => handleLocationChange('state', e.target.value)}
+                                                        disabled={loadingStates || !formData.countryId}
+                                                    >
+                                                        <MenuItem value="">{lang('projects.selectState', 'Select State')}</MenuItem>
+                                                        {states.map(s => (
+                                                            <MenuItem key={s.id} value={s.id}>{s.name}</MenuItem>
+                                                        ))}
+                                                    </Select>
+                                                    {error.stateId && <FormHelperText>{error.stateId}</FormHelperText>}
+                                                </FormControl>
                                             </div>
+
+                                            {/* City */}
                                             <div className="col-md-3 mb-3">
-                                                <label className="form-label">{lang('projects.city', 'City')}</label>
-                                                <select className={`form-select ${error.cityId ? 'is-invalid' : ''}`} value={formData.cityId} onChange={(e) => handleLocationChange('city', e.target.value)} disabled={loadingCities || !formData.stateId}>
-                                                    <option value="">{lang('projects.selectCity', 'Select City')}</option>
-                                                    {cities.map(ci => (<option key={ci.id} value={ci.id}>{ci.name}</option>))}
-                                                </select>
+                                                <FormControl fullWidth error={!!error.cityId}>
+                                                    <InputLabel id="city-select-label">{lang('projects.city', 'City')}</InputLabel>
+                                                    <Select
+                                                        labelId="city-select-label"
+                                                        value={formData.cityId}
+                                                        label={lang('projects.city', 'City')}
+                                                        onChange={(e) => handleLocationChange('city', e.target.value)}
+                                                        disabled={loadingCities || !formData.stateId}
+                                                    >
+                                                        <MenuItem value="">{lang('projects.selectCity', 'Select City')}</MenuItem>
+                                                        {cities.map(ci => (
+                                                            <MenuItem key={ci.id} value={ci.id}>{ci.name}</MenuItem>
+                                                        ))}
+                                                    </Select>
+                                                    {error.cityId && <FormHelperText>{error.cityId}</FormHelperText>}
+                                                </FormControl>
                                             </div>
+
+                                            {/* Zip */}
                                             <div className="col-md-3 mb-3">
-                                                <label className="form-label">{lang('projects.zipcode', 'Zip Code')}</label>
-                                                <input type="text" className={`form-control ${error.zipcode ? 'is-invalid' : ''}`} name="zipcode" value={formData.zipcode} onChange={handleInputChange} />
+                                                <TextField
+                                                    fullWidth
+                                                    label={lang('projects.zipcode', 'Zip Code')}
+                                                    name="zipcode"
+                                                    value={formData.zipcode}
+                                                    onChange={handleInputChange}
+                                                    placeholder={lang('projects.zipcodePlaceholder', 'Enter zip code')}
+                                                />
                                             </div>
+
+                                            {/* Investor Profit */}
                                             <div className="col-md-3 mb-3">
-                                                <label className="form-label">{lang('projects.investorProfit', 'Investor Profit')} %</label>
-                                                <input type="text" className={`form-control ${error.investorProfit ? 'is-invalid' : ''}`} name="investorProfit" value={formData.investorProfit} onChange={handleInputChange} />
-                                                {error.investorProfit && (
-                                                    <div className="invalid-feedback">{error.investorProfit}</div>
-                                                )}
+                                                <TextField
+                                                    fullWidth
+                                                    label={`${lang('projects.investorProfit', 'Investor Profit')} %`}
+                                                    name="investorProfit"
+                                                    value={formData.investorProfit}
+                                                    onChange={handleInputChange}
+                                                    error={!!error.investorProfit}
+                                                    helperText={error.investorProfit}
+                                                />
                                             </div>
+
+                                            {/* Weshare profite */}
                                             <div className="col-md-3 mb-3">
-                                                <label className="form-label">{lang('projects.weshareprofite', 'Weshare profite')} %</label>
-                                                <input type="text" className={`form-control ${error.weshareprofite ? 'is-invalid' : ''}`} name="weshareprofite" value={formData.weshareprofite} onChange={handleInputChange} />
-                                                {error.weshareprofite && (
-                                                    <div className="invalid-feedback">{error.weshareprofite}</div>
-                                                )}
+                                                <TextField
+                                                    fullWidth
+                                                    label={`${lang('projects.weshareprofite', 'Weshare profite')} %`}
+                                                    name="weshareprofite"
+                                                    value={formData.weshareprofite}
+                                                    onChange={handleInputChange}
+                                                    placeholder={lang('projects.weshareprofitePlaceholder', 'Enter weshare profite')}
+                                                    error={!!error.weshareprofite}
+                                                    helperText={error.weshareprofite}
+                                                />
                                             </div>
+
+                                            {/* Status */}
                                             <div className="col-md-3 mb-3">
-                                                <label className="form-label">{lang('projects.status', 'Status')}</label>
-                                                <select className={`form-select ${error.status ? 'is-invalid' : ''}`} name="status" value={formData.status} onChange={handleInputChange}>
-                                                    <option value="">{lang('projects.selectStatus', 'Select Status')}</option>
-                                                    <option value="active">{lang('projects.active', 'Active')}</option>
-                                                    <option value="inactive">{lang('projects.inactive', 'Inactive')}</option>
-                                                </select>
-                                            </div>
-                                            {/* Actions inside Address Information */}
-                                            <div className="col-12 mt-2 d-flex justify-content-end">
-                                                <button type="submit" className="btn btn-primary" disabled={loading.form || loading.init}>
-                                                    {loading.form ? (
-                                                        <>
-                                                            <span className="spinner-border spinner-border-sm me-2" role="status" />
-                                                            {lang('common.saving', 'Saving')}...
-                                                        </>
-                                                    ) : (
-                                                        <>
-                                                            <FiSave className="me-2" /> {lang('projects.updateProject', 'Update Project')}
-                                                        </>
-                                                    )}
-                                                </button>
+                                                <FormControl fullWidth error={!!error.status}>
+                                                    <InputLabel id="status-select-label">{lang('projects.status', 'Status')}</InputLabel>
+                                                    <Select
+                                                        labelId="status-select-label"
+                                                        name="status"
+                                                        value={formData.status}
+                                                        label={lang('projects.status', 'Status')}
+                                                        onChange={handleInputChange}
+                                                    >
+                                                        <MenuItem value="">{lang('projects.selectStatus', 'Select Status')}</MenuItem>
+                                                        <MenuItem value="active">{lang('projects.active', 'Active')}</MenuItem>
+                                                        <MenuItem value="inactive">{lang('projects.inactive', 'Inactive')}</MenuItem>
+                                                    </Select>
+                                                    {error.status && <FormHelperText>{error.status}</FormHelperText>}
+                                                </FormControl>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
+
+                                {/* Actions inside Address Information */}
+                                <div className="d-flex justify-content-end">
+                                    <Button
+                                        type="submit"
+                                        variant="contained"
+                                        disabled={loading.form || loading.init}
+                                        startIcon={loading.form ? <CircularProgress size={16} /> : <FiSave />}
+                                        style={{ marginTop: '2px', marginBottom: '12px', marginRight: 0, marginLeft: 0 }}
+                                        className="common-grey-color"
+                                    >
+                                        {loading.form ? lang('common.saving', 'Saving') : lang('projects.updateProject', 'Update Project')}
+                                    </Button>
+                                </div>
+
                             </form>
                         )}
                         {activeTab === 'inverter' && (

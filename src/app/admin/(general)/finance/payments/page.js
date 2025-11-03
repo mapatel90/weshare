@@ -272,8 +272,8 @@ const PaymentsPage = () => {
             <DynamicTitle titleKey="payments.title" />
             <PageHeader>
                 <div className="ms-auto">
-                    {/* <Button variant="contained" onClick={openAdd}>+ {lang('payments.addPayment', 'Add Payment')}</Button> */}
-                    <button type="button" className="btn btn-primary" onClick={openAdd}>+ {lang('payments.addPayment', 'Add Payment')}</button>
+                    <Button variant="contained" className="common-orange-color" onClick={openAdd}>+ {lang('payments.addPayment', 'Add Payment')}</Button>
+                    {/* <button type="button" className="btn btn-primary" onClick={openAdd}>+ {lang('payments.addPayment', 'Add Payment')}</button> */}
                 </div>
             </PageHeader>
             <div className='main-content'>
@@ -368,10 +368,10 @@ const PaymentsPage = () => {
                         </Box>
                     </DialogContent>
                     <DialogActions sx={{ px: 3, pb: 2.5 }}>
-                        <Button onClick={closeModal} color="error" variant="outlined">
+                        <Button onClick={closeModal} color="error" variant="outlined" className="custom-orange-outline">
                             {lang('common.cancel', 'Cancel')}
                         </Button>
-                        <Button type="submit" variant="contained">
+                        <Button type="submit" variant="contained" className="common-grey-color">
                             {lang('common.save', 'Save')}
                         </Button>
                     </DialogActions>

@@ -3,6 +3,16 @@ import React, { useState, useEffect, useRef } from 'react'
 import { apiGet } from '@/lib/api'
 import useLocationData from '@/hooks/useLocationData'
 import { useLanguage } from '@/contexts/LanguageContext'
+import {
+    TextField,
+    Select,
+    MenuItem,
+    FormControl,
+    InputLabel,
+    FormHelperText,
+    Button,
+    CircularProgress,
+} from "@mui/material";
 
 const UserForm = ({ initialData = {}, onSubmit, includePassword = false, excludeId = null, roles = [] }) => {
     const { lang } = useLanguage()
@@ -201,34 +211,35 @@ const UserForm = ({ initialData = {}, onSubmit, includePassword = false, exclude
                                 <h6 className="mb-3">{lang('usersView.personalInformation')}</h6>
                                 <div className="row">
                                     <div className="col-md-3 mb-3">
-                                        <label className="form-label">{lang('usersView.fullName')} <span className="text-danger">*</span></label>
-                                        <input
-                                            type="text"
-                                            className={`form-control ${errors.fullName ? 'is-invalid' : ''}`}
+                                        <TextField
+                                            fullWidth
+                                            label={`${lang('usersView.fullName')} *`}
                                             name="fullName"
                                             value={formData.fullName}
                                             onChange={handleInputChange}
                                             placeholder={lang('placeholders.enterfullname')}
+                                            error={!!errors.fullName}
+                                            helperText={errors.fullName}
                                         />
-                                        {errors.fullName && <div className="invalid-feedback">{errors.fullName}</div>}
                                     </div>
                                     <div className="col-md-3 mb-3">
-                                        <label className="form-label">{lang('authentication.email')} <span className="text-danger">*</span></label>
-                                        <input
+                                        <TextField
+                                            fullWidth
                                             type="email"
-                                            className={`form-control ${errors.email ? 'is-invalid' : ''}`}
+                                            label={`${lang('authentication.email')} *`}
                                             name="email"
                                             value={formData.email}
                                             onChange={handleInputChange}
                                             placeholder={lang('placeholders.enteremail')}
+                                            error={!!errors.email}
+                                            helperText={errors.email}
                                         />
-                                        {errors.email && <div className="invalid-feedback">{errors.email}</div>}
                                     </div>
                                     <div className="col-md-3 mb-3">
-                                        <label className="form-label">{lang('usersView.phonenumber')}</label>
-                                        <input
+                                        <TextField
+                                            fullWidth
                                             type="tel"
-                                            className="form-control"
+                                            label={lang('usersView.phonenumber')}
                                             name="phoneNumber"
                                             value={formData.phoneNumber}
                                             onChange={handleInputChange}
@@ -243,76 +254,82 @@ const UserForm = ({ initialData = {}, onSubmit, includePassword = false, exclude
                                 <h6 className="mb-3">{lang('usersView.accountInformation')}</h6>
                                 <div className="row">
                                     <div className="col-md-3 mb-3">
-                                        <label className="form-label">{lang('usersView.username')} <span className="text-danger">*</span></label>
-                                        <input
-                                            type="text"
-                                            className={`form-control ${errors.username ? 'is-invalid' : ''}`}
+                                        <TextField
+                                            fullWidth
+                                            label={`${lang('usersView.username')} *`}
                                             name="username"
                                             value={formData?.username}
                                             onChange={handleInputChange}
                                             onBlur={handleUsernameBlur}
                                             placeholder={lang('placeholders.enterusername')}
                                             autoComplete="off"
+                                            error={!!errors.username}
+                                            helperText={errors.username || (usernameChecking ? 'Checking availability...' : '')}
                                         />
-                                        {usernameChecking && <div className="form-text">Checking availability...</div>}
-                                        {errors.username && <div className="invalid-feedback">{errors.username}</div>}
                                     </div>
                                     {includePassword && (
                                         <>
                                             <div className="col-md-3 mb-3">
-                                                <label className="form-label">{lang('authentication.password')} {(!isEditing || formData.password) && <span className="text-danger">*</span>}</label>
-                                                <input
+                                                <TextField
+                                                    fullWidth
                                                     type="password"
-                                                    className={`form-control ${errors.password ? 'is-invalid' : ''}`}
+                                                    label={`${lang('authentication.password')} ${(!isEditing || formData.password) ? '*' : ''}`}
                                                     name="password"
                                                     value={formData?.password}
                                                     onChange={handleInputChange}
                                                     placeholder={lang('placeholders.enterpassword')}
+                                                    error={!!errors.password}
+                                                    helperText={errors.password}
                                                 />
-                                                {console.log("formData.password",formData)}
-                                                {errors.password && <div className="invalid-feedback">{errors.password}</div>}
                                             </div>
                                             <div className="col-md-3 mb-3">
-                                                <label className="form-label">{lang('authentication.confirmPassword')} {(!isEditing || formData.password) && <span className="text-danger">*</span>}</label>
-                                                <input
+                                                <TextField
+                                                    fullWidth
                                                     type="password"
-                                                    className={`form-control ${errors.confirmPassword ? 'is-invalid' : ''}`}
+                                                    label={`${lang('authentication.confirmPassword')} ${(!isEditing || formData.password) ? '*' : ''}`}
                                                     name="confirmPassword"
                                                     value={formData?.confirmPassword}
                                                     onChange={handleInputChange}
                                                     placeholder={lang('placeholders.confirmPassword')}
+                                                    error={!!errors.confirmPassword}
+                                                    helperText={errors.confirmPassword}
                                                 />
-                                                {errors.confirmPassword && <div className="invalid-feedback">{errors.confirmPassword}</div>}
                                             </div>
                                         </>
                                     )}
 
                                     <div className="col-md-3 mb-3">
-                                        <label className="form-label">{lang('usersView.userRole')} <span className="text-danger">*</span></label>
-                                        <select
-                                            className={`form-label form-select ${errors.userRole ? 'is-invalid' : ''}`}
-                                            name="userRole"
-                                            value={formData?.userRole}
-                                            onChange={handleInputChange}
-                                        >
-                                            <option value="">{lang('common.selectRole')}</option>
-                                            {roles && roles.map(role => (
-                                                <option key={role.id} value={role.id}>{role.name.charAt(0).toUpperCase() + role.name.slice(1)}</option>
-                                            ))}
-                                        </select>
-                                        {errors.userRole && <div className="invalid-feedback">{errors.userRole}</div>}
+                                        <FormControl fullWidth error={!!errors.userRole}>
+                                            <InputLabel id="user-role-select-label">{lang('usersView.userRole')} *</InputLabel>
+                                            <Select
+                                                labelId="user-role-select-label"
+                                                name="userRole"
+                                                value={formData?.userRole}
+                                                label={`${lang('usersView.userRole')} *`}
+                                                onChange={handleInputChange}
+                                            >
+                                                <MenuItem value="">{lang('common.selectRole')}</MenuItem>
+                                                {roles && roles.map(role => (
+                                                    <MenuItem key={role.id} value={role.id}>{role.name.charAt(0).toUpperCase() + role.name.slice(1)}</MenuItem>
+                                                ))}
+                                            </Select>
+                                            {errors.userRole && <FormHelperText>{errors.userRole}</FormHelperText>}
+                                        </FormControl>
                                     </div>
                                     <div className="col-md-3 mb-3">
-                                        <label className="form-label">{lang('common.status')}</label>
-                                        <select
-                                            className="form-label form-select"
-                                            name="status"
-                                            value={formData?.status}
-                                            onChange={handleInputChange}
-                                        >
-                                            <option value="1">{lang('common.active')}</option>
-                                            <option value="0">{lang('common.inactive')}</option>
-                                        </select>
+                                        <FormControl fullWidth>
+                                            <InputLabel id="status-select-label">{lang('common.status')}</InputLabel>
+                                            <Select
+                                                labelId="status-select-label"
+                                                name="status"
+                                                value={formData?.status}
+                                                label={lang('common.status')}
+                                                onChange={handleInputChange}
+                                            >
+                                                <MenuItem value="1">{lang('common.active')}</MenuItem>
+                                                <MenuItem value="0">{lang('common.inactive')}</MenuItem>
+                                            </Select>
+                                        </FormControl>
                                     </div>
                                 </div>
                             </div>
@@ -322,10 +339,9 @@ const UserForm = ({ initialData = {}, onSubmit, includePassword = false, exclude
                                 <h6 className="mb-3">{lang('usersView.addressInformation')}</h6>
                                 <div className="row">
                                     <div className="col-md-6 mb-3">
-                                        <label className="form-label">{lang('usersView.address1')}</label>
-                                        <input
-                                            type="text"
-                                            className="form-control"
+                                        <TextField
+                                            fullWidth
+                                            label={lang('usersView.address1')}
                                             name="address1"
                                             value={formData?.address1}
                                             onChange={handleInputChange}
@@ -333,10 +349,9 @@ const UserForm = ({ initialData = {}, onSubmit, includePassword = false, exclude
                                         />
                                     </div>
                                     <div className="col-md-6 mb-3">
-                                        <label className="form-label">{lang('usersView.address2')}</label>
-                                        <input
-                                            type="text"
-                                            className="form-control"
+                                        <TextField
+                                            fullWidth
+                                            label={lang('usersView.address2')}
                                             name="address2"
                                             value={formData?.address2}
                                             onChange={handleInputChange}
@@ -344,52 +359,60 @@ const UserForm = ({ initialData = {}, onSubmit, includePassword = false, exclude
                                         />
                                     </div>
                                     <div className="col-md-3 mb-3">
-                                        <label className="form-label">{lang('common.country')}</label>
-                                        <select
-                                            className="form-label form-select"
-                                            value={formData?.countryId}
-                                            onChange={(e) => handleLocationChangeLocal('country', e.target.value)}
-                                            disabled={loadingCountries}
-                                        >
-                                            <option value="">{lang('common.selectCountry')}</option>
-                                            {countries.map(country => (
-                                                <option key={country.id} value={country.id}>{country.name}</option>
-                                            ))}
-                                        </select>
+                                        <FormControl fullWidth>
+                                            <InputLabel id="country-select-label">{lang('common.country')}</InputLabel>
+                                            <Select
+                                                labelId="country-select-label"
+                                                value={formData?.countryId}
+                                                label={lang('common.country')}
+                                                onChange={(e) => handleLocationChangeLocal('country', e.target.value)}
+                                                disabled={loadingCountries}
+                                            >
+                                                <MenuItem value="">{lang('common.selectCountry')}</MenuItem>
+                                                {countries.map(country => (
+                                                    <MenuItem key={country.id} value={country.id}>{country.name}</MenuItem>
+                                                ))}
+                                            </Select>
+                                        </FormControl>
                                     </div>
                                     <div className="col-md-3 mb-3">
-                                        <label className="form-label">{lang('common.state')}</label>
-                                        <select
-                                            className="form-label form-select"
-                                            value={formData?.stateId}
-                                            onChange={(e) => handleLocationChangeLocal('state', e.target.value)}
-                                            disabled={loadingStates || !formData.countryId}
-                                        >
-                                            <option value="">{lang('common.selectState')}</option>
-                                            {states.map(state => (
-                                                <option key={state.id} value={state.id}>{state.name}</option>
-                                            ))}
-                                        </select>
+                                        <FormControl fullWidth>
+                                            <InputLabel id="state-select-label">{lang('common.state')}</InputLabel>
+                                            <Select
+                                                labelId="state-select-label"
+                                                value={formData?.stateId}
+                                                label={lang('common.state')}
+                                                onChange={(e) => handleLocationChangeLocal('state', e.target.value)}
+                                                disabled={loadingStates || !formData.countryId}
+                                            >
+                                                <MenuItem value="">{lang('common.selectState')}</MenuItem>
+                                                {states.map(state => (
+                                                    <MenuItem key={state.id} value={state.id}>{state.name}</MenuItem>
+                                                ))}
+                                            </Select>
+                                        </FormControl>
                                     </div>
                                     <div className="col-md-3 mb-3">
-                                        <label className="form-label">{lang('common.city')}</label>
-                                        <select
-                                            className="form-label form-select"
-                                            value={formData?.cityId}
-                                            onChange={(e) => handleLocationChangeLocal('city', e.target.value)}
-                                            disabled={loadingCities || !formData.stateId}
-                                        >
-                                            <option value="">{lang('common.selectCity')}</option>
-                                            {cities.map(city => (
-                                                <option key={city.id} value={city.id}>{city.name}</option>
-                                            ))}
-                                        </select>
+                                        <FormControl fullWidth>
+                                            <InputLabel id="city-select-label">{lang('common.city')}</InputLabel>
+                                            <Select
+                                                labelId="city-select-label"
+                                                value={formData?.cityId}
+                                                label={lang('common.city')}
+                                                onChange={(e) => handleLocationChangeLocal('city', e.target.value)}
+                                                disabled={loadingCities || !formData.stateId}
+                                            >
+                                                <MenuItem value="">{lang('common.selectCity')}</MenuItem>
+                                                {cities.map(city => (
+                                                    <MenuItem key={city.id} value={city.id}>{city.name}</MenuItem>
+                                                ))}
+                                            </Select>
+                                        </FormControl>
                                     </div>
                                     <div className="col-md-3 mb-3">
-                                        <label className="form-label">{lang('common.zip')}</label>
-                                        <input
-                                            type="text"
-                                            className="form-control"
+                                        <TextField
+                                            fullWidth
+                                            label={lang('common.zip')}
                                             name="zipcode"
                                             value={formData?.zipcode}
                                             onChange={handleInputChange}
@@ -402,16 +425,9 @@ const UserForm = ({ initialData = {}, onSubmit, includePassword = false, exclude
                             {/* Form Actions */}
                             <div className="card-footer d-flex justify-content-end col-md-12" style={{ paddingBottom: '0' }}>
                                 <div className="d-flex gap-2">
-                                    <button type="submit" className="btn btn-primary" disabled={loading}>
-                                        {loading ? (
-                                            <>
-                                                <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                                                {includePassword ? 'Creating...' : 'Saving...'}
-                                            </>
-                                        ) : (
-                                            !isEditing ? lang('usersView.CreateUser') : 'Save'
-                                        )}
-                                    </button>
+                                    <Button type="submit" variant="contained" className="common-grey-color" disabled={loading} startIcon={loading ? <CircularProgress size={16} /> : null}>
+                                        {loading ? (includePassword ? 'Creating...' : 'Saving...') : (!isEditing ? lang('usersView.CreateUser') : 'Save')}
+                                    </Button>
                                 </div>
                             </div>
                         </div>
