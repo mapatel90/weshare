@@ -130,7 +130,7 @@ router.post('/', authenticateToken, async (req, res) => {
       stateId,
       countryId,
       zipcode,
-      status = 0
+      status
     } = req.body;
 
     // Validate required fields

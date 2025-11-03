@@ -61,7 +61,7 @@ export async function POST(request) {
         state,
         country,
         zipcode,
-        status: 0 // Default inactive status
+        status: 1
       },
       select: {
         id: true,
