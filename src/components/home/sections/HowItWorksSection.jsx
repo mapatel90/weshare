@@ -45,7 +45,7 @@ const HowItWorksSection = () => {
     offtaker: [
       {
         number: 1,
-        icon: '/images/icons/Illustration1.svg',
+        icon: '/images/icons/Illustration4.svg',
         title: lang('home.howItWorks.offtaker.step1Title'),
         points: [
           lang('home.howItWorks.offtaker.step1Point1'),
