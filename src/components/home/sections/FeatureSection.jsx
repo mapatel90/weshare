@@ -3,8 +3,11 @@
 import React, { useEffect } from 'react'
 import Image from 'next/image'
 import AOS from 'aos'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 const FeatureSection = () => {
+  const { lang } = useLanguage()
+  
   useEffect(() => {
     AOS.init({ duration: 1000, once: true })
   }, [])
@@ -23,21 +26,21 @@ const FeatureSection = () => {
             />
           </div>
           <div className="col-lg-6" data-aos="fade-left">
-            <h2 className="section-title">WeShare —</h2>
-            <h3 className="section-subtitle">Power With Purpose</h3>
+            <h2 className="section-title">{lang('home.features.title')}</h2>
+            <h3 className="section-subtitle">{lang('home.features.subtitle')}</h3>
             <p className="mb-0 fs-18 fw-500">
-              WeShare is your marketplace for clean efficient — driving clean energy accessibility to a sustainable economy.
+              {lang('home.features.description')}
             </p>
             <ul className="checkmark-list my-30">
-              <li>Sustainable and impact-driven investment model</li>
-              <li>Earn measurable returns from solar generation</li>
-              <li className="mb-0">Empower communities with clean, affordable energy</li>
+              <li>{lang('home.features.feature1')}</li>
+              <li>{lang('home.features.feature2')}</li>
+              <li className="mb-0">{lang('home.features.feature3')}</li>
             </ul>
             <p className="fw-500 fs-18">
-              Together we're building a transparent, sustainable, and profitable clean energy ecosystem.
+              {lang('home.features.closing')}
             </p>
             <button className="btn btn-primary-custom mt-3">
-              Visit Exchange Hub 
+              {lang('home.features.visitHub')}
               <Image 
                 className="ms-2" 
                 src="/images/icons/right-white.svg" 

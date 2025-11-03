@@ -3,9 +3,11 @@
 import React, { useEffect, useState } from 'react'
 import Image from 'next/image'
 import AOS from 'aos'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 const TestimonialSection = () => {
   const [currentIndex, setCurrentIndex] = useState(0)
+  const { lang } = useLanguage()
 
   useEffect(() => {
     AOS.init({ duration: 1000, once: true })
@@ -47,7 +49,7 @@ const TestimonialSection = () => {
             color: '#1A1A1A',
             lineHeight: '1.2'
           }}>
-            What Our <span style={{ color: '#F9A825' }}>Community Says</span>
+            {lang('home.testimonial.title')} <span style={{ color: '#F9A825' }}>{lang('home.testimonial.titleSpan')}</span>
           </h2>
           <p style={{
             fontSize: '18px',
@@ -56,7 +58,7 @@ const TestimonialSection = () => {
             maxWidth: '700px',
             margin: '0 auto'
           }}>
-            Real stories from investors and offtakers who are powering the future with us.
+            {lang('home.testimonial.subtitle')}
           </p>
         </div>
 

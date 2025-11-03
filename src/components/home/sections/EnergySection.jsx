@@ -2,8 +2,11 @@
 
 import React, { useEffect } from 'react'
 import AOS from 'aos'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 const EnergySection = () => {
+  const { lang } = useLanguage()
+  
   useEffect(() => {
     AOS.init({ duration: 1000, once: true })
   }, [])
@@ -14,12 +17,12 @@ const EnergySection = () => {
         <div className="row innerBox mx-0">
           <div className="col-12 col-md-7 col-lg-6" data-aos="fade-right">
             <div className="contentBox py-5 pe-4">
-              <h2 className="fw-bold fs-40 text-black mb-40">Ready to invest<br />in clean energy?</h2>
-              <p className="text-black mb-40 fs-24">Start small, earn steady — grow your portfolio with verified solar Lease projects.</p>
+              <h2 className="fw-bold fs-40 text-black mb-40" dangerouslySetInnerHTML={{ __html: lang('home.energy.title') }}></h2>
+              <p className="text-black mb-40 fs-24">{lang('home.energy.description')}</p>
               
               <div className="groupBtn gap-4 mt-0 justify-content-start">
-                <button className="btn btn-primary-custom">Become an Investor →</button>
-                <button className="btn btn-primary-custom transparentBtn tc-102C41 border-1">Sign In</button>
+                <button className="btn btn-primary-custom">{lang('home.energy.becomeInvestor')} →</button>
+                <button className="btn btn-primary-custom transparentBtn tc-102C41 border-1">{lang('home.energy.signIn')}</button>
               </div>
             </div>
           </div>

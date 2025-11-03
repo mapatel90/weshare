@@ -6,6 +6,7 @@ import AOS from 'aos'
 
 const ProjectsSection = () => {
   const [activeTab, setActiveTab] = useState('open')
+  const { lang } = useLanguage()
 
   useEffect(() => {
     AOS.init({ duration: 1000, once: true })
@@ -14,7 +15,7 @@ const ProjectsSection = () => {
   const projects = [
     {
       image: '/images/projects/project-img1.png',
-      title: 'Sunrise Residential Complex',
+      title: lang('home.projects.projecttitle1'),
       location: 'Austin, TX',
       capacity: '125.5kWp',
       generated: '847.2K',
@@ -23,7 +24,7 @@ const ProjectsSection = () => {
     },
     {
       image: '/images/projects/project-img2.png',
-      title: 'Green Valley Business Park',
+      title: lang('home.projects.projecttitle2'),
       location: 'Dallas, TX',
       capacity: '200.0kWp',
       generated: '1.2M',
@@ -32,7 +33,7 @@ const ProjectsSection = () => {
     },
     {
       image: '/images/projects/project-img1.png',
-      title: 'Eco Community Housing',
+      title: lang('home.projects.projecttitle3'),
       location: 'Houston, TX',
       capacity: '150.8kWp',
       generated: '950.5K',

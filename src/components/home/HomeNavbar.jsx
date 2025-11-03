@@ -22,19 +22,21 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 const HomeNavbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [langAnchor, setLangAnchor] = useState(null)
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
+  const { lang, currentLanguage, changeLanguage, languages, currentLanguageInfo } = useLanguage()
 
   const navItems = [
-    { name: 'Home', href: '#home' },
-    { name: 'About Us', href: '#rental' },
-    { name: 'Exchange Hub', href: '#economics' },
-    { name: 'How It Works', href: '#investors' },
-    { name: 'News', href: '#news' }
+    { name: lang('home.navbar.home'), href: '#home' },
+    { name: lang('home.navbar.aboutUs'), href: '#rental' },
+    { name: lang('home.navbar.exchangeHub'), href: '#economics' },
+    { name: lang('home.navbar.howItWorks'), href: '#investors' },
+    { name: lang('home.navbar.news'), href: '#news' }
   ]
 
   const handleDrawerToggle = () => {
@@ -46,6 +48,11 @@ const HomeNavbar = () => {
   }
 
   const handleLangClose = () => {
+    setLangAnchor(null)
+  }
+
+  const handleLanguageChange = (langCode) => {
+    changeLanguage(langCode)
     setLangAnchor(null)
   }
 
@@ -61,7 +68,7 @@ const HomeNavbar = () => {
         ))}
         <ListItem disablePadding>
           <ListItemButton sx={{ textAlign: 'center' }} href="/login">
-            <ListItemText primary="Login" />
+            <ListItemText primary={lang('home.navbar.login')} />
           </ListItemButton>
         </ListItem>
       </List>
@@ -130,20 +137,26 @@ const HomeNavbar = () => {
                     }
                   }}
                 >
-                  English
+                  {currentLanguageInfo?.name || 'English'}
                 </Button>
                 <Menu
                   anchorEl={langAnchor}
                   open={Boolean(langAnchor)}
                   onClose={handleLangClose}
                 >
-                  <MenuItem onClick={handleLangClose}> 
-                    {/* <img src="/images/flags/4x3/us.svg" alt="" /> */}
+                  <MenuItem 
+                    onClick={() => handleLanguageChange('en')}
+                    selected={currentLanguage === 'en'}
+                  > 
+                    {/* <img src="/images/flags/4x3/us.svg" alt="" style={{ width: 20, marginRight: 8 }} /> */}
                     English
                   </MenuItem>
-                  <MenuItem onClick={handleLangClose}>
-                    {/* <img src="/images/flags/4x3/vn.svg" alt="" /> */}
-                    Vietnam
+                  <MenuItem 
+                    onClick={() => handleLanguageChange('vi')}
+                    selected={currentLanguage === 'vi'}
+                  >
+                    {/* <img src="/images/flags/4x3/vn.svg" alt="" style={{ width: 20, marginRight: 8 }} /> */}
+                    Tiếng Việt
                   </MenuItem>
                 </Menu>
 
@@ -162,7 +175,7 @@ const HomeNavbar = () => {
                     }
                   }}
                 >
-                  Login
+                  {lang('home.navbar.login')}
                 </Button>
               </>
             )}

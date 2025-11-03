@@ -3,8 +3,11 @@
 import React, { useEffect } from 'react'
 import Image from 'next/image'
 import AOS from 'aos'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 const MissionSection = () => {
+  const { lang } = useLanguage()
+  
   useEffect(() => {
     AOS.init({ duration: 1000, once: true })
   }, [])
@@ -15,13 +18,13 @@ const MissionSection = () => {
         <div className="row g-4">
           <div className="col-lg-6" data-aos="fade-right">
             <div className="mission-card">
-              <h2 className="section-title mb-2">Our Mission</h2>
-              <h3 className="section-subtitle mb-4 fs-34">Empowering Communities Through Solar Leasing</h3>
+              <h2 className="section-title mb-2">{lang('home.mission.title')}</h2>
+              <h3 className="section-subtitle mb-4 fs-34">{lang('home.mission.subtitle')}</h3>
               <p className="fs-18 fw-500 mb-3">
-                At WeShare, our mission is to make clean energy affordable, profitable, and accessible for everyone.
+                {lang('home.mission.description1')}
               </p>
               <p className="fs-18 fw-500 mb-3">
-                We connect investors and offtakers through solar leasing — turning rooftops into renewable assets that deliver real savings and sustainable returns.
+                {lang('home.mission.description2')}
               </p>
               <Image 
                 src="/images/general/mission.png" 
@@ -34,21 +37,21 @@ const MissionSection = () => {
           </div>
           <div className="col-lg-6" data-aos="fade-left">
             <div className="mission-card bg-grey cardPading">
-              <h2 className="section-title fw-600 fs-32">Driving Sustainable Growth —</h2>
-              <h3 className="section-title fw-600 fs-32 mb-4">One Solar Lease at a Time</h3>
+              <h2 className="section-title fw-600 fs-32">{lang('home.mission.cardTitle1')}</h2>
+              <h3 className="section-title fw-600 fs-32 mb-4">{lang('home.mission.cardTitle2')}</h3>
               <p className="fs-18 fw-500 pe-4">
-                At WeShare, we turn clean energy into shared opportunity.
+                {lang('home.mission.cardDescription1')}
               </p>
               <p className="fs-18 fw-500">
-                Through innovation and transparency, we ensure every solar lease delivers not only strong financial returns but also lasting environmental and social impact.
+                {lang('home.mission.cardDescription2')}
               </p>
               <ul className="checkmark-list bg-white">
-                <li>Democratizing access to clean energy investments</li>
-                <li>Delivering measurable returns with real-world impact</li>
-                <li>Reducing carbon footprints through solar adoption</li>
+                <li>{lang('home.mission.point1')}</li>
+                <li>{lang('home.mission.point2')}</li>
+                <li>{lang('home.mission.point3')}</li>
               </ul>
               <button className="btn btn-primary-custom mt-3">
-                Visit Exchange Hub 
+                {lang('home.mission.visitHub')}
                 <Image 
                   className="ms-2" 
                   src="/images/icons/right-white.svg" 

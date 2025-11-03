@@ -377,6 +377,203 @@
     "documentation": "Documentation",
     "support": "Support"
   },
+  "home": {
+    "navbar": {
+      "home": "Home",
+      "aboutUs": "About Us",
+      "exchangeHub": "Exchange Hub",
+      "howItWorks": "How It Works",
+      "news": "News",
+      "login": "Login"
+    },
+    "hero": {
+      "tagline": "Plug in to Save. Plug in to Earn.",
+      "title": "Invest in Solar Leasing.",
+      "titleLine2": "Empower a Sustainable Future.",
+      "subtitle1": "WeShare connects homeowners and businesses seeking affordable solar solutions with investors looking for sustainable financial returns.",
+      "subtitle2": "Through our Exchange Hub, investors provide lease of cost access while systems — Earning up to 35% ROI while helping communities reduce carbon footprints and energy expenses.",
+      "subtitle3": "Join WeShare today to break the 8% ROI, sustainability in a green the green revolution together.",
+      "connectWithUs": "Connect With Us"
+    },
+    "features": {
+      "title": "WeShare —",
+      "subtitle": "Power With Purpose",
+      "description": "WeShare is your marketplace for clean efficient — driving clean energy accessibility to a sustainable economy.",
+      "feature1": "Sustainable and impact-driven investment model",
+      "feature2": "Earn measurable returns from solar generation",
+      "feature3": "Empower communities with clean, affordable energy",
+      "closing": "Together we're building a transparent, sustainable, and profitable clean energy ecosystem.",
+      "visitHub": "Visit Exchange Hub"
+    },
+    "mission": {
+      "title": "Our Mission",
+      "subtitle": "Empowering Communities Through Solar Leasing",
+      "description1": "At WeShare, our mission is to make clean energy affordable, profitable, and accessible for everyone.",
+      "description2": "We connect investors and offtakers through solar leasing — turning rooftops into renewable assets that deliver real savings and sustainable returns.",
+      "cardTitle1": "Driving Sustainable Growth —",
+      "cardTitle2": "One Solar Lease at a Time",
+      "cardDescription1": "At WeShare, we turn clean energy into shared opportunity.",
+      "cardDescription2": "Through innovation and transparency, we ensure every solar lease delivers not only strong financial returns but also lasting environmental and social impact.",
+      "point1": "Democratizing access to clean energy investments",
+      "point2": "Delivering measurable returns with real-world impact",
+      "point3": "Reducing carbon footprints through solar adoption",
+      "visitHub": "Visit Exchange Hub"
+    },
+    "vision": {
+      "title": "Our Vision",
+      "subtitle1": "Transforming Energy.",
+      "subtitle2": "Empowering Lives.",
+      "description": "At WeShare, our vision is to reshape the energy future through solar innovation and shared opportunity — creating a world where every rooftop powers prosperity and every investment drives sustainability.",
+      "cardTitle1": "Building a Brighter, Greener",
+      "cardTitle2": "Future — Together",
+      "cardDescription1": "At WeShare, we envision a world where every rooftop becomes a source of clean power and shared prosperity.",
+      "cardDescription2": "Through innovation, collaboration, and conscious investment, we're driving the transition toward a sustainable energy future that benefits both people and the planet.",
+      "point1": "Democratizing access to clean energy investments",
+      "point2": "Delivering measurable returns with real-world impact",
+      "point3": "Reducing carbon footprints through solar adoption",
+      "visitHub": "Visit Exchange Hub"
+    },
+    "solution": {
+      "title": "Our Solutions",
+      "subtitle": "Accelerating the Transition to Clean, Shared Energy",
+      "description1": "At WeShare, we provide an integrated solar leasing platform that connects investors, households, and businesses through real, measurable solar projects.",
+      "description2": "Our solution makes adopting clean energy simple, transparent, and rewarding — from investment to installation, operation, and long-term returns.",
+      "cardTitle": "Empowering Growth Through Smart Solar Leasing",
+      "cardDescription1": "With advanced technology and transparent operations, WeShare turns every solar lease project into a seamless, data-driven investment experience.",
+      "cardDescription2": "Our platform combines real-time monitoring, financial analytics, and long-term management — ensuring efficiency, impact, and profitability for all stakeholders.",
+      "point1": "Simplifying renewable project ownership",
+      "point2": "Maximizing performance with real-time analytics",
+      "point3": "Enabling investors to create measurable, lasting value",
+      "visitHub": "Visit Exchange Hub"
+    },
+    "howItWorks": {
+      "title": "How",
+      "titleSpan": "it works",
+      "subtitle": "Seamlessly connecting investors and offtakers for a greener tomorrow.",
+      "investorTab": "Investor",
+      "offtakerTab": "Offtaker",
+      "investor": {
+        "step1Title": "Sign Up & Select a Project",
+        "step1Point1": "Explore trusted projects on WeShare and invest in the one that matches your goals.",
+        "step1Point2": "Each comes with clear details on performance and reliability.",
+        "step2Title": "System Runs Automatically",
+        "step2Point1": "We take care of installation, operation, and maintenance.",
+        "step2Point2": "You invest once and enjoy effortless ownership.",
+        "step3Title": "Earn & Track in Real Time",
+        "step3Point1": "Track your earnings and project performance in real time through the WeShare Web App."
+      },
+      "offtaker": {
+        "step1Title": "Apply for Solar Lease",
+        "step1Point1": "Submit your property details and energy requirements.",
+        "step1Point2": "Get matched with the right solar solution for your needs.",
+        "step2Title": "Installation & Setup",
+        "step2Point1": "Professional installation at no upfront cost.",
+        "step2Point2": "Start generating clean energy immediately.",
+        "step3Title": "Save & Monitor",
+        "step3Point1": "Track your energy savings and environmental impact in real-time."
+      }
+    },
+    "portfolio": {
+      "title": "Portfolio Overview",
+      "subtitle": "Track your investments",
+      "totalInvestment": "Total Investment",
+      "activeProjects": "Active Projects",
+      "totalReturns": "Total Returns",
+      "totalKwh": "kWh Generated",
+      "totalIncome": "Income",
+      "totalSavings": "Savings",
+      "averageROI": "ROI",
+      "co2Avoided": "CO2 Avoided",
+      "updated": "Updated 2s ago"
+    },
+    "marketplace": {
+      "title": "Investment Marketplace",
+      "subtitle": "Explore available projects",
+      "viewAll": "View All Projects",
+      "invest": "Invest Now",
+      "description": "Join thousands of investors putting their money into verified solar projects. Start small, earn steady returns, and contribute to a greener future.",
+      "becomeInvestor": "Become an Investor",
+      "signIn": "Sign In"
+    },
+    "projects": {
+      "title": "Featured Projects",
+      "subtitle": "Discover top solar projects",
+      "viewDetails": "View Details",
+      "investNow": "Invest Now",
+      "openForLease": "Projects Open for Lease",
+      "forResale": "Projects for Resale",
+      "kwhGenerated": "kWh Generated",
+      "roi": "ROI",
+      "expectedRevenue": "Expected Annual Revenue",
+      "loadMore": "Load More Projects",
+      "projecttitle1": "Sunrise Residential Complex",
+      "projecttitle2": "Green Valley Business Park",
+      "projecttitle3": "Eco Community Housing"
+    },
+    "solarLease": {
+      "title": "Turn your Property Into a Solar Lease",
+      "subtitle": "Lease solar panels for your business",
+      "learnMore": "Learn More",
+      "description": "List your rooftop or land, partner with trusted investors, and earn long-term lease income.",
+      "becomeOfftaker": "Become an Offtaker",
+      "signIn": "Sign In"
+    },
+    "news": {
+      "title": "Latest News",
+      "titleSpan": "& Energy Insights",
+      "subtitle": "Stay informed with the latest updates, market trends, and project highlights shaping the future of solar investments.",
+      "readMore": "Read More",
+      "viewAll": "View All News",
+      "news1Title": "The Future Shines at Greenfield Academy with New Solar Initiative",
+      "news2Title": "Solar Revolution: How WeShare is Transforming Energy Investment",
+      "news3Title": "Community Solar Projects Reach New Milestone in 2024"
+    },
+    "energy": {
+      "title": "Ready to invest<br />in clean energy?",
+      "subtitle": "Making a difference together",
+      "co2Reduced": "CO₂ Reduced",
+      "treesPlanted": "Equivalent Trees Planted",
+      "homespowered": "Homes Powered",
+      "description": "Start small, earn steady — grow your portfolio with verified solar Lease projects.",
+      "becomeInvestor": "Become an Investor",
+      "signIn": "Sign In"
+    },
+    "testimonial": {
+      "title": "What Our",
+      "titleSpan": "Community Says",
+      "subtitle": "Real stories from investors and offtakers who are powering the future with us."
+    },
+    "cta": {
+      "title": "Got Space for Solar?",
+      "subtitle": "Join thousands of investors making a difference",
+      "getStarted": "Get Started Today",
+      "description": "Lease a solar system, save on bills, and power a sustainable future with WeShare.",
+      "becomeOfftaker": "Become an offtaker"
+    },
+    "submit": {
+      "title": "Have a Property for Solar?",
+      "subtitle": "Submit your solar project for funding",
+      "submitProject": "Submit Project",
+      "description": "Submit your lease request and connect with investors looking to fund your solar installation.",
+      "button": "Submit Lease Request"
+    },
+    "footer": {
+      "tagline": "Democratizing Access to Solar Investments.",
+      "description": "WeShare makes clean energy investment simple, transparent, and rewarding through innovative solar leasing solutions — empowering investors and communities to share the benefits of sustainable power.",
+      "quickLinks": "Quick Links",
+      "home": "Home",
+      "aboutUs": "About Us",
+      "exchangeHub": "Exchange Hub",
+      "howItWorks": "How It Works",
+      "news": "News",
+      "contactSettings": "Contact & Settings",
+      "language": "Language",
+      "country": "Country",
+      "copyright": "©2025 WeShare Solar Lease Platform",
+      "privacyPolicy": "Privacy Policy",
+      "termsOfService": "Terms of Service"
+    }
+  },
   "misc": {
     "welcomeMessage": "Welcome to Sunshare!",
     "goodMorning": "Good Morning",

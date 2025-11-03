@@ -5,8 +5,11 @@ import { Box, Container, Typography, Button } from '@mui/material'
 import Image from 'next/image'
 import AOS from 'aos'
 import 'aos/dist/aos.css'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 const HeroSection = () => {
+  const { lang } = useLanguage()
+  
   useEffect(() => {
     AOS.init({
       duration: 1000,
@@ -45,7 +48,7 @@ const HeroSection = () => {
               fontSize: { xs: '1.1rem', md: '1.5rem' }
             }}
           >
-            Plug in to Save. Plug in to Earn.
+            {lang('home.hero.tagline')}
           </Typography>
           
           <Typography 
@@ -58,7 +61,7 @@ const HeroSection = () => {
               lineHeight: 1.2
             }}
           >
-            Invest in Solar Leasing.<br />Empower a Sustainable Future.
+            {lang('home.hero.title')}<br />{lang('home.hero.titleLine2')}
           </Typography>
 
           <Box data-aos="fade-up" data-aos-duration="1500">
@@ -73,7 +76,7 @@ const HeroSection = () => {
                 mx: 'auto'
               }}
             >
-              WeShare connects homeowners and businesses seeking affordable solar solutions with investors looking for sustainable financial returns.
+              {lang('home.hero.subtitle1')}
             </Typography>
             
             <Typography 
@@ -87,7 +90,7 @@ const HeroSection = () => {
                 mx: 'auto'
               }}
             >
-              Through our Exchange Hub, investors provide lease of cost access while systems — Earning up to 35% ROI while helping communities reduce carbon footprints and energy expenses.
+              {lang('home.hero.subtitle2')}
             </Typography>
             
             <Typography 
@@ -101,7 +104,7 @@ const HeroSection = () => {
                 mx: 'auto'
               }}
             >
-              Join WeShare today to break the 8% ROI, sustainability in a green the green revolution together.
+              {lang('home.hero.subtitle3')}
             </Typography>
           </Box>
 
@@ -135,7 +138,7 @@ const HeroSection = () => {
               transition: 'all 0.3s'
             }}
           >
-            Connect With Us
+            {lang('home.hero.connectWithUs')}
           </Button>
         </Box>
       </Container>

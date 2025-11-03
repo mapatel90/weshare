@@ -3,8 +3,11 @@
 import React, { useEffect } from 'react'
 import Image from 'next/image'
 import AOS from 'aos'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 const PortfolioSection = () => {
+  const { lang } = useLanguage()
+  
   useEffect(() => {
     AOS.init({ duration: 1000, once: true })
   }, [])
@@ -13,31 +16,31 @@ const PortfolioSection = () => {
     {
       icon: '/images/icons/port-icon1.svg',
       value: '8479.2K',
-      label: 'Total kWh Generated',
+      label: lang('home.portfolio.totalKwh'),
       growth: '+2.4%'
     },
     {
       icon: '/images/icons/port-icon2.svg',
       value: '$5.6M',
-      label: 'Total Investor Income',
+      label: lang('home.portfolio.totalIncome'),
       growth: '+8.7'
     },
     {
       icon: '/images/icons/port-icon3.svg',
       value: '2.6M',
-      label: 'Total Oftaker Savings',
+      label: lang('home.portfolio.totalSavings'),
       growth: '+3.0'
     },
     {
       icon: '/images/icons/port-icon4.svg',
       value: '19.2%',
-      label: 'Average ROI',
+      label: lang('home.portfolio.averageROI'),
       growth: '+1.8'
     },
     {
       icon: '/images/icons/port-icon5.svg',
       value: '900K tons',
-      label: 'CO₂ Avoided',
+      label: lang('home.portfolio.co2Avoided'),
       growth: '+2.4%'
     }
   ]
@@ -48,11 +51,11 @@ const PortfolioSection = () => {
         <div className="row mb-5">
           <div className="col-12 col-md-6 d-flex">
             <Image src="/images/icons/port-icon.svg" alt="portfolio" width={40} height={40} />
-            <h3 className="subTitle ms-3 mb-0">Portfolio Overview</h3>
+            <h3 className="subTitle ms-3 mb-0">{lang('home.portfolio.title')}</h3>
           </div>
           <div className="col-12 col-md-6 text-end">
             <div className="updateBox">
-              <span></span> Updated 2s ago
+              <span></span> {lang('home.portfolio.updated')}
             </div>
           </div>
         </div>

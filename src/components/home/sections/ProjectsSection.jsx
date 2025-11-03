@@ -3,9 +3,11 @@
 import React, { useEffect, useState } from 'react'
 import Image from 'next/image'
 import AOS from 'aos'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 const ProjectsSection = () => {
   const [activeTab, setActiveTab] = useState('open')
+  const { lang } = useLanguage()
 
   useEffect(() => {
     AOS.init({ duration: 1000, once: true })
@@ -52,7 +54,7 @@ const ProjectsSection = () => {
                 onClick={() => setActiveTab('open')}
                 type="button"
               >
-                <span className="circle"></span> Projects Open for Lease
+                <span className="circle"></span> {lang('home.projects.openForLease')}
               </button>
             </li>
             <li className="nav-item" role="presentation">
@@ -61,7 +63,7 @@ const ProjectsSection = () => {
                 onClick={() => setActiveTab('resale')}
                 type="button"
               >
-                <span className="circle"></span> Projects for Resale
+                <span className="circle"></span> {lang('home.projects.forResale')}
               </button>
             </li>
           </ul>
@@ -93,22 +95,22 @@ const ProjectsSection = () => {
                     <div className="d-flex justify-content-between align-items-center gap-3 mb-3">
                       <div className="w-45 caterogy-items">
                         <h6 className="mb-0 fw-600 text-title">{project.generated}</h6>
-                        <small className="text-muted">kWh Generated</small>
+                        <small className="text-muted">{lang('home.projects.kwhGenerated')}</small>
                       </div>
                       <div className="w-45 caterogy-items items-2">
                         <h6 className="mb-0 fw-600 text-title secondaryTextColor">{project.roi}</h6>
-                        <small className="text-muted">ROI</small>
+                        <small className="text-muted">{lang('home.projects.roi')}</small>
                       </div>
                     </div>
 
                     <div className="d-flex justify-content-between align-items-center mb-1">
-                      <p className="fw-300 mb-0 text-black">Expected Annual Revenue</p>
+                      <p className="fw-300 mb-0 text-black">{lang('home.projects.expectedRevenue')}</p>
                       <span className="fw-600 text-secondary-color">{project.revenue}</span>
                     </div>
 
                     <button className="btn btn-primary-custom mt-4 w-100">
                       <Image className="me-2" src="/images/icons/reports-icon.svg" alt="view" width={20} height={20} />
-                      View Details
+                      {lang('home.projects.viewDetails')}
                     </button>
                   </div>
                 </div>
@@ -118,7 +120,7 @@ const ProjectsSection = () => {
 
           <div className="d-block mt-40 text-center" data-aos="fade-up" data-aos-duration="1500">
             <button className="btn btn-primary-custom mt-3 transparentBtn text-primary border-1">
-              Load More Projects
+              {lang('home.projects.loadMore')}
             </button>
           </div>
         </div>

@@ -3,9 +3,11 @@
 import React, { useEffect, useState } from 'react'
 import Image from 'next/image'
 import AOS from 'aos'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 const HowItWorksSection = () => {
   const [activeTab, setActiveTab] = useState('investor')
+  const { lang } = useLanguage()
 
   useEffect(() => {
     AOS.init({ duration: 1000, once: true })
@@ -16,27 +18,27 @@ const HowItWorksSection = () => {
       {
         number: 1,
         icon: '/images/icons/Illustration1.svg',
-        title: 'Sign Up & Select a Project',
+        title: lang('home.howItWorks.investor.step1Title'),
         points: [
-          'Explore trusted projects on WeShare and invest in the one that matches your goals.',
-          'Each comes with clear details on performance and reliability.'
+          lang('home.howItWorks.investor.step1Point1'),
+          lang('home.howItWorks.investor.step1Point2')
         ]
       },
       {
         number: 2,
         icon: '/images/icons/Illustration2.svg',
-        title: 'System Runs Automatically',
+        title: lang('home.howItWorks.investor.step2Title'),
         points: [
-          'We take care of installation, operation, and maintenance.',
-          'You invest once and enjoy effortless ownership.'
+          lang('home.howItWorks.investor.step2Point1'),
+          lang('home.howItWorks.investor.step2Point2')
         ]
       },
       {
         number: 3,
         icon: '/images/icons/Illustration3.svg',
-        title: 'Earn & Track in Real Time',
+        title: lang('home.howItWorks.investor.step3Title'),
         points: [
-          'Track your earnings and project performance in real time through the WeShare Web App.'
+          lang('home.howItWorks.investor.step3Point1')
         ]
       }
     ],
@@ -44,27 +46,27 @@ const HowItWorksSection = () => {
       {
         number: 1,
         icon: '/images/icons/Illustration1.svg',
-        title: 'Apply for Solar Lease',
+        title: lang('home.howItWorks.offtaker.step1Title'),
         points: [
-          'Submit your property details and energy requirements.',
-          'Get matched with the right solar solution for your needs.'
+          lang('home.howItWorks.offtaker.step1Point1'),
+          lang('home.howItWorks.offtaker.step1Point2')
         ]
       },
       {
         number: 2,
         icon: '/images/icons/Illustration2.svg',
-        title: 'Installation & Setup',
+        title: lang('home.howItWorks.offtaker.step2Title'),
         points: [
-          'Professional installation at no upfront cost.',
-          'Start generating clean energy immediately.'
+          lang('home.howItWorks.offtaker.step2Point1'),
+          lang('home.howItWorks.offtaker.step2Point2')
         ]
       },
       {
         number: 3,
         icon: '/images/icons/Illustration3.svg',
-        title: 'Save & Monitor',
+        title: lang('home.howItWorks.offtaker.step3Title'),
         points: [
-          'Track your energy savings and environmental impact in real-time.'
+          lang('home.howItWorks.offtaker.step3Point1')
         ]
       }
     ]
@@ -74,8 +76,8 @@ const HowItWorksSection = () => {
     <section className="how-to-work tabing">
       <div className="container">
         <div className="headerSection" data-aos="fade-up">
-          <h2>How <span>it works</span></h2>
-          <p>Seamlessly connecting investors and offtakers for a greener tomorrow.</p>
+          <h2>{lang('home.howItWorks.title')} <span>{lang('home.howItWorks.titleSpan')}</span></h2>
+          <p>{lang('home.howItWorks.subtitle')}</p>
         </div>
 
         <div className="text-center" data-aos="fade-up" data-aos-duration="1200">
@@ -86,7 +88,7 @@ const HowItWorksSection = () => {
                 onClick={() => setActiveTab('investor')}
                 type="button"
               >
-                <span className="circle"></span> Investor
+                <span className="circle"></span> {lang('home.howItWorks.investorTab')}
               </button>
             </li>
             <li className="nav-item" role="presentation">
@@ -95,7 +97,7 @@ const HowItWorksSection = () => {
                 onClick={() => setActiveTab('offtaker')}
                 type="button"
               >
-                <span className="circle"></span> Offtaker
+                <span className="circle"></span> {lang('home.howItWorks.offtakerTab')}
               </button>
             </li>
           </ul>

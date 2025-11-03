@@ -3,8 +3,11 @@
 import React, { useEffect } from 'react'
 import Image from 'next/image'
 import AOS from 'aos'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 const SubmitSection = () => {
+  const { lang } = useLanguage()
+  
   useEffect(() => {
     AOS.init({ duration: 1000, once: true })
   }, [])
@@ -19,9 +22,9 @@ const SubmitSection = () => {
             </div>
             <div className="col-12 col-md-6" data-aos="fade-left">
               <div className="contentBox me-2">
-                <h2 className="fw-bold fs-48 text-white mb-40">Have a Property for Solar?</h2>
-                <p className="fs-24 mb-40">Submit your lease request and connect with investors looking to fund your solar installation.</p>
-                <button className="btn btn-primary-custom mt-0">Submit Lease Request</button>
+                <h2 className="fw-bold fs-48 text-white mb-40">{lang('home.submit.title')}</h2>
+                <p className="fs-24 mb-40">{lang('home.submit.description')}</p>
+                <button className="btn btn-primary-custom mt-0">{lang('home.submit.button')}</button>
               </div>
             </div>
           </div>

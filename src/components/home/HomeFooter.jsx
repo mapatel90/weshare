@@ -3,8 +3,11 @@
 import React from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 const HomeFooter = () => {
+  const { lang } = useLanguage()
+  
   return (
     <footer className="footer">
       <div className="container">
@@ -21,10 +24,9 @@ const HomeFooter = () => {
               />
             </div>
             <p className="text-white fw-300 fs-18 mb-4">
-              Democratizing Access to Solar Investments.
+              {lang('home.footer.tagline')}
               <br />
-              WeShare makes clean energy investment simple, transparent, and rewarding through innovative
-              solar leasing solutions — empowering investors and communities to share the benefits of sustainable power.
+              {lang('home.footer.description')}
             </p>
             <div className="social-icons d-flex gap-4">
               <Link href="#">
@@ -42,13 +44,13 @@ const HomeFooter = () => {
           {/* Quick Links */}
           <div className="col-lg-4 col-md-6">
             <div className="linkBox">
-              <h6 className="fs-24 text-secondary-color fw-600 mb-40">Quick Links</h6>
+              <h6 className="fs-24 text-secondary-color fw-600 mb-40">{lang('home.footer.quickLinks')}</h6>
               <ul className="list-unstyled text-white quickLinks">
-                <li><Link href="#">Home</Link></li>
-                <li><Link href="#">About Us</Link></li>
-                <li><Link href="#">Exchange Hub</Link></li>
-                <li><Link href="#">How It Works</Link></li>
-                <li><Link href="#">News</Link></li>
+                <li><Link href="#">{lang('home.footer.home')}</Link></li>
+                <li><Link href="#">{lang('home.footer.aboutUs')}</Link></li>
+                <li><Link href="#">{lang('home.footer.exchangeHub')}</Link></li>
+                <li><Link href="#">{lang('home.footer.howItWorks')}</Link></li>
+                <li><Link href="#">{lang('home.footer.news')}</Link></li>
               </ul>
             </div>
           </div>
@@ -56,7 +58,7 @@ const HomeFooter = () => {
           {/* Contact & Settings */}
           <div className="col-md-6 col-lg-3">
             <div className="contactBox">
-              <h6 className="fs-24 text-secondary-color fw-600 mb-40">Contact & Settings</h6>
+              <h6 className="fs-24 text-secondary-color fw-600 mb-40">{lang('home.footer.contactSettings')}</h6>
               <ul className="list-unstyled text-white-50 small mb-4">
                 <li className="mb-4 fs-18 fw-300 text-white">
                   <span className="me-3">
@@ -79,7 +81,7 @@ const HomeFooter = () => {
               </ul>
 
               <div className="footer-dropdown mb-3">
-                <label className="fs-18 fw-300 text-secondary-color d-block mb-1">Language</label>
+                <label className="fs-18 fw-300 text-secondary-color d-block mb-1">{lang('home.footer.language')}</label>
                 <select 
                   className="form-select form-select-sm" 
                   style={{
@@ -96,7 +98,7 @@ const HomeFooter = () => {
               </div>
 
               <div className="footer-dropdown">
-                <label className="fs-18 fw-300 text-secondary-color d-block mb-1">Country</label>
+                <label className="fs-18 fw-300 text-secondary-color d-block mb-1">{lang('home.footer.country')}</label>
                 <select 
                   className="form-select form-select-sm" 
                   style={{
@@ -118,10 +120,10 @@ const HomeFooter = () => {
         <hr />
 
         <div className="copyRightSection d-flex flex-sm-column flex-md-row gap-sm-3 gap-5 align-items-center">
-          <p className="mb-2 mb-md-0 fs-18 fw-500 text-white">©2025 WeShare Solar Lease Platform</p>
+          <p className="mb-2 mb-md-0 fs-18 fw-500 text-white">{lang('home.footer.copyright')}</p>
           <div className="footer-links d-flex gap-3">
-            <Link href="#">Privacy Policy</Link>
-            <Link href="#">Terms of Service</Link>
+            <Link href="#">{lang('home.footer.privacyPolicy')}</Link>
+            <Link href="#">{lang('home.footer.termsOfService')}</Link>
           </div>
         </div>
       </div>
