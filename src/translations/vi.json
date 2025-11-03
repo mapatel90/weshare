@@ -45,6 +45,9 @@
   },
   "authentication": {
     "login": "Đăng nhập",
+    "loginIntoYourAccount": "Đăng nhập vào tài khoản của bạn",
+    "loginAsOfftaker": "Đăng nhập là người nhận hàng",
+    "loginAsInvestor": "Đăng nhập là nhà đầu tư",
     "register": "Đăng ký",
     "forgotPassword": "Quên mật khẩu",
     "resetPassword": "Đặt lại mật khẩu",

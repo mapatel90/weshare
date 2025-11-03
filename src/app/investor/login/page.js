@@ -4,8 +4,10 @@ import React from 'react'
 import Link from 'next/link'
 import { Box, Card, CardContent, Typography } from "@mui/material";
 import LoginForm from '@/components/authentication/LoginForm'
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const InvestorLoginPage = () => {
+    const { lang } = useLanguage();
     return (
         <Box
             className="loginSection"
@@ -31,7 +33,7 @@ const InvestorLoginPage = () => {
                     }}
                 />
                 <Typography variant="h5" fontWeight={600}>
-                    Welcome back Log in to your investor account
+                    {lang('authentication.loginIntoYourAccount')}
                 </Typography>
             </Box>
 
