@@ -4,6 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { Box, Card, CardContent, Button, Typography } from "@mui/material";
 import { useLanguage } from "@/contexts/LanguageContext";
+import HomeIcon from '@mui/icons-material/Home';
 
 const LoginPage = () => {
     const { lang } = useLanguage();
@@ -51,7 +52,7 @@ const LoginPage = () => {
                 <CardContent>
                     <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
                         <Link href="/" style={{ textDecoration: 'none', color: '#6c757d', fontSize: '0.9375rem' }}>
-                            <span style={{ marginRight: '0.25rem' }}>&#8592;</span> {lang('common.back')}
+                            <span style={{ marginRight: '0.25rem' }}> <HomeIcon fontSize="small" /> </span> {lang('navigation.goToHome')}
                         </Link>
                     </Box>
                     <Box

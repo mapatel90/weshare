@@ -17,6 +17,7 @@
   "navigation": {
     "navigation": "Navigation",
     "home": "Home",
+    "goToHome": "Go to Home",
     "dashboard": "Dashboard",
     "customers": "Customers",
     "leads": "Leads",
@@ -455,6 +456,17 @@
       "subtitle": "Seamlessly connecting investors and offtakers for a greener tomorrow.",
       "investorTab": "Investor",
       "offtakerTab": "Offtaker",
+      "offtaker": {
+        "step1Title": "Lease a  Solar System",
+        "step1Point1": "Get a WeShare solar system installed with zero upfront investment.",
+        "step1Point2": "Simply pay only for the electricity you use — always cheaper than EVN",
+        "step2Title": "Start Saving Instantly",
+        "step2Point1": "Enjoy 15-20% lower electricity costs every month.",
+        "step2Point2": "WeShare manages all operations, maintenance, and performance.",
+        "step3Title": "Monitor Your Savings",
+        "step3Point1": "Track real-time energy generation and money saved in your WeShare mobile app.",
+        "step3Point2": "Experience clean energy with total transparency and zero risk."
+      },
       "investor": {
         "step1Title": "Sign Up & Select a Project",
         "step1Point1": "Explore trusted projects on WeShare and invest in the one that matches your goals.",
@@ -464,16 +476,6 @@
         "step2Point2": "You invest once and enjoy effortless ownership.",
         "step3Title": "Earn & Track in Real Time",
         "step3Point1": "Track your earnings and project performance in real time through the WeShare Web App."
-      },
-      "offtaker": {
-        "step1Title": "Apply for Solar Lease",
-        "step1Point1": "Submit your property details and energy requirements.",
-        "step1Point2": "Get matched with the right solar solution for your needs.",
-        "step2Title": "Installation & Setup",
-        "step2Point1": "Professional installation at no upfront cost.",
-        "step2Point2": "Start generating clean energy immediately.",
-        "step3Title": "Save & Monitor",
-        "step3Point1": "Track your energy savings and environmental impact in real-time."
       }
     },
     "portfolio": {

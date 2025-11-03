@@ -45,7 +45,7 @@ const HowItWorksSection = () => {
     offtaker: [
       {
         number: 1,
-        icon: '/images/icons/Illustration1.svg',
+        icon: '/images/icons/Illustration4.svg',
         title: lang('home.howItWorks.offtaker.step1Title'),
         points: [
           lang('home.howItWorks.offtaker.step1Point1'),
@@ -88,7 +88,7 @@ const HowItWorksSection = () => {
                 onClick={() => setActiveTab('investor')}
                 type="button"
               >
-                <span className="circle"></span> {lang('home.howItWorks.investorTab')}
+                {activeTab === 'investor'} {lang('home.howItWorks.investorTab')}
               </button>
             </li>
             <li className="nav-item" role="presentation">
@@ -97,7 +97,7 @@ const HowItWorksSection = () => {
                 onClick={() => setActiveTab('offtaker')}
                 type="button"
               >
-                <span className="circle"></span> {lang('home.howItWorks.offtakerTab')}
+                {activeTab === 'offtaker'} {lang('home.howItWorks.offtakerTab')}
               </button>
             </li>
           </ul>

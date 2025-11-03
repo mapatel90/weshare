@@ -17,6 +17,7 @@
   "navigation": {
     "navigation": "Điều hướng",
     "home": "Trang chủ",
+    "goToHome": "Đi đến trang chủ",
     "dashboard": "Bảng điều khiển",
     "customers": "Khách hàng",
     "leads": "Khách hàng tiềm năng",
@@ -34,7 +35,7 @@
     "administration": "Quản trị",
     "roles": "Vai trò",
     "users": "Người dùng",
-  "changepassword": "Đổi mật khẩu",
+    "changepassword": "Đổi mật khẩu",
     "settings": "Cài đặt",
     "list": "Danh sách",
     "view": "Xem",
@@ -436,26 +437,28 @@
       "subtitle": "Kết nối liền mạch các nhà đầu tư và người mua điện cho một ngày mai xanh hơn.",
       "investorTab": "Nhà đầu tư",
       "offtakerTab": "Người mua điện",
-      "investor": {
-        "step1Title": "Đăng ký & Chọn dự án",
-        "step1Point1": "Khám phá các dự án đáng tin cậy trên WeShare và đầu tư vào dự án phù hợp với mục tiêu của bạn.",
-        "step1Point2": "Mỗi dự án đều có thông tin chi tiết rõ ràng về hiệu suất và độ tin cậy.",
-        "step2Title": "Hệ thống chạy tự động",
-        "step2Point1": "Chúng tôi chăm sóc việc lắp đặt, vận hành và bảo trì.",
-        "step2Point2": "Bạn đầu tư một lần và tận hưởng quyền sở hữu dễ dàng.",
-        "step3Title": "Kiếm tiền & Theo dõi thời gian thực",
-        "step3Point1": "Theo dõi thu nhập và hiệu suất dự án của bạn trong thời gian thực thông qua Ứng dụng Web WeShare."
-      },
       "offtaker": {
-        "step1Title": "Đăng ký thuê năng lượng mặt trời",
-        "step1Point1": "Gửi thông tin chi tiết về tài sản và yêu cầu năng lượng của bạn.",
-        "step1Point2": "Được kết nối với giải pháp năng lượng mặt trời phù hợp với nhu cầu của bạn.",
-        "step2Title": "Lắp đặt & Thiết lập",
-        "step2Point1": "Lắp đặt chuyên nghiệp mà không cần chi phí trả trước.",
-        "step2Point2": "Bắt đầu tạo ra năng lượng sạch ngay lập tức.",
-        "step3Title": "Tiết kiệm & Giám sát",
-        "step3Point1": "Theo dõi tiết kiệm năng lượng và tác động môi trường của bạn trong thời gian thực."
+        "step1Title": "Thuê Hệ Thống Năng Lượng Mặt Trời",
+        "step1Point1": "Lắp đặt hệ thống năng lượng mặt trời WeShare mà không cần đầu tư ban đầu.",
+        "step1Point2": "Chỉ trả tiền cho lượng điện bạn sử dụng — luôn rẻ hơn so với EVN.",
+        "step2Title": "Bắt Đầu Tiết Kiệm Ngay Lập Tức",
+        "step2Point1": "Tiết kiệm 15–20% chi phí điện hàng tháng.",
+        "step2Point2": "WeShare quản lý toàn bộ vận hành, bảo trì và hiệu suất.",
+        "step3Title": "Theo Dõi Khoản Tiết Kiệm Của Bạn",
+        "step3Point1": "Theo dõi năng lượng được tạo ra và số tiền tiết kiệm theo thời gian thực trong ứng dụng di động WeShare.",
+        "step3Point2": "Trải nghiệm năng lượng sạch với sự minh bạch hoàn toàn và không rủi ro."
+      },
+      "investor": {
+        "step1Title": "Đăng Ký & Chọn Dự Án",
+        "step1Point1": "Khám phá các dự án đáng tin cậy trên WeShare và đầu tư vào dự án phù hợp với mục tiêu của bạn.",
+        "step1Point2": "Mỗi dự án đều có thông tin rõ ràng về hiệu suất và độ tin cậy.",
+        "step2Title": "Hệ Thống Hoạt Động Tự Động",
+        "step2Point1": "Chúng tôi lo liệu việc lắp đặt, vận hành và bảo trì.",
+        "step2Point2": "Bạn chỉ cần đầu tư một lần và tận hưởng quyền sở hữu dễ dàng.",
+        "step3Title": "Kiếm Tiền & Theo Dõi Theo Thời Gian Thực",
+        "step3Point1": "Theo dõi lợi nhuận và hiệu suất dự án của bạn theo thời gian thực thông qua Ứng dụng Web WeShare."
       }
+
     },
     "portfolio": {
       "title": "Tổng quan danh mục đầu tư",
@@ -659,16 +662,16 @@
     "deleted": "Dự án đã được xóa thành công",
     "notFound": "Không tìm thấy dự án",
     "projectcreatedfailed": "Dự án đã không được tạo thành công",
-    "status" : "Trạng thái",
-    "selectStatus" : "Chọn trạng thái",
-    "active" : "Hoạt động",
-    "inactive" : "Không hoạt động",
-    "investorProfit" : "Lợi nhuận đầu tư",
-    "investorProfitPlaceholder" : "Nhập lợi nhuận đầu tư",
-    "investorProfitRequired" : "Lợi nhuận đầu tư là bắt buộc",
-    "weshareprofite" : "Lợi nhuận chia sẻ",
-    "weshareprofitePlaceholder" : "Nhập lợi nhuận chia sẻ",
-    "weshareprofiteRequired" : "Lợi nhuận chia sẻ là bắt buộc",
+    "status": "Trạng thái",
+    "selectStatus": "Chọn trạng thái",
+    "active": "Hoạt động",
+    "inactive": "Không hoạt động",
+    "investorProfit": "Lợi nhuận đầu tư",
+    "investorProfitPlaceholder": "Nhập lợi nhuận đầu tư",
+    "investorProfitRequired": "Lợi nhuận đầu tư là bắt buộc",
+    "weshareprofite": "Lợi nhuận chia sẻ",
+    "weshareprofitePlaceholder": "Nhập lợi nhuận chia sẻ",
+    "weshareprofiteRequired": "Lợi nhuận chia sẻ là bắt buộc",
     "createproject": "Tạo dự án",
     "editproject": "Sửa dự án",
     "viewproject": "Xem dự án",
@@ -682,8 +685,8 @@
     "askingPriceRequired": "Giá chào bán là bắt buộc",
     "leaseTermRequired": "Thời hạn thuê là bắt buộc",
     "productCodeRequired": "Mã sản phẩm là bắt buộc",
-    "year" : "năm",
-    "onlynumbersWithoutdesimal" : "Chỉ cho phép nhập số (ví dụ: 123456)"
+    "year": "năm",
+    "onlynumbersWithoutdesimal": "Chỉ cho phép nhập số (ví dụ: 123456)"
   },
   "placeholders": {
     "your_company_name": "Tên công ty của bạn [Ví dụ: Theme Ocean]",
@@ -717,9 +720,9 @@
     "role": "Vai trò",
     "createdAt": "Ngày tạo",
     "updatedAt": "Ngày cập nhật",
-    "createdSuccessfully" : "Vai trò đã được tạo thành công",
-    "updatedSuccessfully" : "Vai trò đã được cập nhật thành công",
-    "deletedSuccessfully" : "Đã xóa vai trò thành công"
+    "createdSuccessfully": "Vai trò đã được tạo thành công",
+    "updatedSuccessfully": "Vai trò đã được cập nhật thành công",
+    "deletedSuccessfully": "Đã xóa vai trò thành công"
   },
   "smtp": {
     "title": "Cấu hình SMTP",
@@ -778,9 +781,9 @@
     "status": "Trạng thái",
     "selectStatus": "Chọn trạng thái",
     "onlynumbers": "Chỉ cho phép nhập số (ví dụ: 1234.56)",
-    "selectInverter" : "Chọn biến tần",
-    "serialNumber" : "Số seri",
-    "kilowatt" : "Kilowatt"
+    "selectInverter": "Chọn biến tần",
+    "serialNumber": "Số seri",
+    "kilowatt": "Kilowatt"
   },
   "projectType": {
     "title": "Loại dự án",
@@ -849,8 +852,7 @@
     "banned": "Bị cấm",
     "phonenumber": "Số điện thoại",
     "userRole": "Vai trò người dùng"
-  }
-  ,
+  },
   "invoice": {
     "invoiceHeader": "Tiêu đề hóa đơn",
     "addInvoice": "Thêm hóa đơn",
