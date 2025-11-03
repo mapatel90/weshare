@@ -2,11 +2,29 @@
 import React, { useEffect, useState } from "react";
 import Table from "@/components/shared/table/Table";
 import { FiEdit3, FiTrash2 } from "react-icons/fi";
-import { createPortal } from "react-dom";
 import Swal from "sweetalert2";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { apiGet, apiPost, apiPut, apiDelete } from "@/lib/api";
 import { showSuccessToast } from "@/utils/topTost";
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  FormHelperText,
+  Button,
+  Chip,
+  Box,
+  IconButton,
+  Typography,
+  Stack,
+} from "@mui/material";
+import { Close as CloseIcon } from "@mui/icons-material";
 
 const InverterTypeTable = () => {
   const { lang } = useLanguage();
@@ -137,12 +155,19 @@ const InverterTypeTable = () => {
           0: { label: lang("inverterType.inactive") || "Inactive", color: "#ea4d4d" },
         }[s] || { label: s, color: "#999" };
         return (
-          <span
-            className="badge"
-            style={{ backgroundColor: config.color, color: "#fff", padding: "5px 10px", borderRadius: "8px", fontSize: "12px" }}
-          >
-            {config.label}
-          </span>
+          <Chip
+            label={config.label}
+            sx={{
+              backgroundColor: config.color,
+              color: "#fff",
+              fontWeight: 500,
+              minWidth: 80,
+              "&:hover": {
+                backgroundColor: config.color,
+                opacity: 0.9,
+              },
+            }}
+          />
         );
       },
     },
@@ -150,94 +175,123 @@ const InverterTypeTable = () => {
       accessorKey: "actions",
       header: () => lang("common.actions"),
       cell: ({ row }) => (
-        <div className="d-flex gap-2" style={{ flexWrap: "nowrap" }}>
-          <FiEdit3
-            size={18}
+        <Stack direction="row" spacing={1} sx={{ flexWrap: "nowrap" }}>
+          <IconButton
+            size="small"
             onClick={() => {
               const item = row.original;
               window.dispatchEvent(new CustomEvent("inverterType:open-edit", { detail: { item } }));
             }}
-            style={{ color: "#007bff", cursor: "pointer", transition: "transform 0.2s ease" }}
-          />
-          <FiTrash2
+            sx={{
+              color: "#1976d2",
+              transition: "transform 0.2s ease",
+              "&:hover": {
+                backgroundColor: "rgba(25, 118, 210, 0.08)",
+                transform: "scale(1.1)",
+              },
+            }}
+          >
+            <FiEdit3 size={18} />
+          </IconButton>
+          <IconButton
+            size="small"
             onClick={() => handleDelete(row.original.id)}
-            size={18}
-            style={{ color: "#dc3545", cursor: "pointer", transition: "transform 0.2s ease" }}
-          />
-        </div>
+            sx={{
+              color: "#d32f2f",
+              transition: "transform 0.2s ease",
+              "&:hover": {
+                backgroundColor: "rgba(211, 47, 47, 0.08)",
+                transform: "scale(1.1)",
+              },
+            }}
+          >
+            <FiTrash2 size={18} />
+          </IconButton>
+        </Stack>
       ),
       meta: { disableSort: true },
     },
   ];
 
-  const backdropNode = (
-    <div className="modal-backdrop fade show" style={{ zIndex: 1050 }} onClick={handleCloseModal} data-testid="modal-backdrop" />
-  );
 
-  const modalNode = (
-    <div className="modal fade show" id="addInverterType" tabIndex="-1" style={{ display: "block", zIndex: 1055 }} aria-modal="true" role="dialog" onClick={handleCloseModal}>
-      <div className="modal-dialog" role="document" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-content">
-          <div className="modal-header">
-            <h5 className="modal-title">
-              {modalMode === "edit" ? lang("inverterType.editType") : lang("inverterType.addType")}
-            </h5>
-            <button type="button" className="btn-close" aria-label="Close" onClick={handleCloseModal}></button>
-          </div>
-          <div className="modal-body">
-            <div className="mb-4">
-              <label htmlFor="typeName" className="form-label">{lang("inverterType.typeName")}</label>
-              <input
-                type="text"
-                id="typeName"
-                className={`form-control ${errors.typeName ? "is-invalid" : ""}`}
-                placeholder={lang("inverterType.typeNamePlaceholder")}
-                value={typeName}
-                onChange={(e) => {
-                  setTypeName(e.target.value);
-                  if (errors.typeName) setErrors((prev) => ({ ...prev, typeName: "" }));
-                }}
-              />
-              {errors.typeName ? <div className="invalid-feedback d-block">{errors.typeName}</div> : null}
-            </div>
+  return (
+    <>
+      <Table data={types} columns={columns} />
+      <Dialog
+        open={!!modalMode}
+        onClose={handleCloseModal}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 2,
+          },
+        }}
+      >
+        <DialogTitle
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            pb: 1,
+          }}
+        >
+          <Typography variant="h6" component="span">
+            {modalMode === "edit" ? lang("inverterType.editType") : lang("inverterType.addType")}
+          </Typography>
+          <IconButton
+            aria-label="close"
+            onClick={handleCloseModal}
+            sx={{
+              color: (theme) => theme.palette.grey[500],
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 3, pt: 2 }}>
+            <TextField
+              label={lang("inverterType.typeName")}
+              placeholder={lang("inverterType.typeNamePlaceholder")}
+              value={typeName}
+              onChange={(e) => {
+                setTypeName(e.target.value);
+                if (errors.typeName) setErrors((prev) => ({ ...prev, typeName: "" }));
+              }}
+              error={!!errors.typeName}
+              helperText={errors.typeName}
+              fullWidth
+            />
 
-            <div className="form-group mb-4">
-              <label className="form-label">{lang("inverterType.status")}</label>
-              <select
-                className={`form-select ${statusError ? "is-invalid" : ""}`}
+            <FormControl fullWidth error={!!statusError}>
+              <InputLabel id="status-select-label">{lang("inverterType.status")}</InputLabel>
+              <Select
+                labelId="status-select-label"
                 value={status}
+                label={lang("inverterType.status")}
                 onChange={(e) => {
                   setStatus(e.target.value);
                   if (statusError) setStatusError("");
                 }}
               >
-                <option value="">{lang("inverterType.selectStatus") || "Select Status"}</option>
-                <option value="1">{lang("inverterType.active") || "Active"}</option>
-                <option value="0">{lang("inverterType.inactive") || "Inactive"}</option>
-              </select>
-              {statusError ? <div className="invalid-feedback d-block">{statusError}</div> : null}
-            </div>
-          </div>
-          <div className="modal-footer">
-            <button type="button" className="btn btn-danger" onClick={handleCloseModal}>{lang("common.cancel")}</button>
-            <button type="button" className="btn btn-primary" onClick={handleSave} disabled={submitting}>
-              {submitting ? lang("common.loading") : lang("common.save")}
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
-  return (
-    <>
-      <Table data={types} columns={columns} />
-      {modalMode && typeof document !== "undefined" && (
-        <>
-          {createPortal(backdropNode, document.body)}
-          {createPortal(modalNode, document.body)}
-        </>
-      )}
+                <MenuItem value="">{lang("inverterType.selectStatus") || "Select Status"}</MenuItem>
+                <MenuItem value="1">{lang("inverterType.active") || "Active"}</MenuItem>
+                <MenuItem value="0">{lang("inverterType.inactive") || "Inactive"}</MenuItem>
+              </Select>
+              {statusError && <FormHelperText>{statusError}</FormHelperText>}
+            </FormControl>
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2.5 }}>
+          <Button onClick={handleCloseModal} color="error" variant="outlined">
+            {lang("common.cancel")}
+          </Button>
+          <Button onClick={handleSave} variant="contained" disabled={submitting}>
+            {submitting ? lang("common.loading") : lang("common.save")}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 };

@@ -4,15 +4,31 @@ import Table from "@/components/shared/table/Table";
 import { apiGet, apiPost, apiPut, apiDelete } from "@/lib/api";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { FiEdit3, FiTrash2 } from "react-icons/fi";
-import { createPortal } from "react-dom";
 import { showSuccessToast } from "@/utils/topTost";
-import SelectDropdown from "@/components/shared/SelectDropdown";
 import Swal from "sweetalert2";
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  FormHelperText,
+  Button,
+  Chip,
+  Box,
+  IconButton,
+  Typography,
+  Stack,
+} from "@mui/material";
+import { Close as CloseIcon } from "@mui/icons-material";
 
 const InvoiceTable = () => {
   const { lang } = useLanguage();
   const [invoicesData, setInvoicesData] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [modalMode, setModalMode] = useState(null);
   const [editingId, setEditingId] = useState(null);
   const [projectOptions, setProjectOptions] = useState([]);
@@ -39,7 +55,6 @@ const InvoiceTable = () => {
 
   const fetchInvoices = async () => {
     try {
-      setLoading(true);
       const response = await apiGet("/api/invoice/");
       if (response?.success && response?.data?.invoices) {
         setInvoicesData(response.data.invoices);
@@ -48,8 +63,6 @@ const InvoiceTable = () => {
       }
     } catch (e) {
       setInvoicesData([]);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -234,18 +247,19 @@ const InvoiceTable = () => {
           0: { label: lang("invoice.unpaid"), color: "#ea4d4d" },
         }[status] || { label: String(status ?? "-"), color: "#999" };
         return (
-          <span
-            className="badge"
-            style={{
+          <Chip
+            label={config.label}
+            sx={{
               backgroundColor: config.color,
               color: "#fff",
-              padding: "5px 10px",
-              borderRadius: "8px",
-              fontSize: "12px",
+              fontWeight: 500,
+              minWidth: 80,
+              "&:hover": {
+                backgroundColor: config.color,
+                opacity: 0.9,
+              },
             }}
-          >
-            {config.label}
-          </span>
+          />
         );
       },
     },
@@ -253,21 +267,39 @@ const InvoiceTable = () => {
       accessorKey: "actions",
       header: () => lang("invoice.actions"),
       cell: ({ row }) => (
-        <div className="d-flex gap-2" style={{ flexWrap: "nowrap" }}>
-          <FiEdit3
-            size={18}
+        <Stack direction="row" spacing={1} sx={{ flexWrap: "nowrap" }}>
+          <IconButton
+            size="small"
             onClick={() => {
               const item = row.original;
               window.dispatchEvent(new CustomEvent("invoice:open-edit", { detail: { item } }));
             }}
-            style={{ color: "#007bff", cursor: "pointer", transition: "transform 0.2s ease" }}
-          />
-          <FiTrash2
+            sx={{
+              color: "#1976d2",
+              transition: "transform 0.2s ease",
+              "&:hover": {
+                backgroundColor: "rgba(25, 118, 210, 0.08)",
+                transform: "scale(1.1)",
+              },
+            }}
+          >
+            <FiEdit3 size={18} />
+          </IconButton>
+          <IconButton
+            size="small"
             onClick={() => handleDelete(row.original.id)}
-            size={18}
-            style={{ color: "#dc3545", cursor: "pointer", transition: "transform 0.2s ease" }}
-          />
-        </div>
+            sx={{
+              color: "#d32f2f",
+              transition: "transform 0.2s ease",
+              "&:hover": {
+                backgroundColor: "rgba(211, 47, 47, 0.08)",
+                transform: "scale(1.1)",
+              },
+            }}
+          >
+            <FiTrash2 size={18} />
+          </IconButton>
+        </Stack>
       ),
       meta: {
         disableSort: true,
@@ -275,41 +307,57 @@ const InvoiceTable = () => {
     },
   ];
 
-  if (loading) {
-    return (
-      <div className="text-center py-5">
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">{lang("table.loading")}</span>
-        </div>
-      </div>
-    );
-  }
-
   const handleCloseModal = () => {
     setModalMode(null);
     resetForm();
   };
 
-  const backdropNode = (
-    <div className="modal-backdrop fade show" style={{ zIndex: 1050 }} onClick={handleCloseModal} data-testid="modal-backdrop" />
-  );
-
-  const modalNode = (
-    <div className="modal fade show" id="addInvoice" tabIndex="-1" style={{ display: "block", zIndex: 1055 }} aria-modal="true" role="dialog" onClick={handleCloseModal}>
-      <div className="modal-dialog" role="document" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-content">
-          <div className="modal-header">
-            <h5 className="modal-title">{modalMode === "edit" ? lang("invoice.updateInvoice") : lang("invoice.addInvoice")}</h5>
-            <button type="button" className="btn-close" aria-label="Close" onClick={handleCloseModal}></button>
-          </div>
-          <div className="modal-body">
-            <div className="form-group mb-4">
-              <label className="form-label">{lang("invoice.project")}</label>
-              <SelectDropdown
-                options={projectOptions}
-                defaultSelect={lang("invoice.selectProject")}
-                selectedOption={selectedProject}
-                onSelectOption={(option) => {
+  return (
+    <>
+      <Table data={invoicesData} columns={columns} />
+      <Dialog
+        open={!!modalMode}
+        onClose={handleCloseModal}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 2,
+          },
+        }}
+      >
+        <DialogTitle
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            pb: 1,
+          }}
+        >
+          <Typography variant="h6" component="span">
+            {modalMode === "edit" ? lang("invoice.updateInvoice") : lang("invoice.addInvoice")}
+          </Typography>
+          <IconButton
+            aria-label="close"
+            onClick={handleCloseModal}
+            sx={{
+              color: (theme) => theme.palette.grey[500],
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 3, pt: 2 }}>
+            <FormControl fullWidth error={!!errors.project}>
+              <InputLabel id="project-select-label">{lang("invoice.project")}</InputLabel>
+              <Select
+                labelId="project-select-label"
+                value={selectedProject?.value || ""}
+                label={lang("invoice.project")}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  const option = projectOptions.find((opt) => opt.value === value) || null;
                   setSelectedProject(option);
                   if (errors.project) setErrors((prev) => ({ ...prev, project: "" }));
                   if (option?.value) {
@@ -319,100 +367,102 @@ const InvoiceTable = () => {
                     setSelectedOfftaker(null);
                   }
                 }}
-              />
-              {errors.project ? <div className="invalid-feedback d-block">{errors.project}</div> : null}
-            </div>
+              >
+                <MenuItem value="">{lang("invoice.selectProject")}</MenuItem>
+                {projectOptions
+                  .filter((opt) => opt.value !== "")
+                  .map((option) => (
+                    <MenuItem key={option.value} value={option.value}>
+                      {option.label}
+                    </MenuItem>
+                  ))}
+              </Select>
+              {errors.project && <FormHelperText>{errors.project}</FormHelperText>}
+            </FormControl>
 
-            <div className="form-group mb-4">
-              <label className="form-label">{lang("invoice.offtaker")}</label>
-              <SelectDropdown
-                options={offtakerOptions}
-                defaultSelect={lang("invoice.selectOfftaker")}
-                selectedOption={selectedOfftaker}
-                searchable={false}
-                onSelectOption={(option) => {
+            <FormControl fullWidth error={!!errors.offtaker}>
+              <InputLabel id="offtaker-select-label">{lang("invoice.offtaker")}</InputLabel>
+              <Select
+                labelId="offtaker-select-label"
+                value={selectedOfftaker?.value || ""}
+                label={lang("invoice.offtaker")}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  const option = offtakerOptions.find((opt) => opt.value === value) || null;
                   setSelectedOfftaker(option);
                   if (errors.offtaker) setErrors((prev) => ({ ...prev, offtaker: "" }));
                 }}
-              />
-              {errors.offtaker ? <div className="invalid-feedback d-block">{errors.offtaker}</div> : null}
-            </div>
+              >
+                <MenuItem value="">{lang("invoice.selectOfftaker")}</MenuItem>
+                {offtakerOptions.map((option) => (
+                  <MenuItem key={option.value} value={option.value}>
+                    {option.label}
+                  </MenuItem>
+                ))}
+              </Select>
+              {errors.offtaker && <FormHelperText>{errors.offtaker}</FormHelperText>}
+            </FormControl>
 
-            <div className="mb-4">
-              <label className="form-label">{lang("invoice.amount")}</label>
-              <input
-                type="number"
-                inputMode="decimal"
-                className={`form-control ${errors.amount ? "is-invalid" : ""}`}
-                placeholder="Amount"
-                value={amount}
-                onChange={(e) => {
-                  setAmount(e.target.value);
-                  if (errors.amount) setErrors((prev) => ({ ...prev, amount: "" }));
-                }}
-              />
-              {errors.amount ? <div className="invalid-feedback d-block">{errors.amount}</div> : null}
-            </div>
+            <TextField
+              label={lang("invoice.amount")}
+              type="number"
+              inputMode="decimal"
+              value={amount}
+              onChange={(e) => {
+                setAmount(e.target.value);
+                if (errors.amount) setErrors((prev) => ({ ...prev, amount: "" }));
+              }}
+              error={!!errors.amount}
+              helperText={errors.amount}
+              placeholder="Amount"
+              fullWidth
+            />
 
-            <div className="mb-4">
-              <label className="form-label">{lang("invoice.totalUnit")}</label>
-              <input
-                type="number"
-                inputMode="decimal"
-                className={`form-control ${errors.totalUnit ? "is-invalid" : ""}`}
-                placeholder="Total Unit"
-                value={totalUnit}
-                onChange={(e) => {
-                  setTotalUnit(e.target.value);
-                  if (errors.totalUnit) setErrors((prev) => ({ ...prev, totalUnit: "" }));
-                }}
-              />
-              {errors.totalUnit ? <div className="invalid-feedback d-block">{errors.totalUnit}</div> : null}
-            </div>
+            <TextField
+              label={lang("invoice.totalUnit")}
+              type="number"
+              inputMode="decimal"
+              value={totalUnit}
+              onChange={(e) => {
+                setTotalUnit(e.target.value);
+                if (errors.totalUnit) setErrors((prev) => ({ ...prev, totalUnit: "" }));
+              }}
+              error={!!errors.totalUnit}
+              helperText={errors.totalUnit}
+              placeholder="Total Unit"
+              fullWidth
+            />
 
-            <div className="form-group mb-4">
-              <label className="form-label">{lang("invoice.status")}</label>
-              <select
-                className={`form-select ${statusError ? "is-invalid" : ""}`}
+            <FormControl fullWidth error={!!statusError}>
+              <InputLabel id="status-select-label">{lang("invoice.status")}</InputLabel>
+              <Select
+                labelId="status-select-label"
                 value={status}
+                label={lang("invoice.status")}
                 onChange={(e) => {
                   setStatus(e.target.value);
                   if (statusError) setStatusError("");
                 }}
               >
-                <option value="">{lang("invoice.selectStatus")}</option>
-                <option value="1">{lang("invoice.paid")}</option>
-                <option value="0">{lang("invoice.unpaid")}</option>
-              </select>
-              {statusError ? <div className="invalid-feedback d-block">{statusError}</div> : null}
-            </div>
-          </div>
-          <div className="modal-footer">
-            <button type="button" className="btn btn-danger" onClick={handleCloseModal}>
-              {lang("common.cancel")}
-            </button>
-            <button type="button" className="btn btn-primary" onClick={handleSave} disabled={submitting}>
-              {submitting ? lang("common.loading") : lang("common.save")}
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
-  return (
-    <>
-      <Table data={invoicesData} columns={columns} />
-      {modalMode && typeof document !== "undefined" && (
-        <>
-          {createPortal(backdropNode, document.body)}
-          {createPortal(modalNode, document.body)}
-        </>
-      )}
+                <MenuItem value="">{lang("invoice.selectStatus")}</MenuItem>
+                <MenuItem value="1">{lang("invoice.paid")}</MenuItem>
+                <MenuItem value="0">{lang("invoice.unpaid")}</MenuItem>
+              </Select>
+              {statusError && <FormHelperText>{statusError}</FormHelperText>}
+            </FormControl>
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2.5 }}>
+          <Button onClick={handleCloseModal} color="error" variant="outlined">
+            {lang("common.cancel")}
+          </Button>
+          <Button onClick={handleSave} variant="contained" disabled={submitting}>
+            {submitting ? lang("common.loading") : lang("common.save")}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 };
 
 export default InvoiceTable;
-
-

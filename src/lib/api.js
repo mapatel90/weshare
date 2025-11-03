@@ -6,6 +6,9 @@
 const API_BASE_URL = process.env.API_URL || 'http://localhost:5000';
 import { startLoading, stopLoading } from "@/contexts/LoadingStore";
 
+// Request deduplication: track in-flight requests to prevent duplicate calls
+const pendingRequests = new Map();
+
 /**
  * Get authentication token from localStorage
  * @returns {string|null} JWT token
@@ -15,6 +18,19 @@ const getAuthToken = () => {
     return localStorage.getItem('accessToken');
   }
   return null;
+};
+
+/**
+ * Create a unique key for request deduplication
+ * @param {string} url - Request URL
+ * @param {Object} options - Request options
+ * @returns {string} Unique key
+ */
+const getRequestKey = (url, options = {}) => {
+  const method = options.method || 'GET';
+  // For GET requests, body is typically empty, so we just use method and URL
+  // For other methods, we'd include body but deduplication is disabled for non-GET anyway
+  return `${method}:${url}`;
 };
 
 /**
@@ -79,24 +95,49 @@ const apiRequest = async (endpoint, options = {}) => {
     ? endpoint
     : `${API_BASE_URL}${endpoint}`;
 
-  try {
-    const showLoader = options.showLoader !== false;
-    if (showLoader && typeof window !== 'undefined') startLoading();
-    const response = await fetch(url, {
-      ...options,
-      headers: buildHeaders(options.headers, options.includeAuth !== false),
-    });
-    const data = await handleResponse(response);
-    return data;
-  } catch (error) {
-    // Network errors or other fetch failures
-    if (!error.status) {
-      error.message = 'Network error. Please check your connection.';
-    }
-    throw error;
-  } finally {
-    if (typeof window !== 'undefined') stopLoading();
+  // Check for request deduplication (only for GET requests to avoid side effects)
+  const requestKey = getRequestKey(url, options);
+  const skipDeduplication = options.skipDeduplication || options.method !== 'GET';
+  
+  if (!skipDeduplication && pendingRequests.has(requestKey)) {
+    // Return the existing promise instead of making a duplicate request
+    return pendingRequests.get(requestKey);
   }
+
+  // Create the request promise
+  const requestPromise = (async () => {
+    try {
+      const showLoader = options.showLoader !== false;
+      if (showLoader && typeof window !== 'undefined') startLoading();
+      
+      const response = await fetch(url, {
+        ...options,
+        headers: buildHeaders(options.headers, options.includeAuth !== false),
+      });
+      
+      const data = await handleResponse(response);
+      return data;
+    } catch (error) {
+      // Network errors or other fetch failures
+      if (!error.status) {
+        error.message = 'Network error. Please check your connection.';
+      }
+      throw error;
+    } finally {
+      if (typeof window !== 'undefined') stopLoading();
+      // Remove from pending requests after completion
+      if (!skipDeduplication) {
+        pendingRequests.delete(requestKey);
+      }
+    }
+  })();
+
+  // Store the promise for deduplication
+  if (!skipDeduplication) {
+    pendingRequests.set(requestKey, requestPromise);
+  }
+
+  return requestPromise;
 };
 
 /**

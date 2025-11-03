@@ -121,15 +121,16 @@ const UsersEditForm = () => {
     }
   }
 
-  if (loadingUser) {
-    return (
-      <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '400px' }}>
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </div>
-      </div>
-    )
-  }
+  // Commented out - using global loader instead
+  // if (loadingUser) {
+  //   return (
+  //     <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '400px' }}>
+  //       <div className="spinner-border text-primary" role="status">
+  //         <span className="visually-hidden">Loading...</span>
+  //       </div>
+  //     </div>
+  //   )
+  // }
 
   return (
     <UserForm

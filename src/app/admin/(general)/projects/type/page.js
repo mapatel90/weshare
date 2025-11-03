@@ -8,6 +8,25 @@ import Table from '@/components/shared/table/Table'
 import { FiEdit3, FiTrash2 } from 'react-icons/fi'
 import Swal from 'sweetalert2'
 import { showSuccessToast, showErrorToast } from '@/utils/topTost'
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  FormHelperText,
+  Button,
+  Chip,
+  Box,
+  IconButton,
+  Typography,
+  Stack,
+} from "@mui/material";
+import { Close as CloseIcon } from "@mui/icons-material";
 
 const ProjectTypePage = () => {
     const { lang } = useLanguage()
@@ -104,11 +123,28 @@ const ProjectTypePage = () => {
         {
             accessorKey: 'status',
             header: () => lang('projectType.status', 'Status'),
-            cell: info => (
-                info.getValue() == 1
-                    ? <span className="badge bg-soft-success text-success">{lang('common.active', 'Active')}</span>
-                    : <span className="badge bg-soft-danger text-danger">{lang('common.inactive', 'Inactive')}</span>
-            )
+            cell: info => {
+                const status = info.getValue();
+                const config = {
+                    1: { label: lang('common.active', 'Active'), color: '#17c666' },
+                    0: { label: lang('common.inactive', 'Inactive'), color: '#ea4d4d' },
+                }[status] || { label: String(status ?? '-'), color: '#999' };
+                return (
+                    <Chip
+                        label={config.label}
+                        sx={{
+                            backgroundColor: config.color,
+                            color: '#fff',
+                            fontWeight: 500,
+                            minWidth: 80,
+                            '&:hover': {
+                                backgroundColor: config.color,
+                                opacity: 0.9,
+                            },
+                        }}
+                    />
+                );
+            }
         },
         {
             accessorKey: 'actions',
@@ -116,27 +152,41 @@ const ProjectTypePage = () => {
             cell: ({ row }) => {
                 const item = row.original
                 return (
-                    <div className="d-flex gap-2 justify-content-end" style={{ flexWrap: 'nowrap' }}>
-                        <FiEdit3
-                            size={18}
+                    <Stack direction="row" spacing={1} sx={{ flexWrap: 'nowrap' }}>
+                        <IconButton
+                            size="small"
                             onClick={() => openEdit(item)}
                             title={lang('common.edit', 'Edit')}
-                            style={{ color: '#007bff', cursor: 'pointer', transition: 'transform 0.2s ease' }}
-                            onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.2)')}
-                            onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
-                        />
-                        <FiTrash2
-                            size={18}
+                            sx={{
+                                color: '#1976d2',
+                                transition: 'transform 0.2s ease',
+                                '&:hover': {
+                                    backgroundColor: 'rgba(25, 118, 210, 0.08)',
+                                    transform: 'scale(1.1)',
+                                },
+                            }}
+                        >
+                            <FiEdit3 size={18} />
+                        </IconButton>
+                        <IconButton
+                            size="small"
                             onClick={() => handleDelete(item)}
                             title={lang('common.delete', 'Delete')}
-                            style={{ color: '#dc3545', cursor: 'pointer', transition: 'transform 0.2s ease' }}
-                            onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.2)')}
-                            onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
-                        />
-                    </div>
+                            sx={{
+                                color: '#d32f2f',
+                                transition: 'transform 0.2s ease',
+                                '&:hover': {
+                                    backgroundColor: 'rgba(211, 47, 47, 0.08)',
+                                    transform: 'scale(1.1)',
+                                },
+                            }}
+                        >
+                            <FiTrash2 size={18} />
+                        </IconButton>
+                    </Stack>
                 )
             },
-            meta: { disableSort: true, headerClassName: 'text-end' }
+            meta: { disableSort: true }
         }
     ]
 
@@ -145,6 +195,7 @@ const ProjectTypePage = () => {
             <DynamicTitle titleKey="projects.projecttype" />
             <PageHeader>
                 <div className="ms-auto">
+                    {/* <Button variant="contained" onClick={openAdd}>+ {lang('projectType.addType', 'Add Type')}</Button> */}
                     <button type="button" className="btn btn-primary" onClick={openAdd}>+ {lang('projectType.addType', 'Add Type')}</button>
                 </div>
             </PageHeader>
@@ -154,36 +205,73 @@ const ProjectTypePage = () => {
                 </div>
             </div>
 
-            {showModal && (
-                <div className="modal fade show d-block" tabIndex={-1} role="dialog" style={{ background: 'rgba(0,0,0,0.35)' }}>
-                    <div className="modal-dialog" role="document">
-                        <form className="modal-content" onSubmit={handleSave}>
-                            <div className="modal-header">
-                                <h5 className="modal-title">{modalType === 'edit' ? lang('projectType.editType', 'Edit Type') : lang('projectType.addType', 'Add Type')}</h5>
-                                <button type="button" className="btn-close" onClick={closeModal}></button>
-                            </div>
-                            <div className="modal-body">
-                                <div className="mb-3">
-                                    <label className="form-label">{lang('projectType.name', 'Name')}</label>
-                                    <input type="text" className="form-control" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} required />
-                                </div>
-                                <div className="mb-3">
-                                    <label className="form-label">{lang('common.status', 'Status')}</label>
-                                    <select className="form-select" value={form.status} onChange={e => setForm({ ...form, status: parseInt(e.target.value) })}>
-                                        {STATUS_OPTIONS.map(opt => (
-                                            <option key={opt.value} value={opt.value}>{opt.label}</option>
-                                        ))}
-                                    </select>
-                                </div>
-                            </div>
-                            <div className="modal-footer">
-                                <button type="button" className="btn btn-secondary" onClick={closeModal}>{lang('common.cancel', 'Cancel')}</button>
-                                <button type="submit" className="btn btn-primary" disabled={loading || !form.name}>{loading ? lang('common.loading', 'Loading...') : lang('common.save', 'Save')}</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
+            <Dialog
+                open={showModal}
+                onClose={closeModal}
+                maxWidth="sm"
+                fullWidth
+                PaperProps={{
+                    sx: {
+                        borderRadius: 2,
+                    },
+                }}
+            >
+                <form onSubmit={handleSave}>
+                    <DialogTitle
+                        sx={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            pb: 1,
+                        }}
+                    >
+                        <Typography variant="h6" component="span">
+                            {modalType === 'edit' ? lang('projectType.editType', 'Edit Type') : lang('projectType.addType', 'Add Type')}
+                        </Typography>
+                        <IconButton
+                            aria-label="close"
+                            onClick={closeModal}
+                            sx={{
+                                color: (theme) => theme.palette.grey[500],
+                            }}
+                        >
+                            <CloseIcon />
+                        </IconButton>
+                    </DialogTitle>
+                    <DialogContent>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, pt: 2 }}>
+                            <TextField
+                                label={lang('projectType.name', 'Name')}
+                                value={form.name}
+                                onChange={e => setForm({ ...form, name: e.target.value })}
+                                required
+                                fullWidth
+                            />
+                            <FormControl fullWidth>
+                                <InputLabel id="status-select-label">{lang('common.status', 'Status')}</InputLabel>
+                                <Select
+                                    labelId="status-select-label"
+                                    value={form.status}
+                                    label={lang('common.status', 'Status')}
+                                    onChange={e => setForm({ ...form, status: parseInt(e.target.value) })}
+                                >
+                                    {STATUS_OPTIONS.map(opt => (
+                                        <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        </Box>
+                    </DialogContent>
+                    <DialogActions sx={{ px: 3, pb: 2.5 }}>
+                        <Button onClick={closeModal} color="error" variant="outlined">
+                            {lang('common.cancel', 'Cancel')}
+                        </Button>
+                        <Button type="submit" variant="contained" disabled={loading || !form.name}>
+                            {loading ? lang('common.loading', 'Loading...') : lang('common.save', 'Save')}
+                        </Button>
+                    </DialogActions>
+                </form>
+            </Dialog>
         </>
     )
 }

@@ -28,9 +28,10 @@ const ProjectViewContent = ({ projectId }) => {
         if (projectId) load()
     }, [projectId])
 
-    if (loading) {
-        return <div className="col-lg-12"><div className="card"><div className="card-body">{lang('common.loading', 'Loading...')}</div></div></div>
-    }
+    // Commented out - using global loader instead
+    // if (loading) {
+    //     return <div className="col-lg-12"><div className="card"><div className="card-body">{lang('common.loading', 'Loading...')}</div></div></div>
+    // }
 
     if (!project) {
         return <div className="col-lg-12"><div className="card"><div className="card-body">{lang('projects.notFound', 'Project not found')}</div></div></div>

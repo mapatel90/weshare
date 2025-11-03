@@ -283,9 +283,10 @@ const UsersTable = () => {
     }
   ]
 
-  if (loading && users.length === 0) {
-    return <LoadingSpinner />
-  }
+  // Commented out - using global loader instead
+  // if (loading && users.length === 0) {
+  //   return <LoadingSpinner />
+  // }
 
   return (
     <div>
@@ -336,13 +337,14 @@ const UsersTable = () => {
 
       {/* Table */}
       <div className="position-relative">
-        {loading && (
+        {/* Commented out - using global loader instead */}
+        {/* {loading && (
           <div className="position-absolute top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center bg-white bg-opacity-75" style={{ zIndex: 10 }}>
             <div className="spinner-border text-primary" role="status">
               <span className="visually-hidden">Loading...</span>
             </div>
           </div>
-        )}
+        )} */}
         <Table data={users} columns={columns} />
       </div>
 

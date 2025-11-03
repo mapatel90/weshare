@@ -21,15 +21,16 @@ export default function Home() {
   }, [user, loading, router])
 
   // Show loading while checking authentication
-  if (loading) {
-    return (
-      <div className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </div>
-      </div>
-    )
-  }
+  // Commented out - using global loader instead
+  // if (loading) {
+  //   return (
+  //     <div className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
+  //       <div className="spinner-border text-primary" role="status">
+  //         <span className="visually-hidden">Loading...</span>
+  //       </div>
+  //     </div>
+  //   )
+  // }
 
   return null
 }
