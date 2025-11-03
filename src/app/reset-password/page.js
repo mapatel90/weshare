@@ -1,10 +1,14 @@
 "use client";
 
-import React from 'react';
-import { Box, Card, CardContent, Typography } from '@mui/material';
-import ForgotPasswordForm from '@/components/authentication/ForgotPasswordForm';
+import React, { Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
+import ResetPasswordForm from '@/components/authentication/ResetPasswordForm';
+import { CircularProgress, Box, Card, CardContent, Typography } from '@mui/material';
 
-const ResetPage = () => {
+const ResetPasswordContent = () => {
+    const searchParams = useSearchParams();
+    const token = searchParams.get('token');
+
     return (
         <Box
             className="loginSection"
@@ -30,7 +34,7 @@ const ResetPage = () => {
                     }}
                 />
                 <Typography variant="h5" fontWeight={600}>
-                    Reset Your Password
+                    Create New Password
                 </Typography>
             </Box>
 
@@ -46,11 +50,23 @@ const ResetPage = () => {
                 }}
             >
                 <CardContent>
-                    <ForgotPasswordForm loginPath="/login" />
+                    <ResetPasswordForm token={token} loginPath="/login" />
                 </CardContent>
             </Card>
         </Box>
     );
 };
 
-export default ResetPage;
+const ResetPasswordPage = () => {
+    return (
+        <Suspense fallback={
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+                <CircularProgress sx={{ color: '#F6A623' }} />
+            </Box>
+        }>
+            <ResetPasswordContent />
+        </Suspense>
+    );
+};
+
+export default ResetPasswordPage;

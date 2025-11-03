@@ -64,6 +64,20 @@ model Setting {
   @@map("settings")
 }
 
+// Password Reset Token model
+model PasswordResetToken {
+  id        Int      @id @default(autoincrement())
+  email     String   @db.VarChar(150)
+  token     String   @unique @db.VarChar(255)
+  expiresAt DateTime @map("expires_at")
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+  
+  @@map("password_reset_tokens")
+  @@index([email])
+  @@index([token])
+}
+
 // Location models
 model Country {
   id        Int      @id @default(autoincrement())
