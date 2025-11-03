@@ -311,7 +311,6 @@ const UsersViewDetails = () => {
           </div>
         </div>
       </div>
-    </div>
   )
 }
 
