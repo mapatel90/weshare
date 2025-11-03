@@ -1,7 +1,9 @@
 import express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 import prisma from '../utils/prisma.js';
+import { sendPasswordResetEmail, sendPasswordResetConfirmationEmail } from '../utils/email.js';
 
 const router = express.Router();
 
@@ -54,7 +56,8 @@ router.post('/register', async (req, res) => {
       city,
       state,
       country,
-      zipcode
+      zipcode,
+      termsAccepted
     } = req.body;
 
     // Validate required fields
@@ -96,7 +99,8 @@ router.post('/register', async (req, res) => {
         state,
         country,
         zipcode,
-        status: 0 // Default inactive status
+        status: 0, // Default inactive status
+        terms_accepted: termsAccepted || 0
       },
       select: {
         id: true,
@@ -265,6 +269,225 @@ router.get('/me', async (req, res) => {
     res.status(401).json({
       success: false,
       message: 'Invalid or expired token'
+    });
+  }
+});
+
+// Forgot password - send reset link
+router.post('/forgot-password', async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    // Validate email
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email is required'
+      });
+    }
+
+    // Check if user exists with this email
+    const user = await prisma.user.findFirst({
+      where: { email }
+    });
+
+    // If user doesn't exist, return error
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'No account found with this email address.'
+      });
+    }
+
+    // Generate secure random token
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    
+    // Hash the token before storing
+    const hashedToken = crypto
+      .createHash('sha256')
+      .update(resetToken)
+      .digest('hex');
+
+    // Set expiration time (1 hour from now)
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
+
+    // Delete any existing tokens for this email
+    await prisma.passwordResetToken.deleteMany({
+      where: { email }
+    });
+
+    // Create new reset token
+    await prisma.passwordResetToken.create({
+      data: {
+        email,
+        token: hashedToken,
+        expiresAt,
+        used: false
+      }
+    });
+
+    // Send email with reset link
+    const emailResult = await sendPasswordResetEmail(email, resetToken);
+
+    if (!emailResult.success) {
+      console.error('Failed to send email:', emailResult.error);
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to send password reset email. Please try again later.'
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Password reset link has been sent to your email. Please check your inbox.'
+    });
+
+  } catch (error) {
+    console.error('Forgot password error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error. Please try again later.'
+    });
+  }
+});
+
+// Reset password with token
+router.post('/reset-password', async (req, res) => {
+  try {
+    const { token, newPassword } = req.body;
+
+    // Validate input
+    if (!token || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: 'Token and new password are required'
+      });
+    }
+
+    // Validate password length
+    if (newPassword.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: 'Password must be at least 6 characters long'
+      });
+    }
+
+    // Hash the token to match stored version
+    const hashedToken = crypto
+      .createHash('sha256')
+      .update(token)
+      .digest('hex');
+
+    // Find valid token
+    const resetToken = await prisma.passwordResetToken.findFirst({
+      where: {
+        token: hashedToken,
+        used: false,
+        expiresAt: {
+          gt: new Date() // Token not expired
+        }
+      }
+    });
+
+    if (!resetToken) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid or expired reset token. Please request a new password reset link.'
+      });
+    }
+
+    // Find user by email
+    const user = await prisma.user.findFirst({
+      where: { email: resetToken.email }
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Hash new password
+    const saltRounds = 12;
+    const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+
+    // Update user password
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { password: hashedPassword }
+    });
+
+    // Mark token as used
+    await prisma.passwordResetToken.update({
+      where: { id: resetToken.id },
+      data: { used: true }
+    });
+
+    // Send confirmation email
+    await sendPasswordResetConfirmationEmail(user.email);
+
+    res.json({
+      success: true,
+      message: 'Password has been reset successfully. You can now login with your new password.'
+    });
+
+  } catch (error) {
+    console.error('Reset password error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error. Please try again later.'
+    });
+  }
+});
+
+// Verify reset token (optional - for checking if token is valid before showing form)
+router.get('/verify-reset-token/:token', async (req, res) => {
+  try {
+    const { token } = req.params;
+
+    if (!token) {
+      return res.status(400).json({
+        success: false,
+        message: 'Token is required'
+      });
+    }
+
+    // Hash the token
+    const hashedToken = crypto
+      .createHash('sha256')
+      .update(token)
+      .digest('hex');
+
+    // Check if token exists and is valid
+    const resetToken = await prisma.passwordResetToken.findFirst({
+      where: {
+        token: hashedToken,
+        used: false,
+        expiresAt: {
+          gt: new Date()
+        }
+      }
+    });
+
+    if (!resetToken) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid or expired reset token'
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Token is valid',
+      email: resetToken.email // Optionally return email to show in form
+    });
+
+  } catch (error) {
+    console.error('Verify token error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
     });
   }
 });

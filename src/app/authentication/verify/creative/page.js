@@ -2,6 +2,8 @@ import OtpVerifyForm from '@/components/authentication/OtpVerifyForm'
 import Image from 'next/image'
 import React from 'react'
 
+export const dynamic = 'force-dynamic'
+
 const page = () => {
   return (
     <main className="auth-creative-wrapper">

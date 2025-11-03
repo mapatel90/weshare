@@ -39,6 +39,7 @@ model User {
   zipcode     String?   @db.VarChar(20)
   status      Int       @default(1)
   is_deleted  Int       @default(0)
+  terms_accepted Int    @default(1)
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime  @default(now()) @updatedAt @map("updated_at")
   
@@ -61,6 +62,20 @@ model Setting {
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
   
   @@map("settings")
+}
+
+// Password Reset Token model
+model PasswordResetToken {
+  id        Int      @id @default(autoincrement())
+  email     String   @db.VarChar(150)
+  token     String   @unique @db.VarChar(255)
+  expiresAt DateTime @map("expires_at")
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+  
+  @@map("password_reset_tokens")
+  @@index([email])
+  @@index([token])
 }
 
 // Location models

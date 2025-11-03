@@ -358,6 +358,203 @@
     "documentation": "Tài liệu",
     "support": "Hỗ trợ"
   },
+  "home": {
+    "navbar": {
+      "home": "Trang chủ",
+      "aboutUs": "Về chúng tôi",
+      "exchangeHub": "Trung tâm trao đổi",
+      "howItWorks": "Cách thức hoạt động",
+      "news": "Tin tức",
+      "login": "Đăng nhập"
+    },
+    "hero": {
+      "tagline": "Kết nối để tiết kiệm. Kết nối để kiếm tiền.",
+      "title": "Đầu tư vào cho thuê năng lượng mặt trời.",
+      "titleLine2": "Trao quyền cho một tương lai bền vững.",
+      "subtitle1": "WeShare kết nối chủ nhà và doanh nghiệp tìm kiếm giải pháp năng lượng mặt trời giá cả phải chăng với các nhà đầu tư tìm kiếm lợi nhuận tài chính bền vững.",
+      "subtitle2": "Thông qua Trung tâm trao đổi của chúng tôi, các nhà đầu tư cung cấp quyền truy cập chi phí cho thuê trong khi hệ thống — Kiếm được tới 35% ROI trong khi giúp cộng đồng giảm dấu chân carbon và chi phí năng lượng.",
+      "subtitle3": "Tham gia WeShare ngay hôm nay để vượt qua 8% ROI, tính bền vững trong một cuộc cách mạng xanh cùng nhau.",
+      "connectWithUs": "Kết nối với chúng tôi"
+    },
+    "features": {
+      "title": "WeShare —",
+      "subtitle": "Sức mạnh với mục đích",
+      "description": "WeShare là thị trường của bạn cho năng lượng sạch hiệu quả — thúc đẩy khả năng tiếp cận năng lượng sạch cho nền kinh tế bền vững.",
+      "feature1": "Mô hình đầu tư bền vững và tạo tác động",
+      "feature2": "Kiếm lợi nhuận có thể đo lường từ sản xuất năng lượng mặt trời",
+      "feature3": "Trao quyền cho cộng đồng với năng lượng sạch, giá cả phải chăng",
+      "closing": "Cùng nhau chúng tôi đang xây dựng một hệ sinh thái năng lượng sạch minh bạch, bền vững và có lợi nhuận.",
+      "visitHub": "Truy cập Trung tâm trao đổi"
+    },
+    "mission": {
+      "title": "Sứ mệnh của chúng tôi",
+      "subtitle": "Trao quyền cho cộng đồng thông qua cho thuê năng lượng mặt trời",
+      "description1": "Tại WeShare, sứ mệnh của chúng tôi là làm cho năng lượng sạch trở nên phải chăng, có lợi nhuận và dễ tiếp cận cho mọi người.",
+      "description2": "Chúng tôi kết nối các nhà đầu tư và người mua điện thông qua cho thuê năng lượng mặt trời — biến mái nhà thành tài sản tái tạo mang lại tiết kiệm thực sự và lợi nhuận bền vững.",
+      "cardTitle1": "Thúc đẩy tăng trưởng bền vững —",
+      "cardTitle2": "Từng hợp đồng thuê năng lượng mặt trời",
+      "cardDescription1": "Tại WeShare, chúng tôi biến năng lượng sạch thành cơ hội được chia sẻ.",
+      "cardDescription2": "Thông qua đổi mới và minh bạch, chúng tôi đảm bảo mỗi hợp đồng thuê năng lượng mặt trời mang lại không chỉ lợi nhuận tài chính mạnh mẽ mà còn tác động môi trường và xã hội lâu dài.",
+      "point1": "Dân chủ hóa quyền truy cập vào các khoản đầu tư năng lượng sạch",
+      "point2": "Cung cấp lợi nhuận có thể đo lường với tác động thế giới thực",
+      "point3": "Giảm dấu chân carbon thông qua việc áp dụng năng lượng mặt trời",
+      "visitHub": "Truy cập Trung tâm trao đổi"
+    },
+    "vision": {
+      "title": "Tầm nhìn của chúng tôi",
+      "subtitle1": "Chuyển đổi năng lượng.",
+      "subtitle2": "Trao quyền cho cuộc sống.",
+      "description": "Tại WeShare, tầm nhìn của chúng tôi là định hình lại tương lai năng lượng thông qua đổi mới năng lượng mặt trời và cơ hội được chia sẻ — tạo ra một thế giới mà mỗi mái nhà cung cấp sự thịnh vượng và mỗi khoản đầu tư thúc đẩy tính bền vững.",
+      "cardTitle1": "Xây dựng một tương lai tươi sáng hơn, xanh hơn",
+      "cardTitle2": "— Cùng nhau",
+      "cardDescription1": "Tại WeShare, chúng tôi hình dung một thế giới mà mỗi mái nhà trở thành nguồn năng lượng sạch và sự thịnh vượng được chia sẻ.",
+      "cardDescription2": "Thông qua đổi mới, hợp tác và đầu tư có ý thức, chúng tôi đang thúc đẩy quá trình chuyển đổi sang tương lai năng lượng bền vững mang lại lợi ích cho cả con người và hành tinh.",
+      "point1": "Dân chủ hóa quyền truy cập vào các khoản đầu tư năng lượng sạch",
+      "point2": "Cung cấp lợi nhuận có thể đo lường với tác động thế giới thực",
+      "point3": "Giảm dấu chân carbon thông qua việc áp dụng năng lượng mặt trời",
+      "visitHub": "Truy cập Trung tâm trao đổi"
+    },
+    "solution": {
+      "title": "Giải pháp của chúng tôi",
+      "subtitle": "Tăng tốc quá trình chuyển đổi sang năng lượng sạch, được chia sẻ",
+      "description1": "Tại WeShare, chúng tôi cung cấp một nền tảng cho thuê năng lượng mặt trời tích hợp kết nối các nhà đầu tư, hộ gia đình và doanh nghiệp thông qua các dự án năng lượng mặt trời thực tế, có thể đo lường.",
+      "description2": "Giải pháp của chúng tôi làm cho việc áp dụng năng lượng sạch trở nên đơn giản, minh bạch và bổ ích — từ đầu tư đến lắp đặt, vận hành và lợi nhuận dài hạn.",
+      "cardTitle": "Trao quyền tăng trưởng thông qua cho thuê năng lượng mặt trời thông minh",
+      "cardDescription1": "Với công nghệ tiên tiến và hoạt động minh bạch, WeShare biến mỗi dự án cho thuê năng lượng mặt trời thành một trải nghiệm đầu tư liền mạch, dựa trên dữ liệu.",
+      "cardDescription2": "Nền tảng của chúng tôi kết hợp giám sát thời gian thực, phân tích tài chính và quản lý dài hạn — đảm bảo hiệu quả, tác động và lợi nhuận cho tất cả các bên liên quan.",
+      "point1": "Đơn giản hóa quyền sở hữu dự án tái tạo",
+      "point2": "Tối đa hóa hiệu suất với phân tích thời gian thực",
+      "point3": "Cho phép các nhà đầu tư tạo ra giá trị có thể đo lường, lâu dài",
+      "visitHub": "Truy cập Trung tâm trao đổi"
+    },
+    "howItWorks": {
+      "title": "Cách",
+      "titleSpan": "hoạt động",
+      "subtitle": "Kết nối liền mạch các nhà đầu tư và người mua điện cho một ngày mai xanh hơn.",
+      "investorTab": "Nhà đầu tư",
+      "offtakerTab": "Người mua điện",
+      "investor": {
+        "step1Title": "Đăng ký & Chọn dự án",
+        "step1Point1": "Khám phá các dự án đáng tin cậy trên WeShare và đầu tư vào dự án phù hợp với mục tiêu của bạn.",
+        "step1Point2": "Mỗi dự án đều có thông tin chi tiết rõ ràng về hiệu suất và độ tin cậy.",
+        "step2Title": "Hệ thống chạy tự động",
+        "step2Point1": "Chúng tôi chăm sóc việc lắp đặt, vận hành và bảo trì.",
+        "step2Point2": "Bạn đầu tư một lần và tận hưởng quyền sở hữu dễ dàng.",
+        "step3Title": "Kiếm tiền & Theo dõi thời gian thực",
+        "step3Point1": "Theo dõi thu nhập và hiệu suất dự án của bạn trong thời gian thực thông qua Ứng dụng Web WeShare."
+      },
+      "offtaker": {
+        "step1Title": "Đăng ký thuê năng lượng mặt trời",
+        "step1Point1": "Gửi thông tin chi tiết về tài sản và yêu cầu năng lượng của bạn.",
+        "step1Point2": "Được kết nối với giải pháp năng lượng mặt trời phù hợp với nhu cầu của bạn.",
+        "step2Title": "Lắp đặt & Thiết lập",
+        "step2Point1": "Lắp đặt chuyên nghiệp mà không cần chi phí trả trước.",
+        "step2Point2": "Bắt đầu tạo ra năng lượng sạch ngay lập tức.",
+        "step3Title": "Tiết kiệm & Giám sát",
+        "step3Point1": "Theo dõi tiết kiệm năng lượng và tác động môi trường của bạn trong thời gian thực."
+      }
+    },
+    "portfolio": {
+      "title": "Tổng quan danh mục đầu tư",
+      "subtitle": "Theo dõi các khoản đầu tư của bạn",
+      "totalInvestment": "Tổng đầu tư",
+      "activeProjects": "Dự án đang hoạt động",
+      "totalReturns": "Tổng lợi nhuận",
+      "totalKwh": "kWh Phát điện",
+      "totalIncome": "Thu nhập",
+      "totalSavings": "Tiết kiệm",
+      "averageROI": "ROI",
+      "co2Avoided": "CO2 tránh được",
+      "updated": "Đã cập nhật 2 giây trước"
+    },
+    "marketplace": {
+      "title": "Thị trường đầu tư",
+      "subtitle": "Khám phá các dự án có sẵn",
+      "viewAll": "Xem tất cả dự án",
+      "invest": "Đầu tư ngay",
+      "description": "Tham gia cùng hàng nghìn nhà đầu tư đầu tư vào các dự án năng lượng mặt trời đã được xác minh. Bắt đầu nhỏ, kiếm lợi nhuận ổn định và đóng góp cho tương lai xanh hơn.",
+      "becomeInvestor": "Trở thành Nhà đầu tư",
+      "signIn": "Đăng nhập"
+    },
+    "projects": {
+      "title": "Dự án nổi bật",
+      "subtitle": "Khám phá các dự án năng lượng mặt trời hàng đầu",
+      "viewDetails": "Xem chi tiết",
+      "investNow": "Đầu tư ngay",
+      "openForLease": "Dự án mở cho thuê",
+      "forResale": "Dự án để bán lại",
+      "kwhGenerated": "kWh Phát điện",
+      "roi": "ROI",
+      "expectedRevenue": "Doanh thu hàng năm dự kiến",
+      "loadMore": "Tải thêm dự án",
+      "projecttitle1": "Khu dân cư phức hợp Sunrise",
+      "projecttitle2": "Khu thương mại Green Valley",
+      "projecttitle3": "Nhà ở cộng đồng sinh thái"
+    },
+    "solarLease": {
+      "title": "Biến bất động sản của bạn thành cho thuê năng lượng mặt trời",
+      "subtitle": "Thuê tấm pin mặt trời cho doanh nghiệp của bạn",
+      "learnMore": "Tìm hiểu thêm",
+      "description": "Liệt kê mái nhà hoặc đất đai của bạn, hợp tác với các nhà đầu tư đáng tin cậy và kiếm thu nhập cho thuê dài hạn.",
+      "becomeOfftaker": "Trở thành Offtaker",
+      "signIn": "Đăng nhập"
+    },
+    "news": {
+      "title": "Tin tức mới nhất",
+      "titleSpan": "& Thông tin năng lượng",
+      "subtitle": "Luôn cập nhật các thông tin mới nhất, xu hướng thị trường và điểm nổi bật của dự án định hình tương lai của các khoản đầu tư năng lượng mặt trời.",
+      "readMore": "Đọc thêm",
+      "viewAll": "Xem tất cả tin tức",
+      "news1Title": "Tương lai tỏa sáng tại Học viện Greenfield với sáng kiến năng lượng mặt trời mới",
+      "news2Title": "Cuộc cách mạng năng lượng mặt trời: Cách WeShare đang chuyển đổi đầu tư năng lượng",
+      "news3Title": "Các dự án năng lượng mặt trời cộng đồng đạt cột mốc mới vào năm 2024"
+    },
+    "energy": {
+      "title": "Sẵn sàng đầu tư<br />vào năng lượng sạch?",
+      "subtitle": "Cùng nhau tạo nên sự khác biệt",
+      "co2Reduced": "CO₂ giảm",
+      "treesPlanted": "Tương đương số cây trồng",
+      "homespowered": "Ngôi nhà được cung cấp điện",
+      "description": "Bắt đầu nhỏ, kiếm lợi nhuận ổn định — phát triển danh mục đầu tư của bạn với các dự án cho thuê năng lượng mặt trời đã được xác minh.",
+      "becomeInvestor": "Trở thành Nhà đầu tư",
+      "signIn": "Đăng nhập"
+    },
+    "testimonial": {
+      "title": "Điều mà",
+      "titleSpan": "Cộng đồng nói",
+      "subtitle": "Câu chuyện thực từ các nhà đầu tư và người cho thuê đang cung cấp năng lượng cho tương lai cùng chúng tôi."
+    },
+    "cta": {
+      "title": "Có không gian cho năng lượng mặt trời?",
+      "subtitle": "Tham gia cùng hàng nghìn nhà đầu tư tạo nên sự khác biệt",
+      "getStarted": "Bắt đầu ngay hôm nay",
+      "description": "Thuê hệ thống năng lượng mặt trời, tiết kiệm hóa đơn và cung cấp năng lượng cho tương lai bền vững với WeShare.",
+      "becomeOfftaker": "Trở thành offtaker"
+    },
+    "submit": {
+      "title": "Có bất động sản cho năng lượng mặt trời?",
+      "subtitle": "Gửi dự án năng lượng mặt trời của bạn để nhận tài trợ",
+      "submitProject": "Gửi dự án",
+      "description": "Gửi yêu cầu cho thuê của bạn và kết nối với các nhà đầu tư muốn tài trợ lắp đặt năng lượng mặt trời của bạn.",
+      "button": "Gửi yêu cầu cho thuê"
+    },
+    "footer": {
+      "tagline": "Dân chủ hóa quyền truy cập vào các khoản đầu tư năng lượng mặt trời.",
+      "description": "WeShare làm cho đầu tư năng lượng sạch trở nên đơn giản, minh bạch và bổ ích thông qua các giải pháp cho thuê năng lượng mặt trời sáng tạo — trao quyền cho các nhà đầu tư và cộng đồng để chia sẻ lợi ích của năng lượng bền vững.",
+      "quickLinks": "Liên kết nhanh",
+      "home": "Trang chủ",
+      "aboutUs": "Về chúng tôi",
+      "exchangeHub": "Trung tâm trao đổi",
+      "howItWorks": "Cách thức hoạt động",
+      "news": "Tin tức",
+      "contactSettings": "Liên hệ & Cài đặt",
+      "language": "Ngôn ngữ",
+      "country": "Quốc gia",
+      "copyright": "©2025 WeShare Nền tảng cho thuê năng lượng mặt trời",
+      "privacyPolicy": "Chính sách bảo mật",
+      "termsOfService": "Điều khoản dịch vụ"
+    }
+  },
   "misc": {
     "welcomeMessage": "Chào mừng bạn đến với Sunshare!",
     "goodMorning": "Chào buổi sáng",

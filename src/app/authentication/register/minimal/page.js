@@ -1,6 +1,8 @@
 import RegisterForm from '@/components/authentication/RegisterForm'
 import React from 'react'
 
+export const dynamic = 'force-dynamic'
+
 const page = () => {
   return (
     <main className="auth-minimal-wrapper">

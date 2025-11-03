@@ -1,6 +1,8 @@
 import OtpVerifyForm from '@/components/authentication/OtpVerifyForm'
 import React from 'react'
 
+export const dynamic = 'force-dynamic'
+
 const page = () => {
   return (
     <main className="auth-minimal-wrapper">
