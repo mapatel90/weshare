@@ -2,6 +2,8 @@ import RegisterForm from '@/components/authentication/RegisterForm'
 import Image from 'next/image'
 import React from 'react'
 
+export const dynamic = 'force-dynamic'
+
 const page = () => {
   return (
     <main className="auth-cover-wrapper">

@@ -1,6 +1,8 @@
 import ResetForm from '@/components/authentication/ResetForm'
 import React from 'react'
 
+export const dynamic = 'force-dynamic'
+
 const page = () => {
   return (
     <main className="auth-minimal-wrapper">
