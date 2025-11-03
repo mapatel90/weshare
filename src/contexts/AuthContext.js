@@ -5,7 +5,7 @@
 
 'use client'
 
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { apiGet, apiPost } from '@/lib/api'
 
@@ -22,26 +22,30 @@ export const useAuth = () => {
 export default function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
+  const authCheckInProgress = useRef(false)
   const router = useRouter()
 
   // Get backend URL from environment variable
   const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000'
 
-  // Check if user is logged in on app start
-  useEffect(() => {
-    checkAuth()
-  }, [])
+  const checkAuth = useCallback(async (silent = false) => {
+    // Prevent multiple simultaneous checks
+    if (authCheckInProgress.current) {
+      return
+    }
 
-  const checkAuth = async () => {
     try {
+      authCheckInProgress.current = true
       const token = localStorage.getItem('accessToken')
       if (!token) {
         setLoading(false)
+        localStorage.removeItem('cachedUser')
         return
       }
 
       // Verify token by calling your backend server using API helper
-      const data = await apiGet('/api/auth/me')
+      // Disable loader for auth check to prevent blocking UI
+      const data = await apiGet('/api/auth/me', { showLoader: false })
 
       // Transform user data to match frontend expectations
       const transformedUser = {
@@ -55,15 +59,44 @@ export default function AuthProvider({ children }) {
       }
 
       setUser(transformedUser)
+      // Cache user data to avoid API calls on subsequent navigations
+      localStorage.setItem('cachedUser', JSON.stringify(transformedUser))
     } catch (error) {
       console.error('Auth check error:', error)
       // Token invalid, remove it
       localStorage.removeItem('accessToken')
+      localStorage.removeItem('cachedUser')
       document.cookie = 'accessToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'
+      setUser(null)
     } finally {
-      setLoading(false)
+      authCheckInProgress.current = false
+      if (!silent) {
+        setLoading(false)
+      }
     }
-  }
+  }, [])
+
+  // Check if user is logged in on app start
+  useEffect(() => {
+    // Try to load cached user first for instant UI
+    const cachedUser = localStorage.getItem('cachedUser')
+    if (cachedUser) {
+      try {
+        const parsedUser = JSON.parse(cachedUser)
+        setUser(parsedUser)
+        setLoading(false)
+        // Still verify in background, but don't block UI
+        checkAuth(true)
+        return
+      } catch (e) {
+        // Cache corrupted, clear it
+        localStorage.removeItem('cachedUser')
+      }
+    }
+    
+    // No cache, check auth normally
+    checkAuth(false)
+  }, [checkAuth])
 
   const login = async (username, password) => {
     try {
@@ -99,6 +132,8 @@ export default function AuthProvider({ children }) {
         }
         // Set user
         setUser(transformedUser)
+        // Cache user data
+        localStorage.setItem('cachedUser', JSON.stringify(transformedUser))
 
         // Redirect to dashboard
         if (transformedUser.userRole === 3) {
@@ -126,12 +161,14 @@ export default function AuthProvider({ children }) {
   const logout = () => {
     // Clear storage
     localStorage.removeItem('accessToken')
+    localStorage.removeItem('cachedUser')
 
     // Clear cookie
     document.cookie = 'accessToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'
 
     // Clear user
     setUser(null)
+    authCheckInProgress.current = false
 
     // Redirect to login
     router.push('/login')

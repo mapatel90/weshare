@@ -91,9 +91,10 @@ const UsersViewDetails = () => {
     return null
   }
 
-  if (loading) {
-    return <LoadingSpinner label={lang('common.loading', 'Loading...')} />
-  }
+  // Commented out - using global loader instead
+  // if (loading) {
+  //   return <LoadingSpinner label={lang('common.loading', 'Loading...')} />
+  // }
 
   if (!user) {
     return (

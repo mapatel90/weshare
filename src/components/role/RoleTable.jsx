@@ -1,14 +1,31 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import ReactDOM from "react-dom";
 import { apiGet, apiPost, apiPut, apiDelete } from "@/lib/api";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { FiTrash2, FiEdit3, FiPlus } from "react-icons/fi";
 import Table from "@/components/shared/table/Table";
 import RoleHeaderSetting from "./RoleHeader";
 import { showSuccessToast } from "@/utils/topTost";
-import { createPortal } from "react-dom";
 import Swal from "sweetalert2";
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  FormHelperText,
+  Button,
+  Chip,
+  Box,
+  IconButton,
+  Typography,
+  Stack,
+} from "@mui/material";
+import { Close as CloseIcon } from "@mui/icons-material";
 
 const RoleTable = () => {
   const { lang } = useLanguage();
@@ -165,18 +182,19 @@ const RoleTable = () => {
         }[status] || { label: "Unknown", color: "#999" };
 
         return (
-          <span
-            className="badge"
-            style={{
+          <Chip
+            label={config.label}
+            sx={{
               backgroundColor: config.color,
               color: "#fff",
-              padding: "5px 10px",
-              borderRadius: "8px",
-              fontSize: "12px",
+              fontWeight: 500,
+              minWidth: 80,
+              "&:hover": {
+                backgroundColor: config.color,
+                opacity: 0.9,
+              },
             }}
-          >
-            {config.label}
-          </span>
+          />
         );
       },
     },
@@ -186,161 +204,143 @@ const RoleTable = () => {
       cell: (info) => {
         const row = info.row.original;
         return (
-          <div className="d-flex gap-3">
-            <FiEdit3
-              size={18}
+          <Stack direction="row" spacing={1} sx={{ flexWrap: "nowrap" }}>
+            <IconButton
+              size="small"
               onClick={() => handleEdit(row)}
-              style={{
-                color: "#007bff",
-                cursor: "pointer",
+              sx={{
+                color: "#1976d2",
                 transition: "transform 0.2s ease",
+                "&:hover": {
+                  backgroundColor: "rgba(25, 118, 210, 0.08)",
+                  transform: "scale(1.1)",
+                },
               }}
-            />
-            <FiTrash2
-              size={18}
+            >
+              <FiEdit3 size={18} />
+            </IconButton>
+            <IconButton
+              size="small"
               onClick={() => handleDelete(row.id)}
-              style={{
-                color: "#dc3545",
-                cursor: "pointer",
+              sx={{
+                color: "#d32f2f",
                 transition: "transform 0.2s ease",
+                "&:hover": {
+                  backgroundColor: "rgba(211, 47, 47, 0.08)",
+                  transform: "scale(1.1)",
+                },
               }}
-            />
-          </div>
+            >
+              <FiTrash2 size={18} />
+            </IconButton>
+          </Stack>
         );
       },
+     meta: { disableSort: true },
     },
   ];
 
   /** ✅ Loader */
-  if (loading) {
-    return (
-      <div className="text-center py-5">
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </div>
-      </div>
-    );
-  }
+  // Commented out - using global loader instead
+  // if (loading) {
+  //   return (
+  //     <div className="text-center py-5">
+  //       <div className="spinner-border text-primary" role="status">
+  //         <span className="visually-hidden">Loading...</span>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
   /** ✅ Render */
-  const backdropNode = (
-    <div
-      className="modal-backdrop fade show"
-      style={{ zIndex: 1050 }}
-      onClick={handleClose}
-      data-testid="modal-backdrop"
-    />
-  );
-  const modalNode = (
-    <div
-      className="modal fade show"
-      id="roleCrudModal"
-      tabIndex="-1"
-      style={{ display: "block", zIndex: 1055 }}
-      aria-modal="true"
-      role="dialog"
-      onClick={handleClose}
-    >
-      <div
-        className="modal-dialog"
-        role="document"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="modal-content">
-          <div className="modal-header">
-            <h5 className="modal-title">
-              {modalMode === "add"
-                ? lang("roles.addRole")
-                : `${lang("common.edit")} ${lang("roles.role")}`}
-            </h5>
-            <button
-              type="button"
-              className="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Close"
-              onClick={handleClose}
-            ></button>
-          </div>
-
-          <div className="modal-body">
-            <div className="mb-3">
-              <label htmlFor="roleName" className="form-label">
-                {lang("roles.role")}
-              </label>
-              <input
-                id="roleName"
-                type="text"
-                placeholder={lang("roles.roleName")}
-                value={roleName}
-                onChange={(e) => setRoleName(e.target.value)}
-                className="form-control"
-              />
-              {error ? (
-                <div className="invalid-feedback d-block">{error}</div>
-              ) : null}
-            </div>
-            <div className="mb-3">
-              <label htmlFor="roleStatus" className="form-label">
-                {lang("common.status")}
-              </label>
-              <select
-                id="roleStatus"
-                className="form-label form-select"
-                value={status}
-                onChange={(e) => setStatus(e.target.value)}
-              >
-                <option value="">{lang("roles.selectStatus")}</option>
-                <option value="1">{lang("common.active")}</option>
-                <option value="0">{lang("common.inactive")}</option>
-              </select>
-            </div>
-          </div>
-          <div className="modal-footer">
-            <button
-              type="button"
-              className="btn btn-secondary"
-              data-bs-dismiss="modal"
-              onClick={handleClose}
-            >
-              {lang("common.cancel")}
-            </button>
-            <button
-              type="button"
-              className="btn btn-primary"
-              onClick={handleSubmit}
-            >
-              {modalMode === "add"
-                ? lang("common.save")
-                : lang("common.update")}
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
 
   return (
     <>
-
       {/* Table */}
       <div className="content-area" data-scrollbar-target="#psScrollbarInit">
-
-      {/* Header with Add Role button triggers modal */}
-      <RoleHeaderSetting onAddRole={handleAdd} isSubmitting={false} />
+        {/* Header with Add Role button triggers modal */}
+        <RoleHeaderSetting onAddRole={handleAdd} isSubmitting={false} />
 
         <div className="content-area-body">
-            <div className="card-body">
-              <Table data={rolesData} columns={columns} />
-              {/* Render modal and backdrop into body only when modal open */}
-              {(modalMode === "add" || modalMode === "edit") && typeof document !== "undefined" && (
-                <>
-                  {createPortal(backdropNode, document.body)}
-                  {createPortal(modalNode, document.body)}
-                </>
-              )}
-            </div>
+          <div className="card-body">
+            <Table data={rolesData} columns={columns} />
+          </div>
         </div>
       </div>
+
+      <Dialog
+        open={!!modalMode}
+        onClose={handleClose}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 2,
+          },
+        }}
+      >
+        <DialogTitle
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            pb: 1,
+          }}
+        >
+          <Typography variant="h6" component="span">
+            {modalMode === "add"
+              ? lang("roles.addRole")
+              : `${lang("common.edit")} ${lang("roles.role")}`}
+          </Typography>
+          <IconButton
+            aria-label="close"
+            onClick={handleClose}
+            sx={{
+              color: (theme) => theme.palette.grey[500],
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 3, pt: 2 }}>
+            <TextField
+              label={lang("roles.role")}
+              placeholder={lang("roles.roleName")}
+              value={roleName}
+              onChange={(e) => {
+                setRoleName(e.target.value);
+                if (error) setError("");
+              }}
+              error={!!error}
+              helperText={error}
+              fullWidth
+            />
+
+            <FormControl fullWidth>
+              <InputLabel id="role-status-select-label">{lang("common.status")}</InputLabel>
+              <Select
+                labelId="role-status-select-label"
+                value={status}
+                label={lang("common.status")}
+                onChange={(e) => setStatus(e.target.value)}
+              >
+                <MenuItem value="">{lang("roles.selectStatus")}</MenuItem>
+                <MenuItem value="1">{lang("common.active")}</MenuItem>
+                <MenuItem value="0">{lang("common.inactive")}</MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2.5 }}>
+          <Button onClick={handleClose} color="error" variant="outlined">
+            {lang("common.cancel")}
+          </Button>
+          <Button onClick={handleSubmit} variant="contained">
+            {modalMode === "add" ? lang("common.save") : lang("common.update")}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 };

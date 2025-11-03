@@ -39,6 +39,7 @@
     "@fullcalendar/list": "^6.1.15",
     "@fullcalendar/react": "^6.1.15",
     "@fullcalendar/timegrid": "^6.1.15",
+    "@mui/icons-material": "^7.3.4",
     "@mui/material": "^7.3.4",
     "@popperjs/core": "^2.11.8",
     "@prisma/client": "^6.18.0",

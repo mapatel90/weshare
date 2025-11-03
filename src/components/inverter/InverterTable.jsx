@@ -6,8 +6,26 @@ import { apiGet, apiDelete, apiPost, apiPut } from "@/lib/api";
 import { FiEdit3, FiTrash2 } from "react-icons/fi";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { showSuccessToast } from "@/utils/topTost";
-import { createPortal } from "react-dom";
 import Swal from "sweetalert2";
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  FormHelperText,
+  Button,
+  Chip,
+  Box,
+  IconButton,
+  Typography,
+  Stack,
+} from "@mui/material";
+import { Close as CloseIcon } from "@mui/icons-material";
 
 const InverterTable = () => {
   const { lang } = useLanguage();
@@ -267,18 +285,19 @@ const InverterTable = () => {
           0: { label: lang("inverter.inactive") || "Inactive", color: "#ea4d4d" },
         }[s] || { label: s, color: "#999" };
         return (
-          <span
-            className="badge"
-            style={{
+          <Chip
+            label={config.label}
+            sx={{
               backgroundColor: config.color,
               color: "#fff",
-              padding: "5px 10px",
-              borderRadius: "8px",
-              fontSize: "12px"
+              fontWeight: 500,
+              minWidth: 80,
+              "&:hover": {
+                backgroundColor: config.color,
+                opacity: 0.9,
+              },
             }}
-          >
-            {config.label}
-          </span>
+          />
         );
       }
     },
@@ -286,9 +305,9 @@ const InverterTable = () => {
       accessorKey: "actions",
       header: () => lang("common.actions"),
       cell: ({ row }) => (
-        <div className="d-flex gap-2" style={{ flexWrap: "nowrap" }}>
-          <FiEdit3
-            size={18}
+        <Stack direction="row" spacing={1} sx={{ flexWrap: "nowrap" }}>
+          <IconButton
+            size="small"
             onClick={() => {
               // Open modal for edit with prefilled data via window event
               const item = row.original;
@@ -296,23 +315,32 @@ const InverterTable = () => {
                 new CustomEvent("inverter:open-edit", { detail: { item } })
               );
             }}
-            style={{
-              color: "#007bff",
-              cursor: "pointer",
+            sx={{
+              color: "#1976d2",
               transition: "transform 0.2s ease",
+              "&:hover": {
+                backgroundColor: "rgba(25, 118, 210, 0.08)",
+                transform: "scale(1.1)",
+              },
             }}
-          />
-
-          <FiTrash2
+          >
+            <FiEdit3 size={18} />
+          </IconButton>
+          <IconButton
+            size="small"
             onClick={() => handleDelete(row.original.id)}
-            size={18}
-            style={{
-              color: "#dc3545",
-              cursor: "pointer",
+            sx={{
+              color: "#d32f2f",
               transition: "transform 0.2s ease",
+              "&:hover": {
+                backgroundColor: "rgba(211, 47, 47, 0.08)",
+                transform: "scale(1.1)",
+              },
             }}
-          />
-        </div>
+          >
+            <FiTrash2 size={18} />
+          </IconButton>
+        </Stack>
       ),
       meta: {
         disableSort: true,
@@ -330,222 +358,161 @@ const InverterTable = () => {
     setPendingEdit(null);
   };
 
-  // Render modal & backdrop via React Portal only if modalMode:
-  const backdropNode = (
-    <div
-      className="modal-backdrop fade show"
-      style={{ zIndex: 1050 }}
-      onClick={handleCloseModal}
-      data-testid="modal-backdrop"
-    />
-  );
-  const modalNode = (
-    <div
-      className="modal fade show"
-      id="addNewInverter"
-      tabIndex="-1"
-      style={{ display: "block", zIndex: 1055 }}
-      aria-modal="true"
-      role="dialog"
-      onClick={handleCloseModal}
-    >
-      <div
-        className="modal-dialog modal-lg"
-        role="document"
-        onClick={e => e.stopPropagation()}
-      >
-        <div className="modal-content">
-          {/* Modal header/body/footer as before, only update close/cancel to call handleCloseModal */}
-          <div className="modal-header">
-            <h5 className="modal-title">
-              {modalMode === 'edit'
-                ? lang("inverter.editInverter")
-                : lang("inverter.addInverter")}
-            </h5>
-            <button
-              type="button"
-              className="btn-close"
-              aria-label="Close"
-              onClick={handleCloseModal}
-            ></button>
-          </div>
-
-          <div className="modal-body">
-            <div className="mb-4">
-              <label htmlFor="companyName" className="form-label">
-                {lang("inverter.companyName")}
-              </label>
-              <input
-                type="text"
-                id="companyName"
-                className={`form-control ${
-                  errors.companyName ? "is-invalid" : ""
-                }`}
-                placeholder={lang("inverter.companyNamePlaceholder")}
-                value={companyName}
-                onChange={(e) => {
-                  setCompanyName(e.target.value);
-                  if (errors.companyName)
-                    setErrors((prev) => ({ ...prev, companyName: "" }));
-                }}
-              />
-              {errors.companyName ? (
-                <div className="invalid-feedback d-block">
-                  {errors.companyName}
-                </div>
-              ) : null}
-            </div>
-
-            <div className="mb-4">
-              <label htmlFor="inverterName" className="form-label">
-                {lang("inverter.inverterName")}
-              </label>
-              <input
-                type="text"
-                id="inverterName"
-                className={`form-control ${
-                  errors.inverterName ? "is-invalid" : ""
-                }`}
-                placeholder={lang("inverter.inverterNamePlaceholder")}
-                value={inverterName}
-                onChange={(e) => {
-                  setInverterName(e.target.value);
-                  if (errors.inverterName)
-                    setErrors((prev) => ({ ...prev, inverterName: "" }));
-                }}
-              />
-              {errors.inverterName ? (
-                <div className="invalid-feedback d-block">
-                  {errors.inverterName}
-                </div>
-              ) : null}
-            </div>
-
-            <div className="form-group mb-4">
-              <label className="form-label">{lang("inverter.type")}</label>
-              {typesError ? (
-                <div className="text-danger small">{typesError}</div>
-              ) : (
-                <SelectDropdown
-                  options={typeOptions}
-                  defaultSelect={lang("inverter.selectType")}
-                  selectedOption={selectedType}
-                  onSelectOption={(option) => {
-                    setSelectedType(option);
-                    if (errors.selectedType)
-                      setErrors((prev) => ({ ...prev, selectedType: "" }));
-                  }}
-                />
-              )}
-              {errors.selectedType ? (
-                <div className="invalid-feedback d-block">
-                  {errors.selectedType}
-                </div>
-              ) : null}
-              {loadingTypes && (
-                <div className="text-muted small mt-1">Loading types...</div>
-              )}
-            </div>
-
-            <div className="mb-4">
-              <label htmlFor="apiKey" className="form-label">
-                {lang("inverter.apiKey")}
-              </label>
-              <input
-                type="text"
-                id="apiKey"
-                className={`form-control ${errors.apiKey ? "is-invalid" : ""}`}
-                placeholder={lang("inverter.apiKeyPlaceholder")}
-                value={apiKey}
-                onChange={(e) => {
-                  setApiKey(e.target.value);
-                  if (errors.apiKey)
-                    setErrors((prev) => ({ ...prev, apiKey: "" }));
-                }}
-              />
-              {errors.apiKey ? (
-                <div className="invalid-feedback d-block">{errors.apiKey}</div>
-              ) : null}
-            </div>
-
-            <div className="mb-4">
-              <label htmlFor="secretKey" className="form-label">
-                {lang("inverter.secretKey")}
-              </label>
-              <input
-                type="text"
-                id="secretKey"
-                className={`form-control ${
-                  errors.secretKey ? "is-invalid" : ""
-                }`}
-                placeholder={lang("inverter.secretKeyPlaceholder")}
-                value={secretKey}
-                onChange={(e) => {
-                  setSecretKey(e.target.value);
-                  if (errors.secretKey)
-                    setErrors((prev) => ({ ...prev, secretKey: "" }));
-                }}
-              />
-              {errors.secretKey ? (
-                <div className="invalid-feedback d-block">
-                  {errors.secretKey}
-                </div>
-              ) : null}
-            </div>
-
-            {/* Status Dropdown Section */}
-            <div className="form-group mb-4">
-              <label className="form-label">{lang("inverter.status")}</label>
-              <select
-                className={`form-select ${statusError ? "is-invalid" : ""}`}
-                value={status}
-                onChange={e => {
-                  setStatus(e.target.value);
-                  if (statusError) setStatusError("");
-                }}
-              >
-                <option value="">{lang("inverter.selectStatus") || "Select Status"}</option>
-                <option value="1">{lang("inverter.active") || "Active"}</option>
-                <option value="0">{lang("inverter.inactive") || "Inactive"}</option>
-              </select>
-              {statusError ? <div className="invalid-feedback d-block">{statusError}</div> : null}
-            </div>
-          </div>
-
-          <div className="modal-footer">
-            <button
-              type="button"
-              className="btn btn-danger"
-              onClick={handleCloseModal}
-            >
-              {lang("common.cancel")}
-            </button>
-            <button
-              type="button"
-              className="btn btn-primary"
-              onClick={handleAdd}
-              disabled={submitting}
-            >
-              {submitting ? lang("common.loading") : lang("common.save")}
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
 
   return (
     <>
       <Table data={invertersData} columns={columns} />
-      {modalMode && typeof document !== "undefined" && (
-        <>
-          {createPortal(backdropNode, document.body)}
-          {createPortal(modalNode, document.body)}
-        </>
-      )}
+      <Dialog
+        open={!!modalMode}
+        onClose={handleCloseModal}
+        maxWidth="md"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 2,
+          },
+        }}
+      >
+        <DialogTitle
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            pb: 1,
+          }}
+        >
+          <Typography variant="h6" component="span">
+            {modalMode === "edit"
+              ? lang("inverter.editInverter")
+              : lang("inverter.addInverter")}
+          </Typography>
+          <IconButton
+            aria-label="close"
+            onClick={handleCloseModal}
+            sx={{
+              color: (theme) => theme.palette.grey[500],
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 3, pt: 2 }}>
+            <TextField
+              label={lang("inverter.companyName")}
+              placeholder={lang("inverter.companyNamePlaceholder")}
+              value={companyName}
+              onChange={(e) => {
+                setCompanyName(e.target.value);
+                if (errors.companyName)
+                  setErrors((prev) => ({ ...prev, companyName: "" }));
+              }}
+              error={!!errors.companyName}
+              helperText={errors.companyName}
+              fullWidth
+            />
+
+            <TextField
+              label={lang("inverter.inverterName")}
+              placeholder={lang("inverter.inverterNamePlaceholder")}
+              value={inverterName}
+              onChange={(e) => {
+                setInverterName(e.target.value);
+                if (errors.inverterName)
+                  setErrors((prev) => ({ ...prev, inverterName: "" }));
+              }}
+              error={!!errors.inverterName}
+              helperText={errors.inverterName}
+              fullWidth
+            />
+
+            <FormControl fullWidth error={!!errors.selectedType}>
+              <InputLabel id="type-select-label">{lang("inverter.type")}</InputLabel>
+              <Select
+                labelId="type-select-label"
+                value={selectedType?.value || ""}
+                label={lang("inverter.type")}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  const option = typeOptions.find((opt) => opt.value === value) || null;
+                  setSelectedType(option);
+                  if (errors.selectedType)
+                    setErrors((prev) => ({ ...prev, selectedType: "" }));
+                }}
+              >
+                <MenuItem value="">{lang("inverter.selectType")}</MenuItem>
+                {typeOptions
+                  .filter((opt) => opt.value !== "select type")
+                  .map((option) => (
+                    <MenuItem key={option.value} value={option.value}>
+                      {option.label}
+                    </MenuItem>
+                  ))}
+              </Select>
+              {errors.selectedType && <FormHelperText>{errors.selectedType}</FormHelperText>}
+              {loadingTypes && (
+                <FormHelperText>{lang("common.loading")}</FormHelperText>
+              )}
+            </FormControl>
+
+            <TextField
+              label={lang("inverter.apiKey")}
+              placeholder={lang("inverter.apiKeyPlaceholder")}
+              value={apiKey}
+              onChange={(e) => {
+                setApiKey(e.target.value);
+                if (errors.apiKey)
+                  setErrors((prev) => ({ ...prev, apiKey: "" }));
+              }}
+              error={!!errors.apiKey}
+              helperText={errors.apiKey}
+              fullWidth
+            />
+
+            <TextField
+              label={lang("inverter.secretKey")}
+              placeholder={lang("inverter.secretKeyPlaceholder")}
+              value={secretKey}
+              onChange={(e) => {
+                setSecretKey(e.target.value);
+                if (errors.secretKey)
+                  setErrors((prev) => ({ ...prev, secretKey: "" }));
+              }}
+              error={!!errors.secretKey}
+              helperText={errors.secretKey}
+              fullWidth
+            />
+
+            <FormControl fullWidth error={!!statusError}>
+              <InputLabel id="status-select-label">{lang("inverter.status")}</InputLabel>
+              <Select
+                labelId="status-select-label"
+                value={status}
+                label={lang("inverter.status")}
+                onChange={(e) => {
+                  setStatus(e.target.value);
+                  if (statusError) setStatusError("");
+                }}
+              >
+                <MenuItem value="">{lang("inverter.selectStatus") || "Select Status"}</MenuItem>
+                <MenuItem value="1">{lang("inverter.active") || "Active"}</MenuItem>
+                <MenuItem value="0">{lang("inverter.inactive") || "Inactive"}</MenuItem>
+              </Select>
+              {statusError && <FormHelperText>{statusError}</FormHelperText>}
+            </FormControl>
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2.5 }}>
+          <Button onClick={handleCloseModal} color="error" variant="outlined">
+            {lang("common.cancel")}
+          </Button>
+          <Button onClick={handleAdd} variant="contained" disabled={submitting}>
+            {submitting ? lang("common.loading") : lang("common.save")}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
-  
 };
 
 export default InverterTable;

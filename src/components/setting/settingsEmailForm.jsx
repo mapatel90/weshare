@@ -215,30 +215,31 @@ const SettingsEmailForm = () => {
     }
   };
 
-  if (settingsLoading && !isFormInitialized) {
-    return (
-      <div className="content-area">
-        <PerfectScrollbar>
-          <PageHeaderSetting />
-          <div className="content-area-body">
-            <div className="card mb-0">
-              <div className="card-body">
-                <div className="text-center py-5">
-                  <div className="spinner-border text-primary" role="status">
-                    <span className="visually-hidden">
-                      {lang("common.loading")}
-                    </span>
-                  </div>
-                  <p className="mt-2">{lang("common.loading")}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-          <Footer />
-        </PerfectScrollbar>
-      </div>
-    );
-  }
+  // Commented out - using global loader instead
+  // if (settingsLoading && !isFormInitialized) {
+  //   return (
+  //     <div className="content-area">
+  //       <PerfectScrollbar>
+  //         <PageHeaderSetting />
+  //         <div className="content-area-body">
+  //           <div className="card mb-0">
+  //             <div className="card-body">
+  //               <div className="text-center py-5">
+  //                 <div className="spinner-border text-primary" role="status">
+  //                   <span className="visually-hidden">
+  //                     {lang("common.loading")}
+  //                   </span>
+  //                 </div>
+  //                 <p className="mt-2">{lang("common.loading")}</p>
+  //               </div>
+  //             </div>
+  //           </div>
+  //         </div>
+  //         <Footer />
+  //       </PerfectScrollbar>
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="content-area">

@@ -179,11 +179,12 @@ const ProjectTable = () => {
 
   return (
     <>
-      {loading ? (
+      {/* Commented out - using global loader instead */}
+      {/* {loading ? (
         <div className="text-center py-5">Loading...</div>
-      ) : (
+      ) : ( */}
         <Table data={data} columns={columns} />
-      )}
+      {/* )} */}
     </>
   )
 }
