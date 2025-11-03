@@ -3,8 +3,10 @@
 import React from "react";
 import Link from "next/link";
 import { Box, Card, CardContent, Button, Typography } from "@mui/material";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const LoginPage = () => {
+    const { lang } = useLanguage();
     return (
         <Box
             className="loginSection"
@@ -30,7 +32,7 @@ const LoginPage = () => {
                     }}
                 />
                 <Typography variant="h5" fontWeight={600}>
-                    Login into your Account
+                    {lang('authentication.loginIntoYourAccount')}
                 </Typography>
             </Box>
 
@@ -47,6 +49,11 @@ const LoginPage = () => {
                 }}
             >
                 <CardContent>
+                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+                        <Link href="/" style={{ textDecoration: 'none', color: '#6c757d', fontSize: '0.9375rem' }}>
+                            <span style={{ marginRight: '0.25rem' }}>&#8592;</span> {lang('common.back')}
+                        </Link>
+                    </Box>
                     <Box
                         sx={{
                             display: "flex",
@@ -60,6 +67,7 @@ const LoginPage = () => {
                             component={Link}
                             href="/offtaker/login"
                             variant="contained"
+                            style={{width: "70%"}}
                             sx={{
                                 backgroundColor: "#FFC107",
                                 color: "#FFFFFF",
@@ -74,13 +82,14 @@ const LoginPage = () => {
                                 },
                             }}
                         >
-                            Login as Offtaker
+                            {lang('authentication.loginAsOfftaker')}
                         </Button>
 
                         <Button
                             component={Link}
                             href="/investor/login"
                             variant="contained"
+                            style={{width: "70%"}}
                             sx={{
                                 backgroundColor: "#696969",
                                 color: "#FFFFFF",
@@ -95,7 +104,7 @@ const LoginPage = () => {
                                 },
                             }}
                         >
-                            Login as Investor
+                            {lang('authentication.loginAsInvestor')}
                         </Button>
                     </Box>
                 </CardContent>

@@ -43,6 +43,9 @@
   },
   "authentication": {
     "login": "Login",
+    "loginIntoYourAccount": "Login into your Account",
+    "loginAsOfftaker": "Login as Offtaker",
+    "loginAsInvestor": "Login as Investor",
     "register": "Register",
     "forgotPassword": "Forgot Password",
     "resetPassword": "Reset Password",
