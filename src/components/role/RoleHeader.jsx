@@ -4,6 +4,7 @@ import { FiAlignLeft, FiSave, FiPlus } from 'react-icons/fi'
 import topTost from '@/utils/topTost'
 import { SettingSidebarContext } from '@/contentApi/settingSideBarProvider'
 import { useLanguage } from '@/contexts/LanguageContext'
+import { Button } from "@mui/material"
 
 const RoleHeaderSetting = ({ onAddRole, isSubmitting = false }) => {
     const { lang } = useLanguage()
@@ -18,7 +19,7 @@ const RoleHeaderSetting = ({ onAddRole, isSubmitting = false }) => {
             </div>
             <div className="page-header-right ms-auto">
                 <div className="d-flex align-items-center gap-3 page-header-right-items-wrapper">
-                    <button 
+                    {/* <button 
                         type="button"
                         className="btn btn-primary"
                         onClick={onAddRole}
@@ -26,7 +27,16 @@ const RoleHeaderSetting = ({ onAddRole, isSubmitting = false }) => {
                     >
                         <FiPlus size={16} className='me-2' />
                         {lang('roles.addRole')}
-                    </button>
+                    </button> */}
+                    <Button 
+                        variant="primary"
+                        className="common-orange-color"
+                        onClick={onAddRole}
+                        disabled={isSubmitting}
+                    >
+                        <FiPlus size={16} className='me-2' />
+                        {lang('roles.addRole')}
+                    </Button>
                 </div>
             </div>
         </div>

@@ -526,7 +526,7 @@
     "testSubtitle": "Send test email to make sure that your SMTP settings is set correctly.",
     "testFieldLabel": "Test Email",
     "testPlaceholder": "Send Test Email",
-    "testButton": "Send Test",
+    "testButton": "Test Mail",
     "messages": {
       "enterTestEmail": "Please enter a test email address.",
       "enterValidEmail": "Please enter a valid email address.",

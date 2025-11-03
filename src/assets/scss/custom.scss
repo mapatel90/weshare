@@ -149,3 +149,30 @@ body {
 }
 
 // Login section styles End
+.common-orange-color {
+    background-color: #F6A623 !important;
+    color: #fff !important;
+    text-transform: none !important;
+}
+
+.custom-orange-color:hover {
+    background-color: #e09620 !important;
+    color: #fff !important;
+}
+
+.common-grey-color {
+    background-color: #696969 !important;
+    color: #fff !important;
+    text-transform: none !important;
+}
+
+.custom-grey-color:hover {
+    background-color: #0d2333 !important;
+    color: #fff !important;
+}
+
+.custom-orange-outline {
+    border: 1px solid #F6A623 !important;
+    color: #F6A623 !important;
+    text-transform: none !important;
+}

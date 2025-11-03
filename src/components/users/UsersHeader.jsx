@@ -4,6 +4,7 @@ import React from 'react'
 import Link from 'next/link'
 import { FiPlus, FiDownload, FiUpload, FiArrowLeft } from 'react-icons/fi'
 import { useLanguage } from '@/contexts/LanguageContext'
+import { Button } from '@mui/material'
 
 const UsersHeader = () => {
   const { lang } = useLanguage()
@@ -12,10 +13,19 @@ const UsersHeader = () => {
       <div className="page-header-left d-flex align-items-center">
         {/* small-screen back button (visible only on mobile) */}
         <div className="d-flex align-items-center gap-2 page-header-right-items-wrapper">
-            <Link href="/admin/users/create" className="btn btn-primary">
+            {/* <Link href="/admin/users/create" className="btn btn-primary">
               <FiPlus size={16} className="me-2" />
               {lang('usersView.CreateUser')}
-            </Link>
+            </Link> */}
+            <Button
+              component={Link}
+              href="/admin/users/create"
+              variant="contained"
+              className="common-orange-color"
+              startIcon={<FiPlus size={16} />}
+            >
+              {lang('usersView.CreateUser')}
+            </Button>
           </div>
       </div>
       {/* <div className="page-header-left d-flex align-items-center">

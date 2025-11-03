@@ -4,6 +4,7 @@ import Dropdown from '@/components/shared/Dropdown'
 import { fileType } from '../leads/LeadsHeader'
 import ProjectsStatistics from '../widgetsStatistics/ProjectsStatistics'
 import Link from 'next/link'
+import { Button } from '@mui/material'
 
 const options = [
   { label: "Alls", color: "bg-primary" },
@@ -39,10 +40,19 @@ const ProjectsListHeader = () => {
           isAvatar={false}
           iconStrokeWidth={0}
         /> */}
-        <Link href="/admin/projects/create" className="btn btn-primary">
+        {/* <Link href="/admin/projects/create" className="btn common-orange-color">
           <FiPlus size={16} className='me-2' />
           <span>Create Prject</span>
-        </Link>
+        </Link> */}
+        <Button
+          component={Link}
+          href="/admin/projects/create"
+          variant="contained"
+          startIcon={<FiPlus size={16} />}
+          className="common-orange-color"
+        >
+          Create Project
+        </Button>
       </div>
       <div id="collapseOne" className="accordion-collapse collapse page-header-collapse">
         <div className="accordion-body pb-2">

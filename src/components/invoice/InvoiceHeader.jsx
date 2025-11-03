@@ -2,6 +2,7 @@
 import React from "react";
 import { FiPlus } from "react-icons/fi";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { Button } from "@mui/material";
 
 const InvoiceHeader = () => {
   const { lang } = useLanguage();
@@ -14,10 +15,18 @@ const InvoiceHeader = () => {
 
   return (
     <div className="d-flex align-items-center">
-      <button className="btn btn-primary" type="button" onClick={openAddModal}>
+      {/* <button className="btn btn-primary" type="button" onClick={openAddModal}>
         <FiPlus className="me-2" size={17} />
         {lang("invoice.addInvoice")}
-      </button>
+      </button> */}
+      <Button
+        variant="contained"
+        className="common-orange-color"
+        onClick={openAddModal}
+        startIcon={<FiPlus size={17} />}
+      >
+        {lang("invoice.addInvoice")}
+      </Button>
     </div>
   );
 };

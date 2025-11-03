@@ -59,7 +59,9 @@ const RegisterForm = ({loginPath}) => {
 
         try {
             const qs = new URLSearchParams({ username }).toString()
-            const data = await apiGet(`/api/auth/check-username?${qs}`)
+            const data = await apiGet(`/api/auth/check-username?${qs}`, {
+                showLoader: false // Don't show global loader for this background check
+            })
             
             console.log('Username check response:', data)
 
@@ -68,6 +70,8 @@ const RegisterForm = ({loginPath}) => {
             }
         } catch (err) {
             console.error('Error checking username:', err)
+            // Don't show error to user - username will be validated during registration anyway
+            // This check is just a convenience feature
         } finally {
             setUsernameChecking(false)
         }

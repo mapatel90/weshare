@@ -27,7 +27,7 @@ const ProjectCreateContent = () => {
     return (
         <div className="col-lg-12">
             <div className="card border-top-0">
-                <div className="card-body p-0 wizard" id="project-create-steps">
+                <div className="card-body wizard" id="project-create-steps">
                     {/* Remove step tabs, show only the form */}
                     <TabProjectBasicDetails
                         setFormData={setFormData}

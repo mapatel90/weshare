@@ -195,8 +195,8 @@ const ProjectTypePage = () => {
             <DynamicTitle titleKey="projects.projecttype" />
             <PageHeader>
                 <div className="ms-auto">
-                    {/* <Button variant="contained" onClick={openAdd}>+ {lang('projectType.addType', 'Add Type')}</Button> */}
-                    <button type="button" className="btn btn-primary" onClick={openAdd}>+ {lang('projectType.addType', 'Add Type')}</button>
+                    <Button variant="contained" className="common-orange-color" onClick={openAdd}>+ {lang('projectType.addType', 'Add Type')}</Button>
+                    {/* <button type="button" className="btn btn-primary" onClick={openAdd}>+ {lang('projectType.addType', 'Add Type')}</button> */}
                 </div>
             </PageHeader>
             <div className='main-content'>
@@ -263,10 +263,10 @@ const ProjectTypePage = () => {
                         </Box>
                     </DialogContent>
                     <DialogActions sx={{ px: 3, pb: 2.5 }}>
-                        <Button onClick={closeModal} color="error" variant="outlined">
+                        <Button onClick={closeModal} color="error" className="custom-orange-outline">
                             {lang('common.cancel', 'Cancel')}
                         </Button>
-                        <Button type="submit" variant="contained" disabled={loading || !form.name}>
+                        <Button type="submit" variant="contained" disabled={loading || !form.name} className="common-grey-color">
                             {loading ? lang('common.loading', 'Loading...') : lang('common.save', 'Save')}
                         </Button>
                     </DialogActions>

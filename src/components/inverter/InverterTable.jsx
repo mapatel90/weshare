@@ -503,10 +503,10 @@ const InverterTable = () => {
           </Box>
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2.5 }}>
-          <Button onClick={handleCloseModal} color="error" variant="outlined">
+          <Button onClick={handleCloseModal} color="error" variant="outlined" className="custom-orange-outline">
             {lang("common.cancel")}
           </Button>
-          <Button onClick={handleAdd} variant="contained" disabled={submitting}>
+          <Button onClick={handleAdd} variant="contained" disabled={submitting} className="common-grey-color">
             {submitting ? lang("common.loading") : lang("common.save")}
           </Button>
         </DialogActions>

@@ -1,3 +1,4 @@
+'use client'
 import React from 'react'
 import Footer from '@/components/shared/Footer'
 import PageHeader from '@/components/shared/pageHeader/PageHeader'

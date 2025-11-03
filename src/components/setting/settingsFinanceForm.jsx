@@ -8,6 +8,7 @@ import PerfectScrollbar from 'react-perfect-scrollbar'
 import TextAreaTopLabel from '@/components/shared/TextAreaTopLabel'
 import useSettings from '@/hooks/useSettings'
 import { useLanguage } from '@/contexts/LanguageContext'
+import { TextField, InputAdornment, FormControl, InputLabel, Select, MenuItem } from '@mui/material'
 
 const SettingsFinanceForm = () => {
   const { lang, currentLanguage } = useLanguage()
@@ -240,93 +241,156 @@ const SettingsFinanceForm = () => {
                 <div className="fs-12 text-muted">{lang("finance.subtitle")}</div>
               </div>
               <div className="mb-5">
-                <label className="form-label">{lang("finance.decimalSeparator")}</label>
-                <SelectDropdown
-                  options={decimalSeparator}
-                  defaultSelect={formData.finance_decimal_separator}
-                  selectedOption={selectedOptions.finance_decimal_separator}
-                  onSelectOption={(option) => handleDropdownChange('finance_decimal_separator', option)}
-                />
+                {/* <label className="form-label">{lang("finance.decimalSeparator")}</label> */}
+                <FormControl fullWidth>
+                  <InputLabel id="finance-decimal-label">{lang("finance.decimalSeparator")}</InputLabel>
+                  <Select
+                    labelId="finance-decimal-label"
+                    value={formData.finance_decimal_separator}
+                    label={lang("finance.decimalSeparator")}
+                    onChange={(e)=> handleDropdownChange('finance_decimal_separator', { value: e.target.value })}
+                  >
+                    {decimalSeparator.map(opt => (
+                      <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
                 <small className="form-text text-muted">{lang("finance.decimalSeparatorInfo")}</small>
               </div>
               <div className="mb-5">
-                <label className="form-label">{lang("finance.thousandSeparator")}</label>
-                <SelectDropdown
-                  options={thousandSeparator}
-                  defaultSelect={formData.finance_thousand_separator}
-                  selectedOption={selectedOptions.finance_thousand_separator}
-                  onSelectOption={(option) => handleDropdownChange('finance_thousand_separator', option)}
-                />
+                {/* <label className="form-label">{lang("finance.thousandSeparator")}</label> */}
+                <FormControl fullWidth>
+                  <InputLabel id="finance-thousand-label">{lang("finance.thousandSeparator")}</InputLabel>
+                  <Select
+                    labelId="finance-thousand-label"
+                    value={formData.finance_thousand_separator}
+                    label={lang("finance.thousandSeparator")}
+                    onChange={(e)=> handleDropdownChange('finance_thousand_separator', { value: e.target.value })}
+                  >
+                    {thousandSeparator.map(opt => (
+                      <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
                 <small className="form-text text-muted">{lang("finance.thousandSeparatorInfo")}</small>
               </div>
               <div className="mb-5">
-                <label className="form-label">{lang("finance.defaultTax")}</label>
-                <SelectDropdown
-                  options={taxOptions}
-                  defaultSelect={formData.finance_default_tax}
-                  selectedOption={selectedOptions.finance_default_tax}
-                  onSelectOption={(option) => handleDropdownChange('finance_default_tax', option)}
-                />
+                {/* <label className="form-label">{lang("finance.defaultTax")}</label> */}
+                <FormControl fullWidth>
+                  <InputLabel id="finance-default-tax-label">{lang("finance.defaultTax")}</InputLabel>
+                  <Select
+                    labelId="finance-default-tax-label"
+                    value={formData.finance_default_tax}
+                    label={lang("finance.defaultTax")}
+                    onChange={(e)=> handleDropdownChange('finance_default_tax', { value: e.target.value })}
+                  >
+                    {taxOptions.map(opt => (
+                      <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
                 <small className="form-text text-muted">{lang("finance.defaultTaxInfo")}</small>
               </div>
               <div className="mb-5">
-                <label className="form-label">{lang("finance.showTaxPerItem")}</label>
-                <SelectDropdown
-                  options={yesNoOptions}
-                  defaultSelect={formData.finance_show_tax_per_item}
-                  selectedOption={selectedOptions.finance_show_tax_per_item}
-                  onSelectOption={(option) => handleDropdownChange('finance_show_tax_per_item', option)}
-                />
+                {/* <label className="form-label">{lang("finance.showTaxPerItem")}</label> */}
+                <FormControl fullWidth>
+                  <InputLabel id="finance-show-tax-label">{lang("finance.showTaxPerItem")}</InputLabel>
+                  <Select
+                    labelId="finance-show-tax-label"
+                    value={formData.finance_show_tax_per_item}
+                    label={lang("finance.showTaxPerItem")}
+                    onChange={(e)=> handleDropdownChange('finance_show_tax_per_item', { value: e.target.value })}
+                  >
+                    {yesNoOptions.map(opt => (
+                      <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
                 <small className="form-text text-muted">{lang("finance.showTaxPerItemInfo")}</small>
               </div>
               <div className="mb-5">
-                <label className="form-label">{lang("finance.removeTaxNameFromItem")}</label>
-                <SelectDropdown
-                  options={yesNoOptions}
-                  defaultSelect={formData.finance_remove_tax_name_from_item}
-                  selectedOption={selectedOptions.finance_remove_tax_name_from_item}
-                  onSelectOption={(option) => handleDropdownChange('finance_remove_tax_name_from_item', option)}
-                />
+                {/* <label className="form-label">{lang("finance.removeTaxNameFromItem")}</label> */}
+                <FormControl fullWidth>
+                  <InputLabel id="finance-remove-tax-name-label">{lang("finance.removeTaxNameFromItem")}</InputLabel>
+                  <Select
+                    labelId="finance-remove-tax-name-label"
+                    value={formData.finance_remove_tax_name_from_item}
+                    label={lang("finance.removeTaxNameFromItem")}
+                    onChange={(e)=> handleDropdownChange('finance_remove_tax_name_from_item', { value: e.target.value })}
+                  >
+                    {yesNoOptions.map(opt => (
+                      <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
                 <small className="form-text text-muted">{lang("finance.removeTaxNameFromItemInfo")}</small>
               </div>
               <div className="mb-5">
-                <label className="form-label">{lang("finance.excludeCurrencySymbol")}</label>
-                <SelectDropdown
-                  options={yesNoOptions}
-                  defaultSelect={formData.finance_exclude_currency_symbol}
-                  selectedOption={selectedOptions.finance_exclude_currency_symbol}
-                  onSelectOption={(option) => handleDropdownChange('finance_exclude_currency_symbol', option)}
-                />
+                {/* <label className="form-label">{lang("finance.excludeCurrencySymbol")}</label> */}
+                <FormControl fullWidth>
+                  <InputLabel id="finance-exclude-currency-label">{lang("finance.excludeCurrencySymbol")}</InputLabel>
+                  <Select
+                    labelId="finance-exclude-currency-label"
+                    value={formData.finance_exclude_currency_symbol}
+                    label={lang("finance.excludeCurrencySymbol")}
+                    onChange={(e)=> handleDropdownChange('finance_exclude_currency_symbol', { value: e.target.value })}
+                  >
+                    {yesNoOptions.map(opt => (
+                      <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
                 <small className="form-text text-muted">{lang("finance.excludeCurrencySymbolInfo")}</small>
               </div>
               <div className="mb-5">
-                <label className="form-label">{lang("finance.removeZeroDecimals")}</label>
-                <SelectDropdown
-                  options={yesNoOptions}
-                  defaultSelect={formData.finance_remove_zero_decimals}
-                  selectedOption={selectedOptions.finance_remove_zero_decimals}
-                  onSelectOption={(option) => handleDropdownChange('finance_remove_zero_decimals', option)}
-                />
+                {/* <label className="form-label">{lang("finance.removeZeroDecimals")}</label> */}
+                <FormControl fullWidth>
+                  <InputLabel id="finance-remove-zero-label">{lang("finance.removeZeroDecimals")}</InputLabel>
+                  <Select
+                    labelId="finance-remove-zero-label"
+                    value={formData.finance_remove_zero_decimals}
+                    label={lang("finance.removeZeroDecimals")}
+                    onChange={(e)=> handleDropdownChange('finance_remove_zero_decimals', { value: e.target.value })}
+                  >
+                    {yesNoOptions.map(opt => (
+                      <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
                 <small className="form-text text-muted">{lang("finance.removeZeroDecimalsInfo")}</small>
               </div>
               <div className="mb-5">
-                <label className="form-label">{lang("finance.outputAmountToWords")}</label>
-                <SelectDropdown
-                  options={yesNoOptions}
-                  defaultSelect={formData.finance_output_amount_to_words}
-                  selectedOption={selectedOptions.finance_output_amount_to_words}
-                  onSelectOption={(option) => handleDropdownChange('finance_output_amount_to_words', option)}
-                />
+                {/* <label className="form-label">{lang("finance.outputAmountToWords")}</label> */}
+                <FormControl fullWidth>
+                  <InputLabel id="finance-amount-words-label">{lang("finance.outputAmountToWords")}</InputLabel>
+                  <Select
+                    labelId="finance-amount-words-label"
+                    value={formData.finance_output_amount_to_words}
+                    label={lang("finance.outputAmountToWords")}
+                    onChange={(e)=> handleDropdownChange('finance_output_amount_to_words', { value: e.target.value })}
+                  >
+                    {yesNoOptions.map(opt => (
+                      <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
                 <small className="form-text text-muted">{lang("finance.outputAmountToWordsInfo")}</small>
               </div>
               <div className="mb-5">
-                <label className="form-label">{lang("finance.numberWordsLowercase")}</label>
-                <SelectDropdown
-                  options={yesNoOptions}
-                  defaultSelect={formData.finance_number_words_lowercase}
-                  selectedOption={selectedOptions.finance_number_words_lowercase}
-                  onSelectOption={(option) => handleDropdownChange('finance_number_words_lowercase', option)}
-                />
+                {/* <label className="form-label">{lang("finance.numberWordsLowercase")}</label> */}
+                <FormControl fullWidth>
+                  <InputLabel id="finance-words-lowercase-label">{lang("finance.numberWordsLowercase")}</InputLabel>
+                  <Select
+                    labelId="finance-words-lowercase-label"
+                    value={formData.finance_number_words_lowercase}
+                    label={lang("finance.numberWordsLowercase")}
+                    onChange={(e)=> handleDropdownChange('finance_number_words_lowercase', { value: e.target.value })}
+                  >
+                    {yesNoOptions.map(opt => (
+                      <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
                 <small className="form-text text-muted">{lang("finance.numberWordsLowercaseInfo")}</small>
               </div>
               <hr className="my-5" />
@@ -335,173 +399,256 @@ const SettingsFinanceForm = () => {
                 <div className="fs-12 text-muted">{lang("finance.invoiceSubtitle")}</div>
               </div>
               <div className="mb-5">
-                <label className="form-label">{lang("finance.invoiceNumberPrefix")}</label>
-                <div className="input-group">
-                  <span className="input-group-text">INV-</span>
-                  <input
-                    type="text"
-                    className="form-control"
-                    placeholder={lang("finance.invoiceNumberPrefix")}
-                    value={formData.invoice_number_prefix}
-                    onChange={(e) => handleInputChange('invoice_number_prefix', e.target.value)}
-                  />
-                </div>
+                {/* <label className="form-label">{lang("finance.invoiceNumberPrefix")}</label> */}
+                <TextField
+                  label={lang("finance.invoiceNumberPrefix")}
+                  fullWidth
+                  placeholder={lang("finance.invoiceNumberPrefix")}
+                  value={formData.invoice_number_prefix}
+                  onChange={(e)=>handleInputChange('invoice_number_prefix', e.target.value)}
+                  InputProps={{ startAdornment: <InputAdornment position="start">INV-</InputAdornment> }}
+                />
                 <small className="form-text text-muted">{lang("finance.invoiceNumberPrefixInfo")}</small>
               </div>
               <div className="mb-5">
-                <label className="form-label">{lang("finance.invoiceDueAfterDays")}</label>
-                <div className="input-group">
-                  <span className="input-group-text">
-                    <FiCalendar size={16} />
-                  </span>
-                  <input
-                    type="number"
-                    className="form-control"
-                    placeholder={lang("finance.invoiceDueAfterDays")}
-                    value={formData.invoice_due_after_days}
-                    onChange={(e) => handleInputChange('invoice_due_after_days', e.target.value)}
-                  />
-                </div>
+                {/* <label className="form-label">{lang("finance.invoiceDueAfterDays")}</label> */}
+                <TextField
+                  label={lang("finance.invoiceDueAfterDays")}
+                  fullWidth
+                  type="number"
+                  placeholder={lang("finance.invoiceDueAfterDays")}
+                  value={formData.invoice_due_after_days}
+                  onChange={(e)=>handleInputChange('invoice_due_after_days', e.target.value)}
+                  InputProps={{ startAdornment: <InputAdornment position="start"><FiCalendar size={16} /></InputAdornment> }}
+                />
                 <small className="form-text text-muted">{lang("finance.invoiceDueAfterDaysInfo")}</small>
               </div>
               <div className="mb-5">
-                <label className="form-label">{lang("finance.allowStaffViewAssigned")}</label>
-                <SelectDropdown
-                  options={yesNoOptions}
-                  defaultSelect={formData.invoice_allow_staff_view_assigned}
-                  selectedOption={selectedOptions.invoice_allow_staff_view_assigned}
-                  onSelectOption={(option) => handleDropdownChange('invoice_allow_staff_view_assigned', option)}
-                />
+                {/* <label className="form-label">{lang("finance.allowStaffViewAssigned")}</label> */}
+                <FormControl fullWidth>
+                  <InputLabel id="invoice-allow-staff-label">{lang("finance.allowStaffViewAssigned")}</InputLabel>
+                  <Select
+                    labelId="invoice-allow-staff-label"
+                    value={formData.invoice_allow_staff_view_assigned}
+                    label={lang("finance.allowStaffViewAssigned")}
+                    onChange={(e)=> handleDropdownChange('invoice_allow_staff_view_assigned', { value: e.target.value })}
+                  >
+                    {yesNoOptions.map(opt => (
+                      <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
                 <small className="form-text text-muted">{lang("finance.allowStaffViewAssignedInfo")}</small>
               </div>
               <div className="mb-5">
-                <label className="form-label">{lang("finance.requireClientLogin")}</label>
-                <SelectDropdown
-                  options={yesNoOptions}
-                  defaultSelect={formData.invoice_require_client_login}
-                  selectedOption={selectedOptions.invoice_require_client_login}
-                  onSelectOption={(option) => handleDropdownChange('invoice_require_client_login', option)}
-                />
+                {/* <label className="form-label">{lang("finance.requireClientLogin")}</label> */}
+                <FormControl fullWidth>
+                  <InputLabel id="invoice-require-login-label">{lang("finance.requireClientLogin")}</InputLabel>
+                  <Select
+                    labelId="invoice-require-login-label"
+                    value={formData.invoice_require_client_login}
+                    label={lang("finance.requireClientLogin")}
+                    onChange={(e)=> handleDropdownChange('invoice_require_client_login', { value: e.target.value })}
+                  >
+                    {yesNoOptions.map(opt => (
+                      <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
                 <small className="form-text text-muted">{lang("finance.requireClientLoginInfo")}</small>
               </div>
               <div className="mb-5">
-                <label className="form-label">{lang("finance.deleteOnlyLast")}</label>
-                <SelectDropdown
-                  options={yesNoOptions}
-                  defaultSelect={formData.invoice_delete_only_last}
-                  selectedOption={selectedOptions.invoice_delete_only_last}
-                  onSelectOption={(option) => handleDropdownChange('invoice_delete_only_last', option)}
-                />
+                {/* <label className="form-label">{lang("finance.deleteOnlyLast")}</label> */}
+                <FormControl fullWidth>
+                  <InputLabel id="invoice-delete-only-last-label">{lang("finance.deleteOnlyLast")}</InputLabel>
+                  <Select
+                    labelId="invoice-delete-only-last-label"
+                    value={formData.invoice_delete_only_last}
+                    label={lang("finance.deleteOnlyLast")}
+                    onChange={(e)=> handleDropdownChange('invoice_delete_only_last', { value: e.target.value })}
+                  >
+                    {yesNoOptions.map(opt => (
+                      <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
                 <small className="form-text text-muted">{lang("finance.deleteOnlyLastInfo")}</small>
               </div>
               <div className="mb-5">
-                <label className="form-label">{lang("finance.decrementOnDelete")}</label>
-                <SelectDropdown
-                  options={yesNoOptions}
-                  defaultSelect={formData.invoice_decrement_on_delete}
-                  selectedOption={selectedOptions.invoice_decrement_on_delete}
-                  onSelectOption={(option) => handleDropdownChange('invoice_decrement_on_delete', option)}
-                />
+                {/* <label className="form-label">{lang("finance.decrementOnDelete")}</label> */}
+                <FormControl fullWidth>
+                  <InputLabel id="invoice-decrement-delete-label">{lang("finance.decrementOnDelete")}</InputLabel>
+                  <Select
+                    labelId="invoice-decrement-delete-label"
+                    value={formData.invoice_decrement_on_delete}
+                    label={lang("finance.decrementOnDelete")}
+                    onChange={(e)=> handleDropdownChange('invoice_decrement_on_delete', { value: e.target.value })}
+                  >
+                    {yesNoOptions.map(opt => (
+                      <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
                 <small className="form-text text-muted">{lang("finance.decrementOnDeleteInfo")}</small>
               </div>
               <div className="mb-5">
-                <label className="form-label">{lang("finance.excludeDraftFromCustomer")}</label>
-                <SelectDropdown
-                  options={yesNoOptions}
-                  defaultSelect={formData.invoice_exclude_draft_from_customer}
-                  selectedOption={selectedOptions.invoice_exclude_draft_from_customer}
-                  onSelectOption={(option) => handleDropdownChange('invoice_exclude_draft_from_customer', option)}
-                />
+                {/* <label className="form-label">{lang("finance.excludeDraftFromCustomer")}</label> */}
+                <FormControl fullWidth>
+                  <InputLabel id="invoice-exclude-draft-label">{lang("finance.excludeDraftFromCustomer")}</InputLabel>
+                  <Select
+                    labelId="invoice-exclude-draft-label"
+                    value={formData.invoice_exclude_draft_from_customer}
+                    label={lang("finance.excludeDraftFromCustomer")}
+                    onChange={(e)=> handleDropdownChange('invoice_exclude_draft_from_customer', { value: e.target.value })}
+                  >
+                    {yesNoOptions.map(opt => (
+                      <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
                 <small className="form-text text-muted">{lang("finance.excludeDraftFromCustomerInfo")}</small>
               </div>
               <div className="mb-5">
-                <label className="form-label">{lang("finance.showSaleAgent")}</label>
-                <SelectDropdown
-                  options={yesNoOptions}
-                  defaultSelect={formData.invoice_show_sale_agent}
-                  selectedOption={selectedOptions.invoice_show_sale_agent}
-                  onSelectOption={(option) => handleDropdownChange('invoice_show_sale_agent', option)}
-                />
+                {/* <label className="form-label">{lang("finance.showSaleAgent")}</label> */}
+                <FormControl fullWidth>
+                  <InputLabel id="invoice-show-agent-label">{lang("finance.showSaleAgent")}</InputLabel>
+                  <Select
+                    labelId="invoice-show-agent-label"
+                    value={formData.invoice_show_sale_agent}
+                    label={lang("finance.showSaleAgent")}
+                    onChange={(e)=> handleDropdownChange('invoice_show_sale_agent', { value: e.target.value })}
+                  >
+                    {yesNoOptions.map(opt => (
+                      <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
                 <small className="form-text text-muted">{lang("finance.showSaleAgentInfo")}</small>
               </div>
               <div className="mb-5">
-                <label className="form-label">{lang("finance.showProjectName")}</label>
-                <SelectDropdown
-                  options={yesNoOptions}
-                  defaultSelect={formData.invoice_show_project_name}
-                  selectedOption={selectedOptions.invoice_show_project_name}
-                  onSelectOption={(option) => handleDropdownChange('invoice_show_project_name', option)}
-                />
+                {/* <label className="form-label">{lang("finance.showProjectName")}</label> */}
+                <FormControl fullWidth>
+                  <InputLabel id="invoice-show-project-label">{lang("finance.showProjectName")}</InputLabel>
+                  <Select
+                    labelId="invoice-show-project-label"
+                    value={formData.invoice_show_project_name}
+                    label={lang("finance.showProjectName")}
+                    onChange={(e)=> handleDropdownChange('invoice_show_project_name', { value: e.target.value })}
+                  >
+                    {yesNoOptions.map(opt => (
+                      <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
                 <small className="form-text text-muted">{lang("finance.showProjectNameInfo")}</small>
               </div>
               <div className="mb-5">
-                <label className="form-label">{lang("finance.showTotalPaid")}</label>
-                <SelectDropdown
-                  options={yesNoOptions}
-                  defaultSelect={formData.invoice_show_total_paid}
-                  selectedOption={selectedOptions.invoice_show_total_paid}
-                  onSelectOption={(option) => handleDropdownChange('invoice_show_total_paid', option)}
-                />
+                {/* <label className="form-label">{lang("finance.showTotalPaid")}</label> */}
+                <FormControl fullWidth>
+                  <InputLabel id="invoice-show-total-paid-label">{lang("finance.showTotalPaid")}</InputLabel>
+                  <Select
+                    labelId="invoice-show-total-paid-label"
+                    value={formData.invoice_show_total_paid}
+                    label={lang("finance.showTotalPaid")}
+                    onChange={(e)=> handleDropdownChange('invoice_show_total_paid', { value: e.target.value })}
+                  >
+                    {yesNoOptions.map(opt => (
+                      <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
                 <small className="form-text text-muted">{lang("finance.showTotalPaidInfo")}</small>
               </div>
               <div className="mb-5">
-                <label className="form-label">{lang("finance.showCreditsApplied")}</label>
-                <SelectDropdown
-                  options={yesNoOptions}
-                  defaultSelect={formData.invoice_show_credits_applied}
-                  selectedOption={selectedOptions.invoice_show_credits_applied}
-                  onSelectOption={(option) => handleDropdownChange('invoice_show_credits_applied', option)}
-                />
+                {/* <label className="form-label">{lang("finance.showCreditsApplied")}</label> */}
+                <FormControl fullWidth>
+                  <InputLabel id="invoice-show-credits-label">{lang("finance.showCreditsApplied")}</InputLabel>
+                  <Select
+                    labelId="invoice-show-credits-label"
+                    value={formData.invoice_show_credits_applied}
+                    label={lang("finance.showCreditsApplied")}
+                    onChange={(e)=> handleDropdownChange('invoice_show_credits_applied', { value: e.target.value })}
+                  >
+                    {yesNoOptions.map(opt => (
+                      <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
                 <small className="form-text text-muted">{lang("finance.showCreditsAppliedInfo")}</small>
               </div>
               <div className="mb-5">
-                <label className="form-label">{lang("finance.showAmountDue")}</label>
-                <SelectDropdown
-                  options={yesNoOptions}
-                  defaultSelect={formData.invoice_show_amount_due}
-                  selectedOption={selectedOptions.invoice_show_amount_due}
-                  onSelectOption={(option) => handleDropdownChange('invoice_show_amount_due', option)}
-                />
+                {/* <label className="form-label">{lang("finance.showAmountDue")}</label> */}
+                <FormControl fullWidth>
+                  <InputLabel id="invoice-show-amount-due-label">{lang("finance.showAmountDue")}</InputLabel>
+                  <Select
+                    labelId="invoice-show-amount-due-label"
+                    value={formData.invoice_show_amount_due}
+                    label={lang("finance.showAmountDue")}
+                    onChange={(e)=> handleDropdownChange('invoice_show_amount_due', { value: e.target.value })}
+                  >
+                    {yesNoOptions.map(opt => (
+                      <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
                 <small className="form-text text-muted">{lang("finance.showAmountDueInfo")}</small>
               </div>
               <div className="mb-5">
-                <label className="form-label">{lang("finance.attachPdfOnReceipt")}</label>
-                <SelectDropdown
-                  options={yesNoOptions}
-                  defaultSelect={formData.invoice_attach_pdf_on_receipt}
-                  selectedOption={selectedOptions.invoice_attach_pdf_on_receipt}
-                  onSelectOption={(option) => handleDropdownChange('invoice_attach_pdf_on_receipt', option)}
-                />
+                {/* <label className="form-label">{lang("finance.attachPdfOnReceipt")}</label> */}
+                <FormControl fullWidth>
+                  <InputLabel id="invoice-attach-pdf-label">{lang("finance.attachPdfOnReceipt")}</InputLabel>
+                  <Select
+                    labelId="invoice-attach-pdf-label"
+                    value={formData.invoice_attach_pdf_on_receipt}
+                    label={lang("finance.attachPdfOnReceipt")}
+                    onChange={(e)=> handleDropdownChange('invoice_attach_pdf_on_receipt', { value: e.target.value })}
+                  >
+                    {yesNoOptions.map(opt => (
+                      <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
                 <small className="form-text text-muted">{lang("finance.attachPdfOnReceiptInfo")}</small>
               </div>
-              <TextAreaTopLabel
-                label={lang("finance.predefinedClientNote")}
-                placeholder={lang("finance.predefinedClientNote")}
-                info={lang("finance.predefinedClientNoteInfo")}
-                className={"mb-5"}
-                value={formData.invoice_predefined_client_note}
-                onChange={handleTextareaChange('invoice_predefined_client_note')}
-              />
-              <TextAreaTopLabel
-                label={lang("finance.predefinedTermsConditions")}
-                placeholder={lang("finance.predefinedTermsConditions")}
-                info={lang("finance.predefinedTermsConditionsInfo")}
-                className={"mb-5"}
-                value={formData.invoice_predefined_terms_conditions}
-                onChange={handleTextareaChange('invoice_predefined_terms_conditions')}
-              />
-              <TextAreaTopLabel
-                label={lang("finance.proposalInfoFormat")}
-                placeholder={`{proposal_to}
-{address}
-{city} {state}
-{country_code} {zip_code}
-{phone}
-{email}`}
-                info={lang("finance.proposalInfoFormatInfo")}
-                value={formData.invoice_proposal_info_format}
-                onChange={handleTextareaChange('invoice_proposal_info_format')}
-              />
+              <div className="mb-5">
+                {/* <label className="form-label">{lang("finance.predefinedClientNote")}</label> */}
+                <TextField
+                  label={lang("finance.predefinedClientNote")}
+                  fullWidth
+                  multiline
+                  rows={4}
+                  placeholder={lang("finance.predefinedClientNote")}
+                  value={formData.invoice_predefined_client_note}
+                  onChange={(e)=> handleTextareaChange('invoice_predefined_client_note')({ target: { value: e.target.value } })}
+                />
+                <small className="form-text text-muted">{lang("finance.predefinedClientNoteInfo")}</small>
+              </div>
+              <div className="mb-5">
+                {/* <label className="form-label">{lang("finance.predefinedTermsConditions")}</label> */}
+                <TextField
+                  label={lang("finance.predefinedTermsConditions")}
+                  fullWidth
+                  multiline
+                  rows={4}
+                  placeholder={lang("finance.predefinedTermsConditions")}
+                  value={formData.invoice_predefined_terms_conditions}
+                  onChange={(e)=> handleTextareaChange('invoice_predefined_terms_conditions')({ target: { value: e.target.value } })}
+                />
+                <small className="form-text text-muted">{lang("finance.predefinedTermsConditionsInfo")}</small>
+              </div>
+              <div className="mb-5">
+                {/* <label className="form-label">{lang("finance.proposalInfoFormat")}</label> */}
+                <TextField
+                  label={lang("finance.proposalInfoFormat")}
+                  fullWidth
+                  multiline
+                  rows={6}
+                  placeholder={`{proposal_to}\n{address}\n{city} {state}\n{country_code} {zip_code}\n{phone}\n{email}`}
+                  value={formData.invoice_proposal_info_format}
+                  onChange={(e)=> handleTextareaChange('invoice_proposal_info_format')({ target: { value: e.target.value } })}
+                />
+                <small className="form-text text-muted">{lang("finance.proposalInfoFormatInfo")}</small>
+              </div>
             </div>
           </div>
         </div>
