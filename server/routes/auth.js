@@ -99,7 +99,7 @@ router.post('/register', async (req, res) => {
         state,
         country,
         zipcode,
-        status: 0, // Default inactive status
+        status: 1,
         terms_accepted: termsAccepted || 0
       },
       select: {
