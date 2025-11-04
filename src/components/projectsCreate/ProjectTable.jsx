@@ -1,13 +1,14 @@
 'use client'
 import React, { useEffect, useState, memo } from 'react'
 import Table from '@/components/shared/table/Table'
-import { FiEdit3, FiEye, FiMoreHorizontal, FiPrinter, FiTrash2 } from 'react-icons/fi'
+import { FiEdit3, FiEye, FiMoreHorizontal, FiPrinter, FiTrash2, FiMapPin, FiExternalLink } from 'react-icons/fi'
 import Dropdown from '@/components/shared/Dropdown'
 import SelectDropdown from '@/components/shared/SelectDropdown'
 import Swal from 'sweetalert2'
 import { showSuccessToast, showErrorToast } from '@/utils/topTost'
 import { apiGet, apiPut, apiDelete } from '@/lib/api'
 import { useLanguage } from '@/contexts/LanguageContext'
+import { da } from 'date-fns/locale'
 
 const actions = [
   { label: "Edit", icon: <FiEdit3 /> },
@@ -40,6 +41,7 @@ const StatusDropdown = memo(({ value, onChange }) => {
 const ProjectTable = () => {
   const { lang } = useLanguage()
   const [data, setData] = useState([])
+  console.log("Data::",data);
   const [loading, setLoading] = useState(true)
 
   const fetchProjects = async () => {
@@ -90,19 +92,25 @@ const ProjectTable = () => {
       cell: info => info.row.original.projectType?.type_name || '-'
     },
     {
-      accessorKey: 'city.name',
-      header: () => lang('projects.city', 'City'),
-      cell: info => info.row.original.city?.name || '-'
-    },
-    {
-      accessorKey: 'state.name',
-      header: () => lang('projects.state', 'State'),
-      cell: info => info.row.original.state?.name || '-'
-    },
-    {
-      accessorKey: 'country.name',
-      header: () => lang('projects.country', 'Country'),
-      cell: info => info.row.original.country?.name || '-'
+      accessorKey: 'address',
+      header: () => lang('projects.addressInformation', 'Address'),
+      cell: ({ row }) => {
+        const { city, state, country, address1, address2 } = row.original
+        const locationParts = []
+
+        if (city?.name) locationParts.push(city.name)
+        if (state?.name) locationParts.push(state.name)
+        if (country?.name) locationParts.push(country.name)
+        
+        return (
+          <div>
+            {address1 && <div>{address1} - {address2}</div>}
+            {/* {address2 && <div>{address2}</div>} */}
+            {locationParts.length > 0 && <div>{locationParts.join(', ')}</div>}
+            {!address1 && !address2 && locationParts.length === 0 && '-'}
+          </div>
+        )
+      }
     },
     {
       accessorKey: 'offtaker',
@@ -111,6 +119,41 @@ const ProjectTable = () => {
         const offtaker = info.getValue()
         if (!offtaker) return '-'
         return `${offtaker.fullName || ''}`.trim()
+      }
+    },
+    {
+      accessorKey: 'project_location',
+      header: () => lang('projects.projectLocation', 'Project Location'),
+      cell: ({ row }) => {
+        const location = row.original.project_location
+        if (!location) return '-'
+        
+        // If location looks like a URL, make it clickable
+        const isUrl = location.startsWith('http://') || location.startsWith('https://')
+        
+        if (isUrl) {
+          return (
+            <a 
+              href={location} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="d-inline-flex align-items-center gap-1 text-primary"
+              onClick={(e) => e.stopPropagation()}
+              style={{ textDecoration: 'none' }}
+            >
+              <FiMapPin size={16} />
+              <span className="text-decoration-underline">{lang('projects.viewLocation', 'View Location')}</span>
+              <FiExternalLink size={14} />
+            </a>
+          )
+        }
+        
+        return (
+          <span className="d-inline-flex align-items-center gap-1">
+            <FiMapPin size={16} className="text-muted" />
+            {location}
+          </span>
+        )
       }
     },
     {

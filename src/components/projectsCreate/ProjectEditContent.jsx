@@ -1,14 +1,15 @@
 'use client'
 import React, { useEffect, useState } from 'react'
-import { FiSave } from 'react-icons/fi'
+import { FiSave, FiUpload } from 'react-icons/fi'
 import { useRouter } from 'next/navigation'
-import { apiGet, apiPut } from '@/lib/api'
+import { apiGet, apiPut, apiPost } from '@/lib/api'
 import useLocationData from '@/hooks/useLocationData'
 import useOfftakerData from '@/hooks/useOfftakerData'
 import Swal from 'sweetalert2'
 import { showSuccessToast, showErrorToast } from '@/utils/topTost'
 import { useLanguage } from '@/contexts/LanguageContext'
 import InverterTab from './InverterTab'
+import Image from 'next/image'
 import {
     TextField,
     Select,
@@ -35,8 +36,9 @@ const ProjectEditContent = ({ projectId }) => {
     } = useLocationData()
     const { offtakers, loadingOfftakers, fetchOfftakerById } = useOfftakerData()
 
-    const [loading, setLoading] = useState({ form: false, init: true })
+    const [loading, setLoading] = useState({ form: false, init: true, image: false })
     const [error, setError] = useState({})
+    const [imagePreview, setImagePreview] = useState(null)
     const [formData, setFormData] = useState({
         project_name: '',
         project_type_id: '',
@@ -53,6 +55,10 @@ const ProjectEditContent = ({ projectId }) => {
         project_description: '',
         investorProfit: '',
         weshareprofite: '',
+        project_image: '',
+        project_size: '',
+        project_close_date: '',
+        project_location: '',
         status: ''
     })
     const [projectTypes, setProjectTypes] = useState([])
@@ -88,10 +94,15 @@ const ProjectEditContent = ({ projectId }) => {
                         project_description: p.project_description || '',
                         investorProfit: p.investor_profit || '',
                         weshareprofite: p.weshare_profit || '',
+                        project_image: p.project_image || '',
+                        project_size: p.project_size || '',
+                        project_close_date: p.project_close_date ? new Date(p.project_close_date).toISOString().split('T')[0] : '',
+                        project_location: p.project_location || '',
                         status: p.status === 1 ? 'active' : 'inactive'
                     })
                     if (p.countryId) handleCountryChange(p.countryId)
                     if (p.stateId) handleStateChange(p.stateId)
+                    if (p.project_image) setImagePreview(p.project_image)
                 }
             } catch (e) {
                 console.error('Load project failed', e)
@@ -113,10 +124,10 @@ const ProjectEditContent = ({ projectId }) => {
                 const numberRegex = /^[0-9]*\.?[0-9]*$/
                 const intRegex = /^\d+$/
                 let isValid = true
-                if (name === 'investorProfit' || name === 'weshareprofite' || name === 'asking_price') {
+                if (name === 'investorProfit' || name === 'weshareprofite' || name === 'asking_price' || name === 'project_size') {
                     isValid = value === '' || numberRegex.test(value)
                 } else if (name === 'lease_term') {
-                    isValid = value !== '' && intRegex.test(value)
+                    isValid = value === '' || intRegex.test(value)
                 } else {
                     isValid = Boolean(value)
                 }
@@ -166,10 +177,62 @@ const ProjectEditContent = ({ projectId }) => {
         }
     }
 
+    // Handle image file upload
+    const handleImageUpload = async (e) => {
+        const file = e.target.files && e.target.files[0]
+        if (!file) return
+
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+            showErrorToast(lang('validation.invalidImageType', 'Please select a valid image file'))
+            return
+        }
+
+        // Validate file size (max 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            showErrorToast(lang('validation.imageTooLarge', 'Image size must be less than 5MB'))
+            return
+        }
+
+        setLoading(prev => ({ ...prev, image: true }))
+
+        try {
+            // Read file as base64
+            const reader = new FileReader()
+            reader.onload = async () => {
+                const dataUrl = reader.result
+                setImagePreview(dataUrl)
+
+                // Upload to server
+                const response = await apiPost('/api/projects/upload-image', { dataUrl })
+                
+                if (response.success) {
+                    setFormData(prev => ({ ...prev, project_image: response.data.path }))
+                    showSuccessToast(lang('projects.imageUploaded', 'Image uploaded successfully'))
+                } else {
+                    throw new Error(response.message || 'Upload failed')
+                }
+            }
+            reader.readAsDataURL(file)
+        } catch (error) {
+            console.error('Error uploading image:', error)
+            showErrorToast(error.message || lang('projects.imageUploadFailed', 'Failed to upload image'))
+            setImagePreview(null)
+        } finally {
+            setLoading(prev => ({ ...prev, image: false }))
+        }
+    }
+
+    // Remove uploaded image
+    const handleRemoveImage = () => {
+        setImagePreview(null)
+        setFormData(prev => ({ ...prev, project_image: '' }))
+    }
+
     const handleSubmit = async (e) => {
         e.preventDefault()
 
-        const requiredFields = ['project_name', 'project_type_id', 'offtaker', 'countryId', 'stateId', 'cityId', 'asking_price', 'lease_term', 'product_code']
+        const requiredFields = ['project_name', 'project_type_id']
         const errors = {}
         requiredFields.forEach(field => { if (!formData[field]) { errors[field] = lang('validation.required', 'Required') } })
         const numberRegex = /^[0-9]*\.?[0-9]*$/;
@@ -180,18 +243,14 @@ const ProjectEditContent = ({ projectId }) => {
         if (formData.weshareprofite && !numberRegex.test(formData.weshareprofite)) {
             errors.weshareprofite = lang('projects.onlynumbers', 'Only numbers are allowed (e.g. 1234.56)');
         }
-        if (!formData.asking_price) {
-            errors.asking_price = lang('projects.askingPriceRequired', 'Asking price is required')
-        } else if (!numberRegex.test(formData.asking_price)) {
+        if (formData.asking_price && !numberRegex.test(formData.asking_price)) {
             errors.asking_price = lang('projects.onlynumbers', 'Only numbers are allowed (e.g. 1234.56)')
         }
-        if (!formData.lease_term) {
-            errors.lease_term = lang('projects.leaseTermRequired', 'Lease term is required')
-        } else if (!intRegex.test(String(formData.lease_term))) {
+        if (formData.lease_term && !intRegex.test(String(formData.lease_term))) {
             errors.lease_term = lang('projects.onlynumbersWithoutdesimal', 'Only numbers are allowed (e.g. 123456)')
         }
-        if (!formData.product_code) {
-            errors.product_code = lang('projects.productCodeRequired', 'Product code is required')
+        if (formData.project_size && !numberRegex.test(formData.project_size)) {
+            errors.project_size = lang('projects.onlynumbers', 'Only numbers are allowed (e.g. 1234.56)')
         }
         if (Object.keys(errors).length) { setError(errors); return }
 
@@ -200,12 +259,12 @@ const ProjectEditContent = ({ projectId }) => {
             const payload = {
                 name: formData.project_name,
                 project_type_id: Number(formData.project_type_id),
-                offtaker_id: Number(formData.offtaker),
+                ...(formData.offtaker && { offtaker_id: Number(formData.offtaker) }),
                 address1: formData.address1 || '',
                 address2: formData.address2 || '',
-                country_id: Number(formData.countryId),
-                state_id: Number(formData.stateId),
-                city_id: Number(formData.cityId),
+                ...(formData.countryId && { country_id: Number(formData.countryId) }),
+                ...(formData.stateId && { state_id: Number(formData.stateId) }),
+                ...(formData.cityId && { city_id: Number(formData.cityId) }),
                 zipcode: formData.zipcode || '',
                 asking_price: formData.asking_price || '',
                 lease_term: formData.lease_term ? Number(formData.lease_term) : null,
@@ -213,6 +272,10 @@ const ProjectEditContent = ({ projectId }) => {
                 project_description: formData.project_description || '',
                 investor_profit: formData.investorProfit || '0',
                 weshare_profit: formData.weshareprofite || '0',
+                project_image: formData.project_image || '',
+                project_size: formData.project_size || '',
+                project_close_date: formData.project_close_date || null,
+                project_location: formData.project_location || '',
                 status: formData.status === 'active' ? 1 : 0
             }
             const res = await apiPut(`/api/projects/${projectId}`, payload)
@@ -292,12 +355,12 @@ const ProjectEditContent = ({ projectId }) => {
                                             </div>
                                             <div className="col-md-4 mb-3">
                                                 <FormControl fullWidth error={!!error.offtaker}>
-                                                    <InputLabel id="offtaker-select-label">{lang('projects.selectOfftaker', 'Select Offtaker')} *</InputLabel>
+                                                    <InputLabel id="offtaker-select-label">{lang('projects.selectOfftaker', 'Select Offtaker')}</InputLabel>
                                                     <Select
                                                         labelId="offtaker-select-label"
                                                         name="offtaker"
                                                         value={formData.offtaker}
-                                                        label={`${lang('projects.selectOfftaker', 'Select Offtaker')} *`}
+                                                        label={lang('projects.selectOfftaker', 'Select Offtaker')}
                                                         onChange={handleOfftakerChange}
                                                         disabled={loadingOfftakers}
                                                     >
@@ -315,7 +378,7 @@ const ProjectEditContent = ({ projectId }) => {
                                             <div className="col-md-4 mb-3">
                                                 <TextField
                                                     fullWidth
-                                                    label={`${lang('projects.askingPrice', 'Asking Price')} *`}
+                                                    label={lang('projects.askingPrice', 'Asking Price')}
                                                     name="asking_price"
                                                     value={formData.asking_price || ''}
                                                     onChange={handleInputChange}
@@ -327,7 +390,7 @@ const ProjectEditContent = ({ projectId }) => {
                                             <div className="col-md-4 mb-3">
                                                 <TextField
                                                     fullWidth
-                                                    label={`${lang('projects.leaseTerm', 'Lease Term')} ${lang('projects.year', 'year')} *`}
+                                                    label={`${lang('projects.leaseTerm', 'Lease Term')} ${lang('projects.year', 'year')}`}
                                                     name="lease_term"
                                                     value={formData.lease_term || ''}
                                                     onChange={handleInputChange}
@@ -339,12 +402,100 @@ const ProjectEditContent = ({ projectId }) => {
                                             <div className="col-md-4 mb-3">
                                                 <TextField
                                                     fullWidth
-                                                    label={`${lang('projects.productCode', 'Product Code')} *`}
+                                                    label={lang('projects.productCode', 'Product Code')}
                                                     name="product_code"
                                                     value={formData.product_code || ''}
                                                     onChange={handleInputChange}
                                                     error={!!error.product_code}
                                                     helperText={error.product_code}
+                                                />
+                                            </div>
+                                        </div>
+                                        {/* row: project_image, project_size */}
+                                        <div className="row">
+                                            <div className="col-md-6 mb-3">
+                                                <label className="form-label">{lang('projects.projectImage', 'Project Image')}</label>
+                                                <div className="d-flex flex-column gap-2">
+                                                    <input
+                                                        type="file"
+                                                        accept="image/*"
+                                                        id="project-image-upload-edit"
+                                                        style={{ display: 'none' }}
+                                                        onChange={handleImageUpload}
+                                                        disabled={loading.image}
+                                                    />
+                                                    <label htmlFor="project-image-upload-edit" className="mb-0">
+                                                        <Button
+                                                            component="span"
+                                                            variant="outlined"
+                                                            startIcon={loading.image ? <CircularProgress size={16} /> : <FiUpload />}
+                                                            disabled={loading.image}
+                                                            fullWidth
+                                                        >
+                                                            {loading.image ? lang('common.uploading', 'Uploading...') : lang('projects.uploadImage', 'Upload Image')}
+                                                        </Button>
+                                                    </label>
+                                                    {imagePreview && (
+                                                        <div className="position-relative" style={{ width: '100%', maxWidth: '300px' }}>
+                                                            <Image
+                                                                src={imagePreview}
+                                                                alt="Project preview"
+                                                                width={300}
+                                                                height={200}
+                                                                style={{ objectFit: 'cover', borderRadius: '8px' }}
+                                                            />
+                                                            <Button
+                                                                variant="contained"
+                                                                color="error"
+                                                                size="small"
+                                                                onClick={handleRemoveImage}
+                                                                style={{ position: 'absolute', top: '8px', right: '8px' }}
+                                                            >
+                                                                {lang('common.remove', 'Remove')}
+                                                            </Button>
+                                                        </div>
+                                                    )}
+                                                    {error.project_image && <span className="text-danger small">{error.project_image}</span>}
+                                                </div>
+                                            </div>
+                                            <div className="col-md-6 mb-3">
+                                                <TextField
+                                                    fullWidth
+                                                    label={lang('projects.projectSize', 'Project Size (kW)')}
+                                                    name="project_size"
+                                                    value={formData.project_size || ''}
+                                                    onChange={handleInputChange}
+                                                    inputMode="decimal"
+                                                    placeholder={lang('projects.projectSizePlaceholder', 'Enter project size')}
+                                                    error={!!error.project_size}
+                                                    helperText={error.project_size}
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="row">
+                                            <div className="col-md-6 mb-3">
+                                                <TextField
+                                                    fullWidth
+                                                    type="date"
+                                                    label={lang('projects.projectCloseDate', 'Project Close Date')}
+                                                    name="project_close_date"
+                                                    value={formData.project_close_date || ''}
+                                                    onChange={handleInputChange}
+                                                    InputLabelProps={{ shrink: true }}
+                                                    error={!!error.project_close_date}
+                                                    helperText={error.project_close_date}
+                                                />
+                                            </div>
+                                            <div className="col-md-6 mb-3">
+                                                <TextField
+                                                    fullWidth
+                                                    label={lang('projects.projectLocation', 'Project Location')}
+                                                    name="project_location"
+                                                    value={formData.project_location || ''}
+                                                    onChange={handleInputChange}
+                                                    placeholder={lang('projects.projectLocationPlaceholder', 'Enter location URL or address')}
+                                                    error={!!error.project_location}
+                                                    helperText={error.project_location || lang('projects.projectLocationHelp', 'Enter a URL (e.g., Google Maps link) or location name')}
                                                 />
                                             </div>
                                         </div>

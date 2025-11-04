@@ -162,7 +162,7 @@ model Inverter {
 
 model Project {
   id               Int       @id @default(autoincrement())
-  offtaker_id      Int
+  offtaker_id      Int?
   project_name     String    @db.VarChar(255)
   project_type_id  Int       
   address1         String?   @map("address_1") @db.VarChar(255)
@@ -177,6 +177,10 @@ model Project {
   zipcode          String?   @db.VarChar(20)
   investor_profit  String    @db.VarChar(255)
   weshare_profit   String    @db.VarChar(255)
+  project_image    String?   @db.VarChar(500)
+  project_size     String?   @db.VarChar(255)
+  project_close_date DateTime?
+  project_location String?   @db.VarChar(500)
   status           Int       @default(0)
   is_deleted       Int       @default(0)
   createdAt        DateTime  @default(now()) @map("created_at")
@@ -186,7 +190,7 @@ model Project {
   city             City?     @relation(fields: [cityId], references: [id])
   state            State?    @relation(fields: [stateId], references: [id])
   country          Country?  @relation(fields: [countryId], references: [id])
-  offtaker         User      @relation(fields: [offtaker_id], references: [id])
+  offtaker         User?     @relation(fields: [offtaker_id], references: [id])
   projectType      Project_type @relation(fields: [project_type_id], references: [id])
 
   projectInverters  Project_inverters[]

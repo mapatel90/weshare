@@ -142,6 +142,9 @@
     "subtotal": "Tạm tính",
     "tax": "Thuế",
     "discount": "Giảm giá",
+    "uploading": "Đang tải lên...",
+    "remove": "Xóa",
+    "saving": "Đang lưu...",
     "amount": "Số tiền",
     "quantity": "Số lượng",
     "price": "Giá",
@@ -200,7 +203,9 @@
     "userTypeRequired": "Vui lòng chọn loại người dùng",
     "fullNameRequired": "Họ và tên là bắt buộc",
     "firstNameRequired": "Tên là bắt buộc",
-    "lastNameRequired": "Họ là bắt buộc"
+    "lastNameRequired": "Họ là bắt buộc",
+    "invalidImageType": "Vui lòng chọn tệp hình ảnh hợp lệ",
+    "imageTooLarge": "Kích thước hình ảnh phải nhỏ hơn 5MB"
   },
   "menu": {
     "dashboards": "Bảng điều khiển",
@@ -686,7 +691,19 @@
     "leaseTermRequired": "Thời hạn thuê là bắt buộc",
     "productCodeRequired": "Mã sản phẩm là bắt buộc",
     "year": "năm",
-    "onlynumbersWithoutdesimal": "Chỉ cho phép nhập số (ví dụ: 123456)"
+    "onlynumbersWithoutdesimal": "Chỉ cho phép nhập số (ví dụ: 123456)",
+    "projectImage": "Hình ảnh dự án",
+    "projectImagePlaceholder": "Nhập URL hình ảnh dự án",
+    "projectSize": "Quy mô dự án",
+    "projectSizePlaceholder": "Nhập quy mô dự án (kW)",
+    "projectCloseDate": "Ngày đóng dự án",
+    "projectLocation": "Vị trí dự án",
+    "projectLocationPlaceholder": "Nhập URL vị trí hoặc địa chỉ",
+    "projectLocationHelp": "Nhập URL (ví dụ: liên kết Google Maps) hoặc tên vị trí",
+    "viewLocation": "Xem vị trí",
+    "uploadImage": "Tải lên hình ảnh",
+    "imageUploaded": "Tải lên hình ảnh thành công",
+    "imageUploadFailed": "Không thể tải lên hình ảnh"
   },
   "placeholders": {
     "your_company_name": "Tên công ty của bạn [Ví dụ: Theme Ocean]",

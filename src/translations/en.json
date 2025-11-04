@@ -160,6 +160,9 @@
     "subtotal": "Subtotal",
     "tax": "Tax",
     "discount": "Discount",
+    "uploading": "Uploading...",
+    "remove": "Remove",
+    "saving": "Saving...",
     "amount": "Amount",
     "quantity": "Quantity",
     "price": "Price",
@@ -219,7 +222,9 @@
     "userTypeRequired": "Please select user type",
     "fullNameRequired": "Full name is required",
     "firstNameRequired": "First name is required",
-    "lastNameRequired": "Last name is required"
+    "lastNameRequired": "Last name is required",
+    "invalidImageType": "Please select a valid image file",
+    "imageTooLarge": "Image size must be less than 5MB"
   },
   "menu": {
     "dashboards": "Dashboards",
@@ -703,7 +708,19 @@
     "leaseTermRequired": "Lease term is required",
     "productCodeRequired": "Product code is required",
     "year" : "year",
-    "onlynumbersWithoutdesimal" : "Only numbers are allowed (e.g. 123456)"
+    "onlynumbersWithoutdesimal" : "Only numbers are allowed (e.g. 123456)",
+    "projectImage": "Project Image",
+    "projectImagePlaceholder": "Enter project image URL",
+    "projectSize": "Project Size",
+    "projectSizePlaceholder": "Enter project size in kW",
+    "projectCloseDate": "Project Close Date",
+    "projectLocation": "Project Location",
+    "projectLocationPlaceholder": "Enter location URL or address",
+    "projectLocationHelp": "Enter a URL (e.g., Google Maps link) or location name",
+    "viewLocation": "View Location",
+    "uploadImage": "Upload Image",
+    "imageUploaded": "Image uploaded successfully",
+    "imageUploadFailed": "Failed to upload image"
   },
   "settings": {
     "generalSettings": "General Settings",
