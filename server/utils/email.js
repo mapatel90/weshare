@@ -1,26 +1,152 @@
 import nodemailer from 'nodemailer';
+import { PrismaClient } from '@prisma/client';
 
-// Create reusable transporter
-const createTransporter = () => {
-  return nodemailer.createTransport({
-    host: process.env.SMTP_HOST || 'smtp.gmail.com',
-    port: parseInt(process.env.SMTP_PORT || '587'),
-    secure: process.env.SMTP_SECURE === 'true', // true for 465, false for other ports
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASSWORD,
-    },
-  });
+const prisma = new PrismaClient();
+
+/**
+ * Fetch SMTP settings from database
+ * @returns {Promise<Object>} SMTP configuration object
+ */
+const getSmtpSettings = async () => {
+  try {
+    const smtpKeys = [
+      'smtp_email',
+      'smtp_email_from_address',
+      'smtp_email_from_name',
+      'smtp_email_host',
+      'smtp_email_user',
+      'smtp_email_password',
+      'smtp_email_port',
+      'smtp_email_security_type',
+    ];
+
+    const settings = await prisma.setting.findMany({
+      where: { key: { in: smtpKeys } }
+    });
+
+    // Convert array to object
+    const settingsObj = settings.reduce((acc, setting) => {
+      acc[setting.key] = setting.value;
+      return acc;
+    }, {});
+
+    return settingsObj;
+  } catch (error) {
+    console.error('Error fetching SMTP settings from database:', error);
+    throw new Error('Failed to fetch SMTP settings');
+  }
+};
+
+/**
+ * Create email transporter using database settings or environment variables
+ * @param {Object} customSettings - Optional custom SMTP settings to override database/env
+ * @returns {Promise<nodemailer.Transporter>} Configured nodemailer transporter
+ */
+const createTransporter = async (customSettings = null) => {
+  try {
+    let smtpConfig;
+
+    if (customSettings) {
+      // Use custom settings if provided
+      smtpConfig = customSettings;
+    } else {
+      // Try to get settings from database first
+      try {
+        const dbSettings = await getSmtpSettings();
+
+        if (dbSettings.smtp_email_host && dbSettings.smtp_email_user && dbSettings.smtp_email_password) {
+          const port = Number(dbSettings.smtp_email_port) || 587;
+          const secure = port === 465 || (dbSettings.smtp_email || '').toUpperCase() === 'SSL';
+
+          smtpConfig = {
+            host: dbSettings.smtp_email_host,
+            port: port,
+            secure: secure,
+            auth: {
+              user: dbSettings.smtp_email_user,
+              pass: dbSettings.smtp_email_password,
+            },
+            from: dbSettings.smtp_email_from_name
+              ? `${dbSettings.smtp_email_from_name} <${dbSettings.smtp_email_from_address || dbSettings.smtp_email_user}>`
+              : dbSettings.smtp_email_from_address || dbSettings.smtp_email_user
+          };
+        }
+      } catch (dbError) {
+        console.warn('Could not fetch SMTP settings from database, falling back to environment variables');
+      }
+    }
+
+    // Fallback to environment variables if database settings not available
+    if (!smtpConfig) {
+      smtpConfig = {
+        host: process.env.SMTP_HOST || 'smtp.gmail.com',
+        port: parseInt(process.env.SMTP_PORT || '587'),
+        secure: process.env.SMTP_SECURE === 'true',
+        auth: {
+          user: process.env.SMTP_USER,
+          pass: process.env.SMTP_PASSWORD,
+        },
+        from: process.env.SMTP_FROM || process.env.SMTP_USER
+      };
+    }
+
+    const transporter = nodemailer.createTransport({
+      host: smtpConfig.host,
+      port: smtpConfig.port,
+      secure: smtpConfig.secure,
+      auth: smtpConfig.auth,
+    });
+
+    return { transporter, from: smtpConfig.from };
+  } catch (error) {
+    console.error('Error creating email transporter:', error);
+    throw new Error('Failed to create email transporter');
+  }
+};
+
+/**
+ * Generic email sending function
+ * @param {Object} options - Email options
+ * @param {string} options.to - Recipient email address
+ * @param {string} options.subject - Email subject
+ * @param {string} options.html - HTML content
+ * @param {string} options.text - Plain text content (optional)
+ * @param {Object} options.customSmtp - Custom SMTP settings (optional)
+ * @returns {Promise<Object>} Result object with success status
+ */
+export const sendEmail = async ({ to, subject, html, text, customSmtp = null }) => {
+  try {
+    const { transporter, from } = await createTransporter(customSmtp);
+
+    const mailOptions = {
+      from: from,
+      to: to,
+      subject: subject,
+      html: html,
+    };
+
+    if (text) {
+      mailOptions.text = text;
+    }
+
+    const info = await transporter.sendMail(mailOptions);
+
+    console.log('Email sent successfully:', info.messageId);
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    console.error('Error sending email:', error);
+    return { success: false, error: error.message };
+  }
 };
 
 // Send password reset email
 export const sendPasswordResetEmail = async (email, resetToken) => {
   try {
-    const transporter = createTransporter();
-    
+    const { transporter, from } = await createTransporter();
+
     // Create reset URL
     const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/reset-password?token=${resetToken}`;
-    
+
     // Email HTML template
     const htmlContent = `
       <!DOCTYPE html>
@@ -107,7 +233,7 @@ export const sendPasswordResetEmail = async (email, resetToken) => {
             </div>
             <div class="content">
               <h2>Hello,</h2>
-              <p>We received a request to reset your password for your Sunshare account.</p>
+              <p>We received a request to reset your password for your WeShare account.</p>
               <p>Click the button below to reset your password:</p>
               
               <div style="text-align: center;">
@@ -124,7 +250,7 @@ export const sendPasswordResetEmail = async (email, resetToken) => {
               <p style="word-break: break-all; color: #2386FF; font-size: 12px;">${resetUrl}</p>
             </div>
             <div class="footer">
-              <p>© ${new Date().getFullYear()} Sunshare. All rights reserved.</p>
+              <p>© ${new Date().getFullYear()} WeShare. All rights reserved.</p>
               <p>This is an automated email. Please do not reply to this message.</p>
             </div>
           </div>
@@ -134,27 +260,27 @@ export const sendPasswordResetEmail = async (email, resetToken) => {
 
     // Plain text version
     const textContent = `
-Password Reset Request
+        Password Reset Request
 
-Hello,
+        Hello,
 
-We received a request to reset your password for your Sunshare account.
+        We received a request to reset your password for your WeShare account.
 
-Click the link below to reset your password:
-${resetUrl}
+        Click the link below to reset your password:
+        ${resetUrl}
 
-⏰ Important: This link will expire in 1 hour for security reasons.
+        ⏰ Important: This link will expire in 1 hour for security reasons.
 
-If you didn't request this password reset, please ignore this email. Your password will remain unchanged.
+        If you didn't request this password reset, please ignore this email. Your password will remain unchanged.
 
-© ${new Date().getFullYear()} Sunshare. All rights reserved.
+        © ${new Date().getFullYear()} WeShare. All rights reserved.
     `;
 
     // Send email
     const info = await transporter.sendMail({
-      from: `"Sunshare" <${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
+      from: from,
       to: email,
-      subject: 'Reset Your Password - Sunshare',
+      subject: 'Reset Your Password - WeShare',
       text: textContent,
       html: htmlContent,
     });
@@ -170,8 +296,8 @@ If you didn't request this password reset, please ignore this email. Your passwo
 // Send password reset confirmation email
 export const sendPasswordResetConfirmationEmail = async (email) => {
   try {
-    const transporter = createTransporter();
-    
+    const { transporter, from } = await createTransporter();
+
     const htmlContent = `
       <!DOCTYPE html>
       <html>
@@ -231,12 +357,12 @@ export const sendPasswordResetConfirmationEmail = async (email) => {
             <div class="content">
               <div class="success-icon">✓</div>
               <h2 style="text-align: center;">Your password has been changed!</h2>
-              <p>Your Sunshare account password has been successfully reset.</p>
+              <p>Your WeShare account password has been successfully reset.</p>
               <p>You can now log in with your new password.</p>
               <p style="margin-top: 30px;"><strong>If you didn't make this change,</strong> please contact our support team immediately.</p>
             </div>
             <div class="footer">
-              <p>© ${new Date().getFullYear()} Sunshare. All rights reserved.</p>
+              <p>© ${new Date().getFullYear()} WeShare. All rights reserved.</p>
             </div>
           </div>
         </body>
@@ -244,9 +370,9 @@ export const sendPasswordResetConfirmationEmail = async (email) => {
     `;
 
     const info = await transporter.sendMail({
-      from: `"Sunshare" <${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
+      from: from,
       to: email,
-      subject: 'Password Reset Successful - Sunshare',
+      subject: 'Password Reset Successful - WeShare',
       html: htmlContent,
     });
 
@@ -258,7 +384,170 @@ export const sendPasswordResetConfirmationEmail = async (email) => {
   }
 };
 
+/**
+ * Send welcome email to new user
+ * @param {string} email - User email
+ * @param {string} fullName - User full name
+ * @returns {Promise<Object>} Result object
+ */
+export const sendWelcomeEmail = async (email, fullName) => {
+  const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Welcome to WeShare</title>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+          }
+          .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+          }
+          .header {
+            background: linear-gradient(135deg, #F6A623 0%, #e09620 100%);
+            padding: 30px;
+            text-align: center;
+          }
+          .header h1 {
+            margin: 0;
+            color: #ffffff;
+            font-size: 24px;
+          }
+          .content {
+            padding: 40px 30px;
+          }
+          .footer {
+            background: #f8f8f8;
+            padding: 20px 30px;
+            text-align: center;
+            font-size: 12px;
+            color: #999;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>🎉 Welcome to WeShare!</h1>
+          </div>
+          <div class="content">
+            <h2>Hello ${fullName},</h2>
+            <p>Welcome to WeShare! We're excited to have you on board.</p>
+            <p>Your account has been successfully created and you can now start using all our features.</p>
+            <p>If you have any questions or need assistance, feel free to reach out to our support team.</p>
+          </div>
+          <div class="footer">
+            <p>© ${new Date().getFullYear()} WeShare. All rights reserved.</p>
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+
+  return sendEmail({
+    to: email,
+    subject: 'Welcome to WeShare',
+    html: htmlContent,
+    text: `Hello ${fullName},\n\nWelcome to WeShare! We're excited to have you on board.\n\nYour account has been successfully created and you can now start using all our features.`
+  });
+};
+
+/**
+ * Send notification email
+ * @param {string} email - Recipient email
+ * @param {string} subject - Email subject
+ * @param {string} message - Email message
+ * @returns {Promise<Object>} Result object
+ */
+export const sendNotificationEmail = async (email, subject, message) => {
+  const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>${subject}</title>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+          }
+          .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+          }
+          .header {
+            background: linear-gradient(135deg, #2386FF 0%, #1a6fd9 100%);
+            padding: 30px;
+            text-align: center;
+          }
+          .header h1 {
+            margin: 0;
+            color: #ffffff;
+            font-size: 24px;
+          }
+          .content {
+            padding: 40px 30px;
+          }
+          .footer {
+            background: #f8f8f8;
+            padding: 20px 30px;
+            text-align: center;
+            font-size: 12px;
+            color: #999;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>📧 ${subject}</h1>
+          </div>
+          <div class="content">
+            ${message}
+          </div>
+          <div class="footer">
+            <p>© ${new Date().getFullYear()} WeShare. All rights reserved.</p>
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+
+  return sendEmail({
+    to: email,
+    subject: subject,
+    html: htmlContent,
+    text: message.replace(/<[^>]*>/g, '') // Strip HTML tags for plain text
+  });
+};
+
 export default {
+  sendEmail,
   sendPasswordResetEmail,
   sendPasswordResetConfirmationEmail,
+  sendWelcomeEmail,
+  sendNotificationEmail,
+  getSmtpSettings,
+  createTransporter,
 };
