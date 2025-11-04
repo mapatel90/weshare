@@ -40,3 +40,7 @@ package-lock.json
 package-lock.json
 /src/generated/prisma
 
+#image
+public/images/logo/*
+public/images/
+

@@ -115,6 +115,8 @@
     "email": "Email",
     "cancel": "Cancel",
     "delete": "Delete",
+    "logo": "Logo",
+    "icon": "Favicon",
     "edit": "Edit",
     "add": "Add",
     "update": "Update",
@@ -224,7 +226,13 @@
     "firstNameRequired": "First name is required",
     "lastNameRequired": "Last name is required",
     "invalidImageType": "Please select a valid image file",
-    "imageTooLarge": "Image size must be less than 5MB"
+    "imageTooLarge": "Image size must be less than 5MB",
+    "newsTitleRequired": "News Title is required",
+    "newsDateRequired": "News Date is required",
+    "newsDescriptionRequired": "News Description is required",
+    "newsImageRequired": "News Image is required",
+    "newsSlugRequired": "News Slug is required",
+    "invalidEmail": "Invalid email address"
   },
   "menu": {
     "dashboards": "Dashboards",
@@ -797,7 +805,7 @@
   "smtp": {
     "title": "SMTP Settings",
     "subtitle": "SMTP setup main email",
-    "protocolLabel": "SMTP",
+    "protocolLabel": "Email Encryption",
     "protocolHelp": "SMTP [Ex: SSL/TSL]",
     "protocolOptionSelect": "Select SMTP",
     "protocolOptionSSL": "SSL",
@@ -837,6 +845,8 @@
     "your_company_city": "Select your company's city",
     "your_company_zip": "Zip Code [Ex: 11756]",
     "your_company_phone": "Phone Number [Ex: 987-6985-9658-654]",
+    "upload_logo": "Upload your company logo",
+    "upload_icon": "Upload your Favicon",
     "enterfirstname": "Enter first name",
     "enterlastname": "Enter last name",
     "enteremail": "Enter email",
@@ -847,7 +857,8 @@
     "enteraddress1": "Enter address line 1",
     "enteraddress2": "Enter address line 2",
     "enterzipcode": "Enter zip code",
-    "enterphonenumber": "Enter phone number"
+    "enterphonenumber": "Enter phone number",
+    "your_company_mail": "Your company email address"
   },
   "roles": {
     "rolesManagement": "Roles Management",
@@ -1061,5 +1072,18 @@
       "tax20": "20% + $2",
       "tax25": "25% + $2"
     }
+  },
+  "news": {
+    "addNews": "Add News",
+    "editNews": "Edit News",
+    "deleteNews": "Delete News",
+    "title": "Title",
+    "date": "Date",
+    "image": "Image",
+    "slug": "Slug",
+    "description": "Description",
+    "newsCreatedSuccessfully": "News Created Successfully",
+    "newsUpdatedSuccessfully": "News Updated Successfully",
+    "newsDeletedSuccessfully": "News Deleted Successfully"
   }
 }

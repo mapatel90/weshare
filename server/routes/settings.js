@@ -19,7 +19,7 @@ const ensureDir = (dirPath) => {
 };
 
 // Helper: save base64 dataURL to disk
-const saveDataUrlToFile = (dataUrl, destDir) => {
+const saveDataUrlToFile = (dataUrl, destDir, prefix = 'logo') => {
   const matches = dataUrl.match(/^data:(.+);base64,(.+)$/);
   if (!matches || matches.length !== 3) {
     throw new Error('Invalid image data');
@@ -27,7 +27,7 @@ const saveDataUrlToFile = (dataUrl, destDir) => {
   const mimeType = matches[1];
   const base64Data = matches[2];
   const ext = mimeType.split('/')[1] || 'png';
-  const filename = `logo_${Date.now()}_${Math.random().toString(36).slice(2, 8)}.${ext}`;
+  const filename = `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}.${ext}`;
   ensureDir(destDir);
   const filePath = join(destDir, filename);
   fs.writeFileSync(filePath, Buffer.from(base64Data, 'base64'));
@@ -253,6 +253,71 @@ router.post('/upload-logo', authenticateToken, async (req, res) => {
   }
 });
 
+// Delete site logo (remove file if under /images/logo and clear DB key site_image)
+router.post('/delete-logo', authenticateToken, async (req, res) => {
+  try {
+    const { path } = req.body || {};
+
+    // Remove file from disk if safe
+    deleteOldLogoIfSafe(path);
+
+    // Clear site_image in DB
+    await prisma.setting.upsert({
+      where: { key: 'site_image' },
+      update: { value: '', updatedAt: new Date() },
+      create: { key: 'site_image', value: '' }
+    });
+
+    return res.json({ success: true, message: 'Logo deleted and setting cleared' });
+  } catch (error) {
+    console.error('Error deleting logo:', error);
+    return res.status(500).json({ success: false, message: 'Error deleting logo', error: error.message });
+  }
+});
+
+// Upload site favicon (accepts base64 data URL), saves under public/images/logo and deletes old
+router.post('/upload-favicon', authenticateToken, async (req, res) => {
+  try {
+    const { dataUrl, oldImagePath } = req.body || {};
+    if (!dataUrl) {
+      return res.status(400).json({ success: false, message: 'dataUrl is required' });
+    }
+
+    const logoDir = join(__dirname, '../../public/images/logo');
+    const publicPath = saveDataUrlToFile(dataUrl, logoDir, 'favicon');
+
+    // Delete previous favicon if provided
+    deleteOldLogoIfSafe(oldImagePath);
+
+    return res.json({ success: true, message: 'Favicon uploaded', data: { path: publicPath } });
+  } catch (error) {
+    console.error('Error uploading favicon:', error);
+    return res.status(500).json({ success: false, message: 'Error uploading favicon', error: error.message });
+  }
+});
+
+// Delete site favicon (remove file if under /images/logo and clear DB key site_favicon)
+router.post('/delete-favicon', authenticateToken, async (req, res) => {
+  try {
+    const { path } = req.body || {};
+
+    // Remove file from disk if safe
+    deleteOldLogoIfSafe(path);
+
+    // Clear site_favicon in DB
+    await prisma.setting.upsert({
+      where: { key: 'site_favicon' },
+      update: { value: '', updatedAt: new Date() },
+      create: { key: 'site_favicon', value: '' }
+    });
+
+    return res.json({ success: true, message: 'Favicon deleted and setting cleared' });
+  } catch (error) {
+    console.error('Error deleting favicon:', error);
+    return res.status(500).json({ success: false, message: 'Error deleting favicon', error: error.message });
+  }
+});
+
 // Send test email using SMTP settings stored in DB
 router.post('/test-email', authenticateToken, async (req, res) => {
   try {
@@ -267,12 +332,12 @@ router.post('/test-email', authenticateToken, async (req, res) => {
     const smtpKeys = [
       'smtp_email',
       'smtp_email_from_address',
-      'smtp_email_from_name',
+      // 'smtp_email_from_name',
       'smtp_email_host',
       'smtp_email_user',
       'smtp_email_password',
       'smtp_email_port',
-      'smtp_email_security_type',
+      // 'smtp_email_security_type',
     ];
 
     const settings = await prisma.setting.findMany({ where: { key: { in: smtpKeys } } });
@@ -281,7 +346,7 @@ router.post('/test-email', authenticateToken, async (req, res) => {
 
     const protocol = s['smtp_email'] || 'SSL';
     const fromAddress = s['smtp_email_from_address'] || '';
-    const fromName = s['smtp_email_from_name'] || '';
+    // const fromName = s['smtp_email_from_name'] || '';
     const host = s['smtp_email_host'] || '';
     const user = s['smtp_email_user'] || '';
     const pass = s['smtp_email_password'] || '';

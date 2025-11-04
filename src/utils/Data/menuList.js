@@ -165,4 +165,11 @@ export const menuList = [
       },
     ],
   },
+  {
+    id: 7,
+    name: "news",
+    path: "/admin/news/list",
+    icon: "feather-bell",
+    dropdownMenu: false,
+  },
 ];
