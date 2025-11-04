@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { 
   AppBar, 
   Toolbar, 
@@ -23,21 +23,59 @@ import PersonOutlineIcon from '@mui/icons-material/PersonOutline'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useLanguage } from '@/contexts/LanguageContext'
+import { useRouter, usePathname } from 'next/navigation'
 
 const HomeNavbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [langAnchor, setLangAnchor] = useState(null)
+  const [activeSection, setActiveSection] = useState('')
+  const router = useRouter()
+  const pathname = usePathname()
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
   const { lang, currentLanguage, changeLanguage, languages, currentLanguageInfo } = useLanguage()
 
   const navItems = [
-    { name: lang('home.navbar.home'), href: '#home' },
-    { name: lang('home.navbar.aboutUs'), href: '#rental' },
-    { name: lang('home.navbar.exchangeHub'), href: '#economics' },
-    { name: lang('home.navbar.howItWorks'), href: '#investors' },
-    { name: lang('home.navbar.news'), href: '#news' }
+    { name: lang('home.navbar.home'), href: '/', id: 'home' },
+    { name: lang('home.navbar.aboutUs'), href: '#rental', id: 'rental' },
+    { name: lang('home.navbar.exchangeHub'), href: '/exchange-hub', id: 'exchange-hub' },
+    { name: lang('home.navbar.howItWorks'), href: '#investors', id: 'investors' },
+    { name: lang('home.navbar.news'), href: '#news', id: 'news' }
   ]
+
+  // Check if current pathname matches or if hash section is active
+  useEffect(() => {
+    // Check if we're on a specific page route
+    if (pathname === '/exchange-hub') {
+      setActiveSection('exchange-hub')
+    } else if (pathname === '/') {
+      // For home page, check hash
+      const hash = window.location.hash.replace('#', '')
+      setActiveSection(hash || 'home')
+    }
+  }, [pathname])
+
+  // Listen for hash changes on the home page
+  useEffect(() => {
+    if (pathname === '/') {
+      const handleHashChange = () => {
+        const hash = window.location.hash.replace('#', '')
+        setActiveSection(hash || 'home')
+      }
+
+      window.addEventListener('hashchange', handleHashChange)
+      return () => window.removeEventListener('hashchange', handleHashChange)
+    }
+  }, [pathname])
+
+  const isActive = (item) => {
+    // If it's a route (not a hash), check pathname
+    if (item.href.startsWith('/') && !item.href.startsWith('/#')) {
+      return pathname === item.href
+    }
+    // If it's a hash link, check active section
+    return activeSection === item.id
+  }
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen)
@@ -61,7 +99,19 @@ const HomeNavbar = () => {
       <List>
         {navItems.map((item) => (
           <ListItem key={item.name} disablePadding>
-            <ListItemButton sx={{ textAlign: 'center' }} href={item.href}>
+            <ListItemButton 
+              sx={{ 
+                textAlign: 'center',
+                backgroundColor: isActive(item) ? '#FFF9ED' : 'transparent',
+                color: isActive(item) ? '#F6A623' : '#000',
+                fontWeight: isActive(item) ? 700 : 500,
+                '&:hover': {
+                  backgroundColor: '#FFF9ED',
+                  color: '#F6A623'
+                }
+              }} 
+              href={item.href}
+            >
               <ListItemText primary={item.name} />
             </ListItemButton>
           </ListItem>
@@ -109,8 +159,8 @@ const HomeNavbar = () => {
                       key={item.name}
                       href={item.href}
                       sx={{
-                        color: '#000',
-                        fontWeight: 500,
+                        color: isActive(item) ? '#F6A623' : '#000',
+                        fontWeight: isActive(item) ? 700 : 500,
                         textTransform: 'capitalize',
                         '&:hover': {
                           color: '#F6A623',
@@ -164,7 +214,7 @@ const HomeNavbar = () => {
                 <Button
                   variant="text"
                   startIcon={<PersonOutlineIcon />}
-                  href="/login"
+                  onClick={() => router.push('/login')}
                   sx={{
                     color: '#000',
                     fontWeight: 600,

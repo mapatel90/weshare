@@ -34,33 +34,45 @@ const Menus = () => {
 
     useEffect(() => {
         if (pathName !== "/") {
-            const x = pathName.split("/");
+            const pathSegments = pathName.split("/").filter(Boolean); // Remove empty strings
+            
             // Check if path starts with /admin
-            if (x[1] === "admin") {
-                setActiveParent(x[2]);
-                setActiveChild(x[3]);
-                setOpenDropdown(x[2]);
-                setOpenSubDropdown(x[3]);
+            if (pathSegments[0] === "admin") {
+                const parent = pathSegments[1];
+                const child = pathSegments[2];
+                
+                setActiveParent(parent);
+                setActiveChild(child);
+                setOpenDropdown(parent);
+                setOpenSubDropdown(child);
             } else {
-                setActiveParent(x[1]);
-                setActiveChild(x[2]);
-                setOpenDropdown(x[1]);
-                setOpenSubDropdown(x[2]);
+                // For non-admin routes
+                const parent = pathSegments[0];
+                const child = pathSegments[1];
+                
+                setActiveParent(parent);
+                setActiveChild(child);
+                setOpenDropdown(parent);
+                setOpenSubDropdown(child);
             }
         } else {
-            setActiveParent("dashboards");
-            setOpenDropdown("dashboards");
+            // For root path
+            setActiveParent("home");
+            setOpenDropdown("home");
         }
     }, [pathName]);
 
     return (
         <>
             {menuList.map(({ dropdownMenu, id, name, path, icon }) => {
+                const menuKey = name.toLowerCase().replace(/\s+/g, '');
+                const isMenuActive = activeParent === menuKey || pathName === path || pathName.startsWith(`${path}/`);
+                
                 return (
                     <li
                         key={id}
-                        onClick={(e) => handleMainMenu(e, name.split(' ')[0])}
-                        className={`nxl-item nxl-hasmenu ${activeParent === name.split(' ')[0] ? "active nxl-trigger" : ""}`}
+                        onClick={(e) => handleMainMenu(e, menuKey)}
+                        className={`nxl-item nxl-hasmenu ${isMenuActive ? "active nxl-trigger" : ""}`}
                     >
                         <Link href={path} className="nxl-link text-capitalize">
                             <span className="nxl-micon"> {getIcon(icon)} </span>
@@ -68,23 +80,25 @@ const Menus = () => {
                                 {lang(`menu.${name.toLowerCase()}`, name)}
                             </span>
                             {dropdownMenu ? (
-                                <span className={`nxl-arrow fs-16 nxl-item ${pathName === path ? "active" : ""}`}>
+                                <span className={`nxl-arrow fs-16 nxl-item ${isMenuActive ? "active" : ""}`}>
                                     <FiChevronRight />
                                 </span>
                             ) : null}
                         </Link>
-                        <ul className={`nxl-submenu ${openDropdown === name.split(' ')[0] ? "nxl-menu-visible" : "nxl-menu-hidden"}`}>
+                        <ul className={`nxl-submenu ${openDropdown === menuKey ? "nxl-menu-visible" : "nxl-menu-hidden"}`}>
                             {dropdownMenu && dropdownMenu.map(({ id, name, path, subdropdownMenu, target }) => {
-                                const x = name;
+                                const submenuKey = name.toLowerCase().replace(/\s+/g, '');
+                                const isSubmenuActive = activeChild === submenuKey || pathName === path || pathName.startsWith(`${path}/`);
+                                
                                 return (
                                     <Fragment key={id}>
                                         {subdropdownMenu && subdropdownMenu.length ? (
                                             <li
-                                                className={`nxl-item nxl-hasmenu ${activeChild === name ? "active" : ""}`}
-                                                onClick={(e) => handleDropdownMenu(e, x)}
+                                                className={`nxl-item nxl-hasmenu ${isSubmenuActive ? "active" : ""}`}
+                                                onClick={(e) => handleDropdownMenu(e, submenuKey)}
                                             >
                                                 <Link href={path} className={`nxl-link text-capitalize`}>
-                                                    <span className="nxl-mtext">{lang(`menu.${name.toLowerCase().replace(/\s+/g, '')}`, name)}</span>
+                                                    <span className="nxl-mtext">{lang(`menu.${submenuKey}`, name)}</span>
                                                     <span className="nxl-arrow">
                                                         <i>
                                                             {" "}
@@ -93,23 +107,25 @@ const Menus = () => {
                                                     </span>
                                                 </Link>
                                                 {subdropdownMenu && subdropdownMenu.map(({ id, name, path }) => {
+                                                    const subItemKey = name.toLowerCase().replace(/\s+/g, '');
+                                                    const isSubItemActive = pathName === path || pathName.startsWith(`${path}/`);
+                                                    
                                                     return (
                                                         <ul
                                                             key={id}
-                                                            className={`nxl-submenu ${openSubDropdown === x
+                                                            className={`nxl-submenu ${openSubDropdown === submenuKey
                                                                 ? "nxl-menu-visible"
                                                                 : "nxl-menu-hidden "
                                                                 }`}
                                                         >
                                                             <li
-                                                                className={`nxl-item ${pathName === path ? "active" : ""
-                                                                    }`}
+                                                                className={`nxl-item ${isSubItemActive ? "active" : ""}`}
                                                             >
                                                                 <Link
                                                                     className="nxl-link text-capitalize"
                                                                     href={path}
                                                                 >
-                                                                    {lang(`menu.${name.toLowerCase().replace(/\s+/g, '')}`, name)}
+                                                                    {lang(`menu.${subItemKey}`, name)}
                                                                 </Link>
                                                             </li>
                                                         </ul>
@@ -117,9 +133,9 @@ const Menus = () => {
                                                 })}
                                             </li>
                                         ) : (
-                                            <li className={`nxl-item ${pathName === path ? "active" : ""}`}>
+                                            <li className={`nxl-item ${isSubmenuActive ? "active" : ""}`}>
                                                 <Link className="nxl-link" href={path} target={target}>
-                                                    {lang(`menu.${name.toLowerCase().replace(/\s+/g, '')}`, name)}
+                                                    {lang(`menu.${submenuKey}`, name)}
                                                 </Link>
                                             </li>
                                         )}

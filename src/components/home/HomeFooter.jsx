@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { useLanguage } from '@/contexts/LanguageContext'
 
 const HomeFooter = () => {
-  const { lang } = useLanguage()
+  const { lang, language, changeLanguage } = useLanguage()
   
   return (
     <footer className="footer">
@@ -84,6 +84,8 @@ const HomeFooter = () => {
                 <label className="fs-18 fw-300 text-secondary-color d-block mb-1">{lang('home.footer.language')}</label>
                 <select 
                   className="form-select form-select-sm" 
+                  value={language}
+                  onChange={(e) => changeLanguage(e.target.value)}
                   style={{
                     color: '#fff', 
                     backgroundColor: 'rgba(255, 255, 255, 0.1)',
@@ -93,7 +95,7 @@ const HomeFooter = () => {
                   }}
                 >
                   <option value="en" style={{color: '#000', backgroundColor: '#fff'}}>English</option>
-                  <option value="es" style={{color: '#000', backgroundColor: '#fff'}}>Spanish</option>
+                  <option value="vi" style={{color: '#000', backgroundColor: '#fff'}}>Tiếng Việt</option>
                 </select>
               </div>
 

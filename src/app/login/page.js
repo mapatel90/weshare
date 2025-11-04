@@ -7,7 +7,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import HomeIcon from '@mui/icons-material/Home';
 
 const LoginPage = () => {
-    const { lang } = useLanguage();
+    const { lang, currentLanguage } = useLanguage();
     return (
         <Box
             className="loginSection"

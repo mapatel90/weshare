@@ -27,10 +27,14 @@ router.post('/AddProject', authenticateToken, async (req, res) => {
             project_description,
             investor_profit = '0',
             weshare_profit = '0',
+            project_image,
+            project_size,
+            project_close_date,
+            project_location,
             status = 1
         } = req.body;
 
-        if (!name || !project_type_id || !offtaker_id || !address1 || !country_id || !state_id || !city_id) {
+        if (!name || !project_type_id) {
             return res.status(400).json({ success: false, message: 'Please provide all required fields' });
         }
 
@@ -38,12 +42,12 @@ router.post('/AddProject', authenticateToken, async (req, res) => {
             data: {
                 project_name: name,
                 project_type_id: parseInt(project_type_id),
-                offtaker_id: parseInt(offtaker_id),
-                address1,
+                ...(offtaker_id && { offtaker_id: parseInt(offtaker_id) }),
+                address1: address1 || '',
                 address2: address2 || '',
-                countryId: parseInt(country_id),
-                stateId: parseInt(state_id),
-                cityId: parseInt(city_id),
+                ...(country_id && { countryId: parseInt(country_id) }),
+                ...(state_id && { stateId: parseInt(state_id) }),
+                ...(city_id && { cityId: parseInt(city_id) }),
                 zipcode: zipcode || '',
                 asking_price: asking_price || '',
                 lease_term: lease_term !== undefined && lease_term !== null && `${lease_term}` !== '' ? parseInt(lease_term) : null,
@@ -51,6 +55,10 @@ router.post('/AddProject', authenticateToken, async (req, res) => {
                 project_description: project_description || '',
                 investor_profit,
                 weshare_profit,
+                project_image: project_image || '',
+                project_size: project_size || '',
+                project_close_date: project_close_date ? new Date(project_close_date) : null,
+                project_location: project_location || '',
                 status: parseInt(status)
             },
             include: {
@@ -198,6 +206,10 @@ router.put('/:id', authenticateToken, async (req, res) => {
       project_description,
       investor_profit = '0',
       weshare_profit = '0',
+      project_image,
+      project_size,
+      project_close_date,
+      project_location,
       status,
     } = req.body;
 
@@ -206,12 +218,12 @@ router.put('/:id', authenticateToken, async (req, res) => {
       data: {
         ...(name !== undefined && { project_name: name }),
         ...(project_type_id !== undefined && { project_type_id: parseInt(project_type_id) }),
-        ...(offtaker_id !== undefined && { offtaker_id: parseInt(offtaker_id) }),
+        ...(offtaker_id !== undefined && { offtaker_id: offtaker_id ? parseInt(offtaker_id) : null }),
         ...(address1 !== undefined && { address1 }),
         ...(address2 !== undefined && { address2 }),
-        ...(country_id !== undefined && { countryId: parseInt(country_id) }),
-        ...(state_id !== undefined && { stateId: parseInt(state_id) }),
-        ...(city_id !== undefined && { cityId: parseInt(city_id) }),
+        ...(country_id !== undefined && { countryId: country_id ? parseInt(country_id) : null }),
+        ...(state_id !== undefined && { stateId: state_id ? parseInt(state_id) : null }),
+        ...(city_id !== undefined && { cityId: city_id ? parseInt(city_id) : null }),
         ...(zipcode !== undefined && { zipcode }),
         ...(asking_price !== undefined && { asking_price: asking_price || '' }),
         ...(lease_term !== undefined && { lease_term: (lease_term !== null && `${lease_term}` !== '' ? parseInt(lease_term) : null) }),
@@ -219,6 +231,10 @@ router.put('/:id', authenticateToken, async (req, res) => {
         ...(project_description !== undefined && { project_description: project_description || '' }),
         ...(investor_profit !== undefined && { investor_profit }),
         ...(weshare_profit !== undefined && { weshare_profit }),
+        ...(project_image !== undefined && { project_image: project_image || '' }),
+        ...(project_size !== undefined && { project_size: project_size || '' }),
+        ...(project_close_date !== undefined && { project_close_date: project_close_date ? new Date(project_close_date) : null }),
+        ...(project_location !== undefined && { project_location: project_location || '' }),
         ...(status !== undefined && { status: parseInt(status) }),
       },
       include: {
@@ -249,6 +265,52 @@ router.delete('/:id', authenticateToken, async (req, res) => {
   } catch (error) {
     console.error('Delete project error:', error);
     res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
+
+// Upload project image (accepts base64 data URL)
+router.post('/upload-image', authenticateToken, async (req, res) => {
+  try {
+    const { dataUrl } = req.body || {};
+    if (!dataUrl) {
+      return res.status(400).json({ success: false, message: 'dataUrl is required' });
+    }
+
+    // Parse base64 data URL
+    const matches = dataUrl.match(/^data:(.+);base64,(.+)$/);
+    if (!matches || matches.length !== 3) {
+      throw new Error('Invalid image data');
+    }
+    
+    const mimeType = matches[1];
+    const base64Data = matches[2];
+    const ext = mimeType.split('/')[1] || 'png';
+    const filename = `project_${Date.now()}_${Math.random().toString(36).slice(2, 8)}.${ext}`;
+    
+    // Save to public/images/projects
+    const fs = await import('fs');
+    const { join, dirname } = await import('path');
+    const { fileURLToPath } = await import('url');
+    
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = dirname(__filename);
+    const projectsDir = join(__dirname, '../../public/images/projects');
+    
+    // Ensure directory exists
+    if (!fs.existsSync(projectsDir)) {
+      fs.mkdirSync(projectsDir, { recursive: true });
+    }
+    
+    const filePath = join(projectsDir, filename);
+    fs.writeFileSync(filePath, Buffer.from(base64Data, 'base64'));
+    
+    // Return public URL path
+    const publicPath = `/images/projects/${filename}`;
+    
+    return res.json({ success: true, message: 'Image uploaded', data: { path: publicPath } });
+  } catch (error) {
+    console.error('Error uploading project image:', error);
+    return res.status(500).json({ success: false, message: 'Error uploading image', error: error.message });
   }
 });
 

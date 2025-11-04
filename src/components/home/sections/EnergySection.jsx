@@ -1,11 +1,13 @@
 'use client'
 
 import React, { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import AOS from 'aos'
 import { useLanguage } from '@/contexts/LanguageContext'
 
 const EnergySection = () => {
   const { lang } = useLanguage()
+  const router = useRouter()
   
   useEffect(() => {
     AOS.init({ duration: 1000, once: true })
@@ -22,7 +24,7 @@ const EnergySection = () => {
               
               <div className="groupBtn gap-4 mt-0 justify-content-start">
                 <button className="btn btn-primary-custom">{lang('home.energy.becomeInvestor')} →</button>
-                <button className="btn btn-primary-custom transparentBtn tc-102C41 border-1">{lang('home.energy.signIn')}</button>
+                <button className="btn btn-primary-custom transparentBtn tc-102C41 border-1" onClick={() => router.push('/login')}>{lang('home.energy.signIn')}</button>
               </div>
             </div>
           </div>
