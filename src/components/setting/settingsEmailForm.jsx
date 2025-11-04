@@ -39,14 +39,14 @@ const SettingsEmailForm = () => {
   } = useSettings();
 
   const [formData, setFormData] = useState({
-    smtp_email: "SSL",
+    smtp_email: "",
     smtp_email_from_address: "",
-    smtp_email_from_name: "",
+    // smtp_email_from_name: "",
     smtp_email_host: "",
     smtp_email_user: "",
     smtp_email_password: "",
     smtp_email_port: "",
-    smtp_email_security_type: "",
+    // smtp_email_security_type: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedOption, setSelectedOption] = useState(null);
@@ -58,22 +58,22 @@ const SettingsEmailForm = () => {
   useEffect(() => {
     if (settings && !isFormInitialized && Object.keys(settings).length > 0) {
       const loaded = {
-        smtp_email: getSetting("smtp_email", "SSL") || "SSL",
+        smtp_email: getSetting("smtp_email", "") || "",
         smtp_email_from_address:
           getSetting("smtp_email_from_address", "") || "",
-        smtp_email_from_name: getSetting("smtp_email_from_name", "") || "",
+        // smtp_email_from_name: getSetting("smtp_email_from_name", "") || "",
         smtp_email_host: getSetting("smtp_email_host", "") || "",
         smtp_email_user: getSetting("smtp_email_user", "") || "",
         smtp_email_password: getSetting("smtp_email_password", "") || "",
         smtp_email_port: getSetting("smtp_email_port", "") || "",
-        smtp_email_security_type:
-          getSetting("smtp_email_security_type", "") || "",
+        // smtp_email_security_type:
+        //   getSetting("smtp_email_security_type", "") || "",
       };
       setFormData(loaded);
 
       // Initialize dropdown selection for SMTP (SSL/TSL)
       const match =
-        SMTP.find((opt) => opt.value === loaded.smtp_email) || SMTP[0];
+        SMTP.find((opt) => opt.value === loaded.smtp_email) || null;
       setSelectedOption(match);
 
       setIsFormInitialized(true);
@@ -108,21 +108,21 @@ const SettingsEmailForm = () => {
   const hasAnySmtpInput = () => {
     const {
       smtp_email_from_address,
-      smtp_email_from_name,
+      // smtp_email_from_name,
       smtp_email_host,
       smtp_email_user,
       smtp_email_password,
       smtp_email_port,
-      smtp_email_security_type,
+      // smtp_email_security_type,
     } = formData;
     return [
       smtp_email_from_address,
-      smtp_email_from_name,
+      // smtp_email_from_name,
       smtp_email_host,
       smtp_email_user,
       smtp_email_password,
       smtp_email_port,
-      smtp_email_security_type,
+      // smtp_email_security_type,
     ].some((v) =>
       typeof v === "string" ? v.trim() !== "" : v !== undefined && v !== null
     );
@@ -184,7 +184,7 @@ const SettingsEmailForm = () => {
 
       const payload = normalize({
         ...formData,
-        smtp_email: selectedOption?.value || formData.smtp_email || "SSL",
+        smtp_email: selectedOption?.value || formData.smtp_email || "",
       });
 
       await updateSettings(payload);
@@ -283,9 +283,9 @@ const SettingsEmailForm = () => {
                 <TextField fullWidth label={lang("smtp.fromAddressLabel")} placeholder={"example@domain.com"} value={formData.smtp_email_from_address} onChange={(e)=>handleChange("smtp_email_from_address", e.target.value)} helperText={lang("smtp.fromAddressInfo")} />
               </div>
 
-              <div className="mb-4">
+              {/* <div className="mb-4">
                 <TextField fullWidth label={lang("smtp.fromNameLabel")} placeholder={"Your Company Name"} value={formData.smtp_email_from_name} onChange={(e)=>handleChange("smtp_email_from_name", e.target.value)} helperText={lang("smtp.fromNameInfo")} />
-              </div>
+              </div> */}
 
               <div className="mb-4">
                 <TextField fullWidth label={lang("smtp.hostLabel")} placeholder={"smtp.gmail.com"} value={formData.smtp_email_host} onChange={(e)=>handleChange("smtp_email_host", e.target.value)} helperText={lang("smtp.hostInfo")} />
@@ -303,9 +303,9 @@ const SettingsEmailForm = () => {
                 <TextField fullWidth label={lang("smtp.portLabel")} placeholder={"465"} value={formData.smtp_email_port} onChange={(e)=>handleChange("smtp_email_port", e.target.value)} helperText={lang("smtp.portInfo")} />
               </div>
 
-              <div className="mb-4">
+              {/* <div className="mb-4">
                 <TextField fullWidth label={lang("smtp.securityTypeLabel")} placeholder={lang("smtp.securityTypeLabel")} value={formData.smtp_email_security_type} onChange={(e)=>handleChange("smtp_email_security_type", e.target.value)} helperText={lang("smtp.securityTypeInfo")} />
-              </div>
+              </div> */}
 
               <hr className="my-5" />
               <div className="mb-5">

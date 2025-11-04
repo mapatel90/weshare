@@ -9,6 +9,7 @@ import ThemeCustomizer from "@/components/shared/ThemeCustomizer";
 import AuthProvider from "@/contexts/AuthContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import GlobalLoader from "@/components/shared/GlobalLoader";
+import DynamicFavicon from "@/components/common/DynamicFavicon";
 
 export const metadata = {
   title: "Sunshare | Dashboard",
@@ -33,6 +34,7 @@ export default function RootLayout({ children }) {
             </SettingSideBarProvider>
             {/* <ThemeCustomizer /> */}
             <GlobalLoader />
+            <DynamicFavicon />
           </AuthProvider>
         </LanguageProvider>
       </body>

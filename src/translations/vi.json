@@ -98,6 +98,8 @@
     "cancel": "Hủy",
     "delete": "Xóa",
     "edit": "Sửa",
+    "logo": "Logo",
+    "icon": "Favicon",
     "add": "Thêm",
     "update": "Cập nhật",
     "create": "Tạo",
@@ -200,7 +202,13 @@
     "userTypeRequired": "Vui lòng chọn loại người dùng",
     "fullNameRequired": "Họ và tên là bắt buộc",
     "firstNameRequired": "Tên là bắt buộc",
-    "lastNameRequired": "Họ là bắt buộc"
+    "lastNameRequired": "Họ là bắt buộc",
+    "newsTitleRequired": "Tiêu đề tin tức là bắt buộc",
+    "newsDateRequired": "Ngày tin tức là bắt buộc",
+    "newsDescriptionRequired": "Mô tả tin tức là bắt buộc",
+    "newsImageRequired": "Hình ảnh tin tức là bắt buộc",
+    "newsSlugRequired": "Slug tin tức là bắt buộc",
+    "invalidEmail": "Địa chỉ email không hợp lệ"
   },
   "menu": {
     "dashboards": "Bảng điều khiển",
@@ -698,6 +706,8 @@
     "your_company_phone": "Số điện thoại của công ty bạn [Ví dụ: 987-6985-9658-654]",
     "enterfirstname": "Nhập tên",
     "enterlastname": "Nhập họ",
+    "upload_logo": "Tải lên logo công ty của bạn",
+    "upload_icon": "Tải lên Favicon của bạn",
     "enteremail": "Nhập email",
     "enterusername": "Nhập tên người dùng",
     "enterpassword": "Nhập mật khẩu",
@@ -706,7 +716,8 @@
     "enteraddress1": "Nhập địa chỉ dòng 1",
     "enteraddress2": "Nhập địa chỉ dòng 2",
     "enterzipcode": "Nhập mã zip",
-    "enterphonenumber": "Nhập số điện thoại"
+    "enterphonenumber": "Nhập số điện thoại",
+    "your_company_mail": "Địa chỉ email công ty của bạn"
   },
   "roles": {
     "rolesManagement": "Quản lý vai trò",
@@ -727,7 +738,7 @@
   "smtp": {
     "title": "Cấu hình SMTP",
     "subtitle": "Thiết lập SMTP cho email chính",
-    "protocolLabel": "SMTP",
+    "protocolLabel": "Mã hóa email",
     "protocolOptionSSL": "SSL",
     "protocolOptionTSL": "TSL",
     "protocolHelp": "SMTP [VD: SSL/TSL]",
@@ -954,5 +965,17 @@
       "tax20": "20% + $2",
       "tax25": "25% + $2"
     }
+  },
+  "news": {
+    "title": "Quản lý tin tức",
+    "date": "Ngày",
+    "image": "Hình ảnh",
+    "slug": "Slug",
+    "description": "Mô tả",
+    "addNews": "Thêm tin tức",
+    "editNews": "Sửa tin tức",
+    "newsCreatedSuccessfully": "Tin tức đã được tạo thành công",
+    "newsUpdatedSuccessfully": "Tin tức được cập nhật thành công",
+    "newsDeletedSuccessfully": "Tin tức đã xóa thành công"
   }
 }

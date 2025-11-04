@@ -232,7 +232,7 @@ export const apiUpload = async (endpoint, formData, options = {}) => {
 
   try {
     const response = await fetch(url, {
-      method: 'POST',
+      method: options.method || 'POST',
       body: formData,
       headers,
       ...options,
