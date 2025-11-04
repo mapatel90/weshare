@@ -232,7 +232,10 @@
     "newsDescriptionRequired": "News Description is required",
     "newsImageRequired": "News Image is required",
     "newsSlugRequired": "News Slug is required",
-    "invalidEmail": "Invalid email address"
+    "invalidEmail": "Invalid email address",
+    "invalidEmail": "Invalid email address",
+    "invalidImageType": "Please select a valid image file",
+    "imageTooLarge": "Image size must be less than 5MB"
   },
   "menu": {
     "dashboards": "Dashboards",
