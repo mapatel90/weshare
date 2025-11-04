@@ -525,7 +525,7 @@
       "subtitle": "Browse and invest in solar energy projects",
       "searchPlaceholder": "Search Here...",
       "filter": "Filter",
-      "sortBy": "Sort by",
+      "sortBy": "Sort by roi",
       "advancedFilters": "Advanced Filters",
       "clearAll": "Clear All",
       "roiRange": "ROI Range (%)",

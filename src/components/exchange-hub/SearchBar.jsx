@@ -1,8 +1,20 @@
 import React from 'react'
 import { useLanguage } from '@/contexts/LanguageContext'
 
-const SearchBar = ({ searchQuery, setSearchQuery, showFilters, setShowFilters, setSortBy }) => {
+const SearchBar = ({ searchQuery, setSearchQuery, showFilters, setShowFilters, sortBy, setSortBy }) => {
   const { lang } = useLanguage()
+
+  const getSortLabel = () => {
+    switch(sortBy) {
+      case 'roi-high': return lang('home.exchangeHub.sortRoiHigh')
+      case 'roi-low': return lang('home.exchangeHub.sortRoiLow')
+      case 'price-low': return lang('home.exchangeHub.sortPriceLow')
+      case 'price-high': return lang('home.exchangeHub.sortPriceHigh')
+      case 'capacity-high': return lang('home.exchangeHub.sortCapacityHigh')
+      case 'capacity-low': return lang('home.exchangeHub.sortCapacityLow')
+      default: return lang('home.exchangeHub.sortBy')
+    }
+  }
 
   return (
     <div className="bg-white rounded-3 shadow-sm p-3 mb-4">
@@ -28,7 +40,7 @@ const SearchBar = ({ searchQuery, setSearchQuery, showFilters, setShowFilters, s
           <div className="d-flex gap-2 justify-content-md-end">
             <button 
               className="btn px-4 py-2 d-flex align-items-center" 
-              style={{ backgroundColor: '#1a1a2e', color: 'white', border: 'none', borderRadius: '6px' }}
+              style={{ backgroundColor: '#102C41', color: 'white', border: 'none', borderRadius: '6px' }}
               onClick={() => setShowFilters(!showFilters)}
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" className="me-2" viewBox="0 0 16 16">
@@ -38,26 +50,74 @@ const SearchBar = ({ searchQuery, setSearchQuery, showFilters, setShowFilters, s
             </button>
             <div className="dropdown">
               <button 
-                className="btn px-4 py-2 d-flex align-items-center dropdown-toggle" 
-                style={{ backgroundColor: 'white', color: '#1a1a2e', border: '1px solid #1a1a2e', borderRadius: '6px' }}
+                className="btn px-4 py-2 d-flex align-items-center" 
+                style={{ backgroundColor: '#102C41', color: 'white', border: 'none', borderRadius: '6px' }}
                 type="button"
                 data-bs-toggle="dropdown"
                 aria-expanded="false"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" className="me-2" viewBox="0 0 16 16">
-                  <path d="M3.5 2.5a.5.5 0 0 0-1 0v8.793l-1.146-1.147a.5.5 0 0 0-.708.708l2 1.999.007.007a.497.497 0 0 0 .7-.006l2-2a.5.5 0 0 0-.707-.708L3.5 11.293zm3.5 1a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5M7.5 6a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1zm0 3a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1zm0 3a.5.5 0 0 0 0 1h1a.5.5 0 0 0 0-1z"/>
+                  <path d="M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/>
                 </svg>
                 {lang('home.exchangeHub.sortBy')}
               </button>
               <ul className="dropdown-menu">
-                <li><a className="dropdown-item" href="#" onClick={(e) => { e.preventDefault(); setSortBy('roi-high') }}>{lang('home.exchangeHub.sortRoiHigh')}</a></li>
-                <li><a className="dropdown-item" href="#" onClick={(e) => { e.preventDefault(); setSortBy('roi-low') }}>{lang('home.exchangeHub.sortRoiLow')}</a></li>
+                <li>
+                  <a 
+                    className={`dropdown-item ${sortBy === 'roi-high' ? 'active' : ''}`} 
+                    href="#" 
+                    onClick={(e) => { e.preventDefault(); setSortBy('roi-high') }}
+                  >
+                    {lang('home.exchangeHub.sortRoiHigh')}
+                  </a>
+                </li>
+                <li>
+                  <a 
+                    className={`dropdown-item ${sortBy === 'roi-low' ? 'active' : ''}`} 
+                    href="#" 
+                    onClick={(e) => { e.preventDefault(); setSortBy('roi-low') }}
+                  >
+                    {lang('home.exchangeHub.sortRoiLow')}
+                  </a>
+                </li>
                 <li><hr className="dropdown-divider" /></li>
-                <li><a className="dropdown-item" href="#" onClick={(e) => { e.preventDefault(); setSortBy('price-low') }}>{lang('home.exchangeHub.sortPriceLow')}</a></li>
-                <li><a className="dropdown-item" href="#" onClick={(e) => { e.preventDefault(); setSortBy('price-high') }}>{lang('home.exchangeHub.sortPriceHigh')}</a></li>
+                <li>
+                  <a 
+                    className={`dropdown-item ${sortBy === 'price-low' ? 'active' : ''}`} 
+                    href="#" 
+                    onClick={(e) => { e.preventDefault(); setSortBy('price-low') }}
+                  >
+                    {lang('home.exchangeHub.sortPriceLow')}
+                  </a>
+                </li>
+                <li>
+                  <a 
+                    className={`dropdown-item ${sortBy === 'price-high' ? 'active' : ''}`} 
+                    href="#" 
+                    onClick={(e) => { e.preventDefault(); setSortBy('price-high') }}
+                  >
+                    {lang('home.exchangeHub.sortPriceHigh')}
+                  </a>
+                </li>
                 <li><hr className="dropdown-divider" /></li>
-                <li><a className="dropdown-item" href="#" onClick={(e) => { e.preventDefault(); setSortBy('capacity-high') }}>{lang('home.exchangeHub.sortCapacityHigh')}</a></li>
-                <li><a className="dropdown-item" href="#" onClick={(e) => { e.preventDefault(); setSortBy('capacity-low') }}>{lang('home.exchangeHub.sortCapacityLow')}</a></li>
+                <li>
+                  <a 
+                    className={`dropdown-item ${sortBy === 'capacity-high' ? 'active' : ''}`} 
+                    href="#" 
+                    onClick={(e) => { e.preventDefault(); setSortBy('capacity-high') }}
+                  >
+                    {lang('home.exchangeHub.sortCapacityHigh')}
+                  </a>
+                </li>
+                <li>
+                  <a 
+                    className={`dropdown-item ${sortBy === 'capacity-low' ? 'active' : ''}`} 
+                    href="#" 
+                    onClick={(e) => { e.preventDefault(); setSortBy('capacity-low') }}
+                  >
+                    {lang('home.exchangeHub.sortCapacityLow')}
+                  </a>
+                </li>
               </ul>
             </div>
           </div>
