@@ -4,44 +4,32 @@ import React, { useEffect, useState } from 'react'
 import Image from 'next/image'
 import AOS from 'aos'
 import { useLanguage } from '@/contexts/LanguageContext'
+import { apiGet } from '@/lib/api'
 
 const ProjectsSection = () => {
   const [activeTab, setActiveTab] = useState('open')
+  const [projects, setProjects] = useState([])
+  const [loading, setLoading] = useState(true)
   const { lang } = useLanguage()
 
   useEffect(() => {
     AOS.init({ duration: 1000, once: true })
+    fetchProjects()
   }, [])
 
-  const projects = [
-    {
-      image: '/images/projects/project-img1.png',
-      title: 'Sunrise Residential Complex',
-      location: 'Austin, TX',
-      capacity: '125.5kWp',
-      generated: '847.2K',
-      roi: '9.2%',
-      revenue: '$67.8K'
-    },
-    {
-      image: '/images/projects/project-img2.png',
-      title: 'Green Valley Business Park',
-      location: 'Dallas, TX',
-      capacity: '200.0kWp',
-      generated: '1.2M',
-      roi: '12.5%',
-      revenue: '$95.0K'
-    },
-    {
-      image: '/images/projects/project-img1.png',
-      title: 'Eco Community Housing',
-      location: 'Houston, TX',
-      capacity: '150.8kWp',
-      generated: '950.5K',
-      roi: '10.8%',
-      revenue: '$78.5K'
+  const fetchProjects = async () => {
+    try {
+      setLoading(true)
+      const response = await apiGet('/api/projects?limit=3&status=1', { showLoader: false })
+      if (response.success && response.data?.projects) {
+        setProjects(response.data.projects)
+      }
+    } catch (error) {
+      console.error('Error fetching projects:', error)
+    } finally {
+      setLoading(false)
     }
-  ]
+  }
 
   return (
     <section className="projectSection">
@@ -70,53 +58,81 @@ const ProjectsSection = () => {
         </div>
 
         <div className="tab-content">
-          <div className="row">
-            {projects.map((project, index) => (
-              <div key={index} className="col-12 col-md-6 col-lg-4 mb-4 mb-lg-0" data-aos="fade-up" data-aos-duration={1000 + index * 200}>
-                <div className="project-card shadow-sm overflow-hidden">
-                  <div className="project-items">
-                    <Image src={project.image} alt={project.title} className="img-fluid project-img" width={400} height={250} />
-                  </div>
-
-                  <div className="pt-3">
-                    <h5 className="fw-600 mb-2 text-title">{project.title}</h5>
-                    <div className="d-flex align-items-center text-muted small mb-3 fw-300">
-                      <span className="me-1">
-                        <Image src="/images/icons/location.svg" alt="location" width={16} height={16} />
-                      </span>
-                      {project.location}
-                      <span className="mx-2"></span>
-                      <span className="me-1">
-                        <Image src="/images/icons/light.svg" alt="capacity" width={16} height={16} />
-                      </span>
-                      {project.capacity}
-                    </div>
-
-                    <div className="d-flex justify-content-between align-items-center gap-3 mb-3">
-                      <div className="w-45 caterogy-items">
-                        <h6 className="mb-0 fw-600 text-title">{project.generated}</h6>
-                        <small className="text-muted">{lang('home.projects.kwhGenerated')}</small>
-                      </div>
-                      <div className="w-45 caterogy-items items-2">
-                        <h6 className="mb-0 fw-600 text-title secondaryTextColor">{project.roi}</h6>
-                        <small className="text-muted">{lang('home.projects.roi')}</small>
-                      </div>
-                    </div>
-
-                    <div className="d-flex justify-content-between align-items-center mb-1">
-                      <p className="fw-300 mb-0 text-black">{lang('home.projects.expectedRevenue')}</p>
-                      <span className="fw-600 text-secondary-color">{project.revenue}</span>
-                    </div>
-
-                    <button className="btn btn-primary-custom mt-4 w-100">
-                      <Image className="me-2" src="/images/icons/reports-icon.svg" alt="view" width={20} height={20} />
-                      {lang('home.projects.viewDetails')}
-                    </button>
-                  </div>
-                </div>
+          {loading ? (
+            <div className="text-center py-5">
+              <div className="spinner-border text-primary" role="status">
+                <span className="visually-hidden">Loading...</span>
               </div>
-            ))}
-          </div>
+            </div>
+          ) : projects.length === 0 ? (
+            <div className="text-center py-5">
+              <p className="text-muted">{lang('home.projects.noProjects') || 'No projects available'}</p>
+            </div>
+          ) : (
+            <div className="row">
+              {projects.map((project, index) => {
+                const cityName = project.city?.name || ''
+                const stateName = project.state?.name || ''
+                const location = [cityName, stateName].filter(Boolean).join(', ') || 'Location Not Available'
+                const projectImage = project.project_image || '/images/projects/project-img1.png'
+                
+                return (
+                  <div key={project.id} className="col-12 col-md-6 col-lg-4 mb-4 mb-lg-0" data-aos="fade-up" data-aos-duration={1000 + index * 200}>
+                    <div className="project-card shadow-sm overflow-hidden">
+                      <div className="project-items">
+                        <Image 
+                          src={projectImage} 
+                          alt={project.project_name} 
+                          className="img-fluid project-img" 
+                          width={400} 
+                          height={250}
+                          onError={(e) => {
+                            e.target.src = '/images/projects/project-img1.png'
+                          }}
+                        />
+                      </div>
+
+                      <div className="pt-3">
+                        <h5 className="fw-600 mb-2 text-title">{project.project_name}</h5>
+                        <div className="d-flex align-items-center text-muted small mb-3 fw-300">
+                          <span className="me-1">
+                            <Image src="/images/icons/location.svg" alt="location" width={16} height={16} />
+                          </span>
+                          {location}
+                          <span className="mx-2"></span>
+                          <span className="me-1">
+                            <Image src="/images/icons/light.svg" alt="capacity" width={16} height={16} />
+                          </span>
+                          {project.project_size ? `${project.project_size}kwp` : 'N/A'}
+                        </div>
+
+                        <div className="d-flex justify-content-between align-items-center gap-3 mb-3">
+                          <div className="w-45 caterogy-items">
+                            <h6 className="mb-0 fw-600 text-title">N/A</h6>
+                            <small className="text-muted">{lang('home.projects.kwhGenerated')}</small>
+                          </div>
+                          <div className="w-45 caterogy-items items-2">
+                            <h6 className="mb-0 fw-600 text-title secondaryTextColor">{project.investor_profit || '0'}%</h6>
+                            <small className="text-muted">{lang('home.projects.roi')}</small>
+                          </div>
+                        </div>
+
+                        <div className="d-flex justify-content-between align-items-center mb-1">
+                          <p className="fw-300 mb-0 text-black">{lang('home.projects.expectedRevenue')}</p>
+                          <span className="fw-600 text-secondary-color">${project.asking_price || '0'}</span>
+                        </div>
+
+                        <button className="btn btn-primary-custom mt-4 w-100">
+                          <Image className="me-2" src="/images/icons/reports-icon.svg" alt="view" width={20} height={20} />
+                          {lang('home.projects.viewDetails')}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
 
           <div className="d-block mt-40 text-center" data-aos="fade-up" data-aos-duration="1500">
             <button className="btn btn-primary-custom mt-3 transparentBtn text-primary border-1">
