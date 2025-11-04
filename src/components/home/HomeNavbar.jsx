@@ -23,10 +23,12 @@ import PersonOutlineIcon from '@mui/icons-material/PersonOutline'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useLanguage } from '@/contexts/LanguageContext'
+import { useRouter } from 'next/navigation'
 
 const HomeNavbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [langAnchor, setLangAnchor] = useState(null)
+  const router = useRouter()
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
   const { lang, currentLanguage, changeLanguage, languages, currentLanguageInfo } = useLanguage()
@@ -164,7 +166,7 @@ const HomeNavbar = () => {
                 <Button
                   variant="text"
                   startIcon={<PersonOutlineIcon />}
-                  href="/login"
+                  onClick={() => router.push('/login')}
                   sx={{
                     color: '#000',
                     fontWeight: 600,
