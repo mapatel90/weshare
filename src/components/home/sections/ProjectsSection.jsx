@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
 import AOS from 'aos'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { apiGet } from '@/lib/api'
@@ -135,9 +136,11 @@ const ProjectsSection = () => {
           )}
 
           <div className="d-block mt-40 text-center" data-aos="fade-up" data-aos-duration="1500">
-            <button className="btn btn-primary-custom mt-3 transparentBtn text-primary border-1">
-              {lang('home.projects.loadMore')}
-            </button>
+            <Link href="/exchange-hub">
+              <button className="btn btn-primary-custom mt-3 transparentBtn text-primary border-1">
+                {lang('home.projects.loadMore')}
+              </button>
+            </Link>
           </div>
         </div>
       </div>
