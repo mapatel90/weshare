@@ -1,35 +1,29 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback, useMemo } from 'react'
+import dynamic from 'next/dynamic'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { apiGet } from '@/lib/api'
 import AOS from 'aos'
 import 'aos/dist/aos.css'
 import './styles/exchange-hub-custom.css'
 
+// Dynamically import ApexCharts to avoid SSR issues
+const Chart = dynamic(() => import('react-apexcharts'), { ssr: false })
+
 const ProjectDetail = ({ projectId }) => {
     const { lang } = useLanguage()
     const [project, setProject] = useState(null)
     const [loading, setLoading] = useState(true)
+    const [error, setError] = useState(null)
 
-    useEffect(() => {
-        AOS.init({
-            duration: 1000,
-            once: true,
-            easing: 'linear'
-        })
-    }, [])
-
-    useEffect(() => {
-        if (projectId) {
-            fetchProjectDetail()
-        }
-    }, [projectId])
-
-    const fetchProjectDetail = async () => {
+    const fetchProjectDetail = useCallback(async () => {
+        if (!projectId) return
+        
         try {
             setLoading(true)
-            console.log('Fetching project:', projectId)
+            setError(null)
+        
             const response = await apiGet(`/api/projects/${projectId}`, { 
                 showLoader: false,
                 includeAuth: false 
@@ -40,14 +34,28 @@ const ProjectDetail = ({ projectId }) => {
             if (response.success && response.data) {
                 setProject(response.data)
             } else {
+                setError('Project not found')
                 console.error('Project not found or invalid response:', response)
             }
         } catch (error) {
+            setError(error.message || 'Error fetching project details')
             console.error('Error fetching project details:', error)
         } finally {
             setLoading(false)
         }
-    }
+    }, [projectId])
+
+    useEffect(() => {
+        AOS.init({
+            duration: 1000,
+            once: true,
+            easing: 'linear'
+        })
+    }, [])
+
+    useEffect(() => {
+        fetchProjectDetail()
+    }, [fetchProjectDetail])
 
     // Format numbers
     const formatNumber = (num) => {
@@ -76,6 +84,132 @@ const ProjectDetail = ({ projectId }) => {
             class: 'badge-premium'
         }
     }
+
+    // KWh & Revenue Chart Data
+    const kwhRevenueChartOptions = useMemo(() => ({
+        chart: {
+            type: 'bar',
+            height: 350,
+            toolbar: {
+                show: false
+            }
+        },
+        plotOptions: {
+            bar: {
+                horizontal: false,
+                columnWidth: '55%',
+                borderRadius: 4
+            }
+        },
+        dataLabels: {
+            enabled: false
+        },
+        stroke: {
+            show: true,
+            width: 2,
+            colors: ['transparent']
+        },
+        xaxis: {
+            categories: ['Jan', 'Feb', 'Mar', 'Apr', 'June', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'],
+        },
+        yaxis: {
+            title: {
+                text: 'kWh'
+            }
+        },
+        fill: {
+            opacity: 1,
+            colors: ['#FFA726']
+        },
+        tooltip: {
+            y: {
+                formatter: function (val) {
+                    return formatNumber(val) + ' kWh'
+                }
+            }
+        },
+        colors: ['#FFA726']
+    }), [])
+
+    const kwhRevenueChartSeries = useMemo(() => {
+        // Generate sample data based on project size
+        const baseGeneration = parseFloat(project?.project_size || 100) * 125 // Monthly average
+        return [{
+            name: 'KWh Generated',
+            data: [
+                Math.round(baseGeneration * 1.1),
+                Math.round(baseGeneration * 1.08),
+                Math.round(baseGeneration * 0.4),
+                Math.round(baseGeneration * 0.85),
+                Math.round(baseGeneration * 0.9),
+                Math.round(baseGeneration * 0.6),
+                Math.round(baseGeneration * 1.0),
+                Math.round(baseGeneration * 0.2),
+                Math.round(baseGeneration * 0.7),
+                Math.round(baseGeneration * 0.65),
+                Math.round(baseGeneration * 0.6)
+            ]
+        }]
+    }, [project])
+
+    // ROI Trend Chart Data
+    const roiTrendChartOptions = useMemo(() => ({
+        chart: {
+            type: 'line',
+            height: 350,
+            toolbar: {
+                show: false
+            }
+        },
+        stroke: {
+            curve: 'smooth',
+            width: 3
+        },
+        xaxis: {
+            categories: ['0', '2021', '2022', '2023', '2025'],
+            title: {
+                text: 'Year'
+            }
+        },
+        yaxis: {
+            title: {
+                text: 'ROI'
+            },
+            min: 0,
+            max: 800
+        },
+        colors: ['#FFA726'],
+        markers: {
+            size: 5,
+            colors: ['#FFA726'],
+            strokeColors: '#fff',
+            strokeWidth: 2,
+            hover: {
+                size: 7
+            }
+        },
+        tooltip: {
+            y: {
+                formatter: function (val) {
+                    return val
+                }
+            }
+        }
+    }), [])
+
+    const roiTrendChartSeries = useMemo(() => {
+        const currentROI = parseFloat(project?.investor_profit || 10)
+        return [{
+            name: 'ROI',
+            data: [
+                0,
+                Math.round(currentROI * 55),
+                Math.round(currentROI * 18),
+                Math.round(currentROI * 8),
+                Math.round(currentROI * 75)
+            ]
+        }]
+    }, [project])
 
     if (loading) {
         return (
@@ -123,10 +257,10 @@ const ProjectDetail = ({ projectId }) => {
                             {/* Image Box */}
                             <div className="imageBox">
                                 <img 
-                                    src={project.banner_image || "/images/projects/default-project.jpg"} 
+                                    src={project.banner_image || "/images/banner/banner-img.png"} 
                                     alt={project.project_name} 
                                     className="main-img"
-                                    onError={(e) => { e.target.src = "/images/projects/default-project.jpg" }}
+                                    onError={(e) => { e.target.src = "/images/banner/banner-img.png" }}
                                 />
                                 <span className={`badge imageTag ${badge.class}`}>
                                     <img className="ms-1" src="/img/Check-prem.svg" alt="check" onError={(e) => e.target.style.display = 'none'} /> 
@@ -150,7 +284,7 @@ const ProjectDetail = ({ projectId }) => {
                             <div className="overview">
                                 <h3>{lang('home.exchangeHub.projectOverview') || 'Project Overview'}:</h3>
                                 <p>
-                                    {project.description || `This ${formatNumber(project.project_size)} kWp solar power project stands as a reliable and high-performing renewable energy asset, generating approximately ${formatNumber(accumulative)} kWh annually. With a strong ROI of ${project.investor_profit}% and ${project.lease_term || 'several'} years remaining on its lease term, it continues to deliver consistent financial returns while supporting clean energy adoption. Backed by a trusted offtaker ${project.offtaker?.company_name || project.offtaker?.fullName || ''}, the project ensures steady revenue flow and long-term stability.`}
+                                    {project.project_description || project.description || `This ${formatNumber(project.project_size)} kWp solar power project stands as a reliable and high-performing renewable energy asset, generating approximately ${formatNumber(accumulative)} kWh annually. With a strong ROI of ${project.investor_profit}% and ${project.lease_term || 'eight'} years remaining on its lease term, it continues to deliver consistent financial returns while supporting clean energy adoption. Backed by a trusted offtaker ${project.offtaker?.company_name || project.offtaker?.fullName || ''} with a ${project.offtaker_reliability_score || '92'}% reliability index, the project ensures steady revenue flow and long-term stability. Initially commissioned and now listed for resale, this system presents an excellent opportunity for investors seeking sustainable and profitable resale options.`}
                                 </p>
                             </div>
 
@@ -189,19 +323,36 @@ const ProjectDetail = ({ projectId }) => {
                                 </div>
                             </div>
 
+                            <hr/>
+
                             {/* Analytics */}
                             <div className="analytics">
                                 <h3>{lang('home.exchangeHub.analytics') || 'Analytics'}:</h3>
-                                <p>KWh & Revenue</p>
-                                <div className="chart-placeholder">
-                                    <img src="/img/Chart-bar.png" alt="bar chart" onError={(e) => e.target.style.display = 'none'} />
+                                <p className="fw-600 mb-3">KWh & Revenue</p>
+                                <div className="chart-container mb-4">
+                                    {typeof window !== 'undefined' && (
+                                        <Chart
+                                            options={kwhRevenueChartOptions}
+                                            series={kwhRevenueChartSeries}
+                                            type="bar"
+                                            height={350}
+                                        />
+                                    )}
                                 </div>
 
-                                <p>ROI Trend</p>
-                                <div className="chart-placeholder">
-                                    <img src="/img/Chart-line.png" alt="line chart" onError={(e) => e.target.style.display = 'none'} />
+                                <p className="fw-600 mb-3 mt-5">ROI Trend</p>
+                                <div className="chart-container">
+                                    {typeof window !== 'undefined' && (
+                                        <Chart
+                                            options={roiTrendChartOptions}
+                                            series={roiTrendChartSeries}
+                                            type="line"
+                                            height={350}
+                                        />
+                                    )}
                                 </div>
                             </div>
+                            <hr/>
 
                             {/* Index Section */}
                             <div className="indexSection">
@@ -264,9 +415,9 @@ const ProjectDetail = ({ projectId }) => {
                                 {/* Offtaker Testimonial */}
                                 <div className="testi-card">
                                     <img 
-                                        src={project.offtaker?.profile_image || "/img/test-img1.png"} 
+                                        src={project.offtaker?.profile_image || "/images/avatar/user-img.png"} 
                                         alt="testimonial" 
-                                        onError={(e) => { e.target.src = "/img/test-img1.png" }}
+                                        onError={(e) => { e.target.src = "/images/avatar/user-img.png" }}
                                     />
                                     <h4>{project.offtaker?.company_name || project.offtaker?.fullName || 'Greenfield Holdings'}</h4>
                                     <div className="designation">{lang('home.exchangeHub.offtaker') || 'Offtaker'}</div>
@@ -277,7 +428,7 @@ const ProjectDetail = ({ projectId }) => {
 
                                 {/* Investor Testimonials */}
                                 <div className="testi-card">
-                                    <img src="/img/test-img.png" alt="testimonial" onError={(e) => { e.target.src = "/img/test-img1.png" }} />
+                                    <img src="/img/test-img.png" alt="testimonial" onError={(e) => { e.target.src = "/images/avatar/user-img.png" }} />
                                     <h4>Sarah Johnson</h4>
                                     <div className="designation">{lang('home.exchangeHub.investor') || 'Investor'}</div>
                                     <p>
@@ -286,7 +437,7 @@ const ProjectDetail = ({ projectId }) => {
                                 </div>
 
                                 <div className="testi-card">
-                                    <img src="/img/test-img1.png" alt="testimonial" onError={(e) => { e.target.src = "/img/test-img.png" }} />
+                                    <img src="/images/avatar/user-img.png" alt="testimonial" onError={(e) => { e.target.src = "/img/test-img.png" }} />
                                     <h4>Cameron Williamson</h4>
                                     <div className="designation">{lang('home.exchangeHub.investor') || 'Investor'}</div>
                                     <p>
