@@ -234,7 +234,7 @@ const ExchangeHub = () => {
             )}
 
             {/* Project Section with Tabs */}
-            <section className="projectSection" style={{ backgroundColor: '#fff' }}>
+            <section className="projectSection innnerPagePattern">
               <div className="container px-0">
                 <div className="headerSection mb-40" data-aos="fade-up" data-aos-easing="linear" data-aos-duration="1000">
                   <ul className="nav nav-pills mb-3" id="pills-tab" role="tablist">

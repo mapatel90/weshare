@@ -586,7 +586,18 @@
       "accumulativeGeneration": "Accumulative Generation",
       "highReliability": "High Reliability",
       "moderateReliability": "Moderate Reliability",
-      "premiumReliability": "Premium Reliability"
+      "premiumReliability": "Premium Reliability",
+      "projectOverview": "Project Overview",
+      "installedCapacity": "Installed Capacity",
+      "annualGeneration": "Annual Generation",
+      "analytics": "Analytics",
+      "offtakerReliability": "Offtaker Reliability Index",
+      "transactionHistory": "Transaction & Ownership History",
+      "seekingInvestor": "Seeking Investor",
+      "targetInvestment": "Target Investment",
+      "investNow": "Invest Now",
+      "testimonials": "Offtaker & Investor Testimonials",
+      "investor": "Investor"
     },
     "solarLease": {
       "title": "Turn your Property Into a Solar Lease",

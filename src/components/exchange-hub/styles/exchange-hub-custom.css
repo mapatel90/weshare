@@ -22,14 +22,55 @@
 .Exchange-page {
     padding-top: 20px;
     padding-bottom: 60px;
+    position: relative;
+    z-index: 1;
 }
 
-.projectSectionPage {
+.Exchange-page::before {
+    z-index: -1;
+    content: '';
+    position: absolute;
+    left: 0px;
+    bottom: -50px;
+    height: 426px;
+    width: 536px;
+    background-image: url('/images/shapes/how-left-shape.png');
+    background-repeat: no-repeat;
+    background-size: contain;
+}
+
+.Exchange-page::after {
+    z-index: -1;
+    content: '';
+    position: absolute;
+    right: 0px;
+    top: 50%;
+    height: 426px;
+    width: 360px;
+    background-image: url('/images/shapes/how-right-shape.png');
+    background-repeat: no-repeat;
+    background-size: contain;
+}
+
+.projectSection {
+    padding: 80px 0px 60px;
+    position: relative;
+    z-index: 0;
+    overflow: hidden;
+    background-color: #FFFBF4;
+}
+
+.projectSection.innnerPagePattern {
+    padding: 40px 0px 60px;
+    position: relative;
+    z-index: 0;
+    overflow: hidden;
     background-color: #fff;
 }
 
-.innnerPagePattern {
-    background-color: transparent;
+.projectSection.innnerPagePattern::after, 
+.projectSection.innnerPagePattern::before {
+    display: none;
 }
 
 /* Search and Filter Section */
@@ -768,4 +809,431 @@ input:focus-visible {
 
 ::-webkit-scrollbar-thumb:hover {
     background: #e09615;
+}
+
+/* ===== PROJECT DETAIL PAGE STYLES ===== */
+
+.sectionWraper {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 40px;
+    margin-top: 20px;
+}
+
+/* Left Card - Main Content */
+.left-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.left-card .imageBox {
+    position: relative;
+    width: 100%;
+    height: 400px;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 24px;
+}
+
+.left-card .imageBox .main-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.left-card .imageBox .imageTag {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 8px 16px;
+    border-radius: 50px;
+    font-size: 13px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.left-card .inner-header {
+    margin-bottom: 30px;
+}
+
+.left-card .inner-header .title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+}
+
+.left-card .inner-header h2 {
+    font-size: 28px;
+    font-weight: 600;
+    color: #000;
+    margin: 0;
+}
+
+.left-card .inner-header h2 span {
+    color: var(--color-F6A623);
+    margin: 0 8px;
+}
+
+.left-card .inner-header p {
+    font-size: 16px;
+    color: #757575;
+    margin: 0;
+}
+
+.left-card .inner-header > span {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 15px;
+    color: #666;
+}
+
+.left-card .overview,
+.left-card .analytics {
+    margin: 30px 0;
+}
+
+.left-card .overview h3,
+.left-card .analytics h3,
+.left-card .indexSection h4 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #000;
+    margin-bottom: 16px;
+}
+
+.left-card .overview p,
+.left-card .analytics p {
+    font-size: 15px;
+    line-height: 1.7;
+    color: #333;
+    margin-bottom: 16px;
+}
+
+/* Stats View */
+.stats-view {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin: 30px 0;
+}
+
+.leftStatsBox,
+.rightStatsBox {
+    background: #F5F5F5;
+    border-radius: 12px;
+    padding: 24px;
+}
+
+.leftStatsBox > div,
+.rightStatsBox > div {
+    margin-bottom: 20px;
+}
+
+.leftStatsBox > div:last-child,
+.rightStatsBox > div:last-child {
+    margin-bottom: 0;
+}
+
+.leftStatsBox p,
+.rightStatsBox p {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 8px;
+    font-weight: 400;
+}
+
+.leftStatsBox h4,
+.rightStatsBox h4 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #000;
+    margin: 0;
+}
+
+.rightStatsBox h4 span {
+    font-size: 13px;
+    font-weight: 400;
+    color: #999;
+}
+
+/* Analytics Charts */
+.chart-placeholder {
+    background: #FAFAFA;
+    border-radius: 12px;
+    padding: 20px;
+    margin: 16px 0;
+    text-align: center;
+}
+
+.chart-placeholder img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Index Section */
+.indexSection {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-top: 40px;
+}
+
+.indexBox {
+    background: #FFF3DF;
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+}
+
+.indexBox h4 {
+    margin-bottom: 20px;
+}
+
+.indexBox img {
+    max-width: 200px;
+    margin: 0 auto;
+}
+
+.indexBox .values {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--color-F6A623);
+    margin: 16px 0;
+}
+
+.indexBox p {
+    font-size: 14px;
+    color: #666;
+    margin: 0;
+}
+
+/* Ownership Section */
+.ownership-section {
+    background: #F5F5F5;
+    border-radius: 12px;
+    padding: 24px;
+}
+
+.ownership-section h4 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #000;
+    margin-bottom: 20px;
+}
+
+.ownership-section .row {
+    margin-bottom: 16px;
+}
+
+.ownership-section .row:last-child {
+    margin-bottom: 0;
+}
+
+.ownership-section p {
+    font-size: 14px;
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* Right Card - Sidebar */
+.right-card {
+    position: sticky;
+    top: 100px;
+    height: fit-content;
+}
+
+/* Investor Box */
+.investor-box {
+    background: var(--color-102C41);
+    border-radius: 16px;
+    padding: 30px;
+    text-align: center;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 16px rgba(16, 44, 65, 0.2);
+}
+
+.investor-box h3 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 20px;
+}
+
+.investor-box .middileContend {
+    margin: 24px 0;
+}
+
+.investor-box .middileContend p {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 8px;
+}
+
+.investor-box .middileContend h2 {
+    font-size: 36px;
+    font-weight: 700;
+    color: #fff;
+    margin: 0;
+}
+
+.investor-box .btn-primary-custom {
+    width: 100%;
+    padding: 14px 20px;
+    font-size: 16px;
+    font-weight: 600;
+    background: var(--color-F6A623);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(246, 166, 35, 0.3);
+}
+
+.investor-box .btn-primary-custom:hover {
+    background: #e09615;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(246, 166, 35, 0.4);
+}
+
+/* Testimonial Box */
+.testimonial-rightBox {
+    background: #fff;
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.testimonial-rightBox h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #000;
+    margin-bottom: 24px;
+}
+
+.testi-card {
+    background: #F5F5F5;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.testi-card:last-child {
+    margin-bottom: 0;
+}
+
+.testi-card img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 12px;
+    border: 3px solid #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.testi-card h4 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #000;
+    margin-bottom: 4px;
+}
+
+.testi-card .designation {
+    font-size: 13px;
+    color: var(--color-F6A623);
+    font-weight: 500;
+    margin-bottom: 12px;
+}
+
+.testi-card p {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #666;
+    margin: 0;
+    text-align: left;
+}
+
+/* Responsive Styles for Detail Page */
+@media (max-width: 1200px) {
+    .sectionWraper {
+        grid-template-columns: 1fr 350px;
+        gap: 30px;
+    }
+}
+
+@media (max-width: 991px) {
+    .sectionWraper {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+    
+    .right-card {
+        position: relative;
+        top: 0;
+    }
+    
+    .stats-view {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    
+    .indexSection {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .left-card,
+    .testimonial-rightBox {
+        padding: 20px;
+    }
+    
+    .left-card .imageBox {
+        height: 280px;
+    }
+    
+    .left-card .inner-header h2 {
+        font-size: 24px;
+    }
+    
+    .investor-box .middileContend h2 {
+        font-size: 28px;
+    }
+}
+
+@media (max-width: 576px) {
+    .left-card,
+    .investor-box,
+    .testimonial-rightBox {
+        padding: 16px;
+    }
+    
+    .left-card .imageBox {
+        height: 220px;
+    }
+    
+    .left-card .inner-header h2 {
+        font-size: 20px;
+    }
+    
+    .stats-view {
+        gap: 12px;
+    }
+    
+    .leftStatsBox,
+    .rightStatsBox {
+        padding: 16px;
+    }
 }
