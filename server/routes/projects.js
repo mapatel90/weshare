@@ -83,7 +83,7 @@ router.post('/AddProject', authenticateToken, async (req, res) => {
  * @desc    Get all projects
  * @access  Private
  */
-router.get('/', authenticateToken, async (req, res) => {
+router.get('/', async (req, res) => {
   try {
     const { page = 1, limit = 10, search, status } = req.query;
     const pageInt = parseInt(page);
@@ -160,8 +160,46 @@ router.put('/:id/status', authenticateToken, async (req, res) => {
   }
 });
 
-// Get a single project by ID
-router.get('/:id', authenticateToken, async (req, res) => {
+// Get a single project by ID (Public - for detail page)
+router.get('/:id/public', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const project = await prisma.project.findFirst({
+      where: { 
+        id: parseInt(id), 
+        status: 1, 
+        is_deleted: 0 
+      },
+      include: {
+        offtaker: { 
+          select: { 
+            id: true, 
+            fullName: true, 
+            email: true, 
+            company_name: true,
+            profile_image: true 
+          } 
+        },
+        city: { select: { id: true, name: true } },
+        state: { select: { id: true, name: true } },
+        country: { select: { id: true, name: true } },
+        projectType: { select: { id: true, name: true } },
+      },
+    });
+
+    if (!project) {
+      return res.status(404).json({ success: false, message: 'Project not found or not available' });
+    }
+
+    res.json({ success: true, data: project });
+  } catch (error) {
+    console.error('Get project by id (public) error:', error);
+    res.status(500).json({ success: false, message: 'Internal server error', error: error.message });
+  }
+});
+
+// Get a single project by ID (Protected - for admin)
+router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const project = await prisma.project.findUnique({

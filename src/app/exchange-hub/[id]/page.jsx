@@ -3,19 +3,18 @@
 import React from 'react'
 import HomeNavbar from '@/components/home/HomeNavbar'
 import HomeFooter from '@/components/home/HomeFooter'
-import ExchangeHub from '@/components/exchange-hub/ExchangeHub'
+import ProjectDetail from '@/components/exchange-hub/ProjectDetail'
 import 'bootstrap/dist/css/bootstrap.min.css'
-// import '../../../public/css/home.css'
-import '../../../public/css/responsive.css'
+import '../../../../public/css/responsive.css'
 
-const ExchangeHubPage = () => {
+const ProjectDetailPage = ({ params }) => {
   return (
     <>
       {/* Navbar */}
       <HomeNavbar />
 
-      {/* Main Exchange Hub Content */}
-      <ExchangeHub />
+      {/* Project Detail Content */}
+      <ProjectDetail projectId={params.id} />
 
       {/* Footer */}
       <HomeFooter />
@@ -23,4 +22,4 @@ const ExchangeHubPage = () => {
   )
 }
 
-export default ExchangeHubPage
+export default ProjectDetailPage

@@ -1,170 +1,160 @@
 import React from 'react'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 import { useLanguage } from '@/contexts/LanguageContext'
+import './styles/exchange-hub-custom.css'
 
 const ProjectCard = ({ project, activeTab }) => {
-    console.log("Project Details:", project);
     const { lang } = useLanguage()
-    const cityName = project.city?.name || ''
-    const stateName = project.state?.name || ''
-    const location = [cityName, stateName].filter(Boolean).join(', ') || 'Location Not Available'
-    const projectImage = project.project_image || '/images/projects/project-img1.png'
-    const badgeColor = activeTab === 'lease' ? '#4CAF50' : '#FF9800'
-    const badgeText = activeTab === 'lease' ? lang('home.exchangeHub.forLeaseBadge') : lang('home.exchangeHub.forResaleBadge')
+    const router = useRouter()
+
+    // Safety check
+    if (!project) {
+        console.error('ProjectCard: No project data provided')
+        return null
+    }
+
+    // Determine reliability badge based on ROI
+    const getReliabilityBadge = () => {
+        const roi = parseFloat(project.investor_profit || 0)
+        if (roi >= 12) return {
+            text: lang('home.exchangeHub.highReliability') || 'High Reliability',
+            icon: '🟢',
+            class: 'badge-high'
+        }
+        if (roi >= 8) return {
+            text: lang('home.exchangeHub.moderateReliability') || 'Moderate Reliability',
+            icon: '🟡',
+            class: 'badge-moderate'
+        }
+        return {
+            text: lang('home.exchangeHub.premiumReliability') || 'Premium Reliability',
+            icon: '🔵',
+            class: 'badge-premium'
+        }
+    }
+
+    const badge = getReliabilityBadge()
+
+    // Format numbers
+    const formatNumber = (num) => {
+        if (!num) return '0'
+        return parseFloat(num).toLocaleString('en-US')
+    }
+
+    // Calculate accumulative generation with fallback
+    const accumulative = project.accumulative_generation ||
+        (parseFloat(project.project_size || 0) * 1500).toFixed(0)
+
+    // Debug log
+    console.log('ProjectCard rendering:', {
+        id: project?.id,
+        name: project?.project_name,
+        size: project?.project_size
+    })
 
     return (
-        <div className="col-12 col-md-6 col-xl-4 mb-4">
-            <div className="bg-white overflow-hidden h-100" style={{ border: '1px solid #e8e8e8', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
-                {/* Project Image */}
-                <div className="position-relative">
-                    <Image
-                        src={projectImage}
-                        alt={project.project_name}
-                        className="img-fluid w-100"
-                        width={400}
-                        height={220}
-                        style={{ objectFit: 'cover', height: '220px' }}
-                        onError={(e) => {
-                            e.target.src = '/images/projects/project-img1.png'
-                        }}
-                    />
-                    <span
-                        className="position-absolute px-3 py-1 text-white small fw-500"
-                        style={{
-                            backgroundColor: badgeColor,
-                            top: '12px',
-                            right: '12px',
-                            borderRadius: '20px',
-                            fontSize: '12px'
-                        }}
-                    >
-                        {badgeText}
+        <div className="col-12 col-md-6 col-lg-6 mb-4" data-aos="fade-up" data-aos-easing="linear" data-aos-duration="1000">
+            <div className="solar-card">
+                {/* Card Header - Title & Badge */}
+                <div className="card-header">
+                    <h3>{project?.project_name || 'Solar Project'}</h3>
+                    <span className={`badge ${badge.class}`}>
+                        <span className="badge-icon">{badge.icon}</span>
+                        {badge.text}
                     </span>
                 </div>
 
-                {/* Project Details */}
-                <div className="p-3">
-                    {/* Title and ID */}
-                    <h5 className="fw-bold mb-1" style={{ fontSize: '17px', color: '#1a1a2e' }}>{project?.project_name}</h5>
-                    <p className="text-muted small mb-1" style={{ fontSize: '12px' }}>{lang('home.exchangeHub.id')} {project?.product_code || `SE-${project?.id}`}</p>
-                    <p className="text-muted small mb-3" style={{ fontSize: '12px' }}>
-                        {lang('home.exchangeHub.offtaker')} {project?.offtaker?.fullName || 'N/A'}
+                {/* ID */}
+                <p className="id">ID: {project?.product_code || project?.project_code || `SE-${project?.id}`}</p>
+
+                {/* Offtaker */}
+                <p className="offtaker">
+                    {lang('home.exchangeHub.offtaker') || 'Offtaker'}: {project?.offtaker?.fullName || project?.offtaker?.company_name || 'Greenfield Academy'}
+                </p>
+
+                {/* Stats - 3 Columns */}
+                <div className="stats">
+                    <div className="stat">
+                        <h4>{formatNumber(project.project_size || 1200)} kWp</h4>
+                        <p>{lang('home.exchangeHub.systemSize') || 'System Size'}</p>
+                    </div>
+                    <div className="stat">
+                        <h4 className="text-secondary-color">
+                            {formatNumber(accumulative)} kWh
+                        </h4>
+                        <p>{lang('home.exchangeHub.accumulativeGeneration') || 'Accumulative'}<br />{lang('home.exchangeHub.generation') || 'Generation'}</p>
+                    </div>
+                    <div className="stat">
+                        <h4 className="text-secondary-color">{project.investor_profit || '11.2'}%</h4>
+                        <p>{lang('home.exchangeHub.roi') || 'ROI'}</p>
+                    </div>
+                </div>
+
+                {/* Details Section - Gray Background */}
+                <div className="details">
+                    <p>
+                        <span>{lang('home.exchangeHub.leaseTermRemaining') || 'Lease Term Remaining'}</span>
+                        <span className="fw-600 text-black">
+                            {project?.lease_term || '7'} {lang('home.exchangeHub.years') || 'Years'}
+                        </span>
                     </p>
+                    <p>
+                        <span>{lang('home.exchangeHub.cumulativeRevenue') || 'Cumulative Revenue'}</span>
+                        <span className="fw-500 text-black">
+                            ${formatNumber(project?.cumulative_revenue || '155000')}
+                        </span>
+                    </p>
+                    <p>
+                        <span>
+                            {lang('home.exchangeHub.askingPrice') || 'Asking Price'}
+                            <span className="text-secondary-color fw-300"> ({project?.price_type || lang('home.exchangeHub.negotiable') || 'negotiable'})</span>
+                        </span>
+                        <span className="fw-500 text-black">
+                            ${formatNumber(project?.asking_price || '128000')}
+                        </span>
+                    </p>
+                </div>
 
-                    {/* Stats Grid */}
-                    <div className="row g-2 mb-3">
-                        <div className="col-4 text-center">
-                            <div style={{
-                                border: '1px solid #e8e8e8',
-                                borderRadius: '8px',
-                                padding: '12px 8px',
-                                backgroundColor: '#fafafa'
-                            }}>
-                                <h6 className="fw-bold mb-0" style={{ color: '#FFA500', fontSize: '18px' }}>
-                                    {project.project_size || '0'}
-                                </h6>
-                                <small className="text-muted d-block" style={{ fontSize: '9px', lineHeight: '1.2' }}>{lang('home.exchangeHub.systemSize')}</small>
-                                <small className="text-muted d-block" style={{ fontSize: '9px', lineHeight: '1.2' }}>&nbsp;</small>
-                                <small className="d-block fw-600" style={{ fontSize: '11px', color: '#1a1a2e', marginTop: '2px' }}>kWp</small>
-                            </div>
-                        </div>
-                        <div className="col-4 text-center">
-                            <div style={{
-                                border: '1px solid #e8e8e8',
-                                borderRadius: '8px',
-                                padding: '12px 8px',
-                                backgroundColor: '#fafafa'
-                            }}>
-                                <h6 className="fw-bold mb-0" style={{ color: '#FFA500', fontSize: '18px' }}>
-                                    {project.accumulative_generation || 'N/A'}
-                                </h6>
-                                <small className="text-muted d-block" style={{ fontSize: '9px', lineHeight: '1.2' }}>{lang('home.exchangeHub.accumulative')}</small>
-                                <small className="text-muted d-block" style={{ fontSize: '9px', lineHeight: '1.2' }}>{lang('home.exchangeHub.generation')}</small>
-                                <small className="d-block fw-600" style={{ fontSize: '11px', color: '#1a1a2e', marginTop: '2px' }}>kWh</small>
-                            </div>
-                        </div>
-                        <div className="col-4 text-center">
-                            <div style={{
-                                border: '1px solid #e8e8e8',
-                                borderRadius: '8px',
-                                padding: '12px 8px',
-                                backgroundColor: '#fafafa'
-                            }}>
-                                <h6 className="fw-bold mb-0" style={{ color: '#FFA500', fontSize: '18px' }}>
-                                    {project.investor_profit || '0'}%
-                                </h6>
-                                <small className="text-muted d-block" style={{ fontSize: '9px', lineHeight: '1.2' }}>&nbsp;</small>
-                                <small className="text-muted d-block" style={{ fontSize: '9px', lineHeight: '1.2' }}>&nbsp;</small>
-                                <small className="d-block fw-600" style={{ fontSize: '11px', color: '#1a1a2e', marginTop: '2px' }}>{lang('home.exchangeHub.roi')}</small>
-                            </div>
-                        </div>
-                    </div>
+                {/* Chart - Line Graph */}
+                <div className="chart">
+                    <svg width="100%" height="80" viewBox="0 0 350 80" preserveAspectRatio="none">
+                        <defs>
+                            <linearGradient id={`gradient-${project.id}`} x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" stopColor="#FFB84D" stopOpacity="0.3" />
+                                <stop offset="100%" stopColor="#FFB84D" stopOpacity="0.05" />
+                            </linearGradient>
+                        </defs>
+                        {/* Line path */}
+                        <path
+                            d="M 0,60 Q 50,50 80,45 T 130,35 Q 160,30 190,25 T 250,20 Q 280,22 310,18 T 350,15"
+                            fill="none"
+                            stroke="#F6A623"
+                            strokeWidth="2"
+                        />
+                        {/* Area under line */}
+                        <path
+                            d="M 0,60 Q 50,50 80,45 T 130,35 Q 160,30 190,25 T 250,20 Q 280,22 310,18 T 350,15 L 350,80 L 0,80 Z"
+                            fill={`url(#gradient-${project.id})`}
+                        />
+                    </svg>
+                </div>
 
-                    {/* Lease Terms */}
-                    <div style={{ borderTop: '1px solid #e8e8e8', paddingTop: '12px', marginBottom: '12px' }}>
-                        <div className="d-flex justify-content-between align-items-center mb-2">
-                            <small className="text-muted" style={{ fontSize: '12px' }}>{lang('home.exchangeHub.leaseTermRemaining')}</small>
-                            <small className="fw-600" style={{ fontSize: '12px', color: '#1a1a2e' }}>  {project?.lease_term ? `${project.lease_term} ${lang('home.exchangeHub.years')}` : `7 ${lang('home.exchangeHub.years')}`}</small>
-                        </div>
-                        <div className="d-flex justify-content-between align-items-center mb-2">
-                            <small className="text-muted" style={{ fontSize: '12px' }}>{lang('home.exchangeHub.cumulativeRevenue')}</small>
-                            <small className="fw-600" style={{ fontSize: '12px', color: '#1a1a2e' }}>${project?.cumulative_revenue || project?.asking_price || '155,000'}</small>
-                        </div>
-                        <div className="d-flex justify-content-between align-items-center">
-                            <small className="text-muted" style={{ fontSize: '12px' }}>
-                                {lang('home.exchangeHub.askingPrice')} <span style={{ color: '#FFA500', fontWeight: '500' }}>({lang('home.exchangeHub.negotiable')})</span>
-                            </small>
-                            <small className="fw-600" style={{ fontSize: '12px', color: '#1a1a2e' }}>${project?.asking_price || '128,000'}</small>
-                        </div>
-                    </div>
-
-                    {/* Chart Placeholder */}
-                    <div className="my-3" style={{
-                        height: '70px',
-                        background: '#fafafa',
-                        borderRadius: '8px',
-                        display: 'flex',
-                        alignItems: 'flex-end',
-                        padding: '8px',
-                        gap: '2px',
-                        border: '1px solid #f0f0f0'
-                    }}>
-                        {[30, 45, 35, 50, 40, 55, 45, 60, 50, 65, 55, 70].map((height, idx) => (
-                            <div key={idx} style={{
-                                flex: 1,
-                                background: 'linear-gradient(to top, #FFB84D 0%, #FFDBA3 100%)',
-                                height: `${height}%`,
-                                borderRadius: '3px 3px 0 0'
-                            }}></div>
-                        ))}
-                    </div>
-
-                    {/* Buttons */}
-                    <div className="d-flex gap-2">
-                        <button className="btn text-white fw-500 flex-fill" style={{
-                            backgroundColor: '#FFA500',
-                            border: 'none',
-                            borderRadius: '8px',
-                            padding: '10px',
-                            fontSize: '14px'
-                        }}>
-                            {lang('home.exchangeHub.buyNow')}
-                        </button>
-                        <button className="btn flex-fill d-flex align-items-center justify-content-center" style={{
-                            backgroundColor: 'white',
-                            border: '1px solid #dee2e6',
-                            borderRadius: '8px',
-                            padding: '10px',
-                            fontSize: '14px',
-                            color: '#1a1a2e'
-                        }}>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" className="me-1" viewBox="0 0 16 16">
-                                <path d="M5 4a.5.5 0 0 0 0 1h6a.5.5 0 0 0 0-1zm-.5 2.5A.5.5 0 0 1 5 6h6a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5M5 8a.5.5 0 0 0 0 1h6a.5.5 0 0 0 0-1zm0 2a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1z" />
-                                <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2zm10-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1" />
-                            </svg>
-                            {lang('home.exchangeHub.viewDetails')}
-                        </button>
-                    </div>
+                {/* Action Buttons */}
+                <div className="buttons">
+                    <button className="btn btn-primary-custom">
+                        {lang('home.exchangeHub.buyNow') || 'Buy Now'}
+                    </button>
+                    <button 
+                        className="btn btn-secondary-custom"
+                        onClick={() => router.push(`/exchange-hub/${project.id}`)}
+                    >
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" style={{ marginRight: '8px' }}>
+                            <path d="M5 4a.5.5 0 0 0 0 1h6a.5.5 0 0 0 0-1zm-.5 2.5A.5.5 0 0 1 5 6h6a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5M5 8a.5.5 0 0 0 0 1h6a.5.5 0 0 0 0-1zm0 2a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1z" />
+                            <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2zm10-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1" />
+                        </svg>
+                        {lang('home.exchangeHub.viewDetails') || 'View Details'}
+                    </button>
                 </div>
             </div>
         </div>

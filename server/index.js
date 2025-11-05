@@ -21,6 +21,7 @@ import projectTypesRoutes from './routes/projectTypes.js';
 import paymentsRoutes from './routes/payments.js';
 import newsRoutes from './routes/news.js';
 import testimonialRoutes from './routes/testimonial.js';
+import contactusRoutes from './routes/contactus.js';
 
 // Load environment variables
 const __filename = fileURLToPath(import.meta.url);
@@ -74,6 +75,7 @@ app.use('/api/project-types', projectTypesRoutes);
 app.use('/api/payments', paymentsRoutes);
 app.use('/api/news', newsRoutes);
 app.use('/api/testimonials', testimonialRoutes);
+app.use('/api/contactus', contactusRoutes);
 
 // 404 handler
 app.use((req, res) => {
