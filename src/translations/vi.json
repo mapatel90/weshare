@@ -213,7 +213,12 @@
     "newsSlugRequired": "Slug tin tức là bắt buộc",
     "invalidEmail": "Địa chỉ email không hợp lệ",
     "invalidImageType": "Vui lòng chọn tệp hình ảnh hợp lệ",
-    "imageTooLarge": "Kích thước hình ảnh phải nhỏ hơn 5MB"
+    "imageTooLarge": "Kích thước hình ảnh phải nhỏ hơn 5MB",
+    "projectRequired": "Dự án là bắt buộc",
+    "offtakerRequired": "Người nhận hàng là bắt buộc",
+    "reviewStatusRequired": "Đánh giá là bắt buộc",
+    "imageRequired": "Hình ảnh là bắt buộc",
+    "descriptionRequired": "Mô tả là bắt buộc"
   },
   "menu": {
     "dashboards": "Bảng điều khiển",
@@ -1050,5 +1055,23 @@
     "newsCreatedSuccessfully": "Tin tức đã được tạo thành công",
     "newsUpdatedSuccessfully": "Tin tức được cập nhật thành công",
     "newsDeletedSuccessfully": "Tin tức đã xóa thành công"
+  },
+  "testimonials": {
+    "add": "Thêm lời chứng thực",
+    "edit": "Sửa lời chứng thực",
+    "name": "Tên",
+    "project": "Dự án",
+    "offtaker": "Người nhận",
+    "rating": "Xếp hạng",
+    "image": "Hình ảnh",
+    "description": "Mô tả",
+    "one": "Một",
+    "two": "Hai",
+    "three": "Ba",
+    "four": "Bốn",
+    "five": "Năm",
+    "testimonialCreatedSuccessfully": "Lời chứng thực đã được tạo thành công",
+    "testimonialUpdatedSuccessfully": "Lời chứng thực đã được cập nhật thành công",
+    "testimonialDeletedSuccessfully": "Lời chứng thực đã xóa thành công"
   }
 }

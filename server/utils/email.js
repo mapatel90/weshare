@@ -12,12 +12,10 @@ const getSmtpSettings = async () => {
     const smtpKeys = [
       'smtp_email',
       'smtp_email_from_address',
-      'smtp_email_from_name',
       'smtp_email_host',
       'smtp_email_user',
       'smtp_email_password',
       'smtp_email_port',
-      'smtp_email_security_type',
     ];
 
     const settings = await prisma.setting.findMany({
