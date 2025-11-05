@@ -53,6 +53,130 @@ const ProjectCard = ({ project, activeTab }) => {
         size: project?.project_size
     })
 
+    // Different card design for lease vs resale
+    if (activeTab === 'lease') {
+        // LEASE CARD - With Image (Figma Style)
+        return (
+            <div className="col-12 col-md-6 col-lg-6 mb-4" data-aos="fade-up" data-aos-easing="linear" data-aos-duration="1000">
+                <div className="solar-card-with-image">
+                    {/* Solar Panel Image */}
+                    <div className="card-image-container">
+                        <Image 
+                            src={project?.project_image || '/images/projects/project-img1.png'}
+                            alt={project?.project_name || 'Solar Project'}
+                            width={500}
+                            height={250}
+                            className="card-image"
+                            onError={(e) => {
+                                e.target.src = '/images/projects/project-img1.png'
+                            }}
+                        />
+                        {/* Upcoming Badge */}
+                        <div className="upcoming-badge">
+                            {lang('home.exchangeHub.upcoming') || 'upcoming'}
+                        </div>
+                    </div>
+
+                    {/* Card Content */}
+                    <div className="card-content-with-image">
+                        {/* Title and Rating */}
+                        <div className="card-header-image">
+                            <h3>{project?.project_name || 'Solar Farm A'}</h3>
+                            <div className="rating">
+                                <span className="text-rating">{lang('home.exchangeHub.ratings') || 'Ratings'}:</span>
+                                <div className="stars">
+                                    {'⭐'.repeat(4)}{'☆'.repeat(1)}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* ID */}
+                        <p className="id-image">
+                            ID: {project?.product_code || project?.project_code || `PJT-${project?.id || '238'}`}
+                        </p>
+
+                        {/* Offtaker */}
+                        <p className="offtaker-image">
+                            {lang('home.exchangeHub.offtaker') || 'Offtaker'}: {project?.offtaker?.fullName || project?.offtaker?.company_name || 'Greenfield Academy'}
+                        </p>
+
+                        {/* Stats - 3 Columns */}
+                        <div className="stats-image">
+                            <div className="stat-image">
+                                <h4>${formatNumber(project.asking_price || project.target_investment || 1450000)}</h4>
+                                <p>{lang('home.exchangeHub.targetInvestment') || 'Target Investment'}</p>
+                            </div>
+                            <div className="stat-image">
+                                <h4 className="text-secondary-color">
+                                    {formatNumber(accumulative || (parseFloat(project.project_size || 1800) * 1000))} kWh/year
+                                </h4>
+                                <p>{lang('home.exchangeHub.expectedGeneration') || 'Expected Generation'}</p>
+                            </div>
+                            <div className="stat-image">
+                                <h4 className="text-secondary-color">{project.investor_profit || '20'}%</h4>
+                                <p>{lang('home.exchangeHub.expectedROI') || 'Expected ROI'}</p>
+                            </div>
+                        </div>
+
+                        {/* Additional Details */}
+                        <div className="details-row-image">
+                            <div className="detail-item">
+                                <span className="label">{lang('home.exchangeHub.paybackPeriod') || 'Payback Period'}</span>
+                                <span className="value">{project?.payback_period || '8'} {lang('home.exchangeHub.years') || 'years'}</span>
+                            </div>
+                            <div className="detail-divider"></div>
+                            <div className="detail-item">
+                                <span className="label">{lang('home.exchangeHub.leaseTerm') || 'Lease Term'}</span>
+                                <span className="value">{project?.lease_term || '15'} {lang('home.exchangeHub.years') || 'years'}</span>
+                            </div>
+                        </div>
+
+                        {/* Progress Bar */}
+                        <div className="progress-section">
+                            <div className="progress-header">
+                                <span className="progress-label">
+                                    {lang('home.exchangeHub.fundProgress') || 'Fund Progress'}: <strong className="text-secondary-color">{project?.fund_progress || '45'}%</strong>
+                                </span>
+                                <span className="time-left">
+                                    {lang('home.exchangeHub.timeLeft') || 'Time left'}: {project?.time_left || '3 Month'}
+                                </span>
+                            </div>
+                            <div className="progress-bar-container">
+                                <div 
+                                    className="progress-bar-fill" 
+                                    style={{ width: `${project?.fund_progress || 45}%` }}
+                                ></div>
+                            </div>
+                        </div>
+
+                        {/* Note */}
+                        <p className="note-text">
+                            {lang('home.exchangeHub.assumptionNote') || 'Note: This is an Assumption data*'}
+                        </p>
+
+                        {/* Action Buttons */}
+                        <div className="buttons-image">
+                            <button className="btn btn-primary-custom">
+                                {lang('home.exchangeHub.investEarly') || 'Invest Early'}
+                            </button>
+                            <button 
+                                className="btn btn-secondary-custom"
+                                onClick={() => router.push(`/exchange-hub/${project.id}`)}
+                            >
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" style={{ marginRight: '8px' }}>
+                                    <path d="M5 4a.5.5 0 0 0 0 1h6a.5.5 0 0 0 0-1zm-.5 2.5A.5.5 0 0 1 5 6h6a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5M5 8a.5.5 0 0 0 0 1h6a.5.5 0 0 0 0-1zm0 2a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1z" />
+                                    <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2zm10-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1" />
+                                </svg>
+                                {lang('home.exchangeHub.viewDetails') || 'View Details'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        )
+    }
+
+    // RESALE CARD - Without Image (Original Design)
     return (
         <div className="col-12 col-md-6 col-lg-6 mb-4" data-aos="fade-up" data-aos-easing="linear" data-aos-duration="1000">
             <div className="solar-card">

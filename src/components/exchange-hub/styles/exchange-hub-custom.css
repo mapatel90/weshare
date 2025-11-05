@@ -178,12 +178,385 @@ a.normalBtn img,
     height: 100%;
     transition: all 0.3s ease;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    position: relative;
+    overflow: hidden;
 }
 
 .solar-card:hover {
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
     transform: translateY(-4px);
     border-color: #D0D0D0;
+}
+
+/* ========== LEASE CARD WITH IMAGE (FIGMA STYLE) ========== */
+.solar-card-with-image {
+    background: #fff;
+    border: 1px solid #E0E0E0;
+    border-radius: 16px;
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.solar-card-with-image:hover {
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.15);
+    transform: translateY(-6px);
+    border-color: #C0C0C0;
+}
+
+/* Card Image Container */
+.card-image-container {
+    position: relative;
+    width: 100%;
+    height: 240px;
+    overflow: hidden;
+}
+
+.card-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.solar-card-with-image:hover .card-image {
+    transform: scale(1.05);
+}
+
+/* Upcoming Badge - Top Right */
+.upcoming-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: #FFFFFF;
+    color: #000;
+    padding: 6px 16px;
+    border-radius: 50px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: lowercase;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+    border: 1px solid #E0E0E0;
+    letter-spacing: 0.3px;
+}
+
+/* Card Content Below Image */
+.card-content-with-image {
+    padding: 24px;
+}
+
+/* Header with Title and Rating */
+.card-header-image {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+    gap: 12px;
+}
+
+.card-header-image h3 {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0;
+    color: #000;
+    line-height: 1.3;
+    flex: 1;
+}
+
+.rating {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.text-rating {
+    font-size: 11px;
+    color: #666;
+    font-weight: 400;
+}
+
+.stars {
+    font-size: 14px;
+    line-height: 1;
+    letter-spacing: 1px;
+}
+
+/* ID and Offtaker */
+.id-image {
+    margin: 8px 0 6px;
+    color: #000;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.5;
+}
+
+.offtaker-image {
+    margin: 6px 0 24px;
+    color: #666;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.5;
+}
+
+/* Stats - 3 Columns */
+.stats-image {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin: 24px 0;
+    text-align: center;
+}
+
+.stat-image {
+    padding: 0;
+}
+
+.stat-image h4 {
+    margin: 0 0 8px;
+    font-size: 20px;
+    font-weight: 700;
+    color: #000;
+    line-height: 1.3;
+}
+
+.stat-image p {
+    color: #666;
+    font-size: 13px;
+    margin: 0;
+    font-weight: 400;
+    line-height: 1.4;
+}
+
+/* Details Row - 2 columns */
+.details-row-image {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 24px 0;
+    padding: 0;
+    gap: 20px;
+}
+
+.detail-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+    text-align: center;
+}
+
+.detail-item .label {
+    font-size: 13px;
+    color: #666;
+    font-weight: 400;
+    line-height: 1.4;
+}
+
+.detail-item .value {
+    font-size: 18px;
+    color: #000;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+.detail-divider {
+    width: 1px;
+    height: 40px;
+    background: #E0E0E0;
+}
+
+/* Progress Section */
+.progress-section {
+    margin: 24px 0;
+}
+
+.progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.progress-label {
+    font-size: 13px;
+    color: #666;
+    font-weight: 400;
+}
+
+.progress-label strong {
+    font-weight: 700;
+}
+
+.time-left {
+    font-size: 13px;
+    color: #666;
+    font-weight: 400;
+}
+
+.progress-bar-container {
+    width: 100%;
+    height: 8px;
+    background: #F0F0F0;
+    border-radius: 50px;
+    overflow: hidden;
+    position: relative;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #F6A623 0%, #FFB84D 100%);
+    border-radius: 50px;
+    transition: width 0.5s ease;
+    box-shadow: 0 2px 6px rgba(246, 166, 35, 0.3);
+}
+
+/* Note Text */
+.note-text {
+    margin: 16px 0 20px;
+    font-size: 12px;
+    color: #999;
+    font-style: italic;
+    font-weight: 400;
+}
+
+/* Action Buttons for Image Card */
+.buttons-image {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.buttons-image .btn {
+    flex: 1;
+    min-width: unset;
+    padding: -1px 20px;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.buttons-image .btn-primary-custom {
+    background: var(--color-F6A623);
+    color: #fff;
+    border: none;
+    box-shadow: 0px 3px 8px rgba(246, 166, 35, 0.35);
+    font-weight: 600;
+}
+
+.buttons-image .btn-primary-custom:hover {
+    background: #e09615;
+    transform: translateY(-2px);
+    box-shadow: 0px 6px 14px rgba(246, 166, 35, 0.45);
+}
+
+.buttons-image .btn-secondary-custom {
+    background: #fff;
+    color: #333;
+    border: 1px solid #D0D0D0;
+    font-weight: 600;
+}
+
+.buttons-image .btn-secondary-custom:hover {
+    background: #F5F5F5;
+    border-color: #A0A0A0;
+}
+
+/* Responsive for Image Card */
+@media (max-width: 768px) {
+    .card-image-container {
+        height: 200px;
+    }
+
+    .card-content-with-image {
+        padding: 20px;
+    }
+
+    .card-header-image h3 {
+        font-size: 20px;
+    }
+
+    .stats-image {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        text-align: left;
+    }
+
+    .stat-image {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid #F0F0F0;
+    }
+
+    .stat-image:last-child {
+        border-bottom: none;
+    }
+
+    .stat-image h4 {
+        margin: 0;
+    }
+
+    .details-row-image {
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .detail-divider {
+        display: none;
+    }
+
+    .detail-item {
+        width: 100%;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid #F0F0F0;
+    }
+
+    .detail-item:last-child {
+        border-bottom: none;
+    }
+}
+
+@media (max-width: 576px) {
+    .card-image-container {
+        height: 180px;
+    }
+
+    .card-content-with-image {
+        padding: 16px;
+    }
+
+    .card-header-image {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .rating {
+        align-items: flex-start;
+    }
+
+    .buttons-image {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .buttons-image .btn {
+        width: 100%;
+    }
 }
 
 .solar-card .card-header {
