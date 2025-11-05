@@ -1,0 +1,576 @@
+@media (max-width: 1299px) {
+  .elementBlockGroup {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .headSection {
+    gap: 250px;
+  }
+
+  .solar-cta .w-60 {
+    width: 80%;
+  }
+}
+
+@media (max-width: 1199.9px) {
+  :root {
+    --font-16: 0.925em;
+    --font-18: 1.1em;
+    --font-20: 1.125em;
+    --font-24: 1.25em;
+    --font-28: 1.25em;
+    --font-30: 1.575em;
+    --font-32: 1.825em;
+    --font-34: 2.0em;
+    --font-36: 2.125em;
+    --font-40: 2.25em;
+    --font-46: 2.525em;
+    --font-48: 2.825em;
+    --font-56: 3.125em;
+  }
+
+  .my-30 {
+    margin-top: 24px;
+    margin-bottom: 24px;
+  }
+
+  .mb-40 {
+    margin-bottom: 28px;
+  }
+
+  .img-thubnail {
+    width: 100%;
+  }
+
+  .container {
+    width: 100%;
+    padding: 0px 30px;
+    margin: 0px !important;
+    max-width: unset;
+  }
+
+  .headSection {
+    gap: 150px;
+  }
+
+  .submit .innerBox .contentBox {
+    padding: 80px 0px 80px 20px;
+  }
+
+  .elementBlockGroup {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  nav.navbar .nav-link {
+    margin: 0 0.2rem;
+  }
+
+  nav.navbar .nav-item.ms-3 {
+    margin-left: 8px;
+  }
+
+  .vectorStyle::after {
+    content: "";
+    width: 766px;
+    height: 72px;
+  }
+
+  a.cardBoxBlock {
+    padding: 60px 16px 20px;
+  }
+
+  /* exchange page css  */
+  .solar-card .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .stats {
+    display: grid;
+    grid-template-columns: 100%;
+  }
+
+  .buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 30px;
+    flex-wrap: wrap;
+  }
+
+  .buttons .w-50 {
+    width: 100% !important;
+  }
+}
+
+@media (max-width: 991.9px) {
+  :root {
+    --font-16: 0.925em;
+    --font-18: 1.0em;
+    --font-20: 1.1em;
+    --font-24: 1.125em;
+    --font-28: 1.25em;
+    --font-30: 1.575em;
+    --font-32: 1.825em;
+    --font-34: 1.825em;
+    --font-36: 1.525em;
+    --font-40: 1.825em;
+    --font-46: 2.0em;
+    --font-48: 2.125em;
+    --font-56: 2.825em;
+  }
+
+  .elementBlockGroup {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .btn-primary-custom {
+    min-width: 200px;
+  }
+
+  .footer {
+    margin-top: 40px;
+  }
+
+  .footer,
+  .solar-cta,
+  .submit .innerBox .contentBox,
+  .testimonial-section,
+  .energy-section,
+  .solor-lease-section,
+  .projectSection,
+  .vision-section,
+  .mission-section,
+  .feature-section,
+  .solor-lease-section {
+    padding: 40px 0px;
+  }
+
+  .how-to-work,
+  .blockSpacing {
+    padding-bottom: 40px;
+  }
+
+  .linkBox {
+    margin: 0;
+    max-width: 100%;
+  }
+
+  .contactBox {
+    max-width: 100%;
+    margin-left: 0;
+  }
+
+  nav .nav-link {
+    color: #fff !important;
+  }
+
+  .navbar-collapse {
+    padding: 12px 24px;
+    border-radius: 8px;
+    background-color: #112c41;
+  }
+
+  nav ul.navbar-nav.me-auto.align-items-center {
+    align-items: flex-start !important;
+  }
+
+  .rightHeader>ul {
+    display: flex;
+    justify-content: end;
+    align-items: flex-start;
+    list-style: none;
+  }
+
+  .rightHeader>ul .nav-item.ms-3 {
+    margin-left: 0px !important;
+  }
+
+  .btn-login {
+    color: #fff !important;
+    padding: 0px 0px 12px;
+  }
+
+  .btn-login img {
+    filter: brightness(0) invert(1);
+  }
+
+  .rightHeader .dropdown-toggle::after {
+    content: "";
+    background-image: url(../img/w-drop-icon.svg);
+
+  }
+
+  nav li.nav-item {
+    border-bottom: 1px solid #fff;
+    width: 100%;
+    margin-bottom: 12px;
+    padding-bottom: 5px;
+  }
+
+  .rightHeader .navbar-nav .nav-item:last-child {
+    border-bottom: none !important;
+  }
+
+  .solar-card .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-direction: row;
+  }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 30px;
+    flex-wrap: wrap;
+  }
+
+  .buttons .w-50 {
+    width: 100% !important;
+  }
+
+  .projectSection.innnerPagePattern .headerSection .nav.nav-pills {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .projectSection.innnerPagePattern .headerSection .nav.nav-pills .nav-link {
+    margin: 15px 0px;
+    width: 100%;
+  }
+
+  .filterSection {
+    gap: 24px;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+  }
+
+  .searchBox {
+    width: calc(100% - 0px);
+  }
+
+  .filterGroupBtn {
+    width: 100%;
+  }
+
+  a.normalBtn {
+    width: 50%;
+  }
+
+  .main-contentBox {
+    margin-bottom: 0px;
+    overflow: hidden;
+  }
+
+  .sectionWraper {
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    max-width: 1400px;
+    margin: auto;
+  }
+
+  .indexSection {
+    gap: 20px;
+    width: 100%;
+    display: flex;
+    margin-top: 30px;
+    flex-direction: column;
+  }
+
+  .ownership-section,
+  .indexBox {
+    width: 100%
+  }
+
+  .inner-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-direction: column;
+  }
+
+  .inner-header .title {
+    line-height: 28px;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    gap: 5px !important;
+    margin-bottom: 15px;
+  }
+
+}
+
+@media (max-width:767.9px) {
+  .linkBox {
+    margin: 0;
+    max-width: 100%;
+  }
+
+  .contactBox {
+    max-width: 100%;
+    margin-left: 0;
+  }
+
+  .testimonial-img {
+    margin: 20px;
+    border-radius: 20px;
+    width: auto;
+    height: 222px;
+    object-fit: contain;
+  }
+
+  .testimonial-card>div {
+    padding: 0px 24px 60px;
+  }
+
+  .sliderArrow {
+    bottom: 90px;
+    max-width: 200px;
+  }
+
+  .solar-cta .w-60 {
+    width: 100%;
+  }
+
+  .footer hr {
+    margin-top: 24px;
+    border-top: 1px solid #fff;
+    margin-bottom: 24px;
+  }
+
+  .vectorStyle::after {
+    display: none;
+  }
+
+  .solar-card .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-direction: row;
+  }
+
+  .stats {
+    display: grid;
+    grid-template-columns: 100%;
+  }
+
+  .buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 30px;
+    flex-wrap: wrap;
+  }
+
+  .buttons .w-50 {
+    width: 100% !important;
+  }
+
+  .sectionWraper {
+    grid-template-columns: 1fr;
+  }
+
+  .stats-view {
+    gap: 41px;
+  }
+
+  .leftStatsBox::after {
+    content: '';
+    position: absolute;
+    top: 0px;
+    right: -21px;
+  }
+}
+
+@media (max-width: 576px) {
+  .elementBlockGroup {
+    grid-template-columns: 1fr;
+  }
+
+  .mt-40 {
+    margin-top: 20px;
+  }
+
+  .headerSection .nav-item {
+    width: 100%;
+    margin-bottom: 24px;
+  }
+
+  .py-90 {
+    padding-top: 50px;
+    padding-bottom: 50px;
+  }
+
+  .groupBtn {
+    gap: 10px;
+    margin-top: 30px;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+  }
+
+  .headSection {
+    display: flex;
+    gap: 20px;
+    flex-direction: column !important;
+  }
+
+  .projectSection .nav-link {
+    width: 100%;
+    margin: 0px;
+  }
+
+  .btn-primary-custom {
+    width: 100%;
+  }
+
+  .sliderArrow {
+    bottom: 110px;
+    max-width: 200px;
+  }
+
+  .testimonial-section {
+    padding-bottom: 0px;
+  }
+
+  .footer-links {
+    display: flex;
+  }
+
+  .copyRightSection {
+    display: flex;
+    flex-direction: column;
+    gap: 12px !important
+  }
+
+  .container {
+    width: 100%;
+    padding: 0px 15px;
+    margin: 0px !important;
+    max-width: unset;
+  }
+
+  .how-to-work,
+  .blockSpacing {
+    padding-bottom: 24px;
+  }
+
+  .how-to-work {
+    margin-bottom: 20px;
+  }
+
+  .projectSection.innnerPagePattern {
+    padding-top: 15px;
+  }
+
+  .innnerPagePattern .headerSection .nav-item {
+    width: 100%;
+    margin-bottom: 0px;
+  }
+}
+
+@media (max-width: 380px) {
+  :root {
+    --font-16: 0.925em;
+    --font-18: 1.0em;
+    --font-20: 1.1em;
+    --font-24: 1.1em;
+    --font-28: 1.1em;
+    --font-30: 1.1em;
+    --font-32: 1.5em;
+    --font-34: 1.5em;
+    --font-36: 1.5em;
+    --font-40: 1.75em;
+    --font-46: 1.825em;
+    --font-48: 2.1em;
+    --font-56: 2.25em;
+  }
+
+  .filterGroupBtn {
+    gap: 12px;
+  }
+
+  a.normalBtn {
+    padding: 12px 8px;
+  }
+
+  .howToWorkTab .nav-item .nav-link {
+    padding: 8px 16px 8px 35px;
+  }
+
+  .footer-links {
+    width: 100%;
+  }
+
+  .footer,
+  .solar-cta,
+  .submit .innerBox .contentBox,
+  .testimonial-section,
+  .energy-section,
+  .solor-lease-section,
+  .projectSection,
+  .vision-section,
+  .mission-section,
+  .feature-section,
+  .solor-lease-section {
+    padding: 24px 0px;
+  }
+
+  .contentBox.py-5.pe-4 {
+    padding: 0px !important;
+  }
+
+  .swiper.testimonial-slider {
+    max-height: 750px !important;
+  }
+
+  .tab-pane .mt {
+    margin-top: 10px;
+  }
+
+  .w-45.caterogy-items {
+    width: 49%;
+    padding: 8px 2px;
+  }
+
+  .cardPading {
+    padding: 24px 16px;
+  }
+
+  .section-subtitle,
+  .section-title {
+    line-height: 28px;
+  }
+
+  .sliderArrow {
+    bottom: 33px;
+    max-width: 186px;
+    right: 40px;
+  }
+
+  .news-section {
+    padding: 30px 0px;
+  }
+
+  .tab-pane .mt-40 {
+    margin-top: 0px;
+  }
+
+  .left-card {
+    padding: 8px;
+  }
+
+  .normalBtn img {
+    margin-left: 2px !important;
+  }
+}

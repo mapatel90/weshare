@@ -564,7 +564,11 @@
       "sortPriceLow": "Giá: Thấp đến cao",
       "sortPriceHigh": "Giá: Cao đến thấp",
       "sortCapacityHigh": "Công suất: Cao đến thấp",
-      "sortCapacityLow": "Công suất: Thấp đến cao"
+      "sortCapacityLow": "Công suất: Thấp đến cao",
+      "accumulativeGeneration": "Phát điện tích lũy",
+      "highReliability": "Độ tin cậy cao",
+      "moderateReliability": "Độ tin cậy trung bình",
+      "premiumReliability": "Độ tin cậy cao cấp"
     },
     "solarLease": {
       "title": "Biến bất động sản của bạn thành cho thuê năng lượng mặt trời",

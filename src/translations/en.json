@@ -582,7 +582,11 @@
       "sortPriceLow": "Price: Low to High",
       "sortPriceHigh": "Price: High to Low",
       "sortCapacityHigh": "Capacity: High to Low",
-      "sortCapacityLow": "Capacity: Low to High"
+      "sortCapacityLow": "Capacity: Low to High",
+      "accumulativeGeneration": "Accumulative Generation",
+      "highReliability": "High Reliability",
+      "moderateReliability": "Moderate Reliability",
+      "premiumReliability": "Premium Reliability"
     },
     "solarLease": {
       "title": "Turn your Property Into a Solar Lease",
