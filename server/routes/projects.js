@@ -83,7 +83,7 @@ router.post('/AddProject', authenticateToken, async (req, res) => {
  * @desc    Get all projects
  * @access  Private
  */
-router.get('/', authenticateToken, async (req, res) => {
+router.get('/', async (req, res) => {
   try {
     const { page = 1, limit = 10, search, status } = req.query;
     const pageInt = parseInt(page);

@@ -213,10 +213,7 @@
     "newsDescriptionRequired": "Mô tả tin tức là bắt buộc",
     "newsImageRequired": "Hình ảnh tin tức là bắt buộc",
     "newsSlugRequired": "Slug tin tức là bắt buộc",
-    "invalidEmail": "Địa chỉ email không hợp lệ",
-    "invalidEmail": "Địa chỉ email không hợp lệ",
-    "invalidImageType": "Vui lòng chọn tệp hình ảnh hợp lệ",
-    "imageTooLarge": "Kích thước hình ảnh phải nhỏ hơn 5MB"
+    "invalidEmail": "Địa chỉ email không hợp lệ"
   },
   "menu": {
     "dashboards": "Bảng điều khiển",
