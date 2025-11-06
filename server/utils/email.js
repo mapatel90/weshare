@@ -17,7 +17,6 @@ const getSmtpSettings = async () => {
       'smtp_email_user',
       'smtp_email_password',
       'smtp_email_port',
-      'smtp_email_security_type',
     ];
 
     const settings = await prisma.setting.findMany({
@@ -56,7 +55,7 @@ const createTransporter = async (customSettings = null) => {
 
         if (dbSettings.smtp_email_host && dbSettings.smtp_email_user && dbSettings.smtp_email_password) {
           const port = Number(dbSettings.smtp_email_port) || 587;
-          const secure = port === 465 || (dbSettings.smtp_email || '').toUpperCase() === 'SSL';
+          const secure = port === 465 || (dbSettings.smtp_secure || '').toUpperCase() === 'SSL';
 
           smtpConfig = {
             host: dbSettings.smtp_email_host,
@@ -81,12 +80,14 @@ const createTransporter = async (customSettings = null) => {
       smtpConfig = {
         host: process.env.SMTP_HOST || 'smtp.gmail.com',
         port: parseInt(process.env.SMTP_PORT || '587'),
-        secure: process.env.SMTP_SECURE === 'true',
+        secure: (process.env.SMTP_PORT || '587') === '465' || process.env.SMTP_SECURE === 'true',
         auth: {
           user: process.env.SMTP_USER,
           pass: process.env.SMTP_PASSWORD,
         },
-        from: process.env.SMTP_FROM || process.env.SMTP_USER
+        from: process.env.SMTP_FROM_NAME
+          ? `${process.env.SMTP_FROM_NAME} <${process.env.SMTP_FROM || process.env.SMTP_USER}>`
+          : (process.env.SMTP_FROM || process.env.SMTP_USER)
       };
     }
 
@@ -142,10 +143,8 @@ export const sendEmail = async ({ to, subject, html, text, customSmtp = null }) 
 // Send password reset email
 export const sendPasswordResetEmail = async (email, resetToken) => {
   try {
-    const { transporter, from } = await createTransporter();
-
-    // Create reset URL
-    const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/reset-password?token=${resetToken}`;
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const resetUrl = `${appUrl}/reset-password?token=${resetToken}`;
 
     // Email HTML template
     const htmlContent = `
@@ -247,7 +246,7 @@ export const sendPasswordResetEmail = async (email, resetToken) => {
               <p>If you didn't request this password reset, please ignore this email. Your password will remain unchanged.</p>
               
               <p style="margin-top: 30px;">If the button doesn't work, copy and paste this link into your browser:</p>
-              <p style="word-break: break-all; color: #2386FF; font-size: 12px;">${resetUrl}</p>
+              // <p style="word-break: break-all; color: #2386FF; font-size: 12px;">${resetUrl}</p>
             </div>
             <div class="footer">
               <p>© ${new Date().getFullYear()} WeShare. All rights reserved.</p>
@@ -276,17 +275,14 @@ export const sendPasswordResetEmail = async (email, resetToken) => {
         © ${new Date().getFullYear()} WeShare. All rights reserved.
     `;
 
-    // Send email
-    const info = await transporter.sendMail({
-      from: from,
+    const result = await sendEmail({
       to: email,
       subject: 'Reset Your Password - WeShare',
-      text: textContent,
       html: htmlContent,
+      text: textContent,
     });
 
-    console.log('Password reset email sent:', info.messageId);
-    return { success: true, messageId: info.messageId };
+    return result;
   } catch (error) {
     console.error('Error sending password reset email:', error);
     return { success: false, error: error.message };
@@ -296,7 +292,6 @@ export const sendPasswordResetEmail = async (email, resetToken) => {
 // Send password reset confirmation email
 export const sendPasswordResetConfirmationEmail = async (email) => {
   try {
-    const { transporter, from } = await createTransporter();
 
     const htmlContent = `
       <!DOCTYPE html>
@@ -369,15 +364,13 @@ export const sendPasswordResetConfirmationEmail = async (email) => {
       </html>
     `;
 
-    const info = await transporter.sendMail({
-      from: from,
+    const result = await sendEmail({
       to: email,
       subject: 'Password Reset Successful - WeShare',
       html: htmlContent,
     });
 
-    console.log('Password reset confirmation email sent:', info.messageId);
-    return { success: true, messageId: info.messageId };
+    return result;
   } catch (error) {
     console.error('Error sending confirmation email:', error);
     return { success: false, error: error.message };

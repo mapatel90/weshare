@@ -225,14 +225,19 @@
     "fullNameRequired": "Full name is required",
     "firstNameRequired": "First name is required",
     "lastNameRequired": "Last name is required",
-    "invalidImageType": "Please select a valid image file",
-    "imageTooLarge": "Image size must be less than 5MB",
     "newsTitleRequired": "News Title is required",
     "newsDateRequired": "News Date is required",
     "newsDescriptionRequired": "News Description is required",
     "newsImageRequired": "News Image is required",
     "newsSlugRequired": "News Slug is required",
-    "invalidEmail": "Invalid email address"
+    "invalidEmail": "Invalid email address",
+    "invalidImageType": "Please select a valid image file",
+    "imageTooLarge": "Image size must be less than 5MB",
+    "projectRequired": "Project is required",
+    "offtakerRequired": "Offtaker is required",
+    "reviewStatusRequired": "Rating is required",
+    "imageRequired": "Image is required",
+    "descriptionRequired": "Description is required"
   },
   "menu": {
     "dashboards": "Dashboards",
@@ -1110,5 +1115,23 @@
     "newsCreatedSuccessfully": "News Created Successfully",
     "newsUpdatedSuccessfully": "News Updated Successfully",
     "newsDeletedSuccessfully": "News Deleted Successfully"
+  },
+  "testimonial": {
+    "add": "Add Testimonial",
+    "edit": "Edit Testimonial",
+    "name": "Name",
+    "project": "Project",
+    "offtaker": "Offtaker",
+    "rating": "Rating",
+    "image": "Image",
+    "description": "Description",
+    "one": "One",
+    "two": "Two",
+    "three": "Three",
+    "four": "Four",
+    "five": "Five",
+    "testimonialCreatedSuccessfully": "Testimonial Created Successfully",
+    "testimonialUpdatedSuccessfully": "Testimonial Updated Successfully",
+    "testimonialDeletedSuccessfully": "Testimonial Deleted Successfully"
   }
 }

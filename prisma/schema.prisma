@@ -50,6 +50,7 @@ model User {
   projects    Project[]
   invoices    Invoice[]
   payments     Payment[]  @relation("UserPayments")
+  testimonial  Testimonial[]
 
   @@map("users")
 }
@@ -195,6 +196,7 @@ model Project {
 
   projectInverters  Project_inverters[]
   invoices         Invoice[]
+  testimonial      Testimonial[]
 
   @@map("projects")
 }
@@ -277,6 +279,24 @@ model News {
   updatedAt       DateTime  @default(now()) @updatedAt @map("updated_at")
 
   @@map("news")
+}
+
+model Testimonial {
+  id             Int       @id @default(autoincrement())
+  project_id     Int 
+  offtaker_id    Int
+  image          String?   @db.VarChar(255)
+  description    String?   @db.Text
+  review_status  Int       @default(1) // 1 to 5 rating
+  is_deleted     Int       @default(0)
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  // 🔗 Relations
+  project        Project   @relation(fields: [project_id], references: [id])
+  offtaker       User      @relation(fields: [offtaker_id], references: [id])
+
+  @@map("testimonials")
 }
 
 model ContactUs {
