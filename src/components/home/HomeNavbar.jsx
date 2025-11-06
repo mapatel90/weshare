@@ -24,16 +24,19 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { useRouter, usePathname } from 'next/navigation'
+import { useAuth } from '@/contexts/AuthContext'
 
 const HomeNavbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [langAnchor, setLangAnchor] = useState(null)
+  const [userAnchor, setUserAnchor] = useState(null)
   const [activeSection, setActiveSection] = useState('')
   const router = useRouter()
   const pathname = usePathname()
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
   const { lang, currentLanguage, changeLanguage, languages, currentLanguageInfo } = useLanguage()
+  const { user, logout } = useAuth()
 
   const navItems = [
     { name: lang('home.navbar.home'), href: '/', id: 'home' },
@@ -94,6 +97,31 @@ const HomeNavbar = () => {
     setLangAnchor(null)
   }
 
+  const handleUserClick = (event) => {
+    setUserAnchor(event.currentTarget)
+  }
+
+  const handleUserClose = () => {
+    setUserAnchor(null)
+  }
+
+  const handleProfile = () => {
+    // Navigate to dashboard based on user role
+    if (user?.role === 3) {
+      router.push('/offtaker/dashboards/analytics')
+    } else if (user?.role === 4) {
+      router.push('/investor/dashboards/analytics')
+    } else {
+      router.push('/admin/dashboards/analytics')
+    }
+    setUserAnchor(null)
+  }
+
+  const handleLogout = () => {
+    logout()
+    setUserAnchor(null)
+  }
+
   const drawer = (
     <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center', pt: 2 }}>
       <List>
@@ -135,7 +163,7 @@ const HomeNavbar = () => {
           py: 1
         }}
       >
-        <Container maxWidth="lg">
+        <Container maxWidth={false} sx={{ maxWidth: '1345px' }}>
           <Toolbar disableGutters>
             {/* Logo */}
             <Box sx={{ flexGrow: 0, mr: 4 }}>
@@ -210,23 +238,63 @@ const HomeNavbar = () => {
                   </MenuItem>
                 </Menu>
 
-                {/* Login Button */}
-                <Button
-                  variant="text"
-                  startIcon={<PersonOutlineIcon />}
-                  onClick={() => router.push('/login')}
-                  sx={{
-                    color: '#000',
-                    fontWeight: 600,
-                    textTransform: 'uppercase',
-                    '&:hover': {
-                      backgroundColor: 'transparent',
-                      color: '#F6A623'
-                    }
-                  }}
-                >
-                  {lang('home.navbar.login')}
-                </Button>
+                {/* Login Button or User Icon */}
+                {user ? (
+                  <>
+                    <IconButton
+                      onClick={handleUserClick}
+                      sx={{
+                        color: '#000',
+                        '&:hover': {
+                          backgroundColor: '#FFF9ED'
+                        }
+                      }}
+                    >
+                      <PersonOutlineIcon sx={{ fontSize: 28 }} />
+                    </IconButton>
+                    <Menu
+                      anchorEl={userAnchor}
+                      open={Boolean(userAnchor)}
+                      onClose={handleUserClose}
+                      PaperProps={{
+                        sx: {
+                          mt: 1,
+                          minWidth: 200
+                        }
+                      }}
+                    >
+                      <Box sx={{ px: 2, py: 1.5, borderBottom: '1px solid #eee' }}>
+                        <Box sx={{ fontWeight: 600, color: '#000' }}>{user.name}</Box>
+                        <Box sx={{ fontSize: '0.85rem', color: '#666' }}>{user.email}</Box>
+                      </Box>
+                      <MenuItem onClick={handleProfile}>
+                        <PersonOutlineIcon sx={{ mr: 1, fontSize: 20 }} />
+                        Dashboard
+                      </MenuItem>
+                      <MenuItem onClick={handleLogout} sx={{ color: '#d32f2f' }}>
+                        <Box component="span" sx={{ mr: 1, fontSize: 20 }}>🚪</Box>
+                        Logout
+                      </MenuItem>
+                    </Menu>
+                  </>
+                ) : (
+                  <Button
+                    variant="text"
+                    startIcon={<PersonOutlineIcon />}
+                    onClick={() => router.push('/login')}
+                    sx={{
+                      color: '#000',
+                      fontWeight: 600,
+                      textTransform: 'uppercase',
+                      '&:hover': {
+                        backgroundColor: 'transparent',
+                        color: '#F6A623'
+                      }
+                    }}
+                  >
+                    {lang('home.navbar.login')}
+                  </Button>
+                )}
               </>
             )}
 

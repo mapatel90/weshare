@@ -283,7 +283,7 @@ const ProjectDetail = ({ projectId }) => {
                             {/* Project Overview */}
                             <div className="overview">
                                 <h3>{lang('home.exchangeHub.projectOverview') || 'Project Overview'}:</h3>
-                                <p>
+                                <p style={{ whiteSpace: 'pre-line' }}>
                                     {project.project_description || project.description || `This ${formatNumber(project.project_size)} kWp solar power project stands as a reliable and high-performing renewable energy asset, generating approximately ${formatNumber(accumulative)} kWh annually. With a strong ROI of ${project.investor_profit}% and ${project.lease_term || 'eight'} years remaining on its lease term, it continues to deliver consistent financial returns while supporting clean energy adoption. Backed by a trusted offtaker ${project.offtaker?.company_name || project.offtaker?.fullName || ''} with a ${project.offtaker_reliability_score || '92'}% reliability index, the project ensures steady revenue flow and long-term stability. Initially commissioned and now listed for resale, this system presents an excellent opportunity for investors seeking sustainable and profitable resale options.`}
                                 </p>
                             </div>
