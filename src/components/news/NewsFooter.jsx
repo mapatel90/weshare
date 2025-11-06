@@ -3,11 +3,14 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { apiGet } from "@/lib/api";
 
 const NewsFooter = () => {
   const { lang, language, changeLanguage } = useLanguage();
+  const pathname = usePathname();
+  const isNews = pathname?.startsWith("/news");
   const [footerData, setFooterData] = useState(null);
   const [locationNames, setLocationNames] = useState({
     country: "",
@@ -80,7 +83,7 @@ const NewsFooter = () => {
   }, []);
 
   return (
-    <footer className="footer mt-0 newsletter-footer">
+    <footer className={isNews ? "footer mt-0 newsletter-footer" : "footer"}>
       <div className="container">
         <div className="row gy-4">
           {/* Company Info */}

@@ -409,11 +409,11 @@ const TestimonialTable = () => {
                         </FormControl>
 
                         <FormControl fullWidth error={!!errors.offtaker}>
-                            <InputLabel id="testimonial-offtaker-select">{lang("invoice.offtaker") || "Offtaker"}</InputLabel>
+                            <InputLabel id="testimonial-offtaker-select">{lang("testimonial.offtaker") || "Offtaker"}</InputLabel>
                             <Select
                                 labelId="testimonial-offtaker-select"
                                 value={selectedOfftaker?.value || ""}
-                                label={lang("invoice.offtaker") || "Offtaker"}
+                                label={lang("testimonial.offtaker") || "Offtaker"}
                                 onChange={(e) => {
                                     const value = e.target.value;
                                     const option = offtakerOptions.find((opt) => opt.value === value) || null;
@@ -421,7 +421,7 @@ const TestimonialTable = () => {
                                     if (errors.offtaker) setErrors((prev) => ({ ...prev, offtaker: "" }));
                                 }}
                             >
-                                <MenuItem value="">{lang("invoice.selectOfftaker") || "Select Offtaker"}</MenuItem>
+                                <MenuItem value="">{lang("testimonial.selectOfftaker") || "Select Offtaker"}</MenuItem>
                                 {offtakerOptions.map((option) => (
                                     <MenuItem key={option.value} value={option.value}>
                                         {option.label}

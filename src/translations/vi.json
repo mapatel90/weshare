@@ -290,7 +290,9 @@
     "leadsreport": "Báo cáo khách hàng tiềm năng",
     "projectreport": "Báo cáo dự án",
     "timesheetsreport": "Báo cáo bảng thời gian",
-    "inverter": "biến tần"
+    "inverter": "biến tần",
+    "news":"Tin tức",
+    "testimonials":"Lời chứng thực"
   },
   "dashboard": {
     "totalSales": "Tổng doanh số",
@@ -1069,9 +1071,18 @@
     "editNews": "Sửa tin tức",
     "newsCreatedSuccessfully": "Tin tức đã được tạo thành công",
     "newsUpdatedSuccessfully": "Tin tức được cập nhật thành công",
-    "newsDeletedSuccessfully": "Tin tức đã xóa thành công"
+    "newsDeletedSuccessfully": "Tin tức đã xóa thành công",
+    "latestNews": "Tin tức mới nhất",
+    "insights": "& Thông tin chi tiết",
+    "stayInformed": "Cập nhật thông tin mới nhất, những dự án nổi bật và hiểu biết sâu sắc về ngành đang định hình tương lai của năng lượng sạch.",
+    "readMore": "Đọc thêm",
+    "loadMore": "Tải thêm",
+    "newsletters": "Bản tin",
+    "subscribe": "Đăng ký",
+    "enterEmail": "Nhập địa chỉ email",
+    "newsletterDescription": "Năng lượng mặt trời là nguồn năng lượng bền vững và tái tạo, khai thác các tia nắng mặt trời."
   },
-  "testimonials": {
+  "testimonial": {
     "add": "Thêm lời chứng thực",
     "edit": "Sửa lời chứng thực",
     "name": "Tên",
@@ -1079,6 +1090,7 @@
     "offtaker": "Người nhận",
     "rating": "Xếp hạng",
     "image": "Hình ảnh",
+    "selectOfftaker": "Chọn Offtaker",
     "description": "Mô tả",
     "one": "Một",
     "two": "Hai",

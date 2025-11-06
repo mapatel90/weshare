@@ -1114,7 +1114,16 @@
     "description": "Description",
     "newsCreatedSuccessfully": "News Created Successfully",
     "newsUpdatedSuccessfully": "News Updated Successfully",
-    "newsDeletedSuccessfully": "News Deleted Successfully"
+    "newsDeletedSuccessfully": "News Deleted Successfully",
+    "latestNews": "Latest News",
+    "insights": "& Insights",
+    "stayInformed": "Stay informed with the latest updates, project highlights, and industry insights shaping the future of clean energy.",
+    "readMore": "Read More",
+    "loadMore": "Load More",
+    "newsletters": "Newsletters",
+    "newsletterDescription": "Solar energy is a sustainable and renewable source of power that harnesses the sun’s rays.",
+    "subscribe": "Subscribe",
+    "enterEmail": "Enter Email Address"
   },
   "testimonial": {
     "add": "Add Testimonial",
@@ -1125,6 +1134,7 @@
     "rating": "Rating",
     "image": "Image",
     "description": "Description",
+    "selectOfftaker": "Select Offtaker",
     "one": "One",
     "two": "Two",
     "three": "Three",

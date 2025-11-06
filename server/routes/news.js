@@ -69,7 +69,7 @@ router.post("/", authenticateToken, upload.single('news_image'), async (req, res
   }
 });
 
-router.get("/", authenticateToken, async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const newsList = await prisma.news.findMany({
       where: { is_deleted: 0 }, 

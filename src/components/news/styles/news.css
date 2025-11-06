@@ -29,8 +29,12 @@
   font-weight: 600;
   color: #102c41;
 }
-.news-card .date i {
+.news-card .date i,
+ .news-card .date svg {
   color: #f6a623;
+}
+.news-card .card-body {
+  padding: 1rem 1rem 0rem;
 }
 .news-card .read-more:hover,
 .news-card .readMore:hover {

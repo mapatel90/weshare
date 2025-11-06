@@ -1,12 +1,17 @@
 import React from 'react';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPaperPlane } from "@fortawesome/free-solid-svg-icons";
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const NewsLetterSection = () => {
+    const { lang } = useLanguage();
+
   return (
     <section className="newsletter newsletter-sec">
       <div className="container newsletter-container text-white d-flex align-items-center p-md-5 p-2 py-4 flex-column flex-md-row">
         <div className="col-md-5 text-center text-md-start">
-          <h2 className="mb-4 newsletter-title fw-800 mb-4">Newsletters</h2>
-          <p className="small mb-0 text">Solar energy is a sustainable and renewable source of power that harnesses the sun’s rays.</p>
+          <h2 className="mb-4 newsletter-title fw-800 mb-4">{lang("news.newsletters")}</h2>
+          <p className="small mb-0 text">{lang("news.newsletterDescription")}</p>
         </div>
 
         <div className="col-md-2 my-3 my-md-0">
@@ -24,8 +29,9 @@ const NewsLetterSection = () => {
 
         <div className="col-md-5">
           <div className="d-flex justify-content-center flex-wrap gap-2 mb-3 newsletter-form">
-            <input type="email" className="form-control w-auto" placeholder="Enter Email Address" style={{ minWidth: 280 }} />
-            <button className="btn btn-dark">Subscribe <i className="fa-solid fa-paper-plane ms-2"></i></button>
+            <input type="email" className="form-control w-auto" placeholder={lang("news.enterEmail")} style={{ minWidth: 280 }} />
+            <button className="btn btn-dark">{lang("news.subscribe")}{" "}
+              <FontAwesomeIcon icon={faPaperPlane} className="ms-2" /></button>
           </div>
         </div>
       </div>
