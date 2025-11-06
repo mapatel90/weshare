@@ -573,7 +573,18 @@
       "accumulativeGeneration": "Phát điện tích lũy",
       "highReliability": "Độ tin cậy cao",
       "moderateReliability": "Độ tin cậy trung bình",
-      "premiumReliability": "Độ tin cậy cao cấp"
+      "premiumReliability": "Độ tin cậy cao cấp",
+      "upcoming": "Sắp tới",
+      "ratings": "Xếp hạng",
+      "targetInvestment": "Mục tiêu đầu tư",
+      "expectedGeneration": "Sản lượng dự kiến",
+      "expectedROI": "Lợi nhuận dự kiến (ROI)",
+      "paybackPeriod": "Thời gian hoàn vốn",
+      "leaseTerm": "Thời hạn thuê",
+      "fundProgress": "Tiến độ huy động vốn",
+      "timeLeft": "Thời gian còn lại",
+      "investEarly": "Đầu tư sớm",
+      "assumptionNote": "Lưu ý: Đây là dữ liệu giả định*"
     },
     "solarLease": {
       "title": "Biến bất động sản của bạn thành cho thuê năng lượng mặt trời",

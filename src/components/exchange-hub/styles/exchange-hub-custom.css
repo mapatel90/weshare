@@ -68,7 +68,7 @@
     background-color: #fff;
 }
 
-.projectSection.innnerPagePattern::after, 
+.projectSection.innnerPagePattern::after,
 .projectSection.innnerPagePattern::before {
     display: none;
 }
@@ -178,12 +178,385 @@ a.normalBtn img,
     height: 100%;
     transition: all 0.3s ease;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    position: relative;
+    overflow: hidden;
 }
 
 .solar-card:hover {
-    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
     transform: translateY(-4px);
     border-color: #D0D0D0;
+}
+
+/* ========== LEASE CARD WITH IMAGE (FIGMA STYLE) ========== */
+.solar-card-with-image {
+    background: #fff;
+    border: 1px solid #E0E0E0;
+    border-radius: 16px;
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.solar-card-with-image:hover {
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.15);
+    transform: translateY(-6px);
+    border-color: #C0C0C0;
+}
+
+/* Card Image Container */
+.card-image-container {
+    position: relative;
+    width: 100%;
+    height: 240px;
+    overflow: hidden;
+}
+
+.card-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.solar-card-with-image:hover .card-image {
+    transform: scale(1.05);
+}
+
+/* Upcoming Badge - Top Right */
+.upcoming-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: #FFFFFF;
+    color: #000;
+    padding: 6px 16px;
+    border-radius: 50px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: lowercase;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+    border: 1px solid #E0E0E0;
+    letter-spacing: 0.3px;
+}
+
+/* Card Content Below Image */
+.card-content-with-image {
+    padding: 24px;
+}
+
+/* Header with Title and Rating */
+.card-header-image {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+    gap: 12px;
+}
+
+.card-header-image h3 {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0;
+    color: #000;
+    line-height: 1.3;
+    flex: 1;
+}
+
+.rating {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.text-rating {
+    font-size: 11px;
+    color: #666;
+    font-weight: 400;
+}
+
+.stars {
+    font-size: 14px;
+    line-height: 1;
+    letter-spacing: 1px;
+}
+
+/* ID and Offtaker */
+.id-image {
+    margin: 8px 0 6px;
+    color: #000;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.5;
+}
+
+.offtaker-image {
+    margin: 6px 0 24px;
+    color: #666;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.5;
+}
+
+/* Stats - 3 Columns */
+.stats-image {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin: 24px 0;
+    text-align: center;
+}
+
+.stat-image {
+    padding: 0;
+}
+
+.stat-image h4 {
+    margin: 0 0 8px;
+    font-size: 20px;
+    font-weight: 700;
+    color: #000;
+    line-height: 1.3;
+}
+
+.stat-image p {
+    color: #666;
+    font-size: 13px;
+    margin: 0;
+    font-weight: 400;
+    line-height: 1.4;
+}
+
+/* Details Row - 2 columns */
+.details-row-image {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 24px 0;
+    padding: 0;
+    gap: 20px;
+}
+
+.detail-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+    text-align: center;
+}
+
+.detail-item .label {
+    font-size: 13px;
+    color: #666;
+    font-weight: 400;
+    line-height: 1.4;
+}
+
+.detail-item .value {
+    font-size: 18px;
+    color: #000;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+.detail-divider {
+    width: 1px;
+    height: 40px;
+    background: #E0E0E0;
+}
+
+/* Progress Section */
+.progress-section {
+    margin: 24px 0;
+}
+
+.progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.progress-label {
+    font-size: 13px;
+    color: #666;
+    font-weight: 400;
+}
+
+.progress-label strong {
+    font-weight: 700;
+}
+
+.time-left {
+    font-size: 13px;
+    color: #666;
+    font-weight: 400;
+}
+
+.progress-bar-container {
+    width: 100%;
+    height: 8px;
+    background: #F0F0F0;
+    border-radius: 50px;
+    overflow: hidden;
+    position: relative;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #F6A623 0%, #FFB84D 100%);
+    border-radius: 50px;
+    transition: width 0.5s ease;
+    box-shadow: 0 2px 6px rgba(246, 166, 35, 0.3);
+}
+
+/* Note Text */
+.note-text {
+    margin: 16px 0 20px;
+    font-size: 12px;
+    color: #999;
+    font-style: italic;
+    font-weight: 400;
+}
+
+/* Action Buttons for Image Card */
+.buttons-image {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.buttons-image .btn {
+    flex: 1;
+    min-width: unset;
+    padding: -1px 20px;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.buttons-image .btn-primary-custom {
+    background: var(--color-F6A623);
+    color: #fff;
+    border: none;
+    box-shadow: 0px 3px 8px rgba(246, 166, 35, 0.35);
+    font-weight: 600;
+}
+
+.buttons-image .btn-primary-custom:hover {
+    background: #e09615;
+    transform: translateY(-2px);
+    box-shadow: 0px 6px 14px rgba(246, 166, 35, 0.45);
+}
+
+.buttons-image .btn-secondary-custom {
+    background: #fff;
+    color: #333;
+    border: 1px solid #D0D0D0;
+    font-weight: 600;
+}
+
+.buttons-image .btn-secondary-custom:hover {
+    background: #F5F5F5;
+    border-color: #A0A0A0;
+}
+
+/* Responsive for Image Card */
+@media (max-width: 768px) {
+    .card-image-container {
+        height: 200px;
+    }
+
+    .card-content-with-image {
+        padding: 20px;
+    }
+
+    .card-header-image h3 {
+        font-size: 20px;
+    }
+
+    .stats-image {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        text-align: left;
+    }
+
+    .stat-image {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid #F0F0F0;
+    }
+
+    .stat-image:last-child {
+        border-bottom: none;
+    }
+
+    .stat-image h4 {
+        margin: 0;
+    }
+
+    .details-row-image {
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .detail-divider {
+        display: none;
+    }
+
+    .detail-item {
+        width: 100%;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid #F0F0F0;
+    }
+
+    .detail-item:last-child {
+        border-bottom: none;
+    }
+}
+
+@media (max-width: 576px) {
+    .card-image-container {
+        height: 180px;
+    }
+
+    .card-content-with-image {
+        padding: 16px;
+    }
+
+    .card-header-image {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .rating {
+        align-items: flex-start;
+    }
+
+    .buttons-image {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .buttons-image .btn {
+        width: 100%;
+    }
 }
 
 .solar-card .card-header {
@@ -329,12 +702,12 @@ a.normalBtn img,
     margin-bottom: 0;
 }
 
-.solar-card .details p > span:first-child {
+.solar-card .details p>span:first-child {
     color: #333;
     font-weight: 400;
 }
 
-.solar-card .details p > span:last-child {
+.solar-card .details p>span:last-child {
     font-weight: 600;
     color: #000;
 }
@@ -592,6 +965,7 @@ a.normalBtn img,
         opacity: 0;
         transform: translateY(20px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -632,55 +1006,55 @@ a.normalBtn img,
         align-items: stretch;
         gap: 16px;
     }
-    
+
     .searchBox {
         width: 100%;
     }
-    
+
     .filterGroupBtn {
         justify-content: space-between;
         flex-wrap: wrap;
         gap: 12px;
     }
-    
+
     a.normalBtn,
     .normalBtn {
         min-width: 110px;
         padding: 10px 16px;
         font-size: 14px;
     }
-    
+
     .solar-card {
         padding: 16px;
     }
-    
+
     .solar-card .card-header h3 {
         font-size: 18px;
     }
-    
+
     .solar-card .stats {
         grid-template-columns: 1fr;
         gap: 8px;
     }
-    
+
     .solar-card .stat {
         min-height: 60px;
     }
-    
+
     .projectSection .nav-pills {
         flex-wrap: wrap;
     }
-    
+
     .projectSection .nav-pills .nav-link {
         padding: 10px 20px;
         font-size: 14px;
     }
-    
+
     .summarySection {
         margin-top: 30px;
         padding: 24px 20px;
     }
-    
+
     .summaryBox h3 {
         font-size: 16px;
         margin-bottom: 20px;
@@ -692,26 +1066,26 @@ a.normalBtn img,
         flex-direction: column;
         gap: 10px;
     }
-    
+
     .solar-card .buttons .btn {
         width: 100%;
     }
-    
+
     .filterGroupBtn {
         flex-direction: column;
     }
-    
+
     a.normalBtn,
     .normalBtn {
         width: 100%;
     }
-    
+
     .solar-card .card-header {
         flex-direction: column;
         align-items: flex-start;
         gap: 10px;
     }
-    
+
     .solar-card .badge {
         align-self: flex-start;
     }
@@ -772,12 +1146,13 @@ a.normalBtn img,
 
 /* Print Styles */
 @media print {
+
     .filterSection,
     .summarySection,
     .solar-card .buttons {
         display: none;
     }
-    
+
     .solar-card {
         page-break-inside: avoid;
     }
@@ -812,6 +1187,11 @@ input:focus-visible {
 }
 
 /* ===== PROJECT DETAIL PAGE STYLES ===== */
+.inner-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
 
 .sectionWraper {
     display: grid;
@@ -824,8 +1204,9 @@ input:focus-visible {
 .left-card {
     background: #fff;
     border-radius: 16px;
-    padding: 30px;
+    padding: 24px;
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    border: 1px solid #8A8A8A;
 }
 
 .left-card .imageBox {
@@ -863,19 +1244,17 @@ input:focus-visible {
 }
 
 .left-card .inner-header .title {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 12px;
-    flex-wrap: wrap;
+    line-height: 28px;
+  display: flex;
+  align-items: flex-end;
 }
 
-.left-card .inner-header h2 {
+/* .left-card .inner-header h2 {
     font-size: 28px;
     font-weight: 600;
     color: #000;
     margin: 0;
-}
+} */
 
 .left-card .inner-header h2 span {
     color: var(--color-F6A623);
@@ -888,7 +1267,7 @@ input:focus-visible {
     margin: 0;
 }
 
-.left-card .inner-header > span {
+.left-card .inner-header>span {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -904,10 +1283,11 @@ input:focus-visible {
 .left-card .overview h3,
 .left-card .analytics h3,
 .left-card .indexSection h4 {
-    font-size: 20px;
+    /* font-size: 20px; */
     font-weight: 600;
     color: #000;
     margin-bottom: 16px;
+    font-size: 1.75rem;
 }
 
 .left-card .overview p,
@@ -918,12 +1298,30 @@ input:focus-visible {
     margin-bottom: 16px;
 }
 
+.leftStatsBox {
+    position: relative;
+}
+
+.leftStatsBox::after {
+    content: '';
+    position: absolute;
+    top: 0px;
+    right: -60px;
+    width: 1px;
+    height: 100%;
+    background-color: #8A8A8A;
+}
+
 /* Stats View */
 .stats-view {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 24px;
-    margin: 30px 0;
+    width: 100%;
+    display: flex;
+    gap: 101px;
+    background: #F5F5F5;
+    border-radius: 8px;
+    padding: 24px 12px;
+    margin-bottom: 20px;
+    justify-content: center;
 }
 
 .leftStatsBox,
@@ -933,13 +1331,14 @@ input:focus-visible {
     padding: 24px;
 }
 
-.leftStatsBox > div,
-.rightStatsBox > div {
+
+.leftStatsBox>div,
+.rightStatsBox>div {
     margin-bottom: 20px;
 }
 
-.leftStatsBox > div:last-child,
-.rightStatsBox > div:last-child {
+.leftStatsBox>div:last-child,
+.rightStatsBox>div:last-child {
     margin-bottom: 0;
 }
 
@@ -1107,25 +1506,37 @@ input:focus-visible {
 
 /* Testimonial Box */
 .testimonial-rightBox {
-    background: #fff;
-    border-radius: 16px;
-    padding: 30px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    background: transparent;
+    border-radius: 0;
+    padding: 0;
+    box-shadow: none;
 }
 
 .testimonial-rightBox h3 {
-    font-size: 18px;
-    font-weight: 600;
-    color: #000;
+    margin-top: 40px;
     margin-bottom: 24px;
+    color: #000;
+    text-align: center;
+    font-size: 34px;
+    font-weight: 600;
 }
 
 .testi-card {
-    background: #F5F5F5;
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 20px;
+    display: flex;
     text-align: center;
+    background: #FFF3DF;
+    padding: 24px 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    border: 1px solid var(--color-F6A623);
+    flex-direction: column;
+    align-items: center;
+}
+
+.testi-card:hover {
+    border-color: var(--color-F6A623);
+    box-shadow: 0 4px 12px rgba(246, 166, 35, 0.15);
+    transform: translateY(-2px);
 }
 
 .testi-card:last-child {
@@ -1133,35 +1544,43 @@ input:focus-visible {
 }
 
 .testi-card img {
-    width: 80px;
-    height: 80px;
+    width: 150px;
+    height: 140px;
     border-radius: 50%;
     object-fit: cover;
-    margin-bottom: 12px;
+    margin-bottom: 16px;
     border: 3px solid #fff;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .testi-card h4 {
-    font-size: 16px;
+    font-size: 18px;
     font-weight: 600;
     color: #000;
-    margin-bottom: 4px;
+    margin-bottom: 6px;
+    margin-top: 0;
+    font-size: var(--font-20);
 }
 
 .testi-card .designation {
-    font-size: 13px;
-    color: var(--color-F6A623);
+    font-size: 14px;
+    color: #000;
     font-weight: 500;
-    margin-bottom: 12px;
+    margin-bottom: 16px;
+    position: relative;
+}
+
+.testi-card .designation::before {
+    content: '• ';
+    color: var(--color-F6A623);
+    font-weight: 700;
+    margin-right: 4px;
 }
 
 .testi-card p {
-    font-size: 14px;
-    line-height: 1.6;
-    color: #666;
-    margin: 0;
-    text-align: left;
+    font-size: 18px;
+
+    color: #000;
 }
 
 /* Responsive Styles for Detail Page */
@@ -1177,17 +1596,17 @@ input:focus-visible {
         grid-template-columns: 1fr;
         gap: 40px;
     }
-    
+
     .right-card {
         position: relative;
         top: 0;
     }
-    
+
     .stats-view {
         grid-template-columns: 1fr;
         gap: 16px;
     }
-    
+
     .indexSection {
         grid-template-columns: 1fr;
         gap: 20px;
@@ -1195,43 +1614,45 @@ input:focus-visible {
 }
 
 @media (max-width: 768px) {
+
     .left-card,
     .testimonial-rightBox {
         padding: 20px;
     }
-    
+
     .left-card .imageBox {
         height: 280px;
     }
-    
+
     .left-card .inner-header h2 {
         font-size: 24px;
     }
-    
+
     .investor-box .middileContend h2 {
         font-size: 28px;
     }
 }
 
 @media (max-width: 576px) {
+
     .left-card,
     .investor-box,
     .testimonial-rightBox {
         padding: 16px;
     }
-    
+
     .left-card .imageBox {
         height: 220px;
     }
-    
+
     .left-card .inner-header h2 {
         font-size: 20px;
     }
-    
+
     .stats-view {
         gap: 12px;
     }
-    
+
     .leftStatsBox,
     .rightStatsBox {
         padding: 16px;

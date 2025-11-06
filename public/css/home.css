@@ -1241,6 +1241,7 @@ a.cardBoxBlock.active {
   left: -12px;
 }
 
+
 @media (max-width: 768px) {
   .hero-title {
     font-size: 2rem;
