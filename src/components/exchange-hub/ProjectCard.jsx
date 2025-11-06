@@ -61,7 +61,7 @@ const ProjectCard = ({ project, activeTab }) => {
                 <div className="solar-card-with-image">
                     {/* Solar Panel Image */}
                     <div className="card-image-container">
-                        <Image 
+                        <Image
                             src={project?.project_image || '/images/projects/project-img1.png'}
                             alt={project?.project_name || 'Solar Project'}
                             width={500}
@@ -142,8 +142,8 @@ const ProjectCard = ({ project, activeTab }) => {
                                 </span>
                             </div>
                             <div className="progress-bar-container">
-                                <div 
-                                    className="progress-bar-fill" 
+                                <div
+                                    className="progress-bar-fill"
                                     style={{ width: `${project?.fund_progress || 45}%` }}
                                 ></div>
                             </div>
@@ -155,11 +155,11 @@ const ProjectCard = ({ project, activeTab }) => {
                         </p>
 
                         {/* Action Buttons */}
-                        <div className="buttons-image">
+                        <div className="buttons-image buttons" style={{ height: '50px' }}>
                             <button className="btn btn-primary-custom">
                                 {lang('home.exchangeHub.investEarly') || 'Invest Early'}
                             </button>
-                            <button 
+                            <button
                                 className="btn btn-secondary-custom"
                                 onClick={() => router.push(`/exchange-hub/${project.id}`)}
                             >
@@ -168,6 +168,7 @@ const ProjectCard = ({ project, activeTab }) => {
                                     <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2zm10-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1" />
                                 </svg>
                                 {lang('home.exchangeHub.viewDetails') || 'View Details'}
+
                             </button>
                         </div>
                     </div>
@@ -269,7 +270,7 @@ const ProjectCard = ({ project, activeTab }) => {
                     <button className="btn btn-primary-custom">
                         {lang('home.exchangeHub.buyNow') || 'Buy Now'}
                     </button>
-                    <button 
+                    <button
                         className="btn btn-secondary-custom"
                         onClick={() => router.push(`/exchange-hub/${project.id}`)}
                     >
