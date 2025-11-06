@@ -163,7 +163,7 @@ const HomeNavbar = () => {
           py: 1
         }}
       >
-        <Container maxWidth="lg">
+        <Container maxWidth={false} sx={{ maxWidth: '1345px' }}>
           <Toolbar disableGutters>
             {/* Logo */}
             <Box sx={{ flexGrow: 0, mr: 4 }}>

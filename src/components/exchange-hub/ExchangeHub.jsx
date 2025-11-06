@@ -156,9 +156,9 @@ const ExchangeHub = () => {
   }
 
   // Show loader while checking authentication
-  if (authLoading) {
+  // if (authLoading) {
   
-  }
+  // }
 
   return (
     <section className="main-contentBox Exchange-page">
@@ -376,15 +376,15 @@ const ExchangeHub = () => {
               {/* Market Summary Box */}
               <div className="summaryBox">
                 <h3 className="fs-22 fw-600 text-black">{lang('home.exchangeHub.marketSummary') || 'MARKET SUMMARY'}</h3>
-                <div className="row mb-3">
+                <div className="row mb-1">
                   <div className="col-7"><p className="fw-300 text-black">{lang('home.exchangeHub.totalProjects')}:</p></div>
                   <div className="col-5"><p className="text-end text-black fw-600 fs-18">{allProjects.length}</p></div>
                 </div>
-                <div className="row mb-3">
+                <div className="row mb-1">
                   <div className="col-7"><p className="fw-300 text-black">{lang('home.exchangeHub.totalCapacity')}:</p></div>
                   <div className="col-5"><p className="text-end text-black fw-600 fs-18">{allProjects.reduce((sum, p) => sum + parseFloat(p.project_size || 0), 0).toLocaleString()} kWp</p></div>
                 </div>
-                <div className="row mb-3">
+                <div className="row mb-1">
                   <div className="col-7"><p className="fw-300 text-black">{lang('home.exchangeHub.averageROI')}:</p></div>
                   <div className="col-5"><p className="text-end text-black fw-600 fs-18">
                     {allProjects.length > 0
