@@ -254,6 +254,7 @@ const ExchangeHub = () => {
                         onClick={() => setActiveTab('lease')}
                         type="button"
                         role="tab"
+                        style={{ borderRadius: 0 }}
                       >
                         <span className="circle"></span> {lang('home.exchangeHub.openForLease')}
                       </button>
@@ -265,6 +266,7 @@ const ExchangeHub = () => {
                         onClick={() => setActiveTab('resale')}
                         type="button"
                         role="tab"
+                        style={{ borderRadius: 0 }}
                       >
                         <span className="circle"></span> {lang('home.exchangeHub.forResale')}
                       </button>
