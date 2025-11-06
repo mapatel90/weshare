@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WeShare - Solar Leasing Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css">
+    <link rel="stylesheet" href="css/home.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <style>
+    .hero.banner-sec.news-banner {
+        min-height: 586px;
+        background-position: center;
+        background-repeat: no-repeat;
+        padding: 0;
+        background-size: cover;
+   }
+    .banner-sec.news-banner .title-info {
+     max-width: 815px;
+    }
+    .banner-sec.news-banner .hero-text {
+        font-size: 24px;
+    }
+    .news-card .news-info {
+    background: #f5f5f5;
+    max-width: 85%;
+    margin-left: auto;
+    margin-top: -51px;
+    border-radius: 16px 0 16px 16px;
+   }
+   .news-card .news-title {
+        font-size: 20px;
+        font-weight: 600;
+        color: #102C41;
+    }
+    .news-card .date i {
+        color: #F6A623;
+    }
+    .news-card .read-more:hover
+    {
+        background: #f6a623;
+        color: #fff;
+        border: 1px solid #f6a623;
+    }
+    .news-card .card-img {
+        min-height: 306px;
+        object-fit: cover;
+        max-height: 306px;
+    }
+    .newsletter .container {
+    background: #eea621;
+    border-radius: 16px;
+    }
+    footer.newsletter-footer {
+    padding-top: 200px;
+    }
+    .newsletter.newsletter-sec {
+        margin-bottom: -120px;
+        z-index: 2;
+        position: relative;
+        margin-top: 90px;
+    }
+    .newsletter-sec .newsletter-title {
+    font-size: clamp(36px, 4vw, 60px) !important;
+     font-weight: bold;
+    }
+    .newsletter-sec .newsletter-form {
+    position: relative;
+    background: #FFC05A;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    min-width: 320px;
+    }
+.newsletter-sec .newsletter-form input {
+    width: 100% !important;
+    background: unset;
+    border: unset;
+    padding: 20px 15px;
+    color: #fff !important;
+}
+.newsletter-sec .newsletter-form button {
+    position: absolute;
+    right: 15px;
+    background: #fff;
+    font-size: 16px;
+    font-weight: 600;
+    color: #102C41;
+    border: unset;
+    padding: 10px;
+}
+
+.newsletter-sec .newsletter-form input::placeholder {
+    color: #fff;
+}
+
+.newsletter-sec .text {
+    font-size: 20px;
+}
+.news-insight-page .news-section::after{
+    background-image: url(../img/news-bg-vector.png);
+    top: 50%;
+    right: 0;
+    width: 28%;
+    height: 100%;
+    transform: translateY(-50%);
+    position: absolute;
+}
+@media(max-width:768px){
+    .hero.banner-sec.news-banner{
+        min-height: 438px;
+        background-position: left;
+    }
+}
+@media(max-width:420px){
+    .newsletter-sec .newsletter-form button{
+        font-size: 12px;
+    }
+    .newsletter-sec .newsletter-form input{
+        padding: 15px 10px;
+    }
+    .newsletter-sec .newsletter-form{
+        min-width: 300px;
+    }
+}
+    </style>
+</head>
+
+<body class="news-insight-page">
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg sticky-top">
+        <div class=" custom-container container">
+            <a class="navbar-brand" href="#">
+                <img src="img/header-logo.svg" alt="weShare logo">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto align-items-center">
+                    <li class="nav-item"><a class="nav-link active" href="#home">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#rental">About Us</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#economics">Exchange Hub</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#investors">How It Works</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#news">News</a></li>
+                
+                </ul>
+                <div class="rightHeader">
+                       <ul class="navbar-nav ">
+                         <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            English
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#">English</a></li>
+                            <li><a class="dropdown-item" href="#">Spanish</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item ms-3">
+                        <a class=" btn-login" href="#login"><img src="img/user.svg" alt="user img"> Login</a>
+                    </li>
+                       </ul>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main content -->
+     <!-- Hero Section -->
+  <section class="hero banner-sec news-banner d-flex align-items-center" style="background-image: url(img/banner.jpg);">
+    <div class="container">
+      <div class="title-info">
+        <h1 class="news-title hero-title"><span class="yellow-txt" style="color: #F6A623;">Latest News</span> <span style="color: #fff;">& Insights</span></h1>
+        <p class="hero-text" style="color: #fff;">Stay informed with the latest updates, project highlights, and industry insights shaping the future of clean energy.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- News Section -->
+  <section class="news-section py-5">
+    <div class="container">
+      <div class="row g-4">
+  
+        <!-- Card 1 -->
+        <div class="col-md-6 col-lg-4 news-card" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="0">
+          <div class="card h-100 border-0">
+            <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=60" class="card-img" alt="Greenfield Academy">
+            <div class="card-body news-info">
+              <span class="date d-block mb-3"><i class="fa-regular fa-calendar"></i> Sep 29, 2024</span>
+              <h5 class="card-title news-title mb-3">The Future Shines at Greenfield Academy with New Solar Initiative</h5>
+              <a href="#" class="btn btn-outline-dark read-more px-4 py-2 fw-semibold">Read More <i class="fa-solid fa-arrow-right ms-2"></i></a>
+            </div>
+          </div>
+        </div>
+  
+        <!-- Card 2 -->
+        <div class="col-md-6 col-lg-4 news-card" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="150">
+          <div class="card h-100 border-0">
+            <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=60" class="card-img" alt="">
+            <div class="card-body news-info">
+              <span class="date d-block mb-3"><i class="fa-regular fa-calendar"></i> Sep 29, 2024</span>
+              <h5 class="card-title news-title mb-3">Harnessing Solar Power: A Greener Tomorrow</h5>
+              <a href="#" class="btn btn-outline-dark read-more px-4 py-2 fw-semibold">Read More <i class="fa-solid fa-arrow-right ms-2"></i></a>
+            </div>
+          </div>
+        </div>
+  
+        <!-- Card 3 -->
+        <div class="col-md-6 col-lg-4 news-card" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="300">
+          <div class="card h-100 border-0">
+            <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=60" class="card-img" alt="">
+            <div class="card-body news-info">
+              <span class="date d-block mb-3"><i class="fa-regular fa-calendar"></i> Sep 29, 2024</span>
+              <h5 class="card-title news-title mb-3">Empowering Communities with Clean Energy</h5>
+              <a href="#" class="btn btn-outline-dark read-more px-4 py-2 fw-semibold">Read More <i class="fa-solid fa-arrow-right ms-2"></i></a>
+            </div>
+          </div>
+        </div>
+  
+        <!-- Repeat same 3 with higher delays -->
+        <div class="col-md-6 col-lg-4 news-card" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="450">
+          <div class="card h-100 border-0">
+            <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=60" class="card-img" alt="">
+            <div class="card-body news-info">
+              <span class="date d-block mb-3"><i class="fa-regular fa-calendar"></i> Sep 29, 2024</span>
+              <h5 class="card-title news-title mb-3">Solar Innovations Changing the World</h5>
+              <a href="#" class="btn btn-outline-dark read-more px-4 py-2 fw-semibold">Read More <i class="fa-solid fa-arrow-right ms-2"></i></a>
+            </div>
+          </div>
+        </div>
+  
+        <div class="col-md-6 col-lg-4 news-card" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="600">
+          <div class="card h-100 border-0">
+            <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=60" class="card-img" alt="">
+            <div class="card-body news-info">
+              <span class="date d-block mb-3"><i class="fa-regular fa-calendar"></i> Sep 29, 2024</span>
+              <h5 class="card-title news-title mb-3">Sustainable Living Starts with WeShare</h5>
+              <a href="#" class="btn btn-outline-dark read-more px-4 py-2 fw-semibold">Read More <i class="fa-solid fa-arrow-right ms-2"></i></a>
+            </div>
+          </div>
+        </div>
+  
+        <div class="col-md-6 col-lg-4 news-card" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="750">
+          <div class="card h-100 border-0">
+            <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=60" class="card-img" alt="">
+            <div class="card-body news-info">
+              <span class="date d-block mb-3"><i class="fa-regular fa-calendar"></i> Sep 29, 2024</span>
+              <h5 class="card-title news-title mb-3">Powering the Future, One Panel at a Time</h5>
+              <a href="#" class="btn btn-outline-dark read-more px-4 py-2 fw-semibold">Read More <i class="fa-solid fa-arrow-right ms-2"></i></a>
+            </div>
+          </div>
+        </div>
+  
+      </div>
+  
+      <div class="text-center mt-5">
+        <a href="#" class="btn load-more-btn btn-primary-custom d-inline-flex justify-content-center align-items-center">Load More <i class="fa-solid fa-arrow-right ms-2"></i></a>
+      </div>
+    </div>
+  </section>
+  
+
+  <!-- Newsletter Section -->
+  <section class="newsletter newsletter-sec">
+    <div class="container newsletter-container text-white d-flex align-items-center p-md-5 p-2 py-4 flex-column flex-md-row">
+      <div class="col-md-5 text-center text-md-start">
+        <h2 class="mb-4 newsletter-title fw-800 mb-4">Newsletters</h2>
+        <p class="small mb-0 text">Solar energy is a sustainable and renewable source of power that harnesses the sun’s rays.</p>
+      </div>
+      <div class="col-md-2 my-3 my-md-0">
+        <svg xmlns="http://www.w3.org/2000/svg" width="87" height="40" viewBox="0 0 87 40" fill="none">
+            <g clip-path="url(#clip0_150_1825)">
+            <path opacity="0.5" d="M7.59036 11.3067L7.55754 12.3595L8.39398 11.7194C9.40746 10.9438 10.3731 10.2315 11.3058 9.54428L11.4153 9.46362C12.3062 8.80738 13.1685 8.17218 14.009 7.52912C20.0576 3.147 26.7115 0.991178 34.273 1.45524C39.716 1.84006 44.1833 3.99577 47.1484 8.4201C49.4138 11.8004 51.4994 15.3503 53.5745 18.8823C54.3006 20.1181 55.0254 21.3517 55.7561 22.5752C56.3622 23.5944 56.9276 24.6187 57.4939 25.6446C57.5941 25.8262 57.6944 26.0079 57.7949 26.1896C58.4614 27.3942 59.1377 28.5972 59.881 29.7709L59.8848 29.777L59.8888 29.7829C61.2762 31.841 62.6794 33.1641 64.4027 33.8082C66.1209 34.4504 68.0759 34.3867 70.4991 33.8498C76.2254 32.5703 80.8363 28.9232 84.245 22.9527C85.2071 23.5814 85.5477 24.307 85.5896 25.0186C85.6401 25.8755 85.2646 26.8227 84.7021 27.7152L84.7002 27.7182C83.2873 29.9949 81.5738 32.2383 79.5695 33.8411C77.2496 35.6862 74.4909 37.2723 71.7462 38.2257L71.7432 38.2268C68.2667 39.4598 65.2763 39.639 62.6582 38.7998C60.0406 37.9608 57.7261 36.0815 55.6435 33.0647C54.3952 31.2637 53.303 29.3794 52.2358 27.4662C51.9707 26.9911 51.7069 26.5134 51.4425 26.0348C50.6461 24.5932 49.8445 23.1422 48.9897 21.7207C46.9445 18.2379 44.801 14.7191 42.527 11.2618C40.7366 8.50229 38.0241 7.14515 34.8726 6.62605L34.8691 6.6255C30.064 5.86862 25.6103 6.65997 21.2328 8.88595C20.3087 9.339 19.483 9.82571 18.6274 10.408C15.0119 12.8197 11.3952 15.2321 7.48768 17.8671L6.31017 18.6611L7.72542 18.7799C11.0719 19.0607 14.2896 19.3245 17.4544 19.5839L17.6073 19.5964C20.624 19.8436 23.5938 20.087 26.5832 20.3375C26.588 20.3529 26.593 20.3692 26.5983 20.3864C26.6171 20.4487 26.639 20.5243 26.6628 20.6066C26.6742 20.6459 26.686 20.6867 26.6981 20.7283C26.573 20.8128 26.4544 20.9012 26.3492 20.9796C26.3068 21.0112 26.2666 21.0411 26.229 21.0685C25.9642 21.2618 25.8217 21.3364 25.7413 21.3484C24.4777 21.5007 23.2136 21.6604 21.9494 21.8202C16.9131 22.4566 11.8748 23.0933 6.85562 23.2614C4.47275 23.3379 2.88341 22.8278 1.91995 21.8348C0.957495 20.8428 0.509336 19.255 0.677117 16.9153L0.677501 16.9087C0.919338 12.7682 1.98659 8.68426 3.13181 4.68365L3.13533 4.67136L3.13821 4.6589C3.16827 4.52915 3.26573 4.35173 3.45955 4.14363C3.64855 3.94071 3.90246 3.73746 4.19229 3.55426C4.78518 3.17949 5.44282 2.94109 5.87321 2.91896L5.89392 2.91789L5.90599 2.91626C5.9052 2.91642 5.90479 2.91656 5.90477 2.91675C5.90453 2.91939 5.98221 2.92929 6.15306 3.05631C6.33233 3.18958 6.53961 3.39698 6.74475 3.65233C7.16548 4.17605 7.49104 4.79169 7.56366 5.1883L7.56598 5.201L7.56896 5.21355C7.77459 6.08136 7.80368 6.97607 7.76726 7.97694C7.75064 8.43391 7.72075 8.90612 7.68906 9.40679L7.67987 9.55204C7.64504 10.1045 7.60964 10.6887 7.59036 11.3067Z" fill="white" stroke="white"/>
+            </g>
+            <defs>
+            <clipPath id="clip0_150_1825">
+            <rect width="87" height="40" fill="white"/>
+            </clipPath>
+            </defs>
+            </svg>
+      </div>
+      <div class="col-md-5">
+      <div class="d-flex justify-content-center flex-wrap gap-2 mb-3 newsletter-form">
+        <input type="email" class="form-control w-auto" placeholder="Enter Email Address" style="min-width: 280px;">
+        <button class="btn btn-dark">Subscribe <i class="fa-solid fa-paper-plane ms-2"></i> </button>
+      </div>  
+      </div>
+     
+    </div>
+  </section>
+
+     <!-- end -->
+
+    <!-- Footer -->
+    <footer class="footer mt-0 newsletter-footer">
+        <div class="container">
+          <div class="row gy-4">
+            <!-- Company Info -->
+            <div class="col-lg-4 col-md-12">
+              <div class="footer-logo mb-3">
+                <img src="img/Logo-White.svg" alt="WeShare Logo" class="mb-2" >
+               
+              </div>
+              <p class="text-white fw-300 fs-18 mb-4">
+                Democratizing Access to Solar Investments.
+                <br>
+                WeShare makes clean energy investment simple, transparent, and rewarding through innovative
+                solar leasing solutions — empowering investors and communities to share the benefits of sustainable power.
+              </p>
+              <div class="social-icons d-flex gap-4">
+                <a href="#"><img src="img/twitter.svg" alt=""></a>
+                 <a href="#"><img src="img/linkedin.svg" alt=""></a>
+                  <a href="#"><img src="img/cat.svg" alt=""></a>
+              </div>
+            </div>
+      
+            <!-- Quick Links -->
+            <div class="col-lg-4 col-md-6">
+              <div class="linkBox">
+                   <h6 class="fs-24 text-secondary-color fw-600 mb-40">Quick Links</h6>
+                      <ul class="list-unstyled text-white quickLinks">
+                      <li><a href="#">Home</a></li>
+                      <li><a href="#">About Us</a></li>
+                      <li><a href="#">Exchange Hub</a></li>
+                      <li><a href="#">How It Works</a></li>
+                  <li><a href="#">News</a></li>
+              </ul>
+              </div>
+             
+            </div>
+      
+            <!-- Contact & Settings -->
+            <div class="col-md-6 col-lg-3">
+              <div class="contactBox">
+      
+          
+               <h6 class="fs-24 text-secondary-color fw-600 mb-40">Contact & Settings</h6>
+              <ul class="list-unstyled text-white-50 small mb-4">
+                <li class="mb-4 fs-18 fw-300 text-white"><span class="me-3"><img src="img/email.svg" alt="email"></span> support@wechain.solar</li>
+                <li class="mb-4 fs-18 fw-300 text-white"><span class="me-3"><img src="img/phone-w.svg" alt="phone"></span> +1 (555) 123-4567</li>
+                <li class="fs-18 fw-300 text-white"><span class="me-3"><img src="img/location-w.svg" alt="location"></span>Austin, TX, USA</li>
+              </ul>
+      
+              <div class="footer-dropdown mb-3">
+                <label  class="fs-18 fw-300 text-secondary-color d-block mb-1">Language</label>
+                <select class="form-select form-select-sm ">
+                  <option selected>English</option>
+                  <option>Spanish</option>
+                </select>
+              </div>
+      
+              <div class="footer-dropdown">
+                <label class="fs-18 fw-300 text-secondary-color d-block mb-1">Country</label>
+                <select class="form-select form-select-sm">
+                  <option selected>US United States</option>
+                  <option>CA Canada</option>
+                </select>
+              </div>
+            </div>
+            </div>
+          </div>
+      
+          <hr class="">
+      
+          <div class="  copyRightSection d-flex  flex-sm-column flex-md-row gap-sm-3 gap-5 align-items-center">
+            <p class="mb-2 mb-md-0 fs-18 fw-500 text-white">©2025 WeShare Solar Lease Platform</p>
+            <div class="footer-links d-flex gap-3">
+              <a href="#">Privacy Policy</a>
+              <a href="#">Terms of Service</a>
+            </div>
+          </div>
+        </div>
+      </footer>
+      
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
+   <script>
+  AOS.init({
+    once: true
+  });
+</script>
+</body>
+</html>
