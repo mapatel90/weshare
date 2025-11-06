@@ -6,7 +6,7 @@ const router = express.Router();
 const prisma = new PrismaClient();
 
 // Get all countries
-router.get('/countries', authenticateToken, async (req, res) => {
+router.get('/countries', async (req, res) => {
   try {
     const countries = await prisma.country.findMany({
       where: { status: 1 },
@@ -34,7 +34,7 @@ router.get('/countries', authenticateToken, async (req, res) => {
 });
 
 // Get states by country ID
-router.get('/countries/:countryId/states', authenticateToken, async (req, res) => {
+router.get('/countries/:countryId/states', async (req, res) => {
   try {
     const { countryId } = req.params;
     
@@ -68,7 +68,7 @@ router.get('/countries/:countryId/states', authenticateToken, async (req, res) =
 });
 
 // Get cities by state ID
-router.get('/states/:stateId/cities', authenticateToken, async (req, res) => {
+router.get('/states/:stateId/cities', async (req, res) => {
   try {
     const { stateId } = req.params;
     

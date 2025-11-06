@@ -53,7 +53,7 @@ const deleteOldLogoIfSafe = (publicPath) => {
 };
 
 // Get all settings
-router.get('/', authenticateToken, async (req, res) => {
+router.get('/', async (req, res) => {
   try {
     const settings = await prisma.setting.findMany();
     
