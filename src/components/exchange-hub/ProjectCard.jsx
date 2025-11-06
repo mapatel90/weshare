@@ -47,11 +47,11 @@ const ProjectCard = ({ project, activeTab }) => {
         (parseFloat(project.project_size || 0) * 1500).toFixed(0)
 
     // Debug log
-    console.log('ProjectCard rendering:', {
-        id: project?.id,
-        name: project?.project_name,
-        size: project?.project_size
-    })
+    // console.log('ProjectCard rendering:', {
+    //     id: project?.id,
+    //     name: project?.project_name,
+    //     size: project?.project_size
+    // })
 
     // Different card design for lease vs resale
     if (activeTab === 'lease') {

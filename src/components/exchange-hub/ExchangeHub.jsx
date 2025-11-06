@@ -7,6 +7,8 @@ import AOS from 'aos'
 import 'aos/dist/aos.css'
 import ProjectCard from './ProjectCard'
 import './styles/exchange-hub-custom.css'
+import { useAuth } from '@/contexts/AuthContext'
+import { useRouter } from 'next/navigation'
 
 const ExchangeHub = () => {
   const [activeTab, setActiveTab] = useState('lease')
@@ -26,6 +28,8 @@ const ExchangeHub = () => {
     minCapacity: '',
     maxCapacity: ''
   })
+  const { user, logout, loading: authLoading } = useAuth()
+  const router = useRouter()
   const { lang } = useLanguage()
 
   // Initialize AOS
@@ -56,7 +60,7 @@ const ExchangeHub = () => {
     try {
       setLoading(true)
       const response = await apiGet(`/api/projects?page=${pageNum}&limit=50&status=1`, { showLoader: false })
-      
+
       if (response.success && response.data?.projects) {
         if (reset) {
           setAllProjects(response.data.projects)
@@ -79,7 +83,7 @@ const ExchangeHub = () => {
     // Search filter
     if (searchQuery) {
       const query = searchQuery.toLowerCase()
-      filtered = filtered.filter(project => 
+      filtered = filtered.filter(project =>
         project.project_name?.toLowerCase().includes(query) ||
         project.project_code?.toLowerCase().includes(query) ||
         project.city?.name?.toLowerCase().includes(query) ||
@@ -151,6 +155,11 @@ const ExchangeHub = () => {
     fetchProjects(page + 1, false)
   }
 
+  // Show loader while checking authentication
+  if (authLoading) {
+  
+  }
+
   return (
     <section className="main-contentBox Exchange-page">
       <div className="container">
@@ -160,31 +169,31 @@ const ExchangeHub = () => {
             {/* Search and Filter Section */}
             <div className="filterSection">
               <div className="searchBox">
-                <input 
-                  type="search" 
-                  className="search" 
+                <input
+                  type="search"
+                  className="search"
                   placeholder={lang('home.exchangeHub.searchPlaceholder') || 'Search Here...'}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
               <div className="filterGroupBtn">
-                <a 
-                  href="#" 
+                <a
+                  href="#"
                   className="filterBtn normalBtn"
                   onClick={(e) => { e.preventDefault(); setShowFilters(!showFilters) }}
                 >
-                  <img src="/images/icon/Filter-icon.svg" alt="filter" className="me-3" onError={(e) => e.target.style.display = 'none'} /> 
+                  <img src="/images/icon/Filter-icon.svg" alt="filter" className="me-3" onError={(e) => e.target.style.display = 'none'} />
                   {lang('home.exchangeHub.filter')}
                 </a>
                 <div className="dropdown d-inline-block">
-                  <a 
-                    href="#" 
-                    className="normalBtn dropdown-toggle" 
+                  <a
+                    href="#"
+                    className="normalBtn dropdown-toggle"
                     data-bs-toggle="dropdown"
                     aria-expanded="false"
                   >
-                    <img className="me-3" src="/images/icon/sort-icon.svg" alt="sort" onError={(e) => e.target.style.display = 'none'} /> 
+                    <img className="me-3" src="/images/icon/sort-icon.svg" alt="sort" onError={(e) => e.target.style.display = 'none'} />
                     {lang('home.exchangeHub.sortBy')}
                   </a>
                   <ul className="dropdown-menu">
@@ -239,22 +248,22 @@ const ExchangeHub = () => {
                 <div className="headerSection mb-40" data-aos="fade-up" data-aos-easing="linear" data-aos-duration="1000">
                   <ul className="nav nav-pills mb-3" id="pills-tab" role="tablist">
                     <li className="nav-item" role="presentation">
-                      <button 
+                      <button
                         className={`nav-link ${activeTab === 'lease' ? 'active' : ''} ms-0`}
-                        id="pills-ProjectsOpen-tab" 
+                        id="pills-ProjectsOpen-tab"
                         onClick={() => setActiveTab('lease')}
-                        type="button" 
+                        type="button"
                         role="tab"
                       >
                         <span className="circle"></span> {lang('home.exchangeHub.openForLease')}
                       </button>
                     </li>
                     <li className="nav-item" role="presentation">
-                      <button 
+                      <button
                         className={`nav-link ${activeTab === 'resale' ? 'active' : ''}`}
-                        id="pills-projectResale-tab" 
+                        id="pills-projectResale-tab"
                         onClick={() => setActiveTab('resale')}
-                        type="button" 
+                        type="button"
                         role="tab"
                       >
                         <span className="circle"></span> {lang('home.exchangeHub.forResale')}
@@ -280,9 +289,9 @@ const ExchangeHub = () => {
                       <>
                         <div className="row">
                           {projects.map((project) => (
-                            <ProjectCard 
-                              key={project.id} 
-                              project={project} 
+                            <ProjectCard
+                              key={project.id}
+                              project={project}
                               activeTab={activeTab}
                             />
                           ))}
@@ -291,7 +300,7 @@ const ExchangeHub = () => {
                         {/* Load More Button */}
                         {hasMore && (
                           <div className="d-block mt-4 text-center">
-                            <button 
+                            <button
                               className="btn btn-primary-custom px-5 py-2"
                               onClick={loadMore}
                               disabled={loading}
@@ -310,7 +319,7 @@ const ExchangeHub = () => {
                       </>
                     )}
                   </div>
-                  
+
                   <div className={`tab-pane fade ${activeTab === 'resale' ? 'show active' : ''}`} id="pills-projectResale" role="tabpanel">
                     {loading && page === 1 ? (
                       <div className="text-center py-5">
@@ -326,9 +335,9 @@ const ExchangeHub = () => {
                       <>
                         <div className="row">
                           {projects.map((project) => (
-                            <ProjectCard 
-                              key={project.id} 
-                              project={project} 
+                            <ProjectCard
+                              key={project.id}
+                              project={project}
                               activeTab={activeTab}
                             />
                           ))}
@@ -337,7 +346,7 @@ const ExchangeHub = () => {
                         {/* Load More Button */}
                         {hasMore && (
                           <div className="d-block mt-4 text-center">
-                            <button 
+                            <button
                               className="btn btn-primary-custom px-5 py-2"
                               onClick={loadMore}
                               disabled={loading}
@@ -378,7 +387,7 @@ const ExchangeHub = () => {
                 <div className="row mb-3">
                   <div className="col-7"><p className="fw-300 text-black">{lang('home.exchangeHub.averageROI')}:</p></div>
                   <div className="col-5"><p className="text-end text-black fw-600 fs-18">
-                    {allProjects.length > 0 
+                    {allProjects.length > 0
                       ? (allProjects.reduce((sum, p) => sum + parseFloat(p.investor_profit || 0), 0) / allProjects.length).toFixed(1)
                       : '0.0'}%
                   </p></div>
@@ -388,9 +397,9 @@ const ExchangeHub = () => {
                   <div className="col-5"><p className="text-end text-black fw-600 fs-18">320+</p></div>
                 </div>
               </div>
-              
+
               <hr />
-              
+
               {/* Quick Simulation Box */}
               <div className="summaryBox">
                 <h3 className="fs-22 fw-600 text-black">{lang('home.exchangeHub.quickSimulation') || 'QUICK SIMULATION'}</h3>
@@ -406,10 +415,14 @@ const ExchangeHub = () => {
                   <div className="col-12"><small className="text-black fw-300 w-100 d-block text-end">{lang('home.exchangeHub.basedOnROI') || '(based on 18% avg ROI)'}</small></div>
                 </div>
               </div>
-              
+
               {/* Action Buttons */}
               <div className="buttons flex-column gap-3 mt-5">
-                <button className="btn btn-primary-custom w-100">{lang('home.exchangeHub.signUpToInvest') || 'Sign Up to Invest'}</button>
+                {user ? (
+                  <></>
+                ) : (
+                  <button className="btn btn-primary-custom w-100" onClick={() => router.push('/register')}>{lang('home.exchangeHub.signUpToInvest') || 'Sign Up to Invest'}</button>
+                )}
                 <button className="btn btn-primary-custom transparentBtn tc-102C41 border-1 w-100">
                   <img className="me-2" src="/images/icon/reports-grey.svg" alt="arrow" onError={(e) => e.target.style.display = 'none'} />
                   {lang('home.exchangeHub.listYourProject') || 'List Your Project'}
