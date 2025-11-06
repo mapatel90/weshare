@@ -1,0 +1,122 @@
+.hero.banner-sec.news-banner {
+  min-height: 586px;
+  background-position: center;
+  background-repeat: no-repeat;
+  padding: 0;
+  background-size: cover;
+}
+.banner-sec.news-banner .title-info {
+  max-width: 815px;
+}
+.banner-sec.news-banner .hero-text {
+  font-size: 24px;
+}
+.news-card .news-info {
+  background: #f5f5f5;
+  max-width: 85%;
+  margin-left: auto;
+  margin-top: -51px;
+  border-radius: 16px 0 16px 16px;
+}
+.news-card .card {
+  border: 0 !important;
+  box-shadow: none !important;
+  overflow: hidden;
+  border-radius: 16px;
+}
+.news-card .news-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #102c41;
+}
+.news-card .date i {
+  color: #f6a623;
+}
+.news-card .read-more:hover,
+.news-card .readMore:hover {
+  background: #f6a623;
+  color: #fff;
+  border: 1px solid #f6a623;
+}
+.news-card .card-img,
+.news-card .card-img-top {
+  min-height: 306px;
+  object-fit: cover;
+  max-height: 306px;
+}
+.newsletter .container {
+  background: #eea621;
+  border-radius: 16px;
+}
+footer.newsletter-footer {
+  padding-top: 200px;
+}
+.newsletter.newsletter-sec {
+  margin-bottom: -120px;
+  z-index: 2;
+  position: relative;
+  margin-top: 90px;
+}
+.newsletter-sec .newsletter-title {
+  font-size: clamp(36px, 4vw, 60px) !important;
+  font-weight: bold;
+}
+.newsletter-sec .newsletter-form {
+  position: relative;
+  background: #ffc05a;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  min-width: 320px;
+}
+.newsletter-sec .newsletter-form input {
+  width: 100% !important;
+  background: unset;
+  border: unset;
+  padding: 20px 15px;
+  color: #fff !important;
+}
+.newsletter-sec .newsletter-form button {
+  position: absolute;
+  right: 15px;
+  background: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  color: #102c41;
+  border: unset;
+  padding: 10px;
+}
+
+.newsletter-sec .newsletter-form input::placeholder {
+  color: #fff;
+}
+
+.newsletter-sec .text {
+  font-size: 20px;
+}
+.news-insight-page .news-section::after {
+  background-image: url(../../../../public/images/news/news-bg-vector.png);
+  top: 50%;
+  right: 0;
+  width: 28%;
+  height: 100%;
+  transform: translateY(-50%);
+  position: absolute;
+}
+@media (max-width: 768px) {
+  .hero.banner-sec.news-banner {
+    min-height: 438px;
+    background-position: left;
+  }
+}
+@media (max-width: 420px) {
+  .newsletter-sec .newsletter-form button {
+    font-size: 12px;
+  }
+  .newsletter-sec .newsletter-form input {
+    padding: 15px 10px;
+  }
+  .newsletter-sec .newsletter-form {
+    min-width: 300px;
+  }
+}
