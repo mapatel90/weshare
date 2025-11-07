@@ -8,6 +8,7 @@ import Swal from 'sweetalert2'
 import { showSuccessToast, showErrorToast } from '@/utils/topTost'
 import { useLanguage } from '@/contexts/LanguageContext'
 import Image from 'next/image'
+import { generateSlug, checkProjectNameExists } from '@/utils/projectUtils'
 import {
     TextField,
     Select,
@@ -40,6 +41,7 @@ const TabProjectBasicDetails = ({ setFormData, formData, error, setError }) => {
     const [loading, setLoading] = useState({ form: false, image: false })
     const [projectTypes, setProjectTypes] = useState([])
     const [imagePreview, setImagePreview] = useState(null)
+    const [checkingName, setCheckingName] = useState(false)
 
     // Offtakers are loaded by hook on mount; load project types
     useEffect(() => {
@@ -57,7 +59,14 @@ const TabProjectBasicDetails = ({ setFormData, formData, error, setError }) => {
     // ✅ Handle all input fields
     const handleInputChange = (e) => {
         const { name, value } = e.target
-        setFormData(prev => ({ ...prev, [name]: value }))
+        
+        // Auto-generate slug when project_name changes
+        if (name === 'project_name') {
+            const slug = generateSlug(value)
+            setFormData(prev => ({ ...prev, [name]: value, project_slug: slug }))
+        } else {
+            setFormData(prev => ({ ...prev, [name]: value }))
+        }
 
         // live-clear field errors when valid
         setError(prev => {
@@ -77,6 +86,32 @@ const TabProjectBasicDetails = ({ setFormData, formData, error, setError }) => {
             }
             return next
         })
+    }
+
+    // ✅ Check if project name already exists (onBlur)
+    const handleProjectNameBlur = async () => {
+        if (!formData.project_name || formData.project_name.trim() === '') return
+
+        setCheckingName(true)
+        try {
+            const exists = await checkProjectNameExists(formData.project_name)
+            if (exists) {
+                setError(prev => ({
+                    ...prev,
+                    project_name: lang('projects.projectNameExists', 'Project name already exists')
+                }))
+            } else {
+                setError(prev => {
+                    const next = { ...prev }
+                    delete next.project_name
+                    return next
+                })
+            }
+        } catch (err) {
+            console.error('Error checking project name:', err)
+        } finally {
+            setCheckingName(false)
+        }
     }
 
     // ✅ Handle country/state/city dropdown changes (same pattern as UsersCreateForm)
@@ -200,6 +235,14 @@ const TabProjectBasicDetails = ({ setFormData, formData, error, setError }) => {
             }
         });
 
+        // Check if project name already exists one more time before submit
+        if (formData.project_name) {
+            const nameExists = await checkProjectNameExists(formData.project_name)
+            if (nameExists) {
+                errors.project_name = lang('projects.projectNameExists', 'Project name already exists')
+            }
+        }
+
         const numberRegex = /^[0-9]*\.?[0-9]*$/;
         const intRegex = /^\d+$/;
 
@@ -237,6 +280,7 @@ const TabProjectBasicDetails = ({ setFormData, formData, error, setError }) => {
             // Prepare the project data for submission
             const projectData = {
                 name: formData.project_name,
+                project_slug: formData.project_slug || generateSlug(formData.project_name),
                 project_type_id: Number(formData.project_type_id),
                 ...(formData.offtaker && { offtaker_id: Number(formData.offtaker) }),
                 address1: formData.address1 || '',
@@ -388,7 +432,7 @@ const TabProjectBasicDetails = ({ setFormData, formData, error, setError }) => {
                                         )}
                                     </Box>
                                 </Box>
-                                <FormHelperText>
+                                <FormHelperText sx={{ m: 1 }}>
                                     {error.project_image ? (
                                         <span className="text-danger">{error.project_image}</span>
                                     ) : (
@@ -404,9 +448,24 @@ const TabProjectBasicDetails = ({ setFormData, formData, error, setError }) => {
                                 name="project_name"
                                 value={formData.project_name}
                                 onChange={handleInputChange}
+                                onBlur={handleProjectNameBlur}
                                 placeholder={lang('projects.projectNamePlaceholder', 'Enter project name')}
                                 error={!!error.project_name}
-                                helperText={error.project_name}
+                                helperText={error.project_name || (checkingName ? 'Checking...' : '')}
+                                disabled={checkingName}
+                            />
+                        </div>
+                        <div className="col-md-3 mb-3">
+                            <TextField
+                                fullWidth
+                                label={`${lang('projects.projectSlug', 'Project Slug')} *`}
+                                name="project_slug"
+                                value={formData.project_slug || ''}
+                                onChange={handleInputChange}
+                                placeholder={lang('projects.projectSlugPlaceholder', 'project-slug')}
+                                error={!!error.project_slug}
+                                helperText={error.project_slug || lang('projects.slugAutoGenerated', 'Auto-generated from project name')}
+                                disabled
                             />
                         </div>
                         <div className="col-md-3 mb-3">

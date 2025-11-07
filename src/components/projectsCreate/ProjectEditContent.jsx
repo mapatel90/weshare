@@ -10,6 +10,7 @@ import { showSuccessToast, showErrorToast } from '@/utils/topTost'
 import { useLanguage } from '@/contexts/LanguageContext'
 import InverterTab from './InverterTab'
 import Image from 'next/image'
+import { generateSlug, checkProjectNameExists } from '@/utils/projectUtils'
 import {
     TextField,
     Select,
@@ -41,8 +42,10 @@ const ProjectEditContent = ({ projectId }) => {
     const [loading, setLoading] = useState({ form: false, init: true, image: false })
     const [error, setError] = useState({})
     const [imagePreview, setImagePreview] = useState(null)
+    const [checkingName, setCheckingName] = useState(false)
     const [formData, setFormData] = useState({
         project_name: '',
+        project_slug: '',
         project_type_id: '',
         offtaker: '',
         address1: '',
@@ -82,6 +85,7 @@ const ProjectEditContent = ({ projectId }) => {
                     const p = res.data
                     setFormData({
                         project_name: p.project_name || '',
+                        project_slug: p.project_slug || '',
                         project_type_id: p.project_type_id || p.projectType?.id || '',
                         offtaker: String(p.offtaker_id || ''),
                         address1: p.address1 || '',
@@ -118,7 +122,15 @@ const ProjectEditContent = ({ projectId }) => {
 
     const handleInputChange = (e) => {
         const { name, value } = e.target
-        setFormData(prev => ({ ...prev, [name]: value }))
+        
+        // Auto-generate slug when project_name changes
+        if (name === 'project_name') {
+            const slug = generateSlug(value)
+            setFormData(prev => ({ ...prev, [name]: value, project_slug: slug }))
+        } else {
+            setFormData(prev => ({ ...prev, [name]: value }))
+        }
+        
         // live clear errors when valid
         setError(prev => {
             const next = { ...prev }
@@ -137,6 +149,32 @@ const ProjectEditContent = ({ projectId }) => {
             }
             return next
         })
+    }
+
+    // ✅ Check if project name already exists (onBlur) - exclude current project
+    const handleProjectNameBlur = async () => {
+        if (!formData.project_name || formData.project_name.trim() === '') return
+
+        setCheckingName(true)
+        try {
+            const exists = await checkProjectNameExists(formData.project_name, projectId)
+            if (exists) {
+                setError(prev => ({
+                    ...prev,
+                    project_name: lang('projects.projectNameExists', 'Project name already exists')
+                }))
+            } else {
+                setError(prev => {
+                    const next = { ...prev }
+                    delete next.project_name
+                    return next
+                })
+            }
+        } catch (err) {
+            console.error('Error checking project name:', err)
+        } finally {
+            setCheckingName(false)
+        }
     }
 
     const handleLocationChange = (type, value) => {
@@ -237,6 +275,15 @@ const ProjectEditContent = ({ projectId }) => {
         const requiredFields = ['project_name', 'project_type_id']
         const errors = {}
         requiredFields.forEach(field => { if (!formData[field]) { errors[field] = lang('validation.required', 'Required') } })
+        
+        // Check if project name already exists one more time before submit
+        if (formData.project_name) {
+            const nameExists = await checkProjectNameExists(formData.project_name, projectId)
+            if (nameExists) {
+                errors.project_name = lang('projects.projectNameExists', 'Project name already exists')
+            }
+        }
+        
         const numberRegex = /^[0-9]*\.?[0-9]*$/;
         const intRegex = /^\d+$/;
         if (formData.investorProfit && !numberRegex.test(formData.investorProfit)) {
@@ -260,6 +307,7 @@ const ProjectEditContent = ({ projectId }) => {
         try {
             const payload = {
                 name: formData.project_name,
+                project_slug: formData.project_slug || generateSlug(formData.project_name),
                 project_type_id: Number(formData.project_type_id),
                 ...(formData.offtaker && { offtaker_id: Number(formData.offtaker) }),
                 address1: formData.address1 || '',
@@ -438,9 +486,24 @@ const ProjectEditContent = ({ projectId }) => {
                                                     name="project_name"
                                                     value={formData.project_name}
                                                     onChange={handleInputChange}
+                                                    onBlur={handleProjectNameBlur}
                                                     placeholder={lang('projects.projectNamePlaceholder', 'Enter project name')}
                                                     error={!!error.project_name}
-                                                    helperText={error.project_name}
+                                                    helperText={error.project_name || (checkingName ? 'Checking...' : '')}
+                                                    disabled={checkingName}
+                                                />
+                                            </div>
+                                            <div className="col-md-3 mb-3">
+                                                <TextField
+                                                    fullWidth
+                                                    label={`${lang('projects.projectSlug', 'Project Slug')} *`}
+                                                    name="project_slug"
+                                                    value={formData.project_slug || ''}
+                                                    onChange={handleInputChange}
+                                                    placeholder={lang('projects.projectSlugPlaceholder', 'project-slug')}
+                                                    error={!!error.project_slug}
+                                                    helperText={error.project_slug || lang('projects.slugAutoGenerated', 'Auto-generated from project name')}
+                                                    disabled
                                                 />
                                             </div>
                                             <div className="col-md-3 mb-3">

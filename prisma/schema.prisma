@@ -165,6 +165,7 @@ model Project {
   id               Int       @id @default(autoincrement())
   offtaker_id      Int?
   project_name     String    @db.VarChar(255)
+  project_slug     String    @unique @db.VarChar(255)
   project_type_id  Int       
   address1         String?   @map("address_1") @db.VarChar(255)
   address2         String?   @map("address_2") @db.VarChar(255)
