@@ -1,7 +1,7 @@
 'use client'
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { apiPost, apiGet } from '@/lib/api'
+import { apiPost, apiGet, apiUpload } from '@/lib/api'
 import Swal from 'sweetalert2'
 import { useLanguage } from '@/contexts/LanguageContext'
 import UserForm from './UserForm'
@@ -78,13 +78,37 @@ const UsersCreateForm = () => {
   const handleCreate = async (submitData) => {
     try {
       setLoading(true)
-      const response = await apiPost('/api/users', submitData)
-      if (response.success) {
-        showSuccessToast(lang('messages.userCreated') || 'User created successfully')
-        // await Swal.fire({ icon: 'success', title: 'Success!', text: 'User created successfully', timer: 1500, showConfirmButton: false })
-        router.push('/admin/users/list')
+      
+      // Check if there's a QR code file to upload
+      if (submitData.qrCodeFile) {
+        const formData = new FormData()
+        
+        // Append all form fields
+        Object.keys(submitData).forEach(key => {
+          if (key === 'qrCodeFile') {
+            formData.append('qrCode', submitData[key])
+          } else if (submitData[key] !== null && submitData[key] !== undefined) {
+            formData.append(key, submitData[key])
+          }
+        })
+        
+        // Use apiUpload for file upload
+        const response = await apiUpload('/api/users', formData, { method: 'POST' })
+        if (response.success) {
+          showSuccessToast(lang('messages.userCreated') || 'User created successfully')
+          router.push('/admin/users/list')
+        } else {
+          throw new Error((response && response.message) || 'Failed to create user')
+        }
       } else {
-        throw new Error((response && response.message) || 'Failed to create user')
+        // Use regular apiPost for non-file data
+        const response = await apiPost('/api/users', submitData)
+        if (response.success) {
+          showSuccessToast(lang('messages.userCreated') || 'User created successfully')
+          router.push('/admin/users/list')
+        } else {
+          throw new Error((response && response.message) || 'Failed to create user')
+        }
       }
     } catch (error) {
       console.error('Error creating user:', error)

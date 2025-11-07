@@ -74,6 +74,21 @@ export const menuList = [
     ],
   },
   {
+    id: 6,
+    name: "news",
+    path: "/admin/news/list",
+    icon: "feather-bell",
+    dropdownMenu: false,
+  },
+  {
+    id: 7,
+    name: "testimonials",
+    path: "/admin/testimonial/list",
+    icon: "feather-star",
+    dropdownMenu: false,
+  },
+  // End Settings Menu
+    {
     id: 5,
     name: "settings",
     path: "#",
@@ -165,18 +180,4 @@ export const menuList = [
       },
     ],
   },
-  {
-    id: 6,
-    name: "news",
-    path: "/admin/news/list",
-    icon: "feather-bell",
-    dropdownMenu: false,
-  },
-  {
-    id: 7,
-    name: "testimonials",
-    path: "/admin/testimonial/list",
-    icon: "feather-star",
-    dropdownMenu: false,
-  }
 ];
