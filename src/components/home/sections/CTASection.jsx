@@ -3,9 +3,11 @@
 import React, { useEffect } from 'react'
 import AOS from 'aos'
 import { useLanguage } from '@/contexts/LanguageContext'
+import { useRouter } from 'next/navigation'
 
 const CTASection = () => {
   const { lang } = useLanguage()
+  const router = useRouter()
   
   useEffect(() => {
     AOS.init({ duration: 1000, once: true })
@@ -23,7 +25,7 @@ const CTASection = () => {
                   {lang('home.cta.description')}
                 </p>
               </div>
-              <button className="btn btn-primary-custom bg-white tc-102C41">{lang('home.cta.becomeOfftaker')} →</button>
+              <button className="btn btn-primary-custom bg-white tc-102C41" onClick={() => router.push('/offtaker/login')}>{lang('home.cta.becomeOfftaker')} →</button>
             </div>
           </div>
         </div>

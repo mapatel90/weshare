@@ -41,6 +41,16 @@ const ExchangeHub = () => {
     })
   }, [])
 
+  // Initialize Bootstrap dropdowns
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.bootstrap) {
+      const dropdownElementList = document.querySelectorAll('.dropdown-toggle')
+      dropdownElementList.forEach((dropdownToggle) => {
+        new window.bootstrap.Dropdown(dropdownToggle)
+      })
+    }
+  }, [])
+
   useEffect(() => {
     fetchProjects(1, true)
   }, [activeTab])
@@ -182,26 +192,30 @@ const ExchangeHub = () => {
                   href="#"
                   className="filterBtn normalBtn"
                   onClick={(e) => { e.preventDefault(); setShowFilters(!showFilters) }}
+                  style={{gap:0}}
                 >
-                  <img src="/images/icon/Filter-icon.svg" alt="filter" className="me-3" onError={(e) => e.target.style.display = 'none'} />
+                  <img src="/images/icons/Filter-icon.svg" alt="filter" className="me-3" onError={(e) => e.target.style.display = 'none'} />
                   {lang('home.exchangeHub.filter')}
                 </a>
                 <div className="dropdown d-inline-block">
-                  <a
-                    href="#"
+                  <button
                     className="normalBtn dropdown-toggle"
+                    type="button"
                     data-bs-toggle="dropdown"
                     aria-expanded="false"
                   >
-                    <img className="me-3" src="/images/icon/sort-icon.svg" alt="sort" onError={(e) => e.target.style.display = 'none'} />
+                    <img className="me-3" src="/images/icons/sort-icon.svg" alt="sort" onError={(e) => e.target.style.display = 'none'} />
                     {lang('home.exchangeHub.sortBy')}
-                  </a>
+                  </button>
                   <ul className="dropdown-menu">
-                    <li><a className={`dropdown-item ${sortBy === 'roi-high' ? 'active' : ''}`} href="#" onClick={(e) => { e.preventDefault(); setSortBy('roi-high') }}>{lang('home.exchangeHub.sortRoiHigh')}</a></li>
-                    <li><a className={`dropdown-item ${sortBy === 'roi-low' ? 'active' : ''}`} href="#" onClick={(e) => { e.preventDefault(); setSortBy('roi-low') }}>{lang('home.exchangeHub.sortRoiLow')}</a></li>
+                    <li><button className={`dropdown-item ${sortBy === 'roi-high' ? 'active' : ''}`} style={{width:'68%'}} type="button" onClick={() => setSortBy('roi-high')}>{lang('home.exchangeHub.sortRoiHigh')}</button></li>
+                    <li><button className={`dropdown-item ${sortBy === 'roi-low' ? 'active' : ''}`} type="button" onClick={() => setSortBy('roi-low')}>{lang('home.exchangeHub.sortRoiLow')}</button></li>
+                    {/* <li><hr className="dropdown-divider" /></li>
+                    <li><button className={`dropdown-item ${sortBy === 'price-low' ? 'active' : ''}`} type="button" onClick={() => setSortBy('price-low')}>{lang('home.exchangeHub.sortPriceLow')}</button></li>
+                    <li><button className={`dropdown-item ${sortBy === 'price-high' ? 'active' : ''}`} type="button" onClick={() => setSortBy('price-high')}>{lang('home.exchangeHub.sortPriceHigh')}</button></li>
                     <li><hr className="dropdown-divider" /></li>
-                    <li><a className={`dropdown-item ${sortBy === 'price-low' ? 'active' : ''}`} href="#" onClick={(e) => { e.preventDefault(); setSortBy('price-low') }}>{lang('home.exchangeHub.sortPriceLow')}</a></li>
-                    <li><a className={`dropdown-item ${sortBy === 'price-high' ? 'active' : ''}`} href="#" onClick={(e) => { e.preventDefault(); setSortBy('price-high') }}>{lang('home.exchangeHub.sortPriceHigh')}</a></li>
+                    <li><button className={`dropdown-item ${sortBy === 'capacity-high' ? 'active' : ''}`} type="button" onClick={() => setSortBy('capacity-high')}>{lang('home.exchangeHub.sortCapacityHigh')}</button></li>
+                    <li><button className={`dropdown-item ${sortBy === 'capacity-low' ? 'active' : ''}`} type="button" onClick={() => setSortBy('capacity-low')}>{lang('home.exchangeHub.sortCapacityLow')}</button></li> */}
                   </ul>
                 </div>
               </div>
