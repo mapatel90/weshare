@@ -1,7 +1,7 @@
 'use client'
 import React, { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { apiGet, apiPut } from '@/lib/api'
+import { apiGet, apiPut, apiUpload } from '@/lib/api'
 import Swal from 'sweetalert2'
 import { useLanguage } from '@/contexts/LanguageContext'
 import UserForm from './UserForm'
@@ -81,6 +81,7 @@ const UsersEditForm = () => {
           stateId: user.stateId?.toString() || '',
           cityId: user.cityId?.toString() || '',
           zipcode: user.zipcode || '',
+          qrCode: user.qrCode || '',
           status: user.status?.toString() || ''
         })
 
@@ -104,13 +105,37 @@ const UsersEditForm = () => {
   const handleUpdate = async (submitData) => {
     try {
       setLoading(true)
-      const response = await apiPut(`/api/users/${userId}`, submitData)
-      if (response.success) {
-        showSuccessToast(lang('messages.userUpdated') || 'User updated successfully')
-        // await Swal.fire({ icon: 'success', title: 'Success!', text: 'User updated successfully', timer: 1500, showConfirmButton: false })
-        router.push('/admin/users/list')
+      
+      // Check if there's a QR code file to upload
+      if (submitData.qrCodeFile) {
+        const formData = new FormData()
+        
+        // Append all form fields
+        Object.keys(submitData).forEach(key => {
+          if (key === 'qrCodeFile') {
+            formData.append('qrCode', submitData[key])
+          } else if (submitData[key] !== null && submitData[key] !== undefined) {
+            formData.append(key, submitData[key])
+          }
+        })
+        
+        // Use apiUpload for file upload
+        const response = await apiUpload(`/api/users/${userId}`, formData, { method: 'PUT' })
+        if (response.success) {
+          showSuccessToast(lang('messages.userUpdated') || 'User updated successfully')
+          router.push('/admin/users/list')
+        } else {
+          throw new Error((response && response.message) || 'Failed to update user')
+        }
       } else {
-        throw new Error((response && response.message) || 'Failed to update user')
+        // Use regular apiPut for non-file data
+        const response = await apiPut(`/api/users/${userId}`, submitData)
+        if (response.success) {
+          showSuccessToast(lang('messages.userUpdated') || 'User updated successfully')
+          router.push('/admin/users/list')
+        } else {
+          throw new Error((response && response.message) || 'Failed to update user')
+        }
       }
     } catch (error) {
       console.error('Error updating user:', error)

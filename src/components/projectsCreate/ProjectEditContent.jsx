@@ -1,6 +1,6 @@
 'use client'
 import React, { useEffect, useState } from 'react'
-import { FiSave, FiUpload } from 'react-icons/fi'
+import { FiSave, FiUpload, FiX } from 'react-icons/fi'
 import { useRouter } from 'next/navigation'
 import { apiGet, apiPut, apiPost } from '@/lib/api'
 import useLocationData from '@/hooks/useLocationData'
@@ -10,6 +10,7 @@ import { showSuccessToast, showErrorToast } from '@/utils/topTost'
 import { useLanguage } from '@/contexts/LanguageContext'
 import InverterTab from './InverterTab'
 import Image from 'next/image'
+import { generateSlug, checkProjectNameExists } from '@/utils/projectUtils'
 import {
     TextField,
     Select,
@@ -19,6 +20,8 @@ import {
     FormHelperText,
     Button,
     CircularProgress,
+    Box,
+    IconButton,
 } from "@mui/material";
 
 const ProjectEditContent = ({ projectId }) => {
@@ -39,8 +42,10 @@ const ProjectEditContent = ({ projectId }) => {
     const [loading, setLoading] = useState({ form: false, init: true, image: false })
     const [error, setError] = useState({})
     const [imagePreview, setImagePreview] = useState(null)
+    const [checkingName, setCheckingName] = useState(false)
     const [formData, setFormData] = useState({
         project_name: '',
+        project_slug: '',
         project_type_id: '',
         offtaker: '',
         address1: '',
@@ -80,6 +85,7 @@ const ProjectEditContent = ({ projectId }) => {
                     const p = res.data
                     setFormData({
                         project_name: p.project_name || '',
+                        project_slug: p.project_slug || '',
                         project_type_id: p.project_type_id || p.projectType?.id || '',
                         offtaker: String(p.offtaker_id || ''),
                         address1: p.address1 || '',
@@ -116,7 +122,15 @@ const ProjectEditContent = ({ projectId }) => {
 
     const handleInputChange = (e) => {
         const { name, value } = e.target
-        setFormData(prev => ({ ...prev, [name]: value }))
+        
+        // Auto-generate slug when project_name changes
+        if (name === 'project_name') {
+            const slug = generateSlug(value)
+            setFormData(prev => ({ ...prev, [name]: value, project_slug: slug }))
+        } else {
+            setFormData(prev => ({ ...prev, [name]: value }))
+        }
+        
         // live clear errors when valid
         setError(prev => {
             const next = { ...prev }
@@ -135,6 +149,32 @@ const ProjectEditContent = ({ projectId }) => {
             }
             return next
         })
+    }
+
+    // ✅ Check if project name already exists (onBlur) - exclude current project
+    const handleProjectNameBlur = async () => {
+        if (!formData.project_name || formData.project_name.trim() === '') return
+
+        setCheckingName(true)
+        try {
+            const exists = await checkProjectNameExists(formData.project_name, projectId)
+            if (exists) {
+                setError(prev => ({
+                    ...prev,
+                    project_name: lang('projects.projectNameExists', 'Project name already exists')
+                }))
+            } else {
+                setError(prev => {
+                    const next = { ...prev }
+                    delete next.project_name
+                    return next
+                })
+            }
+        } catch (err) {
+            console.error('Error checking project name:', err)
+        } finally {
+            setCheckingName(false)
+        }
     }
 
     const handleLocationChange = (type, value) => {
@@ -235,6 +275,15 @@ const ProjectEditContent = ({ projectId }) => {
         const requiredFields = ['project_name', 'project_type_id']
         const errors = {}
         requiredFields.forEach(field => { if (!formData[field]) { errors[field] = lang('validation.required', 'Required') } })
+        
+        // Check if project name already exists one more time before submit
+        if (formData.project_name) {
+            const nameExists = await checkProjectNameExists(formData.project_name, projectId)
+            if (nameExists) {
+                errors.project_name = lang('projects.projectNameExists', 'Project name already exists')
+            }
+        }
+        
         const numberRegex = /^[0-9]*\.?[0-9]*$/;
         const intRegex = /^\d+$/;
         if (formData.investorProfit && !numberRegex.test(formData.investorProfit)) {
@@ -258,6 +307,7 @@ const ProjectEditContent = ({ projectId }) => {
         try {
             const payload = {
                 name: formData.project_name,
+                project_slug: formData.project_slug || generateSlug(formData.project_name),
                 project_type_id: Number(formData.project_type_id),
                 ...(formData.offtaker && { offtaker_id: Number(formData.offtaker) }),
                 address1: formData.address1 || '',
@@ -322,20 +372,141 @@ const ProjectEditContent = ({ projectId }) => {
                                         <h6 className="card-title mb-0">{lang('projects.projectInformation', 'Project Information')}</h6>
                                     </div>
                                     <div className="card-body">
+                                        {/* Image Preview - Right Side */}
+                                        {imagePreview && (
+                                            <div className="col-md-6 pb-3" style={{ width: '18%' }}>
+                                                <Box
+                                                    sx={{
+                                                        width: '100%',
+                                                        height: '120px',
+                                                        borderRadius: '8px',
+                                                        overflow: 'hidden',
+                                                        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                                                        border: '1px solid #e5e7eb',
+                                                        backgroundColor: '#f9fafb',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center'
+                                                    }}
+                                                >
+                                                    <img
+                                                        src={imagePreview}
+                                                        alt="Project Preview"
+                                                        style={{
+                                                            width: '100%',
+                                                            height: '100%',
+                                                            objectFit: 'contain',
+                                                            objectPosition: 'center'
+                                                        }}
+                                                    />
+                                                </Box>
+                                            </div>
+                                        )}
                                         <div className="row">
-                                            <div className="col-md-4 mb-3">
+                                            <div className="col-md-3">
+                                                <FormControl fullWidth>
+                                                    <Box
+                                                        sx={{
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            gap: 2,
+                                                            border: '1px solid #d0d5dd',
+                                                            borderRadius: '4px',
+                                                            padding: '8px 12px',
+                                                            backgroundColor: '#fff',
+                                                            '&:hover': {
+                                                                borderColor: '#9ca3af'
+                                                            }
+                                                        }}
+                                                    >
+                                                        <Button
+                                                            variant="outlined"
+                                                            component="label"
+                                                            htmlFor="project-image-upload-edit"
+                                                            disabled={loading.image}
+                                                            sx={{
+                                                                textTransform: 'none',
+                                                                minWidth: '90px',
+                                                                borderColor: '#d0d5dd',
+                                                                color: '#374151',
+                                                                '&:hover': {
+                                                                    borderColor: '#9ca3af',
+                                                                    backgroundColor: '#f9fafb'
+                                                                }
+                                                            }}
+                                                        >
+                                                            {loading.image ? (
+                                                                <CircularProgress size={16} sx={{ mr: 1 }} />
+                                                            ) : null}
+                                                            {lang('common.browse', 'Browse...')}
+                                                        </Button>
+                                                        <input
+                                                            type="file"
+                                                            accept="image/*"
+                                                            id="project-image-upload-edit"
+                                                            hidden
+                                                            onChange={handleImageUpload}
+                                                            disabled={loading.image}
+                                                        />
+                                                        <Box sx={{ flex: 1, color: '#6b7280', fontSize: '14px' }}>
+                                                            {imagePreview ? (
+                                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                                    <span style={{ color: '#059669', fontWeight: 500 }}>✓</span>
+                                                                    <span>{lang('projects.imageSelected', 'Image selected')}</span>
+                                                                    <IconButton
+                                                                        size="small"
+                                                                        onClick={handleRemoveImage}
+                                                                        sx={{
+                                                                            ml: 'auto',
+                                                                            color: '#dc2626',
+                                                                            '&:hover': { backgroundColor: '#fee2e2' }
+                                                                        }}
+                                                                    >
+                                                                        <FiX size={16} />
+                                                                    </IconButton>
+                                                                </Box>
+                                                            ) : (
+                                                                lang('common.noFileSelected', 'No file selected.')
+                                                            )}
+                                                        </Box>
+                                                    </Box>
+                                                    <FormHelperText>
+                                                        {error.project_image ? (
+                                                            <span className="text-danger">{error.project_image}</span>
+                                                        ) : (
+                                                            lang('projects.uploadProjectImage', 'Upload your project image')
+                                                        )}
+                                                    </FormHelperText>
+                                                </FormControl>
+                                            </div>
+                                            <div className="col-md-3 mb-3">
                                                 <TextField
                                                     fullWidth
                                                     label={`${lang('projects.projectName', 'Project Name')} *`}
                                                     name="project_name"
                                                     value={formData.project_name}
                                                     onChange={handleInputChange}
+                                                    onBlur={handleProjectNameBlur}
                                                     placeholder={lang('projects.projectNamePlaceholder', 'Enter project name')}
                                                     error={!!error.project_name}
-                                                    helperText={error.project_name}
+                                                    helperText={error.project_name || (checkingName ? 'Checking...' : '')}
+                                                    disabled={checkingName}
                                                 />
                                             </div>
-                                            <div className="col-md-4 mb-3">
+                                            <div className="col-md-3 mb-3">
+                                                <TextField
+                                                    fullWidth
+                                                    label={`${lang('projects.projectSlug', 'Project Slug')} *`}
+                                                    name="project_slug"
+                                                    value={formData.project_slug || ''}
+                                                    onChange={handleInputChange}
+                                                    placeholder={lang('projects.projectSlugPlaceholder', 'project-slug')}
+                                                    error={!!error.project_slug}
+                                                    helperText={error.project_slug || lang('projects.slugAutoGenerated', 'Auto-generated from project name')}
+                                                    disabled
+                                                />
+                                            </div>
+                                            <div className="col-md-3 mb-3">
                                                 <FormControl fullWidth error={!!error.project_type_id}>
                                                     <InputLabel id="project-type-select-label">{lang('projects.projectType', 'Project Type')} *</InputLabel>
                                                     <Select
@@ -353,7 +524,7 @@ const ProjectEditContent = ({ projectId }) => {
                                                     {error.project_type_id && <FormHelperText>{error.project_type_id}</FormHelperText>}
                                                 </FormControl>
                                             </div>
-                                            <div className="col-md-4 mb-3">
+                                            <div className="col-md-3 mb-3">
                                                 <FormControl fullWidth error={!!error.offtaker}>
                                                     <InputLabel id="offtaker-select-label">{lang('projects.selectOfftaker', 'Select Offtaker')}</InputLabel>
                                                     <Select
@@ -411,54 +582,9 @@ const ProjectEditContent = ({ projectId }) => {
                                                 />
                                             </div>
                                         </div>
-                                        {/* row: project_image, project_size */}
+                                        {/* row: project_size, project_close_date, project_location */}
                                         <div className="row">
-                                            <div className="col-md-6 mb-3">
-                                                <label className="form-label">{lang('projects.projectImage', 'Project Image')}</label>
-                                                <div className="d-flex flex-column gap-2">
-                                                    <input
-                                                        type="file"
-                                                        accept="image/*"
-                                                        id="project-image-upload-edit"
-                                                        style={{ display: 'none' }}
-                                                        onChange={handleImageUpload}
-                                                        disabled={loading.image}
-                                                    />
-                                                    <label htmlFor="project-image-upload-edit" className="mb-0">
-                                                        <Button
-                                                            component="span"
-                                                            variant="outlined"
-                                                            startIcon={loading.image ? <CircularProgress size={16} /> : <FiUpload />}
-                                                            disabled={loading.image}
-                                                            fullWidth
-                                                        >
-                                                            {loading.image ? lang('common.uploading', 'Uploading...') : lang('projects.uploadImage', 'Upload Image')}
-                                                        </Button>
-                                                    </label>
-                                                    {imagePreview && (
-                                                        <div className="position-relative" style={{ width: '100%', maxWidth: '300px' }}>
-                                                            <Image
-                                                                src={imagePreview}
-                                                                alt="Project preview"
-                                                                width={300}
-                                                                height={200}
-                                                                style={{ objectFit: 'cover', borderRadius: '8px' }}
-                                                            />
-                                                            <Button
-                                                                variant="contained"
-                                                                color="error"
-                                                                size="small"
-                                                                onClick={handleRemoveImage}
-                                                                style={{ position: 'absolute', top: '8px', right: '8px' }}
-                                                            >
-                                                                {lang('common.remove', 'Remove')}
-                                                            </Button>
-                                                        </div>
-                                                    )}
-                                                    {error.project_image && <span className="text-danger small">{error.project_image}</span>}
-                                                </div>
-                                            </div>
-                                            <div className="col-md-6 mb-3">
+                                            <div className="col-md-4 mb-3">
                                                 <TextField
                                                     fullWidth
                                                     label={lang('projects.projectSize', 'Project Size (kW)')}
@@ -471,9 +597,7 @@ const ProjectEditContent = ({ projectId }) => {
                                                     helperText={error.project_size}
                                                 />
                                             </div>
-                                        </div>
-                                        <div className="row">
-                                            <div className="col-md-6 mb-3">
+                                            <div className="col-md-4 mb-3">
                                                 <TextField
                                                     fullWidth
                                                     type="date"
@@ -486,7 +610,7 @@ const ProjectEditContent = ({ projectId }) => {
                                                     helperText={error.project_close_date}
                                                 />
                                             </div>
-                                            <div className="col-md-6 mb-3">
+                                            <div className="col-md-4 mb-3">
                                                 <TextField
                                                     fullWidth
                                                     label={lang('projects.projectLocation', 'Project Location')}

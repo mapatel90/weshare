@@ -46,13 +46,6 @@ const ProjectCard = ({ project, activeTab }) => {
     const accumulative = project.accumulative_generation ||
         (parseFloat(project.project_size || 0) * 1500).toFixed(0)
 
-    // Debug log
-    // console.log('ProjectCard rendering:', {
-    //     id: project?.id,
-    //     name: project?.project_name,
-    //     size: project?.project_size
-    // })
-
     // Different card design for lease vs resale
     if (activeTab === 'lease') {
         // LEASE CARD - With Image (Figma Style)
@@ -71,9 +64,11 @@ const ProjectCard = ({ project, activeTab }) => {
                                 e.target.src = '/images/projects/project-img1.png'
                             }}
                         />
-                        {/* Upcoming Badge */}
-                        <div className="upcoming-badge">
-                            {lang('home.exchangeHub.upcoming') || 'upcoming'}
+                        {/* Reliability Badge */}
+                        <div className={`upcoming-badge ${badge.class}`} style={{backgroundColor: '#FFF3DF', margin:'2%'}}>
+                            {/* <span className="badge-icon">{badge.icon}</span> */}
+                            {/* {badge.text} */}
+                            Upcoming 
                         </div>
                     </div>
 
@@ -161,7 +156,7 @@ const ProjectCard = ({ project, activeTab }) => {
                             </button>
                             <button
                                 className="btn btn-secondary-custom"
-                                onClick={() => router.push(`/exchange-hub/${project.id}`)}
+                                onClick={() => router.push(`/exchange-hub/${project.project_slug}`)}
                             >
                                 <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" style={{ marginRight: '8px' }}>
                                     <path d="M5 4a.5.5 0 0 0 0 1h6a.5.5 0 0 0 0-1zm-.5 2.5A.5.5 0 0 1 5 6h6a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5M5 8a.5.5 0 0 0 0 1h6a.5.5 0 0 0 0-1zm0 2a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1z" />
@@ -272,7 +267,7 @@ const ProjectCard = ({ project, activeTab }) => {
                     </button>
                     <button
                         className="btn btn-secondary-custom"
-                        onClick={() => router.push(`/exchange-hub/${project.id}`)}
+                        onClick={() => router.push(`/exchange-hub/${project.project_slug}`)}
                     >
                         <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" style={{ marginRight: '8px' }}>
                             <path d="M5 4a.5.5 0 0 0 0 1h6a.5.5 0 0 0 0-1zm-.5 2.5A.5.5 0 0 1 5 6h6a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5M5 8a.5.5 0 0 0 0 1h6a.5.5 0 0 0 0-1zm0 2a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1z" />

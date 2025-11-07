@@ -61,7 +61,7 @@
 }
 
 .projectSection.innnerPagePattern {
-    padding: 40px 0px 60px;
+    padding: 10px 0px 60px;
     position: relative;
     z-index: 0;
     overflow: hidden;
@@ -245,7 +245,7 @@ a.normalBtn img,
 
 /* Card Content Below Image */
 .card-content-with-image {
-    padding: 24px;
+    padding: 15px;
 }
 
 /* Header with Title and Rating */

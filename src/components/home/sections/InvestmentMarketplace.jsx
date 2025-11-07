@@ -24,7 +24,7 @@ const InvestmentMarketplace = () => {
               <p>{lang('home.marketplace.description')}</p>
               
               <div className="groupBtn" data-aos="fade-up" data-aos-duration="1500">
-                <button className="btn btn-primary-custom mt-3">
+                <button className="btn btn-primary-custom mt-3" onClick={() => router.push('/investor/login')}>
                   {lang('home.marketplace.becomeInvestor')}
                   <Image className="ms-2" src="/images/icons/w-row.svg" alt="arrow" width={20} height={20} />
                 </button>

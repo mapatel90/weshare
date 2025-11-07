@@ -74,7 +74,12 @@ const HomeNavbar = () => {
   const isActive = (item) => {
     // If it's a route (not a hash), check pathname
     if (item.href.startsWith('/') && !item.href.startsWith('/#')) {
-      return pathname === item.href
+      // Special case for home page - exact match only
+      if (item.href === '/') {
+        return pathname === '/'
+      }
+      // For other routes, check if pathname starts with the item's href (for nested routes)
+      return pathname.startsWith(item.href)
     }
     // If it's a hash link, check active section
     return activeSection === item.id

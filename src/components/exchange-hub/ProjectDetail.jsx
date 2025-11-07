@@ -262,7 +262,7 @@ const ProjectDetail = ({ projectId }) => {
                                     className="main-img"
                                     onError={(e) => { e.target.src = "/images/banner/banner-img.png" }}
                                 />
-                                <span className={`badge imageTag ${badge.class}`}>
+                                <span className={`badge imageTag ${badge.class}`} style={{backgroundColor: '#FFF3DF', color: '#000'}}>
                                     <img className="ms-1" src="/img/Check-prem.svg" alt="check" onError={(e) => e.target.style.display = 'none'} /> 
                                     {badge.text}
                                 </span>

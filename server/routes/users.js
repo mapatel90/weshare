@@ -2,8 +2,27 @@ import express from 'express';
 import bcrypt from 'bcryptjs';
 import prisma from '../utils/prisma.js';
 import { authenticateToken } from '../middleware/auth.js';
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
 
 const router = express.Router();
+
+// Multer storage for QR code images
+const qrCodeImagesDir = path.join(process.cwd(), 'public', 'images', 'qrcodes');
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    fs.mkdirSync(qrCodeImagesDir, { recursive: true });
+    cb(null, qrCodeImagesDir);
+  },
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname) || '.jpg';
+    const base = path.basename(file.originalname, ext).replace(/[^a-z0-9-_]/gi, '_');
+    const ts = Date.now();
+    cb(null, `qr_${base}_${ts}${ext}`);
+  },
+});
+const upload = multer({ storage });
 
 // Get all users (admin only)
 router.get('/', authenticateToken, async (req, res) => {
@@ -115,7 +134,7 @@ router.get('/', authenticateToken, async (req, res) => {
 });
 
 // Create new user
-router.post('/', authenticateToken, async (req, res) => {
+router.post('/', authenticateToken, upload.single('qrCode'), async (req, res) => {
   try {
     const {
       username,
@@ -138,6 +157,15 @@ router.post('/', authenticateToken, async (req, res) => {
       return res.status(400).json({
         success: false,
         message: 'Full name, email, and password are required'
+      });
+    }
+
+    // Check if investor role and QR code is required
+    const roleId = userRole ? parseInt(userRole) : 3;
+    if (roleId === 4 && !req.file) {
+      return res.status(400).json({
+        success: false,
+        message: 'QR code is required for investor role'
       });
     }
 
@@ -164,6 +192,9 @@ router.post('/', authenticateToken, async (req, res) => {
     const saltRounds = 12;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
+    // Get QR code path if uploaded
+    const qrCodePath = req.file ? `/images/qrcodes/${req.file.filename}` : null;
+
     // Create user
     const newUser = await prisma.user.create({
       data: {
@@ -173,13 +204,14 @@ router.post('/', authenticateToken, async (req, res) => {
         phoneNumber,
         password: hashedPassword,
         // ensure userRole is saved as integer
-        userRole: userRole ? parseInt(userRole) : 3,
+        userRole: roleId,
         address1,
         address2,
         cityId: cityId ? parseInt(cityId) : null,
         stateId: stateId ? parseInt(stateId) : null,
         countryId: countryId ? parseInt(countryId) : null,
         zipcode,
+        qrCode: qrCodePath,
         status: parseInt(status)
       },
       select: {
@@ -195,6 +227,7 @@ router.post('/', authenticateToken, async (req, res) => {
         stateId: true,
         countryId: true,
         zipcode: true,
+        qrCode: true,
         status: true,
         createdAt: true
       }
@@ -278,6 +311,7 @@ router.get('/:id', authenticateToken, async (req, res) => {
         stateId: true,
         countryId: true,
         zipcode: true,
+        qrCode: true,
         status: true,
         createdAt: true,
         updatedAt: true,
@@ -326,7 +360,7 @@ router.get('/:id', authenticateToken, async (req, res) => {
 // (duplicate check-username route removed; single handler earlier in file is used)
 
 // Update user
-router.put('/:id', authenticateToken, async (req, res) => {
+router.put('/:id', authenticateToken, upload.single('qrCode'), async (req, res) => {
   try {
     const { id } = req.params;
     const {
@@ -395,6 +429,20 @@ router.put('/:id', authenticateToken, async (req, res) => {
       updateData.password = hashed
     }
 
+    // Handle QR code upload
+    if (req.file) {
+      const qrCodePath = `/images/qrcodes/${req.file.filename}`;
+      updateData.qrCode = qrCodePath;
+
+      // Delete old QR code file if exists
+      if (existingUser.qrCode) {
+        const oldFilePath = path.join(process.cwd(), 'public', existingUser.qrCode);
+        if (fs.existsSync(oldFilePath)) {
+          fs.unlinkSync(oldFilePath);
+        }
+      }
+    }
+
     // Update user
     const updatedUser = await prisma.user.update({
       where: { id: parseInt(id) },
@@ -412,6 +460,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
         stateId: true,
         countryId: true,
         zipcode: true,
+        qrCode: true,
         status: true,
         updatedAt: true,
         city: {

@@ -5,6 +5,59 @@ import { authenticateToken } from '../middleware/auth.js';
 const router = express.Router();
 
 /**
+ * @route   POST /api/projects/check-name
+ * @desc    Check if project name already exists
+ * @access  Public
+ */
+router.post('/check-name', async (req, res) => {
+    try {
+        const { project_name, project_id } = req.body;
+
+        if (!project_name) {
+            return res.json({ success: true, exists: false });
+        }
+
+        // Check if project with same name exists (excluding current project in edit mode)
+        const whereClause = {
+            project_name: {
+                equals: project_name,
+                mode: 'insensitive' // Case-insensitive comparison
+            },
+            is_deleted: 0
+        };
+
+        // If editing, exclude current project from check
+        if (project_id) {
+            whereClause.id = {
+                not: parseInt(project_id)
+            };
+        }
+
+        const existingProject = await prisma.project.findFirst({
+            where: whereClause,
+            select: {
+                id: true,
+                project_name: true
+            }
+        });
+
+        res.json({ 
+            success: true,
+            exists: !!existingProject,
+            project: existingProject
+        });
+
+    } catch (error) {
+        console.error('Error checking project name:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to check project name',
+            error: error.message
+        });
+    }
+});
+
+/**
  * @route   POST /api/projects
  * @desc    Create a new project
  * @access  Private
@@ -13,6 +66,7 @@ router.post('/AddProject', authenticateToken, async (req, res) => {
     try {
         const {
             name,
+            project_slug,
             project_type_id,
             offtaker_id,
             address1,
@@ -41,6 +95,7 @@ router.post('/AddProject', authenticateToken, async (req, res) => {
         const project = await prisma.project.create({
             data: {
                 project_name: name,
+                project_slug: project_slug || name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]+/g, ''),
                 project_type_id: parseInt(project_type_id),
                 ...(offtaker_id && { offtaker_id: parseInt(offtaker_id) }),
                 address1: address1 || '',
@@ -160,12 +215,16 @@ router.put('/:id/status', authenticateToken, async (req, res) => {
   }
 });
 
-// Get a single project by ID (Protected - for admin)
-router.get('/:id', async (req, res) => {
+// Get a single project by ID or Slug
+router.get('/:identifier', async (req, res) => {
   try {
-    const { id } = req.params;
+    const { identifier } = req.params;
+    
+    // Check if identifier is numeric (ID) or string (slug)
+    const isNumeric = /^\d+$/.test(identifier);
+    
     const project = await prisma.project.findUnique({
-      where: { id: parseInt(id) },
+      where: isNumeric ? { id: parseInt(identifier) } : { project_slug: identifier },
       include: {
         offtaker: { select: { id: true, fullName: true, email: true } },
         city: true,
@@ -181,7 +240,7 @@ router.get('/:id', async (req, res) => {
 
     res.json({ success: true, data: project });
   } catch (error) {
-    console.error('Get project by id error:', error);
+    console.error('Get project by identifier error:', error);
     res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
@@ -192,6 +251,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
     const { id } = req.params;
     const {
       name,
+      project_slug,
       project_type_id,
       offtaker_id,
       address1,
@@ -217,6 +277,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
       where: { id: parseInt(id) },
       data: {
         ...(name !== undefined && { project_name: name }),
+        ...(project_slug !== undefined && { project_slug }),
         ...(project_type_id !== undefined && { project_type_id: parseInt(project_type_id) }),
         ...(offtaker_id !== undefined && { offtaker_id: offtaker_id ? parseInt(offtaker_id) : null }),
         ...(address1 !== undefined && { address1 }),

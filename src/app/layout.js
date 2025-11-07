@@ -10,9 +10,10 @@ import AuthProvider from "@/contexts/AuthContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import GlobalLoader from "@/components/shared/GlobalLoader";
 import DynamicFavicon from "@/components/common/DynamicFavicon";
+import Script from "next/script";
 
 export const metadata = {
-  title: "Sunshare | Dashboard",
+  title: "Sunshare | Home",
   description: "Sunshare is a admin Dashboard create for multipurpose,",
 };
 
@@ -37,6 +38,10 @@ export default function RootLayout({ children }) {
             <DynamicFavicon />
           </AuthProvider>
         </LanguageProvider>
+        <Script 
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" 
+          strategy="afterInteractive"
+        />
       </body>
     </html>
   );

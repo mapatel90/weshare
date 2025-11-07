@@ -34,8 +34,12 @@ const UserForm = ({ initialData = {}, onSubmit, includePassword = false, exclude
         stateId: '',
         cityId: '',
         zipcode: '',
+        qrCode: '',
         status: '1'
     })
+
+    const [qrCodeFile, setQrCodeFile] = useState(null)
+    const [qrCodePreview, setQrCodePreview] = useState(null)
 
     
 
@@ -60,6 +64,11 @@ const UserForm = ({ initialData = {}, onSubmit, includePassword = false, exclude
             const data = { ...initialData }
             if (data.roles) delete data.roles
             setFormData(prev => ({ ...prev, ...data }))
+
+            // Set QR code preview if exists
+            if (data.qrCode) {
+                setQrCodePreview(data.qrCode)
+            }
 
             // When editing, if the user already has country/state set we must
             // load the dependent lists so the selected options are visible.
@@ -122,6 +131,13 @@ const UserForm = ({ initialData = {}, onSubmit, includePassword = false, exclude
 
         if (!formData.userRole) newErrors.userRole = 'User role is required'
 
+        // QR code validation for investor role (role id 4)
+        if (formData.userRole === 4 || formData.userRole === '4') {
+            if (!isEditing && !qrCodeFile) {
+                newErrors.qrCode = 'QR code is required for investor'
+            }
+        }
+
         setErrors(newErrors)
         return Object.keys(newErrors).length === 0
     }
@@ -150,6 +166,34 @@ const UserForm = ({ initialData = {}, onSubmit, includePassword = false, exclude
         const { name, value } = e.target
         setFormData(prev => ({ ...prev, [name]: value }))
         if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }))
+    }
+
+    const handleQrCodeChange = (e) => {
+        const file = e.target.files[0]
+        if (file) {
+            // Validate file type
+            const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif']
+            if (!validTypes.includes(file.type)) {
+                setErrors(prev => ({ ...prev, qrCode: 'Please upload a valid image file (JPG, PNG, GIF)' }))
+                return
+            }
+
+            // Validate file size (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                setErrors(prev => ({ ...prev, qrCode: 'File size must be less than 5MB' }))
+                return
+            }
+
+            setQrCodeFile(file)
+            setQrCodePreview(URL.createObjectURL(file))
+            if (errors.qrCode) setErrors(prev => ({ ...prev, qrCode: '' }))
+        }
+    }
+
+    const handleRemoveQrCode = () => {
+        setQrCodeFile(null)
+        setQrCodePreview(null)
+        setFormData(prev => ({ ...prev, qrCode: '' }))
     }
 
     const handleLocationChangeLocal = (type, value) => {
@@ -193,6 +237,12 @@ const UserForm = ({ initialData = {}, onSubmit, includePassword = false, exclude
             if (isEditing && (!formData.password || formData.password === '')) {
                 delete submitData.password
             }
+
+            // Add QR code file to submit data
+            if (qrCodeFile) {
+                submitData.qrCodeFile = qrCodeFile
+            }
+
             await onSubmit(submitData)
         } finally {
             setLoading(false)
@@ -331,6 +381,44 @@ const UserForm = ({ initialData = {}, onSubmit, includePassword = false, exclude
                                             </Select>
                                         </FormControl>
                                     </div>
+
+                                    {/* QR Code Upload - Only for Investor Role (id: 4) */}
+                                    {(formData.userRole === 4 || formData.userRole === '4') && (
+                                        <div className="col-md-3 mb-3">
+                                            <div>
+                                                <label className="form-label">
+                                                    QR Code {!isEditing && <span style={{ color: 'red' }}>*</span>}
+                                                </label>
+                                                <input
+                                                    type="file"
+                                                    className={`form-control ${errors.qrCode ? 'is-invalid' : ''}`}
+                                                    accept="image/*"
+                                                    onChange={handleQrCodeChange}
+                                                />
+                                                {errors.qrCode && (
+                                                    <div className="invalid-feedback d-block">{errors.qrCode}</div>
+                                                )}
+                                               
+                                            </div>
+                                        </div>
+                                    )}
+                                     {qrCodePreview && (
+                                                    <div className="mt-2 position-relative" style={{ width: '150px' }}>
+                                                        <img
+                                                            src={qrCodePreview}
+                                                            alt="QR Code Preview"
+                                                            style={{ width: '100%', height: 'auto', border: '1px solid #ddd', borderRadius: '4px' }}
+                                                        />
+                                                        <button
+                                                            type="button"
+                                                            className="btn btn-sm btn-danger position-absolute"
+                                                            style={{ top: '5px', right: '5px' }}
+                                                            onClick={handleRemoveQrCode}
+                                                        >
+                                                            ×
+                                                        </button>
+                                                    </div>
+                                                )}
                                 </div>
                             </div>
 
