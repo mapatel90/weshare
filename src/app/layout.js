@@ -13,7 +13,7 @@ import DynamicFavicon from "@/components/common/DynamicFavicon";
 import Script from "next/script";
 
 export const metadata = {
-  title: "Sunshare | Dashboard",
+  title: "Sunshare | Home",
   description: "Sunshare is a admin Dashboard create for multipurpose,",
 };
 
