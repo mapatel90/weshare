@@ -207,7 +207,7 @@ const ExchangeHub = () => {
                     <img className="me-3" src="/images/icons/sort-icon.svg" alt="sort" onError={(e) => e.target.style.display = 'none'} />
                     {lang('home.exchangeHub.sortBy')}
                   </button>
-                  <ul className="dropdown-menu">
+                  <ul className="dropdown-menu w-100">
                     <li><button className={`dropdown-item ${sortBy === 'roi-high' ? 'active' : ''}`} style={{width:'68%'}} type="button" onClick={() => setSortBy('roi-high')}>{lang('home.exchangeHub.sortRoiHigh')}</button></li>
                     <li><button className={`dropdown-item ${sortBy === 'roi-low' ? 'active' : ''}`} type="button" onClick={() => setSortBy('roi-low')}>{lang('home.exchangeHub.sortRoiLow')}</button></li>
                     {/* <li><hr className="dropdown-divider" /></li>

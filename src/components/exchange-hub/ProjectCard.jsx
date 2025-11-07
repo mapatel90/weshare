@@ -64,9 +64,11 @@ const ProjectCard = ({ project, activeTab }) => {
                                 e.target.src = '/images/projects/project-img1.png'
                             }}
                         />
-                        {/* Upcoming Badge */}
-                        <div className="upcoming-badge">
-                            {lang('home.exchangeHub.upcoming') || 'upcoming'}
+                        {/* Reliability Badge */}
+                        <div className={`upcoming-badge ${badge.class}`} style={{backgroundColor: '#FFF3DF', margin:'2%'}}>
+                            {/* <span className="badge-icon">{badge.icon}</span> */}
+                            {/* {badge.text} */}
+                            Upcoming 
                         </div>
                     </div>
 
