@@ -215,12 +215,16 @@ router.put('/:id/status', authenticateToken, async (req, res) => {
   }
 });
 
-// Get a single project by ID (Protected - for admin)
-router.get('/:id', async (req, res) => {
+// Get a single project by ID or Slug
+router.get('/:identifier', async (req, res) => {
   try {
-    const { id } = req.params;
+    const { identifier } = req.params;
+    
+    // Check if identifier is numeric (ID) or string (slug)
+    const isNumeric = /^\d+$/.test(identifier);
+    
     const project = await prisma.project.findUnique({
-      where: { id: parseInt(id) },
+      where: isNumeric ? { id: parseInt(identifier) } : { project_slug: identifier },
       include: {
         offtaker: { select: { id: true, fullName: true, email: true } },
         city: true,
@@ -236,7 +240,7 @@ router.get('/:id', async (req, res) => {
 
     res.json({ success: true, data: project });
   } catch (error) {
-    console.error('Get project by id error:', error);
+    console.error('Get project by identifier error:', error);
     res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
