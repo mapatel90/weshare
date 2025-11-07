@@ -218,7 +218,14 @@
     "offtakerRequired": "Người nhận hàng là bắt buộc",
     "reviewStatusRequired": "Đánh giá là bắt buộc",
     "imageRequired": "Hình ảnh là bắt buộc",
-    "descriptionRequired": "Mô tả là bắt buộc"
+    "descriptionRequired": "Mô tả là bắt buộc",
+    "newsSlugExists": "Slug đã tồn tại",
+    "blogSlugRequired": "Slug là bắt buộc",
+    "blogImageRequired": "Hình ảnh là bắt buộc",
+    "blogTitleRequired": "Tiêu đề là bắt buộc",
+    "blogDescriptionRequired": "Mô tả là bắt buộc",
+    "blogDateRequired": "Ngày là bắt buộc",
+    "blogSlugExists": "Slug đã tồn tại"
   },
   "menu": {
     "dashboards": "Bảng điều khiển",
@@ -292,7 +299,8 @@
     "timesheetsreport": "Báo cáo bảng thời gian",
     "inverter": "biến tần",
     "news":"Tin tức",
-    "testimonials":"Lời chứng thực"
+    "testimonials":"Lời chứng thực",
+    "blog": "Blog"
   },
   "dashboard": {
     "totalSales": "Tổng doanh số",
@@ -1080,7 +1088,13 @@
     "newsletters": "Bản tin",
     "subscribe": "Đăng ký",
     "enterEmail": "Nhập địa chỉ email",
-    "newsletterDescription": "Năng lượng mặt trời là nguồn năng lượng bền vững và tái tạo, khai thác các tia nắng mặt trời."
+    "newsletterDescription": "Năng lượng mặt trời là nguồn năng lượng bền vững và tái tạo, khai thác các tia nắng mặt trời.",
+    "news": "Tin tức",
+    "details": "Chi tiết",
+    "previous": "Trước",
+    "next": "Tiếp theo",
+    "relatedPosts": "Bài viết liên quan",
+    "noRelatedPosts": "Không có bài viết liên quan nào"
   },
   "testimonial": {
     "add": "Thêm lời chứng thực",
@@ -1100,5 +1114,17 @@
     "testimonialCreatedSuccessfully": "Lời chứng thực đã được tạo thành công",
     "testimonialUpdatedSuccessfully": "Lời chứng thực đã được cập nhật thành công",
     "testimonialDeletedSuccessfully": "Lời chứng thực đã xóa thành công"
+  },
+  "blog": {
+    "title": "Quản lý blog",
+    "date": "Ngày",
+    "image": "Hình ảnh",
+    "slug": "sên",
+    "description": "Mô tả",
+    "addBlog": "Thêm blog",
+    "editBlog": "Sửa blog",
+    "blogCreatedSuccessfully": "Blog đã được tạo thành công",
+    "blogUpdatedSuccessfully": "Blog được cập nhật thành công",
+    "blogDeletedSuccessfully": "Blog đã xóa thành công"
   }
 }

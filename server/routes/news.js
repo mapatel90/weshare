@@ -89,6 +89,83 @@ router.get("/", async (req, res) => {
   }
 });
 
+// Check slug uniqueness
+router.get("/check-slug", async (req, res) => {
+  try {
+    const { slug, excludeId } = req.query;
+    if (!slug || typeof slug !== 'string' || !slug.trim()) {
+      return res.status(400).json({ success: false, message: 'slug is required' });
+    }
+
+    console.log('Checking slug:', slug, 'Exclude ID:', excludeId);
+
+    const parsedExcludeId = excludeId ? parseInt(excludeId) : null;
+    const existing = await prisma.news.findFirst({
+      where: {
+        news_slug: slug,
+        is_deleted: 0,
+        ...(parsedExcludeId ? { NOT: { id: parsedExcludeId } } : {}),
+      },
+      select: { id: true },
+    });
+
+    return res.status(200).json({
+      success: true,
+      data: { exists: !!existing },
+    });
+  } catch (error) {
+    console.error('Error checking slug:', error);
+    return res.status(500).json({ success: false, message: 'Internal server error.' });
+  }
+});
+
+// Get a single news item by slug or ID
+router.get("/:identifier", async (req, res) => {
+  try {
+    const { identifier } = req.params;
+    
+    // Check if identifier is a number (ID) or string (slug)
+    const isNumeric = /^\d+$/.test(identifier);
+    
+    let news;
+    if (isNumeric) {
+      // Try to find by ID
+      news = await prisma.news.findFirst({
+        where: { 
+          id: parseInt(identifier),
+          is_deleted: 0 
+        },
+      });
+    } else {
+      // Try to find by slug
+      news = await prisma.news.findFirst({
+        where: { 
+          news_slug: identifier,
+          is_deleted: 0 
+        },
+      });
+    }
+
+    if (!news) {
+      return res.status(404).json({
+        success: false,
+        message: "News not found.",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: news,
+    });
+  } catch (error) {
+    console.error("Error fetching news:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error.",
+    });
+  }
+});
+
 router.delete("/:id", authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;

@@ -1,5 +1,6 @@
 'use client';
 import React, { useEffect, useState } from "react";
+import Link from "next/link";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import { apiGet } from "@/lib/api";
@@ -68,13 +69,13 @@ const NewsSection = () => {
                       })}
                     </span>
                     <h5 className="card-title news-title mb-3">{news.news_title}</h5>
-                    <a
-                      href="#"
+                    <Link
+                      href={`/newsDetail/${news.news_slug}`}
                       className="btn btn-outline-dark readMore px-4 py-2 fw-semibold"
                     >
                       {lang("news.readMore")}{" "}
                       <FontAwesomeIcon icon={faArrowRight} className="ms-2" />
-                    </a>
+                    </Link>
                   </div>
                 </div>
               </div>

@@ -1,0 +1,123 @@
+.hero.banner-sec.news-banner {
+  min-height: 586px;
+  background-position: center;
+  background-repeat: no-repeat;
+  padding: 0;
+  background-size: cover;
+}
+.banner-sec.news-banner .title-info {
+  max-width: 815px;
+}
+.banner-sec.news-banner .hero-text {
+  font-size: 24px;
+}
+.article-row {
+  position: relative;
+}
+.article-row::after {
+  content: "";
+  background-image: url(/images/article-vector-img.png);
+  top: 50%;
+  right: 0;
+  width: 40%;
+  height: 100%;
+  transform: translateY(-50%);
+  position: absolute;
+  background-repeat: no-repeat;
+  background-position: center;
+  z-index: -1;
+}
+.article-title {
+  font-weight: 600;
+  color: #102c41;
+  font-size: clamp(28px, 4vw, 32px);
+}
+.article-section h4 {
+  font-weight: 600;
+  color: #102c41;
+  margin-top: 2rem;
+}
+.related-post {
+  border-radius: 10px;
+  transition: all 0.3s ease;
+  background-color: #f5f5f5;
+  cursor: pointer;
+}
+.related-post:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-3px);
+}
+.article-quote-box {
+  background-color: #fff3df;
+  padding: 23px 36px;
+  border-radius: 8px;
+  color: #000;
+  position: relative;
+  display: flex;
+  align-items: center;
+  font-size: 18px;
+}
+.article-quote-box::before {
+  content: "";
+  position: absolute;
+  height: 80%;
+  border-radius: 8px;
+  width: 4px;
+  background: #f6a623;
+  left: 15px;
+}
+.post-date i,
+.post-date svg {
+  color: #f6a623;
+}
+.post-date {
+  font-size: 14px;
+  color: #777;
+}
+.article-feature-img {
+  min-height: 400px;
+  max-height: 400px;
+  width: 100%;
+  object-fit: cover;
+  max-width: 100%;
+}
+.next-pre-btn {
+  color: #000;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+.next-pre-btn:hover {
+  color: #f6a623;
+}
+.related-posts {
+  border: 1px solid #b3b3b3;
+  border-radius: 10px;
+  padding: 25px 15px;
+  position: sticky;
+  top: 108px;
+  z-index: 11;
+}
+.related-title {
+  color: #000;
+  font-size: 32px;
+  font-weight: 600 !important;
+}
+.related-posts .title {
+  font-size: 16px;
+  color: #102c41;
+  font-weight: 600;
+}
+.yellow-txt {
+  color: #f6a623;
+}
+@media (max-width: 768px) {
+  .hero.banner-sec.news-banner {
+    min-height: 222px;
+    background-position: left;
+  }
+  .related-posts {
+    margin-top: 2rem;
+    position: relative;
+    top: 0;
+  }
+}

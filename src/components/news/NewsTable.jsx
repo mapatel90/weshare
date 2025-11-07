@@ -41,6 +41,7 @@ const NewsTable = () => {
   const [imagePreviewUrl, setImagePreviewUrl] = useState("");
   const [newsDescription, setNewsDescription] = useState("");
   const [newsSlug, setNewsSlug] = useState("");
+  const [slugChecking, setSlugChecking] = useState(false);
 
   // ---------- simple helpers ----------
   const clearError = (key) =>
@@ -98,6 +99,24 @@ const NewsTable = () => {
     setNewsDescription("");
     setNewsSlug("");
     setErrors({});
+  };
+
+  const checkSlugUnique = async (slug) => {
+    if (!slug) return true;
+    setSlugChecking(true);
+    try {
+      const qs = new URLSearchParams({ slug, ...(editingId ? { excludeId: editingId } : {}) }).toString();
+      const res = await apiGet(`/api/news/check-slug?${qs}`);
+      if (res && res.success && res.data && typeof res.data.exists !== "undefined") {
+        return !res.data.exists;
+      }
+      if (res && typeof res.exists !== "undefined") return !res.exists;
+    } catch (err) {
+      // treat as unique on failure
+    } finally {
+      setSlugChecking(false);
+    }
+    return true;
   };
 
   const fetchNews = async () => {
@@ -211,6 +230,11 @@ const NewsTable = () => {
     if (!validate()) return;
     try {
       setSubmitting(true);
+      const unique = await checkSlugUnique(newsSlug);
+      if (!unique) {
+        setErrors((prev) => ({ ...prev, newsSlug: lang("validation.newsSlugExists") || "Slug already exists" }));
+        return;
+      }
       const form = buildFormData();
       const res = editingId
         ? await apiUpload(`/api/news/${editingId}`, form, { method: "PUT" })
@@ -275,15 +299,15 @@ const NewsTable = () => {
           );
         },
       },
-      { accessorKey: "news_slug", header: () => lang("news.slug") || "Slug" },
-      {
-        accessorKey: "news_description",
-        header: () => lang("news.description") || "Description",
-        cell: ({ row }) => {
-          const t = row.original.news_description || "";
-          return t.length > 80 ? `${t.slice(0, 80)}…` : t;
-        },
-      },
+      // { accessorKey: "news_slug", header: () => lang("news.slug") || "Slug" },
+      // {
+      //   accessorKey: "news_description",
+      //   header: () => lang("news.description") || "Description",
+      //   cell: ({ row }) => {
+      //     const t = row.original.news_description || "";
+      //     return t.length > 80 ? `${t.slice(0, 80)}…` : t;
+      //   },
+      // },
       {
         accessorKey: "actions",
         header: () => lang("common.actions"),
@@ -371,9 +395,19 @@ const NewsTable = () => {
               value={newsTitle}
               onChange={(e) => {
                 const val = e.target.value;
+                const newSlug = slugify(val);
                 setNewsTitle(val);
-                setNewsSlug(slugify(val));
+                setNewsSlug(newSlug);
                 clearError("newsTitle");
+
+                setErrors((prev) => (prev && prev.newsSlug ? { ...prev, newsSlug: "" } : prev));
+              }}
+              onBlur={async () => {
+                if (!newsSlug) return;
+                const unique = await checkSlugUnique(newsSlug);
+                if (!unique) {
+                  setErrors((prev) => ({ ...prev, newsSlug: lang("validation.newsSlugExists") || "Slug already exists" }));
+                }
               }}
               error={!!errors.newsTitle}
               helperText={errors.newsTitle}
@@ -385,7 +419,7 @@ const NewsTable = () => {
               value={newsSlug}
               disabled
               error={!!errors.newsSlug}
-              helperText={errors.newsSlug}
+              helperText={errors.newsSlug || (slugChecking ? (lang("common.checking") || "Checking availability...") : "")}
               fullWidth
             />
 

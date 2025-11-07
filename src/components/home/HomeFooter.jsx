@@ -141,19 +141,19 @@ const HomeFooter = () => {
               </h6>
               <ul className="list-unstyled text-white quickLinks">
                 <li>
-                  <Link href="#">{lang("home.footer.home")}</Link>
+                  <Link href="/">{lang("home.footer.home")}</Link>
                 </li>
                 <li>
                   <Link href="#">{lang("home.footer.aboutUs")}</Link>
                 </li>
                 <li>
-                  <Link href="#">{lang("home.footer.exchangeHub")}</Link>
+                  <Link href="/exchange-hub">{lang("home.footer.exchangeHub")}</Link>
                 </li>
                 <li>
                   <Link href="#">{lang("home.footer.howItWorks")}</Link>
                 </li>
                 <li>
-                  <Link href="#">{lang("home.footer.news")}</Link>
+                  <Link href="/news">{lang("home.footer.news")}</Link>
                 </li>
               </ul>
             </div>

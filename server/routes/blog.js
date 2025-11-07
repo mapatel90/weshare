@@ -1,0 +1,191 @@
+import express from 'express';
+import prisma from '../utils/prisma.js';
+import { authenticateToken } from '../middleware/auth.js';
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
+
+const router = express.Router();
+
+// Multer storage for blog images
+const blogImagesDir = path.join(process.cwd(), 'public', 'images', 'blog');
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    fs.mkdirSync(blogImagesDir, { recursive: true });
+    cb(null, blogImagesDir);
+  },
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname) || '.jpg';
+    const base = path.basename(file.originalname, ext).replace(/[^a-z0-9-_]/gi, '_');
+    const ts = Date.now();
+    cb(null, `${base}_${ts}${ext}`);
+  },
+});
+const upload = multer({ storage });
+
+router.post("/", authenticateToken, upload.single('blog_image'), async (req, res) => {
+  try {
+    const { blog_title, blog_date, blog_description, blog_slug } = req.body;
+    // Prefer uploaded file
+    const uploadedPath = req.file ? `/images/blog/${req.file.filename}` : (req.body.blog_image || null);
+
+    // Basic validation
+    if (!blog_title || !blog_date || !uploadedPath || !blog_description || !blog_slug) {
+      return res.status(400).json({
+        success: false,
+        message: "All fields are required.",
+      });
+    }
+
+    const formattedDate = new Date(blog_date);
+    if (isNaN(formattedDate)) {
+      return res.status(400).json({ success: false, message: "Invalid date format." });
+    }
+
+    const blog = await prisma.blog.create({
+      data: {
+        blog_title,
+        blog_date: formattedDate,
+        blog_image: uploadedPath,
+        blog_description,
+        blog_slug,
+      },
+    });
+
+    return res.status(201).json({ success: true, data: blog });
+  } catch (error) {
+    console.error("Error creating blog:", error);
+    return res.status(500).json({ success: false, message: "Internal server error." });
+  }
+});
+
+router.get("/", async (req, res) => {
+  try {
+    const blogList = await prisma.blog.findMany({
+      where: { is_deleted: 0 },
+      orderBy: { blog_date: 'asc' },
+    });
+    return res.status(200).json({ success: true, data: blogList });
+  } catch (error) {
+    console.error("Error fetching blogs:", error);
+    return res.status(500).json({ success: false, message: "Internal server error." });
+  }
+});
+
+// Check slug uniqueness
+router.get("/check-slug", async (req, res) => {
+  try {
+    const { slug, excludeId } = req.query;
+    if (!slug || typeof slug !== 'string' || !slug.trim()) {
+      return res.status(400).json({ success: false, message: 'slug is required' });
+    }
+
+    const parsedExcludeId = excludeId ? parseInt(excludeId) : null;
+    const existing = await prisma.blog.findFirst({
+      where: {
+        blog_slug: slug,
+        is_deleted: 0,
+        ...(parsedExcludeId ? { NOT: { id: parsedExcludeId } } : {}),
+      },
+      select: { id: true },
+    });
+
+    return res.status(200).json({ success: true, data: { exists: !!existing } });
+  } catch (error) {
+    console.error('Error checking blog slug:', error);
+    return res.status(500).json({ success: false, message: 'Internal server error.' });
+  }
+});
+
+// Get a single blog by slug or ID
+router.get("/:identifier", async (req, res) => {
+  try {
+    const { identifier } = req.params;
+    const isNumeric = /^\d+$/.test(identifier);
+
+    let blog;
+    if (isNumeric) {
+      blog = await prisma.blog.findUnique({
+        where: { id: parseInt(identifier) },
+      });
+      // manual is_deleted check since findUnique cannot include filter on non-unique field
+      if (!blog || blog.is_deleted !== 0) blog = null;
+    } else {
+      blog = await prisma.blog.findUnique({
+        where: { blog_slug: identifier },
+      });
+      if (!blog || blog.is_deleted !== 0) blog = null;
+    }
+
+    if (!blog) {
+      return res.status(404).json({ success: false, message: "Blog not found." });
+    }
+
+    return res.status(200).json({ success: true, data: blog });
+  } catch (error) {
+    console.error("Error fetching blog:", error);
+    return res.status(500).json({ success: false, message: "Internal server error." });
+  }
+});
+
+router.delete("/:id", authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    await prisma.blog.update({ where: { id: parseInt(id) }, data: { is_deleted: 1 } });
+    return res.status(200).json({ success: true, message: "Blog deleted successfully." });
+  } catch (error) {
+    console.error("Error deleting blog:", error);
+    return res.status(500).json({ success: false, message: "Internal server error." });
+  }
+});
+
+router.put("/:id", authenticateToken, upload.single('blog_image'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { blog_title, blog_date, blog_description, blog_slug } = req.body;
+
+    const formattedDate = new Date(blog_date);
+    if (isNaN(formattedDate)) {
+      return res.status(400).json({ success: false, message: "Invalid date format." });
+    }
+
+    // Determine new image path if uploaded
+    let newImagePath = null;
+    if (req.file) {
+      newImagePath = `/images/blog/${req.file.filename}`;
+    }
+
+    // If new image uploaded, remove old file (best-effort)
+    if (newImagePath) {
+      try {
+        const existing = await prisma.blog.findUnique({ where: { id: parseInt(id) } });
+        const oldPath = existing?.blog_image ? path.join(process.cwd(), 'public', existing.blog_image.replace(/^\//, '')) : null;
+        if (oldPath && fs.existsSync(oldPath)) {
+          fs.unlinkSync(oldPath);
+        }
+      } catch (e) {
+        // best effort
+      }
+    }
+
+    const updatedBlog = await prisma.blog.update({
+      where: { id: parseInt(id) },
+      data: {
+        blog_title,
+        blog_date: formattedDate,
+        ...(newImagePath ? { blog_image: newImagePath } : {}),
+        blog_description,
+        blog_slug,
+      },
+    });
+
+    return res.status(200).json({ success: true, data: updatedBlog });
+  } catch (error) {
+    console.error("Error updating blog:", error);
+    return res.status(500).json({ success: false, message: "Internal server error." });
+  }
+});
+
+export default router;
+
+

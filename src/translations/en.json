@@ -237,7 +237,14 @@
     "offtakerRequired": "Offtaker is required",
     "reviewStatusRequired": "Rating is required",
     "imageRequired": "Image is required",
-    "descriptionRequired": "Description is required"
+    "descriptionRequired": "Description is required",
+    "newsSlugExists": "Slug already exists",
+    "blogSlugRequired": "Slug is required",
+    "blogImageRequired": "Image is required",
+    "blogTitleRequired": "Title is required",
+    "blogDescriptionRequired": "Description is required",
+    "blogDateRequired": "Date is required",
+    "blogSlugExists": "Slug already exists"
   },
   "menu": {
     "dashboards": "Dashboards",
@@ -309,7 +316,8 @@
     "salesreport": "Sales Report",
     "leadsreport": "Leads Report",
     "projectreport": "Project Report",
-    "timesheetsreport": "Timesheets Report"
+    "timesheetsreport": "Timesheets Report",
+    "blog": "Blog"
   },
   "dashboard": {
     "totalSales": "Total Sales",
@@ -1123,7 +1131,13 @@
     "newsletters": "Newsletters",
     "newsletterDescription": "Solar energy is a sustainable and renewable source of power that harnesses the sun’s rays.",
     "subscribe": "Subscribe",
-    "enterEmail": "Enter Email Address"
+    "enterEmail": "Enter Email Address",
+    "details": "Details",
+    "news": "News",
+    "previous": "Previous",
+    "next": "Next",
+    "relatedPosts": "Related Posts",
+    "noRelatedPosts": "No related posts available."
   },
   "testimonial": {
     "add": "Add Testimonial",
@@ -1143,5 +1157,18 @@
     "testimonialCreatedSuccessfully": "Testimonial Created Successfully",
     "testimonialUpdatedSuccessfully": "Testimonial Updated Successfully",
     "testimonialDeletedSuccessfully": "Testimonial Deleted Successfully"
+  },
+  "blog": {
+    "addBlog": "Add Blog",  
+    "editBlog": "Edit Blog",
+    "deleteBlog": "Delete Blog",
+    "title": "Title",
+    "date": "Date",
+    "image": "Image",
+    "slug": "Slug",
+    "description": "Description",
+    "blogCreatedSuccessfully": "Blog Created Successfully",
+    "blogUpdatedSuccessfully": "Blog Updated Successfully",
+    "blogDeletedSuccessfully": "Blog Deleted Successfully"
   }
 }
