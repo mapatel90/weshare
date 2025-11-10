@@ -98,7 +98,8 @@ router.post('/', async (req, res) => {
         phoneNumber: phoneNumber || null,
         subject,
         message,
-        status: 0 // 0 = unread/pending
+        project_id: 1,
+        status: 1 // 1 = read/responded
       }
     });
 

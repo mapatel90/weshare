@@ -419,7 +419,9 @@
       "exchangeHub": "Exchange Hub",
       "howItWorks": "How It Works",
       "news": "News",
-      "login": "Login"
+      "login": "Login",
+      "blog": "Blog",
+      "contactUs": "Contact Us"
     },
     "hero": {
       "tagline": "Plug in to Save. Plug in to Earn.",
@@ -689,7 +691,9 @@
       "country": "Country",
       "copyright": "©2025 WeShare Solar Lease Platform",
       "privacyPolicy": "Privacy Policy",
-      "termsOfService": "Terms of Service"
+      "termsOfService": "Terms of Service",
+      "blog": "Blog",
+      "contactUs": "Contact Us"
     }
   },
   "misc": {
@@ -1175,6 +1179,30 @@
     "description": "Description",
     "blogCreatedSuccessfully": "Blog Created Successfully",
     "blogUpdatedSuccessfully": "Blog Updated Successfully",
-    "blogDeletedSuccessfully": "Blog Deleted Successfully"
+    "blogDeletedSuccessfully": "Blog Deleted Successfully",
+    "latestBlogs": "Latest Blogs",
+    "blog": "Blog"
+  },
+  "contactUs": {
+    "contact": "Contact",
+    "us": "Us",
+    "title": "Contact With Us",
+    "subText": "Send us a message and we'll respond as soon as possible",
+    "fullName": "Full Name*",
+    "email": "Email Address*",
+    "phoneNumber": "Phone Number*",
+    "subject": "Subject",
+    "message": "Your message here",
+    "sendMessage": "Send Message",
+    "needhelp": "Need Any Help?",
+    "callOrMessage": "Call us or message and we’ll respond as soon as possible."
+  },
+  "getinTouch": {
+    "message": "Send us a message",
+    "subText": "Have a question or want to learn more about what we do? We're here to help you.",
+    "titlePart1": "Get in",
+    "titlePart2": "Touch",
+    "contactDetails": "Contact Details",
+    "message2": "Send us a message and we' ll respond as soon as possible."
   }
 }

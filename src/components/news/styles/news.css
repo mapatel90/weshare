@@ -99,7 +99,7 @@ footer.newsletter-footer {
   font-size: 20px;
 }
 .news-insight-page .news-section::after {
-  background-image: url(../../../../public/images/news/news-bg-vector.png);
+  background-image: url(/images/news/news-bg-vector.png);
   top: 50%;
   right: 0;
   width: 28%;
