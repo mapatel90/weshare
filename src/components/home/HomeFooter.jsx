@@ -106,7 +106,7 @@ const HomeFooter = () => {
               {lang("home.footer.description")}
             </p>
             <div className="social-icons d-flex gap-4">
-              <Link href="#">
+              <Link href="https://x.com/" target="_blank" rel="noopener noreferrer">
                 <Image
                   src="/images/icons/twitter.svg"
                   alt="Twitter"
@@ -114,7 +114,7 @@ const HomeFooter = () => {
                   height={24}
                 />
               </Link>
-              <Link href="#">
+              <Link href="https://www.linkedin.com/" target="_blank" rel="noopener noreferrer">
                 <Image
                   src="/images/icons/linkedin.svg"
                   alt="LinkedIn"
@@ -122,7 +122,7 @@ const HomeFooter = () => {
                   height={24}
                 />
               </Link>
-              <Link href="#">
+              <Link href="https://github.com/" target="_blank" rel="noopener noreferrer">
                 <Image
                   src="/images/icons/cat.svg"
                   alt="Social"
@@ -154,6 +154,12 @@ const HomeFooter = () => {
                 </li>
                 <li>
                   <Link href="/news">{lang("home.footer.news")}</Link>
+                </li>
+                <li>
+                  <Link href="/blog">{lang("home.footer.blog")}</Link>
+                </li>
+                <li>
+                  <Link href="/contact_us">{lang("home.footer.contactUs")}</Link>
                 </li>
               </ul>
             </div>

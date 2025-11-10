@@ -199,6 +199,7 @@ model Project {
   projectInverters  Project_inverters[]
   invoices         Invoice[]
   testimonial      Testimonial[]
+  contactus        ContactUs[]
 
   @@map("projects")
 }
@@ -308,9 +309,12 @@ model ContactUs {
   phoneNumber   String?   @map("phone_number") @db.VarChar(20)
   subject       String    @db.VarChar(255)
   message       String    @db.Text
-  status        Int       @default(0)
+  project_id     Int
+  status        Int       @default(1)
   is_deleted    Int       @default(0)
   createdAt     DateTime  @default(now()) @map("created_at")
+
+  project        Project   @relation(fields: [project_id], references: [id])
 
   @@map("contact_us")
 }

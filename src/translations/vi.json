@@ -397,7 +397,9 @@
       "exchangeHub": "Trung tâm trao đổi",
       "howItWorks": "Cách thức hoạt động",
       "news": "Tin tức",
-      "login": "Đăng nhập"
+      "login": "Đăng nhập",
+      "blog": "Blog",
+      "contactUs": "Liên hệ với chúng tôi"
     },
     "hero": {
       "tagline": "Kết nối để tiết kiệm. Kết nối để kiếm tiền.",
@@ -657,7 +659,9 @@
       "country": "Quốc gia",
       "copyright": "©2025 WeShare Nền tảng cho thuê năng lượng mặt trời",
       "privacyPolicy": "Chính sách bảo mật",
-      "termsOfService": "Điều khoản dịch vụ"
+      "termsOfService": "Điều khoản dịch vụ",
+      "blog": "Blog",
+      "contactUs": "Liên hệ với chúng tôi"
     }
   },
   "misc": {
@@ -1125,6 +1129,30 @@
     "editBlog": "Sửa blog",
     "blogCreatedSuccessfully": "Blog đã được tạo thành công",
     "blogUpdatedSuccessfully": "Blog được cập nhật thành công",
-    "blogDeletedSuccessfully": "Blog đã xóa thành công"
+    "blogDeletedSuccessfully": "Blog đã xóa thành công",
+    "latestBlogs": "Blog mới nhất",
+    "blog": "Blog"
+  },
+  "contactUs": {
+    "contact": "Liên hệ",
+    "us": "Chúng tôi",
+    "title": "Liên hệ với chúng tôi",
+    "subText": "Gửi tin nhắn cho chúng tôi và chúng tôi sẽ trả lời sớm nhất có thể",
+    "fullName": "Họ và tên*",
+    "email": "Địa chỉ email*",
+    "phoneNumber": "Số điện thoại*",
+    "subject": "Chủ đề",
+    "message": "Tin nhắn của bạn ở đây",
+    "sendMessage": "Gửi tin nhắn",
+    "needhelp": "Cần bất kỳ sự giúp đỡ nào?",
+    "callOrMessage": "Hãy gọi điện hoặc nhắn tin cho chúng tôi và chúng tôi sẽ phản hồi sớm nhất có thể."
+  },
+  "getinTouch": {
+    "messageUs": "Gửi tin nhắn cho chúng tôi",
+    "subText": "Bạn có thắc mắc hoặc muốn tìm hiểu thêm về những gì chúng tôi làm? Chúng tôi luôn sẵn sàng hỗ trợ bạn.",
+    "titlePart1": "Vào trong",
+    "titlePart2": "liên hệ",
+    "contactDetails": "Chi tiết liên hệ",
+    "message2": "Gửi tin nhắn cho chúng tôi và chúng tôi sẽ trả lời sớm nhất có thể."
   }
 }

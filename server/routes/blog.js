@@ -105,16 +105,16 @@ router.get("/:identifier", async (req, res) => {
 
     let blog;
     if (isNumeric) {
-      blog = await prisma.blog.findUnique({
-        where: { id: parseInt(identifier) },
+      blog = await prisma.blog.findFirst({
+        where: { id: parseInt(identifier), is_deleted: 0 },
       });
-      // manual is_deleted check since findUnique cannot include filter on non-unique field
-      if (!blog || blog.is_deleted !== 0) blog = null;
     } else {
-      blog = await prisma.blog.findUnique({
-        where: { blog_slug: identifier },
+      blog = await prisma.blog.findFirst({
+        where: { 
+          blog_slug: identifier,
+          is_deleted: 0
+        },
       });
-      if (!blog || blog.is_deleted !== 0) blog = null;
     }
 
     if (!blog) {
