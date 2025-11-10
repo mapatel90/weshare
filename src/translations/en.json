@@ -347,6 +347,10 @@
   "table": {
     "serialNumber": "#",
     "actions": "Actions",
+    "qr_code": "QR Code",
+    "ViewQRCode": "View QR Code",
+    "scan_qr_code": "Scan this QR code for payment",
+    "no_qr_code_available": "No QR code available",
     "noDataFound": "No data found",
     "loading": "Loading...",
     "showingEntries": "Showing {{start}} to {{end}} of {{total}} entries",

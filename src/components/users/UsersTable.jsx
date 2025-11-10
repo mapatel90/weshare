@@ -263,7 +263,7 @@ const UsersTable = () => {
             onClick={() => handleShowQRCode(user?.qrCode, user?.fullName)}
           >
             <BsQrCode className="me-1" />
-            View QR
+            {lang("table.qr_code")}
           </button>
         )
       },
@@ -293,28 +293,20 @@ const UsersTable = () => {
 
         return (
           <div className="hstack gap-2 justify-content-end">
-            <Link href={`/admin/users/view?id=${user.id}`} className="avatar-text avatar-md">
-              <FiEye />
+            <Link href={`/admin/users/edit?id=${user.id}`} className="avatar-text avatar-md">
+              <FiEdit3 />
             </Link>
-            <Dropdown
-              dropdownItems={actions}
-              triggerClass="avatar-md"
-              triggerPosition="0,21"
-              triggerIcon={<FiMoreHorizontal />}
-            />
+            <a  className="avatar-text avatar-md" onClick={() => handleDeleteUser(user.id, `${user?.fullName}`)}>
+              <FiTrash2 />
+            </a>
           </div>
         )
       },
       meta: {
-        headerClassName: 'text-end'
+        headerClassName: 'text-center',
       }
     }
   ]
-
-  // Commented out - using global loader instead
-  // if (loading && users.length === 0) {
-  //   return <LoadingSpinner />
-  // }
 
   return (
     <div>
@@ -384,7 +376,7 @@ const UsersTable = () => {
               <div className="modal-header">
                 <h5 className="modal-title">
                   <BsQrCode className="me-2" />
-                  QR Code - {selectedQRCode?.userName}
+                  {lang("table.qr_code")} - {selectedQRCode?.userName}
                 </h5>
                 <button type="button" className="btn-close" onClick={() => setShowQRModal(false)}></button>
               </div>
@@ -397,18 +389,18 @@ const UsersTable = () => {
                       className="img-fluid"
                       style={{ maxWidth: '300px', width: '100%' }}
                     />
-                    <p className="mt-3 text-muted">Scan this QR code for payment</p>
+                    <p className="mt-3 text-muted">{lang("table.scan_qr_code")}</p>
                   </div>
                 ) : (
                   <div className="text-muted">
                     <BsQrCode size={48} className="mb-3" />
-                    <p>No QR code available</p>
+                    <p>{lang("table.no_qr_code_available")}</p>
                   </div>
                 )}
               </div>
               <div className="modal-footer">
                 <button type="button" className="btn btn-secondary" onClick={() => setShowQRModal(false)}>
-                  Close
+                  {lang("modal.close")}
                 </button>
               </div>
             </div>
