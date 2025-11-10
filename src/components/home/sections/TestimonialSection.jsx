@@ -4,16 +4,50 @@ import React, { useEffect, useState } from 'react'
 import Image from 'next/image'
 import AOS from 'aos'
 import { useLanguage } from '@/contexts/LanguageContext'
+import { apiGet } from '@/lib/api'
 
 const TestimonialSection = () => {
   const [currentIndex, setCurrentIndex] = useState(0)
+  const [testimonials, setTestimonials] = useState([])
+  console.log(testimonials)
+  const [loading, setLoading] = useState(true)
   const { lang } = useLanguage()
 
   useEffect(() => {
     AOS.init({ duration: 1000, once: true })
+    fetchTestimonials()
   }, [])
 
-  const testimonials = [
+  const fetchTestimonials = async () => {
+    try {
+      const response = await apiGet(`/api/testimonials`)
+      console.log(response)
+      if (response) {
+        const data = await response
+        // Transform API data to match component structure
+        const transformedData = data.map(item => ({
+          id: item.id,
+          name: item.offtaker?.fullName || 'Anonymous',
+          role: item.project?.project_name || 'Customer',
+          text: item.description || '',
+          rating: item.review_status || 5,
+          image: item.offtaker?.user_image || item.image || '/images/avatar/user-img.png'
+        }))
+        console.log("transformedData",transformedData);
+        setTestimonials(transformedData.length > 0 ? transformedData : getDefaultTestimonials())
+      } else {
+        console.log('test')
+        // setTestimonials(getDefaultTestimonials())
+      }
+    } catch (error) {
+      console.error('Error fetching testimonials:', error)
+      // setTestimonials(getDefaultTestimonials())
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const getDefaultTestimonials = () => [
     {
       name: 'Cameron Williamson',
       role: 'Investor',
@@ -36,6 +70,24 @@ const TestimonialSection = () => {
 
   const handleNext = () => {
     setCurrentIndex((prev) => (prev === testimonials.length - 1 ? 0 : prev + 1))
+  }
+
+  if (loading) {
+    return (
+      <section className="testimonial-section position-relative" style={{ padding: '80px 0', backgroundColor: '#FFFCF5' }}>
+        <div className="container">
+          <div className="text-center">
+            <div className="spinner-border text-warning" role="status">
+              <span className="visually-hidden">Loading...</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  if (testimonials.length === 0) {
+    return null
   }
 
   return (
