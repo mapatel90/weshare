@@ -1,5 +1,5 @@
 'use client'
-import React from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import Checkbox from './Checkbox';
 import { FiMoreVertical } from 'react-icons/fi';
 import Link from 'next/link';
@@ -23,39 +23,54 @@ const Dropdown = ({
     active,
     id
 }) => {
+    const [isOpen, setIsOpen] = useState(false)
+    const dropdownRef = useRef(null)
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setIsOpen(false)
+            }
+        }
+
+        if (isOpen) {
+            document.addEventListener('mousedown', handleClickOutside)
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside)
+        }
+    }, [isOpen])
+
+    const toggleDropdown = (e) => {
+        e.preventDefault()
+        e.stopPropagation()
+        setIsOpen(!isOpen)
+    }
 
     return (
         <>
-            <div className={`filter-dropdown ${dropdownParentStyle}`}>
+            <div className={`dropdown ${dropdownParentStyle} position-relative`} ref={dropdownRef}>
                 {/* Dropdown Trigger */}
                 {
                     tooltipTitle ?
-                        <span className="d-flex c-pounter" data-bs-toggle="dropdown" data-bs-offset={triggerPosition} data-bs-auto-close={dropdownAutoClose}>
-                            {
-                                isAvatar ?
-                                    <div className={`avatar-text ${triggerClass}`} data-toggle="tooltip" data-bs-trigger="hover" data-title={tooltipTitle} >
-                                        {triggerIcon || <FiMoreVertical />} {triggerText}
-                                    </div>
-                                    :
-                                    <div className={`${triggerClass}`} data-toggle="tooltip" data-bs-trigger="hover" data-title={tooltipTitle}>
-                                        {triggerIcon || <FiMoreVertical />} {triggerText}
-                                    </div>
-                            }
-                        </span>
+                        <button type="button" className={`d-flex c-pointer border-0 bg-transparent ${isAvatar ? `avatar-text ${triggerClass}` : triggerClass}`} onClick={toggleDropdown} aria-expanded={isOpen}>
+                            {triggerIcon || <FiMoreVertical />} {triggerText}
+                        </button>
                         :
                         isAvatar ?
-                            <Link href="#" className={`avatar-text ${triggerClass}`} data-bs-toggle="dropdown" data-bs-offset={triggerPosition} data-bs-auto-close={dropdownAutoClose} >
+                            <button type="button" className={`avatar-text ${triggerClass} border-0 bg-transparent p-0`} onClick={toggleDropdown} aria-expanded={isOpen}>
                                 {triggerIcon || <FiMoreVertical />} {triggerText}
-                            </Link>
+                            </button>
                             :
-                            <Link href="#" className={`${triggerClass}`} data-bs-toggle="dropdown" data-bs-offset={triggerPosition} data-bs-auto-close={dropdownAutoClose} >
+                            <button type="button" className={`${triggerClass} border-0 bg-transparent p-0`} onClick={toggleDropdown} aria-expanded={isOpen}>
                                 {triggerIcon || <FiMoreVertical />} {triggerText}
-                            </Link>
+                            </button>
                 }
 
 
                 {/* Dropdown Menu */}
-                <ul className={`dropdown-menu ${dropdownMenuStyle} ${dropdownPosition}`}>
+                <ul className={`dropdown-menu ${dropdownMenuStyle} ${dropdownPosition} ${isOpen ? 'show' : ''}`} style={{ position: 'absolute' }}>
                     {dropdownItems.map((item, index) => {
                         if (item.type === "divider") {
                             return <li className="dropdown-divider" key={index}></li>;
@@ -69,9 +84,15 @@ const Dropdown = ({
 
                                         // If item has an onClick handler, render a clickable anchor and call it (prevent default navigation)
                                         (item.onClick ? (
-                                            <a href="#" className={`${active === item.label ? "active" : ""} dropdown-item`} 
-                                               onClick={(e) => { e.preventDefault(); item.onClick(); onClick && onClick(item.label, id); }}
-                                               data-bs-toggle={item.modalTarget ? dataBsToggle : undefined} data-bs-target={item.modalTarget}
+                                            <a href="#" className={`${active === item.label ? "active" : ""} dropdown-item`}
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    e.stopPropagation();
+                                                    setIsOpen(false);
+                                                    item.onClick();
+                                                    onClick && onClick(item.label, id);
+                                                }}
+                                                data-bs-toggle={item.modalTarget ? dataBsToggle : undefined} data-bs-target={item.modalTarget}
                                             >
                                                 {
                                                     isItemIcon ?
@@ -83,7 +104,11 @@ const Dropdown = ({
                                             </a>
                                         ) : (
                                             <Link href={item.link || "#"} className={`${active === item.label ? "active" : ""} dropdown-item`}
-                                                data-bs-toggle={item.link || dataBsToggle} data-bs-target={item.modalTarget} onClick={() => onClick && onClick(item.label, id)}
+                                                data-bs-toggle={item.link || dataBsToggle} data-bs-target={item.modalTarget}
+                                                onClick={(e) => {
+                                                    setIsOpen(false);
+                                                    onClick && onClick(item.label, id);
+                                                }}
                                             >
                                                 {
                                                     isItemIcon ?
