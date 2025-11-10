@@ -51,20 +51,20 @@ router.post('/', authenticateToken, upload.single('image'), async (req, res) => 
     }
 });
 
-router.get('/', authenticateToken, async (req, res) => {
-  try {
-    const testimonials = await prisma.testimonial.findMany({
-      where: { is_deleted: 0 },
-      include: {
-        project: { select: { id: true, project_name: true } },
-        offtaker: { select: { id: true, fullName: true } }
-      }
-    });
-    res.json(testimonials);
-  } catch (error) {
-    console.error('Error fetching testimonials:', error);
-    res.status(500).json({ error: 'Failed to fetch testimonials' });
-  }
+router.get('/', async (req, res) => {
+    try {
+        const testimonials = await prisma.testimonial.findMany({
+            where: { is_deleted: 0 },
+            include: {
+                project: { select: { id: true, project_name: true } },
+                offtaker: { select: { id: true, fullName: true } }
+            }
+        });
+        res.json(testimonials);
+    } catch (error) {
+        console.error('Error fetching testimonials:', error);
+        res.status(500).json({ error: 'Failed to fetch testimonials' });
+    }
 });
 
 router.put('/:id', authenticateToken, upload.single('image'), async (req, res) => {
@@ -115,7 +115,7 @@ router.put('/:id', authenticateToken, upload.single('image'), async (req, res) =
 
 router.delete('/:id', authenticateToken, async (req, res) => {
     try {
-        const { id } = req.params;  
+        const { id } = req.params;
         const existing = await prisma.testimonial.findUnique({ where: { id: Number(id) } });
         await prisma.testimonial.update({
             where: { id: Number(id) },
@@ -135,6 +135,6 @@ router.delete('/:id', authenticateToken, async (req, res) => {
         console.error('Error deleting testimonial:', error);
         res.status(500).json({ error: 'Failed to delete testimonial' });
     }
-});     
+});
 
 export default router;
