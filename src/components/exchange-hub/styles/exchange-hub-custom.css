@@ -328,7 +328,7 @@ a.normalBtn img,
 }
 
 .stat-image p {
-    color: #666;
+    color: #000000;
     font-size: 13px;
     margin: 0;
     font-weight: 400;
@@ -358,7 +358,7 @@ a.normalBtn img,
 
 .detail-item .label {
     font-size: 13px;
-    color: #666;
+    color: #000000;
     font-weight: 400;
     line-height: 1.4;
 }
@@ -389,8 +389,8 @@ a.normalBtn img,
 }
 
 .progress-label {
-    font-size: 13px;
-    color: #666;
+    font-size: 16px;
+    color: #000000;
     font-weight: 400;
 }
 
@@ -399,8 +399,8 @@ a.normalBtn img,
 }
 
 .time-left {
-    font-size: 13px;
-    color: #666;
+    font-size: 16px;
+    color: #000000;
     font-weight: 400;
 }
 
@@ -415,7 +415,7 @@ a.normalBtn img,
 
 .progress-bar-fill {
     height: 100%;
-    background: linear-gradient(90deg, #F6A623 0%, #FFB84D 100%);
+    background: linear-gradient(90deg, #102C41 0%, #102C41 100%);
     border-radius: 50px;
     transition: width 0.5s ease;
     box-shadow: 0 2px 6px rgba(246, 166, 35, 0.3);
@@ -468,14 +468,14 @@ a.normalBtn img,
 
 .buttons-image .btn-secondary-custom {
     background: #fff;
-    color: #333;
-    border: 1px solid #D0D0D0;
+    color: #102C41;
+    border: 1px solid #102C41;
     font-weight: 600;
 }
 
 .buttons-image .btn-secondary-custom:hover {
-    background: #F5F5F5;
-    border-color: #A0A0A0;
+    background: #102C41;
+    border-color: #102C41;
 }
 
 /* Responsive for Image Card */
