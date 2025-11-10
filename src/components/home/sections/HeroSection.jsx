@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { Box, Container, Typography, Button } from '@mui/material'
 import Image from 'next/image'
 import AOS from 'aos'
@@ -9,6 +10,7 @@ import { useLanguage } from '@/contexts/LanguageContext'
 
 const HeroSection = () => {
   const { lang } = useLanguage()
+  const router = useRouter()
   
   useEffect(() => {
     AOS.init({
@@ -111,6 +113,7 @@ const HeroSection = () => {
           <Button 
             variant="contained"
             size="large"
+            onClick={() => router.push('/contact_us')}
             startIcon={
               <Image 
                 src="/images/icons/phone.svg" 

@@ -4,9 +4,11 @@ import React, { useEffect } from 'react'
 import Image from 'next/image'
 import AOS from 'aos'
 import { useLanguage } from '@/contexts/LanguageContext'
+import { useRouter } from 'next/navigation'
 
 const SolutionSection = () => {
   const { lang } = useLanguage()
+  const router = useRouter()
   
   useEffect(() => {
     AOS.init({ duration: 1000, once: true })
@@ -43,7 +45,11 @@ const SolutionSection = () => {
                 <li>{lang('home.solution.point2')}</li>
                 <li>{lang('home.solution.point3')}</li>
               </ul>
-              <button className="btn btn-primary-custom mt-3">
+              <button
+                type="button"
+                className="btn btn-primary-custom mt-3 d-inline-flex align-items-center"
+                onClick={() => router.push('/exchange-hub')}
+              >
                 {lang('home.solution.visitHub')}
                 <Image className="ms-2" src="/images/icons/right-white.svg" alt="arrow" width={20} height={20} />
               </button>
