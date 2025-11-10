@@ -32,15 +32,17 @@ const saveDataUrlToFile = (dataUrl, destDir, prefix = 'logo') => {
   const filePath = join(destDir, filename);
   fs.writeFileSync(filePath, Buffer.from(base64Data, 'base64'));
   // Return public URL path (Next serves /public/* at /*)
-  return `/images/logo/${filename}`;
+  // Extract the folder name from destDir to construct proper public path
+  const folderName = destDir.split(/[/\\]/).filter(Boolean).pop();
+  return `/images/${folderName}/${filename}`;
 };
 
 // Helper: delete old logo if within logo dir
 const deleteOldLogoIfSafe = (publicPath) => {
   try {
     if (!publicPath) return;
-    // Only allow deletion inside /images/logo
-    if (!publicPath.startsWith('/images/logo/')) return;
+    // Only allow deletion inside /images/logo or /images/qrcodes
+    if (!publicPath.startsWith('/images/logo/') && !publicPath.startsWith('/images/qrcodes/')) return;
     const relativePath = publicPath.replace(/^[/\\]+/, '');
     const absolutePath = join(__dirname, '../../public', relativePath);
     if (fs.existsSync(absolutePath)) {
@@ -315,6 +317,49 @@ router.post('/delete-favicon', authenticateToken, async (req, res) => {
   } catch (error) {
     console.error('Error deleting favicon:', error);
     return res.status(500).json({ success: false, message: 'Error deleting favicon', error: error.message });
+  }
+});
+
+// Upload finance QR code (accepts base64 data URL), saves under public/images/qrcodes and deletes old
+router.post('/upload-qrcode', authenticateToken, async (req, res) => {
+  try {
+    const { dataUrl, oldImagePath } = req.body || {};
+    if (!dataUrl) {
+      return res.status(400).json({ success: false, message: 'dataUrl is required' });
+    }
+
+    const qrcodeDir = join(__dirname, '../../public/images/qrcodes');
+    const publicPath = saveDataUrlToFile(dataUrl, qrcodeDir, 'finance-qr');
+
+    // Delete previous QR code if provided
+    deleteOldLogoIfSafe(oldImagePath);
+
+    return res.json({ success: true, message: 'QR code uploaded', data: { path: publicPath } });
+  } catch (error) {
+    console.error('Error uploading QR code:', error);
+    return res.status(500).json({ success: false, message: 'Error uploading QR code', error: error.message });
+  }
+});
+
+// Delete finance QR code (remove file if under /images/qrcodes and clear DB key finance_qr_code)
+router.post('/delete-qrcode', authenticateToken, async (req, res) => {
+  try {
+    const { path } = req.body || {};
+
+    // Remove file from disk if safe
+    deleteOldLogoIfSafe(path);
+
+    // Clear finance_qr_code in DB
+    await prisma.setting.upsert({
+      where: { key: 'finance_qr_code' },
+      update: { value: '', updatedAt: new Date() },
+      create: { key: 'finance_qr_code', value: '' }
+    });
+
+    return res.json({ success: true, message: 'QR code deleted and setting cleared' });
+  } catch (error) {
+    console.error('Error deleting QR code:', error);
+    return res.status(500).json({ success: false, message: 'Error deleting QR code', error: error.message });
   }
 });
 

@@ -186,7 +186,8 @@
     "selectRole": "Select Role",
     "selectCountry": "Select Country",
     "selectState": "Select State",
-    "selectCity": "Select City"
+    "selectCity": "Select City",
+    "uploadQrImage": "Upload your QR code image here."
   },
   "messages": {
     "success": "Operation completed successfully",
@@ -346,6 +347,10 @@
   "table": {
     "serialNumber": "#",
     "actions": "Actions",
+    "qr_code": "QR Code",
+    "ViewQRCode": "View QR Code",
+    "scan_qr_code": "Scan this QR code for payment",
+    "no_qr_code_available": "No QR code available",
     "noDataFound": "No data found",
     "loading": "Loading...",
     "showingEntries": "Showing {{start}} to {{end}} of {{total}} entries",
@@ -541,7 +546,8 @@
       "loadMore": "Load More Projects",
       "projecttitle1": "Sunrise Residential Complex",
       "projecttitle2": "Green Valley Business Park",
-      "projecttitle3": "Eco Community Housing"
+      "projecttitle3": "Eco Community Housing",
+      "uploadProjectImage": "Upload your project image here."
     },
     "exchangeHub": {
       "title": "Exchange Hub",

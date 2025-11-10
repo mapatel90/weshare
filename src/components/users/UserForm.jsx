@@ -41,7 +41,7 @@ const UserForm = ({ initialData = {}, onSubmit, includePassword = false, exclude
     const [qrCodeFile, setQrCodeFile] = useState(null)
     const [qrCodePreview, setQrCodePreview] = useState(null)
 
-    
+
 
     const {
         countries,
@@ -386,39 +386,43 @@ const UserForm = ({ initialData = {}, onSubmit, includePassword = false, exclude
                                     {(formData.userRole === 4 || formData.userRole === '4') && (
                                         <div className="col-md-3 mb-3">
                                             <div>
-                                                <label className="form-label">
-                                                    QR Code {!isEditing && <span style={{ color: 'red' }}>*</span>}
-                                                </label>
                                                 <input
                                                     type="file"
                                                     className={`form-control ${errors.qrCode ? 'is-invalid' : ''}`}
                                                     accept="image/*"
                                                     onChange={handleQrCodeChange}
                                                 />
+                                                <FormHelperText sx={{ m: 1 }}>
+                                                    {errors.qrCode ? (
+                                                        <span className="text-danger">{errors.qrCode}</span>
+                                                    ) : (
+                                                        lang('common.uploadQrImage', 'Upload your QR code image here.')
+                                                    )}
+                                                </FormHelperText>
                                                 {errors.qrCode && (
                                                     <div className="invalid-feedback d-block">{errors.qrCode}</div>
                                                 )}
-                                               
+
                                             </div>
                                         </div>
                                     )}
-                                     {qrCodePreview && (
-                                                    <div className="mt-2 position-relative" style={{ width: '150px' }}>
-                                                        <img
-                                                            src={qrCodePreview}
-                                                            alt="QR Code Preview"
-                                                            style={{ width: '100%', height: 'auto', border: '1px solid #ddd', borderRadius: '4px' }}
-                                                        />
-                                                        <button
-                                                            type="button"
-                                                            className="btn btn-sm btn-danger position-absolute"
-                                                            style={{ top: '5px', right: '5px' }}
-                                                            onClick={handleRemoveQrCode}
-                                                        >
-                                                            ×
-                                                        </button>
-                                                    </div>
-                                                )}
+                                    {qrCodePreview && (
+                                        <div className="mt-2 position-relative" style={{ width: '150px' }}>
+                                            <img
+                                                src={qrCodePreview}
+                                                alt="QR Code Preview"
+                                                style={{ width: '100%', height: 'auto', border: '1px solid #ddd', borderRadius: '4px' }}
+                                            />
+                                            <button
+                                                type="button"
+                                                className="btn btn-sm btn-danger position-absolute"
+                                                style={{ top: '5px', right: '5px' }}
+                                                onClick={handleRemoveQrCode}
+                                            >
+                                                ×
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 

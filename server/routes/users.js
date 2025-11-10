@@ -24,6 +24,22 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
+// Multer storage for user profile images
+const userAvatarDir = path.join(process.cwd(), 'public', 'images', 'avatar');
+const avatarStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    fs.mkdirSync(userAvatarDir, { recursive: true });
+    cb(null, userAvatarDir);
+  },
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname) || '.jpg';
+    const base = path.basename(file.originalname, ext).replace(/[^a-z0-9-_]/gi, '_');
+    const ts = Date.now();
+    cb(null, `user_${base}_${ts}${ext}`);
+  },
+});
+const uploadAvatar = multer({ storage: avatarStorage });
+
 // Get all users (admin only)
 router.get('/', authenticateToken, async (req, res) => {
   try {
@@ -300,6 +316,7 @@ router.get('/:id', authenticateToken, async (req, res) => {
       select: {
         id: true,
         fullName: true,
+        user_image: true,
         username: true,
         email: true,
         password: true,
@@ -642,5 +659,104 @@ router.post('/GetUserByRole', authenticateToken, async (req, res) => {
     })
   }
 })
+
+// Update user profile (with user_image support)
+router.put('/profile/:id', authenticateToken, uploadAvatar.single('user_image'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      fullName,
+      email,
+      phoneNumber,
+      countryId,
+      stateId,
+      cityId
+    } = req.body;
+
+    // Check if user exists
+    const existingUser = await prisma.user.findUnique({
+      where: { id: parseInt(id) }
+    });
+
+    if (!existingUser) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Build update data
+    const updateData = {
+      ...(fullName && { fullName }),
+      ...(email && { email }),
+      ...(phoneNumber !== undefined && { phoneNumber }),
+      ...(countryId !== undefined && { countryId: countryId ? parseInt(countryId) : null }),
+      ...(stateId !== undefined && { stateId: stateId ? parseInt(stateId) : null }),
+      ...(cityId !== undefined && { cityId: cityId ? parseInt(cityId) : null })
+    };
+
+    // Handle user_image upload
+    if (req.file) {
+      const userImagePath = `/images/avatar/${req.file.filename}`;
+      updateData.user_image = userImagePath;
+
+      // Delete old user image file if exists
+      if (existingUser.user_image) {
+        const oldFilePath = path.join(process.cwd(), 'public', existingUser.user_image);
+        if (fs.existsSync(oldFilePath)) {
+          fs.unlinkSync(oldFilePath);
+        }
+      }
+    }
+
+    // Update user
+    const updatedUser = await prisma.user.update({
+      where: { id: parseInt(id) },
+      data: updateData,
+      select: {
+        id: true,
+        fullName: true,
+        email: true,
+        phoneNumber: true,
+        user_image: true,
+        countryId: true,
+        stateId: true,
+        cityId: true,
+        updatedAt: true,
+        city: {
+          select: {
+            id: true,
+            name: true
+          }
+        },
+        state: {
+          select: {
+            id: true,
+            name: true
+          }
+        },
+        country: {
+          select: {
+            id: true,
+            name: true
+          }
+        }
+      }
+    });
+
+    res.json({
+      success: true,
+      message: 'Profile updated successfully',
+      data: updatedUser
+    });
+
+  } catch (error) {
+    console.error('Update profile error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    });
+  }
+});
 
 export default router;

@@ -2,6 +2,7 @@
 import React, { memo, useEffect, useState } from 'react'
 import Table from '@/components/shared/table/Table'
 import { FiEdit3, FiEye, FiTrash2, FiMoreHorizontal, FiMail, FiPhone } from 'react-icons/fi'
+import { BsQrCode } from 'react-icons/bs'
 import Dropdown from '@/components/shared/Dropdown'
 import Link from 'next/link'
 import { apiGet, apiDelete } from '@/lib/api'
@@ -46,6 +47,8 @@ const UsersTable = () => {
     role: '',
     status: ''
   })
+  const [showQRModal, setShowQRModal] = useState(false)
+  const [selectedQRCode, setSelectedQRCode] = useState(null)
   const router = useRouter()
 
   // Fetch users
@@ -146,22 +149,21 @@ const UsersTable = () => {
     fetchUsers(page, filters.search, filters.role, filters.status)
   }
 
-  const columns = [
-    // {
-    //   accessorKey: 'id',
-    //   header: ({ table }) => {
-    //     const checkboxRef = React.useRef(null)
+  // QR Code handler
+  const handleShowQRCode = (qrCode, userName) => {
+    if (!qrCode) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'QR Code Not Found',
+        text: `QR code is not available for ${userName}`
+      })
+      return
+    }
+    setSelectedQRCode({ qrCode, userName })
+    setShowQRModal(true)
+  }
 
-    //     useEffect(() => {
-    //       if (checkboxRef.current) {
-    //         checkboxRef.current.indeterminate = table.getIsSomeRowsSelected()
-    //       }
-    //     }, [table.getIsSomeRowsSelected()])
-    //   },
-    //   meta: {
-    //     headerClassName: 'width-30'
-    //   }
-    // },
+  const columns = [
     {
       accessorKey: 'user',
       header: () => lang("common.user"),
@@ -244,6 +246,32 @@ const UsersTable = () => {
       }
     },
     {
+      accessorKey: 'qrCode',
+      header: () => 'QR Code',
+      cell: ({ row }) => {
+        const user = row.original
+        const roleName = user?.role?.name?.toLowerCase()
+        const isInvestor = roleName === 'investor'
+        
+        if (!isInvestor) {
+          return <span className="text-muted">-</span>
+        }
+        
+        return (
+          <button
+            className="btn btn-sm btn-soft-primary"
+            onClick={() => handleShowQRCode(user?.qrCode, user?.fullName)}
+          >
+            <BsQrCode className="me-1" />
+            {lang("table.qr_code")}
+          </button>
+        )
+      },
+      meta: {
+        headerClassName: 'text-center'
+      }
+    },
+    {
       accessorKey: 'actions',
       header: () => lang("table.actions"),
       cell: ({ row }) => {
@@ -265,28 +293,20 @@ const UsersTable = () => {
 
         return (
           <div className="hstack gap-2 justify-content-end">
-            <Link href={`/admin/users/view?id=${user.id}`} className="avatar-text avatar-md">
-              <FiEye />
+            <Link href={`/admin/users/edit?id=${user.id}`} className="avatar-text avatar-md">
+              <FiEdit3 />
             </Link>
-            <Dropdown
-              dropdownItems={actions}
-              triggerClass="avatar-md"
-              triggerPosition="0,21"
-              triggerIcon={<FiMoreHorizontal />}
-            />
+            <a  className="avatar-text avatar-md" onClick={() => handleDeleteUser(user.id, `${user?.fullName}`)}>
+              <FiTrash2 />
+            </a>
           </div>
         )
       },
       meta: {
-        headerClassName: 'text-end'
+        headerClassName: 'text-center',
       }
     }
   ]
-
-  // Commented out - using global loader instead
-  // if (loading && users.length === 0) {
-  //   return <LoadingSpinner />
-  // }
 
   return (
     <div>
@@ -347,6 +367,46 @@ const UsersTable = () => {
         )} */}
         <Table data={users} columns={columns} />
       </div>
+
+      {/* QR Code Modal */}
+      {showQRModal && (
+        <div className="modal fade show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }} onClick={() => setShowQRModal(false)}>
+          <div className="modal-dialog modal-dialog-centered" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">
+                  <BsQrCode className="me-2" />
+                  {lang("table.qr_code")} - {selectedQRCode?.userName}
+                </h5>
+                <button type="button" className="btn-close" onClick={() => setShowQRModal(false)}></button>
+              </div>
+              <div className="modal-body text-center p-4">
+                {selectedQRCode?.qrCode ? (
+                  <div>
+                    <img 
+                      src={selectedQRCode.qrCode} 
+                      alt={`QR Code for ${selectedQRCode.userName}`}
+                      className="img-fluid"
+                      style={{ maxWidth: '300px', width: '100%' }}
+                    />
+                    <p className="mt-3 text-muted">{lang("table.scan_qr_code")}</p>
+                  </div>
+                ) : (
+                  <div className="text-muted">
+                    <BsQrCode size={48} className="mb-3" />
+                    <p>{lang("table.no_qr_code_available")}</p>
+                  </div>
+                )}
+              </div>
+              <div className="modal-footer">
+                <button type="button" className="btn btn-secondary" onClick={() => setShowQRModal(false)}>
+                  {lang("modal.close")}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Pagination */}
       {pagination.pages > 1 && (

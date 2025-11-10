@@ -16,7 +16,8 @@ import {
   Menu,
   MenuItem,
   useMediaQuery,
-  useTheme
+  useTheme,
+  Avatar
 } from '@mui/material'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline'
@@ -248,7 +249,8 @@ const HomeNavbar = () => {
                 {/* Login Button or User Icon */}
                 {user ? (
                   <>
-                    <IconButton
+                    <Avatar
+                      src={user?.user_image || '/images/avatar/Profile.png' || ''}
                       onClick={handleUserClick}
                       sx={{
                         color: '#000',
@@ -258,7 +260,7 @@ const HomeNavbar = () => {
                       }}
                     >
                       <PersonOutlineIcon sx={{ fontSize: 28 }} />
-                    </IconButton>
+                    </Avatar>
                     <Menu
                       anchorEl={userAnchor}
                       open={Boolean(userAnchor)}
@@ -271,8 +273,8 @@ const HomeNavbar = () => {
                       }}
                     >
                       <Box sx={{ px: 2, py: 1.5, borderBottom: '1px solid #eee' }}>
-                        <Box sx={{ fontWeight: 600, color: '#000' }}>{user.name}</Box>
-                        <Box sx={{ fontSize: '0.85rem', color: '#666' }}>{user.email}</Box>
+                        <Box sx={{ fontWeight: 600, color: '#000' }}>{user?.name}</Box>
+                        <Box sx={{ fontSize: '0.85rem', color: '#666' }}>{user?.email}</Box>
                       </Box>
                       <MenuItem onClick={handleProfile}>
                         <PersonOutlineIcon sx={{ mr: 1, fontSize: 20 }} />

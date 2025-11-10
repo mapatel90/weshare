@@ -97,8 +97,8 @@ const ProfileModal = () => {
                     </div>
                 </div> */}
                 {/* <div className="dropdown-divider"></div> */}
-                <a href="#" className="dropdown-item">
-                    <i ><FiUser /></i>
+                <a href="/admin/users/profile" className="dropdown-item">
+                    <i><FiUser /></i>
                     <span>{lang('header.profile')}</span>
                 </a>
                 {/* <a href="#" className="dropdown-item">
