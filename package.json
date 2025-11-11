@@ -61,6 +61,7 @@
     "axios": "^1.13.0",
     "bcryptjs": "^3.0.2",
     "bootstrap": "^5.3.3",
+    "clsx": "^2.1.1",
     "cors": "^2.8.5",
     "date-fns": "^4.1.0",
     "dotenv": "^17.2.3",
@@ -95,6 +96,7 @@
     "sweetalert2-react-content": "^5.0.7"
   },
   "devDependencies": {
+    "@types/node": "24.10.0",
     "concurrently": "^9.2.1",
     "nodemon": "^3.1.10"
   }
