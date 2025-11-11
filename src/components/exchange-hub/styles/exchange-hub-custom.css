@@ -258,7 +258,7 @@ a.normalBtn img,
 }
 
 .card-header-image h3 {
-    font-size: 24px;
+    font-size: 21px;
     font-weight: 600;
     margin: 0;
     color: #000;
@@ -268,15 +268,16 @@ a.normalBtn img,
 
 .rating {
     display: flex;
-    flex-direction: column;
+    /* flex-direction: column; */
     align-items: flex-end;
     gap: 4px;
     flex-shrink: 0;
+    margin-top: 6px;
 }
 
 .text-rating {
     font-size: 11px;
-    color: #666;
+    color: #000000;
     font-weight: 400;
 }
 
@@ -373,7 +374,7 @@ a.normalBtn img,
 .detail-divider {
     width: 1px;
     height: 40px;
-    background: #E0E0E0;
+    background: #3A3A3A;
 }
 
 /* Progress Section */
@@ -425,8 +426,8 @@ a.normalBtn img,
 .note-text {
     margin: 16px 0 20px;
     font-size: 12px;
-    color: #999;
-    font-style: italic;
+    color: #000000;
+    /* font-style: italic; */
     font-weight: 400;
 }
 
@@ -859,7 +860,7 @@ a.normalBtn img,
 }
 
 .projectSection .nav-pills .nav-link.active .circle {
-    background-color: #fff;
+    /* background-color: #fff; */
 }
 
 .projectSection .nav-pills .nav-link.ms-0 {
