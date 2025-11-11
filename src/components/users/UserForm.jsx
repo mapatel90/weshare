@@ -392,7 +392,7 @@ const UserForm = ({ initialData = {}, onSubmit, includePassword = false, exclude
                                                     accept="image/*"
                                                     onChange={handleQrCodeChange}
                                                 />
-                                                <FormHelperText sx={{ m: 1 }}>
+                                                <FormHelperText sx={{ m: 1, color: '#6b7280', }}>
                                                     {errors.qrCode ? (
                                                         <span className="text-danger">{errors.qrCode}</span>
                                                     ) : (
