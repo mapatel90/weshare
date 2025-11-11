@@ -1305,6 +1305,571 @@ html {
 			background-color: #000915;
 		}
 
+		/* <---------------! Material-UI Dialog (Dark Mode) !---------------> */
+		.MuiDialog-root {
+			.MuiBackdrop-root {
+				background-color: rgba(0, 9, 21, 0.9) !important;
+			}
+
+			.MuiDialog-container {
+				.MuiPaper-root {
+					background-color: $dark-theme-color-darker !important;
+					color: $white !important;
+				}
+			}
+		}
+
+		.MuiDialogTitle-root {
+			color: $white !important;
+			border-bottom: 1px solid $dark-theme-color-border !important;
+		}
+
+		.MuiDialogContent-root {
+			color: $white !important;
+
+			.MuiTypography-root {
+				color: $white !important;
+
+				&.MuiTypography-subtitle1 {
+					color: $white !important;
+				}
+
+				&.MuiTypography-body1 {
+					color: $white !important;
+				}
+
+				&.MuiTypography-body2 {
+					color: $dark-theme-color !important;
+				}
+			}
+		}
+
+		.MuiDialogActions-root {
+			border-top: 1px solid $dark-theme-color-border !important;
+		}
+
+		.MuiTextField-root {
+			.MuiInputLabel-root {
+				color: $white !important;
+
+				&.Mui-error {
+					color: #f44336 !important;
+				}
+			}
+
+			.MuiInputBase-root {
+				color: $white !important;
+				fieldset {
+					border-color: $dark-theme-color-border !important;
+				}
+
+				&:hover fieldset {
+					border-color: lighten($dark-theme-color-border, 10) !important;
+				}
+
+				&.Mui-focused fieldset {
+					border-color: $primary !important;
+				}
+
+				&.Mui-error {
+					fieldset {
+						border-color: #f44336 !important;
+					}
+				}
+			}
+
+			.MuiFormHelperText-root {
+				color: $dark-theme-color !important;
+
+				&.Mui-error {
+					color: #f44336 !important;
+				}
+			}
+		}
+
+		.MuiFormControl-root {
+			.MuiInputLabel-root {
+				color: $white !important;
+
+				&.Mui-error {
+					color: #f44336 !important;
+				}
+			}
+
+			.MuiSelect-root {
+				color: $white !important;
+			}
+
+			.MuiOutlinedInput-notchedOutline {
+				border-color: $dark-theme-color-border !important;
+			}
+
+			&:hover .MuiOutlinedInput-notchedOutline {
+				border-color: lighten($dark-theme-color-border, 10) !important;
+			}
+
+			&.Mui-focused .MuiOutlinedInput-notchedOutline {
+				border-color: $primary !important;
+			}
+
+			&.Mui-error {
+				.MuiOutlinedInput-notchedOutline {
+					border-color: #f44336 !important;
+				}
+			}
+
+			.MuiFormHelperText-root {
+				color: $dark-theme-color !important;
+
+				&.Mui-error {
+					color: #f44336 !important;
+				}
+			}
+		}
+
+		.MuiMenuItem-root {
+			background-color: $dark-theme-color-darker !important;
+			color: $white !important;
+
+			&:hover {
+				background-color: $dark-theme-color-hover !important;
+			}
+
+			&.Mui-selected {
+				background-color: $dark-theme-color-hover !important;
+				color: $primary !important;
+
+				&:hover {
+					background-color: $dark-theme-color-hover !important;
+				}
+			}
+		}
+
+		.MuiPopover-root {
+			.MuiPaper-root {
+				background-color: $dark-theme-color-darker !important;
+				color: $white !important;
+				border: 1px solid $dark-theme-color-border !important;
+			}
+		}
+
+		.MuiIconButton-root {
+			color: $white !important;
+
+			&:hover {
+				background-color: $dark-theme-color-hover !important;
+			}
+		}
+
+		.MuiCircularProgress-root {
+			color: $primary !important;
+		}
+
+		.MuiTypography-root {
+			&.MuiTypography-subtitle1 {
+				color: $white !important;
+			}
+		}
+
+		/* <---------------! CKEditor Dark Mode !---------------> */
+		.ck-editor,
+		.ck {
+			.ck-toolbar {
+				background-color: $dark-theme-color-dark !important;
+				border-color: $dark-theme-color-border !important;
+				color: $white !important;
+
+				.ck-toolbar__separator {
+					background-color: $dark-theme-color-border !important;
+				}
+
+				.ck-button {
+					color: $white !important;
+
+					&:hover:not(.ck-disabled) {
+						background-color: $dark-theme-color-hover !important;
+					}
+
+					&.ck-on {
+						background-color: $dark-theme-color-hover !important;
+						color: $primary !important;
+					}
+
+					.ck-icon {
+						color: $white !important;
+						fill: $white !important;
+					}
+
+					&.ck-button_with-text {
+						.ck-button__label {
+							color: $white !important;
+						}
+					}
+				}
+
+				.ck-dropdown {
+					.ck-button {
+						color: $white !important;
+
+						&:hover {
+							background-color: $dark-theme-color-hover !important;
+						}
+
+						.ck-button__label {
+							color: $white !important;
+						}
+					}
+				}
+
+				.ck-toolbar__items {
+					.ck-button {
+						&:hover:not(.ck-disabled) {
+							background-color: $dark-theme-color-hover !important;
+						}
+					}
+				}
+
+				.ck-tooltip {
+					background-color: $dark-theme-color-dark !important;
+					color: $white !important;
+					border-color: $dark-theme-color-border !important;
+
+					&::after {
+						border-bottom-color: $dark-theme-color-dark !important;
+					}
+				}
+			}
+
+			.ck-editor__editable,
+			.ck-editor__editable_inline {
+				background-color: $dark-theme-color-darker !important;
+				color: $white !important;
+				border-color: $dark-theme-color-border !important;
+
+				&.ck-focused {
+					border-color: $primary !important;
+					box-shadow: 0 0 0 1px $primary !important;
+				}
+
+				&::selection {
+					background-color: rgba(25, 118, 210, 0.3) !important;
+				}
+
+				* {
+					color: $white !important;
+				}
+
+				p,
+				h1,
+				h2,
+				h3,
+				h4,
+				h5,
+				h6,
+				li,
+				span,
+				div,
+				strong,
+				em,
+				u {
+					color: $white !important;
+				}
+
+				.ck-placeholder::before {
+					color: rgba(255, 255, 255, 0.5) !important;
+				}
+
+				blockquote {
+					border-left-color: $dark-theme-color-border !important;
+					background-color: $dark-theme-color-dark !important;
+					color: $white !important;
+				}
+
+				code {
+					background-color: $dark-theme-color-dark !important;
+					color: $white !important;
+					border-color: $dark-theme-color-border !important;
+				}
+
+				pre {
+					background-color: $dark-theme-color-dark !important;
+					color: $white !important;
+					border-color: $dark-theme-color-border !important;
+
+					code {
+						background-color: transparent !important;
+					}
+				}
+
+				table {
+					border-color: $dark-theme-color-border !important;
+
+					td,
+					th {
+						border-color: $dark-theme-color-border !important;
+						background-color: $dark-theme-color-dark !important;
+						color: $white !important;
+					}
+
+					th {
+						background-color: $dark-theme-color-hover !important;
+					}
+				}
+
+				.ck-widget {
+					&.ck-widget_selected {
+						outline-color: $primary !important;
+					}
+				}
+
+				.ck-image {
+					&.ck-widget_selected {
+						outline-color: $primary !important;
+					}
+				}
+
+				a {
+					color: $primary !important;
+				}
+
+				.ck-list {
+					background-color: $dark-theme-color-dark !important;
+					border-color: $dark-theme-color-border !important;
+
+					.ck-list__item {
+						color: $white !important;
+
+						&:hover {
+							background-color: $dark-theme-color-hover !important;
+						}
+
+						&.ck-on {
+							background-color: $dark-theme-color-hover !important;
+							color: $primary !important;
+						}
+					}
+				}
+
+				.ck-balloon-panel {
+					background-color: $dark-theme-color-dark !important;
+					border-color: $dark-theme-color-border !important;
+					color: $white !important;
+
+					&.ck-balloon-panel_arrow_n::after {
+						border-bottom-color: $dark-theme-color-dark !important;
+					}
+
+					&.ck-balloon-panel_arrow_s::after {
+						border-top-color: $dark-theme-color-dark !important;
+					}
+				}
+			}
+
+			.ck-dropdown__panel {
+				background-color: $dark-theme-color-dark !important;
+				border-color: $dark-theme-color-border !important;
+				box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5) !important;
+
+				.ck-list {
+					background-color: $dark-theme-color-dark !important;
+
+					.ck-list__item {
+						color: $white !important;
+
+						&:hover {
+							background-color: $dark-theme-color-hover !important;
+						}
+
+						&.ck-on {
+							background-color: $dark-theme-color-hover !important;
+							color: $primary !important;
+						}
+					}
+				}
+
+				.ck-button {
+					color: $white !important;
+
+					&:hover {
+						background-color: $dark-theme-color-hover !important;
+					}
+
+					.ck-button__label {
+						color: $white !important;
+					}
+				}
+
+				.ck-input-text {
+					background-color: $dark-theme-color-darker !important;
+					border-color: $dark-theme-color-border !important;
+					color: $white !important;
+
+					&:focus {
+						border-color: $primary !important;
+						box-shadow: 0 0 0 1px $primary !important;
+					}
+				}
+			}
+
+			.ck-tooltip {
+				background-color: $dark-theme-color-dark !important;
+				color: $white !important;
+				border-color: $dark-theme-color-border !important;
+
+				&::after {
+					border-bottom-color: $dark-theme-color-dark !important;
+				}
+			}
+
+			.ck-balloon {
+				.ck-balloon__content {
+					background-color: $dark-theme-color-dark !important;
+					border-color: $dark-theme-color-border !important;
+					color: $white !important;
+				}
+			}
+
+			.ck-content {
+				background-color: $dark-theme-color-darker !important;
+				color: $white !important;
+				border-color: $dark-theme-color-border !important;
+			}
+		}
+
+		/* CKEditor Global Styling (outside .ck-editor wrapper) */
+		.ck.ck-toolbar {
+			background-color: $dark-theme-color-dark !important;
+			border-color: $dark-theme-color-border !important;
+			color: $white !important;
+		}
+
+		.ck.ck-editor__editable,
+		.ck.ck-editor__editable_inline {
+			background-color: $dark-theme-color-darker !important;
+			color: $white !important;
+			border-color: $dark-theme-color-border !important;
+
+			&.ck-focused {
+				border-color: $primary !important;
+				box-shadow: 0 0 0 1px $primary !important;
+			}
+		}
+
+		.ck.ck-dropdown__panel {
+			background-color: $dark-theme-color-dark !important;
+			border-color: $dark-theme-color-border !important;
+			box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5) !important;
+		}
+
+		.ck.ck-list {
+			background-color: $dark-theme-color-dark !important;
+
+			.ck-list__item {
+				color: $white !important;
+
+				&:hover {
+					background-color: $dark-theme-color-hover !important;
+				}
+
+				&.ck-on {
+					background-color: $dark-theme-color-hover !important;
+					color: $primary !important;
+				}
+			}
+		}
+
+		.ck.ck-button {
+			color: $white !important;
+
+			&:hover:not(.ck-disabled) {
+				background-color: $dark-theme-color-hover !important;
+			}
+
+			&.ck-on {
+				background-color: $dark-theme-color-hover !important;
+				color: $primary !important;
+			}
+
+			.ck-icon {
+				color: $white !important;
+				fill: $white !important;
+			}
+
+			.ck-button__label {
+				color: $white !important;
+			}
+		}
+
+		.ck.ck-input-text {
+			background-color: $dark-theme-color-darker !important;
+			border-color: $dark-theme-color-border !important;
+			color: $white !important;
+
+			&:focus {
+				border-color: $primary !important;
+				box-shadow: 0 0 0 1px $primary !important;
+			}
+		}
+
+		.ck.ck-tooltip {
+			background-color: $dark-theme-color-dark !important;
+			color: $white !important;
+			border-color: $dark-theme-color-border !important;
+		}
+
+		.ck.ck-balloon-panel {
+			background-color: $dark-theme-color-dark !important;
+			border-color: $dark-theme-color-border !important;
+			color: $white !important;
+		}
+
+		/* <---------------! Project Image Upload Dark Mode !---------------> */
+		.project-image-preview-box {
+			background-color: $dark-theme-color-darker !important;
+			border-color: $dark-theme-color-border !important;
+			box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5) !important;
+		}
+
+		.project-image-upload-box {
+			background-color: $dark-theme-color-darker !important;
+			border-color: $dark-theme-color-border !important;
+
+			&:hover {
+				border-color: lighten($dark-theme-color-border, 10) !important;
+			}
+		}
+
+		.project-image-upload-button {
+			border-color: $dark-theme-color-border !important;
+			color: $white !important;
+
+			&:hover:not(:disabled) {
+				border-color: lighten($dark-theme-color-border, 10) !important;
+				background-color: $dark-theme-color-hover !important;
+			}
+
+			&:disabled {
+				border-color: $dark-theme-color-border !important;
+				color: rgba(255, 255, 255, 0.5) !important;
+			}
+		}
+
+		.project-image-upload-text {
+			color: $dark-theme-color !important;
+		}
+
+		.project-image-check {
+			color: #10b981 !important;
+		}
+
+		.project-image-remove-button {
+			color: #ef4444 !important;
+
+			&:hover {
+				background-color: rgba(239, 68, 68, 0.2) !important;
+			}
+		}
+
 		/* <---------------! Popover !---------------> */
 		.popover {
 			border-color: $dark-theme-color-border;
