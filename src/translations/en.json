@@ -547,7 +547,8 @@
       "projecttitle1": "Sunrise Residential Complex",
       "projecttitle2": "Green Valley Business Park",
       "projecttitle3": "Eco Community Housing",
-      "uploadProjectImage": "Upload your project image here."
+      "uploadProjectImage": "Upload your project image here.",
+      "noProjects": "No projects available"
     },
     "exchangeHub": {
       "title": "Exchange Hub",

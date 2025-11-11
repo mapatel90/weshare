@@ -525,7 +525,8 @@
       "loadMore": "Tải thêm dự án",
       "projecttitle1": "Khu dân cư phức hợp Sunrise",
       "projecttitle2": "Khu thương mại Green Valley",
-      "projecttitle3": "Nhà ở cộng đồng sinh thái"
+      "projecttitle3": "Nhà ở cộng đồng sinh thái",
+      "noProjects": "Không có dự án nào"
     },
     "exchangeHub": {
       "title": "Trung tâm trao đổi",
