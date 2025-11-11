@@ -70,7 +70,7 @@ const Dropdown = ({
 
 
                 {/* Dropdown Menu */}
-                <ul className={`dropdown-menu ${dropdownMenuStyle} ${dropdownPosition} ${isOpen ? 'show' : ''}`} style={{ position: 'absolute' }}>
+                <ul className={`dropdown-menu ${dropdownMenuStyle} ${dropdownPosition} ${isOpen ? 'show' : ''}`} style={{ position: 'absolute', right: '0px' }}>
                     {dropdownItems.map((item, index) => {
                         if (item.type === "divider") {
                             return <li className="dropdown-divider" key={index}></li>;

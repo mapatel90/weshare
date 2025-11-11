@@ -208,8 +208,8 @@ const ExchangeHub = () => {
                     {lang('home.exchangeHub.sortBy')}
                   </button>
                   <ul className="dropdown-menu w-100">
-                    <li><button className={`dropdown-item ${sortBy === 'roi-high' ? 'active' : ''}`} style={{width:'68%'}} type="button" onClick={() => setSortBy('roi-high')}>{lang('home.exchangeHub.sortRoiHigh')}</button></li>
-                    <li><button className={`dropdown-item ${sortBy === 'roi-low' ? 'active' : ''}`} type="button" onClick={() => setSortBy('roi-low')}>{lang('home.exchangeHub.sortRoiLow')}</button></li>
+                    <li><button className={`dropdown-item ${sortBy === 'roi-high' ? 'active' : ''}`} style={{width:'90%'}} type="button" onClick={() => setSortBy('roi-high')}>{lang('home.exchangeHub.sortRoiHigh')}</button></li>
+                    <li><button className={`dropdown-item ${sortBy === 'roi-low' ? 'active' : ''}`} style={{width:'90%'}} type="button" onClick={() => setSortBy('roi-low')}>{lang('home.exchangeHub.sortRoiLow')}</button></li>
                     {/* <li><hr className="dropdown-divider" /></li>
                     <li><button className={`dropdown-item ${sortBy === 'price-low' ? 'active' : ''}`} type="button" onClick={() => setSortBy('price-low')}>{lang('home.exchangeHub.sortPriceLow')}</button></li>
                     <li><button className={`dropdown-item ${sortBy === 'price-high' ? 'active' : ''}`} type="button" onClick={() => setSortBy('price-high')}>{lang('home.exchangeHub.sortPriceHigh')}</button></li>

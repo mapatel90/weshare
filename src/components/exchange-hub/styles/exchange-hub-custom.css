@@ -258,7 +258,7 @@ a.normalBtn img,
 }
 
 .card-header-image h3 {
-    font-size: 24px;
+    font-size: 21px;
     font-weight: 600;
     margin: 0;
     color: #000;
@@ -268,15 +268,16 @@ a.normalBtn img,
 
 .rating {
     display: flex;
-    flex-direction: column;
+    /* flex-direction: column; */
     align-items: flex-end;
     gap: 4px;
     flex-shrink: 0;
+    margin-top: 6px;
 }
 
 .text-rating {
     font-size: 11px;
-    color: #666;
+    color: #000000;
     font-weight: 400;
 }
 
@@ -373,7 +374,7 @@ a.normalBtn img,
 .detail-divider {
     width: 1px;
     height: 40px;
-    background: #E0E0E0;
+    background: #3A3A3A;
 }
 
 /* Progress Section */
@@ -425,8 +426,8 @@ a.normalBtn img,
 .note-text {
     margin: 16px 0 20px;
     font-size: 12px;
-    color: #999;
-    font-style: italic;
+    color: #000000;
+    /* font-style: italic; */
     font-weight: 400;
 }
 
@@ -480,21 +481,49 @@ a.normalBtn img,
 
 /* Responsive for Image Card */
 @media (max-width: 768px) {
+    .solar-card-with-image {
+        height: 765px;
+    }
     .card-image-container {
         height: 200px;
     }
 
     .card-content-with-image {
-        padding: 20px;
+        padding: 16px;
+    }
+
+    .card-header-image {
+        flex-direction: row;
+        gap: 8px;
     }
 
     .card-header-image h3 {
-        font-size: 20px;
+        font-size: 18px;
+        line-height: 1.4;
+    }
+
+    .rating {
+        flex-direction: column;
+        gap: 2px;
+        margin-top: 0;
+    }
+
+    .text-rating {
+        font-size: 10px;
+    }
+
+    .stars {
+        font-size: 12px;
+    }
+
+    .id-image,
+    .offtaker-image {
+        font-size: 13px;
     }
 
     .stats-image {
         grid-template-columns: 1fr;
-        gap: 12px;
+        gap: 8px;
         text-align: left;
     }
 
@@ -502,21 +531,26 @@ a.normalBtn img,
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 12px 0;
-        border-bottom: 1px solid #F0F0F0;
-    }
-
-    .stat-image:last-child {
-        border-bottom: none;
+        padding: 10px;
+        border: 1px solid #E6E6E6;
+        border-radius: 4px;
     }
 
     .stat-image h4 {
         margin: 0;
+        font-size: 15px;
+    }
+
+    .stat-image p {
+        font-size: 12px;
+        margin: 0;
+        text-align: right;
     }
 
     .details-row-image {
         flex-direction: column;
-        gap: 16px;
+        gap: 0;
+        padding: 12px;
     }
 
     .detail-divider {
@@ -528,41 +562,149 @@ a.normalBtn img,
         flex-direction: row;
         justify-content: space-between;
         align-items: center;
-        padding: 12px 0;
-        border-bottom: 1px solid #F0F0F0;
+        padding: 10px 0;
+        border-bottom: 1px solid #D0D0D0;
+        text-align: left;
     }
 
     .detail-item:last-child {
         border-bottom: none;
     }
+
+    .detail-item .label {
+        font-size: 12px;
+    }
+
+    .detail-item .value {
+        font-size: 16px;
+    }
+
+    .progress-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+    }
+
+    .progress-label,
+    .time-left {
+        font-size: 14px;
+    }
+
+    .note-text {
+        font-size: 11px;
+        margin: 12px 0 16px;
+    }
+
+    .buttons-image .btn {
+        padding: 10px 16px;
+        font-size: 14px;
+    }
 }
 
 @media (max-width: 576px) {
     .card-image-container {
-        height: 180px;
+        height: 160px;
     }
 
     .card-content-with-image {
-        padding: 16px;
+        padding: 14px;
     }
 
     .card-header-image {
         flex-direction: column;
         align-items: flex-start;
-        gap: 10px;
+        gap: 8px;
+    }
+
+    .card-header-image h3 {
+        font-size: 17px;
     }
 
     .rating {
-        align-items: flex-start;
+        flex-direction: row;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .text-rating {
+        font-size: 11px;
+    }
+
+    .stars {
+        font-size: 13px;
+    }
+
+    .id-image {
+        margin: 6px 0 4px;
+        font-size: 12px;
+    }
+
+    .offtaker-image {
+        margin: 4px 0 16px;
+        font-size: 12px;
+    }
+
+    .stats-image {
+        margin: 16px 0;
+    }
+
+    .stat-image {
+        padding: 8px 10px;
+    }
+
+    .stat-image h4 {
+        font-size: 14px;
+    }
+
+    .stat-image p {
+        font-size: 11px;
+    }
+
+    .details-row-image {
+        padding: 10px;
+        margin: 16px 0;
+    }
+
+    .detail-item {
+        padding: 8px 0;
+    }
+
+    .detail-item .label {
+        font-size: 11px;
+    }
+
+    .detail-item .value {
+        font-size: 15px;
+    }
+
+    .progress-section {
+        margin: 16px 0;
+    }
+
+    .progress-label,
+    .time-left {
+        font-size: 13px;
+    }
+
+    .progress-bar-container {
+        height: 6px;
+    }
+
+    .note-text {
+        font-size: 10px;
+        margin: 10px 0 14px;
     }
 
     .buttons-image {
         flex-direction: column;
-        gap: 10px;
+        gap: 8px;
+        margin-top: 16px;
     }
 
     .buttons-image .btn {
         width: 100%;
+        padding: 10px 14px;
+        font-size: 13px;
     }
 }
 
@@ -859,7 +1001,7 @@ a.normalBtn img,
 }
 
 .projectSection .nav-pills .nav-link.active .circle {
-    background-color: #fff;
+    background-color: var(--color-F6A623);
 }
 
 .projectSection .nav-pills .nav-link.ms-0 {

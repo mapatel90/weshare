@@ -63,6 +63,7 @@ const ProjectCard = ({ project, activeTab }) => {
                             onError={(e) => {
                                 e.target.src = '/images/projects/project-img1.png'
                             }}
+                            style={{borderRadius: '25px'}}
                         />
                         {/* Reliability Badge */}
                         <div className={`upcoming-badge ${badge.class}`} style={{backgroundColor: '#FFF3DF', margin:'2%'}}>
