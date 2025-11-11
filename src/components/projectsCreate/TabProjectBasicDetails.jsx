@@ -334,6 +334,7 @@ const TabProjectBasicDetails = ({ setFormData, formData, error, setError }) => {
                         {imagePreview && (
                             <div className="col-md-6 pb-3" style={{width:'18%'}}>
                                 <Box
+                                    className="project-image-preview-box"
                                     sx={{
                                         width: '100%',
                                         height: '120px',
@@ -367,6 +368,7 @@ const TabProjectBasicDetails = ({ setFormData, formData, error, setError }) => {
                                     {lang('projects.projectImage', 'Project Image')}
                                 </InputLabel> */}
                                 <Box
+                                    className="project-image-upload-box"
                                     sx={{
                                         // mt: 2,
                                         display: 'flex',
@@ -386,6 +388,7 @@ const TabProjectBasicDetails = ({ setFormData, formData, error, setError }) => {
                                         component="label"
                                         htmlFor="project-image-upload"
                                         disabled={loading.image}
+                                        className="project-image-upload-button"
                                         sx={{
                                             textTransform: 'none',
                                             minWidth: '90px',
@@ -410,14 +413,15 @@ const TabProjectBasicDetails = ({ setFormData, formData, error, setError }) => {
                                         onChange={handleImageUpload}
                                         disabled={loading.image}
                                     />
-                                    <Box sx={{ flex: 1, color: '#6b7280', fontSize: '14px' }}>
+                                    <Box className="project-image-upload-text" sx={{ flex: 1, color: '#6b7280', fontSize: '14px' }}>
                                         {imagePreview ? (
                                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                                <span style={{ color: '#059669', fontWeight: 500 }}>✓</span>
+                                                <span className="project-image-check" style={{ color: '#059669', fontWeight: 500 }}>✓</span>
                                                 <span>{lang('projects.imageSelected', 'Image selected')}</span>
                                                 <IconButton
                                                     size="small"
                                                     onClick={handleRemoveImage}
+                                                    className="project-image-remove-button"
                                                     sx={{
                                                         ml: 'auto',
                                                         color: '#dc2626',
