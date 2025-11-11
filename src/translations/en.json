@@ -836,6 +836,7 @@
     "imageUploadFailed": "Failed to upload image"
   },
   "settings": {
+    "title": "Settings",
     "generalSettings": "General Settings",
     "siteName": "Name",
     "siteLogo": "Site Logo",
@@ -950,7 +951,9 @@
     "kilowatt": "Kilowatt",
     "onlynumbers": "Only numbers are allowed (e.g. 1234.56)",
     "selectInverter" : "Select Inverter",
-    "serialNumber" : "Serial Number"
+    "serialNumber" : "Serial Number",
+    "inverterlist" : "Inverter List",
+    "invertertype" : "Inverter Type"
   },
   "projectType": {
     "title": "Project Types",
@@ -1021,6 +1024,7 @@
     "userRole": "User Role"
   },
   "invoice": {
+    "invoices": "Invoices",
     "invoiceHeader": "Invoice Header",
     "addInvoice": "Add Invoice",
     "invoiceNumber": "Invoice Number",
@@ -1151,6 +1155,7 @@
     "noRelatedPosts": "No related posts available."
   },
   "testimonial": {
+    "title": "Testimonials",
     "add": "Add Testimonial",
     "edit": "Edit Testimonial",
     "name": "Name",
@@ -1185,6 +1190,7 @@
     "blog": "Blog"
   },
   "contactUs": {
+    "contactus": "Contact Us",
     "contact": "Contact",
     "us": "Us",
     "title": "Contact With Us",
@@ -1204,6 +1210,13 @@
     "titlePart1": "Get in",
     "titlePart2": "Touch",
     "contactDetails": "Contact Details",
-    "message2": "Send us a message and we' ll respond as soon as possible."
+    "message2": "Send us a message and we' ll respond as soon as possible.",
+    "title": "Get in Touch"
+  },
+  "users": {
+    "userlist": "User List"
+  },
+  "newsDetail": {
+    "title": "News Detail"
   }
 }

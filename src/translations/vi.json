@@ -902,7 +902,9 @@
     "onlynumbers": "Chỉ cho phép nhập số (ví dụ: 1234.56)",
     "selectInverter": "Chọn biến tần",
     "serialNumber": "Số seri",
-    "kilowatt": "Kilowatt"
+    "kilowatt": "Kilowatt",
+    "inverterList": "Danh sách biến tần",
+    "inverterType": "Loại biến tần"
   },
   "projectType": {
     "title": "Loại dự án",
@@ -973,6 +975,7 @@
     "userRole": "Vai trò người dùng"
   },
   "invoice": {
+    "invoices": "Hóa đơn",
     "invoiceHeader": "Tiêu đề hóa đơn",
     "addInvoice": "Thêm hóa đơn",
     "invoiceNumber": "Số hóa đơn",
@@ -1102,6 +1105,7 @@
     "noRelatedPosts": "Không có bài viết liên quan nào"
   },
   "testimonial": {
+    "title": "Lời chứng thực",
     "add": "Thêm lời chứng thực",
     "edit": "Sửa lời chứng thực",
     "name": "Tên",
@@ -1135,6 +1139,7 @@
     "blog": "Blog"
   },
   "contactUs": {
+    "contactus" : "Liên hệ với chúng tôi",
     "contact": "Liên hệ",
     "us": "Chúng tôi",
     "title": "Liên hệ với chúng tôi",
@@ -1154,6 +1159,13 @@
     "titlePart1": "Vào trong",
     "titlePart2": "liên hệ",
     "contactDetails": "Chi tiết liên hệ",
-    "message2": "Gửi tin nhắn cho chúng tôi và chúng tôi sẽ trả lời sớm nhất có thể."
+    "message2": "Gửi tin nhắn cho chúng tôi và chúng tôi sẽ trả lời sớm nhất có thể.",
+    "title": "Liên hệ với chúng tôi"
+  },
+  "users": {
+    "userlist": "Danh sách người dùng"
+  },
+  "newsDetail": {
+    "title": "Chi tiết tin tức"
   }
 }

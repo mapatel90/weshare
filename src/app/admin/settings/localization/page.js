@@ -1,9 +1,13 @@
 import SettingsLocalizationForm from '@/components/setting/settingsLocalizationForm'
 import React from 'react'
+import DynamicTitle from '@/components/common/DynamicTitle'
 
 const page = () => {
     return (
-        <><SettingsLocalizationForm /></>
+        <>
+            <DynamicTitle titleKey="settings.title" />
+            <SettingsLocalizationForm />
+        </>
     )
 }
 

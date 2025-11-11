@@ -21,10 +21,12 @@ import HomeFooter from '@/components/home/HomeFooter'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import '../../../public/css/home.css'
 import '../../../public/css/responsive.css'
+import DynamicTitle from '@/components/common/DynamicTitle'
 
 const HomePage = () => {
   return (
     <>
+      <DynamicTitle titleKey="home.navbar.home" />
       {/* Navbar */}
       <HomeNavbar />
       

@@ -3,10 +3,12 @@ import PageHeader from "@/components/shared/pageHeader/PageHeader";
 import TestimonialHeader from "@/components/testimonial/TestimonialHeader";
 import TestimonialTable from "@/components/testimonial/TestimonialTable";
 import Footer from "@/components/shared/Footer";
+import DynamicTitle from "@/components/common/DynamicTitle";
 
 const page = () => {
   return (
     <>
+      <DynamicTitle titleKey="testimonial.title" />
       <PageHeader>
         <TestimonialHeader />
       </PageHeader>

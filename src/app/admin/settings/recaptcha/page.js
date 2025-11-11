@@ -1,9 +1,13 @@
 import SettingsRecaptchaForm from '@/components/setting/settingsRecaptchaForm'
 import React from 'react'
+import DynamicTitle from '@/components/common/DynamicTitle'
 
 const page = () => {
     return (
-        <><SettingsRecaptchaForm /></>
+        <>
+            <DynamicTitle titleKey="settings.title" />
+            <SettingsRecaptchaForm />
+        </>
     )
 }
 

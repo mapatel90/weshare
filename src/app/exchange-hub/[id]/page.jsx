@@ -6,10 +6,12 @@ import HomeFooter from '@/components/home/HomeFooter'
 import ProjectDetail from '@/components/exchange-hub/ProjectDetail'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import '../../../../public/css/responsive.css'
+import DynamicTitle from '@/components/common/DynamicTitle'
 
 const ProjectDetailPage = ({ params }) => {
   return (
     <>
+      <DynamicTitle titleKey="home.exchangeHub.title" />
       {/* Navbar */}
       <HomeNavbar />
 

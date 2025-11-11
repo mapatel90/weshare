@@ -17,6 +17,9 @@ const ProjectDetail = ({ projectId }) => {
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
 
+    // NEW: testimonials state
+    const [testimonials, setTestimonials] = useState([])
+
     const fetchProjectDetail = useCallback(async () => {
         if (!projectId) return
         
@@ -45,6 +48,28 @@ const ProjectDetail = ({ projectId }) => {
         }
     }, [projectId])
 
+    // NEW: fetch testimonials related to this project (max 3)
+    const fetchTestimonials = useCallback(async () => {
+        if (!project) return
+        try {
+            const res = await apiGet('/api/testimonials', { showLoader: false, includeAuth: false })
+            // server returns array of testimonials; filter by project id and limit to 3
+            if (Array.isArray(res)) {
+                const related = res.filter(t => {
+                    const pid = t.project?.id ?? t.project_id
+                    return Number(pid) === Number(project.id)
+                }).slice(0, 3)
+
+                setTestimonials(related)
+            } else {
+                setTestimonials([])
+            }
+        } catch (e) {
+            console.error('Error fetching testimonials:', e)
+            setTestimonials([])
+        }
+    }, [project])
+
     useEffect(() => {
         AOS.init({
             duration: 1000,
@@ -56,6 +81,11 @@ const ProjectDetail = ({ projectId }) => {
     useEffect(() => {
         fetchProjectDetail()
     }, [fetchProjectDetail])
+
+    // fetch testimonials when project is loaded
+    useEffect(() => {
+        fetchTestimonials()
+    }, [fetchTestimonials])
 
     // Format numbers
     const formatNumber = (num) => {
@@ -412,38 +442,55 @@ const ProjectDetail = ({ projectId }) => {
                             <div className="testimonial-rightBox">
                                 <h3>{lang('home.exchangeHub.testimonials') || 'Offtaker & Investor Testimonials'}</h3>
 
-                                {/* Offtaker Testimonial */}
-                                <div className="testi-card">
-                                    <img 
-                                        src={project.offtaker?.profile_image || "/images/avatar/user-img.png"} 
-                                        alt="testimonial" 
-                                        onError={(e) => { e.target.src = "/images/avatar/user-img.png" }}
-                                    />
-                                    <h4>{project.offtaker?.company_name || project.offtaker?.fullName || 'Greenfield Holdings'}</h4>
-                                    <div className="designation">{lang('home.exchangeHub.offtaker') || 'Offtaker'}</div>
-                                    <p>
-                                        "Partnering with this solar project has significantly reduced our energy expenses while ensuring a stable and eco-friendly power supply. The system's consistent performance has made it a dependable asset for our operations."
-                                    </p>
-                                </div>
+                                {/* NEW: show up to 3 testimonials related to this project */}
+                                {testimonials.length > 0 ? (
+                                    testimonials.map((t, idx) => (
+                                        <div className="testi-card" key={t.id || idx}>
+                                            <img 
+                                                src={t.image || "/images/avatar/user-img.png"} 
+                                                alt="testimonial" 
+                                                onError={(e) => { e.target.src = "/images/avatar/user-img.png" }}
+                                            />
+                                            <h4>{t.project?.project_name || project.project_name}</h4>
+                                            <div className="designation">{t.offtaker?.fullName || t.offtaker_fullName || 'Offtaker'}</div>
+                                            <p>{t.description}</p>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <>
+                                        {/* fallback static testimonials if none found */}
+                                        <div className="testi-card">
+                                            <img 
+                                                src={project.offtaker?.profile_image || "/images/avatar/user-img.png"} 
+                                                alt="testimonial" 
+                                                onError={(e) => { e.target.src = "/images/avatar/user-img.png" }}
+                                            />
+                                            <h4>{project.offtaker?.company_name || project.offtaker?.fullName || 'Greenfield Holdings'}</h4>
+                                            <div className="designation">{lang('home.exchangeHub.offtaker') || 'Offtaker'}</div>
+                                            <p>
+                                                "Partnering with this solar project has significantly reduced our energy expenses while ensuring a stable and eco-friendly power supply. The system's consistent performance has made it a dependable asset for our operations."
+                                            </p>
+                                        </div>
 
-                                {/* Investor Testimonials */}
-                                <div className="testi-card">
-                                    <img src="/img/test-img.png" alt="testimonial" onError={(e) => { e.target.src = "/images/avatar/user-img.png" }} />
-                                    <h4>Sarah Johnson</h4>
-                                    <div className="designation">{lang('home.exchangeHub.investor') || 'Investor'}</div>
-                                    <p>
-                                        "Investing in this project has been a rewarding decision. The ROI has steadily improved each year, and the transparency in performance tracking gives me complete confidence in the asset's long-term value."
-                                    </p>
-                                </div>
+                                        <div className="testi-card">
+                                            <img src="/img/test-img.png" alt="testimonial" onError={(e) => { e.target.src = "/images/avatar/user-img.png" }} />
+                                            <h4>Sarah Johnson</h4>
+                                            <div className="designation">{lang('home.exchangeHub.investor') || 'Investor'}</div>
+                                            <p>
+                                                "Investing in this project has been a rewarding decision. The ROI has steadily improved each year, and the transparency in performance tracking gives me complete confidence in the asset's long-term value."
+                                            </p>
+                                        </div>
 
-                                <div className="testi-card">
-                                    <img src="/images/avatar/user-img.png" alt="testimonial" onError={(e) => { e.target.src = "/img/test-img.png" }} />
-                                    <h4>Cameron Williamson</h4>
-                                    <div className="designation">{lang('home.exchangeHub.investor') || 'Investor'}</div>
-                                    <p>
-                                        "This solar project offers excellent returns with minimal risk. The professional management and reliable offtaker make it a standout investment in my renewable energy portfolio."
-                                    </p>
-                                </div>
+                                        <div className="testi-card">
+                                            <img src="/images/avatar/user-img.png" alt="testimonial" onError={(e) => { e.target.src = "/img/test-img.png" }} />
+                                            <h4>Cameron Williamson</h4>
+                                            <div className="designation">{lang('home.exchangeHub.investor') || 'Investor'}</div>
+                                            <p>
+                                                "This solar project offers excellent returns with minimal risk. The professional management and reliable offtaker make it a standout investment in my renewable energy portfolio."
+                                            </p>
+                                        </div>
+                                    </>
+                                )}
                             </div>
                         </div>
                     </div>

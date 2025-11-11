@@ -3,10 +3,12 @@ import PageHeader from '@/components/shared/pageHeader/PageHeader'
 import Footer from '@/components/shared/Footer'
 import BlogHeader from '@/components/blog/BlogHeader'
 import BlogTable from '@/components/blog/BlogTable'
+import DynamicTitle from '@/components/common/DynamicTitle'
 
 const page = () => {
     return (
         <>
+            <DynamicTitle titleKey="blog.blog" />
             <PageHeader>
                 <BlogHeader />
             </PageHeader>
