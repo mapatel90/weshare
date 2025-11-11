@@ -1,12 +1,12 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { 
-  AppBar, 
-  Toolbar, 
-  Container, 
-  Button, 
-  Box, 
+import {
+  AppBar,
+  Toolbar,
+  Container,
+  Button,
+  Box,
   IconButton,
   Drawer,
   List,
@@ -135,8 +135,8 @@ const HomeNavbar = () => {
       <List>
         {navItems.map((item) => (
           <ListItem key={item.name} disablePadding>
-            <ListItemButton 
-              sx={{ 
+            <ListItemButton
+              sx={{
                 textAlign: 'center',
                 backgroundColor: isActive(item) ? '#FFF9ED' : 'transparent',
                 color: isActive(item) ? '#F6A623' : '#000',
@@ -145,7 +145,7 @@ const HomeNavbar = () => {
                   backgroundColor: '#FFF9ED',
                   color: '#F6A623'
                 }
-              }} 
+              }}
               href={item.href}
             >
               <ListItemText primary={item.name} />
@@ -163,10 +163,10 @@ const HomeNavbar = () => {
 
   return (
     <>
-      <AppBar 
-        position="sticky" 
-        sx={{ 
-          backgroundColor: 'white', 
+      <AppBar
+        position="sticky"
+        sx={{
+          backgroundColor: 'white',
           boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
           py: 1
         }}
@@ -176,10 +176,10 @@ const HomeNavbar = () => {
             {/* Logo */}
             <Box sx={{ flexGrow: 0, mr: 4 }}>
               <Link href="/">
-                <Image 
-                  src="/images/logo/header-logo.svg" 
-                  alt="weShare logo" 
-                  width={120} 
+                <Image
+                  src="/images/logo/header-logo.svg"
+                  alt="weShare logo"
+                  width={120}
                   height={40}
                   style={{ cursor: 'pointer' }}
                 />
@@ -213,8 +213,8 @@ const HomeNavbar = () => {
                 <Button
                   onClick={handleLangClick}
                   endIcon={<KeyboardArrowDownIcon />}
-                  sx={{ 
-                    color: '#000', 
+                  sx={{
+                    color: '#000',
                     mr: 2,
                     fontWeight: 600,
                     textTransform: 'uppercase',
@@ -230,14 +230,14 @@ const HomeNavbar = () => {
                   open={Boolean(langAnchor)}
                   onClose={handleLangClose}
                 >
-                  <MenuItem 
+                  <MenuItem
                     onClick={() => handleLanguageChange('en')}
                     selected={currentLanguage === 'en'}
-                  > 
+                  >
                     {/* <img src="/images/flags/4x3/us.svg" alt="" style={{ width: 20, marginRight: 8 }} /> */}
                     English
                   </MenuItem>
-                  <MenuItem 
+                  <MenuItem
                     onClick={() => handleLanguageChange('vi')}
                     selected={currentLanguage === 'vi'}
                   >
@@ -267,21 +267,66 @@ const HomeNavbar = () => {
                       onClose={handleUserClose}
                       PaperProps={{
                         sx: {
-                          mt: 1,
-                          minWidth: 200
-                        }
+                          mt: 1.5,
+                          borderRadius: 3,
+                          boxShadow: '0px 6px 25px rgba(0,0,0,0.15)',
+                          border: '1px solid #e0e0e0',
+                          backgroundColor: '#fff',
+                          minWidth: 250,
+                          p: 1,
+                        },
                       }}
                     >
-                      <Box sx={{ px: 2, py: 1.5, borderBottom: '1px solid #eee' }}>
-                        <Box sx={{ fontWeight: 600, color: '#000' }}>{user?.name}</Box>
-                        <Box sx={{ fontSize: '0.85rem', color: '#666' }}>{user?.email}</Box>
-                      </Box>
-                      <MenuItem onClick={handleProfile}>
-                        <PersonOutlineIcon sx={{ mr: 1, fontSize: 20 }} />
-                        Dashboard
+                      <MenuItem
+                        onClick={handleProfile}
+                        sx={{
+                          py: 1.5,
+                          fontSize: '1rem',
+                          fontWeight: 500,
+                          borderRadius: 2,
+                          '&:hover': {
+                            backgroundColor: '#f8f9fb',
+                          },
+                        }}
+                      >
+                        <PersonOutlineIcon sx={{ mr: 2, fontSize: 26, color: '#000' }} />
+                        My Profile
                       </MenuItem>
-                      <MenuItem onClick={handleLogout} sx={{ color: '#d32f2f' }}>
-                        <Box component="span" sx={{ mr: 1, fontSize: 20 }}>🚪</Box>
+
+                      <MenuItem
+                        onClick={() => {
+                          router.push('/my-projects')
+                          handleUserClose()
+                        }}
+                        sx={{
+                          py: 1.5,
+                          fontSize: '1rem',
+                          fontWeight: 500,
+                          borderRadius: 2,
+                          '&:hover': {
+                            backgroundColor: '#f8f9fb',
+                          },
+                        }}
+                      >
+                      {/* <DescriptionOutlinedIcon sx={{ mr: 2, fontSize: 26, color: '#000' }} /> */}
+                        My Projects
+                      </MenuItem>
+
+                      {/* <Divider sx={{ my: 0.5 }} /> */}
+
+                      <MenuItem
+                        onClick={handleLogout}
+                        sx={{
+                          py: 1.5,
+                          fontSize: '1rem',
+                          fontWeight: 500,
+                          borderRadius: 2,
+                          '&:hover': {
+                            backgroundColor: '#f8f9fb',
+                          },
+                        }}
+                      >
+                        {/* <LogoutOutlinedIcon sx={{ mr: 2, fontSize: 26, color: '#000' }} /> */}
                         Logout
                       </MenuItem>
                     </Menu>
