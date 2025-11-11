@@ -11,10 +11,14 @@ import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "@/components/get_in_touch/styles/getInTouch.css";
 import "@/styles/css/home.css";
 import "@/styles/css/responsive.css";
+import DynamicTitle from "@/components/common/DynamicTitle";
 
-const ContactUsPage = () => {
+const GetInTouchPage = () => {
   return (
     <>
+
+      <DynamicTitle titleKey="getinTouch.title" />
+
       {/* Navbar */}
       <HomeNavbar />
 
@@ -47,4 +51,4 @@ const ContactUsPage = () => {
   );
 };
 
-export default ContactUsPage;
+export default GetInTouchPage;

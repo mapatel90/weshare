@@ -10,10 +10,13 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "@/styles/css/home.css";
 import "@/styles/css/responsive.css";
+import DynamicTitle from "@/components/common/DynamicTitle";
 
 const ContactUsPage = () => {
   return (
     <>
+      <DynamicTitle titleKey="contactUs.contactus" />
+
       {/* Navbar */}
       <HomeNavbar />
 

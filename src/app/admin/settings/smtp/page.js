@@ -1,9 +1,13 @@
 import SettingsEmailForm from '@/components/setting/settingsEmailForm'
 import React from 'react'
+import DynamicTitle from '@/components/common/DynamicTitle'
 
 const page = () => {
     return (
-        <><SettingsEmailForm /></>
+        <>
+            <DynamicTitle titleKey="settings.title" />
+            <SettingsEmailForm />
+        </>
     )
 }
 

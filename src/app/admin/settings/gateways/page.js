@@ -1,9 +1,13 @@
 import SettingsGatewaysForm from '@/components/setting/settingsGatewaysForm'
 import React from 'react'
+import DynamicTitle from '@/components/common/DynamicTitle'
 
 const page = () => {
     return (
-        <SettingsGatewaysForm />
+        <>
+            <DynamicTitle titleKey="settings.title" />
+            <SettingsGatewaysForm />
+        </>
     )
 }
 

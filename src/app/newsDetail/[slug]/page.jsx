@@ -9,6 +9,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "@/components/news/styles/news.css";
 import "@/styles/css/home.css";
 import "@/styles/css/responsive.css";
+import DynamicTitle from "@/components/common/DynamicTitle";
 
 const NewsDetailPage = () => {
   const params = useParams();
@@ -36,6 +37,9 @@ const NewsDetailPage = () => {
 
   return (
     <>
+
+      <DynamicTitle titleKey="newsDetail.title" />
+
       {/* Navbar */}
       <HomeNavbar />
 
