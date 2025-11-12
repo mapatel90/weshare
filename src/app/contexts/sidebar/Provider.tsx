@@ -1,6 +1,8 @@
+'use client';
+
 import { ReactNode, useLayoutEffect } from "react";
 
-import { useDisclosure, useDidUpdate } from "@/hooks";
+import { useDisclosure, useDidUpdate } from "@/components/portal/hooks";
 import { useBreakpointsContext } from "../breakpoint/context";
 import { SidebarContext, SidebarContextValue } from "./context";
 
