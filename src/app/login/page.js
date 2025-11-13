@@ -51,7 +51,6 @@ const LoginPage = () => {
                 }}
             >
                 <CardContent>
-<<<<<<< HEAD
                     <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
                         <Link href="/" style={{ textDecoration: 'none', color: '#6c757d', fontSize: '0.9375rem' }}>
                             <span style={{ marginRight: '0.25rem' }}>🏠</span> {lang('navigation.goToHome')}
@@ -108,9 +107,6 @@ const LoginPage = () => {
                             </Button>
                         </Link>
                     </Box>
-=======
-                    <LoginForm registerPath={"/register"} resetPath={"/reset"} />
->>>>>>> 955c62b22dbdc0621ffc743204915a064338774b
                 </CardContent>
             </Card>
         </Box>
