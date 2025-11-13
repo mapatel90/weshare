@@ -6,6 +6,7 @@ import Link from 'next/link'
 import AOS from 'aos'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { apiGet } from '@/lib/api'
+import { getFullImageUrl } from '@/utils/common'
 
 const ProjectsSection = () => {
   const [activeTab, setActiveTab] = useState('open')
@@ -75,8 +76,8 @@ const ProjectsSection = () => {
                 const cityName = project.city?.name || ''
                 const stateName = project.state?.name || ''
                 const location = [cityName, stateName].filter(Boolean).join(', ') || 'Location Not Available'
-                const projectImage = project.project_image || '/images/projects/project-img1.png'
-                
+                const projectImage = getFullImageUrl(project?.project_image) || '/images/projects/project-img1.png'
+                console.log(projectImage);
                 return (
                   <div key={project.id} className="col-12 col-md-6 col-lg-4 mb-4 mb-lg-0" data-aos="fade-up" data-aos-duration={1000 + index * 200}>
                     <div className="project-card shadow-sm overflow-hidden">

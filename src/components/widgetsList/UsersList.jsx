@@ -35,7 +35,7 @@ const UsersList = ({ title }) => {
                                     {
                                         user_img ?
                                             <div className="avatar-image me-3">
-                                                <Image width={38} height={38} sizes='100vw' src={user_img} alt="img" className="img-fluid rounded-circle" />
+                                                <Image width={38} height={38} sizes='100vw' src={getFullImageUrl(user_img)} alt="img" className="img-fluid rounded-circle" />
                                             </div>
                                             :
                                             <div className="text-white avatar-text user-avatar-text  me-3">{user_name.substring(0, 1)}</div>

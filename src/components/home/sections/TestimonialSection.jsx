@@ -5,6 +5,7 @@ import Image from 'next/image'
 import AOS from 'aos'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { apiGet } from '@/lib/api'
+import { getFullImageUrl } from '@/utils/common'
 
 const TestimonialSection = () => {
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -146,7 +147,7 @@ const TestimonialSection = () => {
                         overflow: 'hidden'
                       }}>
                         <Image
-                          src={testimonial.image}
+                          src={getFullImageUrl(testimonial?.image)}
                           alt={testimonial.name}
                           fill
                           style={{

@@ -6,6 +6,7 @@ import { FiActivity, FiBell, FiChevronRight, FiDollarSign, FiLogOut, FiSettings,
 import { useAuth } from '@/contexts/AuthContext'
 import { useLanguage } from '@/contexts/LanguageContext'
 import Link from 'next/link'
+import { getFullImageUrl } from '@/utils/common'
 
 const activePosition = ["Active", "Always", "Bussy", "Inactive", "Disabled", "Cutomization"]
 const subscriptionsList = ["Plan", "Billings", "Referrals", "Payments", "Statements", "Subscriptions"]
@@ -29,7 +30,7 @@ const ProfileModal = () => {
                 <div className="dropdown-header">
                     <div className="d-flex align-items-center">
                         {user?.avatar ? (
-                            <Image width={40} height={40} src={user.avatar} alt="user-image" className="img-fluid user-avtar" />
+                            <Image width={40} height={40} src={getFullImageUrl(user?.avatar)} alt="user-image" className="img-fluid user-avtar" />
                         ) : (
                             <span style={{ width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', background: '#f0f0f0', marginRight: '12px' }}>
                                 <FiUser size={24} color="#555" />

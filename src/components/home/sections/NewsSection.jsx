@@ -6,6 +6,7 @@ import Link from "next/link";
 import AOS from "aos";
 import { apiGet } from "@/lib/api";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { getFullImageUrl } from "@/utils/common";
 
 const NewsSection = () => {
   const { lang } = useLanguage();
@@ -89,7 +90,7 @@ const NewsSection = () => {
                       // use normal img for external/dynamic urls to avoid next/image domain config issues
                       // adjust className if needed
                       <img
-                        src={item.news_image || "/images/news/news1.png"}
+                        src={getFullImageUrl(item?.news_image)}
                         alt={item.news_title || "news"}
                         className="img-thubnail"
                         width={400}
@@ -97,7 +98,7 @@ const NewsSection = () => {
                       />
                     ) : (
                       <Image
-                        src={item.image}
+                        src={item?.image}
                         alt="news"
                         className="img-thubnail"
                         width={400}

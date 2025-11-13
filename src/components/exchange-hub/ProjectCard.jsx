@@ -3,6 +3,7 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useLanguage } from '@/contexts/LanguageContext'
 import './styles/exchange-hub-custom.css'
+import { getFullImageUrl } from '@/utils/common'
 
 const ProjectCard = ({ project, activeTab }) => {
     const { lang } = useLanguage()
@@ -55,7 +56,7 @@ const ProjectCard = ({ project, activeTab }) => {
                     {/* Solar Panel Image */}
                     <div className="card-image-container">
                         <Image
-                            src={project?.project_image || '/images/projects/project-img1.png'}
+                            src={getFullImageUrl(project?.project_image)}
                             alt={project?.project_name || 'Solar Project'}
                             width={500}
                             height={250}

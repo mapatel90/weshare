@@ -21,6 +21,7 @@ import {
 import { Close as CloseIcon } from "@mui/icons-material";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+import { getFullImageUrl } from "@/utils/common";
 
 const NewsTable = () => {
   const { lang } = useLanguage();
@@ -74,7 +75,7 @@ const NewsTable = () => {
       setImagePreviewUrl(url);
       setNewsImage("");
     } else {
-      setImagePreviewUrl(newsImage || "");
+      setImagePreviewUrl(getFullImageUrl(newsImage) || "");
     }
   };
 
@@ -159,7 +160,7 @@ const NewsTable = () => {
       setNewsDate(toDateInput(item?.news_date));
       setNewsImage(item?.news_image || "");
       setNewsImageFile(null);
-      setImagePreviewUrl(item?.news_image || "");
+      setImagePreviewUrl(getFullImageUrl(item?.news_image) || "");
       setNewsDescription(item?.news_description || "");
       setNewsSlug(item?.news_slug || "");
       setErrors({});
@@ -287,7 +288,7 @@ const NewsTable = () => {
           if (!src) return "";
           return (
             <img
-              src={src}
+              src={getFullImageUrl(src)}
               alt="news"
               style={{
                 width: 48,

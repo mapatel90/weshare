@@ -14,7 +14,7 @@ export const getFullImageUrl = (imagePath) => {
   }
 
   // Get the backend URL from environment variables
-  const backendUrl = process.env.NEXT_PUBLIC_URL || 'http://localhost:3000/public';
+  const backendUrl = process.env.NEXT_PUBLIC_URL || 'http://localhost:3000';
 
   // Remove trailing slash from backend URL if present
   const baseUrl = backendUrl.replace(/\/$/, '');

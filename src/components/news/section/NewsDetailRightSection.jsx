@@ -51,9 +51,9 @@ const NewsDetailRightSection = ({ relatedNews, currentNewsSlug }) => {
               data-aos-duration="1000"
               data-aos-delay={index * 100}
             >
-              {news.news_image && (
+              {news?.news_image && (
                 <Image
-                  src={news.news_image}
+                  src={getFullImageUrl(news?.news_image)}
                   alt={news.news_title || 'Related News'}
                   className="rounded me-3"
                   width={80}

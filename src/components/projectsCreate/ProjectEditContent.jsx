@@ -11,6 +11,7 @@ import { useLanguage } from '@/contexts/LanguageContext'
 import InverterTab from './InverterTab'
 import Image from 'next/image'
 import { generateSlug, checkProjectNameExists } from '@/utils/projectUtils'
+import { getFullImageUrl } from '@/utils/common'
 import {
     TextField,
     Select,
@@ -108,7 +109,7 @@ const ProjectEditContent = ({ projectId }) => {
                     })
                     if (p.countryId) handleCountryChange(p.countryId)
                     if (p.stateId) handleStateChange(p.stateId)
-                    if (p.project_image) setImagePreview(p.project_image)
+                    if (p.project_image) setImagePreview(getFullImageUrl(p.project_image))
                 }
             } catch (e) {
                 console.error('Load project failed', e)
