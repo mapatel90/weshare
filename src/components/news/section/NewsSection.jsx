@@ -1,7 +1,6 @@
 'use client';
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import AOS from "aos";
 import "aos/dist/aos.css";
 import { apiGet } from "@/lib/api";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -12,7 +11,10 @@ const NewsSection = () => {
   const { lang } = useLanguage();
 
   useEffect(() => {
-    AOS.init({ duration: 1000 });
+    // Dynamically import AOS only on client side
+    import('aos').then((AOS) => {
+      AOS.init({ duration: 1000 });
+    });
     fetchNews();
   }, []);
 

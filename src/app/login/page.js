@@ -4,7 +4,9 @@ import React from "react";
 import Link from "next/link";
 import { Box, Card, CardContent, Button, Typography } from "@mui/material";
 import { useLanguage } from "@/contexts/LanguageContext";
-import HomeIcon from '@mui/icons-material/Home';
+
+// Force this page to be dynamically rendered
+export const dynamic = 'force-dynamic';
 
 const LoginPage = () => {
     const { lang, currentLanguage } = useLanguage();
@@ -52,7 +54,7 @@ const LoginPage = () => {
                 <CardContent>
                     <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
                         <Link href="/" style={{ textDecoration: 'none', color: '#6c757d', fontSize: '0.9375rem' }}>
-                            <span style={{ marginRight: '0.25rem' }}> <HomeIcon fontSize="small" /> </span> {lang('navigation.goToHome')}
+                            <span style={{ marginRight: '0.25rem' }}>🏠</span> {lang('navigation.goToHome')}
                         </Link>
                     </Box>
                     <Box
@@ -64,49 +66,47 @@ const LoginPage = () => {
                             mt: 2,
                         }}
                     >
-                        <Button
-                            component={Link}
-                            href="/offtaker/login"
-                            variant="contained"
-                            style={{width: "70%"}}
-                            sx={{
-                                backgroundColor: "#FFC107",
-                                color: "#FFFFFF",
-                                fontWeight: 600,
-                                px: 5,
-                                py: 1.5,
-                                boxShadow: 2,
-                                textDecoration: 'none',
-                                "&:hover": {
-                                    backgroundColor: "#ffb300",
+                        <Link href="/offtaker/login" passHref style={{ width: "70%", textDecoration: 'none' }}>
+                            <Button
+                                variant="contained"
+                                fullWidth
+                                sx={{
+                                    backgroundColor: "#FFC107",
                                     color: "#FFFFFF",
-                                },
-                            }}
-                        >
-                            {lang('authentication.loginAsOfftaker')}
-                        </Button>
+                                    fontWeight: 600,
+                                    px: 5,
+                                    py: 1.5,
+                                    boxShadow: 2,
+                                    "&:hover": {
+                                        backgroundColor: "#ffb300",
+                                        color: "#FFFFFF",
+                                    },
+                                }}
+                            >
+                                {lang('authentication.loginAsOfftaker')}
+                            </Button>
+                        </Link>
 
-                        <Button
-                            component={Link}
-                            href="/investor/login"
-                            variant="contained"
-                            style={{width: "70%"}}
-                            sx={{
-                                backgroundColor: "#696969",
-                                color: "#FFFFFF",
-                                fontWeight: 600,
-                                px: 5,
-                                py: 1.5,
-                                boxShadow: 2,
-                                textDecoration: 'none',
-                                "&:hover": {
-                                    backgroundColor: "#0d2333",
+                        <Link href="/investor/login" passHref style={{ width: "70%", textDecoration: 'none' }}>
+                            <Button
+                                variant="contained"
+                                fullWidth
+                                sx={{
+                                    backgroundColor: "#696969",
                                     color: "#FFFFFF",
-                                },
-                            }}
-                        >
-                            {lang('authentication.loginAsInvestor')}
-                        </Button>
+                                    fontWeight: 600,
+                                    px: 5,
+                                    py: 1.5,
+                                    boxShadow: 2,
+                                    "&:hover": {
+                                        backgroundColor: "#0d2333",
+                                        color: "#FFFFFF",
+                                    },
+                                }}
+                            >
+                                {lang('authentication.loginAsInvestor')}
+                            </Button>
+                        </Link>
                     </Box>
                 </CardContent>
             </Card>

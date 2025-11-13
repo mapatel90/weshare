@@ -54,7 +54,7 @@ const HomeNavbar = () => {
     // Check if we're on a specific page route
     if (pathname === '/exchange-hub') {
       setActiveSection('exchange-hub')
-    } else if (pathname === '/') {
+    } else if (pathname === '/' && typeof window !== 'undefined') {
       // For home page, check hash
       const hash = window.location.hash.replace('#', '')
       setActiveSection(hash || 'home')
@@ -63,7 +63,7 @@ const HomeNavbar = () => {
 
   // Listen for hash changes on the home page
   useEffect(() => {
-    if (pathname === '/') {
+    if (pathname === '/' && typeof window !== 'undefined') {
       const handleHashChange = () => {
         const hash = window.location.hash.replace('#', '')
         setActiveSection(hash || 'home')

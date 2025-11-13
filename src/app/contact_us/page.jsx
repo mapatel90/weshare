@@ -1,18 +1,22 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import HomeNavbar from "@/components/home/HomeNavbar";
 import HomeFooter from "@/components/home/HomeFooter";
 import ContactUsHeroSection from "@/components/contact_us/section/ContactUsHeroSection";
 import ContactUsForm from "@/components/contact_us/section/ContactUsForm";
 import ContactUsHelp from "@/components/contact_us/section/ContactUsHelp";
 import "bootstrap/dist/css/bootstrap.min.css";
-import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "@/styles/css/home.css";
 import "@/styles/css/responsive.css";
 import DynamicTitle from "@/components/common/DynamicTitle";
 
 const ContactUsPage = () => {
+  useEffect(() => {
+    // Dynamically import Bootstrap JS only on client side
+    import("bootstrap/dist/js/bootstrap.bundle.min.js");
+  }, []);
+
   return (
     <>
       <DynamicTitle titleKey="contactUs.contactus" />
