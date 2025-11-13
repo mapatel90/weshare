@@ -4,7 +4,7 @@ function MainSidebar() {
     return (
         <div className="icon-sidebar">
             {/* <div className="logo-icon">⬡</div> */}
-            <img src="/images/default_icon.png" className="logo-icon" alt="weshare logo" />
+            <img src="../images/default_icon.png" className="logo-icon" alt="weshare logo" />
             <div className="logo-separator" />
 
             <div className="icon-menu">
