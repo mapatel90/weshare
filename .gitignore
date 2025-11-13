@@ -41,4 +41,5 @@ package-lock.json
 /src/generated/prisma
 
 #image
-public/images
+public/images/projects
+
