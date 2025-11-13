@@ -1102,7 +1102,9 @@
     "previous": "Trước",
     "next": "Tiếp theo",
     "relatedPosts": "Bài viết liên quan",
-    "noRelatedPosts": "Không có bài viết liên quan nào"
+    "noRelatedPosts": "Không có bài viết liên quan nào",
+    "noBlogAvailable": "Không có blog nào có sẵn",
+    "noNewsAvailable": "Không có tin tức nào có sẵn"
   },
   "testimonial": {
     "title": "Lời chứng thực",
