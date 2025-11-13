@@ -6,6 +6,7 @@ import { apiGet } from "@/lib/api";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCalendar, faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { getFullImageUrl } from "@/utils/common";
 
 const BlogSection = () => {
   const { lang } = useLanguage();
