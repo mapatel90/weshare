@@ -57,7 +57,7 @@ const BlogSection = () => {
               >
                 <div className="card h-100 border-0 shadow-0">
                   <img
-                    src={getFullImageUrl(blog.blog_image) || "https://via.placeholder.com/400x250"}
+                    src={getFullImageUrl(blog?.blog_image)}
                     className="card-img-top"
                     alt={blog.title || "Blog Image"}
                   />
