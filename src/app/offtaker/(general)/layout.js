@@ -1,14 +1,11 @@
 'use client'
 import { usePathname } from "next/navigation";
-import Header from "@/components/shared/header/Header";
-import NavigationManu from "@/components/shared/navigationMenu/NavigationMenu";
-import SupportDetails from "@/components/supportDetails";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import dynamic from "next/dynamic";
 import useBootstrapUtils from "@/hooks/useBootstrapUtils";
-
-// const useBootstrapUtils = dynamic(() => import('@/hooks/useBootstrapUtils'), { ssr: false })
-// const AddInverter = dynamic(() => import('@/components/inverter/AddInverter'), { ssr: false })
+import '@/assets/portal/offtaker.css';
+import Header from "@/components/portal/layouts/Header";
+import PannelSidebar from "@/components/portal/layouts/PannelSidebar";
+import MainSidebar from "@/components/portal/layouts/MainSidebar";
 
 const layout = ({ children }) => {
     const pathName = usePathname()
@@ -16,15 +13,12 @@ const layout = ({ children }) => {
 
     return (
         <ProtectedRoute>
+            <MainSidebar />
+            <PannelSidebar />
+                <div class="main-content" id="mainContent">
             <Header />
-            <NavigationManu />
-            <main className="nxl-container">
-                <div className="nxl-content">
-                    {children}
+                    {/* {children} */}
                 </div>
-            </main>
-            <SupportDetails />
-            {/* <AddInverter /> */}
         </ProtectedRoute>
     )
 }
