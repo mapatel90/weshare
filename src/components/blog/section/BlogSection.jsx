@@ -83,7 +83,7 @@ const BlogSection = () => {
               </div>
             ))
           ) : (
-            <p className="text-center">No Blog available.</p>
+            <p className="text-center">{lang("news.noBlogAvailable")}</p>
           )}
         </div>
 
