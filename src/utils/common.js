@@ -8,20 +8,32 @@ export const getFullImageUrl = (imagePath) => {
     return '';
   }
 
-  // If the image path is already a full URL (starts with http:// or https://), return it as is
+  // If the image path is already a full URL (starts with http:// or https://),
+  // extract just the path portion for Next.js Image component
   if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
-    return imagePath;
+    try {
+      const url = new URL(imagePath);
+      let pathname = url.pathname;
+
+      // Remove /public/ prefix if present since Next.js serves from public folder directly
+      if (pathname.startsWith('/public/')) {
+        pathname = pathname.replace('/public', '');
+      }
+
+      return pathname;
+    } catch (error) {
+      console.error('Error parsing image URL:', error);
+      return imagePath;
+    }
   }
 
-  // Get the backend URL from environment variables
-  const backendUrl = process.env.NEXT_PUBLIC_URL || 'http://localhost:3000';
+  // Remove /public/ prefix if present
+  let normalizedPath = imagePath.startsWith('/public/')
+    ? imagePath.replace('/public', '')
+    : imagePath;
 
-  // Remove trailing slash from backend URL if present
-  const baseUrl = backendUrl.replace(/\/$/, '');
+  // Ensure path starts with a slash
+  normalizedPath = normalizedPath.startsWith('/') ? normalizedPath : `/${normalizedPath}`;
 
-  // Ensure image path starts with a slash
-  const normalizedPath = imagePath.startsWith('/') ? imagePath : `/${imagePath}`;
-
-  // Combine base URL with image path
-  return `${baseUrl}${normalizedPath}`;
+  return normalizedPath;
 };
