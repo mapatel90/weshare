@@ -61,9 +61,6 @@ const ProjectCard = ({ project, activeTab }) => {
                             width={500}
                             height={250}
                             className="card-image"
-                            onError={(e) => {
-                                e.target.src = '/images/projects/project-img1.png'
-                            }}
                             style={{borderRadius: '25px'}}
                         />
                         {/* Reliability Badge */}
