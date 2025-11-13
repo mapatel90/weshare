@@ -83,7 +83,7 @@ const NewsSection = () => {
               </div>
             ))
           ) : (
-            <p className="text-center">No news available.</p>
+            <p className="text-center">{lang("news.noNewsAvailable")}</p>
           )}
         </div>
 
