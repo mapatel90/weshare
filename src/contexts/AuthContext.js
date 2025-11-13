@@ -136,10 +136,10 @@ export default function AuthProvider({ children }) {
         localStorage.setItem('cachedUser', JSON.stringify(transformedUser))
 
         // Redirect to dashboard
-        if (transformedUser.userRole === 3) {
-          router.push('/offtaker/dashboards/analytics')
-        } else if (transformedUser.userRole === 4) {
-          router.push('/investor/dashboards/analytics')
+        if (transformedUser.role === 3) {
+          router.push('/offtaker/dashboard')
+        } else if (transformedUser.role === 4) {
+          router.push('/investor/dashboard')
         } else {
           router.push('/admin/dashboards/analytics')
         }
