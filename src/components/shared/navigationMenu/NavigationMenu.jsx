@@ -8,6 +8,7 @@ import Menus from './Menus';
 import { NavigationContext } from '@/contentApi/navigationProvider';
 import { useLanguage } from '@/contexts/LanguageContext';
 import useSettings from '@/hooks/useSettings';
+import { getFullImageUrl } from '@/utils/common';
 
 const NavigationManu = () => {
     const { navigationOpen, setNavigationOpen } = useContext(NavigationContext)
@@ -28,7 +29,7 @@ const NavigationManu = () => {
                         <img
                             width={140}
                             height={30}
-                            src={settings?.site_image || "Sunshare"}
+                            src={getFullImageUrl(settings?.site_image) || "Sunshare"}
                             alt="Sunshare"
                             className="logo logo-lg"
                             // onError={e => {
