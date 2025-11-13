@@ -3,7 +3,7 @@
  * Centralized HTTP request methods for making API calls
  */
 
-const API_BASE_URL = process.env.API_URL || 'http://localhost:5000';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 import { startLoading, stopLoading } from "@/contexts/LoadingStore";
 
 // Request deduplication: track in-flight requests to prevent duplicate calls

@@ -1152,7 +1152,9 @@
     "previous": "Previous",
     "next": "Next",
     "relatedPosts": "Related Posts",
-    "noRelatedPosts": "No related posts available."
+    "noRelatedPosts": "No related posts available.",
+    "noBlogAvailable": "No blog available.",
+    "noNewsAvailable": "No news available."
   },
   "testimonial": {
     "title": "Testimonials",

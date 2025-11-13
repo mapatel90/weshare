@@ -1,9 +1,10 @@
 "use client";
 import { usePathname } from "next/navigation";
+import { useEffect } from "react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import useBootstrapUtils from "@/hooks/useBootstrapUtils";
-import "@/assets/portal/offtaker.css";
-import "@/assets/portal/offtaker.js";
+import '@/assets/portal/offtaker.css';
+import { initializeOfftakerPortal, toggleSidebar, toggleSubmenu } from '@/assets/portal/offtaker.js';
 import Header from "@/components/portal/layouts/Header";
 import PannelSidebar from "@/components/portal/layouts/PannelSidebar";
 import MainSidebar from "@/components/portal/layouts/MainSidebar";
@@ -13,17 +14,22 @@ const layout = ({ children }) => {
   const pathName = usePathname();
   useBootstrapUtils(pathName);
 
-  return (
-    <ProtectedRoute>
-      <MainSidebar />
-      <PannelSidebar />
-      <div className="main-content" id="mainContent">
-        <Header />
-        <Section />
-        {/* {children} */}
-      </div>
-    </ProtectedRoute>
-  );
-};
+    useEffect(() => {
+        initializeOfftakerPortal();
+        toggleSidebar();
+        toggleSubmenu(document.querySelector(`a[href='${pathName}']`));
+    }, [pathName])
+
+    return (
+        <ProtectedRoute>
+            <MainSidebar />
+            <PannelSidebar />
+            <div className="main-content" id="mainContent">
+                <Header toggleSidebar={toggleSidebar} />
+                {children}
+            </div>
+        </ProtectedRoute>
+    )
+}
 
 export default layout;
