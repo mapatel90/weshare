@@ -43,15 +43,15 @@ const LoginPage = () => {
             <Card
                 elevation={6}
                 sx={{
-                    maxWidth: 560,
+                    maxWidth: 620,
                     width: "100%",
                     borderRadius: 3,
                     backgroundColor: "rgba(255,255,255,0.95)",
-                    textAlign: "center",
-                    p: 3,
+                    p: { xs: 2, sm: 5 },
                 }}
             >
                 <CardContent>
+<<<<<<< HEAD
                     <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
                         <Link href="/" style={{ textDecoration: 'none', color: '#6c757d', fontSize: '0.9375rem' }}>
                             <span style={{ marginRight: '0.25rem' }}>🏠</span> {lang('navigation.goToHome')}
@@ -108,6 +108,9 @@ const LoginPage = () => {
                             </Button>
                         </Link>
                     </Box>
+=======
+                    <LoginForm registerPath={"/register"} resetPath={"/reset"} />
+>>>>>>> 955c62b22dbdc0621ffc743204915a064338774b
                 </CardContent>
             </Card>
         </Box>
