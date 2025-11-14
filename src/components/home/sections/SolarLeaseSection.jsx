@@ -24,7 +24,7 @@ const SolarLeaseSection = () => {
               <p className="text-black mb-40 fs-24">{lang('home.solarLease.description')}</p>
               
               <div className="groupBtn gap-4 mt-0 justify-content-start">
-                <button className="btn btn-primary-custom" onClick={() => router.push('/offtaker/login')}>{lang('home.solarLease.becomeOfftaker')} →</button>
+                <button className="btn btn-primary-custom" onClick={() => router.push('/register')}>{lang('home.solarLease.becomeOfftaker')} →</button>
                 <button className="btn btn-primary-custom transparentBtn tc-102C41 border-1" onClick={() => router.push('/offtaker/login')}>{lang('home.solarLease.signIn')}</button>
               </div>
             </div>

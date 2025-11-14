@@ -25,7 +25,7 @@ const CTASection = () => {
                   {lang('home.cta.description')}
                 </p>
               </div>
-              <button className="btn btn-primary-custom bg-white tc-102C41" onClick={() => router.push('/offtaker/login')}>{lang('home.cta.becomeOfftaker')} →</button>
+              <button className="btn btn-primary-custom bg-white tc-102C41" onClick={() => router.push('/register')}>{lang('home.cta.becomeOfftaker')} →</button>
             </div>
           </div>
         </div>
