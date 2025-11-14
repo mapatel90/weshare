@@ -6,7 +6,7 @@
 'use client'
 
 import { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { apiGet, apiPost } from '@/lib/api'
 
 const AuthContext = createContext({})
@@ -20,6 +20,8 @@ export const useAuth = () => {
 }
 
 export default function AuthProvider({ children }) {
+  const pathname = usePathname();
+
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
   const authCheckInProgress = useRef(false)
@@ -93,7 +95,7 @@ export default function AuthProvider({ children }) {
         localStorage.removeItem('cachedUser')
       }
     }
-    
+
     // No cache, check auth normally
     checkAuth(false)
   }, [checkAuth])
@@ -159,6 +161,7 @@ export default function AuthProvider({ children }) {
   }
 
   const logout = () => {
+    console.log("Logging out, current path:", pathname);
     // Clear storage
     localStorage.removeItem('accessToken')
     localStorage.removeItem('cachedUser')
@@ -171,7 +174,11 @@ export default function AuthProvider({ children }) {
     authCheckInProgress.current = false
 
     // Redirect to login
-    router.push('/login')
+    if (pathname === '/') {
+      router.push('/')
+    } else {
+      router.push('/login')
+    }
   }
 
   const value = {
