@@ -786,6 +786,7 @@ a.normalBtn img,
     margin: 20px 0;
     gap: 12px;
     text-align: center;
+    height: 120px;
 }
 
 .solar-card .stat {
