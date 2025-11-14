@@ -81,11 +81,11 @@ const ProjectsSection = () => {
                   <div key={project.id} className="col-12 col-md-6 col-lg-4 mb-4 mb-lg-0" data-aos="fade-up" data-aos-duration={1000 + index * 200}>
                     <div className="project-card shadow-sm overflow-hidden">
                       <div className="project-items">
-                        <Image 
-                          src={getFullImageUrl(project?.project_image)} 
-                          alt={project.project_name} 
-                          className="img-fluid project-img" 
-                          width={400} 
+                        <Image
+                          src={getFullImageUrl(project?.project_image)}
+                          alt={project.project_name}
+                          className="img-fluid project-img"
+                          width={400}
                           height={250}
                           onError={(e) => {
                             e.target.src = '/images/projects/project-img1.png'
@@ -94,7 +94,17 @@ const ProjectsSection = () => {
                       </div>
 
                       <div className="pt-3">
-                        <h5 className="fw-600 mb-2 text-title">{project.project_name}</h5>
+                        <h5 className="fw-600 mb-2 text-title"
+                          style={{
+                            overflow: 'hidden',
+                            display: '-webkit-box',
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: 'vertical',
+                            textOverflow: 'ellipsis',
+                            // maxWidth: '70%',
+                            height: '60px'
+                          }}
+                        >{project.project_name}</h5>
                         <div className="d-flex align-items-center text-muted small mb-3 fw-300">
                           <span className="me-1">
                             <Image src="/images/icons/location.svg" alt="location" width={16} height={16} />
