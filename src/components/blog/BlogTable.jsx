@@ -250,7 +250,7 @@ const BlogTable = () => {
       { accessorKey: "blog_title", header: () => lang("blog.title") || "Title" },
       {
         accessorKey: "blog_date",
-        header: () => lang("blog.date") || "Date",
+        header: () => lang("blog.enddate") || "Date",
         cell: ({ row }) => {
           const d = row.original.blog_date ? new Date(row.original.blog_date) : null;
           return d ? d.toLocaleDateString() : "";
@@ -360,7 +360,7 @@ const BlogTable = () => {
             />
 
             <TextField
-              label={lang("blog.date") || "Date"}
+              label={lang("blog.enddate") || "Date"}
               type="date"
               InputLabelProps={{ shrink: true }}
               value={blogDate}

@@ -1080,6 +1080,7 @@
   "news": {
     "title": "Quản lý tin tức",
     "date": "Ngày",
+    "enddate": "Ngày kết thúc",
     "image": "Hình ảnh",
     "slug": "Slug",
     "description": "Mô tả",
@@ -1129,6 +1130,7 @@
   "blog": {
     "title": "Quản lý blog",
     "date": "Ngày",
+    "enddate": "Ngày kết thúc",
     "image": "Hình ảnh",
     "slug": "sên",
     "description": "Mô tả",

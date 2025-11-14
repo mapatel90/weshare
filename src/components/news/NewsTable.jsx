@@ -272,7 +272,7 @@ const NewsTable = () => {
       },
       {
         accessorKey: "news_date",
-        header: () => lang("news.date") || "Date",
+        header: () => lang("news.enddate") || "Date",
         cell: ({ row }) => {
           const d = row.original.news_date
             ? new Date(row.original.news_date)
@@ -425,7 +425,7 @@ const NewsTable = () => {
             />
 
             <TextField
-              label={lang("news.date") || "Date"}
+              label={lang("news.enddate") || "Date"}
               type="date"
               InputLabelProps={{ shrink: true }}
               value={newsDate}
