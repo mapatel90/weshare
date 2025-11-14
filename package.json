@@ -72,6 +72,7 @@
     "helmet": "^8.1.0",
     "jodit-react": "^4.1.2",
     "jsonwebtoken": "^9.0.2",
+    "lucide-react": "^0.553.0",
     "moment": "^2.30.1",
     "morgan": "^1.10.1",
     "multer": "^2.0.2",
@@ -94,10 +95,13 @@
     "react-tooltip": "^5.28.0",
     "sass": "^1.83.1",
     "sweetalert2": "^11.14.1",
-    "sweetalert2-react-content": "^5.0.7"
+    "sweetalert2-react-content": "^5.0.7",
+    "tailwindcss": "^3.4.0"
   },
   "devDependencies": {
+    "autoprefixer": "^10.4.22",
     "concurrently": "^9.2.1",
-    "nodemon": "^3.1.10"
+    "nodemon": "^3.1.10",
+    "postcss": "^8.5.6"
   }
 }

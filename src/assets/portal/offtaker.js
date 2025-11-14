@@ -47,28 +47,106 @@ export const initializeOfftakerPortal = () => {
             card.style.transform = 'translateY(0)';
         }, index * 100);
     });
+
+    // Handle window resize
+    const handleResize = () => {
+        const isMobile = window.matchMedia('(max-width: 768px)').matches;
+        const iconSidebar = document.getElementById('iconSidebar');
+        const textSidebar = document.getElementById('textSidebar');
+        const mainContent = document.getElementById('mainContent');
+        const overlay = document.getElementById('sidebarOverlay');
+
+        if (!isMobile) {
+            // Reset to desktop mode
+            if (overlay) overlay.classList.remove('show');
+            if (iconSidebar) iconSidebar.classList.remove('show');
+            if (textSidebar) textSidebar.classList.remove('show');
+            mobileSidebarsOpen = false;
+
+            // Restore desktop sidebar state
+            if (textSidebar && mainContent) {
+                if (sidebarCollapsed) {
+                    textSidebar.classList.add('collapsed');
+                    mainContent.classList.add('expanded');
+                } else {
+                    textSidebar.classList.remove('collapsed');
+                    mainContent.classList.remove('expanded');
+                }
+            }
+        } else {
+            // In mobile mode, hide everything by default
+            if (!mobileSidebarsOpen) {
+                if (iconSidebar) iconSidebar.classList.remove('show');
+                if (textSidebar) textSidebar.classList.remove('show');
+                if (overlay) overlay.classList.remove('show');
+            }
+        }
+    };
+
+    window.addEventListener('resize', handleResize);
 };
+
+// Store sidebar state
+let sidebarCollapsed = false;
+let mobileSidebarsOpen = false;
 
 export const toggleSidebar = () => {
     if (typeof window === 'undefined') return;
 
+    const iconSidebar = document.getElementById('iconSidebar');
     const textSidebar = document.getElementById('textSidebar');
     const mainContent = document.getElementById('mainContent');
-    const toggleBtn = document.querySelector('.toggle-btn');
+    const overlay = document.getElementById('sidebarOverlay');
+    const toggleBtn = document.querySelector('.toggle-btn') || document.getElementById('toggleBtn');
+    const isMobile = window.matchMedia('(max-width: 768px)').matches;
 
-    if (textSidebar && mainContent) {
-        const isCollapsed = textSidebar.classList.contains('collapsed');
+    if (isMobile) {
+        // Mobile behavior - toggle both sidebars and overlay
+        mobileSidebarsOpen = !mobileSidebarsOpen;
 
-        if (isCollapsed) {
-            textSidebar.classList.remove('collapsed');
-            mainContent.classList.remove('expanded');
-            if (toggleBtn) toggleBtn.innerHTML = '❮';
+        if (mobileSidebarsOpen) {
+            if (iconSidebar) iconSidebar.classList.add('show');
+            if (textSidebar) {
+                textSidebar.classList.add('show');
+                textSidebar.classList.remove('collapsed');
+            }
+            if (overlay) overlay.classList.add('show');
         } else {
-            textSidebar.classList.add('collapsed');
-            mainContent.classList.add('expanded');
-            if (toggleBtn) toggleBtn.innerHTML = '☰';
+            if (iconSidebar) iconSidebar.classList.remove('show');
+            if (textSidebar) textSidebar.classList.remove('show');
+            if (overlay) overlay.classList.remove('show');
+        }
+        // Mobile toggle button always shows ☰
+        if (toggleBtn) toggleBtn.innerHTML = '☰';
+    } else {
+        // Desktop behavior - just toggle text sidebar
+        sidebarCollapsed = !sidebarCollapsed;
+
+        if (textSidebar && mainContent) {
+            if (sidebarCollapsed) {
+                textSidebar.classList.add('collapsed');
+                mainContent.classList.add('expanded');
+                if (toggleBtn) toggleBtn.innerHTML = '☰';
+            } else {
+                textSidebar.classList.remove('collapsed');
+                mainContent.classList.remove('expanded');
+                if (toggleBtn) toggleBtn.innerHTML = '❮';
+            }
         }
     }
+};
+
+export const closeSidebars = () => {
+    if (typeof window === 'undefined') return;
+
+    const iconSidebar = document.getElementById('iconSidebar');
+    const textSidebar = document.getElementById('textSidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+
+    if (iconSidebar) iconSidebar.classList.remove('show');
+    if (textSidebar) textSidebar.classList.remove('show');
+    if (overlay) overlay.classList.remove('show');
+    mobileSidebarsOpen = false;
 };
 
 export const toggleSubmenu = (element) => {
