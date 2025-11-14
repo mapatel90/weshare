@@ -192,8 +192,7 @@ const ProjectCard = ({ project, activeTab }) => {
                         WebkitBoxOrient: 'vertical',
                         textOverflow: 'ellipsis',
                         // maxWidth: '70%',
-                        height: '60px',
-                        flex: 1
+                        height: '60px'
                     }}>{project?.project_name || 'Solar Project'}</h3>
                     <span className={`badge ${badge.class}`}>
                         <span className="badge-icon">{badge.icon}</span>
