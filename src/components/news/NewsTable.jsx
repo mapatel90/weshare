@@ -285,6 +285,7 @@ const NewsTable = () => {
         header: () => lang("news.image") || "Image",
         cell: ({ row }) => {
           const src = row.original.news_image;
+          console.log('news_image src:', getFullImageUrl(src))
           if (!src) return "";
           return (
             <img
