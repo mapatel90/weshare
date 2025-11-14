@@ -105,8 +105,8 @@
     "termsConditions": "Terms & Conditions",
     "fees": "Fees",
     "registerAs": "Register as",
-    "becomeOfftaker": "Become an Offtaker",
-    "becomeInvestor": "Become an Investor",
+    "becomeOfftaker": "Offtaker",
+    "becomeInvestor": "Investor",
     "termsPolicy": "Terms & Policy"
   },
   "common": {
