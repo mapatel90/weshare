@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import useBootstrapUtils from "@/hooks/useBootstrapUtils";
 import '@/assets/portal/offtaker.css';
-import { initializeOfftakerPortal, toggleSidebar, toggleSubmenu } from '@/assets/portal/offtaker.js';
+import { initializeOfftakerPortal, toggleSidebar, toggleSubmenu, closeSidebars } from '@/assets/portal/offtaker.js';
 import Header from "@/components/portal/layouts/Header";
 import PannelSidebar from "@/components/portal/layouts/PannelSidebar";
 import MainSidebar from "@/components/portal/layouts/MainSidebar";
@@ -16,12 +16,19 @@ const layout = ({ children }) => {
 
     useEffect(() => {
         initializeOfftakerPortal();
-        toggleSidebar();
+        // Initialize toggle button icon based on screen size
+        const isMobile = typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches;
+        const toggleBtn = document.querySelector('.toggle-btn') || document.getElementById('toggleBtn');
+        if (toggleBtn && !isMobile) {
+            // Desktop: start with sidebar open (show ❮)
+            toggleBtn.innerHTML = '❮';
+        }
         toggleSubmenu(document.querySelector(`a[href='${pathName}']`));
     }, [pathName])
 
     return (
         <ProtectedRoute>
+            <div className="sidebar-overlay" id="sidebarOverlay" onClick={closeSidebars}></div>
             <MainSidebar />
             <PannelSidebar />
             <div className="main-content" id="mainContent">

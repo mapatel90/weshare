@@ -2,7 +2,7 @@ import React from 'react';
 
 function MainSidebar() {
     return (
-        <div className="icon-sidebar">
+        <div className="icon-sidebar" id="iconSidebar">
             {/* <div className="logo-icon">⬡</div> */}
             <div className='icon-size'>
             <img src="/images/logo-abbr.png" className="logo-icon" alt="weshare logo" />
