@@ -1,6 +1,6 @@
 export const metadata = {
-  title: "Sunshare | Home",
-  description: "Sunshare is a admin Dashboard create for multipurpose,",
+  title: "WeShare | Home",
+  description: "WeShare is a admin Dashboard create for multipurpose,",
 };
 
 export default function ExchangeHubLayout({ children }) {

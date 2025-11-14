@@ -2,7 +2,7 @@
 import React, { useEffect } from 'react'
 import { useLanguage } from '@/contexts/LanguageContext'
 
-const DynamicTitle = ({ titleKey, prefix = 'Sunshare' }) => {
+const DynamicTitle = ({ titleKey, prefix = 'WeShare' }) => {
   const { lang, currentLanguage } = useLanguage()
 
   useEffect(() => {

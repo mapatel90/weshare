@@ -4,7 +4,7 @@ import ProjectCreateHeader from '@/components/projectsCreate/ProjectCreateHeader
 import ProjectEditContent from '@/components/projectsCreate/ProjectEditContent'
 import DynamicTitle from '@/components/common/DynamicTitle'
 
-export const metadata = { title: 'Sunshare | Edit Project' }
+export const metadata = { title: 'WeShare | Edit Project' }
 
 const page = ({ params }) => {
   const { id } = params

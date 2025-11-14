@@ -29,8 +29,8 @@ const NavigationManu = () => {
                         <img
                             width={140}
                             height={30}
-                            src={getFullImageUrl(settings?.site_image) || "Sunshare"}
-                            alt="Sunshare"
+                            src={getFullImageUrl(settings?.site_image) || "WeShare"}
+                            alt="WeShare"
                             className="logo logo-lg"
                             // onError={e => {
                             //     if (e.target.src !== window.location.origin + "Sunshare" && e.target.src !== window.location.origin + "/_next/image?url=%2Fimages%2Flogo-full.png&w=256&q=75") {
@@ -45,7 +45,7 @@ const NavigationManu = () => {
                             width={140}
                             height={30}
                             src={settings?.site_image || "S"}
-                            alt="Sunshare"
+                            alt="WeShare"
                             className="logo logo-sm"
                             // onError={e => {
                             //     if (e.target.src !== window.location.origin + "/images/logo-abbr.png" && e.target.src !== window.location.origin + "/_next/image?url=%2Fimages%2Flogo-abbr.png&w=256&q=75") {
