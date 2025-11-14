@@ -301,13 +301,17 @@ const ProjectDetail = ({ projectId }) => {
 
                             {/* Header */}
                             <div className="inner-header">
-                                <div className="title d-flex gap-3">
-                                    <h2 className="mb-0">{project.project_name}<span className="ms-1">|</span></h2>
-                                    <p>ID: {project.product_code || project.project_code || `SE-${project.id}`}</p>
+                                <div className="title d-flex flex-wrap gap-3 align-items-center">
+                                    <h2 className="mb-0" style={{ wordBreak: 'break-word', maxWidth: '100%' }}>
+                                        {project.project_name}<span className="ms-1">|</span>
+                                    </h2>
+                                    <p className="mb-0" style={{ whiteSpace: 'nowrap' }}>
+                                        ID: {project.product_code || project.project_code || `SE-${project.id}`}
+                                    </p>
                                 </div>
                                 <span>
                                     <img src="/img/Location-1.png" className="me-2" alt="" onError={(e) => e.target.style.display = 'none'} />
-                                    {project.city?.name || project.location}, {project.state?.name || project.state_name}
+                                    {project.city?.name || project.location}, {project.state?.code || project.state_name}
                                 </span>
                             </div>
 

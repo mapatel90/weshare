@@ -50,9 +50,6 @@ const ProjectCard = ({ project, activeTab }) => {
     // Different card design for lease vs resale
     if (activeTab === 'lease') {
         // LEASE CARD - With Image (Figma Style)
-
-        console.log("project?.project_image", project?.project_image);
-        console.log("getFullImageUrl(project?.project_image)", getFullImageUrl(project?.project_image));
         return (
             <div className="col-12 col-md-6 col-lg-6 mb-4" data-aos="fade-up" data-aos-easing="linear" data-aos-duration="1000">
                 <div className="solar-card-with-image">

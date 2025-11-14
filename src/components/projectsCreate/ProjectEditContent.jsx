@@ -123,7 +123,7 @@ const ProjectEditContent = ({ projectId }) => {
 
     const handleInputChange = (e) => {
         const { name, value } = e.target
-        
+
         // Auto-generate slug when project_name changes
         if (name === 'project_name') {
             const slug = generateSlug(value)
@@ -131,7 +131,7 @@ const ProjectEditContent = ({ projectId }) => {
         } else {
             setFormData(prev => ({ ...prev, [name]: value }))
         }
-        
+
         // live clear errors when valid
         setError(prev => {
             const next = { ...prev }
@@ -246,7 +246,7 @@ const ProjectEditContent = ({ projectId }) => {
 
                 // Upload to server
                 const response = await apiPost('/api/projects/upload-image', { dataUrl })
-                
+
                 if (response.success) {
                     setFormData(prev => ({ ...prev, project_image: response.data.path }))
                     showSuccessToast(lang('projects.imageUploaded', 'Image uploaded successfully'))
@@ -276,7 +276,7 @@ const ProjectEditContent = ({ projectId }) => {
         const requiredFields = ['project_name', 'project_type_id']
         const errors = {}
         requiredFields.forEach(field => { if (!formData[field]) { errors[field] = lang('validation.required', 'Required') } })
-        
+
         // Check if project name already exists one more time before submit
         if (formData.project_name) {
             const nameExists = await checkProjectNameExists(formData.project_name, projectId)
@@ -284,7 +284,7 @@ const ProjectEditContent = ({ projectId }) => {
                 errors.project_name = lang('projects.projectNameExists', 'Project name already exists')
             }
         }
-        
+
         const numberRegex = /^[0-9]*\.?[0-9]*$/;
         const intRegex = /^\d+$/;
         if (formData.investorProfit && !numberRegex.test(formData.investorProfit)) {
@@ -373,38 +373,105 @@ const ProjectEditContent = ({ projectId }) => {
                                         <h6 className="card-title mb-0">{lang('projects.projectInformation', 'Project Information')}</h6>
                                     </div>
                                     <div className="card-body">
-                                        {/* Image Preview - Right Side */}
-                                        {imagePreview && (
-                                            <div className="col-md-6 pb-3" style={{ width: '18%' }}>
-                                                <Box
-                                                    sx={{
-                                                        width: '100%',
-                                                        height: '120px',
-                                                        borderRadius: '8px',
-                                                        overflow: 'hidden',
-                                                        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                                                        border: '1px solid #e5e7eb',
-                                                        backgroundColor: '#f9fafb',
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        justifyContent: 'center'
-                                                    }}
-                                                >
-                                                    <img
-                                                        src={imagePreview}
-                                                        alt="Project Preview"
-                                                        style={{
-                                                            width: '100%',
-                                                            height: '100%',
-                                                            objectFit: 'contain',
-                                                            objectPosition: 'center'
-                                                        }}
-                                                    />
-                                                </Box>
-                                            </div>
-                                        )}
                                         <div className="row">
-                                            <div className="col-md-3">
+                                            <div className="col-md-4 mb-3">
+                                                <FormControl fullWidth error={!!error.project_type_id}>
+                                                    <InputLabel id="project-type-select-label">{lang('projects.projectType', 'Project Type')} *</InputLabel>
+                                                    <Select
+                                                        labelId="project-type-select-label"
+                                                        name="project_type_id"
+                                                        value={formData.project_type_id || ''}
+                                                        label={`${lang('projects.projectType', 'Project Type')} *`}
+                                                        onChange={handleInputChange}
+                                                    >
+                                                        <MenuItem value="">{lang('projects.projectType', 'Project Type')}</MenuItem>
+                                                        {projectTypes.map(t => (
+                                                            <MenuItem key={t.id} value={t.id}>{t.type_name}</MenuItem>
+                                                        ))}
+                                                    </Select>
+                                                    {error.project_type_id && <FormHelperText>{error.project_type_id}</FormHelperText>}
+                                                </FormControl>
+                                            </div>
+                                            <div className="col-md-8 mb-3">
+                                                <TextField
+                                                    fullWidth
+                                                    label={`${lang('projects.projectName', 'Project Name')} *`}
+                                                    name="project_name"
+                                                    value={formData.project_name}
+                                                    onChange={handleInputChange}
+                                                    onBlur={handleProjectNameBlur}
+                                                    placeholder={lang('projects.projectNamePlaceholder', 'Enter project name')}
+                                                    error={!!error.project_name}
+                                                    helperText={error.project_name || (checkingName ? 'Checking...' : '')}
+                                                    disabled={checkingName}
+                                                />
+                                            </div>
+                                            <div className="col-md-8 mb-3">
+                                                <TextField
+                                                    fullWidth
+                                                    label={`${lang('projects.projectSlug', 'Project Slug')} *`}
+                                                    name="project_slug"
+                                                    value={formData.project_slug || ''}
+                                                    onChange={handleInputChange}
+                                                    placeholder={lang('projects.projectSlugPlaceholder', 'project-slug')}
+                                                    error={!!error.project_slug}
+                                                    helperText={error.project_slug || lang('projects.slugAutoGenerated', 'Auto-generated from project name')}
+                                                    disabled
+                                                />
+                                            </div>
+                                            <div className="col-md-4 mb-3">
+                                                <FormControl fullWidth error={!!error.offtaker}>
+                                                    <InputLabel id="offtaker-select-label">{lang('projects.selectOfftaker', 'Select Offtaker')}</InputLabel>
+                                                    <Select
+                                                        labelId="offtaker-select-label"
+                                                        name="offtaker"
+                                                        value={formData.offtaker}
+                                                        label={lang('projects.selectOfftaker', 'Select Offtaker')}
+                                                        onChange={handleOfftakerChange}
+                                                        disabled={loadingOfftakers}
+                                                    >
+                                                        <MenuItem value="">{lang('projects.selectOfftaker', 'Select Offtaker')}</MenuItem>
+                                                        {offtakers.map(o => (
+                                                            <MenuItem key={o.id} value={o.id}>{o.fullName}</MenuItem>
+                                                        ))}
+                                                    </Select>
+                                                    {error.offtaker && <FormHelperText>{error.offtaker}</FormHelperText>}
+                                                </FormControl>
+                                            </div>
+                                        </div>
+                                        {/* row: asking_price, lease_term, product_code */}
+                                        <div className="row">
+                                            {/* Image Preview - Right Side */}
+                                            {imagePreview && (
+                                                <div className="col-md-6 pb-3" style={{ width: '18%' }}>
+                                                    <Box
+                                                        sx={{
+                                                            width: '100%',
+                                                            height: '120px',
+                                                            borderRadius: '8px',
+                                                            overflow: 'hidden',
+                                                            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                                                            border: '1px solid #e5e7eb',
+                                                            backgroundColor: '#f9fafb',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center'
+                                                        }}
+                                                    >
+                                                        <img
+                                                            src={imagePreview}
+                                                            alt="Project Preview"
+                                                            style={{
+                                                                width: '100%',
+                                                                height: '100%',
+                                                                objectFit: 'contain',
+                                                                objectPosition: 'center'
+                                                            }}
+                                                        />
+                                                    </Box>
+                                                </div>
+                                            )}
+                                            <div className={!imagePreview ? "col-md-4" : "col-md-3"}>
                                                 <FormControl fullWidth>
                                                     <Box
                                                         sx={{
@@ -471,7 +538,7 @@ const ProjectEditContent = ({ projectId }) => {
                                                             )}
                                                         </Box>
                                                     </Box>
-                                                    <FormHelperText>
+                                                    <FormHelperText style={{ marginBottom: '16px' }}>
                                                         {error.project_image ? (
                                                             <span className="text-danger">{error.project_image}</span>
                                                         ) : (
@@ -480,74 +547,7 @@ const ProjectEditContent = ({ projectId }) => {
                                                     </FormHelperText>
                                                 </FormControl>
                                             </div>
-                                            <div className="col-md-3 mb-3">
-                                                <TextField
-                                                    fullWidth
-                                                    label={`${lang('projects.projectName', 'Project Name')} *`}
-                                                    name="project_name"
-                                                    value={formData.project_name}
-                                                    onChange={handleInputChange}
-                                                    onBlur={handleProjectNameBlur}
-                                                    placeholder={lang('projects.projectNamePlaceholder', 'Enter project name')}
-                                                    error={!!error.project_name}
-                                                    helperText={error.project_name || (checkingName ? 'Checking...' : '')}
-                                                    disabled={checkingName}
-                                                />
-                                            </div>
-                                            <div className="col-md-3 mb-3">
-                                                <TextField
-                                                    fullWidth
-                                                    label={`${lang('projects.projectSlug', 'Project Slug')} *`}
-                                                    name="project_slug"
-                                                    value={formData.project_slug || ''}
-                                                    onChange={handleInputChange}
-                                                    placeholder={lang('projects.projectSlugPlaceholder', 'project-slug')}
-                                                    error={!!error.project_slug}
-                                                    helperText={error.project_slug || lang('projects.slugAutoGenerated', 'Auto-generated from project name')}
-                                                    disabled
-                                                />
-                                            </div>
-                                            <div className="col-md-3 mb-3">
-                                                <FormControl fullWidth error={!!error.project_type_id}>
-                                                    <InputLabel id="project-type-select-label">{lang('projects.projectType', 'Project Type')} *</InputLabel>
-                                                    <Select
-                                                        labelId="project-type-select-label"
-                                                        name="project_type_id"
-                                                        value={formData.project_type_id || ''}
-                                                        label={`${lang('projects.projectType', 'Project Type')} *`}
-                                                        onChange={handleInputChange}
-                                                    >
-                                                        <MenuItem value="">{lang('projects.projectType', 'Project Type')}</MenuItem>
-                                                        {projectTypes.map(t => (
-                                                            <MenuItem key={t.id} value={t.id}>{t.type_name}</MenuItem>
-                                                        ))}
-                                                    </Select>
-                                                    {error.project_type_id && <FormHelperText>{error.project_type_id}</FormHelperText>}
-                                                </FormControl>
-                                            </div>
-                                            <div className="col-md-3 mb-3">
-                                                <FormControl fullWidth error={!!error.offtaker}>
-                                                    <InputLabel id="offtaker-select-label">{lang('projects.selectOfftaker', 'Select Offtaker')}</InputLabel>
-                                                    <Select
-                                                        labelId="offtaker-select-label"
-                                                        name="offtaker"
-                                                        value={formData.offtaker}
-                                                        label={lang('projects.selectOfftaker', 'Select Offtaker')}
-                                                        onChange={handleOfftakerChange}
-                                                        disabled={loadingOfftakers}
-                                                    >
-                                                        <MenuItem value="">{lang('projects.selectOfftaker', 'Select Offtaker')}</MenuItem>
-                                                        {offtakers.map(o => (
-                                                            <MenuItem key={o.id} value={o.id}>{o.fullName}</MenuItem>
-                                                        ))}
-                                                    </Select>
-                                                    {error.offtaker && <FormHelperText>{error.offtaker}</FormHelperText>}
-                                                </FormControl>
-                                            </div>
-                                        </div>
-                                        {/* row: asking_price, lease_term, product_code */}
-                                        <div className="row">
-                                            <div className="col-md-4 mb-3">
+                                            <div className={!imagePreview ? "col-md-4" : "col-md-3"}>
                                                 <TextField
                                                     fullWidth
                                                     label={lang('projects.askingPrice', 'Asking Price')}
@@ -559,7 +559,7 @@ const ProjectEditContent = ({ projectId }) => {
                                                     helperText={error.asking_price}
                                                 />
                                             </div>
-                                            <div className="col-md-4 mb-3">
+                                            <div className={!imagePreview ? "col-md-4" : "col-md-3"}>
                                                 <TextField
                                                     fullWidth
                                                     label={`${lang('projects.leaseTerm', 'Lease Term')} ${lang('projects.year', 'year')}`}
@@ -571,7 +571,10 @@ const ProjectEditContent = ({ projectId }) => {
                                                     helperText={error.lease_term}
                                                 />
                                             </div>
-                                            <div className="col-md-4 mb-3">
+                                        </div>
+                                        {/* row: project_size, project_close_date, project_location */}
+                                        <div className="row">
+                                             <div className="col-md-3 mb-3">
                                                 <TextField
                                                     fullWidth
                                                     label={lang('projects.productCode', 'Product Code')}
@@ -582,10 +585,7 @@ const ProjectEditContent = ({ projectId }) => {
                                                     helperText={error.product_code}
                                                 />
                                             </div>
-                                        </div>
-                                        {/* row: project_size, project_close_date, project_location */}
-                                        <div className="row">
-                                            <div className="col-md-4 mb-3">
+                                            <div className="col-md-3 mb-3">
                                                 <TextField
                                                     fullWidth
                                                     label={lang('projects.projectSize', 'Project Size (kW)')}
@@ -598,7 +598,7 @@ const ProjectEditContent = ({ projectId }) => {
                                                     helperText={error.project_size}
                                                 />
                                             </div>
-                                            <div className="col-md-4 mb-3">
+                                            <div className="col-md-3 mb-3">
                                                 <TextField
                                                     fullWidth
                                                     type="date"
@@ -611,7 +611,7 @@ const ProjectEditContent = ({ projectId }) => {
                                                     helperText={error.project_close_date}
                                                 />
                                             </div>
-                                            <div className="col-md-4 mb-3">
+                                            <div className="col-md-3 mb-3">
                                                 <TextField
                                                     fullWidth
                                                     label={lang('projects.projectLocation', 'Project Location')}
