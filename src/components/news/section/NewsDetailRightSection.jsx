@@ -8,6 +8,7 @@ import 'aos/dist/aos.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { getFullImageUrl } from '@/utils/common';
 
 const NewsDetailRightSection = ({ relatedNews, currentNewsSlug }) => {
   const { lang } = useLanguage();
