@@ -7,6 +7,7 @@ import { apiGet } from '@/lib/api'
 import AOS from 'aos'
 import 'aos/dist/aos.css'
 import './styles/exchange-hub-custom.css'
+import { getFullImageUrl } from '@/utils/common'
 
 // Dynamically import ApexCharts to avoid SSR issues
 const Chart = dynamic(() => import('react-apexcharts'), { ssr: false })
