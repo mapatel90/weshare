@@ -288,7 +288,7 @@ const ProjectDetail = ({ projectId }) => {
                             {/* Image Box */}
                             <div className="imageBox">
                                 <img 
-                                    src={getFullImageUrl(project.banner_image)} 
+                                    src={project?.project_image ? getFullImageUrl(project.project_image) : "/images/banner/banner-img.png"} 
                                     alt={project.project_name} 
                                     className="main-img"
                                     onError={(e) => { e.target.src = "/images/banner/banner-img.png" }}
