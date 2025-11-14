@@ -172,7 +172,7 @@ router.get('/', async (req, res) => {
         },
         skip: offset,
         take: limitInt,
-        orderBy: { id: 'desc' }
+        orderBy: { id: 'asc' }
       }),
       prisma.project.count({ where })
     ]);

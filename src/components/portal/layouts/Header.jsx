@@ -13,7 +13,7 @@ function Header({ toggleSidebar }) {
     return (
         <div className="header">
             <div className="header-left">
-                <div className="toggle-btn" onClick={handleToggle}>❮</div>
+                <div className="toggle-btn" id="toggleBtn" onClick={handleToggle}>☰</div>
                 <div className="header-title">
                     {/* <h1>Energy Dashboard</h1>
                     <p>Monitor your solar energy consumption and savings</p> */}
