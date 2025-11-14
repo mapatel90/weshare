@@ -61,13 +61,13 @@ const ProjectCard = ({ project, activeTab }) => {
                             width={500}
                             height={250}
                             className="card-image"
-                            style={{borderRadius: '25px'}}
+                            style={{ borderRadius: '25px' }}
                         />
                         {/* Reliability Badge */}
-                        <div className={`upcoming-badge ${badge.class}`} style={{backgroundColor: '#FFF3DF', margin:'2%'}}>
+                        <div className={`upcoming-badge ${badge.class}`} style={{ backgroundColor: '#FFF3DF', margin: '2%' }}>
                             {/* <span className="badge-icon">{badge.icon}</span> */}
                             {/* {badge.text} */}
-                            Upcoming 
+                            Upcoming
                         </div>
                     </div>
 
@@ -75,7 +75,15 @@ const ProjectCard = ({ project, activeTab }) => {
                     <div className="card-content-with-image">
                         {/* Title and Rating */}
                         <div className="card-header-image">
-                            <h3>{project?.project_name || 'Solar Farm A'}</h3>
+                            <h3 style={{
+                                overflow: 'hidden',
+                                display: '-webkit-box',
+                                WebkitLineClamp: 2,
+                                WebkitBoxOrient: 'vertical',
+                                textOverflow: 'ellipsis',
+                                // maxWidth: '70%',
+                                height: '60px'
+                            }}>{project?.project_name || 'Solar Farm A'}</h3>
                             <div className="rating">
                                 <span className="text-rating">{lang('home.exchangeHub.ratings') || 'Ratings'}:</span>
                                 <div className="stars">
@@ -177,7 +185,15 @@ const ProjectCard = ({ project, activeTab }) => {
             <div className="solar-card">
                 {/* Card Header - Title & Badge */}
                 <div className="card-header">
-                    <h3>{project?.project_name || 'Solar Project'}</h3>
+                    <h3 style={{
+                        overflow: 'hidden',
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                        textOverflow: 'ellipsis',
+                        maxWidth: '70%',
+                        flex: 1
+                    }}>{project?.project_name || 'Solar Project'}</h3>
                     <span className={`badge ${badge.class}`}>
                         <span className="badge-icon">{badge.icon}</span>
                         {badge.text}
