@@ -30,6 +30,8 @@ yarn-error.log*
 # local env files
 .env
 
+.env.local
+
 # vercel
 .vercel
 
@@ -45,5 +47,6 @@ public/images/projects
 public/images/news
 public/images/qrcodes
 public/images/blog
+
 
 
