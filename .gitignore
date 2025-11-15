@@ -42,4 +42,8 @@ package-lock.json
 
 #image
 public/images/projects
+public/images/news
+public/images/qrcodes
+public/images/blog
+
 

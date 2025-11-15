@@ -136,7 +136,7 @@ const HomeFooter = () => {
           {/* Quick Links */}
           <div className="col-lg-4 col-md-6">
             <div className="linkBox">
-              <h6 className="fs-24 text-secondary-color fw-600 mb-40">
+              <h6 className="fs-24 text-secondary-color fw-600">
                 {lang("home.footer.quickLinks")}
               </h6>
               <ul className="list-unstyled text-white quickLinks">
@@ -168,7 +168,7 @@ const HomeFooter = () => {
           {/* Contact & Settings */}
           <div className="col-md-6 col-lg-3">
             <div className="contactBox">
-              <h6 className="fs-24 text-secondary-color fw-600 mb-40">
+              <h6 className="fs-24 text-secondary-color fw-600 mb-3">
                 {lang("home.footer.contactSettings")}
               </h6>
               <ul className="list-unstyled text-white-50 small mb-4">

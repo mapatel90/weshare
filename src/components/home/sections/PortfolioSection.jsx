@@ -59,7 +59,7 @@ const PortfolioSection = () => {
             </div>
           </div>
         </div>
-        <div className="elementBlockGroup">
+        <div className="elementBlockGroup portfolio-grid">
           {stats.map((stat, index) => (
             <div key={index} className="elementBlock">
               <div className="energy-card shadow-sm">
