@@ -85,7 +85,7 @@ const NewsSection = () => {
                 data-aos-duration={1000 + index * 200}
               >
                 <div className="newsBox">
-                  <span style={{height: '200px'}}>
+                  <span style={{ height: '200px' }}>
                     {isDynamic ? (
                       // use normal img for external/dynamic urls to avoid next/image domain config issues
                       // adjust className if needed
@@ -95,7 +95,7 @@ const NewsSection = () => {
                         className="img-thubnail"
                         width={400}
                         height={250}
-                        style={{height:'200px'}}
+                        style={{ height: '200px' }}
                       />
                     ) : (
                       <Image
@@ -118,17 +118,26 @@ const NewsSection = () => {
                       {isDynamic
                         ? item.news_date
                           ? new Date(item.news_date).toLocaleDateString(
-                              "en-US",
-                              {
-                                year: "numeric",
-                                month: "short",
-                                day: "numeric",
-                              }
-                            )
+                            "en-US",
+                            {
+                              year: "numeric",
+                              month: "short",
+                              day: "numeric",
+                            }
+                          )
                           : ""
                         : item.date}
                     </div>
-                    <h4 className="tc-102C41 fw-600 fs-20 mb-3">
+                    <h4 className="tc-102C41 fw-600 fs-20 mb-3"
+                      style={{
+                        overflow: 'hidden',
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                        textOverflow: 'ellipsis',
+                        minHeight: '25px',
+                        lineHeight: '1.4'
+                      }}>
                       {isDynamic ? item.news_title : item.title}
                     </h4>
                     {isDynamic ? (
