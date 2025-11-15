@@ -32,6 +32,9 @@ dotenv.config({ path: join(__dirname, '../.env') });
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+console.log('process.env.NODE_ENV', process.env.NODE_ENV);
+console.log('process.env.FRONTEND_URL', process.env.FRONTEND_URL);
+
 // Middleware
 app.use(helmet());
 app.use(cors({
