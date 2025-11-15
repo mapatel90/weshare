@@ -74,7 +74,7 @@ const ProjectsSection = () => {
             <div className="row">
               {projects.map((project, index) => {
                 const cityName = project.city?.name || ''
-                const stateName = project.state?.name || ''
+                const stateName = project.state?.code || ''
                 const location = [cityName, stateName].filter(Boolean).join(', ') || 'Location Not Available'
 
                 return (
@@ -133,7 +133,7 @@ const ProjectsSection = () => {
                           <span className="fw-600 text-secondary-color">${project.asking_price || '0'}</span>
                         </div>
 
-                        <button className="btn btn-primary-custom mt-4 w-100">
+                        <button className="btn btn-primary-custom mt-4 w-100" style={{display: 'flex'}}>
                           <Image className="me-2" src="/images/icons/reports-icon.svg" alt="view" width={20} height={20} />
                           {lang('home.projects.viewDetails')}
                         </button>

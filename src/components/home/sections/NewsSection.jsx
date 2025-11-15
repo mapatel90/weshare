@@ -85,7 +85,7 @@ const NewsSection = () => {
                 data-aos-duration={1000 + index * 200}
               >
                 <div className="newsBox">
-                  <span>
+                  <span style={{height: '200px'}}>
                     {isDynamic ? (
                       // use normal img for external/dynamic urls to avoid next/image domain config issues
                       // adjust className if needed
@@ -95,6 +95,7 @@ const NewsSection = () => {
                         className="img-thubnail"
                         width={400}
                         height={250}
+                        style={{height:'200px'}}
                       />
                     ) : (
                       <Image

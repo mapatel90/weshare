@@ -24,11 +24,11 @@ const InvestmentMarketplace = () => {
               <p>{lang('home.marketplace.description')}</p>
               
               <div className="groupBtn" data-aos="fade-up" data-aos-duration="1500">
-                <button className="btn btn-primary-custom mt-3" onClick={() => router.push('/register')}>
+                <button className="btn btn-primary-custom mt-3" style={{display: 'flex'}} onClick={() => router.push('/register')}>
                   {lang('home.marketplace.becomeInvestor')}
                   <Image className="ms-2" src="/images/icons/w-row.svg" alt="arrow" width={20} height={20} />
                 </button>
-                <button className="btn btn-primary-custom mt-3 transparentBtn text-white border-1 shadow-0" onClick={() => router.push('/login')}>
+                <button className="btn btn-primary-custom mt-3 transparentBtn text-white border-1 shadow-0" style={{display: 'flex'}} onClick={() => router.push('/login')}>
                   <Image className="me-2" src="/images/icons/login-icon.svg" alt="login" width={20} height={20} />
                   {lang('home.marketplace.signIn')}
                 </button>
