@@ -25,19 +25,22 @@ const LoginPage = () => {
         >
             {/* Logo + Title */}
             <Box sx={{ textAlign: "center", mb: 4 }}>
-                <Box
-                    component="img"
-                    src="/images/main_logo.png"
-                    alt="WeShare"
-                    sx={{
-                        maxWidth: 200,
-                        mb: 2,
-                    }}
-                />
-                <Typography variant="h5" fontWeight={600}>
-                    {lang('authentication.loginIntoYourAccount')}
-                </Typography>
-            </Box>
+                <Link href="/" style={{ display: 'inline-block', textDecoration: 'none' }}>
+                    <Box
+                        component="img"
+                        src="/images/main_logo.png"
+                        alt="WeShare"
+                        sx={{
+                            maxWidth: 200,
+                            mb: 2,
+                            cursor: 'pointer',
+                        }}
+                    />
+                </Link>
+                 <Typography variant="h5" fontWeight={600}>
+                     {lang('authentication.loginIntoYourAccount')}
+                 </Typography>
+             </Box>
 
             {/* Card */}
             <Card
@@ -66,7 +69,7 @@ const LoginPage = () => {
                             mt: 2,
                         }}
                     >
-                        <Link href="/offtaker/login" passHref style={{ width: "100%", textDecoration: 'none' }}>
+                        <Link href="/offtaker/login" passHref style={{ width: "70%", textDecoration: 'none' }}>
                             <Button
                                 variant="contained"
                                 fullWidth
@@ -87,7 +90,7 @@ const LoginPage = () => {
                             </Button>
                         </Link>
 
-                        <Link href="/investor/login" passHref style={{ width: "100%", textDecoration: 'none' }}>
+                        <Link href="/investor/login" passHref style={{ width: "70%", textDecoration: 'none' }}>
                             <Button
                                 variant="contained"
                                 fullWidth

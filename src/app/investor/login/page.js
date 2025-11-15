@@ -23,6 +23,7 @@ const InvestorLoginPage = () => {
         >
             {/* Logo + Title */}
             <Box sx={{ textAlign: "center", mb: 4 }}>
+                <Link href="/" style={{ display: 'inline-block', textDecoration: 'none' }}>
                 <Box
                     component="img"
                     src="/images/main_logo.png"
@@ -32,6 +33,7 @@ const InvestorLoginPage = () => {
                         mb: 2,
                     }}
                 />
+                </Link>
                 <Typography variant="h5" fontWeight={600}>
                     {lang('authentication.loginIntoYourAccount')}
                 </Typography>

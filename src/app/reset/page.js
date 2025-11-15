@@ -1,10 +1,12 @@
 "use client";
 
 import React from 'react';
-import { Box, Card, CardContent, Typography } from '@mui/material';
+import { Box, Card, CardContent, Typography, Link } from '@mui/material';
 import ForgotPasswordForm from '@/components/authentication/ForgotPasswordForm';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const ResetPage = () => {
+    const { lang } = useLanguage();
     return (
         <Box
             className="loginSection"
@@ -20,6 +22,7 @@ const ResetPage = () => {
         >
             {/* Logo + Title */}
             <Box sx={{ textAlign: "center", mb: 4 }}>
+                <Link href="/" style={{ display: 'inline-block', textDecoration: 'none' }}>
                 <Box
                     component="img"
                     src="/images/main_logo.png"
@@ -29,8 +32,9 @@ const ResetPage = () => {
                         mb: 2,
                     }}
                 />
+                </Link>
                 <Typography variant="h5" fontWeight={600}>
-                    Reset Your Password
+                    {lang('authentication.resetYourPassword')}
                 </Typography>
             </Box>
 

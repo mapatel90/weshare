@@ -23,6 +23,7 @@ const OfftakerLoginPage = () => {
         >
             {/* Logo + Title */}
             <Box sx={{ textAlign: "center", mb: 4 }}>
+                <Link href="/" style={{ display: 'inline-block', textDecoration: 'none' }}>
                 <Box
                     component="img"
                     src="/images/main_logo.png"
@@ -32,6 +33,7 @@ const OfftakerLoginPage = () => {
                         mb: 2,
                     }}
                 />
+                </Link>
                 <Typography variant="h5" fontWeight={600}>
                     {lang('authentication.loginIntoYourAccount')}
                 </Typography>

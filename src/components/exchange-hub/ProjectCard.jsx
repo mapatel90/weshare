@@ -62,7 +62,6 @@ const ProjectCard = ({ project, activeTab }) => {
                             width={500}
                             height={250}
                             className="card-image"
-                            style={{ borderRadius: '25px' }}
                         />
                         {/* Reliability Badge */}
                         <div className={`upcoming-badge ${badge.class}`} style={{ backgroundColor: '#FFF3DF', margin: '2%' }}>

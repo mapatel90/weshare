@@ -4,8 +4,10 @@ import React from "react";
 import Link from "next/link";
 import { Box, Card, CardContent, Typography } from "@mui/material";
 import RegisterForm from "@/components/authentication/RegisterForm";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const RegisterPage = () => {
+    const { lang } = useLanguage();
     return (
         <Box
             className="loginSection"
@@ -21,6 +23,7 @@ const RegisterPage = () => {
         >
             {/* Logo + Title */}
             <Box sx={{ textAlign: "center", mb: 4 }}>
+                <Link href="/" style={{ display: 'inline-block', textDecoration: 'none' }}>
                 <Box
                     component="img"
                     src="/images/main_logo.png"
@@ -30,8 +33,9 @@ const RegisterPage = () => {
                         mb: 2,
                     }}
                 />
+                </Link>
                 <Typography variant="h5" fontWeight={600}>
-                    Sign Up into your Account!
+                    {lang('authentication.registerAnAccount')}
                 </Typography>
             </Box>
 

@@ -48,10 +48,12 @@
     "loginAsOfftaker": "Login as Offtaker",
     "loginAsInvestor": "Login as Investor",
     "register": "Register",
+    "registerAnAccount": "Sign Up into your Account!",
     "forgotPassword": "Forgot Password",
     "resetPassword": "Reset Password",
     "verify": "Verify",
     "email": "Email",
+    "yourPassword": "Your password",
     "password": "Password",
     "newPassword": "New Password",
     "confirmPassword": "Confirm Password",
@@ -107,7 +109,8 @@
     "registerAs": "Register as",
     "becomeOfftaker": "Offtaker",
     "becomeInvestor": "Investor",
-    "termsPolicy": "Terms & Policy"
+    "termsPolicy": "Terms & Policy",
+    "resetYourPassword": "Reset Your Password"
   },
   "common": {
     "save": "Save",

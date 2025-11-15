@@ -19,8 +19,8 @@ import SubmitSection from '@/components/home/sections/SubmitSection'
 import HomeNavbar from '@/components/home/HomeNavbar'
 import HomeFooter from '@/components/home/HomeFooter'
 import 'bootstrap/dist/css/bootstrap.min.css'
-import '../../../public/css/home.css'
-import '../../../public/css/responsive.css'
+import '@/styles/css/home.css'
+import '@/styles/css/responsive.css'
 import DynamicTitle from '@/components/common/DynamicTitle'
 
 const HomePage = () => {
