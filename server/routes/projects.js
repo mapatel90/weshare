@@ -85,6 +85,7 @@ router.post('/AddProject', authenticateToken, async (req, res) => {
             project_size,
             project_close_date,
             project_location,
+            start_date,
             status = 1
         } = req.body;
 
@@ -113,6 +114,7 @@ router.post('/AddProject', authenticateToken, async (req, res) => {
                 project_image: project_image || '',
                 project_size: project_size || '',
                 project_close_date: project_close_date ? new Date(project_close_date) : null,
+                project_start_date: start_date ? new Date(start_date) : null,
                 project_location: project_location || '',
                 status: parseInt(status)
             },

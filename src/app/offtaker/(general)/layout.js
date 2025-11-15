@@ -8,7 +8,6 @@ import { initializeOfftakerPortal, toggleSidebar, toggleSubmenu, closeSidebars }
 import Header from "@/components/portal/layouts/Header";
 import PannelSidebar from "@/components/portal/layouts/PannelSidebar";
 import MainSidebar from "@/components/portal/layouts/MainSidebar";
-import Section from "@/components/portal/layouts/Section";
 
 const layout = ({ children }) => {
   const pathName = usePathname();
