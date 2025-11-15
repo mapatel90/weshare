@@ -3,6 +3,7 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useLanguage } from '@/contexts/LanguageContext'
 import './styles/exchange-hub-custom.css'
+import './styles/responsive.css'
 import { getFullImageUrl } from '@/utils/common'
 
 const ProjectCard = ({ project, activeTab }) => {
@@ -51,7 +52,7 @@ const ProjectCard = ({ project, activeTab }) => {
     if (activeTab === 'lease') {
         // LEASE CARD - With Image (Figma Style)
         return (
-            <div className="col-12 col-md-6 col-lg-6 mb-4" data-aos="fade-up" data-aos-easing="linear" data-aos-duration="1000">
+            <div className="col-12 col-md-12 col-lg-6" data-aos="fade-up" data-aos-easing="linear" data-aos-duration="1000">
                 <div className="solar-card-with-image">
                     {/* Solar Panel Image */}
                     <div className="card-image-container">
@@ -81,8 +82,8 @@ const ProjectCard = ({ project, activeTab }) => {
                                 WebkitLineClamp: 2,
                                 WebkitBoxOrient: 'vertical',
                                 textOverflow: 'ellipsis',
-                                // maxWidth: '70%',
-                                height: '60px'
+                                minHeight: '65px',
+                                lineHeight: '1.4'
                             }}>{project?.project_name || 'Solar Farm A'}</h3>
                             <div className="rating">
                                 <span className="text-rating">{lang('home.exchangeHub.ratings') || 'Ratings'}:</span>
@@ -157,7 +158,7 @@ const ProjectCard = ({ project, activeTab }) => {
                         </p>
 
                         {/* Action Buttons */}
-                        <div className="buttons-image buttons" style={{ height: '50px' }}>
+                        <div className="buttons-image buttons">
                             <button className="btn btn-primary-custom">
                                 {lang('home.exchangeHub.investEarly') || 'Invest Early'}
                             </button>
@@ -181,7 +182,7 @@ const ProjectCard = ({ project, activeTab }) => {
 
     // RESALE CARD - Without Image (Original Design)
     return (
-        <div className="col-12 col-md-6 col-lg-6 mb-4" data-aos="fade-up" data-aos-easing="linear" data-aos-duration="1000">
+        <div className="col-12 col-md-12 col-lg-6 mb-4" data-aos="fade-up" data-aos-easing="linear" data-aos-duration="1000">
             <div className="solar-card">
                 {/* Card Header - Title & Badge */}
                 <div className="card-header">
@@ -191,8 +192,8 @@ const ProjectCard = ({ project, activeTab }) => {
                         WebkitLineClamp: 2,
                         WebkitBoxOrient: 'vertical',
                         textOverflow: 'ellipsis',
-                        // maxWidth: '70%',
-                        height: '60px'
+                        minHeight: '48px',
+                        lineHeight: '1.4'
                     }}>{project?.project_name || 'Solar Project'}</h3>
                     <span className={`badge ${badge.class}`}>
                         <span className="badge-icon">{badge.icon}</span>

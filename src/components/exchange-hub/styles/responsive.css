@@ -199,7 +199,7 @@
 
   .rightHeader .dropdown-toggle::after {
     content: "";
-    background-image: url(../img/w-drop-icon.svg);
+    /* background-image: url(../img/w-drop-icon.svg); */
 
   }
 

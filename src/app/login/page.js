@@ -66,7 +66,7 @@ const LoginPage = () => {
                             mt: 2,
                         }}
                     >
-                        <Link href="/offtaker/login" passHref style={{ width: "70%", textDecoration: 'none' }}>
+                        <Link href="/offtaker/login" passHref style={{ width: "100%", textDecoration: 'none' }}>
                             <Button
                                 variant="contained"
                                 fullWidth
@@ -87,7 +87,7 @@ const LoginPage = () => {
                             </Button>
                         </Link>
 
-                        <Link href="/investor/login" passHref style={{ width: "70%", textDecoration: 'none' }}>
+                        <Link href="/investor/login" passHref style={{ width: "100%", textDecoration: 'none' }}>
                             <Button
                                 variant="contained"
                                 fullWidth
