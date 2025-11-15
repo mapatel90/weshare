@@ -17,8 +17,8 @@ const SolarLeaseSection = () => {
     <section className="solor-lease-section">
       <div className="container">
         <div className="row innerBox mx-0">
-          <div className="col-0 col-md-5"></div>
-          <div className="col-12 col-md-7" data-aos="fade-left" data-aos-duration="1200">
+          <div className="col-0 col-md-6"></div>
+          <div className="col-12 col-md-6" data-aos="fade-left" data-aos-duration="1200">
             <div className="contentBox py-90 pe-md-0 pe-4">
               <h2 className="fw-bold fs-40 text-black mb-40">{lang('home.solarLease.title')}</h2>
               <p className="text-black mb-40 fs-24">{lang('home.solarLease.description')}</p>

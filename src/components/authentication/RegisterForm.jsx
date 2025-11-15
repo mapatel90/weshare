@@ -313,7 +313,7 @@ const RegisterForm = ({loginPath}) => {
                     <TextField
                         fullWidth
                         type={showPassword ? 'text' : 'password'}
-                        placeholder="Your password"
+                        placeholder={lang('authentication.yourPassword') || 'Password'}
                         value={password}
                         onChange={(e) => {
                             setPassword(e.target.value)
@@ -356,7 +356,7 @@ const RegisterForm = ({loginPath}) => {
                     <TextField
                         fullWidth
                         type={showConfirmPassword ? 'text' : 'password'}
-                        placeholder="Confirm password"
+                        placeholder={lang('authentication.confirmPassword') || 'Confirm Password'}
                         value={confirmPassword}
                         onChange={(e) => {
                             setConfirmPassword(e.target.value)
@@ -437,7 +437,7 @@ const RegisterForm = ({loginPath}) => {
             {/* Already have account */}
             <Box sx={{ mt: 3, textAlign: 'center' }}>
                 <Typography variant="body2" color="text.secondary">
-                    Already have an account?{' '}
+                    {lang('authentication.alreadyHaveAccount')}{' '}
                     <Link href={loginPath} style={{ fontWeight: 600, color: '#2386FF', textDecoration: 'none' }}>
                         {lang('authentication.signIn') || 'Sign in'}
                     </Link>

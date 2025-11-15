@@ -21,11 +21,11 @@ const CTASection = () => {
             <div className="cta-box d-flex flex-column flex-md-row align-items-center justify-content-between p-4 p-md-5 rounded-4">
               <div className="text-center text-md-start mb-3 mb-md-0">
                 <h3 className="fw-bold text-white mb-40">{lang('home.cta.title')}</h3>
-                <p className="text-white fw-300 fs-18 w-60 mb-0">
+                <p className="text-white fw-300 fs-18 mb-0" style={{width: '96% ', maxWidth: '600px'}}>
                   {lang('home.cta.description')}
                 </p>
               </div>
-              <button className="btn btn-primary-custom bg-white tc-102C41" onClick={() => router.push('/register')}>{lang('home.cta.becomeOfftaker')} →</button>
+              <button className="btn btn-primary-custom bg-white tc-102C41" style={{position: 'relative', zIndex: 1}} onClick={() => router.push('/register')}>{lang('home.cta.becomeOfftaker')} →</button>
             </div>
           </div>
         </div>

@@ -6,6 +6,14 @@
   .solar-cta .w-60 {  width: 80%;  }
 }
 
+@media (min-width: 1100px) {
+  .portfolio-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr) !important;
+    gap: 20px;
+  }
+}
+
 @media (max-width: 1199.9px) {
   :root {
     --font-16: 0.925em;       
@@ -24,14 +32,14 @@
   } 
   .my-30{margin-top: 24px;margin-bottom: 24px;}    
    .mb-40{margin-bottom:28px;} 
-.img-thubnail{width: 100%;}
-.container {  width: 100%; padding: 0px 30px;    margin: 0px !important;    max-width:unset;}
-.headSection {gap: 150px;}
-.submit .innerBox .contentBox {  padding: 80px 0px 80px 20px;}
-.elementBlockGroup { grid-template-columns: repeat(3, 1fr);  }
+  .img-thubnail{width: 100%;}
+  .container {  width: 100%; padding: 0px 30px;    margin: 0px !important;    max-width:unset; box-sizing: border-box;}
+  .headSection {gap: 150px;}
+  .submit .innerBox .contentBox {  padding: 80px 0px 80px 20px;}
+  .elementBlockGroup { grid-template-columns: repeat(3, 1fr);  }
   nav.navbar .nav-link { margin: 0 0.2rem;  }
   nav.navbar .nav-item.ms-3 {    margin-left: 8px;  }
-  .vectorStyle::after { content: "";  width: 766px;  height: 72px;}
+  .vectorStyle::after { content: "";  width: 766px;  max-width: 100vw;  height: 72px;}
   a.cardBoxBlock{    padding: 60px 16px 20px;}
 }
 @media (max-width: 991.9px) {
@@ -50,6 +58,8 @@
     --font-48: 2.125em;
     --font-56: 2.825em;
   } 
+  html, body { overflow-x: hidden !important; width: 100% !important; max-width: 100% !important; }
+  * { box-sizing: border-box; }
   .elementBlockGroup { grid-template-columns: repeat(2, 1fr);  }
   .btn-primary-custom { min-width: 200px;}
   .footer{margin-top: 40px;}
@@ -79,7 +89,7 @@ nav ul.navbar-nav.me-auto.align-items-center { align-items: flex-start !importan
 .btn-login img{  filter: brightness(0) invert(1);}
 .rightHeader .dropdown-toggle::after {
        content: "";
-    background-image: url(../../../public/images/icons/w-drop-icon.svg);
+    /* background-image: url(../images/icons/w-drop-icon.svg); */
   
 }
 nav li.nav-item {  border-bottom: 1px solid #fff;  width: 100%;  margin-bottom: 12px;padding-bottom: 5px;}
@@ -87,6 +97,8 @@ nav li.nav-item {  border-bottom: 1px solid #fff;  width: 100%;  margin-bottom: 
 
 }
 @media (max-width:767.9px) {
+ html, body { overflow-x: hidden !important; width: 100% !important; max-width: 100% !important; }
+ * { box-sizing: border-box; }
  .linkBox {  margin:0; max-width: 100%;}
 .contactBox { max-width:100%;  margin-left: 0;}
 .testimonial-img { margin: 20px;     border-radius: 20px;     width: auto;     height: 222px;     object-fit: contain; }
@@ -98,23 +110,35 @@ nav li.nav-item {  border-bottom: 1px solid #fff;  width: 100%;  margin-bottom: 
     border-top: 1px solid #fff;
     margin-bottom: 24px;
 }
+.projectSection::after { display: none; }
+.vectorStyle::after { width: 100% !important; max-width: 100vw !important; }
 
 }
 
 @media (max-width: 576px) {
+  html, body { overflow-x: hidden !important; width: 100% !important; max-width: 100% !important; }
+  * { box-sizing: border-box; }
   .elementBlockGroup { grid-template-columns: 1fr;  }
   .mt-40 { margin-top: 20px;}
   .headerSection .nav-item{width: 100%;margin-bottom: 24px;}
   .py-90 {    padding-top: 50px;    padding-bottom: 50px;}
   .groupBtn{gap: 10px;margin-top: 30px;display: flex;justify-content: center;flex-direction: column;}
   .headSection { display: flex;    gap: 20px;    flex-direction: column !important;}
-  .projectSection .nav-link {width: 100%;margin: 0px;}
-  .btn-primary-custom{width: 100%;}
+  .projectSection .nav-link {width: 100%;margin: 0px; min-width: unset !important;}
+  .btn-primary-custom{width: 100%; min-width: unset !important;}
   .sliderArrow {bottom: 110px;max-width: 200px;}
   .testimonial-section{padding-bottom: 0px;}
   .footer-links{display: flex;}
   .copyRightSection{display: flex;flex-direction: column;gap:12px !important}
-  .container {  width: 100%; padding: 0px 15px;    margin: 0px !important;    max-width:unset;}
+  .container {  width: 100%; padding: 0px 15px;    margin: 0px !important;    max-width:unset; box-sizing: border-box;}
+  .projectSection::after { display: none; }
+  .vectorStyle::after { width: 100% !important; max-width: 100vw !important; }
+  .feature-section::before,
+  .solution-section::before,
+  .mission-section::before,
+  .how-to-work::before,
+  .how-to-work::after,
+  .news-section::after { max-width: 100vw !important; }
       .how-to-work, .blockSpacing {
         padding-bottom: 24px;
     }
