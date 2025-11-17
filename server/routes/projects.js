@@ -142,8 +142,9 @@ router.post('/AddProject', authenticateToken, async (req, res) => {
  */
 router.get('/', async (req, res) => {
   try {
-    const { page = 1, limit = 10, search, status } = req.query;
+    const { page = 1, limit = 10, search, status,offtaker_id } = req.query;
     const pageInt = parseInt(page);
+    const offtakerIdInt = offtaker_id ? parseInt(offtaker_id) : '';
     const limitInt = parseInt(limit);
     const offset = (pageInt - 1) * limitInt;
 
@@ -156,6 +157,11 @@ router.get('/', async (req, res) => {
         { project_type: { contains: search, mode: 'insensitive' } },
       ];
     }
+
+    if (offtakerIdInt) {
+      where.offtaker_id = offtakerIdInt;
+    }
+    
     if (status !== undefined) {
       where.status = parseInt(status);
     }

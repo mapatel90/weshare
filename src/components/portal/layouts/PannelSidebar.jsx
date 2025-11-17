@@ -35,7 +35,7 @@ function PannelSidebar({ activeMenu, setActiveMenu }) {
                     <div className="submenu-item">
                         <Link href="/offtaker/projects" onClick={handleClose}>View Details</Link>
                     </div>
-                    <div className="submenu-item">Performance</div>
+                    {/* <div className="submenu-item">Performance</div> */}
                 </div>
             </div>
             <div className="menu-section">
