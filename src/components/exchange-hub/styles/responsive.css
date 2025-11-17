@@ -574,3 +574,11 @@
     margin-left: 2px !important;
   }
 }
+
+/* Make only columns inside .pills-ProjectsOpen full width between 992px and 1100px */
+@media (min-width: 992px) and (max-width: 1100px) {
+  .pills-ProjectsOpen .row > [class*="col-"] {
+    flex: 0 0 100% !important;
+    max-width: 100% !important;
+  }
+}

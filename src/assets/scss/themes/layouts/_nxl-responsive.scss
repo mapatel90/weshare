@@ -19,7 +19,15 @@
 <--! @media (min-width: 576px) !-->
 <--!----------------------------------------------------------------!-->
 */
-@media (min-width: 576px) {
+@media (min-width: 576px) and (max-width: 1024px) {
+	.navigation-up-1600 {
+		display: none !important;
+	}
+
+	.nxl-lavel-mega-menu-toggle {
+		display: none !important;
+	}
+
 	.nxl-user-dropdown {
 		.dropdown-menu.show {
 			display: block;
@@ -133,8 +141,14 @@
 */
 @media (max-width: 575.98px) {
 	.nxl-header {
-		.header-wrapper {
+		.header-wrapper  {
 			padding: 0 20px;
+				.nxl-navigation-up-1600 {
+					display: none !important;
+				}
+				.nxl-lavel-mega-menu-toggle {
+					display: none !important;
+				}
 			.nxl-h-item {
 				position: static;
 				.nxl-h-dropdown {
@@ -763,3 +777,4 @@
 */
 @media (min-width: 1200px) and (max-width: 1600px) {
 }
+

@@ -12,7 +12,7 @@ const LanguagesModal = () => {
   };
 
   return (
-    <div className="dropdown nxl-h-item nxl-header-language d-none d-sm-flex">
+    <div className="dropdown nxl-h-item nxl-header-language d-flex">
       <div className="nxl-head-link me-0 nxl-language-link" data-bs-toggle="dropdown" data-bs-auto-close="outside">
         <img src={currentLanguageInfo.flag} alt={currentLanguageInfo.name} className="img-fluid wd-20" />
       </div>

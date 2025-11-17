@@ -201,6 +201,7 @@ a.normalBtn img,
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
     display: flex;
     flex-direction: column;
+    padding: 15px;
 }
 
 .solar-card-with-image:hover {
@@ -216,7 +217,7 @@ a.normalBtn img,
     min-height: 130px;
     height: 130px;
     overflow: hidden;
-    border-radius: 25px;
+    border-radius: 10px;
     background-color: #F5F5F5;
 }
 
@@ -253,7 +254,7 @@ a.normalBtn img,
 
 /* Card Content Below Image */
 .card-content-with-image {
-    padding: 20px 24px;
+    padding: 20px 3px 0px;
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -264,9 +265,9 @@ a.normalBtn img,
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 10px;
+    /* margin-bottom: 10px; */
     gap: 12px;
-    min-height: 48px;
+    /* min-height: 48px; */
 }
 
 .card-header-image h3 {
@@ -301,7 +302,7 @@ a.normalBtn img,
 
 /* ID and Offtaker */
 .id-image {
-    margin: 8px 0 6px;
+    margin: 4px 0 6px;
     color: #000;
     font-size: 14px;
     font-weight: 500;
@@ -309,7 +310,7 @@ a.normalBtn img,
 }
 
 .offtaker-image {
-    margin: 6px 0 24px;
+    margin: 6px 0 20px;
     color: #666;
     font-size: 14px;
     font-weight: 400;
@@ -321,7 +322,7 @@ a.normalBtn img,
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 16px;
-    margin: 24px 0;
+    margin: 0 0 24px ;
     text-align: center;
 }
 
@@ -353,7 +354,7 @@ a.normalBtn img,
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin: 24px 0;
+    /* margin: 24px 0; */
     padding: 0;
     gap: 20px;
     padding: 16px 9px;
@@ -436,7 +437,7 @@ a.normalBtn img,
 
 /* Note Text */
 .note-text {
-    margin: 16px 0 20px;
+    /* margin: 16px 0 20px; */
     font-size: 12px;
     color: #000000;
     /* font-style: italic; */
@@ -447,7 +448,7 @@ a.normalBtn img,
 .buttons-image {
     display: flex;
     gap: 12px;
-    margin-top: 20px;
+    /* margin-top: 20px; */
 }
 
 .buttons-image .btn {
@@ -493,12 +494,13 @@ a.normalBtn img,
 
 /* Responsive for Image Card */
 @media (max-width: 768px) {
-    .solar-card-with-image {
+    /* .solar-card-with-image {
         height: 765px;
-    }
+    } */
+
     .card-image-container {
-        min-height: 200px;
-        height: 200px;
+        min-height: 130px;
+        height: 130px;
         border-radius: 20px;
     }
 
@@ -507,7 +509,7 @@ a.normalBtn img,
     }
 
     .card-content-with-image {
-        padding: 16px;
+        padding: 20px 3px 0px;
     }
 
     .card-header-image {
@@ -610,7 +612,7 @@ a.normalBtn img,
 
     .note-text {
         font-size: 11px;
-        margin: 12px 0 16px;
+        /* margin: 12px 0 16px; */
     }
 
     .buttons-image .btn {
@@ -621,8 +623,8 @@ a.normalBtn img,
 
 @media (max-width: 576px) {
     .card-image-container {
-        min-height: 160px;
-        height: 160px;
+        min-height: 130px;
+        height: 130px;
         border-radius: 16px;
     }
 
@@ -631,7 +633,7 @@ a.normalBtn img,
     }
 
     .card-content-with-image {
-        padding: 14px;
+        padding: 20px 3px 0px;
     }
 
     .card-header-image {
@@ -642,6 +644,7 @@ a.normalBtn img,
 
     .card-header-image h3 {
         font-size: 17px;
+        width: 90%;
     }
 
     .rating {
@@ -1477,14 +1480,40 @@ input:focus-visible {
     position: relative;
 }
 
+/* replaced: make divider responsive and hide on stacked layouts */
 .leftStatsBox::after {
     content: '';
     position: absolute;
-    top: 0px;
+    top: 0;
     right: -60px;
     width: 1px;
     height: 100%;
     background-color: #8A8A8A;
+    transition: right 0.25s ease, opacity 0.25s ease;
+    opacity: 1;
+}
+
+/* medium screens: bring divider closer so it doesn't overflow */
+@media (max-width: 1200px) {
+    .leftStatsBox::after {
+        right: -36px;
+    }
+}
+
+/* tablet and below: hide divider because layout stacks vertically */
+@media (max-width: 991px) {
+    .leftStatsBox::after {
+        right: -3px;
+    }
+}
+
+/* small phones: ensure no visual artifacts */
+@media (max-width: 576px) {
+    .leftStatsBox::after {
+        /* display: none;
+        opacity: 0; */
+        right: 0px;
+    }
 }
 
 /* Stats View */
