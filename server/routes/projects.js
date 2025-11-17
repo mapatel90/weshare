@@ -85,6 +85,7 @@ router.post('/AddProject', authenticateToken, async (req, res) => {
             project_size,
             project_close_date,
             project_location,
+            start_date,
             status = 1
         } = req.body;
 
@@ -113,6 +114,7 @@ router.post('/AddProject', authenticateToken, async (req, res) => {
                 project_image: project_image || '',
                 project_size: project_size || '',
                 project_close_date: project_close_date ? new Date(project_close_date) : null,
+                project_start_date: start_date ? new Date(start_date) : null,
                 project_location: project_location || '',
                 status: parseInt(status)
             },
@@ -140,8 +142,9 @@ router.post('/AddProject', authenticateToken, async (req, res) => {
  */
 router.get('/', async (req, res) => {
   try {
-    const { page = 1, limit = 10, search, status } = req.query;
+    const { page = 1, limit = 10, search, status,offtaker_id } = req.query;
     const pageInt = parseInt(page);
+    const offtakerIdInt = offtaker_id ? parseInt(offtaker_id) : '';
     const limitInt = parseInt(limit);
     const offset = (pageInt - 1) * limitInt;
 
@@ -154,6 +157,11 @@ router.get('/', async (req, res) => {
         { project_type: { contains: search, mode: 'insensitive' } },
       ];
     }
+
+    if (offtakerIdInt) {
+      where.offtaker_id = offtakerIdInt;
+    }
+    
     if (status !== undefined) {
       where.status = parseInt(status);
     }
