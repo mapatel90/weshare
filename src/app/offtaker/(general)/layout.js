@@ -1,6 +1,6 @@
 "use client";
 import { usePathname } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import useBootstrapUtils from "@/hooks/useBootstrapUtils";
 import '@/assets/portal/offtaker.css';
@@ -12,6 +12,8 @@ import MainSidebar from "@/components/portal/layouts/MainSidebar";
 const layout = ({ children }) => {
   const pathName = usePathname();
   useBootstrapUtils(pathName);
+
+    const [activeMenu, setActiveMenu] = useState('dashboard');
 
     useEffect(() => {
         initializeOfftakerPortal();
@@ -28,8 +30,8 @@ const layout = ({ children }) => {
     return (
         <ProtectedRoute>
             <div className="sidebar-overlay" id="sidebarOverlay" onClick={closeSidebars}></div>
-            <MainSidebar />
-            <PannelSidebar />
+            <MainSidebar activeMenu={activeMenu} setActiveMenu={setActiveMenu} />
+            <PannelSidebar activeMenu={activeMenu} setActiveMenu={setActiveMenu} />
             <div className="main-content" id="mainContent">
                 <Header toggleSidebar={toggleSidebar} />
                 {children}
