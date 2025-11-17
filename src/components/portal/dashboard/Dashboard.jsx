@@ -1,3 +1,4 @@
+'use client';
 import React from 'react';
 import '../../../assets/portal/offtaker.css';
 import ProjectsTable from './sections/ProjectsTable';
