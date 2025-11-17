@@ -26,6 +26,94 @@ body {
   z-index: 100;
 }
 
+.header-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 28px;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Title like screenshot (bold, medium size) */
+.header-title {
+    font-size: 22px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin: 0;
+}
+
+/* Vertical bar separator */
+.divider {
+    font-size: 22px;
+    color: #b0b0b0;
+    margin: 0 5px;
+}
+
+/* Breadcrumb layout */
+.breadcrumb-offtaker {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 15px;
+}
+
+.breadcrumb-link {
+    color: #F6A623;
+    text-decoration: none;
+}
+
+.breadcrumb-link:hover {
+    text-decoration: underline;
+    color: #e4900a !important;
+}
+
+/* Arrow */
+.breadcrumb-arrow {
+    color: #b0b0b0;
+}
+
+/* Current page in breadcrumb */
+.breadcrumb-current {
+    color: #1a1a1a;
+    font-weight: 500;
+}
+
+.input-field {
+  border: 1px solid #e5e7eb;
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 14px;
+  background: #fff;
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: #F6A623;
+  box-shadow: 0 0 0 2px rgba(246, 166, 35, 0.15);
+}
+
+.cancel-btn {
+  padding: 8px 30px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: #fff;
+  font-size: 14px;
+}
+
+.next-btn {
+  padding: 8px 40px;
+  background: #F6A623;
+  border-radius: 6px;
+  font-size: 14px;
+  color: white;
+}
+
+
 .logo-icon {
   width: 40px;
   /* height: 40px; */
