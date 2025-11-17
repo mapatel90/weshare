@@ -65,26 +65,23 @@ const normalizeApiProject = (project) => {
       : statusString === "Under Installation"
       ? 0
       : project?.status ?? null;
-
   return {
     id: project?.id ? `#${project.id}` : project?.project_code ?? "—",
+    project_image: project?.project_image,
     projectName: project?.project_name ?? "—",
     status: statusString,
     statusCode,
     expectedROI: formatPercent(project?.expected_roi ?? project?.roi),
-    targetInvestment: formatCurrency(
-      project?.asking_price ?? project?.asking_price
-    ),
+    targetInvestment: formatCurrency(project?.asking_price ?? project?.asking_price),
     paybackPeriod: project?.lease_term ? String(project.lease_term) : "—",
-    // formatted display strings
     startDate: formatDateForDisplay(project?.createdAt),
     endDate: formatDateForDisplay(project?.project_close_date),
-    // timestamps for accurate sorting/comparison
     startDateTs: tsOrZero(project?.createdAt),
     endDateTs: tsOrZero(project?.project_close_date),
     expectedGeneration: formatNumber(project?.project_size),
-    // Store offtaker_id for filtering (Prisma returns offtaker_id directly in the project object)
     offtakerId: project?.offtaker_id ?? null,
+    product_code: project?.product_code ?? '-',
+    offtaker_name: project?.offtaker?.fullName ?? '-',
   };
 };
 
@@ -113,9 +110,13 @@ const SolarProjectTable = () => {
       setIsLoading(true);
       setFetchError(null);
       try {
-        const response = await apiGet("/api/projects?page=1&limit=50");
+        // Add offtaker_id param if user.id exists
+        let apiUrl = "/api/projects?page=1&limit=50";
+        if (user?.id) {
+          apiUrl += `&offtaker_id=${user.id}`;
+        }
+        const response = await apiGet(apiUrl);
         if (response?.success && Array.isArray(response?.data?.projects)) {
-          console.log("Fetched Projects:", response.data.projects);
           const normalized = response.data.projects.map(normalizeApiProject);
           setAllProjects(normalized); // do not fallback to static data
         } else {
@@ -132,7 +133,7 @@ const SolarProjectTable = () => {
     };
 
     fetchProjects();
-  }, []);
+  }, [user?.id]);
 
   // Close dropdowns when clicking outside
   useEffect(() => {
@@ -517,173 +518,88 @@ const SolarProjectTable = () => {
             </div>
           </div>
 
-          {/* Table */}
-          <div className="overflow-x-auto">
+          {/* Card Grid */}
+          <div className="px-6 py-4">
             {fetchError && (
-              <div className="px-6 py-3 text-sm text-amber-700 bg-amber-50 border-b border-amber-100">
+              <div className="mb-4 text-sm text-amber-700 bg-amber-50 border border-amber-100 rounded-lg p-3">
                 {fetchError}
               </div>
             )}
-            <table className="w-full">
-              <thead className="border-b border-gray-200">
-                <tr>
-                  <SortableHeader label="ID" sortKey="id" />
-                  <SortableHeader label="Project Name" sortKey="projectName" />
-                  <SortableHeader label="Status" sortKey="status" />
-                  <SortableHeader
-                    label="Expected ROI (%)"
-                    sortKey="expectedROI"
-                  />
-                  <SortableHeader
-                    label="Target Investment Amount"
-                    sortKey="targetInvestment"
-                  />
-                  <SortableHeader
-                    label="Payback Period (Years)"
-                    sortKey="paybackPeriod"
-                  />
-                  <SortableHeader label="Start Date" sortKey="startDate" />
-                  <SortableHeader label="End Date" sortKey="endDate" />
-                  <SortableHeader
-                    label="Expected Generation (kWh/Year)"
-                    sortKey="expectedGeneration"
-                  />
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-black uppercase tracking-wider">
-                    Action
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {isLoading ? (
-                  <tr>
-                    <td
-                      colSpan={10}
-                      className="px-4 py-6 text-center text-sm text-gray-500"
-                    >
-                      Loading projects...
-                    </td>
-                  </tr>
-                ) : currentProjects.length ? (
-                  currentProjects.map((project, idx) => (
-                    <tr
-                      key={project.id ?? idx}
-                      className="hover:bg-slate-50 transition-colors"
-                    >
-                      <td className="px-4 py-4 text-sm text-gray-700">
-                        {project.id}
-                      </td>
-                      <td className="px-4 py-4 text-sm text-black">
-                        {project.projectName}
-                      </td>
-                      <td className="px-4 py-4">
-                        <span
-                          className={`inline-flex px-3 py-1 text-xs font-medium rounded-full ${getStatusColor(
-                            project.status
-                          )}`}
-                        >
-                          {project.status}
+            {isLoading ? (
+              <div className="text-center text-sm text-gray-500 py-8">Loading projects...</div>
+            ) : currentProjects.length ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {currentProjects.map((project, idx) => (
+                  <div
+                    key={project.id ?? idx}
+                    className="bg-white rounded-xl shadow border border-gray-200 p-0 flex flex-col hover:shadow-lg transition-shadow overflow-hidden"
+                  >
+                    {/* Image and status badge */}
+                    {console.log(project)}
+                    <div className="relative w-full h-36 sm:h-40 md:h-32 lg:h-32 xl:h-36 overflow-hidden">
+                      <img
+                        src={project.project_image || "/images/general/solar-card.jpg"}
+                        alt={project.projectName}
+                        className="object-cover w-full h-full"
+                      />
+                      <span className={`absolute top-2 right-2 px-3 py-1 text-xs font-semibold rounded-full shadow ${getStatusColor(project.status)}`}>{project.status}</span>
+                    </div>
+                    {/* Card content */}
+                    <div className="p-4 flex flex-col flex-1">
+                      <h2 className="text-lg font-bold text-slate-900 mb-1">{project.projectName}</h2>
+                      <div className="text-xs text-gray-500 mb-1">ID: {project.product_code}</div>
+                      <div className="text-sm text-gray-600 mb-2">Offtaker: <span className="font-medium">{project.offtaker_name}</span></div>
+                      {/* Ratings */}
+                      {/* <div className="flex items-center gap-2 mb-2">
+                        <span className="text-xs text-gray-500 font-semibold">Ratings:</span>
+                        <span className="flex gap-0.5">
+                          {[...Array(4)].map((_, i) => (
+                            <svg key={i} className="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><polygon points="10,1 12.59,7.36 19.51,7.36 13.96,11.64 16.55,18 10,13.72 3.45,18 6.04,11.64 0.49,7.36 7.41,7.36" /></svg>
+                          ))}
+                          <svg className="w-4 h-4 text-gray-300" fill="currentColor" viewBox="0 0 20 20"><polygon points="10,1 12.59,7.36 19.51,7.36 13.96,11.64 16.55,18 10,13.72 3.45,18 6.04,11.64 0.49,7.36 7.41,7.36" /></svg>
                         </span>
-                      </td>
-                      <td className="px-4 py-4 text-sm text-gray-700">
-                        {project.expectedROI}
-                      </td>
-                      <td className="px-4 py-4 text-sm text-gray-700">
-                        {project.targetInvestment}
-                      </td>
-                      <td className="px-4 py-4 text-sm text-gray-700">
-                        {project.paybackPeriod}
-                      </td>
-                      <td className="px-4 py-4 text-sm text-gray-700">
-                        {project.startDate}
-                      </td>
-                      <td className="px-4 py-4 text-sm text-gray-700">
-                        {project.endDate}
-                      </td>
-                      <td className="px-4 py-4 text-sm text-gray-700">
-                        {project.expectedGeneration}
-                      </td>
-                      <td className="px-4 py-4">
-                        <button className="p-1 hover:bg-gray-200 rounded transition-colors">
-                          <MoreHorizontal className="w-5 h-5 text-gray-600" />
+                      </div> */}
+                      {/* Stats boxes */}
+                      <div className="grid grid-cols-3 gap-2 mb-3">
+                        <div className="bg-gray-50 rounded-lg p-2 text-center">
+                          <div className="text-base font-bold text-slate-900">{project.targetInvestment}</div>
+                          <div className="text-xs text-gray-500">Target Investment</div>
+                        </div>
+                        <div className="bg-gray-50 rounded-lg p-2 text-center">
+                          <div className="text-base font-bold text-amber-600">{project.expectedGeneration} kWh/year</div>
+                          <div className="text-xs text-gray-500">Expected Generation</div>
+                        </div>
+                        <div className="bg-gray-50 rounded-lg p-2 text-center">
+                          <div className="text-base font-bold text-orange-600">{project.expectedROI}</div>
+                          <div className="text-xs text-gray-500">Expected ROI</div>
+                        </div>
+                      </div>
+                      {/* Payback/Lease info */}
+                      <div className="flex gap-2 bg-gray-100 rounded-lg p-2 mb-3 text-center text-xs font-medium text-gray-700">
+                        <div className="flex-1 border-r border-gray-300">
+                          <div>Payback Period</div>
+                          <div className="text-lg font-bold text-slate-900">{project.paybackPeriod}</div>
+                        </div>
+                        <div className="flex-1">
+                          <div>Lease Term</div>
+                          <div className="text-lg font-bold text-slate-900">15 years</div>
+                        </div>
+                      </div>
+                      {/* Action buttons */}
+                      <div className="flex gap-2 mt-auto">
+                        {/* <button className="flex-1 px-4 py-2 bg-amber-500 text-white rounded-lg font-semibold hover:bg-amber-600 transition-colors text-sm">Invest Early</button> */}
+                        <button className="flex-1 px-4 py-2 border border-gray-300 text-slate-900 rounded-lg font-semibold hover:bg-gray-100 transition-colors text-sm flex items-center justify-center gap-1">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                          View Details
                         </button>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td
-                      colSpan={10}
-                      className="px-4 py-6 text-center text-sm text-gray-500"
-                    >
-                      No data available.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Footer */}
-          <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600">Show</span>
-              <select
-                value={entriesPerPage}
-                onChange={(e) => {
-                  setEntriesPerPage(Number(e.target.value));
-                  setCurrentPage(1);
-                }}
-                className="px-3 py-1.5 border rounded-lg text-sm text-white focus:ring-2 focus:ring-slate-500 focus:border-transparent outline-none"
-                style={{ backgroundColor: "#102C41" }}
-              >
-                <option value={5}>5</option>
-                <option value={10}>10</option>
-                <option value={25}>25</option>
-                <option value={50}>50</option>
-              </select>
-              <span className="text-sm text-gray-600">entries</span>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-                disabled={currentPage === 1}
-                className="p-2 rounded-lg border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-black"
-                style={{ backgroundColor: "#F5F5F5" }}
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </button>
-
-              {getPageNumbers().map((page) => (
-                <button
-                  key={page}
-                  onClick={() => setCurrentPage(page)}
-                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                    currentPage === page
-                      ? "bg-slate-800 text-white"
-                      : "border border-gray-300 hover:bg-gray-100"
-                  }`}
-                >
-                  {page}
-                </button>
-              ))}
-
-              <button
-                onClick={() =>
-                  setCurrentPage((prev) => Math.min(totalPages, prev + 1))
-                }
-                disabled={currentPage === totalPages}
-                className="p-2 rounded-lg border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-black"
-                style={{ backgroundColor: "#F5F5F5" }}
-              >
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
-
-            <div className="text-sm text-gray-600">
-              {startIndex + 1}-{Math.min(endIndex, sortedProjects.length)} of{" "}
-              {sortedProjects.length} entries
-            </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center text-sm text-gray-500 py-8">No data available.</div>
+            )}
           </div>
         </div>
       </div>
