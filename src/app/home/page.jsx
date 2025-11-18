@@ -18,6 +18,7 @@ import CTASection from '@/components/home/sections/CTASection'
 import SubmitSection from '@/components/home/sections/SubmitSection'
 import HomeNavbar from '@/components/home/HomeNavbar'
 import HomeFooter from '@/components/home/HomeFooter'
+import ScrollToTopButton from '@/components/common/ScrollToTopButton'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import '@/styles/css/home.css'
 import '@/styles/css/responsive.css'
@@ -37,7 +38,9 @@ const HomePage = () => {
       <FeatureSection />
       
       {/* Mission Section */}
-      <MissionSection />
+      <section id="about-us">
+        <MissionSection />
+      </section>
       
       {/* Vision Section */}
       <VisionSection />
@@ -46,7 +49,9 @@ const HomePage = () => {
       <SolutionSection />
       
       {/* How It Works Section */}
-      <HowItWorksSection />
+      <section id="how-it-works">
+        <HowItWorksSection />
+      </section>
       
       {/* Portfolio Overview Section */}
       <PortfolioSection />
@@ -77,6 +82,8 @@ const HomePage = () => {
       
       {/* Footer */}
       <HomeFooter />
+
+      <ScrollToTopButton />
     </>
   )
 }

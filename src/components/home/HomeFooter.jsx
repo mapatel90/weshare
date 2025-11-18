@@ -144,13 +144,13 @@ const HomeFooter = () => {
                   <Link href="/">{lang("home.footer.home")}</Link>
                 </li>
                 <li>
-                  <Link href="#">{lang("home.footer.aboutUs")}</Link>
+                  <Link href="/#about-us">{lang("home.footer.aboutUs")}</Link>
                 </li>
                 <li>
                   <Link href="/exchange-hub">{lang("home.footer.exchangeHub")}</Link>
                 </li>
                 <li>
-                  <Link href="#">{lang("home.footer.howItWorks")}</Link>
+                  <Link href="/#how-it-works">{lang("home.footer.howItWorks")}</Link>
                 </li>
                 <li>
                   <Link href="/news">{lang("home.footer.news")}</Link>
