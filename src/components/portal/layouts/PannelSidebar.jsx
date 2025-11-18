@@ -33,7 +33,7 @@ function PannelSidebar({ activeMenu, setActiveMenu }) {
                 </div>
                 <div className={`submenu${activeMenu === 'projects' ? ' active show' : ''}`}>
                     <div className="submenu-item">
-                        <Link href="/offtaker/projects" onClick={handleClose}>View Details</Link>
+                        <Link href="/offtaker/projects" onClick={handleClose}>Project List</Link>
                     </div>
                     {/* <div className="submenu-item">Performance</div> */}
                 </div>
@@ -46,7 +46,11 @@ function PannelSidebar({ activeMenu, setActiveMenu }) {
                 >Billings</Link>
             </div>
             <div className="menu-section">
-                <div className={`menu-item${activeMenu === 'payments' ? ' active' : ''}`} onClick={() => setActiveMenu('payments')}>Payments</div>
+                <Link
+                    href="/offtaker/payments"
+                    className={`menu-item${activeMenu === 'payments' ? ' active' : ''}`}
+                    onClick={() => setActiveMenu('payments')}
+                >Payments</Link>
             </div>
             <div className="menu-section">
                 <Link

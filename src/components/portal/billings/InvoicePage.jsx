@@ -158,7 +158,7 @@ const InvoicePage = () => {
         </div>
         <div className="flex justify-end mt-4">
           <button
-            className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-6 rounded shadow"
+            className="theme-btn-org-color text-white font-bold py-2 px-6 rounded shadow"
             type="button"
             onClick={() => setModalOpen(true)}
           >
