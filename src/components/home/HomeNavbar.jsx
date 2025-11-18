@@ -122,7 +122,7 @@ const HomeNavbar = () => {
   const handleProfile = () => {
     // Navigate to dashboard based on user role
     if (user?.role === 3) {
-      router.push('/offtaker/dashboards/analytics')
+      router.push('/offtaker/myprofile')
     } else if (user?.role === 4) {
       router.push('/investor/dashboards/analytics')
     } else {
@@ -458,7 +458,7 @@ const HomeNavbar = () => {
 
                       <MenuItem
                         onClick={() => {
-                          router.push('/my-projects')
+                          router.push('/')
                           handleUserClose()
                         }}
                         sx={{
