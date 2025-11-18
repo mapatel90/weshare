@@ -8,6 +8,7 @@ import { initializeOfftakerPortal, toggleSidebar, toggleSubmenu, closeSidebars }
 import Header from "@/components/portal/layouts/Header";
 import PannelSidebar from "@/components/portal/layouts/PannelSidebar";
 import MainSidebar from "@/components/portal/layouts/MainSidebar";
+import PageHeaderTitle from "@/components/portal/layouts/PageHeaderTitle";
 
 const layout = ({ children }) => {
   const pathName = usePathname();
@@ -34,6 +35,7 @@ const layout = ({ children }) => {
             <PannelSidebar activeMenu={activeMenu} setActiveMenu={setActiveMenu} />
             <div className="main-content" id="mainContent">
                 <Header toggleSidebar={toggleSidebar} />
+                <PageHeaderTitle />
                 {children}
             </div>
         </ProtectedRoute>

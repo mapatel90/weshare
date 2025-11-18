@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { ChevronRight } from 'lucide-react';
 
-const OfftakerProjectsHeader = () => {
+const PageHeaderTitle = () => {
     const pathName = usePathname();
     const { lang } = useLanguage();
 
@@ -13,12 +13,13 @@ const OfftakerProjectsHeader = () => {
     const pageKey = parts[parts.length - 1] || "dashboard";
 
     const pageName = lang(`menu.${pageKey}`, pageKey.replace(/-/g, " "));
+    const title = pageName.charAt(0).toUpperCase() + pageName.slice(1);
 
     return (
         <div className="header-wrapper">
             <div className="header-left">
                 {/* Main title */}
-                <h3 className="header-title">{pageName}</h3>
+                <h3 className="header-title">{title}</h3>
 
                 {/* Vertical separator */}
                 <span className="divider">|</span>
@@ -28,10 +29,14 @@ const OfftakerProjectsHeader = () => {
                     <Link href="/offtaker/dashboard" className="breadcrumb-link">
                         Dashboard
                     </Link>
-                    <ChevronRight className="w-4 h-4" />
-                    <span className="breadcrumb-current text-capitalize">
-                        {pageName}
-                    </span>
+                    {title !== "Dashboard" && (
+                        <>
+                            <ChevronRight className="w-4 h-4" />
+                            <span className="breadcrumb-current text-capitalize">
+                                {pageName}
+                            </span>
+                        </>
+                    )}
                 </div>
             </div>
 
@@ -41,4 +46,4 @@ const OfftakerProjectsHeader = () => {
     );
 };
 
-export default OfftakerProjectsHeader;
+export default PageHeaderTitle;
