@@ -71,7 +71,12 @@ function PannelSidebar({ activeMenu, setActiveMenu }) {
                     <div className="submenu-item">ROI Reports</div>
                     <div className="submenu-item">IRR Reports</div>
                     <div className="submenu-item">NPV Reports</div>
+                    <div className="submenu-item">Saving Reports</div>
+                    <div className="submenu-item">Conjunction Reports</div>
                 </div>
+            </div>
+            <div className="menu-section">
+                 <div className="menu-item">Contract</div>
             </div>
             {/* 
                 <div className="menu-section">
