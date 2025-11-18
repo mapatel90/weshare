@@ -10,6 +10,8 @@ import { getFullImageUrl } from '@/utils/common'
 const TestimonialSection = () => {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [testimonials, setTestimonials] = useState([])
+  // track which nav button is active after click: 'prev' | 'next' | null
+  const [activeNav, setActiveNav] = useState(null)
   console.log(testimonials)
   const [loading, setLoading] = useState(true)
   const { lang } = useLanguage()
@@ -67,10 +69,12 @@ const TestimonialSection = () => {
 
   const handlePrev = () => {
     setCurrentIndex((prev) => (prev === 0 ? testimonials.length - 1 : prev - 1))
+    setActiveNav('prev')
   }
 
   const handleNext = () => {
     setCurrentIndex((prev) => (prev === testimonials.length - 1 ? 0 : prev + 1))
+    setActiveNav('next')
   }
 
   if (loading) {
@@ -161,7 +165,7 @@ const TestimonialSection = () => {
 
                   {/* Content Section */}
                   <div className="col-lg-7">
-                    <div style={{ padding: '50px 60px' }}>
+                    <div className='testimonials-res' style={{ padding: '50px 60px' }}>
                       {/* Quote Icon */}
                       <div className="mb-4">
                         <svg width="56" height="44" viewBox="0 0 56 44" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -217,56 +221,62 @@ const TestimonialSection = () => {
                           ))}
                         </div>
 
-                        {/* Navigation Arrows */}
-                        <div className="d-flex gap-3">
-                          <button
-                            onClick={handlePrev}
-                            className="d-flex align-items-center justify-content-center"
-                            style={{
-                              width: '50px',
-                              height: '50px',
-                              borderRadius: '50%',
-                              backgroundColor: '#F9A825',
-                              border: 'none',
-                              cursor: 'pointer',
-                              transition: 'all 0.3s ease',
-                              boxShadow: '0 2px 8px rgba(249, 168, 37, 0.3)'
-                            }}
-                            aria-label="Previous testimonial"
-                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#F57C00'}
-                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#F9A825'}
-                          >
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round">
-                              <path d="M15 18l-6-6 6-6" />
-                            </svg>
-                          </button>
-                          <button
-                            onClick={handleNext}
-                            className="d-flex align-items-center justify-content-center"
-                            style={{
-                              width: '50px',
-                              height: '50px',
-                              borderRadius: '50%',
-                              backgroundColor: '#FFFFFF',
-                              border: '2px solid #E0E0E0',
-                              cursor: 'pointer',
-                              transition: 'all 0.3s ease'
-                            }}
-                            aria-label="Next testimonial"
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.backgroundColor = '#F5F5F5'
-                              e.currentTarget.style.borderColor = '#BDBDBD'
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.backgroundColor = '#FFFFFF'
-                              e.currentTarget.style.borderColor = '#E0E0E0'
-                            }}
-                          >
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#424242" strokeWidth="3" strokeLinecap="round">
-                              <path d="M9 18l6-6-6-6" />
-                            </svg>
-                          </button>
-                        </div>
+                        {/* Navigation Arrows (show only when more than 1 testimonial) */}
+                        {testimonials.length > 1 && (
+                          <div className="d-flex gap-3">
+                            <button
+                              onClick={handlePrev}
+                              className="d-flex align-items-center justify-content-center"
+                              style={{
+                                width: '50px',
+                                height: '50px',
+                                borderRadius: '50%',
+                                backgroundColor: activeNav === 'prev' ? '#F57C00' : '#F9A825',
+                                border: 'none',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s ease',
+                                boxShadow: '0 2px 8px rgba(249, 168, 37, 0.3)'
+                              }}
+                              aria-label="Previous testimonial"
+                              onMouseEnter={(e) => { if (activeNav !== 'prev') e.currentTarget.style.backgroundColor = '#F57C00' }}
+                              onMouseLeave={(e) => { if (activeNav !== 'prev') e.currentTarget.style.backgroundColor = '#F9A825' }}
+                            >
+                              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round">
+                                <path d="M15 18l-6-6 6-6" />
+                              </svg>
+                            </button>
+                            <button
+                              onClick={handleNext}
+                              className="d-flex align-items-center justify-content-center"
+                              style={{
+                                width: '50px',
+                                height: '50px',
+                                borderRadius: '50%',
+                                backgroundColor: activeNav === 'next' ? '#F57C00' : '#FFFFFF',
+                                border: activeNav === 'next' ? '2px solid transparent' : '2px solid #E0E0E0',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s ease'
+                              }}
+                              aria-label="Next testimonial"
+                              onMouseEnter={(e) => {
+                                if (activeNav !== 'next') {
+                                  e.currentTarget.style.backgroundColor = '#F5F5F5'
+                                  e.currentTarget.style.borderColor = '#BDBDBD'
+                                }
+                              }}
+                              onMouseLeave={(e) => {
+                                if (activeNav !== 'next') {
+                                  e.currentTarget.style.backgroundColor = '#FFFFFF'
+                                  e.currentTarget.style.borderColor = '#E0E0E0'
+                                }
+                              }}
+                            >
+                              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={activeNav === 'next' ? 'white' : '#424242'} strokeWidth="3" strokeLinecap="round">
+                                <path d="M9 18l6-6-6-6" />
+                              </svg>
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>

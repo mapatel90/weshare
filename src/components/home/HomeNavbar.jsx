@@ -31,7 +31,9 @@ import { useAuth } from '@/contexts/AuthContext'
 
 const HomeNavbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [langAnchor, setLangAnchor] = useState(null)
+  const [mobileLangOpen, setMobileLangOpen] = useState(false)
   const [userAnchor, setUserAnchor] = useState(null)
   const [activeSection, setActiveSection] = useState('')
   const router = useRouter()
@@ -43,12 +45,12 @@ const HomeNavbar = () => {
 
   const navItems = [
     { name: lang('home.navbar.home'), href: '/', id: 'home' },
-    { name: lang('home.navbar.aboutUs'), href: '#rental', id: 'rental' },
+    { name: lang('home.navbar.aboutUs'), href: '/#about-us', id: 'about-us' },
     { name: lang('home.navbar.exchangeHub'), href: '/exchange-hub', id: 'exchange-hub' },
-    { name: lang('home.navbar.howItWorks'), href: '#investors', id: 'investors' },
+    { name: lang('home.navbar.howItWorks'), href: '/#how-it-works', id: 'how-it-works' },
     { name: lang('home.navbar.news'), href: '/news', id: 'news' },
     { name: lang('home.navbar.blog'), href: '/blog', id: 'blog' },
-    { name: lang('home.navbar.contactUs'), href: '/contact_us', id: 'contact_us' }
+    { name: lang('home.navbar.contactUs'), href: '/get_in_touch', id: 'get_in_touch' }
   ]
 
   // Check if current pathname matches or if hash section is active
@@ -77,21 +79,22 @@ const HomeNavbar = () => {
   }, [pathname])
 
   const isActive = (item) => {
-    // If it's a route (not a hash), check pathname
-    if (item.href.startsWith('/') && !item.href.startsWith('/#')) {
-      // Special case for home page - exact match only
-      if (item.href === '/') {
-        return pathname === '/'
-      }
-      // For other routes, check if pathname starts with the item's href (for nested routes)
-      return pathname.startsWith(item.href)
+    // If it's a hash link (e.g. '/#about-us'), use activeSection
+    if (item.href.startsWith('/#')) {
+      return activeSection === item.id
     }
-    // If it's a hash link, check active section
-    return activeSection === item.id
+
+    // Special case for home - only active when on root AND the active section is 'home'
+    if (item.href === '/') {
+      return pathname === '/' && activeSection === 'home'
+    }
+
+    // For other routes, check if pathname starts with the item's href (for nested routes)
+    return pathname.startsWith(item.href)
   }
 
   const handleDrawerToggle = () => {
-    setMobileOpen(!mobileOpen)
+    setMobileMenuOpen(!mobileMenuOpen)
   }
 
   const handleLangClick = (event) => {
@@ -105,6 +108,7 @@ const HomeNavbar = () => {
   const handleLanguageChange = (langCode) => {
     changeLanguage(langCode)
     setLangAnchor(null)
+    setMobileLangOpen(false)
   }
 
   const handleUserClick = (event) => {
@@ -132,20 +136,86 @@ const HomeNavbar = () => {
     setUserAnchor(null)
   }
 
-  // Modified drawer: added language selector entry for mobile
-  const drawer = (
-    <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center', pt: 2 }}>
-      <List>
+    const mobileUserMenu = (
+    <Menu
+      anchorEl={userAnchor}
+      open={Boolean(userAnchor)}
+      onClose={handleUserClose}
+      PaperProps={{
+        sx: {
+          mt: 1,
+          borderRadius: 3,
+          boxShadow: '0px 6px 25px rgba(0,0,0,0.15)',
+          border: '1px solid #e0e0e0',
+          minWidth: 220
+        },
+      }}
+    >
+      <MenuItem onClick={handleProfile}>My Profile</MenuItem>
+
+      <MenuItem
+        onClick={() => {
+          router.push('/my-projects')
+          handleUserClose()
+        }}
+      >
+        My Projects
+      </MenuItem>
+
+      <MenuItem onClick={handleLogout}>Logout</MenuItem>
+    </Menu>
+  )
+
+  // Mobile menu content - shown below navbar
+  const mobileMenu = (
+    <Box 
+      sx={{ 
+        backgroundColor: '#1e3a4a',
+        pb: 1,
+        margin: '5px 30px 10px',
+        borderRadius: '16px',
+        overflow: 'hidden',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+        animation: 'slideDown 0.3s ease-out',
+        '@keyframes slideDown': {
+          from: {
+            opacity: 0,
+            transform: 'translateY(-20px)'
+          },
+          to: {
+            opacity: 1,
+            transform: 'translateY(0)'
+          }
+        }
+      }}
+    >
+
+            {user && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 2 }}>
+          <Avatar
+            src={user?.user_image || '/images/avatar/Profile.png'}
+            sx={{ width: 48, height: 48, cursor: 'pointer' }}
+            onClick={handleUserClick}
+          />
+        </Box>
+      )}
+      {mobileUserMenu}
+
+      <List sx={{ py: 0 }}>
         {navItems.map((item) => (
           <ListItem key={item.name} disablePadding>
             <ListItemButton
+              onClick={() => setMobileMenuOpen(false)}
               sx={{
                 textAlign: 'center',
-                backgroundColor: isActive(item) ? '#FFF9ED' : 'transparent',
-                color: isActive(item) ? '#F6A623' : '#000',
+                backgroundColor: isActive(item) ? 'rgba(246, 166, 35, 0.1)' : 'transparent',
+                color: isActive(item) ? '#F6A623' : '#fff',
                 fontWeight: isActive(item) ? 700 : 500,
+                borderBottom: '1px solid rgba(255, 255, 255, 0.15)',
+                // py: 2,
+                transition: 'all 0.2s ease',
                 '&:hover': {
-                  backgroundColor: '#FFF9ED',
+                  backgroundColor: 'rgba(246, 166, 35, 0.1)',
                   color: '#F6A623'
                 }
               }}
@@ -156,35 +226,120 @@ const HomeNavbar = () => {
           </ListItem>
         ))}
 
-        {/* Language selector for mobile drawer */}
+        {/* Language selector for mobile */}
         <ListItem disablePadding>
           <ListItemButton
-            onClick={(e) => {
-              // stop the surrounding Box onClick from immediately closing the drawer
-              e.stopPropagation()
-              handleLangClick(e)
-            }}
+            onClick={() => setMobileLangOpen(!mobileLangOpen)}
             sx={{
               textAlign: 'center',
-              justifyContent: 'center'
+              justifyContent: 'center',
+              color: '#fff',
+              borderBottom: '1px solid rgba(255, 255, 255, 0.15)',
+              // py: 2,
+              transition: 'all 0.2s ease',
+              '&:hover': {
+                backgroundColor: 'rgba(246, 166, 35, 0.1)'
+              }
             }}
           >
             <ListItemText
               primary={
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
-                  <Typography sx={{ fontWeight: 600 }}>{currentLanguageInfo?.name || 'English'}</Typography>
-                  <KeyboardArrowDownIcon fontSize="small" />
+                  <Typography sx={{ fontWeight: 600, color: '#fff' }}>{currentLanguageInfo?.name || 'English'}</Typography>
+                  <KeyboardArrowDownIcon 
+                    fontSize="small" 
+                    sx={{ 
+                      color: '#fff',
+                      transform: mobileLangOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                      transition: 'transform 0.3s ease'
+                    }} 
+                  />
                 </Box>
               }
             />
           </ListItemButton>
         </ListItem>
 
+        {/* Language dropdown options - shown inside mobile menu */}
+        {mobileLangOpen && (
+          <Box 
+            sx={{ 
+              backgroundColor: 'rgba(255, 255, 255, 0.95)',
+              mx: 2,
+              my: 1,
+              borderRadius: '12px',
+              overflow: 'hidden',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+              animation: 'fadeIn 0.3s ease-out',
+              '@keyframes fadeIn': {
+                from: {
+                  opacity: 0,
+                  transform: 'translateY(-10px)'
+                },
+                to: {
+                  opacity: 1,
+                  transform: 'translateY(0)'
+                }
+              }
+            }}
+          >
+            {Object.values(languages || {}).map((lng, index) => (
+              <Box key={lng.code}>
+                <ListItem 
+                  disablePadding
+                >
+                  <ListItemButton
+                    onClick={() => handleLanguageChange(lng.code)}
+                    sx={{
+                      // py: 1.5,
+                      justifyContent: 'center',
+                      backgroundColor: currentLanguage === lng.code ? 'rgba(246, 166, 35, 0.1)' : 'transparent',
+                      color: currentLanguage === lng.code ? '#F6A623' : '#1e3a4a',
+                      fontWeight: currentLanguage === lng.code ? 600 : 500,
+                      transition: 'all 0.2s ease',
+                      '&:hover': {
+                        backgroundColor: 'rgba(246, 166, 35, 0.15)',
+                        color: '#F6A623'
+                      }
+                    }}
+                  >
+                    <ListItemText 
+                      primary={lng.name}
+                      sx={{ textAlign: 'center' }}
+                    />
+                  </ListItemButton>
+                </ListItem>
+                {index < Object.values(languages || {}).length - 1 && (
+                  <Box sx={{ borderBottom: '1px solid rgba(30, 58, 74, 0.1)', mx: 2 }} />
+                )}
+              </Box>
+            ))}
+          </Box>
+        )}
+
+        {!user && (
         <ListItem disablePadding>
-          <ListItemButton sx={{ textAlign: 'center' }} href="/login">
-            <ListItemText primary={lang('home.navbar.login')} />
+          <ListItemButton 
+            onClick={() => setMobileMenuOpen(false)}
+            sx={{ 
+              textAlign: 'center',
+              color: '#fff',
+              // py: 2,
+              justifyContent: 'center',
+              position: 'relative',
+              transition: 'all 0.2s ease',
+              gap: 1,
+              '&:hover': {
+                backgroundColor: 'rgba(246, 166, 35, 0.1)'
+              }
+            }} 
+            href="/login"
+          >
+            <PersonOutlineIcon sx={{ fontSize: 20 }} />
+            <Typography sx={{ fontWeight: 500 }}>{lang('home.navbar.login')}</Typography>
           </ListItemButton>
         </ListItem>
+        )}
       </List>
     </Box>
   )
@@ -364,7 +519,13 @@ const HomeNavbar = () => {
                   aria-label="open drawer"
                   edge="start"
                   onClick={handleDrawerToggle}
-                  sx={{ color: '#000' }}
+                  sx={{ 
+                    color: '#000',
+                    transition: 'transform 0.3s ease',
+                    '&:hover': {
+                      transform: 'scale(1.1)'
+                    }
+                  }}
                 >
                   <span style={{ fontSize: '24px', fontWeight: 'bold' }}>☰</span>
                 </IconButton>
@@ -373,6 +534,13 @@ const HomeNavbar = () => {
           </Toolbar>
         </Container>
       </AppBar>
+
+      {/* Mobile Menu - Collapsed below navbar */}
+      {isMobile && mobileMenuOpen && (
+        <Box sx={{ width: '100%' }}>
+          {mobileMenu}
+        </Box>
+      )}
 
       {/* Language Menu (render once so it's available on mobile + desktop) */}
       <Menu
@@ -391,22 +559,6 @@ const HomeNavbar = () => {
           </MenuItem>
         ))}
       </Menu>
-
-      {/* Mobile Drawer */}
-      <Drawer
-        variant="temporary"
-        open={mobileOpen}
-        onClose={handleDrawerToggle}
-        ModalProps={{
-          keepMounted: true,
-        }}
-        sx={{
-          display: { xs: 'block', md: 'none' },
-          '& .MuiDrawer-paper': { boxSizing: 'border-box', width: 240 },
-        }}
-      >
-        {drawer}
-      </Drawer>
     </>
   )
 }

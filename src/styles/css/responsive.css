@@ -119,6 +119,9 @@ nav li.nav-item {  border-bottom: 1px solid #fff;  width: 100%;  margin-bottom: 
   html, body { overflow-x: hidden !important; width: 100% !important; max-width: 100% !important; }
   * { box-sizing: border-box; }
   .elementBlockGroup { grid-template-columns: 1fr;  }
+    .testimonials-res {
+    padding: 10px 15px !important;
+  }
   .mt-40 { margin-top: 20px;}
   .headerSection .nav-item{width: 100%;margin-bottom: 24px;}
   .py-90 {    padding-top: 50px;    padding-bottom: 50px;}
