@@ -33,25 +33,31 @@ function PannelSidebar({ activeMenu, setActiveMenu }) {
                 </div>
                 <div className={`submenu${activeMenu === 'projects' ? ' active show' : ''}`}>
                     <div className="submenu-item">
-                        <Link href="/offtaker/projects" onClick={handleClose}>View Details</Link>
+                        <Link href="/offtaker/projects" onClick={handleClose}>Project List</Link>
                     </div>
                     {/* <div className="submenu-item">Performance</div> */}
                 </div>
             </div>
             <div className="menu-section">
-                <div
+                <Link
+                    href="/offtaker/billings"
                     className={`menu-item${activeMenu === 'billings' ? ' active' : ''}`}
-                    onClick={() => { setActiveMenu('billings'); window.location.href = '/offtaker/billings'; }}
-                >Billings</div>
+                    onClick={() => setActiveMenu('billings')}
+                >Billings</Link>
             </div>
             <div className="menu-section">
-                <div className={`menu-item${activeMenu === 'payments' ? ' active' : ''}`} onClick={() => setActiveMenu('payments')}>Payments</div>
+                <Link
+                    href="/offtaker/payments"
+                    className={`menu-item${activeMenu === 'payments' ? ' active' : ''}`}
+                    onClick={() => setActiveMenu('payments')}
+                >Payments</Link>
             </div>
             <div className="menu-section">
-                <div
+                <Link
+                    href="/offtaker/notifications"
                     className={`menu-item${activeMenu === 'notifications' ? ' active' : ''}`}
-                    onClick={() => { setActiveMenu('notifications'); window.location.href = '/offtaker/notifications'; }}
-                >Notifications</div>
+                    onClick={() => setActiveMenu('notifications')}
+                >Notifications</Link>
             </div>
             <div className="menu-section">
                 <div

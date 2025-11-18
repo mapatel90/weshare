@@ -48,7 +48,6 @@ export default function AuthProvider({ children }) {
       // Verify token by calling your backend server using API helper
       // Disable loader for auth check to prevent blocking UI
       const data = await apiGet('/api/auth/me', { showLoader: false })
-
       // Transform user data to match frontend expectations
       const transformedUser = {
         id: data.data.id,
@@ -57,8 +56,9 @@ export default function AuthProvider({ children }) {
         phone: data.data.phoneNumber,
         role: data.data.userRole,
         status: data.data.status === 1 ? 'active' : 'inactive',
-        avatar: data.data.avatar || null
+        avatar: data.data.user_image || null
       }
+      console.log("Auth check data:", transformedUser)
 
       setUser(transformedUser)
       // Cache user data to avoid API calls on subsequent navigations
@@ -121,7 +121,6 @@ export default function AuthProvider({ children }) {
 
         // Set cookie for middleware only 2 hours
         document.cookie = `accessToken=${data.data.token}; path=/; max-age=7200` // 2 hours
-
         // Transform user data to match frontend expectations
         const transformedUser = {
           id: data.data.user.id,
