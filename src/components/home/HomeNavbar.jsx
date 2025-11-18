@@ -50,7 +50,7 @@ const HomeNavbar = () => {
     { name: lang('home.navbar.howItWorks'), href: '/#how-it-works', id: 'how-it-works' },
     { name: lang('home.navbar.news'), href: '/news', id: 'news' },
     { name: lang('home.navbar.blog'), href: '/blog', id: 'blog' },
-    { name: lang('home.navbar.contactUs'), href: '/get_in_touch', id: 'get_in_touch' }
+    { name: lang('home.navbar.contactUs'), href: '/contact_us', id: 'contact_us' }
   ]
 
   // Check if current pathname matches or if hash section is active
