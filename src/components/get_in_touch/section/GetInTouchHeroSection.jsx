@@ -9,8 +9,8 @@ export default function GetInTouchHeroSection() {
             <div className="container">
                 <div className="title-info col-md-4">
                     <h1 className="hero-title">
-                        <span className="yellow-txt" style={{ color: "#F6A623" }}>{lang("getinTouch.titlePart1")}</span>{" "}
-                        <span style={{ color: "#fff" }}>{lang("getinTouch.titlePart2")}</span>
+                        <span className="yellow-txt" style={{ color: "#F6A623" }}>{lang("contactUs.contact")}</span>{" "}
+                        <span style={{ color: "#fff" }}>{lang("contactUs.us")}</span>
                     </h1>
                     <p className="banner-text" style={{ color: "#fff" }}>{lang("getinTouch.message2")}</p>
                 </div>
