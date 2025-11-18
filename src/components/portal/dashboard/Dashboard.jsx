@@ -9,6 +9,10 @@ function DashboardView() {
 
     return (
         <>
+            <div className='d-flex justify-content-end gap-2 mb-3'>
+                <button className="btn theme-btn-blue-color">Projects ▼</button>
+                <button className="btn theme-btn-blue-color">Investor ▼</button>
+            </div>
             <div className="stats-grid">
                 <div className="stat-card blue">
                     <div className="stat-icon">⚡</div>
