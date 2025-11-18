@@ -203,12 +203,12 @@ body {
 .theme-btn-blue-color {
   background-color: #102C41;
   color: white;
-  }
+}
 
-  .theme-btn-blue-color:hover {
-    background-color: #0e2536;
-    color: white;
-  }
+.theme-btn-blue-color:hover {
+  background-color: #0e2536;
+  color: white;
+}
 
 /* Vertical bar separator */
 .divider {

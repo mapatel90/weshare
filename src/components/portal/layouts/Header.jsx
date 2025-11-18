@@ -5,6 +5,7 @@ import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import NotificationsModal from '@/components/shared/header/NotificationsModal';
+import { getFullImageUrl } from '@/utils/common';
 
 function Header({ toggleSidebar }) {
     const { user, logout } = useAuth()
@@ -96,7 +97,7 @@ function Header({ toggleSidebar }) {
                         </MenuItem>
                     </Menu>
                     <Avatar
-                        src={user?.avatar || '/images/avatar/Profile.png'}
+                        src={getFullImageUrl(user?.avatar) || '/images/avatar/Profile.png'}
                         onClick={handleAvatarClick}
                         sx={{
                             color: '#000',
