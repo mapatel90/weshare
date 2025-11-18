@@ -110,7 +110,8 @@
     "becomeOfftaker": "Offtaker",
     "becomeInvestor": "Investor",
     "termsPolicy": "Terms & Policy",
-    "resetYourPassword": "Reset Your Password"
+    "resetYourPassword": "Reset Your Password",
+    "welcomeBack": "Welcome back Log in to your admin account"
   },
   "common": {
     "save": "Save",

@@ -290,7 +290,7 @@ const ExchangeHub = () => {
 
                 {/* Tab Content - Projects Grid */}
                 <div className="tab-content" id="pills-tabContent">
-                  <div className={`tab-pane fade ${activeTab === 'lease' ? 'show active' : ''}`} id="pills-ProjectsOpen" role="tabpanel">
+                  <div className={`tab-pane pills-ProjectsOpen fade ${activeTab === 'lease' ? 'show active' : ''}`} id="pills-ProjectsOpen" role="tabpanel">
                     {loading && page === 1 ? (
                       <div className="text-center py-5">
                         <div className="spinner-border text-primary" role="status">

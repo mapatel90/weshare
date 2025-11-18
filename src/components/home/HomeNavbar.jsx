@@ -17,7 +17,9 @@ import {
   MenuItem,
   useMediaQuery,
   useTheme,
-  Avatar
+  Avatar,
+  ListItemIcon,
+  Typography
 } from '@mui/material'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline'
@@ -130,6 +132,7 @@ const HomeNavbar = () => {
     setUserAnchor(null)
   }
 
+  // Modified drawer: added language selector entry for mobile
   const drawer = (
     <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center', pt: 2 }}>
       <List>
@@ -152,6 +155,31 @@ const HomeNavbar = () => {
             </ListItemButton>
           </ListItem>
         ))}
+
+        {/* Language selector for mobile drawer */}
+        <ListItem disablePadding>
+          <ListItemButton
+            onClick={(e) => {
+              // stop the surrounding Box onClick from immediately closing the drawer
+              e.stopPropagation()
+              handleLangClick(e)
+            }}
+            sx={{
+              textAlign: 'center',
+              justifyContent: 'center'
+            }}
+          >
+            <ListItemText
+              primary={
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
+                  <Typography sx={{ fontWeight: 600 }}>{currentLanguageInfo?.name || 'English'}</Typography>
+                  <KeyboardArrowDownIcon fontSize="small" />
+                </Box>
+              }
+            />
+          </ListItemButton>
+        </ListItem>
+
         <ListItem disablePadding>
           <ListItemButton sx={{ textAlign: 'center' }} href="/login">
             <ListItemText primary={lang('home.navbar.login')} />
@@ -209,7 +237,7 @@ const HomeNavbar = () => {
                   ))}
                 </Box>
 
-                {/* Language Selector */}
+                {/* Language Selector (desktop) */}
                 <Button
                   onClick={handleLangClick}
                   endIcon={<KeyboardArrowDownIcon />}
@@ -225,26 +253,6 @@ const HomeNavbar = () => {
                 >
                   {currentLanguageInfo?.name || 'English'}
                 </Button>
-                <Menu
-                  anchorEl={langAnchor}
-                  open={Boolean(langAnchor)}
-                  onClose={handleLangClose}
-                >
-                  <MenuItem
-                    onClick={() => handleLanguageChange('en')}
-                    selected={currentLanguage === 'en'}
-                  >
-                    {/* <img src="/images/flags/4x3/us.svg" alt="" style={{ width: 20, marginRight: 8 }} /> */}
-                    English
-                  </MenuItem>
-                  <MenuItem
-                    onClick={() => handleLanguageChange('vi')}
-                    selected={currentLanguage === 'vi'}
-                  >
-                    {/* <img src="/images/flags/4x3/vn.svg" alt="" style={{ width: 20, marginRight: 8 }} /> */}
-                    Tiếng Việt
-                  </MenuItem>
-                </Menu>
 
                 {/* Login Button or User Icon */}
                 {user ? (
@@ -308,11 +316,8 @@ const HomeNavbar = () => {
                           },
                         }}
                       >
-                      {/* <DescriptionOutlinedIcon sx={{ mr: 2, fontSize: 26, color: '#000' }} /> */}
                         My Projects
                       </MenuItem>
-
-                      {/* <Divider sx={{ my: 0.5 }} /> */}
 
                       <MenuItem
                         onClick={handleLogout}
@@ -326,7 +331,6 @@ const HomeNavbar = () => {
                           },
                         }}
                       >
-                        {/* <LogoutOutlinedIcon sx={{ mr: 2, fontSize: 26, color: '#000' }} /> */}
                         Logout
                       </MenuItem>
                     </Menu>
@@ -369,6 +373,24 @@ const HomeNavbar = () => {
           </Toolbar>
         </Container>
       </AppBar>
+
+      {/* Language Menu (render once so it's available on mobile + desktop) */}
+      <Menu
+        anchorEl={langAnchor}
+        open={Boolean(langAnchor)}
+        onClose={handleLangClose}
+      >
+        {Object.values(languages || {}).map((lng) => (
+          <MenuItem
+            key={lng.code}
+            onClick={() => handleLanguageChange(lng.code)}
+            selected={currentLanguage === lng.code}
+          >
+            {/* If flags are available in language objects, you can render them here */}
+            {lng.name}
+          </MenuItem>
+        ))}
+      </Menu>
 
       {/* Mobile Drawer */}
       <Drawer

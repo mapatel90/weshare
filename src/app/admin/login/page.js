@@ -1,8 +1,11 @@
+"use client"
 import React from 'react'
 import Link from 'next/link'
 import LoginForm from '@/components/authentication/LoginForm'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 const InvestorLoginPage = () => {
+    const { lang } = useLanguage();
     return (
         <main
             style={{
@@ -19,8 +22,10 @@ const InvestorLoginPage = () => {
             }}>
             <div style={{ maxWidth: 620, width: '100%' }}>
                 <div className="text-center mb-4">
+                <Link href="/" style={{ display: 'inline-block', textDecoration: 'none' }}>
                     <img src="/images/main_logo.png" alt="WeShare" className="img-fluid mb-3" style={{ maxWidth: 200 }} />
-                    <h3 className="fw-bolder">Welcome back Log in to your admin account</h3>
+                </Link>
+                    <h3 className="fw-bolder">{lang('authentication.welcomeBack')}</h3>
                 </div>
                 <div className="card mx-4 mx-sm-0">
                     <div className="card-body p-sm-5">

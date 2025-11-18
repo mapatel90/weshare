@@ -52,7 +52,7 @@ const ProjectCard = ({ project, activeTab }) => {
     if (activeTab === 'lease') {
         // LEASE CARD - With Image (Figma Style)
         return (
-            <div className="col-12 col-md-12 col-lg-6" data-aos="fade-up" data-aos-easing="linear" data-aos-duration="1000">
+            <div className="col-12 col-md-12 col-lg-6 mb-3" data-aos="fade-up" data-aos-easing="linear" data-aos-duration="1000">
                 <div className="solar-card-with-image">
                     {/* Solar Panel Image */}
                     <div className="card-image-container">
@@ -77,7 +77,7 @@ const ProjectCard = ({ project, activeTab }) => {
                         <div className="card-header-image">
                             <h3 style={{
                                 overflow: 'hidden',
-                                display: '-webkit-box',
+                                // display: '-webkit-box',
                                 WebkitLineClamp: 2,
                                 WebkitBoxOrient: 'vertical',
                                 textOverflow: 'ellipsis',
@@ -157,13 +157,14 @@ const ProjectCard = ({ project, activeTab }) => {
                         </p>
 
                         {/* Action Buttons */}
-                        <div className="buttons-image buttons">
-                            <button className="btn btn-primary-custom">
+                        <div className="buttons-image">
+                            <button className="btn btn-primary-custom" style={{ padding: '14px 0px' }}>
                                 {lang('home.exchangeHub.investEarly') || 'Invest Early'}
                             </button>
                             <button
                                 className="btn btn-secondary-custom"
                                 onClick={() => router.push(`/exchange-hub/${project.project_slug}`)}
+                                style={{ padding: '14px 0px' }}
                             >
                                 <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" style={{ marginRight: '8px' }}>
                                     <path d="M5 4a.5.5 0 0 0 0 1h6a.5.5 0 0 0 0-1zm-.5 2.5A.5.5 0 0 1 5 6h6a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5M5 8a.5.5 0 0 0 0 1h6a.5.5 0 0 0 0-1zm0 2a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1z" />
@@ -187,11 +188,11 @@ const ProjectCard = ({ project, activeTab }) => {
                 <div className="card-header">
                     <h3 style={{
                         overflow: 'hidden',
-                        display: '-webkit-box',
+                        // display: '-webkit-box',
                         WebkitLineClamp: 2,
                         WebkitBoxOrient: 'vertical',
                         textOverflow: 'ellipsis',
-                        minHeight: '48px',
+                        minHeight: '60px',
                         lineHeight: '1.4'
                     }}>{project?.project_name || 'Solar Project'}</h3>
                     <span className={`badge ${badge.class}`}>
