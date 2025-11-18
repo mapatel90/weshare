@@ -248,7 +248,8 @@ router.get('/me', async (req, res) => {
         zipcode: true,
         status: true,
         createdAt: true,
-        updatedAt: true
+        updatedAt: true,
+        user_image: true
       }
     });
 

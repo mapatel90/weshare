@@ -96,7 +96,7 @@ function Header({ toggleSidebar }) {
                         </MenuItem>
                     </Menu>
                     <Avatar
-                        src={'/images/avatar/Profile.png'}
+                        src={user?.avatar || '/images/avatar/Profile.png'}
                         onClick={handleAvatarClick}
                         sx={{
                             color: '#000',
