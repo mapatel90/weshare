@@ -50,7 +50,7 @@ function PannelSidebar({ activeMenu, setActiveMenu }) {
             <div className="menu-section">
                 <div
                     className={`menu-item${activeMenu === 'notifications' ? ' active' : ''}`}
-                    onClick={() => setActiveMenu('notifications')}
+                    onClick={() => { setActiveMenu('notifications'); window.location.href = '/offtaker/notifications'; }}
                 >Notifications</div>
             </div>
             <div className="menu-section">

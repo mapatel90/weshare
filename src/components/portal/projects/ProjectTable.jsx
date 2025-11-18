@@ -528,15 +528,14 @@ const SolarProjectTable = () => {
             {isLoading ? (
               <div className="text-center text-sm text-gray-500 py-8">Loading projects...</div>
             ) : currentProjects.length ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
                 {currentProjects.map((project, idx) => (
                   <div
                     key={project.id ?? idx}
-                    className="bg-white rounded-xl shadow border border-gray-200 p-0 flex flex-col hover:shadow-lg transition-shadow overflow-hidden"
+                    className="bg-white rounded-xl shadow border border-gray-200 p-0 flex flex-col hover:shadow-lg transition-shadow overflow-hidden md:p-1 sm:p-0"
                   >
                     {/* Image and status badge */}
-                    {console.log(project)}
-                    <div className="relative w-full h-36 sm:h-40 md:h-32 lg:h-32 xl:h-36 overflow-hidden">
+                    <div className="relative w-full h-36 sm:h-44 md:h-40 lg:h-36 xl:h-40 overflow-hidden">
                       <img
                         src={project.project_image || "/images/general/solar-card.jpg"}
                         alt={project.projectName}
@@ -545,7 +544,7 @@ const SolarProjectTable = () => {
                       <span className={`absolute top-2 right-2 px-3 py-1 text-xs font-semibold rounded-full shadow ${getStatusColor(project.status)}`}>{project.status}</span>
                     </div>
                     {/* Card content */}
-                    <div className="p-4 flex flex-col flex-1">
+                    <div className="p-3 md:p-4 flex flex-col flex-1">
                       <h2 className="text-lg font-bold text-slate-900 mb-1">{project.projectName}</h2>
                       <div className="text-xs text-gray-500 mb-1">ID: {project.product_code}</div>
                       <div className="text-sm text-gray-600 mb-2">Offtaker: <span className="font-medium">{project.offtaker_name}</span></div>
@@ -560,7 +559,7 @@ const SolarProjectTable = () => {
                         </span>
                       </div> */}
                       {/* Stats boxes */}
-                      <div className="grid grid-cols-3 gap-2 mb-3">
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mb-3">
                         <div className="bg-gray-50 rounded-lg p-2 text-center">
                           <div className="text-base font-bold text-slate-900">{project.targetInvestment}</div>
                           <div className="text-xs text-gray-500">Target Investment</div>
@@ -575,8 +574,8 @@ const SolarProjectTable = () => {
                         </div>
                       </div>
                       {/* Payback/Lease info */}
-                      <div className="flex gap-2 bg-gray-100 rounded-lg p-2 mb-3 text-center text-xs font-medium text-gray-700">
-                        <div className="flex-1 border-r border-gray-300">
+                      <div className="flex flex-col md:flex-row gap-2 bg-gray-100 rounded-lg p-2 mb-3 text-center text-xs font-medium text-gray-700">
+                        <div className="flex-1 md:border-r border-gray-300">
                           <div>Payback Period</div>
                           <div className="text-lg font-bold text-slate-900">{project.paybackPeriod}</div>
                         </div>
