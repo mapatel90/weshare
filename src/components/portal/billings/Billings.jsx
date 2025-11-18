@@ -9,8 +9,8 @@ import { useRouter } from "next/navigation";
 const invoices = [
     { name: "DCL Solutions", number: 1, invoiceDate: "21 Jul 2022", dueDate: "07 Oct 2022", amount: "$31.80", status: "Unfunded", download: true },
     { name: "Google Cloud Hosting", number: 2, invoiceDate: "16 May 2023", dueDate: "25 Jan 2023", amount: "$5.69", status: "Unfunded", download: true },
-    { name: "Anna Clarke - Employer", number: 3, invoiceDate: "10 Aug 2022", dueDate: "19 Apr 2023", amount: "$20.87", status: "Pending", download: false },
-    { name: "Google Cloud Hosting", number: 4, invoiceDate: "24 Jul 2022", dueDate: "08 Oct 2022", amount: "$4.11", status: "Pending", download: false },
+    { name: "Anna Clarke - Employer", number: 3, invoiceDate: "10 Aug 2022", dueDate: "19 Apr 2023", amount: "$20.87", status: "Pending", download: true },
+    { name: "Google Cloud Hosting", number: 4, invoiceDate: "24 Jul 2022", dueDate: "08 Oct 2022", amount: "$4.11", status: "Pending", download: true },
     { name: "AWS Service", number: 5, invoiceDate: "03 Jun 2023", dueDate: "17 Apr 2023", amount: "$44.53", status: "Pending", download: true },
     { name: "Delta Tech", number: 6, invoiceDate: "15 Jun 2023", dueDate: "04 Nov 2022", amount: "$7.22", status: "Paid", download: true },
     { name: "Anna Clarke - Employer", number: 7, invoiceDate: "11 Feb 2023", dueDate: "23 Feb 2023", amount: "$12.01", status: "Paid", download: true },
@@ -27,12 +27,20 @@ const statusColors = {
 
 const Billings = () => {
     const [search, setSearch] = useState("");
+    const [dropdownOpen, setDropdownOpen] = useState(null);
     const router = useRouter();
     const filteredInvoices = invoices.filter((inv) =>
         inv.name.toLowerCase().includes(search.toLowerCase())
     );
 
     const handleDownload = (number) => {
+        // Direct download logic here
+        // Example: window.open(`/api/invoice/download/${number}`);
+        router.push("/offtaker/billings/invoice");
+    };
+
+    const handleView = (number) => {
+        // View logic here
         router.push("/offtaker/billings/invoice");
     };
 
@@ -52,7 +60,7 @@ const Billings = () => {
                     />
                     <button className="bg-gray-100 px-4 py-2 rounded-md text-gray-700 border hover:bg-gray-200">Filter</button>
                 </div>
-                <button className="bg-blue-600 text-white px-4 py-2 rounded-md font-medium hover:bg-blue-700">Export</button>
+                {/* <button className="bg-blue-600 text-white px-4 py-2 rounded-md font-medium hover:bg-blue-700">Export</button> */}
             </div>
 
             <div className="overflow-x-auto rounded-lg border">
@@ -72,7 +80,7 @@ const Billings = () => {
                         {filteredInvoices.map((inv, idx) => (
                             <tr key={inv.number} className={idx % 2 ? "bg-white" : "bg-gray-50"}>
                                 <td className="px-4 py-2 font-medium whitespace-nowrap">{inv.name}</td>
-                                <td className="px-2 py-2 whitespace-nowrap">{inv.number}</td>
+                                <td className="px-2 py-2 whitespace-nowrap">INV - 2025{inv.number}</td>
                                 <td className="px-2 py-2 whitespace-nowrap">{inv.invoiceDate}</td>
                                 <td className="px-2 py-2 whitespace-nowrap">{inv.dueDate}</td>
                                 <td className="px-2 py-2 whitespace-nowrap">{inv.amount}</td>
@@ -81,12 +89,30 @@ const Billings = () => {
                                 </td>
                                 <td className="px-2 py-2 whitespace-nowrap">
                                     {inv.download ? (
-                                        <button
-                                            className="text-blue-600 hover:underline bg-transparent border-none cursor-pointer"
-                                            onClick={() => handleDownload(inv.number)}
-                                        >
-                                            Download
-                                        </button>
+                                        <div className="relative inline-block text-left">
+                                            <button
+                                                className="bg-transparent border-none cursor-pointer px-2 py-1"
+                                                onClick={() => setDropdownOpen(idx)}
+                                            >
+                                                <span className="text-2xl">&#8942;</span>
+                                            </button>
+                                            {dropdownOpen === idx && (
+                                                <div className="absolute right-0 mt-2 w-32 bg-white border rounded shadow-lg z-10">
+                                                    <button
+                                                        className="block w-full text-left px-4 py-2 text-blue-600 hover:bg-gray-100"
+                                                        onClick={() => { handleDownload(inv.number); setDropdownOpen(null); }}
+                                                    >
+                                                        Download
+                                                    </button>
+                                                    <button
+                                                        className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
+                                                        onClick={() => { handleView(inv.number); setDropdownOpen(null); }}
+                                                    >
+                                                        View
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
                                     ) : (
                                         <span className="text-gray-400">Download</span>
                                     )}
