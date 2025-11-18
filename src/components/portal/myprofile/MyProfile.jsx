@@ -3,6 +3,7 @@
 import { useAuth } from "@/contexts/AuthContext";
 import useLocationData from "@/hooks/useLocationData";
 import { apiGet, apiUpload } from "@/lib/api";
+import { getFullImageUrl } from "@/utils/common";
 import { showErrorToast, showSuccessToast } from "@/utils/topTost";
 import {
     Card,
@@ -243,7 +244,7 @@ const MyProfile = () => {
                     <form onSubmit={handleSubmit}>
                         <Box display="flex" flexDirection="column" alignItems="center" mb={3}>
                             <Avatar
-                                src={imagePreview || '/images/avatar/default-avatar.png'}
+                                src={getFullImageUrl(imagePreview) || '/images/avatar/default-avatar.png'}
                                 alt="Profile"
                                 sx={{
                                     width: { xs: 80, sm: 100, md: 120 },
