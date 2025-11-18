@@ -14,22 +14,22 @@ function Header({ toggleSidebar }) {
     const handleAvatarClick = (event) => {
         setAnchorEl(event.currentTarget);
     };
-        const { lang, setLanguage, currentLang } = useLanguage();
+    const { lang, setLanguage, currentLang } = useLanguage();
 
-        // Language menu state
-        const [langAnchorEl, setLangAnchorEl] = React.useState(null);
-        const langMenuOpen = Boolean(langAnchorEl);
+    // Language menu state
+    const [langAnchorEl, setLangAnchorEl] = React.useState(null);
+    const langMenuOpen = Boolean(langAnchorEl);
 
-        const handleLangIconClick = (event) => {
-            setLangAnchorEl(event.currentTarget);
-        };
-        const handleLangMenuClose = () => {
-            setLangAnchorEl(null);
-        };
-        const handleLanguageChange = (code) => {
-            setLanguage(code);
-            setLangAnchorEl(null);
-        };
+    const handleLangIconClick = (event) => {
+        setLangAnchorEl(event.currentTarget);
+    };
+    const handleLangMenuClose = () => {
+        setLangAnchorEl(null);
+    };
+    const handleLanguageChange = (code) => {
+        setLanguage(code);
+        setLangAnchorEl(null);
+    };
     const handleMenuClose = () => {
         setAnchorEl(null);
     };
@@ -37,6 +37,11 @@ function Header({ toggleSidebar }) {
     const handleLogout = () => {
         // Add your logout logic here
         logout()
+        setAnchorEl(null)
+    };
+    const handleProfileClick = () => {
+        // Add your profile navigation logic here
+        window.location.href = '/offtaker/myprofile';
         setAnchorEl(null)
     };
 
@@ -122,6 +127,31 @@ function Header({ toggleSidebar }) {
                             {user?.name || 'Offtaker User'}
                         </div>
                         <div style={{ borderBottom: '1px solid #eee', margin: '0 8px' }} />
+                        <MenuItem
+                            onClick={() => { handleProfileClick(); }}
+                            sx={{
+                                py: 1.5,
+                                fontSize: '1rem',
+                                fontWeight: 500,
+                                borderRadius: 2,
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 1.5,
+                                mt: 0.5,
+                                mb: 0.5,
+                                transition: 'background 0.2s',
+                                '&:hover': {
+                                    backgroundColor: '#f8f9fb',
+                                    color: '#1976d2',
+                                    '& .MuiSvgIcon-root': {
+                                        color: '#1976d2',
+                                    }
+                                },
+                            }}
+                        >
+                            <PersonOutlineIcon sx={{ mr: 2, fontSize: 26, color: '#000', transition: 'color 0.2s' }} />
+                            My Profile
+                        </MenuItem>
                         <MenuItem
                             onClick={handleLogout}
                             sx={{
