@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { apiGet } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
+import { useRouter } from "next/navigation";
 
 const statusDictionary = {
   0: "Under Installation",
@@ -82,11 +83,13 @@ const normalizeApiProject = (project) => {
     offtakerId: project?.offtaker_id ?? null,
     product_code: project?.product_code ?? '-',
     offtaker_name: project?.offtaker?.fullName ?? '-',
+    project_slug: project?.project_slug ?? '',
   };
 };
 
 const SolarProjectTable = () => {
   const { user } = useAuth();
+  const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [entriesPerPage, setEntriesPerPage] = useState(5);
@@ -587,10 +590,15 @@ const SolarProjectTable = () => {
                       {/* Action buttons */}
                       <div className="flex gap-2 mt-auto">
                         {/* <button className="flex-1 px-4 py-2 bg-amber-500 text-white rounded-lg font-semibold hover:bg-amber-600 transition-colors text-sm">Invest Early</button> */}
-                        <button className="flex-1 px-4 py-2 border border-gray-300 text-slate-900 rounded-lg font-semibold hover:bg-gray-100 transition-colors text-sm flex items-center justify-center gap-1">
+                        <a
+                          className="flex-1 px-4 py-2 border border-gray-300 text-slate-900 rounded-lg font-semibold hover:bg-gray-100 transition-colors text-sm flex items-center justify-center gap-1"
+                          href={`/exchange-hub/${project.project_slug}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                           View Details
-                        </button>
+                        </a>
                       </div>
                     </div>
                   </div>
