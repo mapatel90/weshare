@@ -7,7 +7,7 @@ import { ChevronDown } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 function PannelSidebar({ activeMenu, setActiveMenu }) {
-    const { lang } = useLanguage()
+    const { lang } = useLanguage();
     const handleClose = () => {
         closeSidebars();
     };
@@ -35,7 +35,7 @@ function PannelSidebar({ activeMenu, setActiveMenu }) {
                 </div>
                 <div className={`submenu${activeMenu === 'projects' ? ' active show' : ''}`}>
                     <div className="submenu-item">
-                        <Link href="/offtaker/projects" onClick={handleClose}>Project List</Link>
+                        <Link href="/offtaker/projects" onClick={handleClose}>{lang("offtaker_login.sidebar.projectlist")}</Link>
                     </div>
                     {/* <div className="submenu-item">Performance</div> */}
                 </div>
@@ -45,37 +45,37 @@ function PannelSidebar({ activeMenu, setActiveMenu }) {
                     href="/offtaker/billings"
                     className={`menu-item${activeMenu === 'billings' ? ' active' : ''}`}
                     onClick={() => setActiveMenu('billings')}
-                >Billings</Link>
+                >{lang("offtaker_login.sidebar.billings")}</Link>
             </div>
             <div className="menu-section">
                 <Link
                     href="/offtaker/payments"
                     className={`menu-item${activeMenu === 'payments' ? ' active' : ''}`}
                     onClick={() => setActiveMenu('payments')}
-                >Payments</Link>
+                >{lang("offtaker_login.sidebar.payments")}</Link>
             </div>
             <div className="menu-section">
                 <Link
                     href="/offtaker/notifications"
                     className={`menu-item${activeMenu === 'notifications' ? ' active' : ''}`}
                     onClick={() => setActiveMenu('notifications')}
-                >Notifications</Link>
+                >{lang("offtaker_login.sidebar.notifications")}</Link>
             </div>
             <div className="menu-section">
                 <div
                     className={`menu-item${activeMenu === 'reports' ? ' active' : ''}`}
                     onClick={() => setActiveMenu('reports')}
                 >
-                    <span>Reports</span>
+                    <span>{lang("offtaker_login.sidebar.reports")}</span>
                     <ChevronDown className="w-4 h-4" />
                 </div>
                 <div className={`submenu${activeMenu === 'reports' ? ' show' : ''}`}>
-                    <Link href="/offtaker/reports/saving-reports/" className="menu-item">Saving Reports</Link>
-                    <Link href="/offtaker/reports/conjunction-reports/" className="menu-item">Conjunction Reports</Link>
+                    <Link href="/offtaker/reports/saving-reports/" className="menu-item">{lang("offtaker_login.sidebar.savingreports")}</Link>
+                    <Link href="/offtaker/reports/conjunction-reports/" className="menu-item">{lang("offtaker_login.sidebar.conjunctionreports")}</Link>
                 </div>
             </div>
             <div className="menu-section">
-                <div className="menu-item">Contract</div>
+                <div className="menu-item">{lang("offtaker_login.sidebar.contracts")}</div>
             </div>
             {/* 
                 <div className="menu-section">

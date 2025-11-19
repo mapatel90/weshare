@@ -1178,5 +1178,19 @@
   },
   "newsDetail": {
     "title": "Chi tiết tin tức"
+  },
+  "offtaker_login": {
+    "sidebar": {
+      "dashboard": "Bảng điều khiển",
+      "myprojects": "dự án của tôi",
+      "projectList": "Danh sách dự án",
+      "billings": "Thanh toán",
+      "payments": "Thanh toán",
+      "notifications": "Thông báo",
+      "reports": "Báo cáo",
+      "savingreports": "Báo cáo tiết kiệm",
+      "conjunctionreports": "Báo cáo kết hợp",
+      "contracts": "Hợp đồng"
+    }
   }
 }
