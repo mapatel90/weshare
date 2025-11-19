@@ -35,7 +35,7 @@ function PannelSidebar({ activeMenu, setActiveMenu }) {
                 </div>
                 <div className={`submenu${activeMenu === 'projects' ? ' active show' : ''}`}>
                     <div className="submenu-item">
-                        <Link href="/offtaker/projects" onClick={handleClose}>{lang("offtaker_login.sidebar.projectlist")}</Link>
+                        <Link href="/offtaker/projects" onClick={handleClose}>{lang("offtaker_login.sidebar.projectList")}</Link>
                     </div>
                     {/* <div className="submenu-item">Performance</div> */}
                 </div>
