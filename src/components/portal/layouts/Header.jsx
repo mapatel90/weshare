@@ -15,7 +15,7 @@ function Header({ toggleSidebar }) {
     const handleAvatarClick = (event) => {
         setAnchorEl(event.currentTarget);
     };
-    const { lang, setLanguage, currentLang } = useLanguage();
+    const { lang, changeLanguage, currentLanguage } = useLanguage();
 
     // Language menu state
     const [langAnchorEl, setLangAnchorEl] = React.useState(null);
@@ -28,7 +28,7 @@ function Header({ toggleSidebar }) {
         setLangAnchorEl(null);
     };
     const handleLanguageChange = (code) => {
-        setLanguage(code);
+        changeLanguage(code);
         setLangAnchorEl(null);
     };
     const handleMenuClose = () => {
@@ -70,7 +70,7 @@ function Header({ toggleSidebar }) {
                     {/* Language Switcher as circular flag image */}
                     <div className="profile-icon" onClick={handleLangIconClick} style={{ cursor: 'pointer', padding: 0 }}>
                         <img
-                            src={currentLang === 'en' ? '/images/flags/4x3/us.svg' : '/images/flags/4x3/vn.svg'}
+                            src={currentLanguage === 'en' ? '/images/flags/4x3/us.svg' : '/images/flags/4x3/vn.svg'}
                             style={{ width: 32, height: 32, borderRadius: '50%', objectFit: 'cover', border: '1px solid #eee' }}
                         />
                     </div>
@@ -82,14 +82,14 @@ function Header({ toggleSidebar }) {
                         transformOrigin={{ vertical: 'top', horizontal: 'right' }}
                     >
                         <MenuItem
-                            selected={currentLang === 'en'}
+                            selected={currentLanguage === 'en'}
                             onClick={() => handleLanguageChange('en')}
                         >
                             <img src="/images/flags/4x3/us.svg" alt="English" style={{ width: 24, height: 24, borderRadius: '50%', marginRight: 8 }} />
                             English
                         </MenuItem>
                         <MenuItem
-                            selected={currentLang === 'vi'}
+                            selected={currentLanguage === 'vi'}
                             onClick={() => handleLanguageChange('vi')}
                         >
                             <img src="/images/flags/4x3/vn.svg" alt="Vietnamese" style={{ width: 24, height: 24, borderRadius: '50%', marginRight: 8 }} />

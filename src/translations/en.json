@@ -1231,7 +1231,14 @@
     "sidebar": {
       "dashboard": "Dashboard",
       "myprojects": "My Projects",
-      "projectList": "Project List"
+      "projectList": "Project List",
+      "billings": "Billings",
+      "payments": "Payments",
+      "notifications": "Notifications",      
+      "reports": "Reports",
+      "savingreports": "Saving Reports",
+      "conjunctionreports": "Conjunction Reports",
+      "contracts": "Contracts"
     }
   }
 }
