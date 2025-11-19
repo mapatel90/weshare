@@ -98,7 +98,7 @@ router.post('/', async (req, res) => {
         phoneNumber: phoneNumber || null,
         subject,
         message,
-        project_id: 1,
+        project_id: 2,
         status: 1 // 1 = read/responded
       }
     });
@@ -155,7 +155,7 @@ router.get('/:id', authenticateToken, async (req, res) => {
 router.put('/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
-    const { status } = req.body;
+    const { fullName, email, phoneNumber, subject, message } = req.body;
 
     // Check if message exists
     const existingMessage = await prisma.contactUs.findUnique({
@@ -176,13 +176,17 @@ router.put('/:id', authenticateToken, async (req, res) => {
     const updatedMessage = await prisma.contactUs.update({
       where: { id: parseInt(id) },
       data: {
-        status: parseInt(status)
+        fullName,
+        email,
+        phoneNumber,
+        subject,
+        message
       }
     });
 
     res.json({
       success: true,
-      message: 'Message status updated successfully',
+      message: 'Message updated successfully',
       data: updatedMessage
     });
 

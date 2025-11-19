@@ -322,7 +322,9 @@
     "leadsreport": "Leads Report",
     "projectreport": "Project Report",
     "timesheetsreport": "Timesheets Report",
-    "blog": "Blog"
+    "blog": "Blog",
+    "contact us": "Contact Us",
+    "lease request": "Lease Request"
   },
   "dashboard": {
     "totalSales": "Total Sales",
@@ -1210,7 +1212,16 @@
     "message": "Your message here",
     "sendMessage": "Send Message",
     "needhelp": "Need Any Help?",
-    "callOrMessage": "Call us or message and we’ll respond as soon as possible."
+    "callOrMessage": "Call us or message and we’ll respond as soon as possible.",
+    "contactUs": "Contact Us",
+    "fullNameTable": "Full Name",
+    "emailTable": "Email",
+    "phoneTable": "Phone Number",
+    "messageTable": "Message",
+    "status": "Status",
+    "details": "Details",
+    "deleted": "Contact Deleted Successfully",
+    "updated": "Contact updated successfully"
   },
   "getinTouch": {
     "message": "Send us a message",
@@ -1226,5 +1237,23 @@
   },
   "newsDetail": {
     "title": "News Detail"
+  },
+  "leaseRequest": {
+    "lease": "Lease",
+    "request": "Request",
+    "message2": "Submit your lease request and connect with investors looking to fund your solar installation.",
+    "title": "Lease Request",
+    "Address": "Address",
+    "message3": "Request Sent Successfully",
+    "fullNameTable": "Full Name",
+    "emailTable": "Email",
+    "phoneTable": "Phone Number",
+    "subject": "Subject",
+    "messageTable": "Message",
+    "location": "Location",
+    "deleted": "Lease Request Deleted Successfully",
+    "updated": "Lease Request Updated Successfully",
+    "details": "Details",
+    "edit": "Edit Lease Request"
   }
 }

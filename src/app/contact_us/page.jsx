@@ -77,7 +77,7 @@ const GetInTouchPage = () => {
   return (
     <>
 
-      <DynamicTitle titleKey="getinTouch.title" />
+      <DynamicTitle titleKey="contactUs.title" />
 
       {/* Navbar */}
       <HomeNavbar />

@@ -1,4 +1,5 @@
 "use client";
+import "../../globals.css";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import ProtectedRoute from "@/components/ProtectedRoute";

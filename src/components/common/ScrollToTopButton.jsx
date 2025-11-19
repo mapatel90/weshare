@@ -27,26 +27,11 @@ const ScrollToTopButton = () => {
       {visible && (
         <button
           onClick={scrollToTop}
-          style={{
-            position: "fixed",
-            bottom: "25px",
-            right: "25px",
-            width: "50px",
-            height: "50px",
-            borderRadius: "50%",
-            backgroundColor: "#F6A623",
-            color: "#fff",
-            border: "none",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 9999,
-            boxShadow: "0 4px 10px rgba(0,0,0,0.2)",
-            transition: "all 0.3s ease",
-          }}
+          className="scrollToTopBtn"
+          aria-label="Scroll to top"
+          title="Scroll to top"
         >
-          <KeyboardArrowUp style={{ fontSize: "28px" }} />
+          <KeyboardArrowUp className="scrollToTopIcon" />
         </button>
       )}
     </>

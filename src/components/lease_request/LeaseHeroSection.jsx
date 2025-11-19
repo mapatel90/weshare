@@ -1,8 +1,7 @@
-"use client";
 import React from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-export default function GetInTouchHeroSection() {
+export default function LeaseHeroSection() {
     const { lang } = useLanguage();
 
     return (
@@ -10,10 +9,10 @@ export default function GetInTouchHeroSection() {
             <div className="container">
                 <div className="title-info col-md-4">
                     <h1 className="hero-title">
-                        <span className="yellow-txt" style={{ color: "#F6A623" }}>{lang("contactUs.contact")}</span>{" "}
-                        <span style={{ color: "#fff" }}>{lang("contactUs.us")}</span>
+                        <span className="yellow-txt" style={{ color: "#F6A623" }}>{lang("leaseRequest.lease")}</span>{" "}
+                        <span style={{ color: "#fff" }}>{lang("leaseRequest.request")}</span>
                     </h1>
-                    <p className="banner-text" style={{ color: "#fff" }}>{lang("getinTouch.message2")}</p>
+                    <p className="banner-text" style={{ color: "#fff" }}>{lang("leaseRequest.message2")}</p>
                 </div>
             </div>
         </section>

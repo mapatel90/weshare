@@ -168,9 +168,10 @@ const TestimonialSection = () => {
                     <div className='testimonials-res' style={{ padding: '50px 60px' }}>
                       {/* Quote Icon */}
                       <div className="mb-4">
-                        <svg width="56" height="44" viewBox="0 0 56 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        {/* <svg width="56" height="44" viewBox="0 0 56 44" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <path d="M0 44V22C0 9.84974 9.84974 0 22 0H24V7H22C13.7157 7 7 13.7157 7 22V24H16C20.4183 24 24 27.5817 24 32V40C24 42.2091 22.2091 44 20 44H4C1.79086 44 0 42.2091 0 40V44ZM32 44V22C32 9.84974 41.8497 0 54 0H56V7H54C45.7157 7 39 13.7157 39 22V24H48C52.4183 24 56 27.5817 56 32V40C56 42.2091 54.2091 44 52 44H36C33.7909 44 32 42.2091 32 40V44Z" fill="#F9A825" />
-                        </svg>
+                        </svg> */}
+                        <img src="/images/Image [svg-img].svg" alt="Testimonial logo" />
                       </div>
 
                       {/* Name and Role */}

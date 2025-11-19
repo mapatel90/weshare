@@ -4,9 +4,11 @@ import React, { useEffect } from 'react'
 import Image from 'next/image'
 import AOS from 'aos'
 import { useLanguage } from '@/contexts/LanguageContext'
+import { useRouter } from 'next/navigation'
 
 const SubmitSection = () => {
   const { lang } = useLanguage()
+  const router = useRouter()
   
   useEffect(() => {
     AOS.init({ duration: 1000, once: true })
@@ -24,7 +26,8 @@ const SubmitSection = () => {
               <div className="contentBox me-2">
                 <h2 className="fw-bold fs-48 text-white mb-40">{lang('home.submit.title')}</h2>
                 <p className="fs-24 mb-40">{lang('home.submit.description')}</p>
-                <button className="btn btn-primary-custom mt-0">{lang('home.submit.button')}</button>
+
+                <button className="btn btn-primary-custom mt-0" onClick={() => router.push('/lease_request')}>{lang('home.submit.button')}</button>
               </div>
             </div>
           </div>

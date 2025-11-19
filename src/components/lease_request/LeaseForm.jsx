@@ -1,12 +1,12 @@
-"use client";
 import React, { useState } from "react";
 import { showSuccessToast, showErrorToast } from "@/utils/topTost";
 import { apiPost } from "@/lib/api";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
+import useLocationData from '@/hooks/useLocationData';
 
-export default function GetInTouchFormSection() {
+export default function LeaseFormSection() {
   const { lang } = useLanguage();
 
   const [formData, setFormData] = useState({
@@ -15,9 +15,25 @@ export default function GetInTouchFormSection() {
     phoneNumber: "",
     subject: "",
     message: "",
+    address: "",
+    countryId: "",
+    stateId: "",
+    cityId: ""
   });
 
   const [errors, setErrors] = useState({});
+
+  // location hook (same pattern as TabProjectBasicDetails)
+  const {
+    countries,
+    states,
+    cities,
+    loadingCountries,
+    loadingStates,
+    loadingCities,
+    handleCountryChange,
+    handleStateChange
+  } = useLocationData();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -33,6 +49,18 @@ export default function GetInTouchFormSection() {
     }
   };
 
+  const handleLocationChange = (type, value) => {
+    if (type === 'country') {
+      setFormData(prev => ({ ...prev, countryId: value, stateId: '', cityId: '' }));
+      handleCountryChange(value);
+    } else if (type === 'state') {
+      setFormData(prev => ({ ...prev, stateId: value, cityId: '' }));
+      handleStateChange(value);
+    } else if (type === 'city') {
+      setFormData(prev => ({ ...prev, cityId: value }));
+    }
+  };
+
   const validateForm = () => {
     const newErrors = {};
     if (!formData.fullName.trim()) {
@@ -41,7 +69,6 @@ export default function GetInTouchFormSection() {
     if (!formData.email.trim()) {
       newErrors.email = "Email is required.";
     } else {
-      // simple email check
       const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRe.test(formData.email))
         newErrors.email = "Enter a valid email address.";
@@ -69,19 +96,29 @@ export default function GetInTouchFormSection() {
     }
 
     try {
-      const data = await apiPost("/api/contactus", formData);
+      const payload = {
+        ...formData,
+        countryId: formData.countryId || null,
+        stateId: formData.stateId || null,
+        cityId: formData.cityId || null
+      };
+
+      const data = await apiPost("/api/lease", payload);
 
       if (data.success) {
-        // Clear form after successful submission
         setFormData({
           fullName: "",
           email: "",
           phoneNumber: "",
           subject: "",
           message: "",
+          address: "",
+          countryId: "",
+          stateId: "",
+          cityId: ""
         });
         setErrors({});
-        showSuccessToast("Message sent successfully");
+        showSuccessToast(lang("leaseRequest.message3"));
       } else {
         showErrorToast(data.message || "Failed to send message.");
       }
@@ -99,11 +136,9 @@ export default function GetInTouchFormSection() {
         }}
       >
         <h3 className="mb-4 contact-title">{lang("getinTouch.message")}</h3>
-        <p className="sub-text">
-          {lang("getinTouch.subText")}
-        </p>
+        <p className="sub-text">{lang("getinTouch.subText")}</p>
 
-        <form className="mt-5"  onSubmit={handleSubmit} noValidate>
+        <form className="mt-5" onSubmit={handleSubmit} noValidate>
           <div className="row g-3">
             <div className="col-md-12">
               <input
@@ -111,17 +146,14 @@ export default function GetInTouchFormSection() {
                 name="fullName"
                 value={formData.fullName}
                 onChange={handleChange}
-                className={`form-control ${
-                  errors.fullName ? "is-invalid" : ""
-                }`}
+                className={`form-control ${errors.fullName ? "is-invalid" : ""}`}
                 placeholder={lang("contactUs.fullName")}
               />
-               {errors.fullName && (
-                <div className="text-danger small mt-1">
-                  {errors.fullName}
-                </div>
+              {errors.fullName && (
+                <div className="text-danger small mt-1">{errors.fullName}</div>
               )}
             </div>
+
             <div className="col-md-6">
               <input
                 type="email"
@@ -131,7 +163,11 @@ export default function GetInTouchFormSection() {
                 className={`form-control ${errors.email ? "is-invalid" : ""}`}
                 placeholder={lang("contactUs.email")}
               />
+              {errors.email && (
+                <div className="text-danger small mt-1">{errors.email}</div>
+              )}
             </div>
+
             <div className="col-md-6">
               <input
                 type="text"
@@ -141,12 +177,71 @@ export default function GetInTouchFormSection() {
                 className={`form-control ${errors.phoneNumber ? "is-invalid" : ""}`}
                 placeholder={lang("contactUs.phoneNumber")}
               />
-               {errors.phoneNumber && (
-                <div className="text-danger small mt-1">
-                  {errors.phoneNumber}
-                </div>
+              {errors.phoneNumber && (
+                <div className="text-danger small mt-1">{errors.phoneNumber}</div>
               )}
             </div>
+
+            {/* Country / State / City selects */}
+            <div className="col-md-4">
+              <select
+                name="countryId"
+                value={formData.countryId}
+                onChange={(e) => handleLocationChange('country', e.target.value)}
+                className={`form-control form-select ${errors.countryId ? "is-invalid" : ""}`}
+                disabled={loadingCountries}
+              >
+                <option value="">{lang('common.selectCountry', 'Select Country')}</option>
+                {countries.map(c => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="col-md-4">
+              <select
+                name="stateId"
+                value={formData.stateId}
+                onChange={(e) => handleLocationChange('state', e.target.value)}
+                className={`form-control form-select ${errors.stateId ? "is-invalid" : ""}`}
+                disabled={loadingStates || !formData.countryId}
+              >
+                <option value="">{lang('common.selectState', 'Select State')}</option>
+                {states.map(s => (
+                  <option key={s.id} value={s.id}>{s.name}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="col-md-4">
+              <select
+                name="cityId"
+                value={formData.cityId}
+                onChange={(e) => handleLocationChange('city', e.target.value)}
+                className={`form-control form-select ${errors.cityId ? "is-invalid" : ""}`}
+                disabled={loadingCities || !formData.stateId}
+              >
+                <option value="">{lang('common.selectCity', 'Select City')}</option>
+                {cities.map(ci => (
+                  <option key={ci.id} value={ci.id}>{ci.name}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="col-12">
+              <input
+                type="text"
+                name="address"
+                value={formData.address}
+                onChange={handleChange}
+                className={`form-control ${errors.address ? "is-invalid" : ""}`}
+                placeholder={lang("leaseRequest.Address")}
+              />
+              {errors.address && (
+                <div className="text-danger small mt-1">{errors.address}</div>
+              )}
+            </div>
+
             <div className="col-12">
               <input
                 type="text"
@@ -156,12 +251,11 @@ export default function GetInTouchFormSection() {
                 className={`form-control ${errors.subject ? "is-invalid" : ""}`}
                 placeholder={lang("contactUs.subject")}
               />
-                {errors.subject && (
-                <div className="text-danger small mt-1">
-                    {errors.subject}
-                </div>
-                )}
+              {errors.subject && (
+                <div className="text-danger small mt-1">{errors.subject}</div>
+              )}
             </div>
+
             <div className="col-12">
               <textarea
                 name="message"
@@ -172,11 +266,10 @@ export default function GetInTouchFormSection() {
                 placeholder={lang("contactUs.message")}
               ></textarea>
               {errors.message && (
-                <div className="text-danger small mt-1">
-                  {errors.message}
-                </div>
+                <div className="text-danger small mt-1">{errors.message}</div>
               )}
             </div>
+
             <div className="col-12 mt-5 mb-2">
               <button
                 type="submit"

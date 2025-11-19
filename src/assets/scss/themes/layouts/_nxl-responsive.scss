@@ -143,16 +143,18 @@
 	.nxl-header {
 		.header-wrapper  {
 			padding: 0 20px;
-				.nxl-navigation-up-1600 {
+			.header-left{
+				.navigation-up-1600 {
 					display: none !important;
 				}
 				.nxl-lavel-mega-menu-toggle {
 					display: none !important;
 				}
+			}
 			.nxl-h-item {
 				position: static;
 				.nxl-h-dropdown {
-					left: 0 !important;
+					left: 75px !important;
 					right: 0 !important;
 					width: -webkit-fill-available;
 				}

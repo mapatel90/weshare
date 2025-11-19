@@ -307,7 +307,9 @@
     "inverter": "biến tần",
     "news":"Tin tức",
     "testimonials":"Lời chứng thực",
-    "blog": "Blog"
+    "blog": "Blog",
+    "contact us": "Liên hệ với chúng tôi",
+    "lease requests": "Yêu cầu cho thuê"
   },
   "dashboard": {
     "totalSales": "Tổng doanh số",
@@ -1162,7 +1164,16 @@
     "message": "Tin nhắn của bạn ở đây",
     "sendMessage": "Gửi tin nhắn",
     "needhelp": "Cần bất kỳ sự giúp đỡ nào?",
-    "callOrMessage": "Hãy gọi điện hoặc nhắn tin cho chúng tôi và chúng tôi sẽ phản hồi sớm nhất có thể."
+    "callOrMessage": "Hãy gọi điện hoặc nhắn tin cho chúng tôi và chúng tôi sẽ phản hồi sớm nhất có thể.",
+    "contactUs": "Liên hệ với chúng tôi",
+    "fullNameTable": "Họ và tên",
+    "emailTable": "Email",
+    "phoneTable": "Số điện thoại",
+    "messageTable": "Tin nhắn",
+    "status":"Trạng thái",
+    "details":"Chi tiết",
+    "deleted":"Liên hệ đã được xóa thành công",
+    "updated":"Đã cập nhật liên hệ thành công"
   },
   "getinTouch": {
     "message": "Gửi tin nhắn cho chúng tôi",
@@ -1178,5 +1189,23 @@
   },
   "newsDetail": {
     "title": "Chi tiết tin tức"
+  },
+  "leaseRequest": {
+    "lease": "Cho thuê",
+    "request": "Lời yêu cầu",
+    "message2": "Gửi yêu cầu thuê và kết nối với các nhà đầu tư đang tìm kiếm nguồn tài trợ cho việc lắp đặt hệ thống năng lượng mặt trời của bạn.",
+    "title": "Yêu cầu thuê",
+    "Address": "Địa chỉ",
+    "message3": "Yêu cầu đã được gửi thành công",
+    "fullNameTable": "Họ và tên",
+    "emailTable": "Email",
+    "phoneTable": "Số điện thoại",
+    "subject":"Chủ thể",
+    "messageTable": "Tin nhắn",
+    "location":"Vị trí",
+    "deleted":"Đã xóa yêu cầu thuê thành công",
+    "updated":"Yêu cầu thuê đã được cập nhật thành công",
+    "details":"Chi tiết",
+    "edit": "Chỉnh sửa yêu cầu thuê"
   }
 }
