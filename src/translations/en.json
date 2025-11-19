@@ -300,7 +300,7 @@
     "recaptcha": "reCAPTCHA",
     "rolesmanagement": "Roles Management",
     "users": "Users",
-  "changepassword": "Change Password",
+    "changepassword": "Change Password",
     "usersview": "Users View",
     "userscreate": "Users Create",
     "usermanagement": "User Management",
@@ -824,8 +824,8 @@
     "askingPriceRequired": "Asking price is required",
     "leaseTermRequired": "Lease term is required",
     "productCodeRequired": "Product code is required",
-    "year" : "year",
-    "onlynumbersWithoutdesimal" : "Only numbers are allowed (e.g. 123456)",
+    "year": "year",
+    "onlynumbersWithoutdesimal": "Only numbers are allowed (e.g. 123456)",
     "projectImage": "Project Image",
     "projectImagePlaceholder": "Enter project image URL",
     "projectSize": "Project Size",
@@ -954,10 +954,10 @@
     "errorOccurred": "An error occurred. Please try again.",
     "kilowatt": "Kilowatt",
     "onlynumbers": "Only numbers are allowed (e.g. 1234.56)",
-    "selectInverter" : "Select Inverter",
-    "serialNumber" : "Serial Number",
-    "inverterlist" : "Inverter List",
-    "invertertype" : "Inverter Type"
+    "selectInverter": "Select Inverter",
+    "serialNumber": "Serial Number",
+    "inverterlist": "Inverter List",
+    "invertertype": "Inverter Type"
   },
   "projectType": {
     "title": "Project Types",
@@ -1182,7 +1182,7 @@
     "testimonialDeletedSuccessfully": "Testimonial Deleted Successfully"
   },
   "blog": {
-    "addBlog": "Add Blog",  
+    "addBlog": "Add Blog",
     "editBlog": "Edit Blog",
     "deleteBlog": "Delete Blog",
     "title": "Title",
@@ -1226,5 +1226,12 @@
   },
   "newsDetail": {
     "title": "News Detail"
+  },
+  "offtaker_login": {
+    "sidebar": {
+      "dashboard": "Dashboard",
+      "myprojects": "My Projects",
+      "projectList": "Project List"
+    }
   }
 }

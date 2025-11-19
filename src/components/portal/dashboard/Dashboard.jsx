@@ -2,46 +2,95 @@
 import React from 'react';
 import '../../../assets/portal/offtaker.css';
 import ProjectsTable from './sections/ProjectsTable';
+import OverViewCards from './sections/OverViewCards';
 import BillingCard from './sections/BillingCard';
 import DocumentsCard from './sections/DocumentsCard';
 
 function DashboardView() {
+    const [showProjectsDropdown, setShowProjectsDropdown] = React.useState(false);
+    const [showInverterDropdown, setShowInverterDropdown] = React.useState(false);
+
+    // Optional: Close dropdown when clicking outside
+    React.useEffect(() => {
+        function handleClick(e) {
+            const projectsBtn = document.getElementById('projects-dropdown-btn');
+            const inverterBtn = document.getElementById('inverter-dropdown-btn');
+            const projectsDropdown = document.getElementById('projects-dropdown-menu');
+            const inverterDropdown = document.getElementById('inverter-dropdown-menu');
+            // Close Projects dropdown if click outside
+            if (showProjectsDropdown && projectsBtn && !projectsBtn.contains(e.target) && (!projectsDropdown || !projectsDropdown.contains(e.target))) {
+                setShowProjectsDropdown(false);
+            }
+            // Close Inverter dropdown if click outside
+            if (showInverterDropdown && inverterBtn && !inverterBtn.contains(e.target) && (!inverterDropdown || !inverterDropdown.contains(e.target))) {
+                setShowInverterDropdown(false);
+            }
+        }
+        if (showProjectsDropdown || showInverterDropdown) {
+            document.addEventListener('mousedown', handleClick);
+        }
+        return () => {
+            document.removeEventListener('mousedown', handleClick);
+        };
+    }, [showProjectsDropdown, showInverterDropdown]);
 
     return (
-        <>
-            <div className='d-flex justify-content-end gap-2 mb-3'>
-                <button className="btn theme-btn-blue-color">Projects ▼</button>
-                <button className="btn theme-btn-blue-color">Investor ▼</button>
+        // <>
+        <div>
+            <div className='d-flex justify-content-end gap-2 mb-3' style={{ position: 'relative' }}>
+                <div style={{ position: 'relative', display: 'inline-block' }}>
+                    <button
+                        className={`btn theme-btn-blue-color${showProjectsDropdown ? ' active' : ''}`}
+                        id="projects-dropdown-btn"
+                        onClick={() => {
+                            setShowProjectsDropdown((prev) => !prev);
+                            setShowInverterDropdown(false);
+                        }}
+                        style={{ background: showProjectsDropdown ? '#e5e7eb' : undefined }}
+                    >
+                        Projects ▼
+                    </button>
+                    {showProjectsDropdown && (
+                        <div
+                            id="projects-dropdown-menu"
+                            style={{ position: 'absolute', right: 0, top: '100%', zIndex: 10, background: '#fff', border: '1px solid #e5e7eb', borderRadius: '6px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', minWidth: '160px' }}
+                        >
+                            <ul style={{ listStyle: 'none', margin: 0, padding: '8px 0' }}>
+                                <li style={{ padding: '8px 16px', cursor: 'pointer' }}>Project 1</li>
+                                <li style={{ padding: '8px 16px', cursor: 'pointer' }}>Project 2</li>
+                                <li style={{ padding: '8px 16px', cursor: 'pointer' }}>Project 3</li>
+                            </ul>
+                        </div>
+                    )}
+                </div>
+                <div style={{ position: 'relative', display: 'inline-block' }}>
+                    <button
+                        className={`btn theme-btn-blue-color${showInverterDropdown ? ' active' : ''}`}
+                        id="inverter-dropdown-btn"
+                        onClick={() => {
+                            setShowInverterDropdown((prev) => !prev);
+                            setShowProjectsDropdown(false);
+                        }}
+                        style={{ background: showInverterDropdown ? '#e5e7eb' : undefined }}
+                    >
+                        Inverter ▼
+                    </button>
+                    {showInverterDropdown && (
+                        <div
+                            id="inverter-dropdown-menu"
+                            style={{ position: 'absolute', right: 0, top: '100%', zIndex: 10, background: '#fff', border: '1px solid #e5e7eb', borderRadius: '6px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', minWidth: '160px' }}
+                        >
+                            <ul style={{ listStyle: 'none', margin: 0, padding: '8px 0' }}>
+                                <li style={{ padding: '8px 16px', cursor: 'pointer' }}>Inverter Type A</li>
+                                <li style={{ padding: '8px 16px', cursor: 'pointer' }}>Inverter Type B</li>
+                                <li style={{ padding: '8px 16px', cursor: 'pointer' }}>Inverter Type C</li>
+                            </ul>
+                        </div>
+                    )}
+                </div>
             </div>
-            <div className="stats-grid">
-                <div className="stat-card blue">
-                    <div className="stat-icon">⚡</div>
-                    <div className="stat-value">52.4 kWh</div>
-                    <div className="stat-label">Daily Generation</div>
-                    <div className="stat-change">↗ +4.2% vs yesterday</div>
-                </div>
 
-                <div className="stat-card purple">
-                    <div className="stat-icon">🏠</div>
-                    <div className="stat-value">40.7 kWh</div>
-                    <div className="stat-label">Daily Consumption</div>
-                    <div className="stat-change negative">↘ -1.7% vs yesterday</div>
-                </div>
-
-                <div className="stat-card cyan">
-                    <div className="stat-icon">💰</div>
-                    <div className="stat-value">36.8 %</div>
-                    <div className="stat-label">Savings vs EVN</div>
-                    <div className="stat-change">📈 Improving efficiency</div>
-                </div>
-
-                <div className="stat-card green">
-                    <div className="stat-icon">💵</div>
-                    <div className="stat-value">đ3,124 K</div>
-                    <div className="stat-label">Solar Savings</div>
-                    <div className="stat-change">🔄 Updated daily</div>
-                </div>
-            </div>
+            <OverViewCards />
 
             {/* Dashboard */}
             <div className="dashboard-row">
@@ -184,7 +233,6 @@ function DashboardView() {
                             </div>
                         </div>
                     </div>
-
                     <div className="chart-card">
                         <div className="card-title" style={{ marginBottom: '20px' }}>
                             🌱 Environmental Impact
@@ -220,8 +268,8 @@ function DashboardView() {
                 {/* Documents Card */}
                 <DocumentsCard />
             </div>
-
-        </>
+        </div>
+        // </>
     );
 }
 

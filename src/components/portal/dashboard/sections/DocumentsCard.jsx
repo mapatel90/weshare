@@ -2,13 +2,13 @@ import React from 'react';
 
 function DocumentsCard() {
 
-    return () => {
+    return (
         <div className="documents-card">
             <div className="card-header">
-                <div className="card-title">📄 Documents & Reports</div>
-                <button className="btn"
+                <div className="card-title">📄 Reports</div>
+                {/* <button className="btn"
                     style={{ background: '#fbbf24', color: 'white', fontSize: '12px', padding: '8px 16px' }}>📥 Download
-                    All</button>
+                    All</button> */}
             </div>
 
             <div className="document-item">
@@ -20,10 +20,10 @@ function DocumentsCard() {
                         </div>
                     </div>
                 </div>
-                <div className="document-actions">
+                {/* <div className="document-actions">
                     <button className="action-btn">👁️</button>
                     <button className="action-btn">→</button>
-                </div>
+                </div> */}
             </div>
 
             <div className="document-item">
@@ -34,10 +34,10 @@ function DocumentsCard() {
                         <div style={{ fontSize: '11px', color: '#6b7280' }}>20-year lease: Installation and terms</div>
                     </div>
                 </div>
-                <div className="document-actions">
+                {/* <div className="document-actions">
                     <button className="action-btn">👁️</button>
                     <button className="action-btn">↓</button>
-                </div>
+                </div> */}
             </div>
 
             <div className="document-item">
@@ -48,10 +48,10 @@ function DocumentsCard() {
                         <div style={{ fontSize: '11px', color: '#6b7280' }}>20-year lease: Installation and terms</div>
                     </div>
                 </div>
-                <div className="document-actions">
+                {/* <div className="document-actions">
                     <button className="action-btn">👁️</button>
                     <button className="action-btn">↓</button>
-                </div>
+                </div> */}
             </div>
 
             <div className="document-item">
@@ -62,10 +62,10 @@ function DocumentsCard() {
                         <div style={{ fontSize: '11px', color: '#6b7280' }}>25-year lease: Installation and terms</div>
                     </div>
                 </div>
-                <div className="document-actions">
+                {/* <div className="document-actions">
                     <button className="action-btn">👁️</button>
                     <button className="action-btn">↓</button>
-                </div>
+                </div> */}
             </div>
 
             <div className="document-item">
@@ -76,13 +76,13 @@ function DocumentsCard() {
                         <div style={{ fontSize: '11px', color: '#6b7280' }}>20-year lease: Installation and terms</div>
                     </div>
                 </div>
-                <div className="document-actions">
+                {/* <div className="document-actions">
                     <button className="action-btn">👁️</button>
                     <button className="action-btn">↓</button>
-                </div>
+                </div> */}
             </div>
         </div>
-    }
+    );
 }
 
 export default DocumentsCard;
