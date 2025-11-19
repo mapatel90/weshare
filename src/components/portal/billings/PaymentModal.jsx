@@ -101,16 +101,6 @@ const PaymentModal = ({ isOpen, onClose, invoiceNumber, onSubmit, totalAmount })
                         />
                     </div>
                     <div className="mb-4">
-                        <label className="block font-semibold mb-1">Transaction ID</label>
-                        <input
-                            type="text"
-                            value={transactionId}
-                            onChange={(e) => setTransactionId(e.target.value)}
-                            className="w-full border rounded px-3 py-2"
-                            required
-                        />
-                    </div>
-                    <div className="mb-4">
                         <label className="block font-semibold mb-1">Upload Screenshot</label>
                         <div
                             className={`w-full border-2 border-dashed rounded px-3 py-6 flex flex-col items-center justify-center cursor-pointer transition ${dragActive ? 'border-orange-500 bg-orange-50' : 'border-gray-300 bg-gray-100'}`}

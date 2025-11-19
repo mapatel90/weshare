@@ -14,6 +14,7 @@ const statusColors = {
 const Payments = () => {
     const [payments] = useState([
         {
+            projectName: 'Project Alpha',
             invoiceId: 'INV001',
             number: '1001',
             userName: 'John Doe',
@@ -25,6 +26,7 @@ const Payments = () => {
             download: true,
         },
         {
+            projectName: 'Project Beta',
             invoiceId: 'INV002',
             number: '1002',
             userName: 'Jane Smith',
@@ -70,7 +72,7 @@ const Payments = () => {
                         onChange={e => setSearch(e.target.value)}
                         className="border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
                     />
-                    <button className="bg-gray-100 px-4 py-2 rounded-md text-gray-700 border hover:bg-gray-200">Filter</button>
+                    <button className="theme-btn-blue-color px-4 py-2 rounded-md text-gray-700 border hover:bg-gray-200">Filter</button>
                 </div>
                 <button
                     className="theme-btn-org-color text-white px-4 py-2 rounded shadow hover:bg-orange-500"
@@ -84,6 +86,7 @@ const Payments = () => {
                 <table className="min-w-full text-sm">
                     <thead className="bg-gray-50">
                         <tr>
+                            <th className="px-4 py-3 text-left font-semibold">Project Name</th>
                             <th className="px-4 py-3 text-left font-semibold">INVOICE ID</th>
                             <th className="px-2 py-3 text-left font-semibold">NUMBER</th>
                             <th className="px-2 py-3 text-left font-semibold">USER NAME</th>
@@ -98,6 +101,7 @@ const Payments = () => {
                     <tbody>
                         {filteredPayments.map((payment, idx) => (
                             <tr key={payment.number} className={idx % 2 ? "bg-white" : "bg-gray-50"}>
+                                <td className="px-4 py-2 font-medium whitespace-nowrap">{payment.projectName}</td>
                                 <td className="px-4 py-2 font-medium whitespace-nowrap">{payment.invoiceId}</td>
                                 <td className="px-2 py-2 whitespace-nowrap">INV - 2025{payment.number}</td>
                                 <td className="px-2 py-2 whitespace-nowrap">{payment.userName}</td>

@@ -70,12 +70,12 @@ function PannelSidebar({ activeMenu, setActiveMenu }) {
                     <ChevronDown className="w-4 h-4" />
                 </div>
                 <div className={`submenu${activeMenu === 'reports' ? ' show' : ''}`}>
-                    <div className="submenu-item">Saving Reports</div>
-                    <div className="submenu-item">Conjunction Reports</div>
+                    <Link href="/offtaker/reports/saving-reports/" className="menu-item">Saving Reports</Link>
+                    <Link href="/offtaker/reports/conjunction-reports/" className="menu-item">Conjunction Reports</Link>
                 </div>
             </div>
             <div className="menu-section">
-                 <div className="menu-item">Contract</div>
+                <div className="menu-item">Contract</div>
             </div>
             {/* 
                 <div className="menu-section">
