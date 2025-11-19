@@ -68,9 +68,6 @@ function PannelSidebar({ activeMenu, setActiveMenu }) {
                     <ChevronDown className="w-4 h-4" />
                 </div>
                 <div className={`submenu${activeMenu === 'reports' ? ' show' : ''}`}>
-                    <div className="submenu-item">ROI Reports</div>
-                    <div className="submenu-item">IRR Reports</div>
-                    <div className="submenu-item">NPV Reports</div>
                     <div className="submenu-item">Saving Reports</div>
                     <div className="submenu-item">Conjunction Reports</div>
                 </div>
