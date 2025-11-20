@@ -606,7 +606,13 @@
       "fundProgress": "Tiến độ huy động vốn",
       "timeLeft": "Thời gian còn lại",
       "investEarly": "Đầu tư sớm",
-      "assumptionNote": "Lưu ý: Đây là dữ liệu giả định*"
+      "assumptionNote": "Lưu ý: Đây là dữ liệu giả định*",
+      "investors": "Nhà đầu tư",
+      "signInToInvest": "Đăng nhập để đầu tư",
+      "submit": "Nộp",
+      "notes": "Ghi chú",
+      "investNow": "Đầu tư ngay",
+      "investor": "Nhà đầu tư"
     },
     "solarLease": {
       "title": "Biến bất động sản của bạn thành cho thuê năng lượng mặt trời",
@@ -1221,5 +1227,28 @@
       "conjunctionreports": "Báo cáo kết hợp",
       "contracts": "Hợp đồng"
     }
+  },
+  "investor": {
+    "fullName": "Họ và tên",
+    "email": "Email",
+    "phone":"Điện thoại",
+    "notes":"Ghi chú",
+    "deleted":"Nhà đầu tư đã được xóa thành công",
+    "updated":"Nhà đầu tư đã được cập nhật thành công",
+    "editInvestor": "Chỉnh sửa nhà đầu tư"
+  },
+  "contract": {
+    "contract": "Hợp đồng",
+    "uploadDocument": "Tải lên tài liệu",
+    "viewDocument": "Xem tài liệu",
+    "deleted": "Hợp đồng đã được xóa thành công",
+    "updated": "Hợp đồng đã được cập nhật thành công",
+    "created":  "Hợp đồng đã được tạo thành công",
+    "title": "tiêu đề",
+    "description": "Sự miêu tả",
+    "document": "Tài liệu",
+    "date": "Ngày",
+    "addContract": "Thêm hợp đồng",
+    "editContract": "Sửa hợp đồng"
   }
 }

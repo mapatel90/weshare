@@ -9,6 +9,8 @@ import Swal from 'sweetalert2'
 import { showSuccessToast, showErrorToast } from '@/utils/topTost'
 import { useLanguage } from '@/contexts/LanguageContext'
 import InverterTab from './InverterTab'
+import Investor from './Investor'
+import Contract from './Contract'
 import Image from 'next/image'
 import { generateSlug, checkProjectNameExists } from '@/utils/projectUtils'
 import { getFullImageUrl } from '@/utils/common'
@@ -70,7 +72,9 @@ const ProjectEditContent = ({ projectId }) => {
     const [projectTypes, setProjectTypes] = useState([])
     const steps = [
         { name: lang('projects.projectInformation', 'Project Information'), key: 'info' },
-        { name: lang('inverter.inverter', 'Inverter'), key: 'inverter' }
+        { name: lang('inverter.inverter', 'Inverter'), key: 'inverter' },
+        { name: lang('home.exchangeHub.investor', 'Investor'), key: 'investor' },
+        { name: lang('contract.contract', 'Contract'), key: 'contract' }
     ];
     const [activeTab, setActiveTab] = useState('info');
 
@@ -807,6 +811,12 @@ const ProjectEditContent = ({ projectId }) => {
                         )}
                         {activeTab === 'inverter' && (
                             <InverterTab projectId={projectId} />
+                        )}
+                        {activeTab === 'investor' && (
+                            <Investor projectId={projectId} />
+                        )}
+                        {activeTab === 'contract' && (
+                            <Contract projectId={projectId} />
                         )}
                     </div>
                 </div>

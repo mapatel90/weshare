@@ -5,7 +5,8 @@ import HomeNavbar from '@/components/home/HomeNavbar'
 import HomeFooter from '@/components/home/HomeFooter'
 import ProjectDetail from '@/components/exchange-hub/ProjectDetail'
 import 'bootstrap/dist/css/bootstrap.min.css'
-import '../../../../public/css/responsive.css'
+// import '../../../../public/css/responsive.css'
+import '@/styles/css/responsive.css'
 import DynamicTitle from '@/components/common/DynamicTitle'
 
 const ProjectDetailPage = ({ params }) => {
