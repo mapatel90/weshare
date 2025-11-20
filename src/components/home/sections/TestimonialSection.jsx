@@ -25,6 +25,7 @@ const TestimonialSection = () => {
     try {
       const response = await apiGet(`/api/testimonials`)
       console.log(response)
+      console.log("response",getFullImageUrl);
       if (response) {
         const data = await response
         // Transform API data to match component structure

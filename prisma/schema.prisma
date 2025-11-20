@@ -53,6 +53,7 @@ model User {
   invoices    Invoice[]
   payments     Payment[]  @relation("UserPayments")
   testimonial  Testimonial[]
+  interestedinvestor InterestedInvestor[]
 
   @@map("users")
 }
@@ -205,6 +206,8 @@ model Project {
   invoices         Invoice[]
   testimonial      Testimonial[]
   contactus        ContactUs[]
+  interestedinvestor InterestedInvestor[]
+  contract         Contract[]
 
   @@map("projects")
 }
@@ -319,7 +322,8 @@ model ContactUs {
   is_deleted    Int       @default(0)
   createdAt     DateTime  @default(now()) @map("created_at")
 
-  project        Project   @relation(fields: [project_id], references: [id])
+  // changed: make relation optional because project_id is Int?
+  project        Project?   @relation(fields: [project_id], references: [id])
 
   @@map("contact_us")
 }
@@ -360,4 +364,43 @@ model LeaseRequest {
   city        City?    @relation(fields: [cityId], references: [id])
 
   @@map("lease_requests")
+}
+
+// New model: interested investors
+model InterestedInvestor {
+  id          Int      @id @default(autoincrement())
+  projectId   Int?      @map("project_id")
+  userId      Int?     @map("user_id")
+  fullName    String   @map("full_name") @db.VarChar(255)
+  email       String   @db.VarChar(150)
+  phoneNumber String?  @map("phone_number") @db.VarChar(20)
+  notes       String?  @db.Text
+  status      Int      @default(1)
+  is_deleted  Int      @default(0)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+
+  // changed: make relation optional because projectId is Int?
+  project     Project?  @relation(fields: [projectId], references: [id])
+  user        User?     @relation(fields: [userId], references: [id])
+
+  @@map("interested_investors")
+}
+
+model Contract {
+  id                   Int       @id @default(autoincrement())
+  projectId            Int?      @map("project_id")
+  contractTitle        String    @map("contract_title") @db.VarChar(255)
+  contractDescription  String?   @map("contract_description") @db.Text
+  documentUpload       String?   @map("document_upload") @db.VarChar(500)
+  contractDate         DateTime? @map("contract_date")
+  status               Int       @default(0) // 0 = Pending, 1 = Accepted, 2 = Rejected
+  is_deleted           Int       @default(0)
+  createdAt            DateTime  @default(now()) @map("created_at")
+  updatedAt            DateTime  @default(now()) @updatedAt @map("updated_at")
+
+  // Relations
+  project              Project?  @relation(fields: [projectId], references: [id])
+
+  @@map("contracts")
 }
