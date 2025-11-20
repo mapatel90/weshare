@@ -9,25 +9,25 @@ const staticSavingReportsData = [
         projectName: 'Project Alpha',
         inverterName: 'Inverter X',
         date: '2025-11-19',
-        startTime: '09:00',
-        endTime: '17:00',
-        generatedKW: '1200',
+        startTime: '09:05',
+        endTime: '09:25',
+        generatedKW: '1.6 kw',
     },
     {
         projectName: 'Project Beta',
         inverterName: 'Inverter Y',
         date: '2025-11-18',
-        startTime: '08:30',
-        endTime: '16:30',
-        generatedKW: '950',
+        startTime: '09:28',
+        endTime: '09:33',
+        generatedKW: '1.2 kw',
     },
     {
         projectName: 'Project Gamma',
         inverterName: 'Inverter Z',
         date: '2025-11-17',
-        startTime: '10:00',
-        endTime: '18:00',
-        generatedKW: '1100',
+        startTime: '09:43',
+        endTime: '10:03',
+        generatedKW: '2.1 kw',
     },
 ];
 
@@ -51,7 +51,7 @@ const ConjunctionReports = () => {
     };
 
     return (
-         <div className="p-6 bg-white rounded-xl shadow-md">
+        <div className="p-6 bg-white rounded-xl shadow-md">
             <div className="flex flex-col md:flex-row md:items-end md:justify-end mb-4 gap-2">
                 <div className="flex items-start gap-2">
                     <select
@@ -75,7 +75,7 @@ const ConjunctionReports = () => {
                     </button>
                 </div>
             </div>
-            <div className="overflow-x-auto rounded-lg border">
+            <div className="overflow-x-auto border">
                 <table className="min-w-full text-sm">
                     <thead className="bg-gray-50">
                         <tr>
