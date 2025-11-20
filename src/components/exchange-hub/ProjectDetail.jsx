@@ -3,11 +3,23 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react'
 import dynamic from 'next/dynamic'
 import { useLanguage } from '@/contexts/LanguageContext'
-import { apiGet } from '@/lib/api'
+import { apiGet, apiPost } from '@/lib/api'
+import { showSuccessToast } from '@/utils/topTost'
 import AOS from 'aos'
 import 'aos/dist/aos.css'
 import './styles/exchange-hub-custom.css'
 import { getFullImageUrl } from '@/utils/common'
+import { useAuth } from '@/contexts/AuthContext'               // { changed code }
+import { useRouter } from 'next/navigation'                    // { changed code }
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  TextField,
+  Box
+} from "@mui/material"                                         // { changed code }
 
 // Dynamically import ApexCharts to avoid SSR issues
 const Chart = dynamic(() => import('react-apexcharts'), { ssr: false })
@@ -21,19 +33,48 @@ const ProjectDetail = ({ projectId }) => {
     // NEW: testimonials state
     const [testimonials, setTestimonials] = useState([])
 
+    const { user } = useAuth()                                  // { changed code }
+    const router = useRouter()                                  // { changed code }
+
+    // NEW: Invest modal + form state
+    const [showInvestModal, setShowInvestModal] = useState(false)
+    const [investFullName, setInvestFullName] = useState('')
+    const [investEmail, setInvestEmail] = useState('')
+    const [investPhone, setInvestPhone] = useState('')
+    const [investNotes, setInvestNotes] = useState('')
+    const [submittingInvest, setSubmittingInvest] = useState(false)
+
+    // Populate form when modal opens or when user changes
+    useEffect(() => {
+        if (!showInvestModal || !user) return
+
+        const fullName =
+            user.full_name ||
+            user.fullName ||
+            user.name ||
+            (user.first_name && user.last_name ? `${user.first_name} ${user.last_name}` : '') ||
+            ''
+
+        setInvestFullName(fullName)
+        setInvestEmail(user.email || user.userEmail || '')
+        setInvestPhone(user.phone || user.mobile || user.contact_number || '')
+        setInvestNotes('') // leave empty by default; could load user.default_notes if available
+    }, [showInvestModal, user])
+
     const fetchProjectDetail = useCallback(async () => {
         if (!projectId) return
         
         try {
             setLoading(true)
             setError(null)
-        
+            
             const response = await apiGet(`/api/projects/${projectId}`, { 
                 showLoader: false,
                 includeAuth: false 
             })
             
             console.log('API Response:', response)
+            console.log('Project ID:', user)
             
             if (response.success && response.data) {
                 setProject(response.data)
@@ -242,6 +283,49 @@ const ProjectDetail = ({ projectId }) => {
         }]
     }, [project])
 
+    // change Invest Now button to open modal (and add submit handler)
+    const handleInvestClick = () => {
+        setShowInvestModal(true)
+    }
+
+    const closeInvestModal = () => {
+        if (submittingInvest) return
+        setShowInvestModal(false)
+    }
+
+    const handleInvestSubmit = async (e) => {
+        e.preventDefault()
+        if (!project) return
+        setSubmittingInvest(true)
+        try {
+            const payload = {
+                projectId: project.id,
+                userId: user?.id ?? null,
+                fullName: investFullName,
+                email: investEmail,
+                phoneNumber: investPhone,
+                notes: investNotes
+            }
+            console.log('Submitting invest payload:', payload)
+
+            const res = await apiPost('/api/investors', payload)
+
+            if (res && res.success) {
+                showSuccessToast('Investment intent submitted successfully')
+                setShowInvestModal(false)
+            } else {
+                // handle server-side validation/error message
+                throw new Error(res?.message || 'Submission failed')
+            }
+
+            setSubmittingInvest(false)
+            console.log('Investment intent submitted.')
+        } catch (err) {
+            console.error('Error submitting investment:', err)
+            setSubmittingInvest(false)
+        }
+    }
+
     if (loading) {
         return (
             <section className="main-contentBox Exchange-page mb-80">
@@ -438,9 +522,32 @@ const ProjectDetail = ({ projectId }) => {
                                     </p>
                                     <h2>${formatNumber(project.asking_price || '0')}</h2>
                                 </div>
-                                <button className="btn btn-primary-custom">
-                                    {lang('home.exchangeHub.investNow') || 'Invest Now'}
-                                </button>
+
+                                {/* Conditional invest button:
+                                    - if not logged in -> Sign In to Invest (navigate to login)
+                                    - if logged in and investor -> Invest Now (opens modal)
+                                    - if logged in and NOT investor -> show nothing
+                                */}
+                                { !user ? (
+                                    <button
+                                        className="btn btn-primary-custom"
+                                        onClick={() => router.push('/investor/login')}
+                                    >
+                                        {lang('home.exchangeHub.signInToInvest') || 'Sign In to Invest'}
+                                    </button>
+                                ) : (
+                                    // determine investor flag from common possible fields
+                                    (() => {
+                                        console.log('User Info:', user.role)  // { added code }
+                                        const isInvestor = user && (user.role === 4)
+                                        return isInvestor ? (
+                                            <button className="btn btn-primary-custom" onClick={handleInvestClick}>
+                                                {lang('home.exchangeHub.investNow') || 'Invest Now'}
+                                            </button>
+                                        ) : null
+                                    })()
+                                )}
+
                             </div>
 
                             {/* Testimonials */}
@@ -501,6 +608,83 @@ const ProjectDetail = ({ projectId }) => {
                     </div>
                 </div>
             </section>
+
+            {/* Invest Modal (MUI Dialog styled like ContactUsTable) */}
+            <Dialog
+                open={!!showInvestModal}
+                onClose={closeInvestModal}
+                maxWidth="sm"
+                fullWidth
+                PaperProps={{
+                    sx: {
+                        borderRadius: 3,
+                        boxShadow: '0 8px 28px rgba(0,0,0,0.15)'
+                    }
+                }}
+            >
+                <DialogTitle sx={{ fontWeight: 700, fontSize: '1.1rem', borderBottom: '1px solid #e0e0e0', pb: 1 }}>
+                    {lang('home.exchangeHub.investNow') || 'Invest Now'}
+                </DialogTitle>
+
+                <form onSubmit={handleInvestSubmit}>
+                    <DialogContent dividers sx={{ background: '#fafafa', px: 3, py: 3, display: 'grid', gap: 2 }}>
+                        <TextField
+                            label={lang('contactUs.fullNameTable') || 'Full Name'}
+                            value={investFullName}
+                            onChange={(e) => setInvestFullName(e.target.value)}
+                            required
+                            fullWidth
+                        />
+
+                        <TextField
+                            label={lang('contactUs.emailTable') || 'Email'}
+                            type="email"
+                            value={investEmail}
+                            onChange={(e) => setInvestEmail(e.target.value)}
+                            required
+                            fullWidth
+                        />
+
+                        <TextField
+                            label={lang('contactUs.phoneTable') || 'Phone'}
+                            value={investPhone}
+                            onChange={(e) => setInvestPhone(e.target.value)}
+                            required
+                            fullWidth
+                        />
+
+                        <TextField
+                            label={lang('home.exchangeHub.notes') || 'Notes'}
+                            value={investNotes}
+                            onChange={(e) => setInvestNotes(e.target.value)}
+                            multiline
+                            rows={3}
+                            fullWidth
+                        />
+                    </DialogContent>
+
+                    <DialogActions sx={{ px: 3, py: 1.5, borderTop: '1px solid #e0e0e0' }}>
+                        <Button
+                            onClick={closeInvestModal}
+                            className="custom-orange-outline"
+                            variant="outlined"
+                            disabled={submittingInvest}
+                            sx={{ borderRadius: 2, textTransform: 'none' }}
+                        >
+                            {lang('common.cancel') || 'Cancel'}
+                        </Button>
+                        <Button
+                            type="submit"
+                            className="common-grey-color"
+                            variant="contained"
+                            disabled={submittingInvest}
+                            sx={{ borderRadius: 2, textTransform: 'none' }}
+                        >
+                            {submittingInvest ? (lang('home.exchangeHub.submitting') || 'Submitting...') : (lang('home.exchangeHub.submit') || 'Submit')}
+                        </Button>
+                    </DialogActions>
+                </form>
+            </Dialog>
         </main>
     )
 }

@@ -635,7 +635,10 @@
       "seekingInvestor": "Seeking Investor",
       "investNow": "Invest Now",
       "testimonials": "Offtaker & Investor Testimonials",
-      "investor": "Investor"
+      "investor": "Investor",
+      "signInToInvest": "Sign In to Invest",
+      "submit": "Submit",
+      "notes": "Notes"
     },
     "solarLease": {
       "title": "Turn your Property Into a Solar Lease",
@@ -1267,7 +1270,32 @@
       "reports": "Reports",
       "savingreports": "Saving Reports",
       "conjunctionreports": "Conjunction Reports",
-      "contracts": "Contracts"
+      "contracts": "Contracts",
+      "payouts": "Payouts"
     }
+  },
+  "investor": {
+    "fullName": "Full Name",
+    "email": "Email",
+    "phone": "Phone Number",
+    "notes": "Notes",
+    "deleted": "Investor Deleted Successfully",
+    "updated": "Investor Updated Successfully",
+    "editInvestor": "Edit Investor"
+  },
+  "contract": {
+    "contract": "Contract",
+    "uploadDocument": "Upload Document",
+    "viewDocument": "View Document",
+    "deleted": "Contract Deleted Successfully",
+    "updated": "Contract Updated Successfully",
+    "created": "Contract Created Successfully",
+    "title": "Title",
+    "description": "Description",
+    "document": "Document",
+    "date": "Date",
+    "addContract": "Add Contract",
+    "editContract": "Edit Contract"
+
   }
 }
