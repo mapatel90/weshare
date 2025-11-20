@@ -5,6 +5,7 @@ import ProjectsTable from './sections/ProjectsTable';
 import OverViewCards from './sections/OverViewCards';
 import BillingCard from './sections/BillingCard';
 import DocumentsCard from './sections/DocumentsCard';
+import KriLineChart from './sections/KriLineChart';
 
 function DashboardView() {
     const [showProjectsDropdown, setShowProjectsDropdown] = React.useState(false);
@@ -260,7 +261,16 @@ function DashboardView() {
 
             {/* Projects Table */}
             <ProjectsTable />
+            {/* LINE GRAPH CHART IMPLEMENTATION */}
 
+                {/* KRI Line Graph (1,1 min intervals) */}
+                <div className="chart-card" style={{ margin: '30px 0' }}>
+                    <div className="card-title" style={{ marginBottom: '20px' }}>
+                        Kw Generated (every minute)
+                    </div>
+                    <KriLineChart />
+                </div>
+            
             {/* Bottom Row */}
             <div className="bottom-row">
                 {/* Billing Card */}

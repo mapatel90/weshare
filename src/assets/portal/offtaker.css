@@ -174,7 +174,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 28px;
+  /* margin-bottom: 28px; */
 }
 
 .header-left {

@@ -10,7 +10,6 @@ const page = () => {
         <>
             <DynamicTitle titleKey="projects.projectlist" />
             <div className='row'>
-                <AddModal />
                 <ProjectTable />
             </div>
         </>
