@@ -5,12 +5,12 @@ export default function BillingCard() {
     return (
         <div className="billing-card">
             <div className="card-header">
-                <div className="card-title">💳 Pending Billing</div>
+                <div className="card-title">💳 Billing</div>
             </div>
             <table>
                 <thead>
                     <tr>
-                        <th>Project Name</th>
+                        <th>PROJECT NAME</th>
                         <th>INVOICE</th>
                         <th>PERIOD</th>
                         <th>AMOUNT</th>

@@ -37,12 +37,38 @@ const Payments = () => {
             status: 'Pending',
             download: true,
         },
+        {
+            projectName: 'Project Charlie',
+            invoiceId: 'INV002',
+            number: '1002',
+            userName: 'Jane Smith',
+            paymentDate: '2025-11-05',
+            dueDate: '2025-11-12',
+            updateDate: '2025-11-16',
+            amount: '$200.00',
+            status: 'Pending',
+            download: true,
+        },
+        {
+            projectName: 'Project Delta',
+            invoiceId: 'INV002',
+            number: '1002',
+            userName: 'Jane Smith',
+            paymentDate: '2025-11-05',
+            dueDate: '2025-11-12',
+            updateDate: '2025-11-16',
+            amount: '$200.00',
+            status: 'Pending',
+            download: true,
+        },
     ]);
 
     const [search, setSearch] = useState("");
     const [dropdownOpen, setDropdownOpen] = useState(null);
     const [modalOpen, setModalOpen] = useState(false);
     const router = useRouter();
+
+    // No custom event listeners needed. Use backdrop for outside click.
 
     const filteredPayments = payments.filter((p) =>
         p.userName.toLowerCase().includes(search.toLowerCase()) ||
@@ -60,8 +86,8 @@ const Payments = () => {
 
     return (
         <div className="p-6 bg-white rounded-xl shadow-md">
-            <h2 className="text-2xl font-bold mb-1">Payments</h2>
-            <p className="text-gray-500 mb-6">List of payments. You can view and download them from here.</p>
+            {/* <h2 className="text-2xl font-bold mb-1">Payments</h2>
+            <p className="text-gray-500 mb-6">List of payments. You can view and download them from here.</p> */}
 
             <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-2">
                 <div className="flex items-center gap-2">
@@ -82,7 +108,7 @@ const Payments = () => {
                 </button>
             </div>
 
-            <div className="overflow-x-auto rounded-lg border">
+            <div className="overflow rounded-lg border">
                 <table className="min-w-full text-sm">
                     <thead className="bg-gray-50">
                         <tr>
@@ -116,26 +142,34 @@ const Payments = () => {
                                     {payment.download ? (
                                         <div className="relative inline-block text-left">
                                             <button
-                                                className="bg-transparent border-none cursor-pointer px-2 py-1"
+                                                className="bg-transparent border-none cursor-pointer px-2 py-1 dropdown-action-btn"
                                                 onClick={() => setDropdownOpen(idx)}
                                             >
                                                 <span className="text-2xl">&#8942;</span>
                                             </button>
                                             {dropdownOpen === idx && (
-                                                <div className="absolute right-0 mt-2 w-32 bg-white border rounded shadow-lg z-10">
-                                                    <button
-                                                        className="block w-full text-left px-4 py-2 text-blue-600 hover:bg-gray-100"
-                                                        onClick={() => { handleDownload(payment.number); setDropdownOpen(null); }}
-                                                    >
-                                                        Download
-                                                    </button>
-                                                    <button
-                                                        className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
-                                                        onClick={() => { handleView(payment.number); setDropdownOpen(null); }}
-                                                    >
-                                                        View
-                                                    </button>
-                                                </div>
+                                                <>
+                                                    {/* Backdrop for outside click */}
+                                                    <div
+                                                        className="fixed inset-0 z-10"
+                                                        style={{ background: 'transparent' }}
+                                                        onClick={() => setDropdownOpen(null)}
+                                                    />
+                                                    <div className="absolute right-0 mt-2 w-32 bg-white border rounded shadow-lg z-20 dropdown-action-menu">
+                                                        <button
+                                                            className="block w-full text-left px-4 py-2 text-blue-600 hover:bg-gray-100"
+                                                            onClick={() => { handleDownload(payment.number); setDropdownOpen(null); }}
+                                                        >
+                                                            Download
+                                                        </button>
+                                                        {/* <button
+                                                            className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
+                                                            onClick={() => { handleView(payment.number); setDropdownOpen(null); }}
+                                                        >
+                                                            View
+                                                        </button> */}
+                                                    </div>
+                                                </>
                                             )}
                                         </div>
                                     ) : (

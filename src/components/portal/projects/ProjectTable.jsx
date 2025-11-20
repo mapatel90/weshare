@@ -316,8 +316,8 @@ const SolarProjectTable = () => {
         {label}
         <ChevronDown
           className={`w-3 h-3 transition-transform ${sortConfig.key === sortKey && sortConfig.direction === "desc"
-              ? "rotate-180"
-              : ""
+            ? "rotate-180"
+            : ""
             }`}
         />
       </div>
@@ -482,8 +482,8 @@ const SolarProjectTable = () => {
                           setCurrentPage(1);
                         }}
                         className={`w-full text-left px-3 py-2 text-sm ${statusFilter === "All"
-                            ? "bg-slate-100"
-                            : "hover:bg-gray-50"
+                          ? "bg-slate-100"
+                          : "hover:bg-gray-50"
                           }`}
                       >
                         All
@@ -495,8 +495,8 @@ const SolarProjectTable = () => {
                           setCurrentPage(1);
                         }}
                         className={`w-full text-left px-3 py-2 text-sm ${statusFilter == 1
-                            ? "bg-slate-100"
-                            : "hover:bg-gray-50"
+                          ? "bg-slate-100"
+                          : "hover:bg-gray-50"
                           }`}
                       >
                         Upcoming
@@ -508,8 +508,8 @@ const SolarProjectTable = () => {
                           setCurrentPage(1);
                         }}
                         className={`w-full text-left px-3 py-2 text-sm ${statusFilter == 0
-                            ? "bg-slate-100"
-                            : "hover:bg-gray-50"
+                          ? "bg-slate-100"
+                          : "hover:bg-gray-50"
                           }`}
                       >
                         Under Installation

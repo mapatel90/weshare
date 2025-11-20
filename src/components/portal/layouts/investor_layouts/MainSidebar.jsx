@@ -22,7 +22,7 @@ function MainSidebar({ activeMenu, setActiveMenu }) {
             <div className="icon-menu">
                 <div className={`icon-item${activeMenu === 'dashboard' ? ' active' : ''}`} data-menu="dashboard" title="Dashboard" onClick={() => setActiveMenu('dashboard')}><DashboardOutlinedIcon sx={{ color: '#1976d2' }} /></div>
                 <div className={`icon-item${activeMenu === 'projects' ? ' active' : ''}`} data-menu="projects" title="Projects" onClick={() => setActiveMenu('projects')}><HomeWorkOutlinedIcon sx={{ color: '#9c27b0' }} /></div>
-                {/* <div className={`icon-item${activeMenu === 'payments' ? ' active' : ''}`} data-menu="payments" title="Payments" onClick={() => setActiveMenu('payments')}><PaymentIcon sx={{ color: '#43a047' }} /></div> */}
+                <div className={`icon-item${activeMenu === 'payments' ? ' active' : ''}`} data-menu="payments" title="Payments" onClick={() => setActiveMenu('payments')}><PaymentIcon sx={{ color: '#43a047' }} /></div>
                 {/* <div className={`icon-item${activeMenu === 'billings' ? ' active' : ''}`} data-menu="billings" title="Billings" onClick={() => setActiveMenu('billings')}><ReceiptIcon sx={{ color: '#fb8c00' }} /></div>
                 <div className={`icon-item${activeMenu === 'notifications' ? ' active' : ''}`} data-menu="notifications" title="Notifications" onClick={() => setActiveMenu('notifications')}><NotificationsActiveIcon sx={{ color: '#e53935' }} /></div>
                 <div className={`icon-item${activeMenu === 'reports' ? ' active' : ''}`} data-menu="reports" title="Reports" onClick={() => setActiveMenu('reports')}><AutoGraphOutlinedIcon sx={{ color: '#00838f' }} /></div>

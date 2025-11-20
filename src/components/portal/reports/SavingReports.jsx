@@ -51,34 +51,51 @@ const SavingReports = () => {
     };
 
     return (
-        <div className="container mt-5 mb-5">
-            <div className="d-flex justify-content-end align-items-center mb-4">
-                {/* <h2 className="fw-bold text-primary">Saving Reports</h2> */}
-                <button className="btn btn-primary" onClick={handleDownloadCSV}>
-                    Download CSV
-                </button>
+        <div className="p-6 bg-white rounded-xl shadow-md">
+            <div className="flex flex-col md:flex-row md:items-end md:justify-end mb-4 gap-2">
+                <div className="flex items-start gap-2">
+                    <select
+                        id="projectFilter"
+                        className="theme-btn-blue-color border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
+                    >
+                        <option value="">All Projects</option>
+                    </select>
+                </div>
+                <div className="flex items-end gap-2">
+                    <select
+                        id="inverterFilter"
+                        className="theme-btn-blue-color border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
+                    >
+                        <option value="">All Inverter</option>
+                    </select>
+                </div>
+                <div className="flex items-end gap-2">
+                    <button className="theme-btn-blue-color border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200" onClick={handleDownloadCSV}>
+                        Download CSV
+                    </button>
+                </div>
             </div>
-            <div className="table-responsive">
-                <table className="table table-bordered table-hover align-middle bg-white">
-                    <thead className="table-light">
+            <div className="overflow-x-auto rounded-lg border">
+                <table className="min-w-full text-sm">
+                    <thead className="bg-gray-50">
                         <tr>
-                            <th>Project Name</th>
-                            <th>Inverter Name</th>
-                            <th>Date</th>
-                            <th>Start Time</th>
-                            <th>End Time</th>
-                            <th>Generated kW</th>
+                            <th className="px-4 py-3 font-semibold">PROJECT NAME</th>
+                            <th className="px-4 py-3 font-semibold">INVERTER NAME</th>
+                            <th className="px-2 py-3 font-semibold">DATE</th>
+                            <th className="px-2 py-3 font-semibold">START TIME</th>
+                            <th className="px-2 py-3 font-semibold">END TIME</th>
+                            <th className="px-2 py-3 font-semibold">GENERATED KW</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {savingReportsData.map((row, idx) => (
-                            <tr key={idx}>
-                                <td>{row.projectName}</td>
-                                <td>{row.inverterName}</td>
-                                <td>{row.date}</td>
-                                <td>{row.startTime}</td>
-                                <td>{row.endTime}</td>
-                                <td>{row.generatedKW}</td>
+                        {savingReportsData.map((inv, idx) => (
+                            <tr key={inv.number} className={idx % 2 ? "bg-white" : "bg-gray-50"}>
+                                <td className="px-4 py-2 whitespace-nowrap">{inv.projectName}</td>
+                                <td className="px-4 py-2 whitespace-nowrap">{inv.inverterName}</td>
+                                <td className="px-2 py-2 whitespace-nowrap">{inv.date}</td>
+                                <td className="px-2 py-2 whitespace-nowrap">{inv.startTime}</td>
+                                <td className="px-2 py-2 whitespace-nowrap">{inv.endTime}</td>
+                                <td className="px-2 py-2 whitespace-nowrap">{inv.generatedKW}</td>
                             </tr>
                         ))}
                     </tbody>

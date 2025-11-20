@@ -29,20 +29,17 @@ const Notification = () => {
     };
 
     return (
-        <div className="notification-container">
-            <div className="notification-header">
-                <h2 className="notification-title">List Notification</h2>
-                <input type="text" placeholder="Search by Name/Product" className="notification-search" />
-            </div>
-            <div className="notification-count">188 Notification</div>
-            <div className="notification-tabs">
+        <div className="p-6 bg-white rounded-xl shadow-md">
+            <div className="notification-count" style={{ display: 'flex', justifyContent: 'end' }}>188 Notification</div>
+            <div className="notification-tabs" style={{ display: 'flex', justifyContent: 'end' }}>
                 <span className="notification-tab-all">20 All</span>
                 <span className="notification-tab-archive">10 Archive</span>
                 <span className="notification-tab-favorite">17 Favorite</span>
             </div>
-            <div className="notification-table-wrapper">
-                <table className="notification-table">
-                    <thead className="notification-thead">
+
+            <div className="overflow-x-auto rounded-lg border">
+                <table className="min-w-full text-sm">
+                    <thead className="bg-gray-50">
                         <tr>
                             <th>Type</th>
                             <th>Message</th>
@@ -51,8 +48,8 @@ const Notification = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {notifications.map((note) => (
-                            <tr key={note.id} className={`notification-row${note.favorite ? ' notification-row-favorite' : ''}`}>
+                        {notifications.map((note, idx) => (
+                            <tr key={note.id} className={idx % 2 ? "bg-white" : "bg-gray-50"}>
                                 <td className="notification-type">{typeIcons[note.type] || '🔔'}</td>
                                 <td className="notification-message">{note.message}</td>
                                 <td className="notification-time">{note.time}</td>
