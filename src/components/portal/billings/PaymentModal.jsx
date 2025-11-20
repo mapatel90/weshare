@@ -69,26 +69,18 @@ const PaymentModal = ({ isOpen, onClose, invoiceNumber, onSubmit, totalAmount })
                 <form onSubmit={handleSubmit}>
                     <div className="mb-4">
                         <label className="block font-semibold mb-1">Invoice Number</label>
-                        {invoiceNumber ? (
-                            <input
-                                type="text"
-                                value={invoiceNumber}
-                                readOnly
-                                className="w-full border rounded px-3 py-2 bg-gray-100"
-                            />
-                        ) : (
-                            <select
-                                value={selectedInvoice}
-                                onChange={e => setSelectedInvoice(e.target.value)}
-                                className="w-full border rounded px-3 py-2"
-                                required
-                            >
-                                <option value="" disabled>Select Invoice</option>
-                                {invoiceOptions.map(opt => (
-                                    <option key={opt.value} value={opt.value}>{opt.label}</option>
-                                ))}
-                            </select>
-                        )}
+                        <select
+                            value={invoiceNumber ? invoiceNumber : selectedInvoice}
+                            onChange={e => setSelectedInvoice(e.target.value)}
+                            className="w-full border rounded px-3 py-2 bg-gray-100"
+                            required
+                            disabled={!!invoiceNumber}
+                        >
+                            <option value="" disabled>Select Invoice</option>
+                            {invoiceOptions.map(opt => (
+                                <option key={opt.value} value={opt.value}>{opt.label}</option>
+                            ))}
+                        </select>
                     </div>
                     <div className="mb-4">
                         <label className="block font-semibold mb-1">Total Amount</label>

@@ -34,20 +34,17 @@ const Billings = () => {
     });
 
     const handleDownload = (number) => {
-        // Direct download logic here
         // Example: window.open(`/api/invoice/download/${number}`);
-        router.push("/offtaker/billings/invoice");
+        // router.push("/offtaker/billings/invoice");
     };
-
+    // No custom event listeners needed. Use backdrop for outside click.
     const handleView = (number) => {
         // View logic here
+        router.push("/offtaker/billings/invoice");
     };
 
     return (
         <div className="p-6 bg-white rounded-xl shadow-md">
-            <h2 className="text-2xl font-bold mb-1">Invoices</h2>
-            <p className="text-gray-500 mb-6">List of invoices. You can view and download them from here.</p>
-
             <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-2">
                 {/* Project Dropdown Filter */}
                 <select
@@ -70,15 +67,13 @@ const Billings = () => {
                     />
                     <button className="theme-btn-blue-color px-4 py-2 rounded-md text-gray-700 border hover:bg-gray-200">Filter</button>
                 </div>
-                {/* <button className="bg-blue-600 text-white px-4 py-2 rounded-md font-medium hover:bg-blue-700">Export</button> */}
-
             </div>
 
-            <div className="overflow-x-auto rounded-lg border">
+            <div className="rounded-lg border">
                 <table className="min-w-full text-sm">
                     <thead className="bg-gray-50">
                         <tr>
-                            <th className="px-4 py-3 text-left font-semibold">Project Name</th>
+                            <th className="px-4 py-3 text-left font-semibold">PROJECT NAME</th>
                             <th className="px-4 py-3 text-left font-semibold">INVOICE NAME</th>
                             <th className="px-2 py-3 text-left font-semibold">INVOICE DATE</th>
                             <th className="px-2 py-3 text-left font-semibold">DUE DATE</th>
@@ -91,7 +86,7 @@ const Billings = () => {
                         {filteredInvoices.map((inv, idx) => (
                             <tr key={inv.number} className={idx % 2 ? "bg-white" : "bg-gray-50"}>
                                 <td className="px-4 py-2 font-medium whitespace-nowrap">{inv.name}</td>
-                                <td className="px-2 py-2 whitespace-nowrap">INV - 2025{inv.number}</td>
+                                <td className="px-4 py-2 whitespace-nowrap">INV - 2025{inv.number}</td>
                                 <td className="px-2 py-2 whitespace-nowrap">{inv.invoiceDate}</td>
                                 <td className="px-2 py-2 whitespace-nowrap">{inv.dueDate}</td>
                                 <td className="px-2 py-2 whitespace-nowrap">{inv.amount}</td>
@@ -102,26 +97,34 @@ const Billings = () => {
                                     {inv.download ? (
                                         <div className="relative inline-block text-left">
                                             <button
-                                                className="bg-transparent border-none cursor-pointer px-2 py-1"
+                                                className="bg-transparent border-none cursor-pointer px-2 py-1 dropdown-action-btn"
                                                 onClick={() => setDropdownOpen(idx)}
                                             >
                                                 <span className="text-2xl">&#8942;</span>
                                             </button>
                                             {dropdownOpen === idx && (
-                                                <div className="absolute right-0 mt-2 w-32 bg-white border rounded shadow-lg z-10">
-                                                    <button
-                                                        className="block w-full text-left px-4 py-2 text-blue-600 hover:bg-gray-100"
-                                                        onClick={() => { handleDownload(inv.number); setDropdownOpen(null); }}
-                                                    >
-                                                        Download
-                                                    </button>
-                                                    <button
-                                                        className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
-                                                        onClick={() => { handleView(inv.number); setDropdownOpen(null); }}
-                                                    >
-                                                        View
-                                                    </button>
-                                                </div>
+                                                <>
+                                                    {/* Backdrop for outside click */}
+                                                    <div
+                                                        className="fixed inset-0 z-10"
+                                                        style={{ background: 'transparent' }}
+                                                        onClick={() => setDropdownOpen(null)}
+                                                    />
+                                                    <div className="absolute right-0 mt-2 w-32 bg-white border rounded shadow-lg z-20 dropdown-action-menu">
+                                                        <button
+                                                            className="block w-full text-left px-4 py-2 text-blue-600 hover:bg-gray-100"
+                                                            onClick={() => { handleDownload(inv.number); setDropdownOpen(null); }}
+                                                        >
+                                                            Download
+                                                        </button>
+                                                        <button
+                                                            className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
+                                                            onClick={() => { handleView(inv.number); setDropdownOpen(null); }}
+                                                        >
+                                                            View
+                                                        </button>
+                                                    </div>
+                                                </>
                                             )}
                                         </div>
                                     ) : (

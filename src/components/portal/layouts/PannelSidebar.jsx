@@ -16,28 +16,17 @@ function PannelSidebar({ activeMenu, setActiveMenu }) {
         <div className="text-sidebar" id="textSidebar">
             <button className="close-sidebar-btn" onClick={handleClose}>✕</button>
             <div className="menu-section">
-                <div
-                    className={`menu-header menu-item${activeMenu === 'dashboard' ? ' active' : ''}`}
-                    onClick={() => {
-                        handleClose();
-                        window.location.href = '/offtaker/dashboard';
-                    }}
-                    style={{ cursor: 'pointer' }}
-                >
-                    <div>{lang("offtaker_login.sidebar.dashboard")}</div>
-                </div>
-                <div
-                    className={`menu-item${activeMenu === 'projects' ? ' active' : ''}`}
-                    onClick={() => setActiveMenu('projects')}
-                >
-                    <span>{lang("offtaker_login.sidebar.myprojects")}</span>
-                    <ChevronDown className="w-4 h-4" />
-                </div>
-                <div className={`submenu${activeMenu === 'projects' ? ' active show' : ''}`}>
-                    <div className="submenu-item">
-                        <Link href="/offtaker/projects" onClick={handleClose}>{lang("offtaker_login.sidebar.projectList")}</Link>
-                    </div>
-                    {/* <div className="submenu-item">Performance</div> */}
+                <Link
+                    href="/offtaker/dashboard"
+                    className={`menu-item${activeMenu === 'dashboard' ? ' active' : ''}`}
+                    onClick={() => setActiveMenu('dashboard')}
+                >{lang("offtaker_login.sidebar.dashboard")}</Link>
+                <div className="menu-section">
+                    <Link
+                        href="/offtaker/projects"
+                        className={`menu-item${activeMenu === 'projects' ? ' active' : ''}`}
+                        onClick={() => setActiveMenu('projects')}
+                    >{lang("offtaker_login.sidebar.myprojects")}</Link>
                 </div>
             </div>
             <div className="menu-section">

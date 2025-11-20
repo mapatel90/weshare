@@ -3,84 +3,58 @@ import React from 'react';
 function DocumentsCard() {
 
     return (
-        <div className="documents-card">
+         <div className="billing-card">
             <div className="card-header">
-                <div className="card-title">📄 Reports</div>
-                {/* <button className="btn"
-                    style={{ background: '#fbbf24', color: 'white', fontSize: '12px', padding: '8px 16px' }}>📥 Download
-                    All</button> */}
+                <div className="card-title">💳 PAYMENT</div>
             </div>
-
-            <div className="document-item">
-                <div className="document-info">
-                    <div className="document-icon">📄</div>
-                    <div>
-                        <div style={{ fontWeight: '600', fontSize: '13px' }}>Contract Renewal Notice</div>
-                        <div style={{ fontSize: '11px', color: '#6b7280' }}>Review contract renewal for November 2024
-                        </div>
-                    </div>
-                </div>
-                {/* <div className="document-actions">
-                    <button className="action-btn">👁️</button>
-                    <button className="action-btn">→</button>
-                </div> */}
-            </div>
-
-            <div className="document-item">
-                <div className="document-info">
-                    <div className="document-icon">📄</div>
-                    <div>
-                        <div style={{ fontWeight: '600', fontSize: '13px' }}>Solar Lease Agreement</div>
-                        <div style={{ fontSize: '11px', color: '#6b7280' }}>20-year lease: Installation and terms</div>
-                    </div>
-                </div>
-                {/* <div className="document-actions">
-                    <button className="action-btn">👁️</button>
-                    <button className="action-btn">↓</button>
-                </div> */}
-            </div>
-
-            <div className="document-item">
-                <div className="document-info">
-                    <div className="document-icon">📄</div>
-                    <div>
-                        <div style={{ fontWeight: '600', fontSize: '13px' }}>Solar Lease Agreement</div>
-                        <div style={{ fontSize: '11px', color: '#6b7280' }}>20-year lease: Installation and terms</div>
-                    </div>
-                </div>
-                {/* <div className="document-actions">
-                    <button className="action-btn">👁️</button>
-                    <button className="action-btn">↓</button>
-                </div> */}
-            </div>
-
-            <div className="document-item">
-                <div className="document-info">
-                    <div className="document-icon">📄</div>
-                    <div>
-                        <div style={{ fontWeight: '600', fontSize: '13px' }}>Meister Service Agreement</div>
-                        <div style={{ fontSize: '11px', color: '#6b7280' }}>25-year lease: Installation and terms</div>
-                    </div>
-                </div>
-                {/* <div className="document-actions">
-                    <button className="action-btn">👁️</button>
-                    <button className="action-btn">↓</button>
-                </div> */}
-            </div>
-
-            <div className="document-item">
-                <div className="document-info">
-                    <div className="document-icon">📄</div>
-                    <div>
-                        <div style={{ fontWeight: '600', fontSize: '13px' }}>Solar Lease Agreement</div>
-                        <div style={{ fontSize: '11px', color: '#6b7280' }}>20-year lease: Installation and terms</div>
-                    </div>
-                </div>
-                {/* <div className="document-actions">
-                    <button className="action-btn">👁️</button>
-                    <button className="action-btn">↓</button>
-                </div> */}
-            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>PROJECT NAME</th>
+                        <th>INVOICE</th>
+                        <th>PERIOD</th>
+                        <th>AMOUNT</th>
+                        <th>STATUS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Project A</td>
+                        <td>INV-2024-005</td>
+                        <td>January 2025</td>
+                        <td>đ149.23K</td>
+                        <td><span className="status-badge status-upcoming">Pending</span></td>
+                    </tr>
+                    <tr>
+                        <td>Project B</td>
+                        <td>INV-2024-004</td>
+                        <td>December 2024</td>
+                        <td>đ158.87K</td>
+                        <td><span className="status-badge status-installation">Paid</span></td>
+                    </tr>
+                    <tr>
+                        <td>Project C</td>
+                        <td>INV-2024-003</td>
+                        <td>November 2024</td>
+                        <td>đ145.67K</td>
+                        <td><span className="status-badge status-upcoming">Pending</span></td>                       
+                    </tr>
+                    <tr>
+                        <td>Project D</td>
+                        <td>INV-2024-002</td>
+                        <td>October 2024</td>
+                        <td>đ134.25K</td>
+                        <td><span className="status-badge status-upcoming">Pending</span></td>
+                    </tr>
+                    <tr>
+                        <td>Project E</td>
+                        <td>INV-2024-001</td>
+                        <td>September 2024</td>
+                        <td>đ167.83K</td>
+                        <td><span className="status-badge status-upcoming">Pending</span></td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     );
 }
