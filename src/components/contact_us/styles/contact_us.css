@@ -45,7 +45,7 @@
 
 .contact-btn {
   font-size: 16px;
-  background-color: #f6a623;
+  background-color: #f6a623 !important;
   color: #fff;
   font-weight: 600;
   border-radius: 6px;

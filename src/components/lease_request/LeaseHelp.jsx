@@ -1,8 +1,7 @@
-"use client";
 import React, { useEffect, useState } from "react";
 import { apiGet } from "@/lib/api";
 
-export default function GetInTouchHelpSection() {
+export default function LeaseHelpSection() {
   const [helpData, setHelpData] = useState(null);
 
   const fetchHelp = async () => {

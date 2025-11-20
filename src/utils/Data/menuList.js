@@ -111,6 +111,20 @@ export const menuList = [
   },
   {
     id: 8,
+    name: "contact us",
+    path: "/admin/contact-us/list",
+    icon: "feather-globe",
+    dropdownMenu: false,
+  },
+  {
+    id: 9,
+    name: "lease requests",
+    path: "/admin/lease-request/list",
+    icon: "feather-repeat",
+    dropdownMenu: false,
+  },
+  {
+    id: 10,
     name: "settings",
     path: "#",
     icon: "feather-settings",
