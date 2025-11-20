@@ -64,8 +64,8 @@ const normalizeApiProject = (project) => {
     statusString === "Upcoming"
       ? 1
       : statusString === "Under Installation"
-      ? 0
-      : project?.status ?? null;
+        ? 0
+        : project?.status ?? null;
   return {
     id: project?.id ? `#${project.id}` : project?.project_code ?? "—",
     project_image: project?.project_image,
@@ -200,7 +200,7 @@ const SolarProjectTable = () => {
         // Parse filter dates to timestamps
         let startDateTs = null;
         let endDateTs = null;
-        
+
         if (dateFilterStart) {
           const startDate = new Date(dateFilterStart);
           if (!isNaN(startDate.getTime())) {
@@ -208,7 +208,7 @@ const SolarProjectTable = () => {
             startDateTs = startDate.getTime();
           }
         }
-        
+
         if (dateFilterEnd) {
           const endDate = new Date(dateFilterEnd);
           if (!isNaN(endDate.getTime())) {
@@ -232,21 +232,21 @@ const SolarProjectTable = () => {
               projectStartTs &&
               projectEndTs &&
               projectStartTs >= startDateTs &&
-              
+
               projectEndTs <= endDateTs;
           } else if (startDateTs) {
             // Only start date entered: show projects where start date OR end date matches/falls on or after this date
             const filterDateStart = new Date(dateFilterStart).setHours(0, 0, 0, 0);
             const filterDateEnd = new Date(dateFilterStart).setHours(23, 59, 59, 999);
-            matchesDateRange = 
-              (projectStartTs && projectStartTs >= filterDateStart && projectStartTs <= filterDateEnd) || 
+            matchesDateRange =
+              (projectStartTs && projectStartTs >= filterDateStart && projectStartTs <= filterDateEnd) ||
               (projectEndTs && projectEndTs >= filterDateStart && projectEndTs <= filterDateEnd);
           } else if (endDateTs) {
             // Only end date entered: show projects where start date OR end date matches/falls on or before this date
             const filterDateStart = new Date(dateFilterEnd).setHours(0, 0, 0, 0);
             const filterDateEnd = new Date(dateFilterEnd).setHours(23, 59, 59, 999);
-            matchesDateRange = 
-              (projectStartTs && projectStartTs >= filterDateStart && projectStartTs <= filterDateEnd) || 
+            matchesDateRange =
+              (projectStartTs && projectStartTs >= filterDateStart && projectStartTs <= filterDateEnd) ||
               (projectEndTs && projectEndTs >= filterDateStart && projectEndTs <= filterDateEnd);
           }
         }
@@ -315,11 +315,10 @@ const SolarProjectTable = () => {
       <div className="flex items-center gap-1">
         {label}
         <ChevronDown
-          className={`w-3 h-3 transition-transform ${
-            sortConfig.key === sortKey && sortConfig.direction === "desc"
+          className={`w-3 h-3 transition-transform ${sortConfig.key === sortKey && sortConfig.direction === "desc"
               ? "rotate-180"
               : ""
-          }`}
+            }`}
         />
       </div>
     </th>
@@ -451,11 +450,15 @@ const SolarProjectTable = () => {
                 )}
               </div>
 
-              <button className="flex items-center gap-2 px-4 py-2.5 bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition-colors">
-                <MapPin className="w-4 h-4" />
-                <span className="text-sm font-medium">Location</span>
-                <ChevronDown className="w-4 h-4" />
-              </button>
+              <div className="relative date-filter-dropdown">
+                <button className="flex items-center gap-2 px-4 py-2.5 bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition-colors">
+                  {/* <div className="relative"> */}
+                  <MapPin className="w-4 h-4" />
+                  <span className="text-sm font-medium">Location</span>
+                  <ChevronDown className="w-4 h-4" />
+                  {/* </div> */}
+                </button>
+              </div>
 
               <div className="relative status-filter-dropdown">
                 <div className="relative">
@@ -478,11 +481,10 @@ const SolarProjectTable = () => {
                           setStatusDropdownOpen(false);
                           setCurrentPage(1);
                         }}
-                        className={`w-full text-left px-3 py-2 text-sm ${
-                          statusFilter === "All"
+                        className={`w-full text-left px-3 py-2 text-sm ${statusFilter === "All"
                             ? "bg-slate-100"
                             : "hover:bg-gray-50"
-                        }`}
+                          }`}
                       >
                         All
                       </button>
@@ -492,11 +494,10 @@ const SolarProjectTable = () => {
                           setStatusDropdownOpen(false);
                           setCurrentPage(1);
                         }}
-                        className={`w-full text-left px-3 py-2 text-sm ${
-                          statusFilter == 1
+                        className={`w-full text-left px-3 py-2 text-sm ${statusFilter == 1
                             ? "bg-slate-100"
                             : "hover:bg-gray-50"
-                        }`}
+                          }`}
                       >
                         Upcoming
                       </button>
@@ -506,11 +507,10 @@ const SolarProjectTable = () => {
                           setStatusDropdownOpen(false);
                           setCurrentPage(1);
                         }}
-                        className={`w-full text-left px-3 py-2 text-sm ${
-                          statusFilter == 0
+                        className={`w-full text-left px-3 py-2 text-sm ${statusFilter == 0
                             ? "bg-slate-100"
                             : "hover:bg-gray-50"
-                        }`}
+                          }`}
                       >
                         Under Installation
                       </button>
