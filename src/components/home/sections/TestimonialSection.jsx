@@ -168,7 +168,7 @@ const TestimonialSection = () => {
                     <div className='testimonials-res' style={{ padding: '50px 60px' }}>
                       {/* Quote Icon */}
                       <div className="mb-4">
-                        <img src={getFullImageUrl('/images/Image [svg-img].svg')} alt="Testimonial logo" />
+                        <img src={getFullImageUrl('/images/testimonial_svg.svg')} alt="Testimonial logo" />
                       </div>
 
                       {/* Name and Role */}
