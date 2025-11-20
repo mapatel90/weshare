@@ -16,16 +16,11 @@ function PannelSidebar({ activeMenu, setActiveMenu }) {
         <div className="text-sidebar" id="textSidebar">
             <button className="close-sidebar-btn" onClick={handleClose}>✕</button>
             <div className="menu-section">
-                <div
-                    className={`menu-header menu-item${activeMenu === 'dashboard' ? ' active' : ''}`}
-                    onClick={() => {
-                        handleClose();
-                        window.location.href = '/offtaker/dashboard';
-                    }}
-                    style={{ cursor: 'pointer' }}
-                >
-                    <div>{lang("offtaker_login.sidebar.dashboard")}</div>
-                </div>
+                <Link
+                    href="/offtaker/dashboard"
+                    className={`menu-item${activeMenu === 'dashboard' ? ' active' : ''}`}
+                    onClick={() => setActiveMenu('dashboard')}
+                >{lang("offtaker_login.sidebar.dashboard")}</Link>
                 <div className="menu-section">
                     <Link
                         href="/offtaker/projects"
