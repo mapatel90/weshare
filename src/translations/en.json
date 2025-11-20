@@ -1267,7 +1267,8 @@
       "reports": "Reports",
       "savingreports": "Saving Reports",
       "conjunctionreports": "Conjunction Reports",
-      "contracts": "Contracts"
+      "contracts": "Contracts",
+      "payouts": "Payouts"
     }
   }
 }

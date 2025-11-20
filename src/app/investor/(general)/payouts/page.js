@@ -1,4 +1,5 @@
-import DashboardView from '@/components/portal/dashboard/InvestorDashboard'
+
+import PayoutView from '@/components/portal/payouts/PayoutView'
 import React from 'react'
 
 
@@ -7,7 +8,7 @@ const page = () => {
     return (
         <>
             <div className='row'>
-                <DashboardView />
+                <PayoutView />
             </div>
         </>
     )

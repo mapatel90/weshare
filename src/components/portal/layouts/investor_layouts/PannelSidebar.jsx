@@ -33,12 +33,32 @@ function PannelSidebar({ activeMenu, setActiveMenu }) {
                         onClick={() => setActiveMenu('projects')}
                     >{lang("offtaker_login.sidebar.myprojects")}</Link>
                 </div>
-                {/* <div className="menu-section">
+                <div className="menu-section">
                     <Link
-                        href="/investor/projects"
+                        href="/investor/payouts"
                         className={`menu-item${activeMenu === 'payouts' ? ' active' : ''}`}
                         onClick={() => setActiveMenu('payouts')}
-                    >{lang("offtaker_login.sidebar.mypayouts")}</Link>
+                    >{lang("offtaker_login.sidebar.payouts")}</Link>
+                </div>
+                <div className="menu-section">
+                    <Link
+                        href="/investor/notifications"
+                        className={`menu-item${activeMenu === 'notifications' ? ' active' : ''}`}
+                        onClick={() => setActiveMenu('notifications')}
+                    >{lang("offtaker_login.sidebar.notifications")}</Link>
+                </div>
+                {/* <div className="menu-section">
+                    <div
+                        className={`menu-item${activeMenu === 'reports' ? ' active' : ''}`}
+                        onClick={() => setActiveMenu('reports')}
+                    >
+                        <span>{lang("offtaker_login.sidebar.reports")}</span>
+                        <ChevronDown className="w-4 h-4" />
+                    </div>
+                    <div className={`submenu${activeMenu === 'reports' ? ' show' : ''}`}>
+                        <Link href="/investor/reports/saving-reports/" className="menu-item">{lang("offtaker_login.sidebar.savingreports")}</Link>
+                        <Link href="/investor/reports/conjunction-reports/" className="menu-item">{lang("offtaker_login.sidebar.conjunctionreports")}</Link>
+                    </div>
                 </div> */}
             </div>
         </div>
