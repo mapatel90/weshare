@@ -49,7 +49,16 @@ router.get('/', async (req, res) => {
         orderBy: { createdAt: 'desc' },
         skip,
         take,
-        include: { project: true, user: true },
+        include: {
+          project: {
+            include: {
+              offtaker: {
+                select: { fullName: true, email: true }
+              }
+            }
+          },
+          user: true
+        }
       }),
       prisma.interestedInvestor.count({ where }),
     ]);
