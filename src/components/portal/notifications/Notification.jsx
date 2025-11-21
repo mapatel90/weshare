@@ -37,7 +37,7 @@ const Notification = () => {
                 <span className="notification-tab-favorite">17 Favorite</span>
             </div>
 
-            <div className="overflow-x-auto rounded-lg border">
+            <div className="overflow-x-auto border">
                 <table className="min-w-full text-sm">
                     <thead className="bg-gray-50">
                         <tr>

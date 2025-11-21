@@ -108,7 +108,7 @@ const Payments = () => {
                 </button>
             </div>
 
-            <div className="overflow rounded-lg border">
+            <div className="overflow border">
                 <table className="min-w-full text-sm">
                     <thead className="bg-gray-50">
                         <tr>

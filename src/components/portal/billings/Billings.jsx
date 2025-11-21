@@ -69,7 +69,7 @@ const Billings = () => {
                 </div>
             </div>
 
-            <div className="rounded-lg border">
+            <div className="border">
                 <table className="min-w-full text-sm">
                     <thead className="bg-gray-50">
                         <tr>

@@ -47,7 +47,7 @@ function PannelSidebar({ activeMenu, setActiveMenu }) {
                         onClick={() => setActiveMenu('notifications')}
                     >{lang("offtaker_login.sidebar.notifications")}</Link>
                 </div>
-                {/* <div className="menu-section">
+                <div className="menu-section">
                     <div
                         className={`menu-item${activeMenu === 'reports' ? ' active' : ''}`}
                         onClick={() => setActiveMenu('reports')}
@@ -56,10 +56,14 @@ function PannelSidebar({ activeMenu, setActiveMenu }) {
                         <ChevronDown className="w-4 h-4" />
                     </div>
                     <div className={`submenu${activeMenu === 'reports' ? ' show' : ''}`}>
-                        <Link href="/investor/reports/saving-reports/" className="menu-item">{lang("offtaker_login.sidebar.savingreports")}</Link>
-                        <Link href="/investor/reports/conjunction-reports/" className="menu-item">{lang("offtaker_login.sidebar.conjunctionreports")}</Link>
+                        <Link href="/investor/reports/roi-reports/" className="menu-item">ROI Reports</Link>
+                        <Link href="/investor/reports/cash-flow-reports/" className="menu-item">Cash Flow Reports</Link>
+                        <Link href="/investor/reports/investment-summary-reports/" className="menu-item">Investment Summary</Link>
                     </div>
-                </div> */}
+                </div>
+                <div className="menu-section">
+                    <div className="menu-item">{lang("offtaker_login.sidebar.contracts")}</div>
+                </div>
             </div>
         </div>
     );

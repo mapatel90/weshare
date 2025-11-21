@@ -33,7 +33,7 @@ const staticSavingReportsData = [
 
 
 
-const ConjunctionReports = () => {
+const CashFlowReports = () => {
     const savingReportsData = staticSavingReportsData;
 
     // Download CSV handler
@@ -105,4 +105,4 @@ const ConjunctionReports = () => {
     );
 };
 
-export default ConjunctionReports;
+export default CashFlowReports;
