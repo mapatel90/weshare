@@ -6,6 +6,7 @@ import OverViewCards from './sections/OverViewCards';
 import BillingCard from './sections/BillingCard';
 import DocumentsCard from './sections/DocumentsCard';
 import KriLineChart from './sections/KriLineChart';
+import PayoutCard from './sections/PayoutCard';
 
 function DashboardView() {
     const [showProjectsDropdown, setShowProjectsDropdown] = React.useState(false);
@@ -271,7 +272,7 @@ function DashboardView() {
             {/* Bottom Row */}
             <div className="bottom-row">
                 {/* Billing Card */}
-                {/* <BillingCard /> */}
+                <PayoutCard />
                 {/* Documents Card */}
                 {/* <DocumentsCard /> */}
             </div>
