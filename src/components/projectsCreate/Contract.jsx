@@ -22,14 +22,17 @@ import { Close as CloseIcon } from "@mui/icons-material";
 
 const Contract = ({ projectId }) => {
   const { lang } = useLanguage();
-
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState("add");
   const [loading, setLoading] = useState(false);
-
   const [contracts, setContracts] = useState([]);
   const [editId, setEditId] = useState(null);
-
+  const [partyType, setPartyType] = useState("");
+  const [selectedOfftaker, setSelectedOfftaker] = useState("");
+  const [selectedInvestor, setSelectedInvestor] = useState("");
+  const [offtakerList, setOfftakerList] = useState([]);
+  const [investorList, setInvestorList] = useState([]);
+  const [offtakerDisabled, setOfftakerDisabled] = useState(false);
   // form fields
   const [contractTitle, setContractTitle] = useState("");
   const [contractDescription, setContractDescription] = useState("");
@@ -41,7 +44,22 @@ const Contract = ({ projectId }) => {
 
   useEffect(() => {
     fetchContracts();
+    fetchProjectParties();
   }, [projectId]);
+
+  // Fetch project-related offtakers and investors
+  const fetchProjectParties = async () => {
+    try {
+      // Replace with your actual API endpoints for offtakers/investors
+      const offtakerRes = await apiGet(`/api/projects/${projectId}`);
+      const investorRes = await apiGet('/api/investors?projectId=' + projectId);
+      setOfftakerList(offtakerRes?.data.offtaker || []);
+      setInvestorList(investorRes?.data || []);
+    } catch (e) {
+      setOfftakerList([]);
+      setInvestorList([]);
+    }
+  };
 
   const fetchContracts = async () => {
     try {
@@ -66,7 +84,6 @@ const Contract = ({ projectId }) => {
     setContractTitle("");
     setContractDescription("");
     setDocumentUpload("");
-    // clear any previous selected file / preview so new selection shows preview correctly
     if (documentPreviewUrl) {
       try { URL.revokeObjectURL(documentPreviewUrl); } catch (e) { /* ignore */ }
     }
@@ -74,6 +91,10 @@ const Contract = ({ projectId }) => {
     setDocumentPreviewUrl("");
     setContractDate("");
     setStatus(1);
+    setPartyType(""); // No radio selected by default
+    setSelectedOfftaker("");
+    setSelectedInvestor("");
+    setOfftakerDisabled(false);
     setShowModal(true);
   };
 
@@ -85,13 +106,24 @@ const Contract = ({ projectId }) => {
     setDocumentUpload(row.documentUpload || "");
     setDocumentFile(null);
     setDocumentPreviewUrl(row.documentUpload || "");
-    // normalize contractDate to yyyy-mm-dd for input[type=date]
     setContractDate(
       row.contractDate
         ? new Date(row.contractDate).toISOString().slice(0, 10)
         : ""
     );
     setStatus(row.status ?? 1);
+    // If editing, set party type and selected party if available
+    if (row.partyType === "investor") {
+      setPartyType("investor");
+      setSelectedInvestor(row.investorId || "");
+      setSelectedOfftaker("");
+      setOfftakerDisabled(false);
+    } else {
+      setPartyType("offtaker");
+      setSelectedOfftaker(row.offtakerId || "");
+      setSelectedInvestor("");
+      setOfftakerDisabled(true);
+    }
     setShowModal(true);
   };
 
@@ -116,7 +148,13 @@ const Contract = ({ projectId }) => {
     form.append("contractDescription", contractDescription || "");
     form.append("contractDate", contractDate ? contractDate : "");
     form.append("status", String(status));
-    // prefer actual uploaded file
+    form.append("partyType", partyType);
+    if (partyType === "offtaker") {
+    const userId = offtakerList.id;
+    form.append("userId", userId);
+    } else {
+      form.append("userId", selectedInvestor);
+    }
     if (documentFile) form.append("document", documentFile);
     else if (modalType === "add" && documentUpload) form.append("document", documentUpload);
     return form;
@@ -136,17 +174,21 @@ const Contract = ({ projectId }) => {
       let res;
       // If there's a file or to keep consistent with upload usage, use multipart upload
       const form = buildFormData();
+
+      // Set user_id based on selected party
+      const userId = partyType === "investor" ? selectedInvestor : partyType === "offtaker" ? offtakerList.id : null;
       if (modalType === "add") {
         res = documentFile || documentUpload
           ? await apiUpload("/api/contracts", form)
           : await apiPost("/api/contracts", {
-              projectId: projectId ?? null,
-              contractTitle,
-              contractDescription: contractDescription || null,
-              documentUpload: documentUpload || null,
-              contractDate: contractDate ? contractDate : null,
-              status,
-            });
+            projectId: projectId ?? null,
+            contractTitle,
+            contractDescription: contractDescription || null,
+            documentUpload: documentUpload || null,
+            contractDate: contractDate ? contractDate : null,
+            status,
+            userId: userId,
+          });
         if (res?.success)
           showSuccessToast(lang("contract.created", "Contract created"));
         else showErrorToast(res.message || lang("common.error", "Error"));
@@ -154,13 +196,14 @@ const Contract = ({ projectId }) => {
         res = documentFile
           ? await apiUpload(`/api/contracts/${editId}`, form, { method: "PUT" })
           : await apiPut(`/api/contracts/${editId}`, {
-              projectId: projectId ?? null,
-              contractTitle,
-              contractDescription: contractDescription || null,
-              documentUpload: documentUpload || null,
-              contractDate: contractDate ? contractDate : null,
-              status,
-            });
+            projectId: projectId ?? null,
+            contractTitle,
+            contractDescription: contractDescription || null,
+            documentUpload: documentUpload || null,
+            contractDate: contractDate ? contractDate : null,
+            status,
+            user_id,
+          });
         if (res?.success)
           showSuccessToast(lang("contract.updated", "Contract updated"));
         else showErrorToast(res.message || lang("common.error", "Error"));
@@ -327,9 +370,66 @@ const Contract = ({ projectId }) => {
           </DialogTitle>
 
           <DialogContent>
-            <Box
-              sx={{ display: "flex", flexDirection: "column", gap: 2, pt: 1 }}
-            >
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 2, pt: 1 }}>
+              {/* Radio button for Offtaker/Investor */}
+              <Box sx={{ display: "flex", gap: 2 }}>
+                <label style={{ display: "flex", gap: 8 }}>
+                  <input
+                    type="radio"
+                    value="offtaker"
+                    checked={partyType === "offtaker"}
+                    onChange={() => {
+                      setPartyType("offtaker");
+                      setSelectedInvestor("");
+                      setOfftakerDisabled(false);
+                    }}
+                  />
+                  <span>Offtaker</span>
+                </label>
+                <label style={{ display: "flex", gap: 8 }}>
+                  <input
+                    type="radio"
+                    value="investor"
+                    checked={partyType === "investor"}
+                    onChange={() => {
+                      setPartyType("investor");
+                      setSelectedOfftaker("");
+                      setOfftakerDisabled(false);
+                    }}
+                  />
+                  <span>Investor</span>
+                </label>
+              </Box>
+              {/* Dropdown for Offtaker/Investor - only show if partyType is selected */}
+              {partyType === "offtaker" && (
+                <TextField
+                  select
+                  label="Select Offtaker"
+                  value={offtakerList.id}
+                  fullWidth
+                  disabled
+                  required
+                >
+                  <MenuItem key={offtakerList.id} value={offtakerList.id}>{offtakerList.fullName}</MenuItem>
+                </TextField>
+              )}
+              {partyType === "investor" && (
+                <TextField
+                  select
+                  label="Select Investor"
+                  value={selectedInvestor}
+                  onChange={(e) => setSelectedInvestor(e.target.value)}
+                  fullWidth
+                  required
+                >
+                  {investorList.map((item) => (
+                    <MenuItem key={item.id} value={item.id}>
+                      {item.fullName}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              )}
+              {/* ...existing code... */}
               <TextField
                 label={lang("contract.title", "Title")}
                 value={contractTitle}
@@ -345,12 +445,6 @@ const Contract = ({ projectId }) => {
                 multiline
                 minRows={3}
               />
-              {/* <TextField
-                label={lang("contract.document", "Document URL")}
-                value={documentUpload}
-                onChange={(e) => setDocumentUpload(e.target.value)}
-                fullWidth
-              /> */}
               <TextField
                 fullWidth
                 type="file"
@@ -362,7 +456,6 @@ const Contract = ({ projectId }) => {
                   applyDocumentSelection(file);
                 }}
               />
-
               {(documentPreviewUrl || documentUpload) && (
                 <Box>
                   {documentPreviewUrl && documentPreviewUrl.match(/\.(jpg|jpeg|png|gif)$/i) ? (

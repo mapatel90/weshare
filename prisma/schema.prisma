@@ -389,6 +389,7 @@ model InterestedInvestor {
 
 model Contract {
   id                   Int       @id @default(autoincrement())
+  userId               Int?      @map("user_id")
   projectId            Int?      @map("project_id")
   contractTitle        String    @map("contract_title") @db.VarChar(255)
   contractDescription  String?   @map("contract_description") @db.Text

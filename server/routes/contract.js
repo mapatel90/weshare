@@ -28,6 +28,7 @@ router.post("/", upload.single('document'), async (req, res) => {
   try {
     const {
       projectId,
+      userId,
       contractTitle,
       contractDescription,
       documentUpload,
@@ -43,14 +44,16 @@ router.post("/", upload.single('document'), async (req, res) => {
     }
 
     const formattedDate = contractDate ? new Date(contractDate) : null;
+    console.log("formattedDate", formattedDate);
     if (contractDate && isNaN(formattedDate)) {
       return res.status(400).json({ success: false, message: 'Invalid date format' });
     }
 
     const created = await prisma.contract.create({
       data: {
-        projectId: projectId ? Number(projectId) : null,
+        project: projectId ? { connect: { id: Number(projectId) } } : undefined,
         contractTitle,
+        userId: userId ? Number(userId) : null,
         contractDescription: contractDescription || null,
         documentUpload: uploadedPath || null,
         contractDate: formattedDate,
@@ -144,7 +147,7 @@ router.put("/:id", authenticateToken, upload.single('document'), async (req, res
     const updated = await prisma.contract.update({
       where: { id },
       data: {
-        projectId: typeof projectId !== 'undefined' ? (projectId ? Number(projectId) : null) : undefined,
+        project: typeof projectId !== 'undefined' && projectId ? { connect: { id: Number(projectId) } } : undefined,
         contractTitle: typeof contractTitle !== 'undefined' ? contractTitle : undefined,
         contractDescription: typeof contractDescription !== 'undefined' ? contractDescription : undefined,
         documentUpload: newDocumentPath ? newDocumentPath : (typeof documentUpload !== 'undefined' ? documentUpload : undefined),
