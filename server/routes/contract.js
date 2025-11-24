@@ -75,15 +75,19 @@ router.post("/", upload.single('document'), async (req, res) => {
 });
 
 // List contracts (filterable, pagination)
-router.get("/", authenticateToken, async (req, res) => {
+router.get("/", async (req, res) => {
   try {
-    const { projectId, investorId, offtakerId, status, includeDeleted, page = 1, limit = 20 } = req.query;
+
+    const { projectId, investorId, offtakerId, status, includeDeleted, page = 1, limit = 20, userId,id } = req.query;
+    
     const where = {
+      ...(id ? { id: Number(id) } : {}),
       ...(projectId ? { projectId: Number(projectId) } : {}),
       ...(investorId ? { investorId: Number(investorId) } : {}),
       ...(offtakerId ? { offtaker_id: Number(offtakerId) } : {}),
       ...(typeof status !== 'undefined' ? { status: Number(status) } : {}),
       ...(includeDeleted === '1' ? {} : { is_deleted: 0 }),
+      ...(userId ? { userId: Number(userId) } : {}),
     };
 
     const skip = (Number(page) - 1) * Number(limit);
@@ -94,7 +98,14 @@ router.get("/", authenticateToken, async (req, res) => {
       skip,
       take: Number(limit),
       include: {
-        project: true,
+        project: {
+            include: {
+              city: true,
+              state: true,
+              country: true,
+              projectType: true,
+            },
+          },
         offtaker: true,
         investor: true,
       },

@@ -10,10 +10,30 @@ const PageHeaderTitle = () => {
     const { lang } = useLanguage();
 
     const parts = pathName.split("/").filter(Boolean);
-    const pageKey = parts[parts.length - 1] || "dashboard";
+    let title = "Dashboard";
+    let breadcrumb = [];
 
-    const pageName = lang(`menu.${pageKey}`, pageKey.replace(/-/g, " "));
-    const title = pageName.charAt(0).toUpperCase() + pageName.slice(1);
+    // Special case for /offtaker/contracts/details/:id
+    if (
+        parts.length >= 4 &&
+        parts[0] === "offtaker" &&
+        parts[1] === "contracts" &&
+        parts[2] === "details"
+    ) {
+        title = "Contract details";
+        breadcrumb = [
+            { name: lang("menu.contracts", "Contract"), href: "/offtaker/contracts" },
+            { name: lang("menu.details", "Details"), href: null }
+        ];
+    } else {
+        const pageKey = parts[parts.length - 1] || "dashboard";
+        const pageName = lang(`menu.${pageKey}`, pageKey.replace(/-/g, " "));
+        title = pageName.charAt(0).toUpperCase() + pageName.slice(1);
+        breadcrumb = [
+            { name: "Dashboard", href: "/offtaker/dashboard" },
+            { name: title, href: null }
+        ];
+    }
 
     return (
         <div className="header-wrapper">
@@ -26,17 +46,18 @@ const PageHeaderTitle = () => {
 
                 {/* Breadcrumb */}
                 <div className="breadcrumb-offtaker">
-                    <Link href="/offtaker/dashboard" className="breadcrumb-link">
-                        Dashboard
-                    </Link>
-                    {title !== "Dashboard" && (
-                        <>
-                            <ChevronRight className="w-4 h-4" />
-                            <span className="breadcrumb-current text-capitalize">
-                                {pageName}
-                            </span>
-                        </>
-                    )}
+                    {breadcrumb.map((item, idx) => (
+                        <React.Fragment key={idx}>
+                            {idx > 0 && <ChevronRight className="w-4 h-4" />}
+                            {item.href ? (
+                                <Link href={item.href} className="breadcrumb-link">
+                                    {item.name}
+                                </Link>
+                            ) : (
+                                <span className="breadcrumb-current text-capitalize">{item.name}</span>
+                            )}
+                        </React.Fragment>
+                    ))}
                 </div>
             </div>
 
