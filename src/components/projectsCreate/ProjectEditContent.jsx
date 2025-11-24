@@ -10,7 +10,7 @@ import { showSuccessToast, showErrorToast } from '@/utils/topTost'
 import { useLanguage } from '@/contexts/LanguageContext'
 import InverterTab from './InverterTab'
 import Investor from './Investor'
-import Contract from './Contract'
+import Contract from '../contract/ContractTable'
 import Image from 'next/image'
 import { generateSlug, checkProjectNameExists } from '@/utils/projectUtils'
 import { getFullImageUrl } from '@/utils/common'
@@ -277,7 +277,7 @@ const ProjectEditContent = ({ projectId }) => {
     const handleSubmit = async (e) => {
         e.preventDefault()
 
-        const requiredFields = ['project_name', 'project_type_id']
+        const requiredFields = ['project_name', 'project_type_id', 'offtaker']
         const errors = {}
         requiredFields.forEach(field => { if (!formData[field]) { errors[field] = lang('validation.required', 'Required') } })
 

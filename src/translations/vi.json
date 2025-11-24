@@ -612,7 +612,8 @@
       "submit": "Nộp",
       "notes": "Ghi chú",
       "investNow": "Đầu tư ngay",
-      "investor": "Nhà đầu tư"
+      "investor": "Nhà đầu tư",
+      "interestSubmitted": "Bạn đã bày tỏ sự quan tâm tới dự án này."
     },
     "solarLease": {
       "title": "Biến bất động sản của bạn thành cho thuê năng lượng mặt trời",
