@@ -638,7 +638,8 @@
       "investor": "Investor",
       "signInToInvest": "Sign In to Invest",
       "submit": "Submit",
-      "notes": "Notes"
+      "notes": "Notes",
+      "interestSubmitted": "You have already expressed interest for this project."
     },
     "solarLease": {
       "title": "Turn your Property Into a Solar Lease",

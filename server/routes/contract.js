@@ -28,6 +28,8 @@ router.post("/", upload.single('document'), async (req, res) => {
   try {
     const {
       projectId,
+      offtakerId,
+      investorId,        // now expecting InterestedInvestor.id
       contractTitle,
       contractDescription,
       documentUpload,
@@ -49,12 +51,19 @@ router.post("/", upload.single('document'), async (req, res) => {
 
     const created = await prisma.contract.create({
       data: {
-        projectId: projectId ? Number(projectId) : null,
+        project: projectId ? { connect: { id: Number(projectId) } } : undefined,
+        offtaker: offtakerId ? { connect: { id: Number(offtakerId) } } : undefined,
+        investor: investorId ? { connect: { id: Number(investorId) } } : undefined, // connects to InterestedInvestor
         contractTitle,
         contractDescription: contractDescription || null,
         documentUpload: uploadedPath || null,
         contractDate: formattedDate,
         status: typeof status !== 'undefined' ? Number(status) : 0,
+      },
+      include: {
+        project: true,
+        offtaker: true,
+        investor: true,
       },
     });
 
@@ -66,22 +75,40 @@ router.post("/", upload.single('document'), async (req, res) => {
 });
 
 // List contracts (filterable, pagination)
-router.get("/", authenticateToken, async (req, res) => {
+router.get("/", async (req, res) => {
   try {
-    const { projectId, status, includeDeleted, page = 1, limit = 20 } = req.query;
+
+    const { projectId, investorId, offtakerId, status, includeDeleted, page = 1, limit = 20, userId,id } = req.query;
+    
     const where = {
+      ...(id ? { id: Number(id) } : {}),
       ...(projectId ? { projectId: Number(projectId) } : {}),
+      ...(investorId ? { investorId: Number(investorId) } : {}),
+      ...(offtakerId ? { offtaker_id: Number(offtakerId) } : {}),
       ...(typeof status !== 'undefined' ? { status: Number(status) } : {}),
       ...(includeDeleted === '1' ? {} : { is_deleted: 0 }),
+      ...(userId ? { userId: Number(userId) } : {}),
     };
 
     const skip = (Number(page) - 1) * Number(limit);
 
     const data = await prisma.contract.findMany({
       where,
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: 'asc' },
       skip,
       take: Number(limit),
+      include: {
+        project: {
+            include: {
+              city: true,
+              state: true,
+              country: true,
+              projectType: true,
+            },
+          },
+        offtaker: true,
+        investor: true,
+      },
     });
 
     return res.json({ success: true, data });
@@ -97,6 +124,11 @@ router.get("/:id", authenticateToken, async (req, res) => {
     const id = Number(req.params.id);
     const contract = await prisma.contract.findFirst({
       where: { id, is_deleted: 0 },
+      include: {
+        project: true,
+        offtaker: true,
+        investor: true,
+      },
     });
     if (!contract) return res.status(404).json({ success: false, message: 'Contract not found' });
     return res.json({ success: true, data: contract });
@@ -112,6 +144,8 @@ router.put("/:id", authenticateToken, upload.single('document'), async (req, res
     const id = Number(req.params.id);
     const {
       projectId,
+      offtakerId,
+      investorId,        // InterestedInvestor.id
       contractTitle,
       contractDescription,
       documentUpload,
@@ -141,15 +175,24 @@ router.put("/:id", authenticateToken, upload.single('document'), async (req, res
       return res.status(400).json({ success: false, message: 'Invalid date format' });
     }
 
+    const dataUpdate = {
+      project: typeof projectId !== 'undefined' ? (projectId ? { connect: { id: Number(projectId) } } : { disconnect: true }) : undefined,
+      offtaker: typeof offtakerId !== 'undefined' ? (offtakerId ? { connect: { id: Number(offtakerId) } } : { disconnect: true }) : undefined,
+      investor: typeof investorId !== 'undefined' ? (investorId ? { connect: { id: Number(investorId) } } : { disconnect: true }) : undefined,
+      contractTitle: typeof contractTitle !== 'undefined' ? contractTitle : undefined,
+      contractDescription: typeof contractDescription !== 'undefined' ? contractDescription : undefined,
+      documentUpload: newDocumentPath ? newDocumentPath : (typeof documentUpload !== 'undefined' ? documentUpload : undefined),
+      contractDate: typeof contractDate !== 'undefined' ? (formattedDate ? formattedDate : null) : undefined,
+      status: typeof status !== 'undefined' ? Number(status) : undefined,
+    };
+
     const updated = await prisma.contract.update({
       where: { id },
-      data: {
-        projectId: typeof projectId !== 'undefined' ? (projectId ? Number(projectId) : null) : undefined,
-        contractTitle: typeof contractTitle !== 'undefined' ? contractTitle : undefined,
-        contractDescription: typeof contractDescription !== 'undefined' ? contractDescription : undefined,
-        documentUpload: newDocumentPath ? newDocumentPath : (typeof documentUpload !== 'undefined' ? documentUpload : undefined),
-        contractDate: typeof contractDate !== 'undefined' ? (formattedDate ? formattedDate : null) : undefined,
-        status: typeof status !== 'undefined' ? Number(status) : undefined,
+      data: dataUpdate,
+      include: {
+        project: true,
+        offtaker: true,
+        investor: true,
       },
     });
 

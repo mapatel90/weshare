@@ -6,29 +6,26 @@ import Swal from "sweetalert2";
 import { showSuccessToast, showErrorToast } from "@/utils/topTost";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  Button,
-  CircularProgress,
-  Box,
-  IconButton,
-  Typography,
-  MenuItem,
+  Button
 } from "@mui/material";
-import { Close as CloseIcon } from "@mui/icons-material";
+import ContractModal from "./ContractModal";
 
 const Contract = ({ projectId }) => {
   const { lang } = useLanguage();
-
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState("add");
   const [loading, setLoading] = useState(false);
-
   const [contracts, setContracts] = useState([]);
   const [editId, setEditId] = useState(null);
+  const [partyType, setPartyType] = useState("");
+  const [selectedOfftaker, setSelectedOfftaker] = useState("");
+  const [selectedInvestor, setSelectedInvestor] = useState("");
+  const [offtakerList, setOfftakerList] = useState({}); // changed to object
+  const [investorList, setInvestorList] = useState([]);
+  const [showPartySelection, setShowPartySelection] = useState(true);
+  const [forcedParty, setForcedParty] = useState(""); // "investor" | "offtaker" | ""
+  const [offtakerDisabled, setOfftakerDisabled] = useState(false);
+  const [allowAdd, setAllowAdd] = useState(true); // NEW: control Add button visibility
 
   // form fields
   const [contractTitle, setContractTitle] = useState("");
@@ -41,7 +38,55 @@ const Contract = ({ projectId }) => {
 
   useEffect(() => {
     fetchContracts();
+    fetchProjectParties();
   }, [projectId]);
+
+  // Recompute whether Add button should be shown
+  useEffect(() => {
+    if (!projectId) {
+      setAllowAdd(true);
+      return;
+    }
+
+    // Find interested_investors that belong to this project
+    const invIdsForProject = Array.isArray(investorList)
+      ? investorList
+          .filter((inv) => Number(inv.projectId) === Number(projectId))
+          .map((inv) => Number(inv.id))
+      : [];
+
+    // If any contract has investorId that matches an interested_investor id for same project -> hide Add
+    const investorConflict = contracts.some(
+      (c) =>
+        Number(c.projectId) === Number(projectId) &&
+        c.investorId != null &&
+        invIdsForProject.includes(Number(c.investorId))
+    );
+
+    console.log("Investor conflict:", investorConflict);
+
+    // New condition: if any contract (in entire table) has an offtakerId -> hide Add
+    const offtakerConflict = contracts.some((c) => c.offtaker_id != null);
+
+    console.log("Offtaker conflict:", offtakerConflict);
+
+    // Hide Add button only when BOTH investorConflict AND offtakerConflict are true
+    setAllowAdd(!(investorConflict && offtakerConflict));
+  }, [contracts, investorList, projectId]);
+
+  // Fetch project-related offtakers and investors
+  const fetchProjectParties = async () => {
+    try {
+      // Replace with your actual API endpoints for offtakers/investors
+      const offtakerRes = await apiGet(`/api/projects/${projectId}`);
+      const investorRes = await apiGet('/api/investors?projectId=' + projectId);
+      setOfftakerList(offtakerRes?.data.offtaker || {});
+      setInvestorList(investorRes?.data || []);
+    } catch (e) {
+      setOfftakerList({});
+      setInvestorList([]);
+    }
+  };
 
   const fetchContracts = async () => {
     try {
@@ -66,14 +111,49 @@ const Contract = ({ projectId }) => {
     setContractTitle("");
     setContractDescription("");
     setDocumentUpload("");
-    // clear any previous selected file / preview so new selection shows preview correctly
     if (documentPreviewUrl) {
       try { URL.revokeObjectURL(documentPreviewUrl); } catch (e) { /* ignore */ }
     }
     setDocumentFile(null);
     setDocumentPreviewUrl("");
     setContractDate("");
-    setStatus(1);
+    setStatus(0); // changed: default to Pending when opening Add modal
+    // Decide whether to show radios or force a party based on existing contracts for this project
+    if (!projectId) {
+      setShowPartySelection(true);
+      setForcedParty("");
+      setPartyType("");
+    } else {
+      const contractsForProject = contracts.filter(
+        (c) => Number(c.projectId) === Number(projectId)
+      );
+      if (!contractsForProject.length) {
+        setShowPartySelection(true);
+        setForcedParty("");
+        setPartyType("");
+      } else if (
+        contractsForProject.some((c) => c.offtakerId != null || c.offtaker_id != null)
+      ) {
+        // If an offtaker exists for this project, hide radios and show only investor dropdown
+        setShowPartySelection(false);
+        setForcedParty("investor");
+        setPartyType("investor");
+      } else if (
+        contractsForProject.some((c) => c.investorId != null || c.investor_id != null)
+      ) {
+        // If an investor exists for this project, hide radios and show only offtaker dropdown
+        setShowPartySelection(false);
+        setForcedParty("offtaker");
+        setPartyType("offtaker");
+      } else {
+        setShowPartySelection(true);
+        setForcedParty("");
+        setPartyType("");
+      }
+    }
+    setSelectedOfftaker("");
+    setSelectedInvestor("");
+    setOfftakerDisabled(false);
     setShowModal(true);
   };
 
@@ -85,13 +165,24 @@ const Contract = ({ projectId }) => {
     setDocumentUpload(row.documentUpload || "");
     setDocumentFile(null);
     setDocumentPreviewUrl(row.documentUpload || "");
-    // normalize contractDate to yyyy-mm-dd for input[type=date]
     setContractDate(
       row.contractDate
         ? new Date(row.contractDate).toISOString().slice(0, 10)
         : ""
     );
     setStatus(row.status ?? 1);
+    // If editing, set party type and selected party if available
+    if (row.investorId) {
+      setPartyType("investor");
+      setSelectedInvestor(row.investorId || "");
+      setSelectedOfftaker("");
+      setOfftakerDisabled(false);
+    } else {
+      setPartyType("offtaker");
+      setSelectedOfftaker(row.offtakerId || offtakerList?.id || "");
+      setSelectedInvestor("");
+      setOfftakerDisabled(true);
+    }
     setShowModal(true);
   };
 
@@ -116,9 +207,22 @@ const Contract = ({ projectId }) => {
     form.append("contractDescription", contractDescription || "");
     form.append("contractDate", contractDate ? contractDate : "");
     form.append("status", String(status));
-    // prefer actual uploaded file
+    form.append("partyType", partyType || "");
+    // append offtakerId / investorId according to selection, leave other empty string (server interprets accordingly)
+    if (partyType === "offtaker") {
+      const offtakerId = selectedOfftaker || offtakerList?.id || "";
+      form.append("offtakerId", offtakerId);
+      form.append("investorId", "");
+    } else if (partyType === "investor") {
+      form.append("investorId", selectedInvestor || "");
+      form.append("offtakerId", "");
+    } else {
+      form.append("investorId", "");
+      form.append("offtakerId", "");
+    }
+
     if (documentFile) form.append("document", documentFile);
-    else if (modalType === "add" && documentUpload) form.append("document", documentUpload);
+    else if (modalType === "add" && documentUpload) form.append("documentUpload", documentUpload);
     return form;
   };
 
@@ -136,31 +240,33 @@ const Contract = ({ projectId }) => {
       let res;
       // If there's a file or to keep consistent with upload usage, use multipart upload
       const form = buildFormData();
+
+      // Build JSON payload for non-file requests
+      const payload = {
+        projectId: projectId ?? null,
+        contractTitle,
+        contractDescription: contractDescription || null,
+        documentUpload: documentUpload || null,
+        contractDate: contractDate ? contractDate : null,
+        status,
+        offtakerId: partyType === "offtaker" ? (selectedOfftaker || offtakerList?.id || null) : null,
+        investorId: partyType === "investor" ? (selectedInvestor || null) : null,
+      };
+
       if (modalType === "add") {
         res = documentFile || documentUpload
           ? await apiUpload("/api/contracts", form)
-          : await apiPost("/api/contracts", {
-              projectId: projectId ?? null,
-              contractTitle,
-              contractDescription: contractDescription || null,
-              documentUpload: documentUpload || null,
-              contractDate: contractDate ? contractDate : null,
-              status,
-            });
+          : await apiPost("/api/contracts", payload);
+
         if (res?.success)
           showSuccessToast(lang("contract.created", "Contract created"));
         else showErrorToast(res.message || lang("common.error", "Error"));
       } else {
+        // edit
         res = documentFile
           ? await apiUpload(`/api/contracts/${editId}`, form, { method: "PUT" })
-          : await apiPut(`/api/contracts/${editId}`, {
-              projectId: projectId ?? null,
-              contractTitle,
-              contractDescription: contractDescription || null,
-              documentUpload: documentUpload || null,
-              contractDate: contractDate ? contractDate : null,
-              status,
-            });
+          : await apiPut(`/api/contracts/${editId}`, payload);
+
         if (res?.success)
           showSuccessToast(lang("contract.updated", "Contract updated"));
         else showErrorToast(res.message || lang("common.error", "Error"));
@@ -293,139 +399,47 @@ const Contract = ({ projectId }) => {
         <h6 className="fw-bold mb-0">
           {lang("contract.contracts", "Contracts")}
         </h6>
-        <Button
-          variant="contained"
-          onClick={openAdd}
-          className="common-grey-color"
-        >
-          + {lang("contract.addContract", "Add Contract")}
-        </Button>
+        {allowAdd && (
+          <Button
+            variant="contained"
+            onClick={openAdd}
+            className="common-grey-color"
+          >
+            + {lang("contract.addContract", "Add Contract")}
+          </Button>
+        )}
       </div>
 
-      <Dialog open={showModal} onClose={closeModal} maxWidth="sm" fullWidth>
-        <form onSubmit={handleSave}>
-          <DialogTitle
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              pb: 1,
-            }}
-          >
-            <Typography variant="h6" component="span">
-              {modalType === "edit"
-                ? lang("contract.editContract", "Edit Contract")
-                : lang("contract.addContract", "Add Contract")}
-            </Typography>
-            <IconButton
-              aria-label="close"
-              onClick={closeModal}
-              sx={{ color: (theme) => theme.palette.grey[500] }}
-            >
-              <CloseIcon />
-            </IconButton>
-          </DialogTitle>
-
-          <DialogContent>
-            <Box
-              sx={{ display: "flex", flexDirection: "column", gap: 2, pt: 1 }}
-            >
-              <TextField
-                label={lang("contract.title", "Title")}
-                value={contractTitle}
-                onChange={(e) => setContractTitle(e.target.value)}
-                required
-                fullWidth
-              />
-              <TextField
-                label={lang("contract.description", "Description")}
-                value={contractDescription}
-                onChange={(e) => setContractDescription(e.target.value)}
-                fullWidth
-                multiline
-                minRows={3}
-              />
-              {/* <TextField
-                label={lang("contract.document", "Document URL")}
-                value={documentUpload}
-                onChange={(e) => setDocumentUpload(e.target.value)}
-                fullWidth
-              /> */}
-              <TextField
-                fullWidth
-                type="file"
-                inputProps={{ accept: "image/*,application/pdf" }}
-                label={lang("contract.uploadDocument") || "Upload Document"}
-                InputLabelProps={{ shrink: true }}
-                onChange={(e) => {
-                  const file = (e.target.files && e.target.files[0]) || null;
-                  applyDocumentSelection(file);
-                }}
-              />
-
-              {(documentPreviewUrl || documentUpload) && (
-                <Box>
-                  {documentPreviewUrl && documentPreviewUrl.match(/\.(jpg|jpeg|png|gif)$/i) ? (
-                    <img
-                      src={documentPreviewUrl}
-                      alt="preview"
-                      style={{ width: 160, height: 100, objectFit: "cover", borderRadius: 6, border: "1px solid #eee" }}
-                    />
-                  ) : (
-                    <a href={documentUpload || documentPreviewUrl} target="_blank" rel="noreferrer">
-                      {lang("contract.viewDocument") || "View document"}
-                    </a>
-                  )}
-                </Box>
-              )}
-              <TextField
-                label={lang("contract.date", "Contract Date")}
-                type="date"
-                value={contractDate}
-                onChange={(e) => setContractDate(e.target.value)}
-                InputLabelProps={{ shrink: true }}
-                fullWidth
-              />
-              <TextField
-                select
-                label={lang("common.status", "Status")}
-                value={status}
-                onChange={(e) => setStatus(Number(e.target.value))}
-                fullWidth
-              >
-                <MenuItem value={1}>{lang("common.active", "Active")}</MenuItem>
-                <MenuItem value={2}>
-                  {lang("common.inactive", "Inactive")}
-                </MenuItem>
-                <MenuItem value={0}>
-                  {lang("common.pending", "Pending")}
-                </MenuItem>
-              </TextField>
-            </Box>
-          </DialogContent>
-
-          <DialogActions sx={{ px: 3, pb: 2.5 }}>
-            <Button
-              onClick={closeModal}
-              color="error"
-              className="custom-orange-outline"
-            >
-              {lang("common.cancel", "Cancel")}
-            </Button>
-            <Button
-              type="submit"
-              variant="contained"
-              disabled={loading || !contractTitle}
-              startIcon={loading ? <CircularProgress size={16} /> : null}
-              className="common-grey-color"
-            >
-              {loading
-                ? lang("common.loading", "Loading...")
-                : lang("common.save", "Save")}
-            </Button>
-          </DialogActions>
-        </form>
-      </Dialog>
+      <ContractModal
+        open={showModal}
+        onClose={closeModal}
+        modalType={modalType}
+        lang={lang}
+        loading={loading}
+        contractTitle={contractTitle}
+        setContractTitle={setContractTitle}
+        contractDescription={contractDescription}
+        setContractDescription={setContractDescription}
+        documentUpload={documentUpload}
+        setDocumentUpload={setDocumentUpload}
+        documentPreviewUrl={documentPreviewUrl}
+        applyDocumentSelection={applyDocumentSelection}
+        contractDate={contractDate}
+        setContractDate={setContractDate}
+        status={status}
+        setStatus={setStatus}
+        partyType={partyType}
+        setPartyType={setPartyType}
+        selectedInvestor={selectedInvestor}
+        setSelectedInvestor={setSelectedInvestor}
+        selectedOfftaker={selectedOfftaker}
+        setSelectedOfftaker={setSelectedOfftaker}
+        investorList={investorList}
+        offtakerList={offtakerList}
+        showPartySelection={showPartySelection}
+        forcedParty={forcedParty}
+        onSubmit={handleSave}
+      />
 
       <Table data={contracts} columns={columns} />
     </div>
