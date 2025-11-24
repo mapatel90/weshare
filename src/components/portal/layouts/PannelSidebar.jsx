@@ -64,12 +64,12 @@ function PannelSidebar({ activeMenu, setActiveMenu }) {
                 </div>
             </div>
             <div className="menu-section">
-                <div className="menu-item">{lang("offtaker_login.sidebar.contracts")}</div>
+                <Link
+                    href="/offtaker/contracts"
+                    className={`menu-item${activeMenu === 'contract' ? ' active' : ''}`}
+                    onClick={() => setActiveMenu('contract')}
+                >{lang("offtaker_login.sidebar.contracts")}</Link>
             </div>
-            {/* 
-                <div className="menu-section">
-                    <div className="menu-item">Support</div>
-                </div> */}
         </div>
     );
 }

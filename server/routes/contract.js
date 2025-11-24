@@ -69,23 +69,35 @@ router.post("/", upload.single('document'), async (req, res) => {
 });
 
 // List contracts (filterable, pagination)
-router.get("/", authenticateToken, async (req, res) => {
+router.get("/", async (req, res) => {
   try {
-    const { projectId, status, includeDeleted, page = 1, limit = 20 } = req.query;
+    const { projectId, status, includeDeleted, page = 1, limit = 20, userId,id } = req.query;
     const where = {
+      ...(id ? { id: Number(id) } : {}),
       ...(projectId ? { projectId: Number(projectId) } : {}),
       ...(typeof status !== 'undefined' ? { status: Number(status) } : {}),
       ...(includeDeleted === '1' ? {} : { is_deleted: 0 }),
+      ...(userId ? { userId: Number(userId) } : {}),
     };
 
     const skip = (Number(page) - 1) * Number(limit);
 
-    const data = await prisma.contract.findMany({
-      where,
-      orderBy: { createdAt: 'desc' },
-      skip,
-      take: Number(limit),
-    });
+      const data = await prisma.contract.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: Number(limit),
+        include: {
+          project: {
+            include: {
+              city: true,
+              state: true,
+              country: true,
+              projectType: true,
+            },
+          },   // <-- Correct relation name
+        }
+      });
 
     return res.json({ success: true, data });
   } catch (error) {
