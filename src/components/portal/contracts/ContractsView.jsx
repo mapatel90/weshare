@@ -1,12 +1,15 @@
 'use client';
 
 import { useAuth } from '@/contexts/AuthContext';
+import { usePathname } from 'next/navigation';
 import { apiGet } from '@/lib/api';
 import React, { useState, useEffect } from 'react';
 import { Search, Calendar, ChevronDown, MapPin } from 'lucide-react';
 
 // Fetch contracts from API and set state
 const ContractsView = () => {
+    const pathName = usePathname();
+    const parts = pathName.split("/").filter(Boolean);
     const { user } = useAuth();
     const [contracts, setContracts] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -17,13 +20,29 @@ const ContractsView = () => {
     const fetchContracts = async () => {
         setIsLoading(true);
         try {
-            const res = await apiGet("/api/contracts?userId=" + user.id);
-            if (res?.success) {
-                const all = Array.isArray(res.data) ? res.data : [];
-                setContracts(all);
+            let contractsData = [];
+            if (parts[0] === "investor") {
+                const investorRes = await apiGet("/api/investors/?userId=" + user.id);
+                if (investorRes?.success && Array.isArray(investorRes.data) && investorRes.data.length) {
+                    // Get all investor ids
+                    const investorIds = investorRes.data.map(inv => inv.id);
+                    // Fetch contracts for each investorId and combine results
+                    let allContracts = [];
+                    for (const investorId of investorIds) {
+                        const contractsRes = await apiGet("/api/contracts?investorId=" + investorId);
+                        if (contractsRes?.success && Array.isArray(contractsRes.data)) {
+                            allContracts = allContracts.concat(contractsRes.data);
+                        }
+                    }
+                    contractsData = allContracts;
+                }
             } else {
-                setContracts([]);
+                const res = await apiGet("/api/contracts?offtakerId=" + user.id);
+                if (res?.success) {
+                    contractsData = Array.isArray(res.data) ? res.data : [];
+                }
             }
+            setContracts(contractsData);
         } catch (e) {
             setContracts([]);
         }
@@ -34,7 +53,12 @@ const ContractsView = () => {
         fetchContracts();
     }, []);
 
-    
+    const handleView = (number) => {
+        // View logic here
+        router.push("/offtaker/billings/invoice");
+    };
+
+
     const getInitials = (str = '') => {
         if (!str) return '';
         const words = str.split(' ');
@@ -66,6 +90,8 @@ const ContractsView = () => {
                 }
                 return 0;
             });
+
+
     const ContractCard = ({ contract }) => {
         const title = contract.contractTitle || 'No Title';
         const description = contract.contractDescription || '';
@@ -83,14 +109,25 @@ const ContractsView = () => {
                     <div className="text-sm text-gray-600 mt-2 truncate">{description}</div>
                 </div>
                 <div className="flex flex-col items-end justify-between h-full ml-4">
-                    <a
+                      {parts[0] === "investor" ? (
+                        <a
+                        href={`/investor/contracts/details/${contract.id}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="border border-gray-300 rounded px-3 py-1 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                        >
+                        View
+                        </a>
+                    ) : (
+                        <a
                         href={`/offtaker/contracts/details/${contract.id}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="border border-gray-300 rounded px-3 py-1 text-sm font-medium text-gray-700 hover:bg-gray-50"
-                    >
+                        >
                         View
-                    </a>
+                        </a>
+                    )}
                 </div>
             </div>
         );
