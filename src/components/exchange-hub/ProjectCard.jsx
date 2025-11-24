@@ -77,12 +77,15 @@ const ProjectCard = ({ project, activeTab }) => {
                         <div className="card-header-image">
                             <h3 style={{
                                 overflow: 'hidden',
-                                // display: '-webkit-box',
+                                display: '-webkit-box',
                                 WebkitLineClamp: 2,
                                 WebkitBoxOrient: 'vertical',
                                 textOverflow: 'ellipsis',
                                 minHeight: '65px',
-                                lineHeight: '1.4'
+                                lineHeight: '1.4',
+                                maxWidth: '100%',
+                                boxSizing: 'border-box',
+                                wordBreak: 'break-word'
                             }}>{project?.project_name || 'Solar Farm A'}</h3>
                             <div className="rating">
                                 <span className="text-rating">{lang('home.exchangeHub.ratings') || 'Ratings'}:</span>
@@ -188,12 +191,15 @@ const ProjectCard = ({ project, activeTab }) => {
                 <div className="card-header">
                     <h3 style={{
                         overflow: 'hidden',
-                        // display: '-webkit-box',
+                        display: '-webkit-box',
                         WebkitLineClamp: 2,
                         WebkitBoxOrient: 'vertical',
                         textOverflow: 'ellipsis',
                         minHeight: '60px',
-                        lineHeight: '1.4'
+                        lineHeight: '1.4',
+                        maxWidth: '100%',
+                        boxSizing: 'border-box',
+                        wordBreak: 'break-word'
                     }}>{project?.project_name || 'Solar Project'}</h3>
                     <span className={`badge ${badge.class}`}>
                         <span className="badge-icon">{badge.icon}</span>

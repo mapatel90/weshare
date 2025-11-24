@@ -324,7 +324,12 @@
     "timesheetsreport": "Timesheets Report",
     "blog": "Blog",
     "contact us": "Contact Us",
-    "lease request": "Lease Request"
+    "lease request": "Lease Request",
+    "savingreports": "Saving Reports",
+    "conjunctionreports": "Conjunction Reports",
+    "roireports": "ROI Reports",
+    "cashflowreports": "Cash Flow Reports",
+    "investmentsummaryreports": "Investment Summary Reports"
   },
   "dashboard": {
     "totalSales": "Total Sales",
@@ -1297,6 +1302,8 @@
     "date": "Date",
     "addContract": "Add Contract",
     "editContract": "Edit Contract"
-
+  },
+  "reports":{
+    "reports": "Reports"
   }
 }

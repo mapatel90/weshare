@@ -309,7 +309,12 @@
     "testimonials":"Lời chứng thực",
     "blog": "Blog",
     "contact us": "Liên hệ với chúng tôi",
-    "lease requests": "Yêu cầu cho thuê"
+    "lease requests": "Yêu cầu cho thuê",
+    "savingreports": "Báo cáo cạo râu",
+    "conjunctionreports": "Báo cáo kết hợp",
+    "roireports": "Báo cáo ROI",
+    "cashflowreports": "Báo cáo dòng tiền",
+    "investmentsummaryreports": "Báo cáo tóm tắt đầu tư"
   },
   "dashboard": {
     "totalSales": "Tổng doanh số",
@@ -1252,5 +1257,8 @@
     "date": "Ngày",
     "addContract": "Thêm hợp đồng",
     "editContract": "Sửa hợp đồng"
+  },
+  "reports": {
+    "reports":"Báo cáo"
   }
 }

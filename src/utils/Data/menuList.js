@@ -125,6 +125,44 @@ export const menuList = [
   },
   {
     id: 10,
+    name: "Reports",
+    path: "#",
+    icon: "feather-file-text",
+    dropdownMenu: [
+      {
+        id: 1,
+        name: "savingreports",
+        path: "/admin/reports/shaving",
+        subdropdownMenu: false,
+      },
+      {
+        id: 2,
+        name: "conjunctionreports",
+        path: "/admin/reports/conjunction",
+        subdropdownMenu: false,
+      },
+      {
+        id: 3,
+        name: "roireports",
+        path: "/admin/reports/roi",
+        subdropdownMenu: false,
+      },
+      {
+        id: 4,
+        name: "cashflowreports",
+        path: "/admin/reports/cash-flow",
+        subdropdownMenu: false,
+      },
+      {
+        id: 5,
+        name: "investmentsummaryreports",
+        path: "/admin/reports/investment-summary",
+        subdropdownMenu: false,
+      }
+    ],
+  },
+  {
+    id: 11,
     name: "settings",
     path: "#",
     icon: "feather-settings",
