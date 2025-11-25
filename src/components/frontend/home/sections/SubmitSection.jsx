@@ -27,7 +27,7 @@ const SubmitSection = () => {
                 <h2 className="fw-bold fs-48 text-white mb-40">{lang('home.submit.title')}</h2>
                 <p className="fs-24 mb-40">{lang('home.submit.description')}</p>
 
-                <button className="btn btn-primary-custom mt-0" onClick={() => router.push('/lease_request')}>{lang('home.submit.button')}</button>
+                <button className="btn btn-primary-custom mt-0" onClick={() => router.push('/frontend/lease_request')}>{lang('home.submit.button')}</button>
               </div>
             </div>
           </div>

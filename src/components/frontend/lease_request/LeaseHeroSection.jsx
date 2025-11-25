@@ -5,7 +5,7 @@ export default function LeaseHeroSection() {
     const { lang } = useLanguage();
 
     return (
-        <section className="hero banner-sec d-flex align-items-center" style={{ backgroundImage: "url('images/contact_us/Contact-banner.jpg')" }}>
+        <section className="hero banner-sec d-flex align-items-center" style={{ backgroundImage: "url('/images/contact_us/Contact-banner.jpg')" }}>
             <div className="container">
                 <div className="title-info col-md-4">
                     <h1 className="hero-title">

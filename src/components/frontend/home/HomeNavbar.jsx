@@ -46,11 +46,11 @@ const HomeNavbar = () => {
   const navItems = [
     { name: lang('home.navbar.home'), href: '/', id: 'home' },
     { name: lang('home.navbar.aboutUs'), href: '/#about-us', id: 'about-us' },
-    { name: lang('home.navbar.exchangeHub'), href: '/exchange-hub', id: 'exchange-hub' },
+    { name: lang('home.navbar.exchangeHub'), href: '/frontend/exchange-hub', id: 'exchange-hub' },
     { name: lang('home.navbar.howItWorks'), href: '/#how-it-works', id: 'how-it-works' },
-    { name: lang('home.navbar.news'), href: '/news', id: 'news' },
-    { name: lang('home.navbar.blog'), href: '/blog', id: 'blog' },
-    { name: lang('home.navbar.contactUs'), href: '/contact_us', id: 'contact_us' }
+    { name: lang('home.navbar.news'), href: '/frontend/news', id: 'news' },
+    { name: lang('home.navbar.blog'), href: '/frontend/blog', id: 'blog' },
+    { name: lang('home.navbar.contactUs'), href: '/frontend/contact_us', id: 'contact_us' }
   ]
 
   // Check if current pathname matches or if hash section is active

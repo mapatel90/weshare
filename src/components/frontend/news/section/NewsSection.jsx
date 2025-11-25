@@ -72,7 +72,7 @@ const NewsSection = () => {
                     </span>
                     <h5 className="card-title news-title mb-3">{news.news_title}</h5>
                     <Link
-                      href={`/newsDetail/${news.news_slug}`}
+                      href={`/frontend/newsDetail/${news.news_slug}`}
                       className="btn btn-outline-dark readMore px-4 py-2 fw-semibold"
                     >
                       {lang("news.readMore")}{" "}

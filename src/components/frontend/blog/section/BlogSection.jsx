@@ -73,7 +73,7 @@ const BlogSection = () => {
                     </span>
                     <h5 className="card-title news-title mb-3">{blog.blog_title}</h5>
                     <Link
-                      href={`/blogDetail/${blog.blog_slug}`}
+                      href={`/frontend/blogDetail/${blog.blog_slug}`}
                       className="btn btn-outline-dark readMore px-4 py-2 fw-semibold"
                     >
                       {lang("news.readMore")}{" "}

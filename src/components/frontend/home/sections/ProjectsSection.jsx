@@ -176,7 +176,7 @@ const ProjectsSection = () => {
                         <button
                           className="btn btn-primary-custom mt-4 w-100"
                           style={{ display: "flex" }}
-                          onClick={() => router.push(`/exchange-hub/${project.id}`)}
+                          onClick={() => router.push(`/frontend/exchange-hub/${project.id}`)}
                         >
                           <Image
                             className="me-2"
@@ -201,7 +201,7 @@ const ProjectsSection = () => {
               data-aos="fade-up"
               data-aos-duration="1500"
             >
-              <Link href="/exchange-hub">
+              <Link href="/frontend/exchange-hub">
                 <button className="btn btn-primary-custom mt-3 transparentBtn text-primary border-1">
                   {lang("home.projects.loadMore")}
                 </button>
