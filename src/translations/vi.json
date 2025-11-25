@@ -305,8 +305,8 @@
     "projectreport": "Báo cáo dự án",
     "timesheetsreport": "Báo cáo bảng thời gian",
     "inverter": "biến tần",
-    "news":"Tin tức",
-    "testimonials":"Lời chứng thực",
+    "news": "Tin tức",
+    "testimonials": "Lời chứng thực",
     "blog": "Blog",
     "contact us": "Liên hệ với chúng tôi",
     "lease requests": "Yêu cầu cho thuê",
@@ -1164,7 +1164,7 @@
     "blog": "Blog"
   },
   "contactUs": {
-    "contactus" : "Liên hệ với chúng tôi",
+    "contactus": "Liên hệ với chúng tôi",
     "contact": "Liên hệ",
     "us": "Chúng tôi",
     "title": "Liên hệ với chúng tôi",
@@ -1182,10 +1182,10 @@
     "emailTable": "Email",
     "phoneTable": "Số điện thoại",
     "messageTable": "Tin nhắn",
-    "status":"Trạng thái",
-    "details":"Chi tiết",
-    "deleted":"Liên hệ đã được xóa thành công",
-    "updated":"Đã cập nhật liên hệ thành công"
+    "status": "Trạng thái",
+    "details": "Chi tiết",
+    "deleted": "Liên hệ đã được xóa thành công",
+    "updated": "Đã cập nhật liên hệ thành công"
   },
   "getinTouch": {
     "message": "Gửi tin nhắn cho chúng tôi",
@@ -1212,12 +1212,12 @@
     "fullNameTable": "Họ và tên",
     "emailTable": "Email",
     "phoneTable": "Số điện thoại",
-    "subject":"Chủ thể",
+    "subject": "Chủ thể",
     "messageTable": "Tin nhắn",
-    "location":"Vị trí",
-    "deleted":"Đã xóa yêu cầu thuê thành công",
-    "updated":"Yêu cầu thuê đã được cập nhật thành công",
-    "details":"Chi tiết",
+    "location": "Vị trí",
+    "deleted": "Đã xóa yêu cầu thuê thành công",
+    "updated": "Yêu cầu thuê đã được cập nhật thành công",
+    "details": "Chi tiết",
     "edit": "Chỉnh sửa yêu cầu thuê"
   },
   "offtaker_login": {
@@ -1238,10 +1238,10 @@
   "investor": {
     "fullName": "Họ và tên",
     "email": "Email",
-    "phone":"Điện thoại",
-    "notes":"Ghi chú",
-    "deleted":"Nhà đầu tư đã được xóa thành công",
-    "updated":"Nhà đầu tư đã được cập nhật thành công",
+    "phone": "Điện thoại",
+    "notes": "Ghi chú",
+    "deleted": "Nhà đầu tư đã được xóa thành công",
+    "updated": "Nhà đầu tư đã được cập nhật thành công",
     "editInvestor": "Chỉnh sửa nhà đầu tư"
   },
   "contract": {
@@ -1250,7 +1250,7 @@
     "viewDocument": "Xem tài liệu",
     "deleted": "Hợp đồng đã được xóa thành công",
     "updated": "Hợp đồng đã được cập nhật thành công",
-    "created":  "Hợp đồng đã được tạo thành công",
+    "created": "Hợp đồng đã được tạo thành công",
     "title": "tiêu đề",
     "description": "Sự miêu tả",
     "document": "Tài liệu",
@@ -1258,7 +1258,30 @@
     "addContract": "Thêm hợp đồng",
     "editContract": "Sửa hợp đồng"
   },
+  "meter": {
+    "meter": "Công tơ",
+    "meterName": "Tên Công tơ",
+    "meterNumber": "Số Công tơ",
+    "addMeter": "Thêm Công tơ",
+    "meterInformation": "Thông tin Công tơ",
+    "editMeter": "Chỉnh sửa Công tơ",
+    "serialNumber": "Số Seri",
+    "simNumber": "Số SIM",
+    "simExpireDate": "Ngày Hết Hạn SIM",
+    "simStartDate": "Ngày Kích Hoạt SIM",
+    "serialNumberHelp": "Nhập số seri độc nhất của công tơ.",
+    "serialNumberPlaceholder": "Nhập Số Seri",
+    "meterType": "Loại Công tơ",
+    "meterTypePlaceholder": "Nhập Loại Công tơ",
+    "status": "Trạng thái",
+    "selectStatus": "Chọn Trạng thái",
+    "active": "Hoạt động",
+    "inactive": "Không hoạt động",
+    "createdSuccessfully": "Tạo Công tơ Thành công",
+    "updatedSuccessfully": "Cập nhật Công tơ Thành công",
+    "deletedSuccessfully": "Xóa Công tơ Thành công"
+  },
   "reports": {
-    "reports":"Báo cáo"
+    "reports": "Báo cáo"
   }
 }
