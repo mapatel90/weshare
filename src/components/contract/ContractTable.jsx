@@ -311,14 +311,41 @@ const Contract = ({ projectId }) => {
     {
       accessorKey: "contractTitle",
       header: () => lang("contract.title", "Title"),
-      cell: (info) => info.getValue() || "-",
+      cell: (info) => {
+        const v = info.getValue() || "-";
+        return (
+          <div
+            title={v}
+            style={{
+              maxWidth: 200,
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+            }}
+          >
+            {v}
+          </div>
+        );
+      },
     },
     {
       accessorKey: "contractDescription",
       header: () => lang("contract.description", "Description"),
       cell: (info) => {
         const v = info.getValue() || "-";
-        return String(v).length > 80 ? String(v).slice(0, 77) + "..." : v;
+        return (
+          <div
+            title={v}
+            style={{
+              maxWidth: 400,
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+            }}
+          >
+            {v}
+          </div>
+        );
       },
     },
     {
