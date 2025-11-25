@@ -2,7 +2,7 @@
 
 import React from 'react'
 import PageHeader from '@/components/shared/pageHeader/PageHeader'
-import ProfilePage from '@/components/users/ProfilePage'
+import ProfilePage from '@/components/admin/users/ProfilePage'
 
 const page = () => {
     return (

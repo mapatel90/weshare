@@ -1,4 +1,4 @@
-import SettingsRecaptchaForm from '@/components/setting/settingsRecaptchaForm'
+import SettingsRecaptchaForm from '@/components/admin/setting/settingsRecaptchaForm'
 import React from 'react'
 import DynamicTitle from '@/components/common/DynamicTitle'
 

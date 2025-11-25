@@ -1,7 +1,7 @@
 import React from 'react'
 import PageHeader from '@/components/shared/pageHeader/PageHeader'
 import Footer from '@/components/shared/Footer'
-import InvestmentReports from '@/components/reports/InvestmentReport'
+import InvestmentReports from '@/components/admin/reports/InvestmentReport'
 import DynamicTitle from '@/components/common/DynamicTitle'
 
 const page = () => {

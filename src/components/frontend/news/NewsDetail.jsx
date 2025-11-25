@@ -5,7 +5,7 @@ import { apiGet } from '@/lib/api';
 import NewsDetailHeroSection from './section/NewsDetailHeroSection';
 import NewsDetailLeftSection from './section/NewsDetailLeftSection';
 import NewsDetailRightSection from './section/NewsDetailRightSection';
-import '@/components/news/styles/newsDetails.css';
+import '@/components/frontend/news/styles/newsDetails.css';
 
 const NewsDetail = ({ newsSlug }) => {
   const [news, setNews] = useState(null);

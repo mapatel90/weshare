@@ -2,7 +2,7 @@
 import React from 'react'
 import PageHeader from '@/components/shared/pageHeader/PageHeader'
 import Footer from '@/components/shared/Footer'
-import ContactUsTable from '@/components/contact_us/ContactUsTable'
+import ContactUsTable from '@/components/admin/contact_us/ContactUsTable'
 import DynamicTitle from '@/components/common/DynamicTitle'
 
 const page = () => {

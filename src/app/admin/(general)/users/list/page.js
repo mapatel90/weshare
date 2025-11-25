@@ -1,8 +1,8 @@
 'use client'
 import React from 'react'
 import PageHeader from '@/components/shared/pageHeader/PageHeader'
-import UsersTable from '@/components/users/UsersTable'
-import UsersHeader from '@/components/users/UsersHeader'
+import UsersTable from '@/components/admin/users/UsersTable'
+import UsersHeader from '@/components/admin/users/UsersHeader'
 import Footer from '@/components/shared/Footer'
 import DynamicTitle from '@/components/common/DynamicTitle'
 

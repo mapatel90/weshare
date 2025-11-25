@@ -1,4 +1,4 @@
-import SettingsFinanceForm from "@/components/setting/settingsFinanceForm";
+import SettingsFinanceForm from "@/components/admin/setting/settingsFinanceForm";
 import React from "react";
 import DynamicTitle from "@/components/common/DynamicTitle";
 

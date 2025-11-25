@@ -5,7 +5,7 @@ import { apiGet } from '@/lib/api';
 import BlogDetailHeroSection from './section/BlogDetailHeroSection';
 import BlogDetailLeftSection from './section/BlogDetailLeftSection';
 import BlogDetailRightSection from './section/BlogDetailRightSection';
-import '@/components/news/styles/newsDetails.css';
+import '@/components/frontend/news/styles/newsDetails.css';
 
 const BlogDetail = ({ blogSlug }) => {
   const [blog, setBlog] = useState(null);

@@ -1,7 +1,7 @@
 import React from 'react'
 import PageHeader from '@/components/shared/pageHeader/PageHeader'
-import UsersEditHeader from '@/components/users/UsersEditHeader'
-import UsersEditForm from '@/components/users/UsersEditForm'
+import UsersEditHeader from '@/components/admin/users/UsersEditHeader'
+import UsersEditForm from '@/components/admin/users/UsersEditForm'
 
 const page = () => {
   return (

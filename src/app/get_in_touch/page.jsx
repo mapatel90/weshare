@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useEffect } from "react";
-import HomeNavbar from "@/components/home/HomeNavbar";
-import HomeFooter from "@/components/home/HomeFooter";
+import HomeNavbar from "@/components/frontend/home/HomeNavbar";
+import HomeFooter from "@/components/frontend/home/HomeFooter";
 import GetInTouchFormSection from "@/components/get_in_touch/section/GetInTouchFormSection";
 import GetInTouchHelpSection from "@/components/get_in_touch/section/GetInTouchHelpSection";
 import GetInTouchHeroSection from "@/components/get_in_touch/section/GetInTouchHeroSection";

@@ -1,7 +1,7 @@
 import React from "react";
 import PageHeader from "@/components/shared/pageHeader/PageHeader";
-import TestimonialHeader from "@/components/testimonial/TestimonialHeader";
-import TestimonialTable from "@/components/testimonial/TestimonialTable";
+import TestimonialHeader from "@/components/admin/testimonial/TestimonialHeader";
+import TestimonialTable from "@/components/admin/testimonial/TestimonialTable";
 import Footer from "@/components/shared/Footer";
 import DynamicTitle from "@/components/common/DynamicTitle";
 

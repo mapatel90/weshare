@@ -1,6 +1,6 @@
 import React from 'react'
 import PageHeader from '@/components/shared/pageHeader/PageHeader'
-import ProjectViewContent from '@/components/projectsCreate/ProjectViewContent'
+import ProjectViewContent from '@/components/admin/projectsCreate/ProjectViewContent'
 import DynamicTitle from '@/components/common/DynamicTitle'
 
 export const metadata = { title: 'WeShare | View Project' }

@@ -1,4 +1,4 @@
-import SettingGeneralForm from '@/components/setting/settingGeneralForm'
+import SettingGeneralForm from '@/components/admin/setting/settingGeneralForm'
 import React from 'react'
 import DynamicTitle from '@/components/common/DynamicTitle'
 

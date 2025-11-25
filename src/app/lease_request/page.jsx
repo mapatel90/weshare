@@ -1,13 +1,13 @@
 "use client";
 
 import React, { useEffect } from "react";
-import HomeNavbar from "@/components/home/HomeNavbar";
-import HomeFooter from "@/components/home/HomeFooter";
-import LeaseFormSection from "@/components/lease_request/LeaseForm";
-import LeaseHelpSection from "@/components/lease_request/LeaseHelp";
-import LeaseHeroSection from "@/components/lease_request/LeaseHeroSection";
+import HomeNavbar from "@/components/frontend/home/HomeNavbar";
+import HomeFooter from "@/components/frontend/home/HomeFooter";
+import LeaseFormSection from "@/components/frontend/lease_request/LeaseForm";
+import LeaseHelpSection from "@/components/frontend/lease_request/LeaseHelp";
+import LeaseHeroSection from "@/components/frontend/lease_request/LeaseHeroSection";
 import "bootstrap/dist/css/bootstrap.min.css";
-import "@/components/get_in_touch/styles/getInTouch.css";
+import "@/components/frontend/get_in_touch/styles/getInTouch.css";
 import "@/styles/css/home.css";
 import "@/styles/css/responsive.css";
 import DynamicTitle from "@/components/common/DynamicTitle";

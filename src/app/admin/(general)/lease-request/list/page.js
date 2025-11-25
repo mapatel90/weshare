@@ -2,7 +2,7 @@
 import React from 'react'
 import PageHeader from '@/components/shared/pageHeader/PageHeader'
 import Footer from '@/components/shared/Footer'
-import LeaseTable from '@/components/lease_request/LeaseTable';
+import LeaseTable from '@/components/admin/lease_request/LeaseTable';
 import DynamicTitle from '@/components/common/DynamicTitle'
 
 const page = () => {

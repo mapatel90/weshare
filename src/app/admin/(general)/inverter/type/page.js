@@ -2,8 +2,8 @@
 import React from 'react'
 import Footer from '@/components/shared/Footer'
 import PageHeader from '@/components/shared/pageHeader/PageHeader'
-import InverterTypeHeader from '@/components/inverter/InverterTypeHeader'
-import InverterTypeTable from '@/components/inverter/InverterTypeTable'
+import InverterTypeHeader from '@/components/admin/inverter/InverterTypeHeader'
+import InverterTypeTable from '@/components/admin/inverter/InverterTypeTable'
 import DynamicTitle from '@/components/common/DynamicTitle'
 const page = () => {
     return (

@@ -1,9 +1,9 @@
 'use client'
 
 import React from 'react'
-import HomeNavbar from '@/components/home/HomeNavbar'
-import HomeFooter from '@/components/home/HomeFooter'
-import ProjectDetail from '@/components/exchange-hub/ProjectDetail'
+import HomeNavbar from '@/components/frontend/home/HomeNavbar'
+import HomeFooter from '@/components/frontend/home/HomeFooter'
+import ProjectDetail from '@/components/frontend/exchange-hub/ProjectDetail'
 import 'bootstrap/dist/css/bootstrap.min.css'
 // import '../../../../public/css/responsive.css'
 import '@/styles/css/responsive.css'

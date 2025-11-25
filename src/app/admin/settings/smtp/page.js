@@ -1,4 +1,4 @@
-import SettingsEmailForm from '@/components/setting/settingsEmailForm'
+import SettingsEmailForm from '@/components/admin/setting/settingsEmailForm'
 import React from 'react'
 import DynamicTitle from '@/components/common/DynamicTitle'
 
