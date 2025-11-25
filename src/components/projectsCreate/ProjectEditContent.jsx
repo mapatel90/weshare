@@ -26,6 +26,7 @@ import {
     Box,
     IconButton,
 } from "@mui/material";
+import MeterView from '../meter/MeterView'
 
 const ProjectEditContent = ({ projectId }) => {
     const router = useRouter()
@@ -72,6 +73,7 @@ const ProjectEditContent = ({ projectId }) => {
     const [projectTypes, setProjectTypes] = useState([])
     const steps = [
         { name: lang('projects.projectInformation', 'Project Information'), key: 'info' },
+        { name: lang('meter.meter', 'Meter'), key: 'meter' },
         { name: lang('inverter.inverter', 'Inverter'), key: 'inverter' },
         { name: lang('home.exchangeHub.investor', 'Investor'), key: 'investor' },
         { name: lang('contract.contract', 'Contract'), key: 'contract' }
@@ -817,6 +819,9 @@ const ProjectEditContent = ({ projectId }) => {
                         )}
                         {activeTab === 'contract' && (
                             <Contract projectId={projectId} />
+                        )}
+                        {activeTab === 'meter' && (
+                            <MeterView projectId={projectId} />
                         )}
                     </div>
                 </div>
