@@ -51,8 +51,8 @@ const Contract = ({ projectId }) => {
     // Find interested_investors that belong to this project
     const invIdsForProject = Array.isArray(investorList)
       ? investorList
-          .filter((inv) => Number(inv.projectId) === Number(projectId))
-          .map((inv) => Number(inv.id))
+        .filter((inv) => Number(inv.projectId) === Number(projectId))
+        .map((inv) => Number(inv.id))
       : [];
 
     // If any contract has investorId that matches an interested_investor id for same project -> hide Add
@@ -329,21 +329,61 @@ const Contract = ({ projectId }) => {
       },
     },
     {
-      accessorKey: "contractDescription",
-      header: () => lang("contract.description", "Description"),
+      accessorKey: "contractType",
+      header: () => lang("contract.type", "Type"),
       cell: (info) => {
         const v = info.getValue() || "-";
+        const row = info.row?.original || {};
+        let typeLabel = v;
+        if (row.investorId || row.investor_id) {
+          typeLabel = lang("contract.investor", "Investor");
+        } else if (row.offtakerId || row.offtaker_id) {
+          typeLabel = lang("contract.offtaker", "Offtaker");
+        }
         return (
           <div
-            title={v}
+            title={typeLabel}
             style={{
-              maxWidth: 400,
+              maxWidth: 200,
               whiteSpace: "nowrap",
               overflow: "hidden",
               textOverflow: "ellipsis",
             }}
           >
-            {v}
+            {typeLabel}
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "partyName",
+      header: () => lang("contract.partyName", "Party Name"),
+      cell: (info) => {
+        const row = info.row?.original || {};
+        let name = "-";
+        // Investor
+        // If Investor exists
+        if (row.investorId || row.investor_id) {
+          const investor = row.investor; // assuming API returns row.investor object
+          name = investor?.fullName || "-";
+        }
+        // Otherwise Offtaker
+        else if (row.offtakerId || row.offtaker_id) {
+          const offtaker = row.offtaker; // assuming API returns row.offtaker object
+          name = offtaker?.fullName || "-";
+        }
+
+        return (
+          <div
+            title={name}
+            style={{
+              maxWidth: 200,
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+            }}
+          >
+            {name}
           </div>
         );
       },
@@ -468,7 +508,16 @@ const Contract = ({ projectId }) => {
         onSubmit={handleSave}
       />
 
-      <Table data={contracts} columns={columns} />
+      <Table
+        data={contracts}
+        columns={columns}
+        options={{
+          meta: {
+            investorList,
+            offtakerList,
+          },
+        }}
+      />
     </div>
   );
 };
