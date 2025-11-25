@@ -1,4 +1,4 @@
-import SettingsCustomersForm from '@/components/setting/settingsCustomersForm'
+import SettingsCustomersForm from '@/components/admin/setting/settingsCustomersForm'
 import React from 'react'
 import DynamicTitle from '@/components/common/DynamicTitle'
 

@@ -1,4 +1,4 @@
-import SettingSeoForm from '@/components/setting/settingSeoForm'
+import SettingSeoForm from '@/components/admin/setting/settingSeoForm'
 import React from 'react'
 import DynamicTitle from '@/components/common/DynamicTitle'
 

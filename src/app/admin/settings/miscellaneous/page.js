@@ -1,4 +1,4 @@
-import SettingsMiscellaneousForm from '@/components/setting/settingsMiscellaneousForm'
+import SettingsMiscellaneousForm from '@/components/admin/setting/settingsMiscellaneousForm'
 import React from 'react'
 import DynamicTitle from '@/components/common/DynamicTitle'
 

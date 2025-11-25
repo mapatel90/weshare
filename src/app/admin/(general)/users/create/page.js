@@ -1,8 +1,8 @@
 'use client'
 import React from 'react'
 import PageHeader from '@/components/shared/pageHeader/PageHeader'
-import UsersCreateHeader from '@/components/users/UsersCreateHeader'
-import UsersCreateForm from '@/components/users/UsersCreateForm'
+import UsersCreateHeader from '@/components/admin/users/UsersCreateHeader'
+import UsersCreateForm from '@/components/admin/users/UsersCreateForm'
 
 const page = () => {
   return (

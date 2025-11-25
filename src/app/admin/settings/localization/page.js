@@ -1,4 +1,4 @@
-import SettingsLocalizationForm from '@/components/setting/settingsLocalizationForm'
+import SettingsLocalizationForm from '@/components/admin/setting/settingsLocalizationForm'
 import React from 'react'
 import DynamicTitle from '@/components/common/DynamicTitle'
 

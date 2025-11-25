@@ -1,8 +1,8 @@
 import React from 'react'
 import PageHeader from '@/components/shared/pageHeader/PageHeader'
 import Footer from '@/components/shared/Footer'
-import NewsHeader from '@/components/news/NewsHeader'
-import NewsTable from '@/components/news/NewsTable'
+import NewsHeader from '@/components/admin/news/NewsHeader'
+import NewsTable from '@/components/admin/news/NewsTable'
 import DynamicTitle from '@/components/common/DynamicTitle'
 
 const page = () => {

@@ -2,11 +2,11 @@
 
 import React, { useEffect } from "react";
 import { useParams } from "next/navigation";
-import HomeNavbar from "@/components/home/HomeNavbar";
-import HomeFooter from "@/components/home/HomeFooter";
-import NewsDetail from "@/components/news/NewsDetail";
+import HomeNavbar from "@/components/frontend/home/HomeNavbar";
+import HomeFooter from "@/components/frontend/home/HomeFooter";
+import NewsDetail from "@/components/frontend/news/NewsDetail";
 import "bootstrap/dist/css/bootstrap.min.css";
-import "@/components/news/styles/news.css";
+import "@/components/frontend/news/styles/news.css";
 import "@/styles/css/home.css";
 import "@/styles/css/responsive.css";
 import DynamicTitle from "@/components/common/DynamicTitle";

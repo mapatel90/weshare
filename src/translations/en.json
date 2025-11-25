@@ -1303,6 +1303,29 @@
     "addContract": "Add Contract",
     "editContract": "Edit Contract"
   },
+  "meter":{
+    "meter": "Meter",
+    "meterName": "Meter Name",
+    "meterNumber": "Meter Number",
+    "addMeter": "Add Meter",
+    "meterInformation": "Meter Information",
+    "editMeter": "Edit Meter",
+    "serialNumber": "Serial Number",
+    "simNumber": "SIM Number",
+    "simExpireDate": "SIM Expire Date",
+    "simStartDate": "SIM Start Date",
+    "serialNumberHelp": "Enter the unique serial number of the meter.",
+    "serialNumberPlaceholder": "Enter Serial Number",
+    "meterType": "Meter Type",
+    "meterTypePlaceholder": "Enter Meter Type",
+    "status": "Status",
+    "selectStatus": "Select Status",
+    "active": "Active",
+    "inactive": "Inactive",
+    "createdSuccessfully": "Meter Created Successfully",
+    "updatedSuccessfully": "Meter Updated Successfully",
+    "deletedSuccessfully": "Meter Deleted Successfully"
+  },
   "reports":{
     "reports": "Reports"
   }

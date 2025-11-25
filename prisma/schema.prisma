@@ -196,6 +196,13 @@ model Project {
   createdAt        DateTime  @default(now()) @map("created_at")
   updatedAt        DateTime  @updatedAt @map("updated_at")
 
+  // ⭐ New Columns Added
+  meter_name         String?   @db.VarChar(255)
+  meter_number       String?   @db.VarChar(255)
+  sim_number         String?   @db.VarChar(255)
+  sim_start_date     DateTime?
+  sim_expire_date    DateTime?
+
   // Relations
   city             City?     @relation(fields: [cityId], references: [id])
   state            State?    @relation(fields: [stateId], references: [id])

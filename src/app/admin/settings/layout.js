@@ -2,7 +2,7 @@
 import React from 'react'
 import NavigationManu from '@/components/shared/navigationMenu/NavigationMenu'
 import useBootstrapUtils from '@/hooks/useBootstrapUtils'
-import SettingSidebar from '@/components/setting/SettingSidebar'
+import SettingSidebar from '@/components/admin/setting/SettingSidebar'
 import Header from '@/components/shared/header/Header'
 import { usePathname } from 'next/navigation'
 import ProtectedRoute from '@/components/ProtectedRoute'

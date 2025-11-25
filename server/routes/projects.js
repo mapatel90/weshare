@@ -322,6 +322,62 @@ router.put('/:id', authenticateToken, async (req, res) => {
   }
 });
 
+// Insert a Meter by ID
+router.put('/meter/:id', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      meter_name,
+      meter_number,
+      sim_number,
+      sim_start_date,
+      sim_expire_date,
+    } = req.body;
+    console.log("Data::", req.body);
+
+    const updated = await prisma.project.update({
+      where: { id: parseInt(id) },
+      data: {
+        ...(meter_name !== undefined && { meter_name }),
+        ...(meter_number !== undefined && { meter_number }),
+        ...(sim_number !== undefined && { sim_number }),
+        ...(sim_start_date !== undefined && { sim_start_date: sim_start_date ? new Date(sim_start_date) : null }),
+        ...(sim_expire_date !== undefined && { sim_expire_date: sim_expire_date ? new Date(sim_expire_date) : null }),
+      },
+    });
+
+    res.json({ success: true, data: updated });
+  } catch (error) {
+    console.error('Update project error:', error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
+
+
+// Get a Meter by ID
+router.get('/meter/:id', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const meter = await prisma.project.findUnique({
+      where: { id: parseInt(id) },
+      select: {
+        meter_name: true,
+        meter_number: true,
+        sim_number: true,
+        sim_start_date: true,
+        sim_expire_date: true,
+      },
+    });
+    if (!meter) {
+      return res.status(404).json({ success: false, message: 'Meter not found' });
+    }
+    res.json({ success: true, data: meter });
+  } catch (error) {
+    console.error('Get meter error:', error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
+
 // Delete a project by ID
 router.delete('/:id', authenticateToken, async (req, res) => {
   try {

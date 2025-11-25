@@ -1,8 +1,8 @@
 import React from 'react'
 import PageHeader from '@/components/shared/pageHeader/PageHeader'
 import Footer from '@/components/shared/Footer'
-import InvoiceTable from '@/components/invoice/InvoiceTable'
-import InvoiceHeader from '@/components/invoice/InvoiceHeader'
+import InvoiceTable from '@/components/admin/invoice/InvoiceTable'
+import InvoiceHeader from '@/components/admin/invoice/InvoiceHeader'
 import DynamicTitle from '@/components/common/DynamicTitle'
 
 const page = () => {
