@@ -426,11 +426,11 @@ const Contract = ({ projectId }) => {
           </span>
         ) : info.getValue() == 1 ? (
           <span className="badge bg-soft-success text-success">
-            {lang("common.active", "Active")}
+            {lang("common.actives", "Approved")}
           </span>
         ) : (
           <span className="badge bg-soft-danger text-danger">
-            {lang("common.inactive", "Inactive")}
+            {lang("common.inactives", "Rejected")}
           </span>
         ),
     },
