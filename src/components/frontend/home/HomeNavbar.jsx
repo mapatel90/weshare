@@ -23,6 +23,8 @@ import {
 } from '@mui/material'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline'
+import AccountTreeOutlinedIcon from '@mui/icons-material/AccountTreeOutlined';
+import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
 import Image from 'next/image'
 import Link from 'next/link'
 import { useLanguage } from '@/contexts/LanguageContext'
@@ -122,11 +124,23 @@ const HomeNavbar = () => {
   const handleProfile = () => {
     // Navigate to dashboard based on user role
     if (user?.role === 3) {
-      router.push('/offtaker/myprofile')
+      router.push('/offtaker/projects')
     } else if (user?.role === 4) {
-      router.push('/investor/dashboards/analytics')
+      router.push('/investor/projects')
     } else {
       router.push('/admin/dashboards/analytics')
+    }
+    setUserAnchor(null)
+  }
+  
+  const handleProjects = () => {
+    // Navigate to dashboard based on user role
+    if (user?.role === 3) {
+      router.push('/offtaker/projects')
+    } else if (user?.role === 4) {
+      router.push('/investor/projects')
+    } else {
+      router.push('/admin/projects/list')
     }
     setUserAnchor(null)
   }
@@ -136,7 +150,7 @@ const HomeNavbar = () => {
     setUserAnchor(null)
   }
 
-    const mobileUserMenu = (
+  const mobileUserMenu = (
     <Menu
       anchorEl={userAnchor}
       open={Boolean(userAnchor)}
@@ -168,8 +182,8 @@ const HomeNavbar = () => {
 
   // Mobile menu content - shown below navbar
   const mobileMenu = (
-    <Box 
-      sx={{ 
+    <Box
+      sx={{
         backgroundColor: '#1e3a4a',
         pb: 1,
         margin: '5px 30px 10px',
@@ -190,7 +204,7 @@ const HomeNavbar = () => {
       }}
     >
 
-            {user && (
+      {user && (
         <Box sx={{ display: 'flex', justifyContent: 'center', py: 2 }}>
           <Avatar
             src={user?.user_image || '/images/avatar/Profile.png'}
@@ -246,13 +260,13 @@ const HomeNavbar = () => {
               primary={
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
                   <Typography sx={{ fontWeight: 600, color: '#fff' }}>{currentLanguageInfo?.name || 'English'}</Typography>
-                  <KeyboardArrowDownIcon 
-                    fontSize="small" 
-                    sx={{ 
+                  <KeyboardArrowDownIcon
+                    fontSize="small"
+                    sx={{
                       color: '#fff',
                       transform: mobileLangOpen ? 'rotate(180deg)' : 'rotate(0deg)',
                       transition: 'transform 0.3s ease'
-                    }} 
+                    }}
                   />
                 </Box>
               }
@@ -262,8 +276,8 @@ const HomeNavbar = () => {
 
         {/* Language dropdown options - shown inside mobile menu */}
         {mobileLangOpen && (
-          <Box 
-            sx={{ 
+          <Box
+            sx={{
               backgroundColor: 'rgba(255, 255, 255, 0.95)',
               mx: 2,
               my: 1,
@@ -285,7 +299,7 @@ const HomeNavbar = () => {
           >
             {Object.values(languages || {}).map((lng, index) => (
               <Box key={lng.code}>
-                <ListItem 
+                <ListItem
                   disablePadding
                 >
                   <ListItemButton
@@ -303,7 +317,7 @@ const HomeNavbar = () => {
                       }
                     }}
                   >
-                    <ListItemText 
+                    <ListItemText
                       primary={lng.name}
                       sx={{ textAlign: 'center' }}
                     />
@@ -318,27 +332,27 @@ const HomeNavbar = () => {
         )}
 
         {!user && (
-        <ListItem disablePadding>
-          <ListItemButton 
-            onClick={() => setMobileMenuOpen(false)}
-            sx={{ 
-              textAlign: 'center',
-              color: '#fff',
-              // py: 2,
-              justifyContent: 'center',
-              position: 'relative',
-              transition: 'all 0.2s ease',
-              gap: 1,
-              '&:hover': {
-                backgroundColor: 'rgba(246, 166, 35, 0.1)'
-              }
-            }} 
-            href="/login"
-          >
-            <PersonOutlineIcon sx={{ fontSize: 20 }} />
-            <Typography sx={{ fontWeight: 500 }}>{lang('home.navbar.login')}</Typography>
-          </ListItemButton>
-        </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton
+              onClick={() => setMobileMenuOpen(false)}
+              sx={{
+                textAlign: 'center',
+                color: '#fff',
+                // py: 2,
+                justifyContent: 'center',
+                position: 'relative',
+                transition: 'all 0.2s ease',
+                gap: 1,
+                '&:hover': {
+                  backgroundColor: 'rgba(246, 166, 35, 0.1)'
+                }
+              }}
+              href="/login"
+            >
+              <PersonOutlineIcon sx={{ fontSize: 20 }} />
+              <Typography sx={{ fontWeight: 500 }}>{lang('home.navbar.login')}</Typography>
+            </ListItemButton>
+          </ListItem>
         )}
       </List>
     </Box>
@@ -457,10 +471,7 @@ const HomeNavbar = () => {
                       </MenuItem>
 
                       <MenuItem
-                        onClick={() => {
-                          router.push('/')
-                          handleUserClose()
-                        }}
+                        onClick={handleProjects}
                         sx={{
                           py: 1.5,
                           fontSize: '1rem',
@@ -471,6 +482,7 @@ const HomeNavbar = () => {
                           },
                         }}
                       >
+                        <AccountTreeOutlinedIcon sx={{ mr: 2, fontSize: 26, color: '#000' }} />
                         My Projects
                       </MenuItem>
 
@@ -486,6 +498,7 @@ const HomeNavbar = () => {
                           },
                         }}
                       >
+                        <LogoutOutlinedIcon sx={{ mr: 2, fontSize: 26, color: '#000' }} />
                         Logout
                       </MenuItem>
                     </Menu>
@@ -519,7 +532,7 @@ const HomeNavbar = () => {
                   aria-label="open drawer"
                   edge="start"
                   onClick={handleDrawerToggle}
-                  sx={{ 
+                  sx={{
                     color: '#000',
                     transition: 'transform 0.3s ease',
                     '&:hover': {

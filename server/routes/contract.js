@@ -207,14 +207,21 @@ router.put("/:id", authenticateToken, upload.single('document'), async (req, res
 router.put("/:id/status", authenticateToken, async (req, res) => {
   try {
     const id = Number(req.params.id);
-    const { status } = req.body;
+    const { status, reason } = req.body;
     const existing = await prisma.contract.findUnique({ where: { id } });
     if (!existing || existing.is_deleted) {
       return res.status(404).json({ success: false, message: 'Contract not found' });
     }
+    // If rejected, save the reason
+    const updateData = { status: Number(status) };
+    if (Number(status) === 2 && reason) {
+      updateData.rejectreason = reason;
+    } else if (Number(status) !== 2) {
+      updateData.rejectreason = null;
+    }
     const updated = await prisma.contract.update({
       where: { id },
-      data: { status: Number(status) },
+      data: updateData,
     });
     return res.json({ success: true, data: updated });
   } catch (error) {
