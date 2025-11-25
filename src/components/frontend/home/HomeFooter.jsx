@@ -153,7 +153,7 @@ const HomeFooter = () => {
                   <Link href="/#how-it-works">{lang("home.footer.howItWorks")}</Link>
                 </li>
                 <li>
-                  <Link href="/frontend/exchange-hub">{lang("home.footer.news")}</Link>
+                  <Link href="/frontend/news">{lang("home.footer.news")}</Link>
                 </li>
                 <li>
                   <Link href="/frontend/blog">{lang("home.footer.blog")}</Link>
