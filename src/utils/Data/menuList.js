@@ -233,24 +233,24 @@ export const menuList = [
         path: "/admin/settings/customers",
         subdropdownMenu: false,
       },
-      {
-        id: 12,
-        name: "Localization",
-        path: "/admin/settings/localization",
-        subdropdownMenu: false,
-      },
-      {
-        id: 13,
-        name: "reCAPTCHA",
-        path: "/admin/settings/recaptcha",
-        subdropdownMenu: false,
-      },
-      {
-        id: 14,
-        name: "Miscellaneous",
-        path: "/admin/settings/miscellaneous",
-        subdropdownMenu: false,
-      },
+      // {
+      //   id: 12,
+      //   name: "Localization",
+      //   path: "/admin/settings/localization",
+      //   subdropdownMenu: false,
+      // },
+      // {
+      //   id: 13,
+      //   name: "reCAPTCHA",
+      //   path: "/admin/settings/recaptcha",
+      //   subdropdownMenu: false,
+      // },
+      // {
+      //   id: 14,
+      //   name: "Miscellaneous",
+      //   path: "/admin/settings/miscellaneous",
+      //   subdropdownMenu: false,
+      // },
     ],
   },
 ];
