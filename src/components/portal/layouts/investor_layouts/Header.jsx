@@ -1,3 +1,4 @@
+'use client';
 import { Avatar, Menu, MenuItem } from '@mui/material';
 import React from 'react';
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
@@ -42,7 +43,7 @@ function Header({ toggleSidebar }) {
     };
     const handleProfileClick = () => {
         // Add your profile navigation logic here
-        window.location.href = '/offtaker/myprofile';
+        window.location.href = '/investor/myprofile';
         setAnchorEl(null)
     };
 
@@ -128,7 +129,7 @@ function Header({ toggleSidebar }) {
                             {user?.name || 'Offtaker User'}
                         </div>
                         <div style={{ borderBottom: '1px solid #eee', margin: '0 8px' }} />
-                        {/* <MenuItem onClick={() => { handleProfileClick(); }}
+                        <MenuItem onClick={() => { handleProfileClick(); }}
                             sx={{
                                 py: 1.5,
                                 fontSize: '1rem',
@@ -151,7 +152,7 @@ function Header({ toggleSidebar }) {
                         >
                             <PersonOutlineIcon sx={{ mr: 2, fontSize: 26, color: '#000', transition: 'color 0.2s', marginRight: 0 }} />
                             My Profile
-                        </MenuItem> */}
+                        </MenuItem>
                         <MenuItem
                             onClick={handleLogout}
                             sx={{

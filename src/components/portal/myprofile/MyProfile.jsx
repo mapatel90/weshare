@@ -46,6 +46,7 @@ const MyProfile = () => {
         cityId: '',
         user_image: ''
     })
+    console.log("profileData", profileData)
     const [imageFile, setImageFile] = useState(null)
     const [imagePreview, setImagePreview] = useState(null)
 
@@ -60,6 +61,7 @@ const MyProfile = () => {
 
                 if (response.success) {
                     const userData = response.data
+                    console.log(userData)
                     setProfileData({
                         fullName: userData.fullName || '',
                         email: userData.email || '',
@@ -213,65 +215,54 @@ const MyProfile = () => {
             sx={{
                 width: '100%',
                 minHeight: '80vh',
-                background: 'linear-gradient(135deg, #f8fafc 0%, #e2eafc 100%)',
+                background: '#f8fafc',
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center',
                 px: { xs: 1, sm: 2, md: 4 },
             }}
         >
-            <Card
+            <div
                 sx={{
-                    width: { xs: '100%', sm: 400, md: 500, lg: 600 },
-                    boxShadow: 6,
-                    borderRadius: 5,
-                    p: { xs: 1, sm: 2, md: 3 },
+                    // width: { xs: '100%', md: 900 },
+                    boxShadow: 3,
+                    borderRadius: 6,
+                    p: { xs: 2, md: 4 },
                     mx: { xs: 0, sm: 2 },
+                    background: '#fff',
                 }}
             >
-                <CardHeader
-                    title={
-                        <Typography
-                            variant="h5"
-                            sx={{ fontWeight: 700, color: '#2d3748', fontSize: { xs: '1.2rem', sm: '1.5rem' } }}
-                        >
-                            My Profile
-                        </Typography>
-                    }
-                    sx={{ backgroundColor: '#e2eafc', borderRadius: 3, mb: 2, textAlign: 'center', px: { xs: 1, sm: 2 } }}
-                />
-                <CardContent>
-                    <form onSubmit={handleSubmit}>
-                        <Box display="flex" flexDirection="column" alignItems="center" mb={3}>
+                <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 4 }}>
+                    {/* Left: Avatar & Info */}
+                    <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', py: 4 }}>
+                        <Box sx={{ position: 'relative', mb: 2 }}>
                             <Avatar
                                 src={getFullImageUrl(imagePreview) || '/images/avatar/default-avatar.png'}
                                 alt="Profile"
-                                sx={{
-                                    width: { xs: 80, sm: 100, md: 120 },
-                                    height: { xs: 80, sm: 100, md: 120 },
-                                    mb: 2,
-                                    boxShadow: 3,
-                                    border: '4px solid #e2eafc',
-                                }}
+                                sx={{ width: 120, height: 120, boxShadow: 2, border: '3px solid #e2eafc', background: '#f8fafc' }}
                             />
                             <Button
                                 component="label"
                                 variant="contained"
-                                startIcon={<CloudUploadIcon />}
                                 sx={{
-                                    borderRadius: 3,
-                                    background: '#4f8cff',
-                                    color: '#fff',
-                                    fontWeight: 600,
-                                    px: 3,
-                                    py: 1,
-                                    mt: 1,
-                                    fontSize: { xs: '0.8rem', sm: '1rem' },
-                                    '&:hover': { background: '#2563eb' },
+                                    position: 'absolute',
+                                    bottom: -10,
+                                    left: '50%',
+                                    transform: 'translateX(-50%)',
+                                    borderRadius: 20,
+                                    background: '#fff',
+                                    color: '#2563eb',
+                                    fontWeight: 500,
+                                    px: 2,
+                                    py: 0.5,
+                                    fontSize: '0.9rem',
+                                    boxShadow: 1,
+                                    minWidth: 0,
+                                    '&:hover': { background: '#e2eafc' },
                                 }}
-                                size="medium"
+                                size="small"
                             >
-                                Change Picture
+                                Change
                                 <input
                                     type="file"
                                     id="user_image"
@@ -281,136 +272,104 @@ const MyProfile = () => {
                                     hidden
                                 />
                             </Button>
-                            <Typography variant="caption" color="text.secondary" sx={{ mt: 1, fontSize: { xs: '0.7rem', sm: '0.9rem' } }}>
-                                JPG, PNG, JPEG. Max 2MB
-                            </Typography>
                         </Box>
-                        <Grid container spacing={2}>
-                            <Grid item xs={12} sm={6}>
-                                <TextField
-                                    fullWidth
-                                    label="Full Name"
-                                    name="fullName"
-                                    value={profileData.fullName}
-                                    onChange={handleInputChange}
-                                    placeholder="Enter your full name"
-                                    required
-                                    variant="outlined"
-                                    sx={{ borderRadius: 3, background: '#f8fafc' }}
-                                    InputProps={{ sx: { fontSize: { xs: '0.9rem', sm: '1rem' } } }}
-                                />
-                            </Grid>
-                            <Grid item xs={12} sm={6}>
-                                <TextField
-                                    fullWidth
-                                    label="Email"
-                                    name="email"
-                                    type="email"
-                                    value={profileData.email}
-                                    onChange={handleInputChange}
-                                    placeholder="Enter your email"
-                                    required
-                                    variant="outlined"
-                                    sx={{ borderRadius: 3, background: '#f8fafc' }}
-                                    InputProps={{ sx: { fontSize: { xs: '0.9rem', sm: '1rem' } } }}
-                                />
-                            </Grid>
-                            <Grid item xs={12} sm={6}>
-                                <TextField
-                                    fullWidth
-                                    label="Phone Number"
-                                    name="phoneNumber"
-                                    value={profileData.phoneNumber}
-                                    onChange={handleInputChange}
-                                    placeholder="Enter your phone number"
-                                    variant="outlined"
-                                    sx={{ borderRadius: 3, background: '#f8fafc' }}
-                                    InputProps={{ sx: { fontSize: { xs: '0.9rem', sm: '1rem' } } }}
-                                />
-                            </Grid>
-                            <Grid item xs={12} sm={6}>
-                                <TextField
-                                    fullWidth
-                                    select
-                                    label="Country"
-                                    name="countryId"
-                                    value={profileData.countryId}
-                                    onChange={handleCountrySelect}
-                                    disabled={loadingCountries}
-                                    variant="outlined"
-                                    sx={{ borderRadius: 3, background: '#f8fafc' }}
-                                    InputProps={{ sx: { fontSize: { xs: '0.9rem', sm: '1rem' } } }}
-                                >
-                                    <MenuItem value="">Select Country</MenuItem>
-                                    {countries.map((country) => (
-                                        <MenuItem key={country.id} value={country.id}>
-                                            {country.name}
-                                        </MenuItem>
-                                    ))}
-                                </TextField>
-                            </Grid>
-                            <Grid item xs={12} sm={6}>
-                                <TextField
-                                    fullWidth
-                                    select
-                                    label="State"
-                                    name="stateId"
-                                    value={profileData.stateId}
-                                    onChange={handleStateSelect}
-                                    disabled={!profileData.countryId || loadingStates}
-                                    variant="outlined"
-                                    sx={{ borderRadius: 3, background: '#f8fafc' }}
-                                    InputProps={{ sx: { fontSize: { xs: '0.9rem', sm: '1rem' } } }}
-                                >
-                                    <MenuItem value="">Select State</MenuItem>
-                                    {states.map((state) => (
-                                        <MenuItem key={state.id} value={state.id}>
-                                            {state.name}
-                                        </MenuItem>
-                                    ))}
-                                </TextField>
-                            </Grid>
-                            <Grid item xs={12} sm={6}>
-                                <TextField
-                                    fullWidth
-                                    select
-                                    label="City"
-                                    name="cityId"
-                                    value={profileData.cityId}
-                                    onChange={handleCitySelect}
-                                    disabled={!profileData.stateId || loadingCities}
-                                    variant="outlined"
-                                    sx={{ borderRadius: 3, background: '#f8fafc' }}
-                                    InputProps={{ sx: { fontSize: { xs: '0.9rem', sm: '1rem' } } }}
-                                >
-                                    <MenuItem value="">Select City</MenuItem>
-                                    {cities.map((city) => (
-                                        <MenuItem key={city.id} value={city.id}>
-                                            {city.name}
-                                        </MenuItem>
-                                    ))}
-                                </TextField>
-                            </Grid>
-                            <Grid item xs={12}>
-                                <Box display="flex" justifyContent="center" gap={2} mt={2}>
-                                    <Button
+                        <Typography variant="h6" sx={{ fontWeight: 700, mt: 1 }}>{profileData.fullName || 'Your Name'}</Typography>
+                        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>{profileData.email || 'you@example.com'}</Typography>
+                    </Box>
+                    {/* Right: Profile Form */}
+                    <Box sx={{ flex: 2, py: 2 }}>
+                        <form onSubmit={handleSubmit}>
+                            <Grid container spacing={2}>
+                                <Grid item xs={12} md={6}>
+                                    <TextField
+                                        fullWidth
+                                        label="Full name"
+                                        name="fullName"
+                                        value={profileData.fullName}
+                                        onChange={handleInputChange}
+                                        placeholder="Enter full name as you want it displayed."
+                                        required
                                         variant="outlined"
-                                        color="secondary"
-                                        sx={{
-                                            borderRadius: 3,
-                                            px: { xs: 2, sm: 4 },
-                                            py: 1,
-                                            fontWeight: 600,
-                                            background: '#f8fafc',
-                                            color: '#4f8cff',
-                                            borderColor: '#4f8cff',
-                                            fontSize: { xs: '0.8rem', sm: '1rem' },
-                                            '&:hover': { background: '#e2eafc' },
-                                        }}
-                                        onClick={() => window.location.href = '/offtaker/dashboard'}
+                                        sx={{ borderRadius: 3, background: '#f8fafc' }}
+                                        InputProps={{ sx: { fontSize: '1rem' } }}
+                                    />
+                                </Grid>
+                                <Grid item xs={12} md={6}>
+                                    <TextField
+                                        fullWidth
+                                        label="Phone number"
+                                        name="phoneNumber"
+                                        value={profileData.phoneNumber}
+                                        onChange={handleInputChange}
+                                        placeholder="Enter your phone number"
+                                        variant="outlined"
+                                        sx={{ borderRadius: 3, background: '#f8fafc' }}
+                                        InputProps={{ sx: { fontSize: '1rem' } }}
+                                    />
+                                </Grid>
+                                <Grid item xs={12} md={6}>
+                                    <TextField
+                                        fullWidth
+                                        label="Email"
+                                        name="email"
+                                        type="email"
+                                        value={profileData.email}
+                                        onChange={handleInputChange}
+                                        placeholder="you@example.com"
+                                        required
+                                        variant="outlined"
+                                        sx={{ borderRadius: 3, background: '#f8fafc' }}
+                                        InputProps={{ sx: { fontSize: '1rem' } }}
+                                    />
+                                </Grid>
+                                <Grid item xs={12} md={6}>
+                                    <TextField
+                                        fullWidth
+                                        select
+                                        label="Country"
+                                        name="countryId"
+                                        value={profileData.countryId}
+                                        onChange={handleCountrySelect}
+                                        disabled={loadingCountries}
+                                        variant="outlined"
+                                        sx={{ borderRadius: 3, background: '#f8fafc' }}
+                                        InputProps={{ sx: { fontSize: '1rem' } }}
                                     >
-                                        Cancel
-                                    </Button>
+                                        <MenuItem value="">Choose country</MenuItem>
+                                        {countries.map((country) => (
+                                            <MenuItem key={country.id} value={country.id}>
+                                                {country.name}
+                                            </MenuItem>
+                                        ))}
+                                    </TextField>
+                                </Grid>
+                                <Grid item xs={12} md={6}>
+                                    <TextField
+                                        fullWidth
+                                        label="State / Province"
+                                        name="stateId"
+                                        value={profileData.stateId}
+                                        onChange={handleStateSelect}
+                                        disabled={!profileData.countryId || loadingStates}
+                                        variant="outlined"
+                                        sx={{ borderRadius: 3, background: '#f8fafc' }}
+                                        InputProps={{ sx: { fontSize: '1rem' } }}
+                                    />
+                                </Grid>
+                                <Grid item xs={12} md={6}>
+                                    <TextField
+                                        fullWidth
+                                        label="City"
+                                        name="cityId"
+                                        value={profileData.cityId}
+                                        onChange={handleCitySelect}
+                                        disabled={!profileData.stateId || loadingCities}
+                                        variant="outlined"
+                                        sx={{ borderRadius: 3, background: '#f8fafc' }}
+                                        InputProps={{ sx: { fontSize: '1rem' } }}
+                                    />
+                                </Grid>
+                                <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 2 }}>
                                     <Button
                                         type="submit"
                                         variant="contained"
@@ -418,23 +377,25 @@ const MyProfile = () => {
                                         disabled={loading}
                                         sx={{
                                             borderRadius: 3,
-                                            px: { xs: 2, sm: 4 },
+                                            px: 4,
                                             py: 1,
                                             fontWeight: 600,
-                                            background: '#4f8cff',
-                                            fontSize: { xs: '0.8rem', sm: '1rem' },
+                                            background: 'linear-gradient(90deg, #f6a623 0%, #f6a623 100%)',
+                                            color: '#fff',
+                                            fontSize: '1rem',
+                                            boxShadow: 2,
                                             '&:hover': { background: '#2563eb' },
                                         }}
                                         startIcon={loading && <CircularProgress size={20} />}
                                     >
-                                        {loading ? 'Saving...' : 'Save Changes'}
+                                        {loading ? 'Saving...' : 'Save profile'}
                                     </Button>
-                                </Box>
+                                </Grid>
                             </Grid>
-                        </Grid>
-                    </form>
-                </CardContent>
-            </Card>
+                        </form>
+                    </Box>
+                </Box>
+            </div>
         </Box>
     )
 };
