@@ -1,4 +1,4 @@
-import SettingsSupportForm from '@/components/setting/settingsSupportForm'
+import SettingsSupportForm from '@/components/admin/setting/settingsSupportForm'
 import React from 'react'
 
 const page = () => {

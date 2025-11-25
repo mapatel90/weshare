@@ -1,4 +1,4 @@
-import SettingsTagsForm from '@/components/setting/settingsTagsForm'
+import SettingsTagsForm from '@/components/admin/setting/settingsTagsForm'
 import React from 'react'
 
 const page = () => {
