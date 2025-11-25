@@ -78,8 +78,8 @@ router.post("/", upload.single('document'), async (req, res) => {
 router.get("/", async (req, res) => {
   try {
 
-    const { projectId, investorId, offtakerId, status, includeDeleted, page = 1, limit = 20, userId,id } = req.query;
-    
+    const { projectId, investorId, offtakerId, status, includeDeleted, page = 1, limit = 20, userId, id } = req.query;
+
     const where = {
       ...(id ? { id: Number(id) } : {}),
       ...(projectId ? { projectId: Number(projectId) } : {}),
@@ -99,13 +99,13 @@ router.get("/", async (req, res) => {
       take: Number(limit),
       include: {
         project: {
-            include: {
-              city: true,
-              state: true,
-              country: true,
-              projectType: true,
-            },
+          include: {
+            city: true,
+            state: true,
+            country: true,
+            projectType: true,
           },
+        },
         offtaker: true,
         investor: true,
       },
@@ -196,6 +196,26 @@ router.put("/:id", authenticateToken, upload.single('document'), async (req, res
       },
     });
 
+    return res.json({ success: true, data: updated });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// update contract status
+router.put("/:id/status", authenticateToken, async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    const { status } = req.body;
+    const existing = await prisma.contract.findUnique({ where: { id } });
+    if (!existing || existing.is_deleted) {
+      return res.status(404).json({ success: false, message: 'Contract not found' });
+    }
+    const updated = await prisma.contract.update({
+      where: { id },
+      data: { status: Number(status) },
+    });
     return res.json({ success: true, data: updated });
   } catch (error) {
     console.error(error);
