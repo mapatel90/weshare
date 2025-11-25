@@ -1,4 +1,4 @@
-import SettingsTasksForm from '@/components/setting/settingsTasksForm'
+import SettingsTasksForm from '@/components/admin/setting/settingsTasksForm'
 import React from 'react'
 
 const page = () => {

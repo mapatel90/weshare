@@ -1,4 +1,4 @@
-import SettingsLeadsForm from '@/components/setting/settingsLeadsForm'
+import SettingsLeadsForm from '@/components/admin/setting/settingsLeadsForm'
 import React from 'react'
 
 const page = () => {

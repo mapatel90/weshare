@@ -3,11 +3,11 @@
 import React, { useEffect } from "react";
 import HomeNavbar from "@/components/frontend/home/HomeNavbar";
 import HomeFooter from "@/components/frontend/home/HomeFooter";
-import GetInTouchFormSection from "@/components/get_in_touch/section/GetInTouchFormSection";
-import GetInTouchHelpSection from "@/components/get_in_touch/section/GetInTouchHelpSection";
-import GetInTouchHeroSection from "@/components/get_in_touch/section/GetInTouchHeroSection";
+import GetInTouchFormSection from "@/components/frontend/get_in_touch/section/GetInTouchFormSection";
+import GetInTouchHelpSection from "@/components/frontend/get_in_touch/section/GetInTouchHelpSection";
+import GetInTouchHeroSection from "@/components/frontend/get_in_touch/section/GetInTouchHeroSection";
 import "bootstrap/dist/css/bootstrap.min.css";
-import "@/components/get_in_touch/styles/getInTouch.css";
+import "@/components/frontend/get_in_touch/styles/getInTouch.css";
 import "@/styles/css/home.css";
 import "@/styles/css/responsive.css";
 import DynamicTitle from "@/components/common/DynamicTitle";

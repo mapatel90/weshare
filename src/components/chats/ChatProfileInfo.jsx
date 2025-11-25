@@ -1,7 +1,7 @@
 import React from 'react'
 import { FiActivity, FiCalendar, FiClock, FiCodepen, FiDownload, FiExternalLink, FiGithub, FiGitlab, FiGlobe, FiInstagram, FiLinkedin, FiMail, FiMapPin, FiPhone, FiUser, FiUsers } from 'react-icons/fi'
 import ImageGroup from '@/components/shared/ImageGroup'
-import { imageList } from '../projectsCreate/TabProjectOverview'
+import { imageList } from '.././admin/projectsCreate/TabProjectOverview'
 import getIcon from '@/utils/getIcon'
 import { userList } from '@/utils/Data/userList'
 import { BsPatchCheck, BsPatchPlus, BsPatchQuestion } from 'react-icons/bs'
