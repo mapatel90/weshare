@@ -55,7 +55,7 @@ const MissionSection = () => {
               <button
                 type="button"
                 className="btn btn-primary-custom mt-3 d-inline-flex align-items-center"
-                onClick={() => router.push('/exchange-hub')}
+                onClick={() => router.push('/frontend/exchange-hub')}
               >
                 {lang('home.mission.visitHub')}
                 <Image

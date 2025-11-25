@@ -410,6 +410,7 @@ model Contract {
   is_deleted           Int       @default(0)
   createdAt            DateTime  @default(now()) @map("created_at")
   updatedAt            DateTime  @default(now()) @updatedAt @map("updated_at")
+  rejectreason         String?    @db.VarChar(255)
 
   // Relations
   project              Project?  @relation(fields: [projectId], references: [id])

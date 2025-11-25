@@ -95,7 +95,7 @@ export default function GetInTouchFormSection() {
       <div
         className="contact-box"
         style={{
-          backgroundImage: "url('images/contact_us/contactform-bg.jpg')",
+          backgroundImage: "url('/images/contact_us/contactform-bg.jpg')",
         }}
       >
         <h3 className="mb-4 contact-title">{lang("getinTouch.message")}</h3>

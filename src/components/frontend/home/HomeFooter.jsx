@@ -147,19 +147,19 @@ const HomeFooter = () => {
                   <Link href="/#about-us">{lang("home.footer.aboutUs")}</Link>
                 </li>
                 <li>
-                  <Link href="/exchange-hub">{lang("home.footer.exchangeHub")}</Link>
+                  <Link href="/frontend/exchange-hub">{lang("home.footer.exchangeHub")}</Link>
                 </li>
                 <li>
                   <Link href="/#how-it-works">{lang("home.footer.howItWorks")}</Link>
                 </li>
                 <li>
-                  <Link href="/news">{lang("home.footer.news")}</Link>
+                  <Link href="/frontend/exchange-hub">{lang("home.footer.news")}</Link>
                 </li>
                 <li>
-                  <Link href="/blog">{lang("home.footer.blog")}</Link>
+                  <Link href="/frontend/blog">{lang("home.footer.blog")}</Link>
                 </li>
                 <li>
-                  <Link href="/contact_us">{lang("home.footer.contactUs")}</Link>
+                  <Link href="/frontend/contact_us">{lang("home.footer.contactUs")}</Link>
                 </li>
               </ul>
             </div>

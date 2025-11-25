@@ -64,7 +64,7 @@ const NewsSection = () => {
             <p className="fs-18 fw-500 mb-0">{lang("home.news.subtitle")}</p>
           </div>
           <Link
-            href="/news"
+            href="/frontend/news"
             className="btn btn-primary-custom bg-102C41 shadow-0 d-inline-flex align-items-center justify-content-center py-2 px-3"
           >
             {lang("home.news.viewAll")} →
@@ -142,7 +142,7 @@ const NewsSection = () => {
                     </h4>
                     {isDynamic ? (
                       <Link
-                        href={`/newsDetail/${item.news_slug || ""}`}
+                        href={`/frontend/newsDetail/${item.news_slug || ""}`}
                         className="readMore"
                       >
                         {lang("home.news.readMore")} →

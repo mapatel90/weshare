@@ -82,6 +82,11 @@ const ProjectTable = () => {
       cell: info => info.getValue() || '-'
     },
     {
+      accessorKey: 'meter_number',
+      header: () => lang('projects.meter_number', 'Meter Number'),
+      cell: info => info.getValue() || '-'
+    },
+    {
       accessorKey: 'product_code',
       header: () => lang('projects.productCode', 'Product Code'),
       cell: info => info.getValue() || '-'

@@ -113,7 +113,7 @@ const HeroSection = () => {
           <Button 
             variant="contained"
             size="large"
-            onClick={() => router.push('/contact_us')}
+            onClick={() => router.push('/frontend/contact_us')}
             startIcon={
               <Image 
                 src="/images/icons/phone.svg" 
