@@ -5,7 +5,8 @@ const SOLIS_API_ID = process.env.SOLIS_API_ID;
 const SOLIS_API_SECRET = process.env.SOLIS_API_SECRET;
 
 function getContentMD5(body) {
-  const md5 = CryptoJS.MD5(body);
+  const wordArray = CryptoJS.enc.Utf8.parse(body);
+  const md5 = CryptoJS.MD5(wordArray);
   return CryptoJS.enc.Base64.stringify(md5);
 }
 
@@ -14,14 +15,14 @@ function getGMTDate() {
 }
 
 function getSignature(method, contentMD5, contentType, date, resource) {
-  const signingString = 
+  const signingString =
     method + "\n" +
     contentMD5 + "\n" +
     contentType + "\n" +
     date + "\n" +
     resource;
 
-  console.log("SIGNING STRING\n", signingString);
+  console.log("SIGNING STRING:\n" + signingString);
 
   const hmac = CryptoJS.HmacSHA1(signingString, SOLIS_API_SECRET);
   return CryptoJS.enc.Base64.stringify(hmac);
@@ -29,12 +30,11 @@ function getSignature(method, contentMD5, contentType, date, resource) {
 
 export async function solisRequest(resource, bodyObj = {}) {
   const method = "POST";
-  const contentType = "application/json;charset=UTF-8";
-
+  const contentType = "application/json";
   const body = JSON.stringify(bodyObj);
+
   const contentMD5 = getContentMD5(body);
   const date = getGMTDate();
-
   const signature = getSignature(method, contentMD5, contentType, date, resource);
 
   const headers = {
@@ -43,6 +43,8 @@ export async function solisRequest(resource, bodyObj = {}) {
     "Date": date,
     "Authorization": `API ${SOLIS_API_ID}:${signature}`,
   };
+
+  console.log("HEADERS:", headers);
 
   const response = await fetch(API_URL + resource, {
     method,
