@@ -3,7 +3,7 @@
   "info": {
     "title": "Weshare — API",
     "version": "1.0.0",
-    "description": "This documents the local Next.js proxy endpoints that call SolisCloud."
+    "description": "This documents the Weshare Energy API endpoints."
   },
   "servers": [
       { "url": "http://api.weshare-energy.com", "description": " Weshare Server" }
@@ -11,22 +11,8 @@
   "paths": {
     "/api/cron/demo": {
       "post": {
-        "summary": "userStationList route — find inverter detail via SolisCloud",
+        "summary": "Get userStationList detail (demo)",
         "description": "Calls /v1/api/userStationList → /v1/api/stationDetail → /v1/api/inverterDetail and returns inverter detail.",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "inverterSn": { "type": "string", "example": "1031270257120353" }
-                },
-                "required": ["inverterSn"]
-              }
-            }
-          }
-        },
         "responses": {
           "200": {
             "description": "Inverter detail returned",
