@@ -5,7 +5,7 @@ const router = express.Router();
 
 router.post('/demo', async (req, res) => {
     try {
-        const { inverterSn } = req.body;
+        // const { inverterSn } = req.body;
 
         const result = await solisRequest("/v1/api/userStationList");
         // const result = await solisRequest("/v1/api/inverterDetail", {
