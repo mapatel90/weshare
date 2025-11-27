@@ -3,20 +3,22 @@
 import Link from 'next/link'
 import React, { useState } from 'react'
 import { FiEye, FiEyeOff } from 'react-icons/fi'
-import { 
-    Box, 
-    TextField, 
-    Button, 
-    Typography, 
-    Alert, 
-    IconButton, 
+import {
+    Box,
+    TextField,
+    Button,
+    Typography,
+    Alert,
+    IconButton,
     InputAdornment,
     Checkbox,
     FormControlLabel
 } from '@mui/material'
 import { useAuth } from '@/contexts/AuthContext'
 import { useLanguage } from '@/contexts/LanguageContext'
+import { usePathname } from 'next/navigation';
 const LoginForm = ({ registerPath, resetPath }) => {
+    const pathname = usePathname();
     const [email, setEmail] = useState('')
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
@@ -51,14 +53,34 @@ const LoginForm = ({ registerPath, resetPath }) => {
             isValid = false
         }
 
+        // Role check based on pathname
+        let expectedRole = null;
+        if (pathname === '/admin/login') expectedRole = 1;
+        else if (pathname === '/offtaker/login') expectedRole = 3;
+        else if (pathname === '/investor/login') expectedRole = 4;
+
         if (!isValid) {
             setLoading(false)
             return
         }
-
         const result = await login(username, password)
-
-        if (!result.success) {
+        // result.user should have users_role property
+        if (result.success) {
+            if (expectedRole && result.user?.role !== expectedRole) {
+                setError('You do not have permission to access this area.');
+                setLoading(false);
+                return;
+            } else {
+                // Redirect based on role
+                if (result.user?.role === 3) {
+                    window.location.href = '/offtaker/dashboard';
+                } else if (result.user?.role === 4) {
+                    window.location.href = '/investor/dashboard';
+                } else {
+                    window.location.href = '/admin/dashboards/analytics';
+                }
+            }
+        } else {
             setError(result.message)
         }
 

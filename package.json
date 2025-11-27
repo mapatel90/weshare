@@ -97,6 +97,7 @@
     "react-perfect-scrollbar": "^1.5.8",
     "react-select": "^5.9.0",
     "react-tooltip": "^5.28.0",
+    "recharts": "^3.5.0",
     "sass": "^1.83.1",
     "swagger-ui-react": "^5.30.3",
     "sweetalert2": "^11.14.1",
