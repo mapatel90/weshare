@@ -59,6 +59,43 @@ const removePhysicalFile = (absolutePath) => {
   });
 };
 
+const slugify = (text = "") =>
+  text
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/[^\w\-]+/g, "")
+    .replace(/\-\-+/g, "-")
+    .replace(/^-+/, "")
+    .replace(/-+$/, "");
+
+const ensureUniqueSlug = async (desiredSlug, excludeId = null) => {
+  const base =
+    desiredSlug && desiredSlug.trim() ? desiredSlug.trim() : `project-${Date.now()}`;
+  let candidate = base;
+  let suffix = 1;
+  let isUnique = false;
+
+  while (!isUnique) {
+    const existing = await prisma.project.findFirst({
+      where: {
+        project_slug: candidate,
+        ...(excludeId && { id: { not: excludeId } }),
+      },
+      select: { id: true },
+    });
+
+    if (existing) {
+      candidate = `${base}-${suffix++}`;
+    } else {
+      isUnique = true;
+    }
+  }
+
+  return candidate;
+};
+
 const router = express.Router();
 
 /**
@@ -143,23 +180,19 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
     } = req.body;
 
     if (!name || !project_type_id) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "Please provide all required fields",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "Please provide all required fields",
+      });
     }
+
+    const baseSlug = slugify(project_slug || name);
+    const uniqueSlug = await ensureUniqueSlug(baseSlug);
 
     const project = await prisma.project.create({
       data: {
         project_name: name,
-        project_slug:
-          project_slug ||
-          name
-            .toLowerCase()
-            .replace(/\s+/g, "-")
-            .replace(/[^\w\-]+/g, ""),
+        project_slug: uniqueSlug,
         ...(project_type_id && { projectType: { connect: { id: parseInt(project_type_id) } } }),
         ...(offtaker_id && { offtaker: { connect: { id: parseInt(offtaker_id) } } }),
         address1: address1 || "",
@@ -203,6 +236,13 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
       data: project,
     });
   } catch (error) {
+    if (error.code === "P2002" && error.meta?.target?.includes("project_slug")) {
+      return res.status(409).json({
+        success: false,
+        message: "Project slug already exists. Please choose a different name.",
+      });
+    }
+
     console.error("Error creating project:", error);
     res.status(500).json({ success: false, message: "Error creating project" });
   }
@@ -293,22 +333,6 @@ router.post(
         data: insertPayload,
       });
 
-      if (!hasDefault && insertPayload.length) {
-        const chosen =
-          insertPayload.find((p) => p.default === 1) || insertPayload[0];
-        try {
-          // update main project image if schema exposes scalar `project_image`
-          await prisma.project.update({
-            where: { id: projectId },
-            data: { project_image: chosen.path },
-          });
-        } catch (err) {
-          // ignore schema validation errors (e.g. no `project_image` field),
-          // but keep project_images insertion successful.
-          console.warn("Could not update project.project_image:", err.message);
-        }
-      }
-
       const images = await prisma.project_images.findMany({
         where: { projectId },
         orderBy: { id: "asc" },
@@ -360,16 +384,6 @@ router.put(
         where: { id: imageId },
         data: { default: 1 },
       });
-
-      // update project's main image path
-      try {
-        await prisma.project.update({
-          where: { id: projectId },
-          data: { project_image: img.path },
-        });
-      } catch (err) {
-        console.warn("Could not update project.project_image on set-default:", err.message);
-      }
 
       const images = await prisma.project_images.findMany({
         where: { projectId },
@@ -460,23 +474,6 @@ router.delete(
             where: { id: nextImage.id },
             data: { default: 1 },
           });
-          try {
-            await prisma.project.update({
-              where: { id: projectId },
-              data: { project_image: nextImage.path },
-            });
-          } catch (err) {
-            console.warn("Could not update project.project_image after delete:", err.message);
-          }
-        } else {
-          try {
-            await prisma.project.update({
-              where: { id: projectId },
-              data: { project_image: "" },
-            });
-          } catch (err) {
-            console.warn("Could not clear project.project_image after delete:", err.message);
-          }
         }
       }
 
@@ -620,6 +617,11 @@ router.get("/:identifier", async (req, res) => {
 router.put("/:id", authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
+    const projectId = parseInt(id, 10);
+    if (Number.isNaN(projectId)) {
+      return res.status(400).json({ success: false, message: "Invalid project id" });
+    }
+
     const {
       name,
       project_slug,
@@ -643,63 +645,68 @@ router.put("/:id", authenticateToken, async (req, res) => {
       status,
     } = req.body;
 
-    const updated = await prisma.project.update({
-      where: { id: parseInt(id) },
-      data: {
-        ...(name !== undefined && { project_name: name }),
-        ...(project_slug !== undefined && { project_slug }),
-        // update relation: connect projectType by id when provided
-        ...(project_type_id !== undefined && (
-            project_type_id
-                ? { projectType: { connect: { id: parseInt(project_type_id) } } }
-                : { projectType: { disconnect: true } }
-        )),
-        ...(offtaker_id !== undefined && (
-            offtaker_id
-                ? { offtaker: { connect: { id: parseInt(offtaker_id) } } }
-                : { offtaker: { disconnect: true } }
-        )),
-        ...(address1 !== undefined && { address1 }),
-        ...(address2 !== undefined && { address2 }),
-        ...(country_id !== undefined && (
-            country_id
-                ? { country: { connect: { id: parseInt(country_id) } } }
-                : { country: { disconnect: true } }
-        )),
-        ...(state_id !== undefined && (
-            state_id
-                ? { state: { connect: { id: parseInt(state_id) } } }
-                : { state: { disconnect: true } }
-        )),
-        ...(city_id !== undefined && (
-            city_id
-                ? { city: { connect: { id: parseInt(city_id) } } }
-                : { city: { disconnect: true } }
-        )),
-        ...(zipcode !== undefined && { zipcode }),
-        ...(asking_price !== undefined && { asking_price: asking_price || "" }),
-        ...(lease_term !== undefined && {
-          lease_term:
-            lease_term !== null && `${lease_term}` !== ""
-              ? parseInt(lease_term)
-              : null,
-        }),
-        ...(product_code !== undefined && { product_code: product_code || "" }),
-        ...(project_description !== undefined && {
-          project_description: project_description || "",
-        }),
-        ...(investor_profit !== undefined && { investor_profit }),
-        ...(weshare_profit !== undefined && { weshare_profit }),
-        ...(project_size !== undefined && { project_size: project_size || "" }),
-        ...(project_close_date !== undefined && {
-          project_close_date: project_close_date
-            ? new Date(project_close_date)
+    const updateData = {
+      ...(name !== undefined && { project_name: name }),
+      // update relation: connect projectType by id when provided
+      ...(project_type_id !== undefined && (
+        project_type_id
+          ? { projectType: { connect: { id: parseInt(project_type_id) } } }
+          : { projectType: { disconnect: true } }
+      )),
+      ...(offtaker_id !== undefined && (
+        offtaker_id
+          ? { offtaker: { connect: { id: parseInt(offtaker_id) } } }
+          : { offtaker: { disconnect: true } }
+      )),
+      ...(address1 !== undefined && { address1 }),
+      ...(address2 !== undefined && { address2 }),
+      ...(country_id !== undefined && (
+        country_id
+          ? { country: { connect: { id: parseInt(country_id) } } }
+          : { country: { disconnect: true } }
+      )),
+      ...(state_id !== undefined && (
+        state_id
+          ? { state: { connect: { id: parseInt(state_id) } } }
+          : { state: { disconnect: true } }
+      )),
+      ...(city_id !== undefined && (
+        city_id
+          ? { city: { connect: { id: parseInt(city_id) } } }
+          : { city: { disconnect: true } }
+      )),
+      ...(zipcode !== undefined && { zipcode }),
+      ...(asking_price !== undefined && { asking_price: asking_price || "" }),
+      ...(lease_term !== undefined && {
+        lease_term:
+          lease_term !== null && `${lease_term}` !== ""
+            ? parseInt(lease_term)
             : null,
-        }),
-        ...(project_location !== undefined && { project_location: project_location || "" }),
-        // note: remove project_image here — schema does not expose a scalar `project_image`
-        ...(status !== undefined && { status: parseInt(status) }),
-      },
+      }),
+      ...(product_code !== undefined && { product_code: product_code || "" }),
+      ...(project_description !== undefined && {
+        project_description: project_description || "",
+      }),
+      ...(investor_profit !== undefined && { investor_profit }),
+      ...(weshare_profit !== undefined && { weshare_profit }),
+      ...(project_size !== undefined && { project_size: project_size || "" }),
+      ...(project_close_date !== undefined && {
+        project_close_date: project_close_date ? new Date(project_close_date) : null,
+      }),
+      ...(project_location !== undefined && {
+        project_location: project_location || "",
+      }),
+      ...(status !== undefined && { status: parseInt(status) }),
+    };
+
+    if (project_slug !== undefined) {
+      const baseSlug = slugify(project_slug || name || "");
+      updateData.project_slug = await ensureUniqueSlug(baseSlug, projectId);
+    }
+
+    const updated = await prisma.project.update({
+      where: { id: projectId },
+      data: updateData,
       include: {
         offtaker: { select: { id: true, fullName: true, email: true } },
         city: true,
@@ -711,6 +718,13 @@ router.put("/:id", authenticateToken, async (req, res) => {
 
     res.json({ success: true, data: updated });
   } catch (error) {
+    if (error.code === "P2002" && error.meta?.target?.includes("project_slug")) {
+      return res.status(409).json({
+        success: false,
+        message: "Project slug already exists. Please choose a different slug.",
+      });
+    }
+
     console.error("Update project error:", error);
     res.status(500).json({ success: false, message: "Internal server error" });
   }

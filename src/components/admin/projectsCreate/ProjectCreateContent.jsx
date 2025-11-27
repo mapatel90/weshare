@@ -21,7 +21,6 @@ const ProjectCreateContent = () => {
         lease_term: '',
         product_code: '',
         project_description: '',
-        project_image: '',
         project_size: '',
         project_close_date: '',
         project_location: '',

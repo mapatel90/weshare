@@ -8,6 +8,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { apiGet } from "@/lib/api";
 import { getFullImageUrl } from "@/utils/common";
 import { useRouter } from "next/navigation";
+import { getPrimaryProjectImage } from "@/utils/projectUtils";
 
 const ProjectsSection = () => {
   const [activeTab, setActiveTab] = useState("open");
@@ -37,45 +38,9 @@ const ProjectsSection = () => {
     }
   };
 
-  // NEW: determine main project image from project_images (prefer is_default/default === 1, fallback to project_image or placeholder)
   const getProjectMainImage = (project) => {
-    if (!project) return "/images/projects/project-img1.png";
-    const imgs = project.project_images;
-    let arr = imgs;
-
-    if (typeof imgs === "string") {
-      try {
-        arr = JSON.parse(imgs);
-      } catch (e) {
-        arr = [imgs];
-      }
-    }
-
-    if (Array.isArray(arr) && arr.length > 0) {
-      const defaultImg =
-        arr.find(
-          (i) =>
-            i &&
-            (i.is_default === true ||
-              i.is_default === 1 ||
-              i.default === 1 ||
-              i.default === "1")
-        ) || arr[0];
-
-      const value = defaultImg;
-      if (!value) {
-        return project.project_image
-          ? getFullImageUrl(project.project_image)
-          : "/images/projects/project-img1.png";
-      }
-
-      if (typeof value === "string") return getFullImageUrl(value);
-      return getFullImageUrl(value.url || value.path || value.image || value);
-    }
-
-    return project.project_image
-      ? getFullImageUrl(project.project_image)
-      : "/images/projects/project-img1.png";
+    const cover = getPrimaryProjectImage(project);
+    return cover ? getFullImageUrl(cover) : "/images/projects/project-img1.png";
   };
 
   return (

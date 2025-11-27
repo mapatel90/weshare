@@ -13,6 +13,8 @@ import {
 import { apiGet } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
+import { getPrimaryProjectImage } from "@/utils/projectUtils";
+import { getFullImageUrl } from "@/utils/common";
 
 const statusDictionary = {
   0: "Under Installation",
@@ -67,62 +69,12 @@ const normalizeApiProject = (project) => {
         ? 0
         : project?.status ?? null;
 
-  // resolve first image from possible project_images structures
-  const resolveFirstImage = () => {
-    const raw = project.project?.project_images ?? project.project?.projectImages ?? project.project?.images;
-    let imgs = raw;
-
-    // if stored as JSON string, try parse
-    if (typeof raw === "string") {
-      try {
-        const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed)) imgs = parsed;
-      } catch (e) {
-        // leave as string
-      }
-    }
-
-    // if single object provided, normalize to array
-    if (imgs && !Array.isArray(imgs) && typeof imgs === "object") {
-      imgs = [imgs];
-    }
-
-    if (Array.isArray(imgs) && imgs.length > 0) {
-      // Prefer an image marked as default (several common field names)
-      const preferred = imgs.find((item) => {
-        if (!item || typeof item === "string") return false;
-        return (
-          item.default === 1 ||
-          item.default === true ||
-          item.is_default === 1 ||
-          item.is_default === true ||
-          item.isDefault === true
-        );
-      });
-
-      const first = preferred ?? imgs[0];
-
-      if (typeof first === "string") return first;
-      if (typeof first === "object") {
-        return (
-          first.url ||
-          first.path ||
-          first.src ||
-          first.image ||
-          first.filename ||
-          project.project?.project_image ||
-          "/images/general/solar-card.jpg"
-        );
-      }
-    }
-
-    // fallback to single image field or global default
-    return project.project?.project_image ?? "/images/general/solar-card.jpg";
-  };
+  const coverImage =
+    getPrimaryProjectImage(project.project || project) || "/images/general/solar-card.jpg";
 
   return {
     id: project.project?.id ? `#${project.project.id}` : project.project?.project_code ?? "—",
-    project_image: resolveFirstImage(),
+    project_image: coverImage,
     projectName: project.project?.project_name ?? "—",
     status: statusString,
     statusCode,
@@ -596,7 +548,10 @@ const ProjectTable = () => {
                     {/* Image and status badge */}
                     <div className="relative w-full h-36 sm:h-44 md:h-40 lg:h-36 xl:h-40 overflow-hidden">
                       <img
-                        src={project.project_image || "/images/general/solar-card.jpg"}
+                        src={
+                          getFullImageUrl(project.project_image) ||
+                          "/images/general/solar-card.jpg"
+                        }
                         alt={project.projectName}
                         className="object-cover w-full h-full"
                       />

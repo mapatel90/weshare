@@ -11,6 +11,7 @@ import {
   Filter,
 } from "lucide-react";
 import { getFullImageUrl } from "@/utils/common";
+import { getPrimaryProjectImage } from "@/utils/projectUtils";
 import { apiGet } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
@@ -58,22 +59,7 @@ const normalizeApiProject = (project) => {
     return Number.isNaN(t) ? 0 : t;
   };
 
-  // pick project image: prefer project.project_images item with default == 1
-  const pickProjectImage = (p) => {
-    if (Array.isArray(p?.project_images) && p.project_images.length) {
-      const defImg = p.project_images.find(
-        (img) => img?.default === 1 || img?.default === "1" || img?.is_default === 1 || img?.is_default === "1"
-      );
-      if (defImg) {
-        return defImg.url || defImg.path || defImg.image || defImg.src || defImg.project_image || null;
-      }
-      // fallback to first item's common fields
-      const first = p.project_images[0];
-      return first?.url || first?.path || first?.image || first?.src || first?.project_image || null;
-    }
-    // fallback to singular field if present
-    return p?.project_image ?? null;
-  };
+  const coverImage = getPrimaryProjectImage(project);
 
   const statusString =
     statusDictionary[project?.status] ?? project?.status ?? "Upcoming";
@@ -86,7 +72,7 @@ const normalizeApiProject = (project) => {
         : project?.status ?? null;
   return {
     id: project?.id ? `#${project.id}` : project?.project_code ?? "—",
-    project_image: pickProjectImage(project),
+    project_image: coverImage || null,
     projectName: project?.project_name ?? "—",
     status: statusString,
     statusCode,

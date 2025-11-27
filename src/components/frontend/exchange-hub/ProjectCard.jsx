@@ -5,6 +5,7 @@ import { useLanguage } from '@/contexts/LanguageContext'
 import './styles/exchange-hub-custom.css'
 import './styles/responsive.css'
 import { getFullImageUrl } from '@/utils/common'
+import { getPrimaryProjectImage } from '@/utils/projectUtils'
 
 const ProjectCard = ({ project, activeTab }) => {
     const { lang } = useLanguage()
@@ -48,18 +49,9 @@ const ProjectCard = ({ project, activeTab }) => {
     const accumulative = project.accumulative_generation ||
         (parseFloat(project.project_size || 0) * 1500).toFixed(0)
 
-    // Return URL for the image that has default === 1. Fallback to project.project_image then empty string.
     const getDefaultImageUrl = () => {
-        try {
-            const imgs = project?.project_images
-            if (Array.isArray(imgs) && imgs.length) {
-                const def = imgs.find(i => i?.default === 1 || i?.default === '1')
-                if (def && def.path) return getFullImageUrl(def.path)
-            }
-        } catch (e) {
-            // ignore
-        }
-        return getFullImageUrl(project?.project_image || '')
+        const cover = getPrimaryProjectImage(project)
+        return cover ? getFullImageUrl(cover) : '/images/general/solar-card.jpg'
     }
 
     // Different card design for lease vs resale

@@ -77,7 +77,14 @@ const ProjectForm = ({
       (imageQueue && imageQueue.length > 0)
     );
   }, [existingImages, imageQueue]);
-console.log("existingImages::",existingImages);
+
+  const resolveExistingImageSrc = useCallback(
+    (image) =>
+      getFullImageUrl(
+        image?.path || image?.url || image?.image || image?.src || ""
+      ),
+    []
+  );
   return (
     <form id="project-form" onSubmit={handleSubmit}>
       <div className="card">
@@ -355,13 +362,14 @@ console.log("existingImages::",existingImages);
             {galleryHasItems ? (
               <div className="row mt-3">
                 {existingImages?.map((image) => (
+                    console.log("Edit"),
                   <div
                     className="col-md-3 col-sm-4 col-6 mb-3"
                     key={`existing-${image.id}`}
                   >
                     <div className="border rounded overflow-hidden project-image-thumb">
                       <img
-                        src={getFullImageUrl(image.url)}
+                        src={resolveExistingImageSrc(image)}
                         alt="Project"
                         style={{
                           width: "100%",

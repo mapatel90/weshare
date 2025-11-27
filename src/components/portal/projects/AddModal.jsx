@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { apiPost, apiGet } from "@/lib/api";
+import { apiPost, apiGet, apiUpload } from "@/lib/api";
 import { showSuccessToast, showErrorToast } from "@/utils/topTost";
 import { generateSlug, checkProjectNameExists } from "@/utils/projectUtils";
 import { useAuth } from "@/contexts/AuthContext";
@@ -30,8 +30,8 @@ export default function AddModal({ open, onClose }) {
   const [leaseTerm, setLeaseTerm] = useState("");
   const [productCode, setProductCode] = useState("");
   const [projectDescription, setProjectDescription] = useState("");
-  const [projectImagePath, setProjectImagePath] = useState(""); // path returned from upload
   const [imagePreview, setImagePreview] = useState(null);
+  const [queuedImageFile, setQueuedImageFile] = useState(null);
   const [projectSize, setProjectSize] = useState("");
   const [projectCloseDate, setProjectCloseDate] = useState("");
   const [projectLocation, setProjectLocation] = useState("");
@@ -51,6 +51,11 @@ export default function AddModal({ open, onClose }) {
     setFieldErrors({});
     setError("");
     onClose?.();
+    if (imagePreview) {
+      URL.revokeObjectURL(imagePreview);
+    }
+    setImagePreview(null);
+    setQueuedImageFile(null);
   };
   
   // auto-generate slug from name
@@ -115,8 +120,7 @@ export default function AddModal({ open, onClose }) {
     }
   }, [user]);
 
-  // handle image file: read as dataURL, upload using same flow as TabProjectBasicDetails
-  async function handleImageFileChange(e) {
+  function handleImageFileChange(e) {
     const file = e?.target?.files?.[0];
     if (!file) return;
 
@@ -129,33 +133,22 @@ export default function AddModal({ open, onClose }) {
       return;
     }
 
-    try {
-      setLoading(true);
-      const reader = new FileReader();
-      reader.onload = async () => {
-        const dataUrl = reader.result;
-        setImagePreview(dataUrl);
-
-        // upload to server (same endpoint used in TabProjectBasicDetails)
-        const resp = await apiPost("/api/projects/upload-image", { dataUrl });
-        if (resp?.success) {
-          setProjectImagePath(resp.data?.path || "");
-          showSuccessToast("Image uploaded");
-        } else {
-          setProjectImagePath("");
-          throw new Error(resp?.message || "Upload failed");
-        }
-      };
-      reader.readAsDataURL(file);
-    } catch (err) {
-      console.error("Image upload error:", err);
-      showErrorToast(err.message || "Failed to upload image");
-      setImagePreview(null);
-      setProjectImagePath("");
-    } finally {
-      setLoading(false);
+    if (imagePreview) {
+      URL.revokeObjectURL(imagePreview);
     }
+
+    const previewUrl = URL.createObjectURL(file);
+    setImagePreview(previewUrl);
+    setQueuedImageFile(file);
   }
+
+  useEffect(() => {
+    return () => {
+      if (imagePreview) {
+        URL.revokeObjectURL(imagePreview);
+      }
+    };
+  }, [imagePreview]);
 
   // single source of validation — returns errors object and updates state
   function validateBeforeSubmit() {
@@ -229,7 +222,6 @@ export default function AddModal({ open, onClose }) {
         lease_term: leaseTerm !== "" ? Number(leaseTerm) : null,
         product_code: productCode || "",
         project_description: projectDescription || "",
-        project_image: projectImagePath || "",
         project_size: projectSize || "",
         project_close_date: projectCloseDate || null,
         project_location: projectLocation || "",
@@ -243,6 +235,20 @@ export default function AddModal({ open, onClose }) {
 
       if (!res || !res.success) {
         throw new Error(res?.message || "Failed to create project");
+      }
+
+      if (queuedImageFile && res?.data?.id) {
+        try {
+          const formData = new FormData();
+          formData.append("images", queuedImageFile);
+          await apiUpload(`/api/projects/${res.data.id}/images`, formData);
+        } catch (uploadErr) {
+          console.error("Project image upload error:", uploadErr);
+          showErrorToast(
+            uploadErr.message ||
+              "Project created but image upload failed. Please add images from the gallery."
+          );
+        }
       }
 
       showSuccessToast("Project created successfully");
@@ -264,7 +270,7 @@ export default function AddModal({ open, onClose }) {
       setLeaseTerm("");
       setProductCode("");
       setProjectDescription("");
-      setProjectImagePath("");
+      setQueuedImageFile(null);
       setImagePreview(null);
       setProjectSize("");
       setProjectCloseDate("");
