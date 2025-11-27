@@ -216,6 +216,7 @@ model Project {
   contactus        ContactUs[]
   interestedinvestor InterestedInvestor[]
   contract         Contract[]
+  project_images   Project_images[]
 
   @@map("projects")
 }
@@ -419,3 +420,17 @@ model Contract {
 
   @@map("contracts")
 }
+
+model Project_images {
+  id         Int      @id @default(autoincrement())
+  projectId  Int      @map("project_id")
+  path       String   @db.VarChar(500)
+  default    Int      @default(0)
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @default(now()) @updatedAt @map("updated_at")
+
+  project    Project  @relation(fields: [projectId], references: [id])
+
+  @@map("project_images")
+}
+
