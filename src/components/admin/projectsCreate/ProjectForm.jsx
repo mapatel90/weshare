@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo } from "react";
 import { FiSave, FiUpload, FiX, FiStar } from "react-icons/fi";
 import { useDropzone } from "react-dropzone";
+import { getFullImageUrl } from "@/utils/common";
 import {
   TextField,
   Select,
@@ -76,7 +77,7 @@ const ProjectForm = ({
       (imageQueue && imageQueue.length > 0)
     );
   }, [existingImages, imageQueue]);
-
+console.log("existingImages::",existingImages);
   return (
     <form id="project-form" onSubmit={handleSubmit}>
       <div className="card">
@@ -360,7 +361,7 @@ const ProjectForm = ({
                   >
                     <div className="border rounded overflow-hidden project-image-thumb">
                       <img
-                        src={image.url}
+                        src={getFullImageUrl(image.url)}
                         alt="Project"
                         style={{
                           width: "100%",
