@@ -1,6 +1,58 @@
 import express from 'express';
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
 import prisma from '../utils/prisma.js';
 import { authenticateToken } from '../middleware/auth.js';
+
+const PROJECT_IMAGE_LIMIT = 10;
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
+const PROJECT_IMAGES_DIR = path.resolve(process.cwd(), 'public', 'images', 'projects');
+
+fs.mkdirSync(PROJECT_IMAGES_DIR, { recursive: true });
+
+const projectImageStorage = multer.diskStorage({
+    destination: (_req, _file, cb) => {
+        cb(null, PROJECT_IMAGES_DIR);
+    },
+    filename: (_req, file, cb) => {
+        const timestamp = Date.now();
+        const random = Math.round(Math.random() * 1e9);
+        const ext = path.extname(file.originalname) || '';
+        cb(null, `project_${timestamp}_${random}${ext}`);
+    }
+});
+
+const projectImageUpload = multer({
+    storage: projectImageStorage,
+    limits: { fileSize: MAX_IMAGE_SIZE, files: PROJECT_IMAGE_LIMIT },
+    fileFilter: (_req, file, cb) => {
+        if (file.mimetype && file.mimetype.startsWith('image/')) {
+            cb(null, true);
+        } else {
+            cb(new Error('Only image files are allowed'));
+        }
+    }
+});
+
+const buildPublicImagePath = (filename) => `/images/projects/${filename}`;
+
+const getAbsoluteImagePath = (relativePath) => {
+    if (!relativePath) return '';
+    const normalized = relativePath.startsWith('/public/')
+        ? relativePath.replace('/public', '')
+        : relativePath;
+    return path.resolve(process.cwd(), 'public', normalized.replace(/^\//, ''));
+};
+
+const removePhysicalFile = (absolutePath) => {
+    if (!absolutePath) return;
+    fs.unlink(absolutePath, (err) => {
+        if (err && err.code !== 'ENOENT') {
+            console.warn('Failed to delete image:', absolutePath, err.message);
+        }
+    });
+};
 
 const router = express.Router();
 
@@ -17,16 +69,14 @@ router.post('/check-name', async (req, res) => {
             return res.json({ success: true, exists: false });
         }
 
-        // Check if project with same name exists (excluding current project in edit mode)
         const whereClause = {
             project_name: {
                 equals: project_name,
-                mode: 'insensitive' // Case-insensitive comparison
+                mode: 'insensitive'
             },
             is_deleted: 0
         };
 
-        // If editing, exclude current project from check
         if (project_id) {
             whereClause.id = {
                 not: parseInt(project_id)
@@ -128,10 +178,233 @@ router.post('/AddProject', authenticateToken, async (req, res) => {
             }
         });
 
-        res.status(201).json({ success: true, message: 'Project created successfully' });
+        res.status(201).json({
+            success: true,
+            message: 'Project created successfully',
+            data: project
+        });
     } catch (error) {
         console.error('Error creating project:', error);
         res.status(500).json({ success: false, message: 'Error creating project' });
+    }
+});
+
+/**
+ * @route   POST /api/projects/:id/images
+ * @desc    Upload project gallery images
+ * @access  Private
+ */
+const projectImageUploadMiddleware = (req, res, next) => {
+    projectImageUpload.array('images')(req, res, (err) => {
+        if (err) {
+            return res.status(400).json({
+                success: false,
+                message: err.message || 'Failed to upload images'
+            });
+        }
+        next();
+    });
+};
+
+router.post('/:id/images', authenticateToken, projectImageUploadMiddleware, async (req, res) => {
+    try {
+        const projectId = parseInt(req.params.id, 10);
+        if (Number.isNaN(projectId)) {
+            return res.status(400).json({ success: false, message: 'Invalid project id' });
+        }
+
+        const files = req.files || [];
+        if (!files.length) {
+            return res.status(400).json({ success: false, message: 'Please attach at least one image' });
+        }
+
+        const currentCount = await prisma.project_images.count({
+            where: { projectId }
+        });
+
+        if (currentCount + files.length > PROJECT_IMAGE_LIMIT) {
+            files.forEach(file => removePhysicalFile(file.path));
+            return res.status(400).json({
+                success: false,
+                message: `You can upload up to ${PROJECT_IMAGE_LIMIT} images per project`
+            });
+        }
+
+        const hasDefault = await prisma.project_images.findFirst({
+            where: { projectId, default: 1 }
+        });
+
+        // allow client to specify which uploaded file should be default (0-based index)
+        const defaultIndexRaw = req.body?.default_index;
+        const defaultIndex = (defaultIndexRaw !== undefined && defaultIndexRaw !== null && defaultIndexRaw !== '')
+            ? parseInt(defaultIndexRaw, 10)
+            : null;
+
+        const insertPayload = files.map((file, index) => ({
+            projectId,
+            path: buildPublicImagePath(path.basename(file.path)),
+            // If a default already exists for the project, all new images are non-default.
+            // Otherwise, if client provided default_index use that index, else fall back to first file.
+            default: hasDefault
+                ? 0
+                : (defaultIndex !== null && !Number.isNaN(defaultIndex))
+                    ? (index === defaultIndex ? 1 : 0)
+                    : (index === 0 ? 1 : 0)
+        }));
+
+        await prisma.project_images.createMany({
+            data: insertPayload
+        });
+
+        if (!hasDefault && insertPayload.length) {
+            const chosen = insertPayload.find(p => p.default === 1) || insertPayload[0]
+            await prisma.project.update({
+                where: { id: projectId },
+                data: { project_image: chosen.path }
+            });
+        }
+
+        const images = await prisma.project_images.findMany({
+            where: { projectId },
+            orderBy: { id: 'asc' }
+        });
+
+        return res.json({ success: true, data: images });
+    } catch (error) {
+        console.error('Upload project images error:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Failed to upload project images',
+            error: error.message
+        });
+    }
+});
+
+// Set an existing image as default
+router.put('/:projectId/images/:imageId/set-default', authenticateToken, async (req, res) => {
+    try {
+        const projectId = parseInt(req.params.projectId, 10);
+        const imageId = parseInt(req.params.imageId, 10);
+        if (Number.isNaN(projectId) || Number.isNaN(imageId)) {
+            return res.status(400).json({ success: false, message: 'Invalid identifiers' });
+        }
+
+        const img = await prisma.project_images.findFirst({
+            where: { id: imageId, projectId }
+        });
+        if (!img) {
+            return res.status(404).json({ success: false, message: 'Image not found' });
+        }
+
+        // clear previous default
+        await prisma.project_images.updateMany({
+            where: { projectId, default: 1 },
+            data: { default: 0 }
+        });
+
+        // set target as default
+        await prisma.project_images.update({
+            where: { id: imageId },
+            data: { default: 1 }
+        });
+
+        // update project's main image path
+        await prisma.project.update({
+            where: { id: projectId },
+            data: { project_image: img.path }
+        });
+
+        const images = await prisma.project_images.findMany({
+            where: { projectId },
+            orderBy: { id: 'asc' }
+        });
+
+        return res.json({ success: true, data: images });
+    } catch (err) {
+        console.error('Set default image error:', err);
+        return res.status(500).json({ success: false, message: 'Failed to set default image' });
+    }
+});
+
+/**
+ * @route   GET /api/projects/:id/images
+ * @desc    Fetch gallery images for a project
+ * @access  Private
+ */
+router.get('/:id/images', authenticateToken, async (req, res) => {
+    try {
+        const projectId = parseInt(req.params.id, 10);
+        if (Number.isNaN(projectId)) {
+            return res.status(400).json({ success: false, message: 'Invalid project id' });
+        }
+
+        const images = await prisma.project_images.findMany({
+            where: { projectId },
+            orderBy: { id: 'asc' }
+        });
+
+        return res.json({ success: true, data: images });
+    } catch (error) {
+        console.error('Fetch project images error:', error);
+        return res.status(500).json({ success: false, message: 'Failed to fetch project images' });
+    }
+});
+
+/**
+ * @route   DELETE /api/projects/:projectId/images/:imageId
+ * @desc    Delete a gallery image
+ * @access  Private
+ */
+router.delete('/:projectId/images/:imageId', authenticateToken, async (req, res) => {
+    try {
+        const projectId = parseInt(req.params.projectId, 10);
+        const imageId = parseInt(req.params.imageId, 10);
+
+        if (Number.isNaN(projectId) || Number.isNaN(imageId)) {
+            return res.status(400).json({ success: false, message: 'Invalid identifiers' });
+        }
+
+        const imageRecord = await prisma.project_images.findFirst({
+            where: { id: imageId, projectId }
+        });
+
+        if (!imageRecord) {
+            return res.status(404).json({ success: false, message: 'Image not found' });
+        }
+
+        await prisma.project_images.delete({
+            where: { id: imageRecord.id }
+        });
+
+        removePhysicalFile(getAbsoluteImagePath(imageRecord.path));
+
+        if (imageRecord.default === 1) {
+            const nextImage = await prisma.project_images.findFirst({
+                where: { projectId },
+                orderBy: { id: 'asc' }
+            });
+
+            if (nextImage) {
+                await prisma.project_images.update({
+                    where: { id: nextImage.id },
+                    data: { default: 1 }
+                });
+                await prisma.project.update({
+                    where: { id: projectId },
+                    data: { project_image: nextImage.path }
+                });
+            } else {
+                await prisma.project.update({
+                    where: { id: projectId },
+                    data: { project_image: '' }
+                });
+            }
+        }
+
+        return res.json({ success: true, message: 'Image removed' });
+    } catch (error) {
+        console.error('Delete project image error:', error);
+        return res.status(500).json({ success: false, message: 'Failed to delete project image' });
     }
 });
 
@@ -382,60 +655,39 @@ router.get('/meter/:id', authenticateToken, async (req, res) => {
 router.delete('/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
+    const projectId = parseInt(id, 10);
+    if (Number.isNaN(projectId)) {
+      return res.status(400).json({ success: false, message: 'Invalid project id' });
+    }
+
+    // Fetch all images for project, remove physical files
+    const images = await prisma.project_images.findMany({
+      where: { projectId }
+    });
+
+    images.forEach(img => {
+      try {
+        removePhysicalFile(getAbsoluteImagePath(img.path));
+      } catch (e) {
+        console.warn('Failed removing physical file for image:', img.path, e.message);
+      }
+    });
+
+    // Delete image records from DB
+    await prisma.project_images.deleteMany({
+      where: { projectId }
+    });
+
+    // Soft-delete project (keep behaviour as before)
     await prisma.project.update({
-      where: { id: parseInt(id) },
+      where: { id: projectId },
       data: { is_deleted: 1 }
     });
+
     res.json({ success: true });
   } catch (error) {
     console.error('Delete project error:', error);
     res.status(500).json({ success: false, message: 'Internal server error' });
-  }
-});
-
-// Upload project image (accepts base64 data URL)
-router.post('/upload-image', authenticateToken, async (req, res) => {
-  try {
-    const { dataUrl } = req.body || {};
-    if (!dataUrl) {
-      return res.status(400).json({ success: false, message: 'dataUrl is required' });
-    }
-
-    // Parse base64 data URL
-    const matches = dataUrl.match(/^data:(.+);base64,(.+)$/);
-    if (!matches || matches.length !== 3) {
-      throw new Error('Invalid image data');
-    }
-    
-    const mimeType = matches[1];
-    const base64Data = matches[2];
-    const ext = mimeType.split('/')[1] || 'png';
-    const filename = `project_${Date.now()}_${Math.random().toString(36).slice(2, 8)}.${ext}`;
-    
-    // Save to public/images/projects
-    const fs = await import('fs');
-    const { join, dirname } = await import('path');
-    const { fileURLToPath } = await import('url');
-    
-    const __filename = fileURLToPath(import.meta.url);
-    const __dirname = dirname(__filename);
-    const projectsDir = join(__dirname, '../../public/images/projects');
-    
-    // Ensure directory exists
-    if (!fs.existsSync(projectsDir)) {
-      fs.mkdirSync(projectsDir, { recursive: true });
-    }
-    
-    const filePath = join(projectsDir, filename);
-    fs.writeFileSync(filePath, Buffer.from(base64Data, 'base64'));
-    
-    // Return public URL path
-    const publicPath = `/images/projects/${filename}`;
-    
-    return res.json({ success: true, message: 'Image uploaded', data: { path: publicPath } });
-  } catch (error) {
-    console.error('Error uploading project image:', error);
-    return res.status(500).json({ success: false, message: 'Error uploading image', error: error.message });
   }
 });
 

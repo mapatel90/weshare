@@ -1,33 +1,17 @@
 'use client'
 import React, { useEffect, useState, useRef } from 'react'
 import { Sun, Zap, TrendingUp, Activity, MapPin, Calendar, Users, DollarSign } from 'lucide-react'
-
-// Mock API function - replace with your actual apiGet
-const apiGet = async (url) => {
-  return {
-    success: true,
-    data: {
-      project_name: 'Solar Farm Project Alpha',
-      project_type: 'Commercial Solar Installation',
-      offtaker: { fullName: 'Green Energy Corp' },
-      status: 1,
-      investor_profit: '15%',
-      weshare_profit: '8%',
-      country: { name: 'India' },
-      state: { name: 'Gujarat' },
-      city: { name: 'Ahmedabad' },
-      zipcode: '380001',
-      address1: 'Survey No. 123, GIDC Estate',
-      address2: 'Near Industrial Zone',
-      createdAt: '2024-01-15T10:30:00Z',
-      updatedAt: '2024-11-20T15:45:00Z'
-    }
-  }
-}
+import { apiGet } from '@/lib/api'
 
 const useLanguage = () => ({
   lang: (key, fallback) => fallback
 })
+
+const formatNumber = (v, suffix = '') => {
+  if (v === null || v === undefined || v === '') return '-'
+  if (typeof v === 'number') return v.toLocaleString() + suffix
+  return String(v) + suffix
+}
 
 const StatCard = ({ icon: Icon, title, value, subtitle, color, trend }) => (
   <div style={{
@@ -92,10 +76,11 @@ const InfoCard = ({ icon: Icon, label, value, color }) => (
   </div>
 )
 
-const LineChartComponent = () => {
+const LineChartComponent = ({ production = [], target = [], consumption = [], months = [] }) => {
   const canvasRef = useRef(null)
 
   useEffect(() => {
+    if ((!production || !production.length) && (!target || !target.length) && (!consumption || !consumption.length)) return
     const canvas = canvasRef.current
     if (!canvas) return
 
@@ -105,10 +90,8 @@ const LineChartComponent = () => {
 
     ctx.clearRect(0, 0, width, height)
 
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-    const production = [35000, 42000, 38000, 45000, 52000, 58000, 55000, 48000, 42000, 38000, 35000, 32000]
-    const target = [40000, 42000, 44000, 46000, 48000, 50000, 52000, 50000, 48000, 46000, 44000, 42000]
-    const consumption = [28000, 35000, 32000, 38000, 45000, 50000, 48000, 42000, 36000, 32000, 30000, 28000]
+    const defaultMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+    const labels = months && months.length ? months : defaultMonths.slice(0, Math.max(production.length, target.length, consumption.length, 12))
 
     const padding = 50
     const chartWidth = width - padding * 2
@@ -127,8 +110,8 @@ const LineChartComponent = () => {
     ctx.fillStyle = '#6b7280'
     ctx.font = '11px sans-serif'
     ctx.textAlign = 'center'
-    months.forEach((month, i) => {
-      const x = padding + (chartWidth / (months.length - 1)) * i
+    labels.forEach((month, i) => {
+      const x = padding + (chartWidth / (labels.length - 1 || 1)) * i
       ctx.fillText(month, x, height - 20)
     })
 
@@ -140,21 +123,18 @@ const LineChartComponent = () => {
     }
 
     const drawLine = (data, color, isDashed = false) => {
+      if (!data || !data.length) return
       ctx.strokeStyle = color
       ctx.fillStyle = color
       ctx.lineWidth = 3
 
-      if (isDashed) {
-        ctx.setLineDash([5, 5])
-      } else {
-        ctx.setLineDash([])
-      }
+      ctx.setLineDash(isDashed ? [5, 5] : [])
 
       ctx.beginPath()
       data.forEach((value, i) => {
-        const x = padding + (chartWidth / (data.length - 1)) * i
+        const x = padding + (chartWidth / (labels.length - 1 || 1)) * i
         const y = padding + chartHeight - (value / 60000) * chartHeight
-        
+
         if (i === 0) {
           ctx.moveTo(x, y)
         } else {
@@ -165,9 +145,9 @@ const LineChartComponent = () => {
 
       ctx.setLineDash([])
       data.forEach((value, i) => {
-        const x = padding + (chartWidth / (data.length - 1)) * i
+        const x = padding + (chartWidth / (labels.length - 1 || 1)) * i
         const y = padding + chartHeight - (value / 60000) * chartHeight
-        
+
         ctx.beginPath()
         ctx.arc(x, y, 5, 0, Math.PI * 2)
         ctx.fillStyle = color
@@ -182,7 +162,11 @@ const LineChartComponent = () => {
     drawLine(target, '#6366f1', true)
     drawLine(consumption, '#f59e0b', true)
 
-  }, [])
+  }, [production, target, consumption, months])
+
+  if ((!production || !production.length) && (!target || !target.length) && (!consumption || !consumption.length)) {
+    return <div style={{ padding: '24px', color: '#6b7280' }}>No production/consumption/target data available for this project.</div>
+  }
 
   return (
     <div style={{ position: 'relative' }}>
@@ -205,10 +189,11 @@ const LineChartComponent = () => {
   )
 }
 
-const BarChartComponent = () => {
+const BarChartComponent = ({ revenue = [], months = [] }) => {
   const canvasRef = useRef(null)
 
   useEffect(() => {
+    if (!revenue || !revenue.length) return
     const canvas = canvasRef.current
     if (!canvas) return
 
@@ -218,13 +203,13 @@ const BarChartComponent = () => {
 
     ctx.clearRect(0, 0, width, height)
 
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-    const revenue = [45000, 32000, 38000, 52000, 28000, 48000, 35000, 55000, 42000, 38000, 48000, 40000]
+    const defaultMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+    const labels = months && months.length ? months : defaultMonths.slice(0, revenue.length || 12)
 
     const padding = 50
     const chartWidth = width - padding * 2
     const chartHeight = height - padding * 2
-    const barWidth = chartWidth / months.length * 0.6
+    const barWidth = chartWidth / labels.length * 0.6
 
     ctx.strokeStyle = '#f0f0f0'
     ctx.lineWidth = 1
@@ -238,7 +223,7 @@ const BarChartComponent = () => {
 
     const maxValue = Math.max(...revenue)
     revenue.forEach((value, i) => {
-      const x = padding + (chartWidth / months.length) * i + (chartWidth / months.length - barWidth) / 2
+      const x = padding + (chartWidth / labels.length) * i + (chartWidth / labels.length - barWidth) / 2
       const barHeight = (value / maxValue) * chartHeight
       const y = padding + chartHeight - barHeight
 
@@ -248,15 +233,16 @@ const BarChartComponent = () => {
 
       ctx.fillStyle = gradient
       ctx.beginPath()
-      ctx.roundRect(x, y, barWidth, barHeight, [8, 8, 0, 0])
+      if (ctx.roundRect) ctx.roundRect(x, y, barWidth, barHeight, [8, 8, 0, 0])
+      else ctx.rect(x, y, barWidth, barHeight)
       ctx.fill()
     })
 
     ctx.fillStyle = '#6b7280'
     ctx.font = '11px sans-serif'
     ctx.textAlign = 'center'
-    months.forEach((month, i) => {
-      const x = padding + (chartWidth / months.length) * i + (chartWidth / months.length) / 2
+    labels.forEach((month, i) => {
+      const x = padding + (chartWidth / labels.length) * i + (chartWidth / labels.length) / 2
       ctx.fillText(month, x, height - 20)
     })
 
@@ -267,7 +253,11 @@ const BarChartComponent = () => {
       ctx.fillText(Math.round(value / 1000) + 'K', padding - 10, y + 4)
     }
 
-  }, [])
+  }, [revenue, months])
+
+  if (!revenue || !revenue.length) {
+    return <div style={{ padding: '24px', color: '#6b7280' }}>No revenue data available for this project.</div>
+  }
 
   return <canvas ref={canvasRef} width={600} height={320} style={{ width: '100%' }} />
 }
@@ -276,6 +266,10 @@ const ProjectViewContent = ({ projectId = '1' }) => {
   const { lang } = useLanguage()
   const [loading, setLoading] = useState(true)
   const [project, setProject] = useState(null)
+
+  // contracts state
+  const [contracts, setContracts] = useState([])
+  const [contractsLoading, setContractsLoading] = useState(true)
 
   useEffect(() => {
     const load = async () => {
@@ -290,6 +284,31 @@ const ProjectViewContent = ({ projectId = '1' }) => {
     if (projectId) load()
   }, [projectId])
 
+  // load contracts for this project
+  useEffect(() => {
+    const loadContracts = async () => {
+      try {
+        setContractsLoading(true)
+        const res = await apiGet(`/api/contracts?projectId=${projectId}`)
+        if (res?.success) setContracts(res.data || [])
+        else setContracts([])
+      } catch (e) {
+        setContracts([])
+      } finally {
+        setContractsLoading(false)
+      }
+    }
+    if (projectId) loadContracts()
+  }, [projectId])
+
+  // --- demo static data for charts (temporary) ---
+  const demoMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']
+  const demoProduction = [12000, 18000, 24000, 20000, 22000, 26000] // kWh
+  const demoTarget = [15000, 17000, 23000, 21000, 24000, 25000] // kWh
+  const demoConsumption = [8000, 9000, 10000, 9500, 11000, 12000] // kWh
+  const demoRevenue = [3000, 4200, 5100, 4800, 5300, 6000] // dollars / month
+  // --- end demo data ---
+  
   if (!project) {
     return (
       <div style={{ minHeight: '100vh', backgroundColor: '#f9fafb', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -297,7 +316,7 @@ const ProjectViewContent = ({ projectId = '1' }) => {
       </div>
     )
   }
-
+  
   return (
     <div style={{ minHeight: '100vh', background: 'linear-gradient(to bottom right, #eff6ff, #ffffff, #faf5ff)', padding: '24px' }}>
       <div style={{ margin: '0 auto' }}>
@@ -320,39 +339,39 @@ const ProjectViewContent = ({ projectId = '1' }) => {
           </div>
         </div>
 
-        {/* Stats Cards */}
+        {/* Stats Cards */} 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px', marginBottom: '24px' }}>
           <StatCard
             icon={Sun}
-            title="Total Generation"
-            value="1,245 kWh"
-            subtitle="Today's Production"
+            title="Total Contracts"
+            value={contractsLoading ? 'Loading...' : (Array.isArray(contracts) ? `${formatNumber(contracts.length)}` : '-')}
+            subtitle="Number of contracts for this project"
             color="linear-gradient(to bottom right, #fbbf24, #f97316)"
-            trend={12.5}
+            trend={null}
           />
           <StatCard
             icon={Zap}
             title="Current Output"
-            value="87.5 kW"
-            subtitle="Real-time Power"
+            value={project.current_output ? `${formatNumber(project.current_output)} kW` : (project.current_power ? `${formatNumber(project.current_power)} kW` : '-')}
+            subtitle="Real-time power"
             color="linear-gradient(to bottom right, #3b82f6, #2563eb)"
-            trend={8.3}
+            trend={project.output_trend ?? null}
           />
           <StatCard
             icon={TrendingUp}
             title="Efficiency"
-            value="94.2%"
-            subtitle="System Performance"
+            value={project.efficiency ? `${project.efficiency}%` : '-'}
+            subtitle="System performance"
             color="linear-gradient(to bottom right, #22c55e, #059669)"
-            trend={5.2}
+            trend={project.efficiency_trend ?? null}
           />
           <StatCard
             icon={Activity}
             title="Revenue"
-            value="$45.2K"
-            subtitle="This Month"
+            value={project.monthly_revenue ? `$${formatNumber(project.monthly_revenue)}` : (project.revenue ? `$${formatNumber(project.revenue)}` : '-')}
+            subtitle="This month"
             color="linear-gradient(to bottom right, #a855f7, #ec4899)"
-            trend={-2.1}
+            trend={project.revenue_trend ?? null}
           />
         </div>
 
@@ -365,7 +384,7 @@ const ProjectViewContent = ({ projectId = '1' }) => {
               Basic Information
             </h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <InfoCard icon={Sun} label="Project Type" value={project.project_type} color="#3b82f6" />
+              <InfoCard icon={Sun} label="Project Type" value={project.projectType?.type_name} color="#3b82f6" />
               <InfoCard icon={Users} label="Offtaker" value={project.offtaker?.fullName} color="#a855f7" />
               <InfoCard icon={Activity} label="Status" value={project.status === 1 ? 'Active' : 'Inactive'} color={project.status === 1 ? '#22c55e' : '#ef4444'} />
             </div>
@@ -380,7 +399,7 @@ const ProjectViewContent = ({ projectId = '1' }) => {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <InfoCard icon={DollarSign} label="Investor Profit" value={project.investor_profit} color="#22c55e" />
               <InfoCard icon={DollarSign} label="Weshare Profit" value={project.weshare_profit} color="#059669" />
-              <InfoCard icon={TrendingUp} label="Project ID" value={projectId} color="#3b82f6" />
+              <InfoCard icon={TrendingUp} label="Asking Price" value={project.asking_price} color="#3b82f6" />
             </div>
           </div>
 
@@ -436,6 +455,79 @@ const ProjectViewContent = ({ projectId = '1' }) => {
           </div>
         </div>
 
+        {/* Meter Information + Contracts (side-by-side) */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '24px', marginBottom: '24px' }}>
+          {/* Meter Information */}
+          <div style={{ backgroundColor: '#fff', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', border: '1px solid #f3f4f6', padding: '24px' }}>
+            <h3 style={{ fontSize: '18px', fontWeight: 'bold', color: '#111827', marginBottom: '16px', display: 'flex', alignItems: 'center' }}>
+              <div style={{ width: '8px', height: '24px', backgroundColor: '#10b981', borderRadius: '9999px', marginRight: '12px' }}></div>
+              Meter Information
+            </h3>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
+              <div style={{ padding: '16px', background: 'linear-gradient(to bottom right, #eef2ff, #e9d5ff)', borderRadius: '8px' }}>
+                <p style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>Meter Name</p>
+                <p style={{ fontSize: '14px', fontWeight: '600', color: '#111827' }}>{project.meter_name || '-'}</p>
+              </div>
+              <div style={{ padding: '16px', background: 'linear-gradient(to bottom right, #fef3c7, #fde68a)', borderRadius: '8px' }}>
+                <p style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>Meter Number</p>
+                <p style={{ fontSize: '14px', fontWeight: '600', color: '#111827' }}>{project.meter_number || '-'}</p>
+              </div>
+              <div style={{ padding: '16px', background: 'linear-gradient(to bottom right, #d1fae5, #a7f3d0)', borderRadius: '8px' }}>
+                <p style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>SIM Number</p>
+                <p style={{ fontSize: '14px', fontWeight: '600', color: '#111827' }}>{project.sim_number || '-'}</p>
+              </div>
+              <div style={{ padding: '16px', background: 'linear-gradient(to bottom right, #dbeafe, #bfdbfe)', borderRadius: '8px' }}>
+                <p style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>SIM Start Date</p>
+                <p style={{ fontSize: '14px', fontWeight: '600', color: '#111827' }}>{project.sim_start_date ? new Date(project.sim_start_date).toLocaleDateString() : '-'}</p>
+              </div>
+              <div style={{ padding: '16px', background: 'linear-gradient(to bottom right, #fee2e2, #fecaca)', borderRadius: '8px' }}>
+                <p style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>SIM Expire Date</p>
+                <p style={{ fontSize: '14px', fontWeight: '600', color: '#111827' }}>{project.sim_expire_date ? new Date(project.sim_expire_date).toLocaleDateString() : '-'}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Contracts */}
+          <div style={{ backgroundColor: '#fff', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', border: '1px solid #f3f4f6', padding: '24px' }}>
+            <h3 style={{ fontSize: '18px', fontWeight: 'bold', color: '#111827', marginBottom: '16px', display: 'flex', alignItems: 'center' }}>
+              <div style={{ width: '8px', height: '24px', backgroundColor: '#f59e0b', borderRadius: '9999px', marginRight: '12px' }}></div>
+              Contracts
+            </h3>
+            {contractsLoading ? (
+              <div style={{ color: '#6b7280' }}>Loading contracts...</div>
+            ) : !contracts || contracts.length === 0 ? (
+              <div style={{ color: '#6b7280' }}>No contracts found for this project.</div>
+            ) : (
+              <div style={{ display: 'grid', gap: '12px' }}>
+                {contracts.map((c) => (
+                  <div key={c.id} style={{ padding: '12px', borderRadius: '8px', background: '#f8fafc', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ fontSize: '14px', fontWeight: '600', color: '#111827', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.contractTitle || 'Untitled'}</div>
+                      <div style={{ fontSize: '12px', color: '#6b7280' }}>
+                        {c.offtaker?.fullName ? `Offtaker: ${c.offtaker.fullName}` : ''}
+                        {c.investor?.fullName ? ` ${c.offtaker ? '·' : ''} Investor: ${c.investor.fullName}` : ''}
+                      </div>
+                      <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '6px' }}>{c.contractDate ? new Date(c.contractDate).toLocaleDateString() : '-'}</div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                      {c.documentUpload ? (
+                        <a href={c.documentUpload.startsWith('/') ? c.documentUpload : `/${c.documentUpload}`} target="_blank" rel="noreferrer" style={{ fontSize: '13px', color: '#2563eb', textDecoration: 'none' }}>
+                          View Document
+                        </a>
+                      ) : (
+                        <span style={{ fontSize: '13px', color: '#9ca3af' }}>No document</span>
+                      )}
+                      <span style={{ padding: '6px 10px', borderRadius: '9999px', backgroundColor: c.status === 1 ? '#dcfce7' : c.status === 2 ? '#fee2e2' : '#f3f4f6', color: c.status === 1 ? '#166534' : c.status === 2 ? '#991b1b' : '#6b7280', fontWeight: 600, fontSize: '12px' }}>
+                        {c.status === 1 ? 'Active' : c.status === 2 ? 'Rejected' : 'Pending'}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
         {/* Charts Section */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(500px, 1fr))', gap: '24px' }}>
           {/* Energy Production */}
@@ -448,7 +540,13 @@ const ProjectViewContent = ({ projectId = '1' }) => {
                 <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#22c55e' }}></div>
               </div>
             </div>
-            <LineChartComponent />
+            {/* pass static demo data */}
+            <LineChartComponent
+              production={demoProduction}
+              target={demoTarget}
+              consumption={demoConsumption}
+              months={demoMonths}
+            />
           </div>
 
           {/* Monthly Revenue */}
@@ -461,7 +559,8 @@ const ProjectViewContent = ({ projectId = '1' }) => {
                 <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#22c55e' }}></div>
               </div>
             </div>
-            <BarChartComponent />
+            {/* pass static demo revenue */}
+            <BarChartComponent revenue={demoRevenue} months={demoMonths} />
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', marginTop: '16px' }}>
               <div style={{ textAlign: 'center', padding: '12px', backgroundColor: '#dbeafe', borderRadius: '8px' }}>
                 <p style={{ fontSize: '12px', color: '#6b7280' }}>Reach</p>
