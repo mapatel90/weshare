@@ -175,43 +175,6 @@ const ProjectDetail = ({ projectId }) => {
     return parseFloat(num).toLocaleString("en-US");
   };
 
-  // NEW: determine main project image from project_images (prefer is_default, fallback to first)
-  const getProjectMainImage = () => {
-    const imgs = project?.project_images;
-    // handle when project_images is a JSON string
-    let arr = imgs;
-    if (typeof imgs === "string") {
-      try {
-        arr = JSON.parse(imgs);
-      } catch (e) {
-        arr = [imgs];
-      }
-    }
-
-    if (Array.isArray(arr) && arr.length > 0) {
-      // prefer an object marked default
-      const defaultImg =
-        arr.find(
-          (i) =>
-            i &&
-            (i.is_default === true ||
-              i.default === 1 ||
-              i.default === "1" ||
-              i.is_default === 1)
-        ) || arr[0];
-
-      const value = defaultImg;
-      if (!value) return project?.project_image ? getFullImageUrl(project.project_image) : "/images/banner/banner-img.png";
-
-      // support string entries or object entries with common keys
-      if (typeof value === "string") return getFullImageUrl(value);
-      return getFullImageUrl(value.url || value.path || value.image || value);
-    }
-
-    // fallback to old single field
-    return project?.project_image ? getFullImageUrl(project.project_image) : "/images/banner/banner-img.png";
-  };
-
   // Determine reliability badge based on ROI
   const getReliabilityBadge = () => {
     if (!project)
@@ -479,7 +442,11 @@ const ProjectDetail = ({ projectId }) => {
               {/* Image Box */}
               <div className="imageBox">
                 <img
-                  src={getProjectMainImage()}
+                  src={
+                    project?.project_image
+                      ? getFullImageUrl(project.project_image)
+                      : "/images/banner/banner-img.png"
+                  }
                   alt={project.project_name}
                   className="main-img"
                   onError={(e) => {
