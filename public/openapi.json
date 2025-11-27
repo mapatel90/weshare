@@ -1,0 +1,31 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Weshare — API",
+    "version": "1.0.0",
+    "description": "This documents the Weshare Energy API endpoints."
+  },
+  "servers": [
+      { "url": "http://api.weshare-energy.com", "description": " Weshare Server" }
+  ],
+  "paths": {
+    "/api/cron/demo": {
+      "post": {
+        "summary": "Get userStationList detail (demo)",
+        "description": "Calls /v1/api/userStationList → /v1/api/stationDetail → /v1/api/inverterDetail and returns inverter detail.",
+        "responses": {
+          "200": {
+            "description": "Inverter detail returned",
+            "content": {
+              "application/json": {
+                "schema": { "type": "object" }
+              }
+            }
+          },
+          "400": { "description": "Bad request (missing inverterSn)" },
+          "403": { "description": "SolisCloud signature or auth error" }
+        }
+      }
+    }
+  }
+}

@@ -29,13 +29,23 @@ const data = {
   labels,
   datasets: [
     {
-      label: 'KRI Value',
-      data: [3, 6, 8, 12, 19, 15, 19, 22, 18, 22.5, 25, 20, 24, 21],
+      label: 'Solar KW Generated',
+      data: [3, 6, 8, 12, 19, 15, 19, 20, 18, 22.5, 25, 20, 24, 21],
       borderColor: '#2563eb',
       backgroundColor: 'rgba(37,99,235,0.1)',
       tension: 0.4,
       pointRadius: 4,
       pointBackgroundColor: '#2563eb',
+      fill: true,
+    },
+    {
+      label: 'Conjunction KW',
+      data: [2, 1.6, 2.2, 1.9, 1.5, 1.9, 1.8, 5.3, 6.3, 8.2, 4.6, 3.7, 2.0, 1.8], // Example data
+      borderColor: '#f59e42',
+      backgroundColor: 'rgba(245,158,66,0.1)',
+      tension: 0.4,
+      pointRadius: 4,
+      pointBackgroundColor: '#f59e42',
       fill: true,
     },
   ],
@@ -61,7 +71,7 @@ const options = {
     y: {
       title: {
         display: true,
-        text: 'Kw Generated',
+        text: 'KW Value',
       },
       beginAtZero: true,
     },
