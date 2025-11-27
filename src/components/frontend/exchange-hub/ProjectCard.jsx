@@ -48,6 +48,20 @@ const ProjectCard = ({ project, activeTab }) => {
     const accumulative = project.accumulative_generation ||
         (parseFloat(project.project_size || 0) * 1500).toFixed(0)
 
+    // Return URL for the image that has default === 1. Fallback to project.project_image then empty string.
+    const getDefaultImageUrl = () => {
+        try {
+            const imgs = project?.project_images
+            if (Array.isArray(imgs) && imgs.length) {
+                const def = imgs.find(i => i?.default === 1 || i?.default === '1')
+                if (def && def.path) return getFullImageUrl(def.path)
+            }
+        } catch (e) {
+            // ignore
+        }
+        return getFullImageUrl(project?.project_image || '')
+    }
+
     // Different card design for lease vs resale
     if (activeTab === 'lease') {
         // LEASE CARD - With Image (Figma Style)
@@ -57,7 +71,7 @@ const ProjectCard = ({ project, activeTab }) => {
                     {/* Solar Panel Image */}
                     <div className="card-image-container">
                         <Image
-                            src={getFullImageUrl(project?.project_image)}
+                            src={getDefaultImageUrl()}
                             alt={project?.project_name || 'Solar Project'}
                             width={500}
                             height={250}

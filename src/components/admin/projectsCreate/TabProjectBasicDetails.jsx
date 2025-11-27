@@ -311,8 +311,6 @@ const TabProjectBasicDetails = ({ setFormData, formData, error, setError }) => {
                 project_description: formData.project_description || '',
                 investor_profit: formData.investorProfit || '0',
                 weshare_profit: formData.weshareprofite || '0',
-                // project_image not handled client-side anymore; keep value if present
-                project_image: formData.project_image || '',
                 project_size: formData.project_size || '',
                 project_close_date: formData.project_close_date || null,
                 project_location: formData.project_location || '',

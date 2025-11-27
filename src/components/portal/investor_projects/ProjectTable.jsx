@@ -66,25 +66,79 @@ const normalizeApiProject = (project) => {
       : statusString === "Under Installation"
         ? 0
         : project?.status ?? null;
-      return {
-        id: project.project?.id ? `#${project.project.id}` : project.project?.project_code ?? "—",
-        project_image: project.project?.project_image,
-        projectName: project.project?.project_name ?? "—",
-        status: statusString,
-        statusCode,
-        expectedROI: formatPercent(project.project?.expected_roi ?? project.project?.roi),
-        targetInvestment: formatCurrency(project.project?.asking_price ?? project.project?.asking_price),
-        paybackPeriod: project.project?.lease_term ? String(project.project.lease_term) : "—",
-        startDate: formatDateForDisplay(project.project?.createdAt),
-        endDate: formatDateForDisplay(project.project?.project_close_date),
-        startDateTs: tsOrZero(project.project?.createdAt),
-        endDateTs: tsOrZero(project.project?.project_close_date),
-        expectedGeneration: formatNumber(project.project?.project_size),
-        offtakerId: project.project?.offtaker_id ?? null,
-        product_code: project.project?.product_code ?? '-',
-        offtaker_name: project.project?.offtaker?.fullName ?? '-',
-        project_slug: project.project?.project_slug ?? '',
-      };
+
+  // resolve first image from possible project_images structures
+  const resolveFirstImage = () => {
+    const raw = project.project?.project_images ?? project.project?.projectImages ?? project.project?.images;
+    let imgs = raw;
+
+    // if stored as JSON string, try parse
+    if (typeof raw === "string") {
+      try {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) imgs = parsed;
+      } catch (e) {
+        // leave as string
+      }
+    }
+
+    // if single object provided, normalize to array
+    if (imgs && !Array.isArray(imgs) && typeof imgs === "object") {
+      imgs = [imgs];
+    }
+
+    if (Array.isArray(imgs) && imgs.length > 0) {
+      // Prefer an image marked as default (several common field names)
+      const preferred = imgs.find((item) => {
+        if (!item || typeof item === "string") return false;
+        return (
+          item.default === 1 ||
+          item.default === true ||
+          item.is_default === 1 ||
+          item.is_default === true ||
+          item.isDefault === true
+        );
+      });
+
+      const first = preferred ?? imgs[0];
+
+      if (typeof first === "string") return first;
+      if (typeof first === "object") {
+        return (
+          first.url ||
+          first.path ||
+          first.src ||
+          first.image ||
+          first.filename ||
+          project.project?.project_image ||
+          "/images/general/solar-card.jpg"
+        );
+      }
+    }
+
+    // fallback to single image field or global default
+    return project.project?.project_image ?? "/images/general/solar-card.jpg";
+  };
+
+  return {
+    id: project.project?.id ? `#${project.project.id}` : project.project?.project_code ?? "—",
+    project_image: resolveFirstImage(),
+    projectName: project.project?.project_name ?? "—",
+    status: statusString,
+    statusCode,
+    expectedROI: formatPercent(project.project?.expected_roi ?? project.project?.roi),
+    targetInvestment: formatCurrency(project.project?.asking_price ?? project.project?.asking_price),
+    paybackPeriod: project.project?.lease_term ? String(project.project.lease_term) : "—",
+    startDate: formatDateForDisplay(project.project?.createdAt),
+    endDate: formatDateForDisplay(project.project?.project_close_date),
+    startDateTs: tsOrZero(project.project?.createdAt),
+    endDateTs: tsOrZero(project.project?.project_close_date),
+    expectedGeneration: formatNumber(project.project?.project_size),
+    offtakerId: project.project?.offtaker_id ?? null,
+    product_code: project.project?.product_code ?? '-',
+    offtaker_name: project.project?.offtaker?.fullName ?? '-',
+    project_slug: project.project?.project_slug ?? '',
+  };
 };
 
 const ProjectTable = () => {
@@ -119,6 +173,7 @@ const ProjectTable = () => {
           apiUrl += `&userId=${user.id}`;
         }
         const response = await apiGet(apiUrl);
+        console.log("Fetched projects:", response);
         if (response?.success) {
           const normalized = response.data.map(normalizeApiProject);
           console.log(normalized)
