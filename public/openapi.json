@@ -9,13 +9,13 @@
       { "url": "http://api.weshare-energy.com", "description": " Weshare Server" }
   ],
   "paths": {
-    "/api/cron/demo": {
+    "/api/cron/plant": {
       "post": {
-        "summary": "Get userStationList detail (demo)",
-        "description": "Calls /v1/api/userStationList → /v1/api/stationDetail → /v1/api/inverterDetail and returns inverter detail.",
+        "tags": ["WeShare API"],
+        "summary": "Get Plant Detail",        
         "responses": {
           "200": {
-            "description": "Inverter detail returned",
+            "description": "Plant detail returned",
             "content": {
               "application/json": {
                 "schema": { "type": "object" }
