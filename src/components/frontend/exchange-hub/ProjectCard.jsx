@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useCallback } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useLanguage } from '@/contexts/LanguageContext'
@@ -6,8 +6,11 @@ import './styles/exchange-hub-custom.css'
 import './styles/responsive.css'
 import { getFullImageUrl } from '@/utils/common'
 import { getPrimaryProjectImage } from '@/utils/projectUtils'
+import { useDropzone } from 'react-dropzone'
 
 const ProjectCard = ({ project, activeTab }) => {
+    const [preview, setPreview] = useState(null);
+    const [uploading, setUploading] = useState(false);
     const { lang } = useLanguage()
     const router = useRouter()
 
@@ -50,9 +53,20 @@ const ProjectCard = ({ project, activeTab }) => {
         (parseFloat(project.project_size || 0) * 1500).toFixed(0)
 
     const getDefaultImageUrl = () => {
-        const cover = getPrimaryProjectImage(project)
-        return cover ? getFullImageUrl(cover) : '/images/general/solar-card.jpg'
+        if (preview) return preview;
+        const cover = getPrimaryProjectImage(project);
+        return cover ? getFullImageUrl(cover) : '/images/general/solar-card.jpg';
     }
+
+    // Dropzone logic
+    const onDrop = useCallback((acceptedFiles) => {
+        const file = acceptedFiles[0];
+        if (file) {
+            setPreview(URL.createObjectURL(file));
+            // TODO: Upload file to backend here, set uploading true while uploading
+        }
+    }, []);
+    const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, accept: 'image/*' });
 
     // Different card design for lease vs resale
     if (activeTab === 'lease') {
@@ -60,6 +74,16 @@ const ProjectCard = ({ project, activeTab }) => {
         return (
             <div className="col-12 col-md-12 col-lg-6 mb-3" data-aos="fade-up" data-aos-easing="linear" data-aos-duration="1000">
                 <div className="solar-card-with-image">
+                    {/* Dropzone for image upload */}
+                    <div {...getRootProps()} className="dropzone" style={{ border: '2px dashed #ccc', padding: '10px', marginBottom: '10px', cursor: 'pointer', textAlign: 'center' }}>
+                        <input {...getInputProps()} />
+                        {isDragActive ? (
+                            <p>Drop the image here ...</p>
+                        ) : (
+                            <p>Drag & drop image here, or click to select</p>
+                        )}
+                        {uploading && <p>Uploading...</p>}
+                    </div>
                     {/* Solar Panel Image */}
                     <div className="card-image-container">
                         <Image
@@ -76,10 +100,9 @@ const ProjectCard = ({ project, activeTab }) => {
                             Upcoming
                         </div>
                     </div>
-
-                    {/* Card Content */}
+                    {/* ...existing code... */}
                     <div className="card-content-with-image">
-                        {/* Title and Rating */}
+                        {/* ...existing code... */}
                         <div className="card-header-image">
                             <h3 style={{
                                 overflow: 'hidden',
@@ -100,18 +123,15 @@ const ProjectCard = ({ project, activeTab }) => {
                                 </div>
                             </div>
                         </div>
-
-                        {/* ID */}
+                        {/* ...existing code... */}
                         <p className="id-image">
                             ID: {project?.product_code || project?.project_code || `PJT-${project?.id || '238'}`}
                         </p>
-
-                        {/* Offtaker */}
+                        {/* ...existing code... */}
                         <p className="offtaker-image">
                             {lang('home.exchangeHub.offtaker') || 'Offtaker'}: {project?.offtaker?.fullName || project?.offtaker?.company_name || 'Greenfield Academy'}
                         </p>
-
-                        {/* Stats - 3 Columns */}
+                        {/* ...existing code... */}
                         <div className="stats-image">
                             <div className="stat-image">
                                 <h4>${formatNumber(project.asking_price || project.target_investment || 1450000)}</h4>
@@ -128,8 +148,7 @@ const ProjectCard = ({ project, activeTab }) => {
                                 <p>{lang('home.exchangeHub.expectedROI') || 'Expected ROI'}</p>
                             </div>
                         </div>
-
-                        {/* Additional Details */}
+                        {/* ...existing code... */}
                         <div className="details-row-image">
                             <div className="detail-item">
                                 <span className="label">{lang('home.exchangeHub.paybackPeriod') || 'Payback Period'}</span>
@@ -141,8 +160,7 @@ const ProjectCard = ({ project, activeTab }) => {
                                 <span className="value">{project?.lease_term || '15'} {lang('home.exchangeHub.years') || 'years'}</span>
                             </div>
                         </div>
-
-                        {/* Progress Bar */}
+                        {/* ...existing code... */}
                         <div className="progress-section">
                             <div className="progress-header">
                                 <span className="progress-label">
@@ -159,13 +177,11 @@ const ProjectCard = ({ project, activeTab }) => {
                                 ></div>
                             </div>
                         </div>
-
-                        {/* Note */}
+                        {/* ...existing code... */}
                         <p className="note-text">
                             {lang('home.exchangeHub.assumptionNote') || 'Note: This is an Assumption data*'}
                         </p>
-
-                        {/* Action Buttons */}
+                        {/* ...existing code... */}
                         <div className="buttons-image">
                             <button className="btn btn-primary-custom" style={{ padding: '14px 0px' }}>
                                 {lang('home.exchangeHub.investEarly') || 'Invest Early'}
@@ -180,7 +196,6 @@ const ProjectCard = ({ project, activeTab }) => {
                                     <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2zm10-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1" />
                                 </svg>
                                 {lang('home.exchangeHub.viewDetails') || 'View Details'}
-
                             </button>
                         </div>
                     </div>
