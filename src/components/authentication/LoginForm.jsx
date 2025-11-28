@@ -1,7 +1,7 @@
 "use client";
 
 import Link from 'next/link'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { FiEye, FiEyeOff } from 'react-icons/fi'
 import {
     Box,
@@ -17,8 +17,13 @@ import {
 import { useAuth } from '@/contexts/AuthContext'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { usePathname } from 'next/navigation';
+
 const LoginForm = ({ registerPath, resetPath }) => {
     const pathname = usePathname();
+
+    // 🔥 Create dynamic key → remember_admin / remember_offtaker / remember_investor
+    const storageKey = `remember_${pathname.split('/')[1]}`;
+
     const [email, setEmail] = useState('')
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
@@ -29,6 +34,20 @@ const LoginForm = ({ registerPath, resetPath }) => {
     const [passwordError, setPasswordError] = useState('')
     const { login } = useAuth()
     const { lang } = useLanguage()
+
+    // ⭐ Load saved Remember Me credentials
+    useEffect(() => {
+        const saved = localStorage.getItem(storageKey);
+        if (saved) {
+            const data = JSON.parse(saved);
+            setUsername(data.username || "");
+            setPassword(data.password || "");
+
+            // Auto-check checkbox if value exists
+            const checkbox = document.getElementById("rememberMe");
+            if (checkbox) checkbox.checked = true;
+        }
+    }, [storageKey]);
 
     const handleSubmit = async (e) => {
         e.preventDefault()
@@ -63,8 +82,18 @@ const LoginForm = ({ registerPath, resetPath }) => {
             setLoading(false)
             return
         }
+
+        // 🔥 Handle Remember Me before login API
+        const remember = document.getElementById("rememberMe").checked;
+
+        if (remember) {
+            localStorage.setItem(storageKey, JSON.stringify({ username, password }));
+        } else {
+            localStorage.removeItem(storageKey);
+        }
+
         const result = await login(username, password)
-        // result.user should have users_role property
+
         if (result.success) {
             if (expectedRole && result.user?.role !== expectedRole) {
                 setError('You do not have permission to access this area.');
@@ -94,6 +123,7 @@ const LoginForm = ({ registerPath, resetPath }) => {
                     <span style={{ marginRight: '0.25rem' }}>&#8592;</span> {lang('common.back')}
                 </Link>
             </Box>
+
             {error && (
                 <Alert severity="error" sx={{ mb: 3 }}>
                     {error}
@@ -121,16 +151,9 @@ const LoginForm = ({ registerPath, resetPath }) => {
                             '& .MuiOutlinedInput-root': {
                                 backgroundColor: '#fff',
                                 borderRadius: '8px',
-                                '& fieldset': {
-                                    borderColor: '#e0e0e0',
-                                },
-                                '&:hover fieldset': {
-                                    borderColor: '#F6A623',
-                                },
-                                '&.Mui-focused fieldset': {
-                                    borderColor: '#F6A623',
-                                    borderWidth: '2px',
-                                },
+                                '& fieldset': { borderColor: '#e0e0e0' },
+                                '&:hover fieldset': { borderColor: '#F6A623' },
+                                '&.Mui-focused fieldset': { borderColor: '#F6A623', borderWidth: '2px' },
                             },
                         }}
                     />
@@ -157,16 +180,9 @@ const LoginForm = ({ registerPath, resetPath }) => {
                             '& .MuiOutlinedInput-root': {
                                 backgroundColor: '#fff',
                                 borderRadius: '8px',
-                                '& fieldset': {
-                                    borderColor: '#e0e0e0',
-                                },
-                                '&:hover fieldset': {
-                                    borderColor: '#F6A623',
-                                },
-                                '&.Mui-focused fieldset': {
-                                    borderColor: '#F6A623',
-                                    borderWidth: '2px',
-                                },
+                                '& fieldset': { borderColor: '#e0e0e0' },
+                                '&:hover fieldset': { borderColor: '#F6A623' },
+                                '&.Mui-focused fieldset': { borderColor: '#F6A623', borderWidth: '2px' },
                             },
                         }}
                         InputProps={{
@@ -211,9 +227,7 @@ const LoginForm = ({ registerPath, resetPath }) => {
                         py: 1.5,
                         fontSize: '1rem',
                         textTransform: 'none',
-                        '&:hover': {
-                            backgroundColor: '#e09620',
-                        },
+                        '&:hover': { backgroundColor: '#e09620' },
                     }}
                 >
                     {loading ? lang('common.loading') : lang('authentication.login')}
