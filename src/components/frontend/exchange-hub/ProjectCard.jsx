@@ -1,18 +1,12 @@
-'use client'
-
-import React, { useState, useCallback } from 'react'
-import Image from 'next/image'
+import React, { useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { useLanguage } from '@/contexts/LanguageContext'
 import './styles/exchange-hub-custom.css'
 import './styles/responsive.css'
 import { getFullImageUrl } from '@/utils/common'
-import { getPrimaryProjectImage } from '@/utils/projectUtils'
-import { useDropzone } from 'react-dropzone'
+import { getPrimaryProjectImageRecord } from '@/utils/projectUtils'
 
 const ProjectCard = ({ project, activeTab }) => {
-    const [preview, setPreview] = useState(null);
-    const [uploading, setUploading] = useState(false);
     const { lang } = useLanguage()
     const router = useRouter()
 
@@ -54,21 +48,46 @@ const ProjectCard = ({ project, activeTab }) => {
     const accumulative = project.accumulative_generation ||
         (parseFloat(project.project_size || 0) * 1500).toFixed(0)
 
-    const getDefaultImageUrl = () => {
-        if (preview) return preview;
-        const cover = getPrimaryProjectImage(project);
-        return cover ? getFullImageUrl(cover) : '/images/general/solar-card.jpg';
-    }
+    const primaryImageRecord = useMemo(() => getPrimaryProjectImageRecord(project), [project])
 
-    // Dropzone logic
-    const onDrop = useCallback((acceptedFiles) => {
-        const file = acceptedFiles[0];
-        if (file) {
-            setPreview(URL.createObjectURL(file));
-            // TODO: Upload file to backend here, set uploading true while uploading
+    const defaultImageUrl = useMemo(() => {
+        if (!primaryImageRecord) {
+            return '/images/general/solar-card.jpg'
         }
-    }, []);
-    const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, accept: 'image/*' });
+
+        const candidate =
+            primaryImageRecord.path ||
+            primaryImageRecord.url ||
+            primaryImageRecord.image ||
+            primaryImageRecord.src ||
+            ''
+
+        return candidate ? getFullImageUrl(candidate) : '/images/general/solar-card.jpg'
+    }, [primaryImageRecord])
+
+    const getLeaseCardImageSrc = () => {
+        if (!primaryImageRecord || !defaultImageUrl) {
+            return defaultImageUrl || '/images/general/solar-card.jpg'
+        }
+
+        const versionSource =
+            primaryImageRecord.updatedAt ||
+            primaryImageRecord.updated_at ||
+            primaryImageRecord.id ||
+            project?.updatedAt ||
+            project?.updated_at ||
+            project?.id
+
+        if (!versionSource) return defaultImageUrl
+
+        const version =
+            typeof versionSource === 'string'
+                ? Date.parse(versionSource) || versionSource
+                : versionSource
+
+        const separator = defaultImageUrl.includes('?') ? '&' : '?'
+        return `${defaultImageUrl}${separator}v=${version}`
+    }
 
     // Different card design for lease vs resale
     if (activeTab === 'lease') {
@@ -76,16 +95,6 @@ const ProjectCard = ({ project, activeTab }) => {
         return (
             <div className="col-12 col-md-12 col-lg-6 mb-3" data-aos="fade-up" data-aos-easing="linear" data-aos-duration="1000">
                 <div className="solar-card-with-image">
-                    {/* Dropzone for image upload */}
-                    <div {...getRootProps()} className="dropzone" style={{ border: '2px dashed #ccc', padding: '10px', marginBottom: '10px', cursor: 'pointer', textAlign: 'center' }}>
-                        <input {...getInputProps()} />
-                        {isDragActive ? (
-                            <p>Drop the image here ...</p>
-                        ) : (
-                            <p>Drag & drop image here, or click to select</p>
-                        )}
-                        {uploading && <p>Uploading...</p>}
-                    </div>
                     {/* Solar Panel Image */}
                     <div className="card-image-container">
                         <img
@@ -107,9 +116,10 @@ const ProjectCard = ({ project, activeTab }) => {
                             Upcoming
                         </div>
                     </div>
-                    {/* ...existing code... */}
+
+                    {/* Card Content */}
                     <div className="card-content-with-image">
-                        {/* ...existing code... */}
+                        {/* Title and Rating */}
                         <div className="card-header-image">
                             <h3 style={{
                                 overflow: 'hidden',
@@ -130,15 +140,18 @@ const ProjectCard = ({ project, activeTab }) => {
                                 </div>
                             </div>
                         </div>
-                        {/* ...existing code... */}
+
+                        {/* ID */}
                         <p className="id-image">
                             ID: {project?.product_code || project?.project_code || `PJT-${project?.id || '238'}`}
                         </p>
-                        {/* ...existing code... */}
+
+                        {/* Offtaker */}
                         <p className="offtaker-image">
                             {lang('home.exchangeHub.offtaker') || 'Offtaker'}: {project?.offtaker?.fullName || project?.offtaker?.company_name || 'Greenfield Academy'}
                         </p>
-                        {/* ...existing code... */}
+
+                        {/* Stats - 3 Columns */}
                         <div className="stats-image">
                             <div className="stat-image">
                                 <h4>${formatNumber(project.asking_price || project.target_investment || 1450000)}</h4>
@@ -155,7 +168,8 @@ const ProjectCard = ({ project, activeTab }) => {
                                 <p>{lang('home.exchangeHub.expectedROI') || 'Expected ROI'}</p>
                             </div>
                         </div>
-                        {/* ...existing code... */}
+
+                        {/* Additional Details */}
                         <div className="details-row-image">
                             <div className="detail-item">
                                 <span className="label">{lang('home.exchangeHub.paybackPeriod') || 'Payback Period'}</span>
@@ -167,7 +181,8 @@ const ProjectCard = ({ project, activeTab }) => {
                                 <span className="value">{project?.lease_term || '15'} {lang('home.exchangeHub.years') || 'years'}</span>
                             </div>
                         </div>
-                        {/* ...existing code... */}
+
+                        {/* Progress Bar */}
                         <div className="progress-section">
                             <div className="progress-header">
                                 <span className="progress-label">
@@ -184,11 +199,13 @@ const ProjectCard = ({ project, activeTab }) => {
                                 ></div>
                             </div>
                         </div>
-                        {/* ...existing code... */}
+
+                        {/* Note */}
                         <p className="note-text">
                             {lang('home.exchangeHub.assumptionNote') || 'Note: This is an Assumption data*'}
                         </p>
-                        {/* ...existing code... */}
+
+                        {/* Action Buttons */}
                         <div className="buttons-image">
                             <button className="btn btn-primary-custom" style={{ padding: '14px 0px' }}>
                                 {lang('home.exchangeHub.investEarly') || 'Invest Early'}
@@ -203,6 +220,7 @@ const ProjectCard = ({ project, activeTab }) => {
                                     <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2zm10-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1" />
                                 </svg>
                                 {lang('home.exchangeHub.viewDetails') || 'View Details'}
+
                             </button>
                         </div>
                     </div>
