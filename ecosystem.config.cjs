@@ -10,6 +10,7 @@ module.exports = {
         NODE_ENV: 'production',
 	API_URL: 'http://api.weshare-energy.com/',
 	DATABASE_URL : 'postgresql://weshare_admin:V6sYaLeNkH2aRQaCjwVe@weshare-db.cny8igk0wfl9.ap-southeast-1.rds.amazonaws.com:5432/weshare_db'
+  NEXT_PUBLIC_ASSET_BASE_URL: 'http://api.weshare-energy.com'
       }
     },
     {
