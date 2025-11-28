@@ -1,20 +1,14 @@
-<<<<<<< HEAD
+'use client'
+
 import React, { useState, useCallback } from 'react'
 import Image from 'next/image'
-=======
-import React, { useMemo } from 'react'
->>>>>>> 2cf30ee874f00261ca2f6bcbaf86599b66094321
 import { useRouter } from 'next/navigation'
 import { useLanguage } from '@/contexts/LanguageContext'
 import './styles/exchange-hub-custom.css'
 import './styles/responsive.css'
 import { getFullImageUrl } from '@/utils/common'
-<<<<<<< HEAD
 import { getPrimaryProjectImage } from '@/utils/projectUtils'
 import { useDropzone } from 'react-dropzone'
-=======
-import { getPrimaryProjectImageRecord } from '@/utils/projectUtils'
->>>>>>> 2cf30ee874f00261ca2f6bcbaf86599b66094321
 
 const ProjectCard = ({ project, activeTab }) => {
     const [preview, setPreview] = useState(null);
