@@ -1,10 +1,11 @@
-import React, { useMemo } from 'react'
+import React from 'react'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useLanguage } from '@/contexts/LanguageContext'
 import './styles/exchange-hub-custom.css'
 import './styles/responsive.css'
 import { getFullImageUrl } from '@/utils/common'
-import { getPrimaryProjectImageRecord } from '@/utils/projectUtils'
+import { getPrimaryProjectImage } from '@/utils/projectUtils'
 
 const ProjectCard = ({ project, activeTab }) => {
     const { lang } = useLanguage()
@@ -48,45 +49,9 @@ const ProjectCard = ({ project, activeTab }) => {
     const accumulative = project.accumulative_generation ||
         (parseFloat(project.project_size || 0) * 1500).toFixed(0)
 
-    const primaryImageRecord = useMemo(() => getPrimaryProjectImageRecord(project), [project])
-
-    const defaultImageUrl = useMemo(() => {
-        if (!primaryImageRecord) {
-            return '/images/general/solar-card.jpg'
-        }
-
-        const candidate =
-            primaryImageRecord.path ||
-            primaryImageRecord.url ||
-            primaryImageRecord.image ||
-            primaryImageRecord.src ||
-            ''
-
-        return candidate ? getFullImageUrl(candidate) : '/images/general/solar-card.jpg'
-    }, [primaryImageRecord])
-
-    const getLeaseCardImageSrc = () => {
-        if (!primaryImageRecord || !defaultImageUrl) {
-            return defaultImageUrl || '/images/general/solar-card.jpg'
-        }
-
-        const versionSource =
-            primaryImageRecord.updatedAt ||
-            primaryImageRecord.updated_at ||
-            primaryImageRecord.id ||
-            project?.updatedAt ||
-            project?.updated_at ||
-            project?.id
-
-        if (!versionSource) return defaultImageUrl
-
-        const version =
-            typeof versionSource === 'string'
-                ? Date.parse(versionSource) || versionSource
-                : versionSource
-
-        const separator = defaultImageUrl.includes('?') ? '&' : '?'
-        return `${defaultImageUrl}${separator}v=${version}`
+    const getDefaultImageUrl = () => {
+        const cover = getPrimaryProjectImage(project)
+        return cover ? getFullImageUrl(cover) : '/images/general/solar-card.jpg'
     }
 
     // Different card design for lease vs resale
@@ -97,17 +62,12 @@ const ProjectCard = ({ project, activeTab }) => {
                 <div className="solar-card-with-image">
                     {/* Solar Panel Image */}
                     <div className="card-image-container">
-                        <img
-                            src={getLeaseCardImageSrc()}
+                        <Image
+                            src={getDefaultImageUrl()}
                             alt={project?.project_name || 'Solar Project'}
                             width={500}
                             height={250}
                             className="card-image"
-                            loading="lazy"
-                            onError={(event) => {
-                                event.currentTarget.onerror = null
-                                event.currentTarget.src = '/images/general/solar-card.jpg'
-                            }}
                         />
                         {/* Reliability Badge */}
                         <div className={`upcoming-badge ${badge.class}`} style={{ backgroundColor: '#FFF3DF', margin: '2%' }}>
