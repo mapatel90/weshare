@@ -10,7 +10,7 @@ const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
 const PROJECT_IMAGES_DIR = path.resolve(
   process.cwd(),
   "public",
-  "images",
+  "uploads",
   "projects"
 );
 
@@ -40,7 +40,7 @@ const projectImageUpload = multer({
   },
 });
 
-const buildPublicImagePath = (filename) => `/images/projects/${filename}`;
+const buildPublicImagePath = (filename) => `/uploads/projects/${filename}`;
 
 const getAbsoluteImagePath = (relativePath) => {
   if (!relativePath) return "";

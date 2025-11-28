@@ -60,6 +60,7 @@ const normalizeApiProject = (project) => {
   };
 
   const coverImage = getPrimaryProjectImage(project);
+  const normalizedCover = coverImage ? getFullImageUrl(coverImage) : null;
 
   const statusString =
     statusDictionary[project?.status] ?? project?.status ?? "Upcoming";
@@ -72,7 +73,7 @@ const normalizeApiProject = (project) => {
         : project?.status ?? null;
   return {
     id: project?.id ? `#${project.id}` : project?.project_code ?? "—",
-    project_image: coverImage || null,
+    project_image: normalizedCover,
     projectName: project?.project_name ?? "—",
     status: statusString,
     statusCode,
