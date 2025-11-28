@@ -3,7 +3,7 @@ import { solisRequest } from '../utils/solisApi.js';
 
 const router = express.Router();
 
-router.post('/demo', async (req, res) => {
+router.post('/plant', async (req, res) => {
     try {
         const result = await solisRequest("/v1/api/userStationList");
 
