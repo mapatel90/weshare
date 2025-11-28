@@ -5,25 +5,420 @@
     "version": "1.0.0",
     "description": "This documents the Weshare Energy API endpoints."
   },
-  "servers": [
-      { "url": "http://api.weshare-energy.com", "description": " Weshare Server" }
+  "servers": [{
+      "url": "http://api.weshare-energy.com",
+      "description": "Weshare Server"
+    },
+    {
+      "url": "http://localhost:5000",
+      "description": "Local Development Server"
+    }
   ],
   "paths": {
     "/api/cron/plant": {
       "post": {
         "tags": ["WeShare API"],
-        "summary": "Get Plant Detail",        
+        "summary": "Get Plant Detail",
         "responses": {
           "200": {
             "description": "Plant detail returned",
             "content": {
               "application/json": {
-                "schema": { "type": "object" }
+                "schema": {
+                  "type": "object"
+                }
               }
             }
           },
-          "400": { "description": "Bad request (missing inverterSn)" },
-          "403": { "description": "SolisCloud signature or auth error" }
+          "400": {
+            "description": "Bad request (missing inverterSn)"
+          },
+          "403": {
+            "description": "SolisCloud signature or auth error"
+          }
+        }
+      }
+    },
+    "/api/cron/stationdetail": {
+      "post": {
+        "tags": ["WeShare API"],
+        "summary": "Details of Individual Power Stations",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "Station ID"
+                  }
+                },
+                "required": ["id"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Station detail returned",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request (missing id)"
+          },
+          "403": {
+            "description": "SolisCloud signature or auth error"
+          }
+        }
+      }
+    },
+    "/api/cron/station/realtime-data": {
+      "post": {
+        "tags": ["WeShare API"],
+        "summary": "Real-time data of a single power station on a certain day",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "ID"
+                  },
+                  "nmiCode": {
+                    "type": "string",
+                    "description": "NMI Code (optional)"
+                  },
+                  "money": {
+                    "type": "string",
+                    "description": "Money value"
+                  },
+                  "time": {
+                    "type": "string",
+                    "description": "Time value"
+                  },
+                  "timeZone": {
+                    "type": "number",
+                    "description": "Time zone"
+                  }
+                },
+                "required": ["id", "money", "time", "timeZone"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Station day data returned",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request (missing required fields)"
+          },
+          "403": {
+            "description": "SolisCloud signature or auth error"
+          }
+        }
+      }
+    },
+    "/api/cron/station/month-data": {
+      "post": {
+        "tags": ["WeShare API"],
+        "summary": "Daily data of a single power station for a certain month ",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "ID"
+                  },
+                  "nmiCode": {
+                    "type": "string",
+                    "description": "NMI Code (optional)"
+                  },
+                  "money": {
+                    "type": "string",
+                    "description": "Money value (USD)"
+                  },
+                  "month": {
+                    "type": "string",
+                    "description": "month value (YYYY-MM)"
+                  },
+                  "timeZone": {
+                    "type": "number",
+                    "description": "Time zone"
+                  }
+                },
+                "required": ["id", "money", "time", "timeZone"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Station day data returned",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request (missing required fields)"
+          },
+          "403": {
+            "description": "SolisCloud signature or auth error"
+          }
+        }
+      }
+    },
+    "/api/cron/inverter/list": {
+      "post": {
+        "tags": ["WeShare API"],
+        "summary": "Get Inverter List",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "pageNo": {
+                    "type": "integer",
+                    "description": "Page number (required)"
+                  },
+                  "pageSize": {
+                    "type": "integer",
+                    "description": "Page size (required)"
+                  },
+                  "stationId": {
+                    "type": "string",
+                    "description": "Station ID (optional)"
+                  },
+                  "nmiCode": {
+                    "type": "string",
+                    "description": "NMI Code (optional)"
+                  },
+                  "snList": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "List of inverter serial numbers (optional)"
+                  }
+                },
+                "required": ["pageNo", "pageSize"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Inverter list returned",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request (missing required fields)"
+          },
+          "403": {
+            "description": "SolisCloud signature or auth error"
+          }
+        }
+      }
+    },
+    "/api/cron/inverter/detail": {
+      "post": {
+        "tags": ["WeShare API"],
+        "summary": "Get Inverter Detail By Inverter ID or Inverter Serial Number",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "Inverter ID (optional if sn provided)"
+                  },
+                  "sn": {
+                    "type": "string",
+                    "description": "Inverter Serial Number (optional if id provided)"
+                  }
+                },
+                "anyOf": [{
+                    "required": ["id"]
+                  },
+                  {
+                    "required": ["sn"]
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Inverter detail returned",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request (missing id or sn)"
+          },
+          "403": {
+            "description": "SolisCloud signature or auth error"
+          }
+        }
+      }
+    },
+    "/api/cron/inverter/real-time/data": {
+      "post": {
+        "tags": ["WeShare API"],
+        "summary": "Get Inverter Real-Time Day Data",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "Inverter ID (optional if sn provided)"
+                  },
+                  "sn": {
+                    "type": "string",
+                    "description": "Inverter Serial Number (optional if id provided)"
+                  },
+                  "money": {
+                    "type": "string",
+                    "description": "Money value (required)"
+                  },
+                  "time": {
+                    "type": "string",
+                    "description": "Time (yyyy-MM-dd, required)"
+                  },
+                  "timeZone": {
+                    "type": "string",
+                    "description": "Time zone (required)"
+                  }
+                },
+                "anyOf": [{
+                    "required": ["id"]
+                  },
+                  {
+                    "required": ["sn"]
+                  }
+                ],
+                "required": ["time", "timeZone"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Inverter real-time day data returned",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request (missing required fields)"
+          },
+          "403": {
+            "description": "SolisCloud signature or auth error"
+          }
+        }
+      }
+    },
+    "/api/cron/epm/list": {
+      "post": {
+        "tags": ["WeShare API"],
+        "summary": "Get EPM List",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "pageNo": {
+                    "type": "integer",
+                    "description": "Page number (required)"
+                  },
+                  "pageSize": {
+                    "type": "integer",
+                    "description": "Page size (required)"
+                  },
+                  "stationId": {
+                    "type": "string",
+                    "description": "Station ID (optional)"
+                  },
+                  "nmiCode": {
+                    "type": "string",
+                    "description": "NMI Code (optional)"
+                  }
+                },
+                "required": ["pageNo", "pageSize"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "EPM list returned",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request (missing required fields)"
+          },
+          "403": {
+            "description": "SolisCloud signature or auth error"
+          }
         }
       }
     }
