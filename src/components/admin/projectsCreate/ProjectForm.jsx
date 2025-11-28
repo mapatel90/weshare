@@ -79,10 +79,14 @@ const ProjectForm = ({
   }, [existingImages, imageQueue]);
 
   const resolveExistingImageSrc = useCallback(
-    (image) =>
-      getFullImageUrl(
-        image?.path || image?.url || image?.image || image?.src || ""
-      ),
+    (image) => {
+      // debug: log resolved URL so you can inspect it in browser console on the live site
+      const candidate = image?.path || image?.url || image?.image || image?.src || "";
+      const full = getFullImageUrl(candidate);
+      // eslint-disable-next-line no-console
+      console.debug("[ProjectForm] resolved image url:", { candidate, full, image });
+      return full;
+    },
     []
   );
   return (
@@ -362,7 +366,6 @@ const ProjectForm = ({
             {galleryHasItems ? (
               <div className="row mt-3">
                 {existingImages?.map((image) => (
-                    console.log("Edit"),
                   <div
                     className="col-md-3 col-sm-4 col-6 mb-3"
                     key={`existing-${image.id}`}

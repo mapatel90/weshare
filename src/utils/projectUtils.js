@@ -43,8 +43,8 @@ export function normalizeProjectImages(images) {
  * @param {object} project - Project object
  * @returns {string} - Relative/absolute image path or empty string
  */
-export function getPrimaryProjectImage(project) {
-  if (!project) return "";
+const resolveImageGallery = (project) => {
+  if (!project) return [];
   const candidates = [
     project.project_images,
     project.project?.project_images,
@@ -52,16 +52,19 @@ export function getPrimaryProjectImage(project) {
     project.images,
   ];
 
-  let gallery = [];
   for (const collection of candidates) {
     const normalized = normalizeProjectImages(collection);
     if (normalized.length) {
-      gallery = normalized;
-      break;
+      return normalized;
     }
   }
 
-  if (!gallery.length) return "";
+  return [];
+};
+
+export function getPrimaryProjectImageRecord(project) {
+  const gallery = resolveImageGallery(project);
+  if (!gallery.length) return null;
 
   const isDefault = (img) => {
     const flag =
@@ -74,7 +77,13 @@ export function getPrimaryProjectImage(project) {
   };
 
   const defaultImage = gallery.find(isDefault);
-  const chosen = defaultImage || gallery[0];
+  return defaultImage || gallery[0];
+}
+
+export function getPrimaryProjectImage(project) {
+  const chosen = getPrimaryProjectImageRecord(project);
+  if (!chosen) return "";
+
   return (
     chosen?.path ??
     chosen?.url ??
