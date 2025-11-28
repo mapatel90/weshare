@@ -48,7 +48,6 @@ const ProjectTable = () => {
     try {
       setLoading(true)
       const res = await apiGet('/api/projects?page=1&limit=20')
-      console.log("Fetch Projects Res::",res);
       if (res?.success) {
         setData(res.data.projects)
       }

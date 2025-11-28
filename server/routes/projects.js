@@ -72,7 +72,9 @@ const slugify = (text = "") =>
 
 const ensureUniqueSlug = async (desiredSlug, excludeId = null) => {
   const base =
-    desiredSlug && desiredSlug.trim() ? desiredSlug.trim() : `project-${Date.now()}`;
+    desiredSlug && desiredSlug.trim()
+      ? desiredSlug.trim()
+      : `project-${Date.now()}`;
   let candidate = base;
   let suffix = 1;
   let isUnique = false;
@@ -193,11 +195,17 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
       data: {
         project_name: name,
         project_slug: uniqueSlug,
-        ...(project_type_id && { projectType: { connect: { id: parseInt(project_type_id) } } }),
-        ...(offtaker_id && { offtaker: { connect: { id: parseInt(offtaker_id) } } }),
+        ...(project_type_id && {
+          projectType: { connect: { id: parseInt(project_type_id) } },
+        }),
+        ...(offtaker_id && {
+          offtaker: { connect: { id: parseInt(offtaker_id) } },
+        }),
         address1: address1 || "",
         address2: address2 || "",
-        ...(country_id && { country: { connect: { id: parseInt(country_id) } } }),
+        ...(country_id && {
+          country: { connect: { id: parseInt(country_id) } },
+        }),
         ...(state_id && { state: { connect: { id: parseInt(state_id) } } }),
         ...(city_id && { city: { connect: { id: parseInt(city_id) } } }),
         zipcode: zipcode || "",
@@ -236,7 +244,10 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
       data: project,
     });
   } catch (error) {
-    if (error.code === "P2002" && error.meta?.target?.includes("project_slug")) {
+    if (
+      error.code === "P2002" &&
+      error.meta?.target?.includes("project_slug")
+    ) {
       return res.status(409).json({
         success: false,
         message: "Project slug already exists. Please choose a different name.",
@@ -280,12 +291,10 @@ router.post(
 
       const files = req.files || [];
       if (!files.length) {
-        return res
-          .status(400)
-          .json({
-            success: false,
-            message: "Please attach at least one image",
-          });
+        return res.status(400).json({
+          success: false,
+          message: "Please attach at least one image",
+        });
       }
 
       const currentCount = await prisma.project_images.count({
@@ -332,6 +341,15 @@ router.post(
       await prisma.project_images.createMany({
         data: insertPayload,
       });
+
+      if (!hasDefault && insertPayload.length) {
+        const chosen =
+          insertPayload.find((p) => p.default === 1) || insertPayload[0];
+        // await prisma.project.update({
+        //   where: { id: projectId },
+        //   data: { project_image: chosen.path },
+        // });
+      }
 
       const images = await prisma.project_images.findMany({
         where: { projectId },
@@ -389,6 +407,23 @@ router.put(
         where: { projectId },
         orderBy: { id: "asc" },
       });
+
+      // set target as default
+      await prisma.project_images.update({
+        where: { id: imageId },
+        data: { default: 1 },
+      });
+
+      // update project's main image path
+      // await prisma.project.update({
+      //     where: { id: projectId },
+      //     data: { project_image: img.path }
+      // });
+
+      // const images = await prisma.project_images.findMany({
+      //     where: { projectId },
+      //     orderBy: { id: 'asc' }
+      // });
 
       return res.json({ success: true, data: images });
     } catch (err) {
@@ -451,12 +486,6 @@ router.delete(
         where: { id: imageId, projectId },
       });
 
-      if (!imageRecord) {
-        return res
-          .status(404)
-          .json({ success: false, message: "Image not found" });
-      }
-
       await prisma.project_images.delete({
         where: { id: imageRecord.id },
       });
@@ -506,9 +535,7 @@ router.get("/", async (req, res) => {
     if (search) {
       where.OR = [
         { project_name: { contains: search, mode: "insensitive" } },
-        {
-          projectType: { type_name: { contains: search, mode: "insensitive" } },
-        },
+        { project_type: { contains: search, mode: "insensitive" } },
       ];
     }
 
@@ -619,7 +646,9 @@ router.put("/:id", authenticateToken, async (req, res) => {
     const { id } = req.params;
     const projectId = parseInt(id, 10);
     if (Number.isNaN(projectId)) {
-      return res.status(400).json({ success: false, message: "Invalid project id" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid project id" });
     }
 
     const {
@@ -648,33 +677,28 @@ router.put("/:id", authenticateToken, async (req, res) => {
     const updateData = {
       ...(name !== undefined && { project_name: name }),
       // update relation: connect projectType by id when provided
-      ...(project_type_id !== undefined && (
-        project_type_id
+      ...(project_type_id !== undefined &&
+        (project_type_id
           ? { projectType: { connect: { id: parseInt(project_type_id) } } }
-          : { projectType: { disconnect: true } }
-      )),
-      ...(offtaker_id !== undefined && (
-        offtaker_id
+          : { projectType: { disconnect: true } })),
+      ...(offtaker_id !== undefined &&
+        (offtaker_id
           ? { offtaker: { connect: { id: parseInt(offtaker_id) } } }
-          : { offtaker: { disconnect: true } }
-      )),
+          : { offtaker: { disconnect: true } })),
       ...(address1 !== undefined && { address1 }),
       ...(address2 !== undefined && { address2 }),
-      ...(country_id !== undefined && (
-        country_id
+      ...(country_id !== undefined &&
+        (country_id
           ? { country: { connect: { id: parseInt(country_id) } } }
-          : { country: { disconnect: true } }
-      )),
-      ...(state_id !== undefined && (
-        state_id
+          : { country: { disconnect: true } })),
+      ...(state_id !== undefined &&
+        (state_id
           ? { state: { connect: { id: parseInt(state_id) } } }
-          : { state: { disconnect: true } }
-      )),
-      ...(city_id !== undefined && (
-        city_id
+          : { state: { disconnect: true } })),
+      ...(city_id !== undefined &&
+        (city_id
           ? { city: { connect: { id: parseInt(city_id) } } }
-          : { city: { disconnect: true } }
-      )),
+          : { city: { disconnect: true } })),
       ...(zipcode !== undefined && { zipcode }),
       ...(asking_price !== undefined && { asking_price: asking_price || "" }),
       ...(lease_term !== undefined && {
@@ -691,7 +715,9 @@ router.put("/:id", authenticateToken, async (req, res) => {
       ...(weshare_profit !== undefined && { weshare_profit }),
       ...(project_size !== undefined && { project_size: project_size || "" }),
       ...(project_close_date !== undefined && {
-        project_close_date: project_close_date ? new Date(project_close_date) : null,
+        project_close_date: project_close_date
+          ? new Date(project_close_date)
+          : null,
       }),
       ...(project_location !== undefined && {
         project_location: project_location || "",
@@ -718,7 +744,10 @@ router.put("/:id", authenticateToken, async (req, res) => {
 
     res.json({ success: true, data: updated });
   } catch (error) {
-    if (error.code === "P2002" && error.meta?.target?.includes("project_slug")) {
+    if (
+      error.code === "P2002" &&
+      error.meta?.target?.includes("project_slug")
+    ) {
       return res.status(409).json({
         success: false,
         message: "Project slug already exists. Please choose a different slug.",
@@ -833,9 +862,7 @@ router.delete("/:id", authenticateToken, async (req, res) => {
     res.json({ success: true });
   } catch (error) {
     console.error("Delete project error:", error);
-    res
-      .status(500)
-      .json({ success: false, message: "Failed to delete project" });
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 });
 

@@ -44,6 +44,7 @@ export function normalizeProjectImages(images) {
  * @returns {string} - Relative/absolute image path or empty string
  */
 export function getPrimaryProjectImage(project) {
+  console.log('getPrimaryProjectImage project:', project);
   if (!project) return "";
   const candidates = [
     project.project_images,

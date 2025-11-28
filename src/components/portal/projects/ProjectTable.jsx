@@ -123,7 +123,6 @@ const SolarProjectTable = () => {
           apiUrl += `&offtaker_id=${user.id}`;
         }
         const response = await apiGet(apiUrl);
-        console.log("Fetched projects:", response);
         if (response?.success && Array.isArray(response?.data?.projects)) {
           const normalized = response.data.projects.map(normalizeApiProject);
           setAllProjects(normalized); // do not fallback to static data
@@ -545,7 +544,7 @@ const SolarProjectTable = () => {
                     {/* Image and status badge */}
                     <div className="relative w-full h-36 sm:h-44 md:h-40 lg:h-36 xl:h-40 overflow-hidden">
                       <img
-                        src={getFullImageUrl(project.project_image) || "/images/general/solar-card.jpg"}
+                        src={project.project_image || "/images/general/solar-card.jpg"}
                         alt={project.projectName}
                         className="object-cover w-full h-full"
                       />

@@ -71,6 +71,7 @@ const normalizeApiProject = (project) => {
 
   const coverImage =
     getPrimaryProjectImage(project.project || project) || "/images/general/solar-card.jpg";
+    console.log('coverImage', coverImage);
 
   return {
     id: project.project?.id ? `#${project.project.id}` : project.project?.project_code ?? "—",
@@ -125,7 +126,6 @@ const ProjectTable = () => {
           apiUrl += `&userId=${user.id}`;
         }
         const response = await apiGet(apiUrl);
-        console.log("Fetched projects:", response);
         if (response?.success) {
           const normalized = response.data.map(normalizeApiProject);
           console.log(normalized)
@@ -548,10 +548,7 @@ const ProjectTable = () => {
                     {/* Image and status badge */}
                     <div className="relative w-full h-36 sm:h-44 md:h-40 lg:h-36 xl:h-40 overflow-hidden">
                       <img
-                        src={
-                          getFullImageUrl(project.project_image) ||
-                          "/images/general/solar-card.jpg"
-                        }
+                        src={project.project_image}
                         alt={project.projectName}
                         className="object-cover w-full h-full"
                       />

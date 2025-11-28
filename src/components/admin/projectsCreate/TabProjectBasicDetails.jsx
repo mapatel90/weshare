@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { apiGet, apiPost, apiUpload } from '@/lib/api'
+import { apiGet, apiPost, apiUpload, apiDelete } from '@/lib/api'
 import useLocationData from '@/hooks/useLocationData'
 import useOfftakerData from '@/hooks/useOfftakerData'
 import { showSuccessToast, showErrorToast } from '@/utils/topTost'
@@ -242,6 +242,15 @@ const TabProjectBasicDetails = ({ setFormData, formData, error, setError }) => {
         setQueuedImages([])
     }
 
+    const rollbackProjectCreation = async (projectId) => {
+        if (!projectId) return
+        try {
+            await apiDelete(`/api/projects/${projectId}`)
+        } catch (err) {
+            console.error('Failed to rollback project creation after image upload error:', err)
+        }
+    }
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -292,6 +301,7 @@ const TabProjectBasicDetails = ({ setFormData, formData, error, setError }) => {
 
         setLoading(prev => ({ ...prev, form: true }));
 
+        let createdProjectId = null
         try {
             const projectData = {
                 name: formData.project_name,
@@ -311,6 +321,8 @@ const TabProjectBasicDetails = ({ setFormData, formData, error, setError }) => {
                 project_description: formData.project_description || '',
                 investor_profit: formData.investorProfit || '0',
                 weshare_profit: formData.weshareprofite || '0',
+                // project_image not handled client-side anymore; keep value if present
+                project_image: formData.project_image || '',
                 project_size: formData.project_size || '',
                 project_close_date: formData.project_close_date || null,
                 project_location: formData.project_location || '',
@@ -320,12 +332,20 @@ const TabProjectBasicDetails = ({ setFormData, formData, error, setError }) => {
             // Submit to API
             const response = await apiPost('/api/projects/AddProject', projectData);
 
+
             if (!response?.success || !response?.data?.id) {
                 throw new Error(response?.message || 'Failed to create project');
             }
 
+            createdProjectId = response.data.id
+
             if (queuedImages.length) {
-                await uploadQueuedImages(response.data.id)
+                try {
+                    await uploadQueuedImages(createdProjectId)
+                } catch (uploadError) {
+                    await rollbackProjectCreation(createdProjectId)
+                    throw uploadError
+                }
             }
 
             showSuccessToast(lang('projects.projectcreatedsuccessfully', 'Project created successfully'))

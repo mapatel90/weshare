@@ -79,10 +79,7 @@ router.get("/:id", async (req, res) => {
       where: { id, is_deleted: 0 },
       include: {
         project: {
-          include: {
-            offtaker: true,
-            project_images: true,
-          },
+          include: { project_images: true },
         },
         user: true,
       },

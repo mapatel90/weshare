@@ -52,6 +52,7 @@ const ProjectEditContent = ({ projectId }) => {
         project_description: '',
         investorProfit: '',
         weshareprofite: '',
+        project_image: '',
         project_size: '',
         project_close_date: '',
         project_location: '',
@@ -232,6 +233,7 @@ const ProjectEditContent = ({ projectId }) => {
                         project_description: p.project_description || '',
                         investorProfit: p.investor_profit || '',
                         weshareprofite: p.weshare_profit || '',
+                        project_image: p.project_image || '',
                         project_size: p.project_size || '',
                         project_close_date: p.project_close_date ? new Date(p.project_close_date).toISOString().split('T')[0] : '',
                         project_location: p.project_location || '',
@@ -384,6 +386,8 @@ const ProjectEditContent = ({ projectId }) => {
 
         setLoading(prev => ({ ...prev, form: true }))
         try {
+            await syncProjectImages(projectId)
+
             const payload = {
                 name: formData.project_name,
                 project_slug: formData.project_slug || generateSlug(formData.project_name),
@@ -401,6 +405,7 @@ const ProjectEditContent = ({ projectId }) => {
                 project_description: formData.project_description || '',
                 investor_profit: formData.investorProfit || '0',
                 weshare_profit: formData.weshareprofite || '0',
+                project_image: formData.project_image || '',
                 project_size: formData.project_size || '',
                 project_close_date: formData.project_close_date || null,
                 project_location: formData.project_location || '',
@@ -410,8 +415,6 @@ const ProjectEditContent = ({ projectId }) => {
             if (!res?.success) {
                 throw new Error(res?.message || 'Update failed')
             }
-
-            await syncProjectImages(projectId)
 
             showSuccessToast(lang('projects.projectupdatedsuccessfully', 'Project updated successfully'))
             router.push('/admin/projects/list')
