@@ -32,7 +32,7 @@ router.post("/", async (req, res) => {
 });
 
 // List with optional filters + pagination
-router.get('/', async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const { projectId, userId, page = 1, limit = 25 } = req.query;
     const where = { is_deleted: 0 };
@@ -46,19 +46,20 @@ router.get('/', async (req, res) => {
     const [data, total] = await Promise.all([
       prisma.interestedInvestor.findMany({
         where,
-        orderBy: { createdAt: 'desc' },
+        orderBy: { createdAt: "desc" },
         skip,
         take,
         include: {
           project: {
             include: {
               offtaker: {
-                select: { fullName: true, email: true }
-              }
-            }
+                select: { fullName: true, email: true },
+              },
+              project_images: true,
+            },
           },
-          user: true
-        }
+          user: true,
+        },
       }),
       prisma.interestedInvestor.count({ where }),
     ]);
@@ -71,14 +72,19 @@ router.get('/', async (req, res) => {
 });
 
 // Get single by id
-router.get('/:id', async (req, res) => {
+router.get("/:id", async (req, res) => {
   try {
     const id = Number(req.params.id);
     const record = await prisma.interestedInvestor.findFirst({
       where: { id, is_deleted: 0 },
-      include: { project: true, user: true },
+      include: {
+        project: {
+          include: { project_images: true },
+        },
+        user: true,
+      },
     });
-    if (!record) return res.status(404).json({ success: false, message: 'Not found' });
+    if (!record) return res.status(404).json({ success: false, message: "Not found" });
     return res.json({ success: true, data: record });
   } catch (error) {
     console.error(error);
@@ -87,7 +93,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // Update
-router.put('/:id', authenticateToken, async (req, res) => {
+router.put("/:id", authenticateToken, async (req, res) => {
   try {
     const id = Number(req.params.id);
     const { projectId, fullName, email, phoneNumber, notes, status } = req.body;
@@ -112,14 +118,14 @@ router.put('/:id', authenticateToken, async (req, res) => {
 });
 
 // Soft delete
-router.delete('/:id', authenticateToken, async (req, res) => {
+router.delete("/:id", authenticateToken, async (req, res) => {
   try {
     const id = Number(req.params.id);
     await prisma.interestedInvestor.update({
       where: { id },
       data: { is_deleted: 1 },
     });
-    return res.json({ success: true, message: 'Deleted (soft)' });
+    return res.json({ success: true, message: "Deleted (soft)" });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ success: false, message: error.message });

@@ -9,6 +9,7 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 import "./styles/exchange-hub-custom.css";
 import { getFullImageUrl } from "@/utils/common";
+import { getPrimaryProjectImage } from "@/utils/projectUtils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import {
@@ -173,6 +174,11 @@ const ProjectDetail = ({ projectId }) => {
   const formatNumber = (num) => {
     if (num === undefined || num === null || num === "") return "0";
     return parseFloat(num).toLocaleString("en-US");
+  };
+
+  const getProjectMainImage = () => {
+    const cover = getPrimaryProjectImage(project);
+    return cover ? getFullImageUrl(cover) : "/images/banner/banner-img.png";
   };
 
   // Determine reliability badge based on ROI
@@ -442,11 +448,7 @@ const ProjectDetail = ({ projectId }) => {
               {/* Image Box */}
               <div className="imageBox">
                 <img
-                  src={
-                    project?.project_image
-                      ? getFullImageUrl(project.project_image)
-                      : "/images/banner/banner-img.png"
-                  }
+                  src={getProjectMainImage()}
                   alt={project.project_name}
                   className="main-img"
                   onError={(e) => {

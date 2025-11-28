@@ -5,6 +5,7 @@ import { useLanguage } from '@/contexts/LanguageContext'
 import './styles/exchange-hub-custom.css'
 import './styles/responsive.css'
 import { getFullImageUrl } from '@/utils/common'
+import { getPrimaryProjectImage } from '@/utils/projectUtils'
 
 const ProjectCard = ({ project, activeTab }) => {
     const { lang } = useLanguage()
@@ -48,6 +49,11 @@ const ProjectCard = ({ project, activeTab }) => {
     const accumulative = project.accumulative_generation ||
         (parseFloat(project.project_size || 0) * 1500).toFixed(0)
 
+    const getDefaultImageUrl = () => {
+        const cover = getPrimaryProjectImage(project)
+        return cover ? getFullImageUrl(cover) : '/images/general/solar-card.jpg'
+    }
+
     // Different card design for lease vs resale
     if (activeTab === 'lease') {
         // LEASE CARD - With Image (Figma Style)
@@ -57,7 +63,7 @@ const ProjectCard = ({ project, activeTab }) => {
                     {/* Solar Panel Image */}
                     <div className="card-image-container">
                         <Image
-                            src={getFullImageUrl(project?.project_image)}
+                            src={getDefaultImageUrl()}
                             alt={project?.project_name || 'Solar Project'}
                             width={500}
                             height={250}

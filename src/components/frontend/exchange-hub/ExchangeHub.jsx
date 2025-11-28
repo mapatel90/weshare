@@ -70,7 +70,7 @@ const ExchangeHub = () => {
     try {
       setLoading(true)
       const response = await apiGet(`/api/projects?page=${pageNum}&limit=50&status=1`, { showLoader: false })
-
+      console.log('Projects Response:', response)
       if (response.success && response.data?.projects) {
         if (reset) {
           setAllProjects(response.data.projects)

@@ -8,6 +8,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { apiGet } from "@/lib/api";
 import { getFullImageUrl } from "@/utils/common";
 import { useRouter } from "next/navigation";
+import { getPrimaryProjectImage } from "@/utils/projectUtils";
 
 const ProjectsSection = () => {
   const [activeTab, setActiveTab] = useState("open");
@@ -35,6 +36,11 @@ const ProjectsSection = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const getProjectMainImage = (project) => {
+    const cover = getPrimaryProjectImage(project);
+    return cover ? getFullImageUrl(cover) : "/images/projects/project-img1.png";
   };
 
   return (
@@ -97,7 +103,7 @@ const ProjectsSection = () => {
                     <div className="project-card shadow-sm overflow-hidden">
                       <div className="project-items">
                         <Image
-                          src={getFullImageUrl(project?.project_image)}
+                          src={getProjectMainImage(project)}
                           alt={project.project_name}
                           className="img-fluid project-img"
                           width={400}

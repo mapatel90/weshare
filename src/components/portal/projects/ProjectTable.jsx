@@ -10,6 +10,8 @@ import {
   MapPin,
   Filter,
 } from "lucide-react";
+import { getFullImageUrl } from "@/utils/common";
+import { getPrimaryProjectImage } from "@/utils/projectUtils";
 import { apiGet } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
@@ -57,6 +59,8 @@ const normalizeApiProject = (project) => {
     return Number.isNaN(t) ? 0 : t;
   };
 
+  const coverImage = getPrimaryProjectImage(project);
+
   const statusString =
     statusDictionary[project?.status] ?? project?.status ?? "Upcoming";
   // map display status to numeric filter codes: Upcoming => 1, Under Installation => 0
@@ -68,7 +72,7 @@ const normalizeApiProject = (project) => {
         : project?.status ?? null;
   return {
     id: project?.id ? `#${project.id}` : project?.project_code ?? "—",
-    project_image: project?.project_image,
+    project_image: coverImage || null,
     projectName: project?.project_name ?? "—",
     status: statusString,
     statusCode,

@@ -13,6 +13,8 @@ import {
 import { apiGet } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
+import { getPrimaryProjectImage } from "@/utils/projectUtils";
+import { getFullImageUrl } from "@/utils/common";
 
 const statusDictionary = {
   0: "Under Installation",
@@ -66,25 +68,30 @@ const normalizeApiProject = (project) => {
       : statusString === "Under Installation"
         ? 0
         : project?.status ?? null;
-      return {
-        id: project.project?.id ? `#${project.project.id}` : project.project?.project_code ?? "—",
-        project_image: project.project?.project_image,
-        projectName: project.project?.project_name ?? "—",
-        status: statusString,
-        statusCode,
-        expectedROI: formatPercent(project.project?.expected_roi ?? project.project?.roi),
-        targetInvestment: formatCurrency(project.project?.asking_price ?? project.project?.asking_price),
-        paybackPeriod: project.project?.lease_term ? String(project.project.lease_term) : "—",
-        startDate: formatDateForDisplay(project.project?.createdAt),
-        endDate: formatDateForDisplay(project.project?.project_close_date),
-        startDateTs: tsOrZero(project.project?.createdAt),
-        endDateTs: tsOrZero(project.project?.project_close_date),
-        expectedGeneration: formatNumber(project.project?.project_size),
-        offtakerId: project.project?.offtaker_id ?? null,
-        product_code: project.project?.product_code ?? '-',
-        offtaker_name: project.project?.offtaker?.fullName ?? '-',
-        project_slug: project.project?.project_slug ?? '',
-      };
+
+  const coverImage =
+    getPrimaryProjectImage(project.project || project) || "/images/general/solar-card.jpg";
+    console.log('coverImage', coverImage);
+
+  return {
+    id: project.project?.id ? `#${project.project.id}` : project.project?.project_code ?? "—",
+    project_image: coverImage,
+    projectName: project.project?.project_name ?? "—",
+    status: statusString,
+    statusCode,
+    expectedROI: formatPercent(project.project?.expected_roi ?? project.project?.roi),
+    targetInvestment: formatCurrency(project.project?.asking_price ?? project.project?.asking_price),
+    paybackPeriod: project.project?.lease_term ? String(project.project.lease_term) : "—",
+    startDate: formatDateForDisplay(project.project?.createdAt),
+    endDate: formatDateForDisplay(project.project?.project_close_date),
+    startDateTs: tsOrZero(project.project?.createdAt),
+    endDateTs: tsOrZero(project.project?.project_close_date),
+    expectedGeneration: formatNumber(project.project?.project_size),
+    offtakerId: project.project?.offtaker_id ?? null,
+    product_code: project.project?.product_code ?? '-',
+    offtaker_name: project.project?.offtaker?.fullName ?? '-',
+    project_slug: project.project?.project_slug ?? '',
+  };
 };
 
 const ProjectTable = () => {
@@ -541,7 +548,7 @@ const ProjectTable = () => {
                     {/* Image and status badge */}
                     <div className="relative w-full h-36 sm:h-44 md:h-40 lg:h-36 xl:h-40 overflow-hidden">
                       <img
-                        src={project.project_image || "/images/general/solar-card.jpg"}
+                        src={project.project_image}
                         alt={project.projectName}
                         className="object-cover w-full h-full"
                       />

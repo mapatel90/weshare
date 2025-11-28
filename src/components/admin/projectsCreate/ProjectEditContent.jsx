@@ -386,6 +386,8 @@ const ProjectEditContent = ({ projectId }) => {
 
         setLoading(prev => ({ ...prev, form: true }))
         try {
+            await syncProjectImages(projectId)
+
             const payload = {
                 name: formData.project_name,
                 project_slug: formData.project_slug || generateSlug(formData.project_name),
@@ -413,8 +415,6 @@ const ProjectEditContent = ({ projectId }) => {
             if (!res?.success) {
                 throw new Error(res?.message || 'Update failed')
             }
-
-            await syncProjectImages(projectId)
 
             showSuccessToast(lang('projects.projectupdatedsuccessfully', 'Project updated successfully'))
             router.push('/admin/projects/list')
