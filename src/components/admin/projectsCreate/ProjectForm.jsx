@@ -52,7 +52,9 @@ const ProjectForm = ({
 }) => {
   const totalImages = (existingImages?.length || 0) + (imageQueue?.length || 0);
   const availableSlots = Math.max(maxProjectImages - totalImages, 0);
-  const dropDisabled = availableSlots <= 0 || loading.form || isImageSyncing;
+  const isGalleryFull = availableSlots <= 0;
+  const isTemporarilyDisabled = loading.form || isImageSyncing;
+  const dropDisabled = isGalleryFull || isTemporarilyDisabled;
 
   const handleDrop = useCallback(
     (accepted, rejected) => {
@@ -355,10 +357,15 @@ const ProjectForm = ({
               </small>
               {dropDisabled && (
                 <small className="text-danger d-block mt-2">
-                  {lang(
-                    "projects.galleryLimitReached",
-                    "Maximum gallery size reached"
-                  )}
+                  {isGalleryFull
+                    ? lang(
+                        "projects.galleryLimitReached",
+                        "Maximum gallery size reached"
+                      )
+                    : lang(
+                        "projects.galleryDisabledWhileSaving",
+                        "Please wait, saving project images..."
+                      )}
                 </small>
               )}
             </div>

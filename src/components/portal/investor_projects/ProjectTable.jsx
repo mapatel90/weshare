@@ -69,9 +69,11 @@ const normalizeApiProject = (project) => {
         ? 0
         : project?.status ?? null;
 
-  const coverImage =
-    getPrimaryProjectImage(project.project || project) || "/images/general/solar-card.jpg";
-    console.log('coverImage', coverImage);
+  const rawCoverImage =
+    getPrimaryProjectImage(project.project || project) || "";
+  const coverImage = rawCoverImage
+    ? getFullImageUrl(rawCoverImage)
+    : "/images/general/solar-card.jpg";
 
   return {
     id: project.project?.id ? `#${project.project.id}` : project.project?.project_code ?? "—",
