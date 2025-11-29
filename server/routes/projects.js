@@ -2,17 +2,21 @@ import express from "express";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
 import prisma from "../utils/prisma.js";
 import { authenticateToken } from "../middleware/auth.js";
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+// Always resolve paths relative to the project root instead of process.cwd(),
+// so uploads keep working even if the PM2 working directory changes.
+const ROOT_DIR = path.resolve(__dirname, "..", "..");
+const PUBLIC_DIR = path.join(ROOT_DIR, "public");
+
 const PROJECT_IMAGE_LIMIT = 10;
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
-const PROJECT_IMAGES_DIR = path.resolve(
-  process.cwd(),
-  "public",
-  "uploads",
-  "projects"
-);
+const PROJECT_IMAGES_DIR = path.join(PUBLIC_DIR, "uploads", "projects");
 
 fs.mkdirSync(PROJECT_IMAGES_DIR, { recursive: true });
 
@@ -47,7 +51,7 @@ const getAbsoluteImagePath = (relativePath) => {
   const normalized = relativePath.startsWith("/public/")
     ? relativePath.replace("/public", "")
     : relativePath;
-  return path.resolve(process.cwd(), "public", normalized.replace(/^\//, ""));
+  return path.resolve(PUBLIC_DIR, normalized.replace(/^\//, ""));
 };
 
 const removePhysicalFile = (absolutePath) => {

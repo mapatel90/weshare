@@ -4,11 +4,18 @@ import { authenticateToken } from '../middleware/auth.js';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 
 const router = express.Router();
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const ROOT_DIR = path.resolve(__dirname, '..', '..');
+const PUBLIC_DIR = path.join(ROOT_DIR, 'public');
+
 // Multer storage for testimonial images
-const testimonialImagesDir = path.join(process.cwd(), 'public', 'images', 'testimonial');
+const testimonialImagesDir = path.join(PUBLIC_DIR, 'images', 'testimonial');
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         fs.mkdirSync(testimonialImagesDir, { recursive: true });
@@ -86,7 +93,9 @@ router.put('/:id', authenticateToken, upload.single('image'), async (req, res) =
         if (newImagePath) {
             try {
                 const existing = await prisma.testimonial.findUnique({ where: { id: Number(id) } });
-                const oldPath = existing?.image ? path.join(process.cwd(), 'public', existing.image.replace(/^\//, '')) : null;
+                const oldPath = existing?.image
+                    ? path.join(PUBLIC_DIR, existing.image.replace(/^\//, ''))
+                    : null;
                 if (oldPath && fs.existsSync(oldPath)) {
                     fs.unlinkSync(oldPath);
                 }
@@ -123,7 +132,9 @@ router.delete('/:id', authenticateToken, async (req, res) => {
         });
         // best-effort delete image file when soft deleting
         try {
-            const oldPath = existing?.image ? path.join(process.cwd(), 'public', existing.image.replace(/^\//, '')) : null;
+            const oldPath = existing?.image
+                ? path.join(PUBLIC_DIR, existing.image.replace(/^\//, ''))
+                : null;
             if (oldPath && fs.existsSync(oldPath)) {
                 fs.unlinkSync(oldPath);
             }
