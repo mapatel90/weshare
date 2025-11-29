@@ -5,11 +5,18 @@ import { authenticateToken } from '../middleware/auth.js';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 
 const router = express.Router();
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const ROOT_DIR = path.resolve(__dirname, '..', '..');
+const PUBLIC_DIR = path.join(ROOT_DIR, 'public');
+
 // Multer storage for QR code images
-const qrCodeImagesDir = path.join(process.cwd(), 'public', 'images', 'qrcodes');
+const qrCodeImagesDir = path.join(PUBLIC_DIR, 'images', 'qrcodes');
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     fs.mkdirSync(qrCodeImagesDir, { recursive: true });
@@ -25,7 +32,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 // Multer storage for user profile images
-const userAvatarDir = path.join(process.cwd(), 'public', 'images', 'avatar');
+const userAvatarDir = path.join(PUBLIC_DIR, 'images', 'avatar');
 const avatarStorage = multer.diskStorage({
   destination: (req, file, cb) => {
     fs.mkdirSync(userAvatarDir, { recursive: true });
@@ -453,7 +460,7 @@ router.put('/:id', authenticateToken, upload.single('qrCode'), async (req, res) 
 
       // Delete old QR code file if exists
       if (existingUser.qrCode) {
-        const oldFilePath = path.join(process.cwd(), 'public', existingUser.qrCode);
+        const oldFilePath = path.join(PUBLIC_DIR, existingUser.qrCode.replace(/^\//, ''));
         if (fs.existsSync(oldFilePath)) {
           fs.unlinkSync(oldFilePath);
         }
@@ -702,7 +709,7 @@ router.put('/profile/:id', authenticateToken, uploadAvatar.single('user_image'),
 
       // Delete old user image file if exists
       if (existingUser.user_image) {
-        const oldFilePath = path.join(process.cwd(), 'public', existingUser.user_image);
+        const oldFilePath = path.join(PUBLIC_DIR, existingUser.user_image.replace(/^\//, ''));
         if (fs.existsSync(oldFilePath)) {
           fs.unlinkSync(oldFilePath);
         }

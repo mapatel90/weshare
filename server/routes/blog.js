@@ -4,11 +4,18 @@ import { authenticateToken } from '../middleware/auth.js';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 
 const router = express.Router();
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const ROOT_DIR = path.resolve(__dirname, '..', '..');
+const PUBLIC_DIR = path.join(ROOT_DIR, 'public');
+
 // Multer storage for blog images
-const blogImagesDir = path.join(process.cwd(), 'public', 'images', 'blog');
+const blogImagesDir = path.join(PUBLIC_DIR, 'images', 'blog');
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     fs.mkdirSync(blogImagesDir, { recursive: true });
@@ -159,7 +166,9 @@ router.put("/:id", authenticateToken, upload.single('blog_image'), async (req, r
     if (newImagePath) {
       try {
         const existing = await prisma.blog.findUnique({ where: { id: parseInt(id) } });
-        const oldPath = existing?.blog_image ? path.join(process.cwd(), 'public', existing.blog_image.replace(/^\//, '')) : null;
+        const oldPath = existing?.blog_image
+          ? path.join(PUBLIC_DIR, existing.blog_image.replace(/^\//, ''))
+          : null;
         if (oldPath && fs.existsSync(oldPath)) {
           fs.unlinkSync(oldPath);
         }
