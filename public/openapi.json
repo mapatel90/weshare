@@ -5,7 +5,8 @@
     "version": "1.0.0",
     "description": "This documents the Weshare Energy API endpoints."
   },
-  "servers": [{
+  "servers": [
+    {
       "url": "http://api.weshare-energy.com",
       "description": "Weshare Server"
     },
@@ -52,7 +53,8 @@
                 "properties": {
                   "id": {
                     "type": "string",
-                    "description": "Station ID"
+                    "description": "Station ID",
+                    "default": "1298491919450373425"
                   }
                 },
                 "required": ["id"]
@@ -93,23 +95,28 @@
                 "properties": {
                   "id": {
                     "type": "string",
-                    "description": "ID"
+                    "description": "ID",
+                    "default": "1298491919450373425"
                   },
                   "nmiCode": {
                     "type": "string",
-                    "description": "NMI Code (optional)"
+                    "description": "NMI Code (optional)",
+                    "default": ""
                   },
                   "money": {
                     "type": "string",
-                    "description": "Money value"
+                    "description": "Money value",
+                    "default": "VND"
                   },
                   "time": {
                     "type": "string",
-                    "description": "Time value"
+                    "description": "Time value",
+                    "default": "2025-11-29"
                   },
                   "timeZone": {
                     "type": "number",
-                    "description": "Time zone"
+                    "description": "Time zone",
+                    "default": 7
                   }
                 },
                 "required": ["id", "money", "time", "timeZone"]
@@ -150,23 +157,28 @@
                 "properties": {
                   "id": {
                     "type": "string",
-                    "description": "ID"
+                    "description": "ID",
+                    "default": "1298491919450373425"
                   },
                   "nmiCode": {
                     "type": "string",
-                    "description": "NMI Code (optional)"
+                    "description": "NMI Code (optional)",
+                    "default": ""
                   },
                   "money": {
                     "type": "string",
-                    "description": "Money value (USD)"
+                    "description": "Money value (USD)",
+                    "default": "VND"
                   },
                   "month": {
                     "type": "string",
-                    "description": "month value (YYYY-MM)"
+                    "description": "month value (YYYY-MM)",
+                    "default": "2025-11"
                   },
                   "timeZone": {
                     "type": "number",
-                    "description": "Time zone"
+                    "description": "Time zone",
+                    "default": 7
                   }
                 },
                 "required": ["id", "money", "time", "timeZone"]
@@ -207,26 +219,23 @@
                 "properties": {
                   "pageNo": {
                     "type": "integer",
-                    "description": "Page number (required)"
+                    "description": "Page number (required)",
+                    "default": 1
                   },
                   "pageSize": {
                     "type": "integer",
-                    "description": "Page size (required)"
+                    "description": "Page size (required)",
+                    "default": 20
                   },
                   "stationId": {
                     "type": "string",
-                    "description": "Station ID (optional)"
+                    "description": "Station ID (optional)",
+                    "default":"1298491919450373425"
                   },
                   "nmiCode": {
                     "type": "string",
-                    "description": "NMI Code (optional)"
-                  },
-                  "snList": {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
-                    },
-                    "description": "List of inverter serial numbers (optional)"
+                    "description": "NMI Code (optional)",
+                    "default": ""
                   }
                 },
                 "required": ["pageNo", "pageSize"]
@@ -267,11 +276,13 @@
                 "properties": {
                   "id": {
                     "type": "string",
-                    "description": "Inverter ID (optional if sn provided)"
+                    "description": "Inverter ID (optional if sn provided)",
+                    "default": "1308675217950186968"
                   },
                   "sn": {
                     "type": "string",
-                    "description": "Inverter Serial Number (optional if id provided)"
+                    "description": "Inverter Serial Number (optional if id provided)",
+                    "default":""
                   }
                 },
                 "anyOf": [{
@@ -318,11 +329,13 @@
                 "properties": {
                   "id": {
                     "type": "string",
-                    "description": "Inverter ID (optional if sn provided)"
+                    "description": "Inverter ID (optional if sn provided)",
+                    "default": "1308675217950186968"
                   },
                   "sn": {
                     "type": "string",
-                    "description": "Inverter Serial Number (optional if id provided)"
+                    "description": "Inverter Serial Number (optional if id provided)",
+                    "default":""
                   },
                   "money": {
                     "type": "string",
@@ -330,11 +343,13 @@
                   },
                   "time": {
                     "type": "string",
-                    "description": "Time (yyyy-MM-dd, required)"
+                    "description": "Time (yyyy-MM-dd, required)",
+                    "default": "2025-11-29"
                   },
                   "timeZone": {
                     "type": "string",
-                    "description": "Time zone (required)"
+                    "description": "Time zone (required)",
+                    "default": "7"
                   }
                 },
                 "anyOf": [{
@@ -382,19 +397,23 @@
                 "properties": {
                   "pageNo": {
                     "type": "integer",
-                    "description": "Page number (required)"
+                    "description": "Page number (required)",
+                    "default": 1
                   },
                   "pageSize": {
                     "type": "integer",
-                    "description": "Page size (required)"
+                    "description": "Page size (required)",
+                    "default": 10
                   },
                   "stationId": {
                     "type": "string",
-                    "description": "Station ID (optional)"
+                    "description": "Station ID (optional)",
+                    "default":"1298491919450373425"
                   },
                   "nmiCode": {
                     "type": "string",
-                    "description": "NMI Code (optional)"
+                    "description": "NMI Code (optional)",
+                    "default":""
                   }
                 },
                 "required": ["pageNo", "pageSize"]
