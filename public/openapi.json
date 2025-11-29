@@ -397,11 +397,13 @@
                 "properties": {
                   "pageNo": {
                     "type": "integer",
-                    "description": "Page number (required)"
+                    "description": "Page number (required)",
+                    "default": 1
                   },
                   "pageSize": {
                     "type": "integer",
-                    "description": "Page size (required)"
+                    "description": "Page size (required)",
+                    "default": 10
                   },
                   "stationId": {
                     "type": "string",
