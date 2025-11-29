@@ -1,43 +1,36 @@
-/**
- * Get the full image URL by combining the backend URL with the relative image path
- * @param {string} imagePath - Relative image path (e.g., "/images/logo/logo_1763033583467_kzakpx.png")
- * @returns {string} Full image URL
- */
-const stripPublicPrefix = (value = "") =>
-  value.startsWith("/public/") ? value.replace("/public", "") : value;
-
-const ensureLeadingSlash = (value = "") =>
-  value.startsWith("/") ? value : `/${value}`;
-
-const ASSET_BASE_URL =
-  process.env.NEXT_PUBLIC_ASSET_BASE_URL ||
-  process.env.NEXT_PUBLIC_FILES_BASE_URL ||
-  "";
-
-/**
- * Normalise image paths to an absolute URL (when a base is provided)
- * or a project-relative path so that both browser <img> and Next/Image
- * can resolve them reliably across environments.
- */
 export const getFullImageUrl = (imagePath) => {
   if (!imagePath) {
-    return "";
+    return '';
   }
 
-  const trimmed = imagePath.trim();
-  const isAbsolute = /^https?:\/\//i.test(trimmed);
+  // If the image path is already a full URL (starts with http:// or https://),
+  // extract just the path portion for Next.js Image component
+  if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+    try {
+      const url = new URL(imagePath);
+      let pathname = url.pathname;
 
-  if (isAbsolute) {
-    // Already a fully-qualified URL – return as-is so that external/CDN images work.
-    return trimmed;
+      // Remove /public/ prefix if present since Next.js serves from public folder directly
+      if (pathname.startsWith('/public/')) {
+        pathname = pathname.replace('/public', '');
+      }
+
+      return pathname;
+    } catch (error) {
+      console.error('Error parsing image URL:', error);
+      return imagePath;
+    }
   }
 
-  const normalizedPath = ensureLeadingSlash(stripPublicPrefix(trimmed));
+  // Remove /public/ prefix if present
+  let normalizedPath = imagePath.startsWith('/public/')
+    ? imagePath.replace('/public', '')
+    : imagePath;
 
-  if (!ASSET_BASE_URL) {
-    return normalizedPath;
-  }
+  // Ensure path starts with a slash
+  normalizedPath = normalizedPath.startsWith('/') 
+    ? normalizedPath 
+    : `/${normalizedPath}`;
 
-  const base = ASSET_BASE_URL.replace(/\/+$/, "");
-  return `${base}${normalizedPath}`;
+  return normalizedPath;
 };
