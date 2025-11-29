@@ -217,6 +217,7 @@ const ProjectEditContent = ({ projectId }) => {
                 if (res?.success && res.data) {
                     const p = res.data
                     setFormData({
+                        id: p.id, // ← added so ProjectForm's `formData?.id` is truthy
                         project_name: p.project_name || '',
                         project_slug: p.project_slug || '',
                         project_type_id: p.project_type_id || p.projectType?.id || '',
@@ -237,6 +238,7 @@ const ProjectEditContent = ({ projectId }) => {
                         project_size: p.project_size || '',
                         project_close_date: p.project_close_date ? new Date(p.project_close_date).toISOString().split('T')[0] : '',
                         project_location: p.project_location || '',
+                        solis_plant_id: p.solis_plant_id || '', // ← add Solis Plant ID into form
                         status: p.status === 1 ? 'active' : 'inactive'
                     })
                     if (p.countryId) handleCountryChange(p.countryId)
@@ -409,6 +411,7 @@ const ProjectEditContent = ({ projectId }) => {
                 project_size: formData.project_size || '',
                 project_close_date: formData.project_close_date || null,
                 project_location: formData.project_location || '',
+                solis_plant_id: formData.solis_plant_id || '', // ← include when updating
                 status: formData.status === 'active' ? 1 : 0
             }
             const res = await apiPut(`/api/projects/${projectId}`, payload)

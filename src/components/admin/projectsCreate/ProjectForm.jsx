@@ -317,6 +317,25 @@ const ProjectForm = ({
               />
             </div>
           </div>
+
+          { /* Show Solis Plant ID only in edit mode (when formData.id exists) */ }
+          {formData?.id ? (
+            <div className="row">
+              <div className="col-md-12 mb-3">
+                <TextField
+                  fullWidth
+                  label={lang("projects.solisPlantId", "Solis Plant ID")}
+                  name="solis_plant_id"
+                  value={formData.solis_plant_id || ""}
+                  onChange={handleInputChange}
+                  placeholder={lang(
+                    "projects.solisPlantIdPlaceholder",
+                    "Enter Solis plant id"
+                  )}
+                />
+              </div>
+            </div>
+          ) : null}
         </div>
       </div>
 

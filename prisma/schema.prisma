@@ -203,6 +203,8 @@ model Project {
   sim_start_date     DateTime?
   sim_expire_date    DateTime?
 
+  solis_plant_id   String?   @db.VarChar(255)
+
   // Relations
   city             City?     @relation(fields: [cityId], references: [id])
   state            State?    @relation(fields: [stateId], references: [id])
