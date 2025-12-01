@@ -86,7 +86,6 @@ const ProjectForm = ({
       const candidate = image?.path || image?.url || image?.image || image?.src || "";
       const full = getFullImageUrl(candidate);
       // eslint-disable-next-line no-console
-      console.debug("[ProjectForm] resolved image url:", { candidate, full, image });
       return full;
     },
     []
@@ -398,7 +397,7 @@ const ProjectForm = ({
                   >
                     <div className="border rounded overflow-hidden project-image-thumb">
                       <img
-                        src={resolveExistingImageSrc(image)}
+                        src={image.url}
                         alt="Project"
                         style={{
                           width: "100%",

@@ -13,10 +13,11 @@ const __dirname = dirname(__filename);
 // so uploads keep working even if the PM2 working directory changes.
 const ROOT_DIR = path.resolve(__dirname, "..", "..");
 const PUBLIC_DIR = path.join(ROOT_DIR, "public");
-
 const PROJECT_IMAGE_LIMIT = 10;
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
-const PROJECT_IMAGES_DIR = path.join(PUBLIC_DIR, "uploads", "projects");
+
+// Use uploads directory at project root (C:\sunshare\uploads\projects)
+const PROJECT_IMAGES_DIR = path.join(ROOT_DIR, "uploads", "projects");
 
 fs.mkdirSync(PROJECT_IMAGES_DIR, { recursive: true });
 
@@ -48,10 +49,16 @@ const buildPublicImagePath = (filename) => `/uploads/projects/${filename}`;
 
 const getAbsoluteImagePath = (relativePath) => {
   if (!relativePath) return "";
-  const normalized = relativePath.startsWith("/public/")
-    ? relativePath.replace("/public", "")
-    : relativePath;
-  return path.resolve(PUBLIC_DIR, normalized.replace(/^\//, ""));
+  const rp = relativePath.replace(/^\//, "");
+
+  // If path is under /uploads resolve from project root (C:\sunshare\uploads/...)
+  if (rp.startsWith("uploads/")) {
+    return path.resolve(ROOT_DIR, rp);
+  }
+
+  // fallback: paths under /public/...
+  const normalized = rp.startsWith("public/") ? rp.replace(/^public\//, "") : rp;
+  return path.resolve(PUBLIC_DIR, normalized);
 };
 
 const removePhysicalFile = (absolutePath) => {
