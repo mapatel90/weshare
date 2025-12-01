@@ -51,8 +51,8 @@ const ProjectCard = ({ project, activeTab }) => {
 
     const getDefaultImageUrl = () => {
         const cover = getPrimaryProjectImage(project)
-        if (!cover) return '/images/general/solar-card.jpg'
-        return getFullImageUrl(cover) || '/images/general/solar-card.jpg'
+        if (!cover) return getFullImageUrl('/uploads/general/noimage_2.png')
+        return getFullImageUrl(cover) || getFullImageUrl('/uploads/general/noimage_2.png')
     }
 
     // Different card design for lease vs resale

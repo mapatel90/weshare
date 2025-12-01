@@ -178,7 +178,7 @@ const ProjectDetail = ({ projectId }) => {
 
   const getProjectMainImage = () => {
     const cover = getPrimaryProjectImage(project);
-    return cover ? getFullImageUrl(cover) : "/images/banner/banner-img.png";
+    return cover ? getFullImageUrl(cover) : getFullImageUrl("/uploads/general/noimage.jpeg");
   };
 
   // Determine reliability badge based on ROI

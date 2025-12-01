@@ -497,10 +497,6 @@ const ProjectForm = ({
                               {lang("projects.defaultImage", "Default")}
                             </span>
                           ) : null}
-
-                          <span className="badge bg-secondary">
-                            {lang("projects.pendingUpload", "Pending")}
-                          </span>
                         </div>
 
                         <div
