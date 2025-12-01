@@ -27,6 +27,7 @@ import leaseRoutes from "./routes/lease.js";
 import investerRoutes from "./routes/invester.js";
 import contractRoutes from "./routes/contract.js";
 import cronRoutes from "./routes/cron.js";
+import inverterDataRoutes from "./routes/inverterData.js";
 
 // Load environment variables
 const __filename = fileURLToPath(import.meta.url);
@@ -107,6 +108,7 @@ app.use("/api/lease", leaseRoutes);
 app.use("/api/investors", investerRoutes);
 app.use("/api/contracts", contractRoutes);
 app.use("/api/cron", cronRoutes);
+app.use("/api/inverter-data", inverterDataRoutes);
 
 // 404 handler
 app.use((req, res) => {

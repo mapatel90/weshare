@@ -191,7 +191,8 @@
     "selectCountry": "Select Country",
     "selectState": "Select State",
     "selectCity": "Select City",
-    "uploadQrImage": "Upload your QR code image here."
+    "uploadQrImage": "Upload your QR code image here.",
+    "generatedKW": "GENERATED KW"
   },
   "messages": {
     "success": "Operation completed successfully",
@@ -1327,6 +1328,9 @@
     "deletedSuccessfully": "Meter Deleted Successfully"
   },
   "reports":{
-    "reports": "Reports"
+    "reports": "Reports",
+    "allprojects": "All Projects",
+    "allinverters": "All Inverters",
+    "downloadcsv": "Download CSV"
   }
 }

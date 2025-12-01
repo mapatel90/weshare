@@ -175,7 +175,8 @@
     "selectRole": "Chọn vai trò",
     "selectCountry": "Chọn quốc gia",
     "selectState": "Chọn tiểu bang",
-    "selectCity": "Chọn thành phố"
+    "selectCity": "Chọn thành phố",
+    "generatedKW": "KW TẠO RA"
   },
   "messages": {
     "success": "Thao tác thành công",
@@ -1282,6 +1283,9 @@
     "deletedSuccessfully": "Xóa Công tơ Thành công"
   },
   "reports": {
-    "reports": "Báo cáo"
+    "reports": "Báo cáo",
+    "allprojects": "Tất cả dự án",
+    "allinverters": "Tất cả bộ biến tần",
+    "downloadcsv": "Tải xuống CSV"
   }
 }
