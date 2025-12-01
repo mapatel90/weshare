@@ -676,12 +676,10 @@ router.put("/:id", authenticateToken, async (req, res) => {
       project_close_date,
       project_location,
       status,
-      solis_plant_id,
     } = req.body;
 
     const updateData = {
       ...(name !== undefined && { project_name: name }),
-      ...(solis_plant_id !== undefined && { solis_plant_id: solis_plant_id || null }),
       // update relation: connect projectType by id when provided
       ...(project_type_id !== undefined &&
         (project_type_id
