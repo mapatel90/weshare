@@ -250,7 +250,9 @@
     "blogTitleRequired": "Title is required",
     "blogDescriptionRequired": "Description is required",
     "blogDateRequired": "Date is required",
-    "blogSlugExists": "Slug already exists"
+    "blogSlugExists": "Slug already exists",
+    "apiUrlNameRequired": "API URL is required",
+    "invalidUrl": "Please enter a valid URL"
   },
   "menu": {
     "dashboards": "Dashboards",
@@ -969,7 +971,8 @@
     "selectInverter": "Select Inverter",
     "serialNumber": "Serial Number",
     "inverterlist": "Inverter List",
-    "invertertype": "Inverter Type"
+    "invertertype": "Inverter Type",
+    "apiUrlName": "API URL"
   },
   "projectType": {
     "title": "Project Types",

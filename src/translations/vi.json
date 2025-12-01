@@ -233,7 +233,9 @@
     "blogTitleRequired": "Tiêu đề là bắt buộc",
     "blogDescriptionRequired": "Mô tả là bắt buộc",
     "blogDateRequired": "Ngày là bắt buộc",
-    "blogSlugExists": "Slug đã tồn tại"
+    "blogSlugExists": "Slug đã tồn tại",
+    "apiUrlNameRequired": "API URL là bắt buộc",
+    "invalidUrl": "Vui lòng nhập URL hợp lệ"
   },
   "menu": {
     "dashboards": "Bảng điều khiển",
@@ -926,7 +928,8 @@
     "serialNumber": "Số seri",
     "kilowatt": "Kilowatt",
     "inverterList": "Danh sách biến tần",
-    "inverterType": "Loại biến tần"
+    "inverterType": "Loại biến tần",
+    "apiUrlName": "URL API"
   },
   "projectType": {
     "title": "Loại dự án",

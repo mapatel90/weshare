@@ -154,6 +154,7 @@ model Inverter {
   companyName String   @map("company_name") @db.VarChar(255)
   inverterName String  @map("inverter_name") @db.VarChar(255)
   inverter_type_id        Int   @map("inverter_type_id")
+  apiUrl      String?   @map("api_url") @db.VarChar(1000)
   apiKey      String   @map("api_key") @db.VarChar(1000)
   secretKey   String   @map("secret_key") @db.VarChar(1000)
   status      Int      @default(1)

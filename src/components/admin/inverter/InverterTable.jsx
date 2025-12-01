@@ -42,6 +42,7 @@ const InverterTable = () => {
   const [inverterName, setInverterName] = useState("");
   const [apiKey, setApiKey] = useState("");
   const [secretKey, setSecretKey] = useState("");
+  const [apiUrlName, setApiUrlName] = useState(""); // <-- added state
   const [editingId, setEditingId] = useState(null);
   const [errors, setErrors] = useState({});
   // Modal logic state:
@@ -54,6 +55,7 @@ const InverterTable = () => {
     setInverterName("");
     setApiKey("");
     setSecretKey("");
+    setApiUrlName(""); // <-- reset new field
     setSelectedType(null);
     setEditingId(null);
     setErrors({});
@@ -62,9 +64,21 @@ const InverterTable = () => {
     setStatusError("");
   };
 
+  // Validate URL helper
+  const isValidUrl = (value) => {
+    if (!value) return false;
+    try {
+      const url = new URL(value);
+      return url.protocol === "http:" || url.protocol === "https:";
+    } catch (e) {
+      return false;
+    }
+  };
+
   const fetchInverters = async () => {
     try {
       const response = await apiGet("/api/inverters/");
+      console.log("Fetched inverters:", response.data);
       if (response.success && response.data.inverters) {
         setInvertersData(response.data.inverters);
       }
@@ -169,8 +183,14 @@ const InverterTable = () => {
       selectedType: !selectedType?.value ? lang("validation.typeRequired") : "",
       apiKey: !apiKey ? lang("validation.apiKeyRequired") : "",
       secretKey: !secretKey ? lang("validation.secretKeyRequired") : "",
+      apiUrlName: !apiUrlName
+        ? lang("validation.apiUrlNameRequired")
+        : !isValidUrl(apiUrlName)
+        ? lang("validation.invalidUrl") || "Enter a valid URL (include http:// or https://)"
+        : "",
     };
-    const newStatusError = !status && status !== 0 ? lang("validation.statusRequired") : "";
+    const newStatusError =
+      !status && status !== 0 ? lang("validation.statusRequired") : "";
     setStatusError(newStatusError);
     setErrors(newErrors);
     if (Object.values(newErrors).some(Boolean) || newStatusError) return;
@@ -182,6 +202,7 @@ const InverterTable = () => {
         inverter_type_id: parseInt(selectedType.value),
         apiKey,
         secretKey,
+        apiUrl: apiUrlName, // <-- include in payload (snake_case for backend)
         status: parseInt(status),
       };
       const res = editingId
@@ -228,16 +249,27 @@ const InverterTable = () => {
       setInverterName(item.inverterName || "");
       setApiKey(item.apiKey || "");
       setSecretKey(item.secretKey || "");
+      setApiUrlName(item.apiUrl || ""); // <-- set new field from either camel or snake
       setErrors({});
       setPendingEdit(item);
       // set status for edit mode
-      setStatus(item.status !== undefined && item.status !== null ? String(item.status) : "");
+      setStatus(
+        item.status !== undefined && item.status !== null
+          ? String(item.status)
+          : ""
+      );
       if (Array.isArray(typeOptions) && typeOptions.length > 0) {
-        if (item.inverter_type_id !== undefined && item.inverter_type_id !== null) {
+        if (
+          item.inverter_type_id !== undefined &&
+          item.inverter_type_id !== null
+        ) {
           const valueToOption = new Map(typeOptions.map((o) => [o.value, o]));
           const labelToOption = new Map(typeOptions.map((o) => [o.label, o]));
           const key = String(item.inverter_type_id);
-          const found = valueToOption.get(key) || labelToOption.get(item.inverter_type_id) || null;
+          const found =
+            valueToOption.get(key) ||
+            labelToOption.get(item.inverter_type_id) ||
+            null;
           setSelectedType(found);
         } else {
           setSelectedType(null);
@@ -276,13 +308,19 @@ const InverterTable = () => {
     },
     { accessorKey: "inverter_type_id", header: () => lang("inverter.type") },
     { accessorKey: "apiKey", header: () => lang("inverter.apiKey") },
+    { accessorKey: "apiUrl", header: () => lang("inverter.apiUrlName") }, // <-- added column
     { accessorKey: "secretKey", header: () => lang("inverter.secretKey") },
-    { accessorKey: "status", header: () => lang("inverter.status"),
+    {
+      accessorKey: "status",
+      header: () => lang("inverter.status"),
       cell: ({ row }) => {
         const s = row.original.status;
         const config = {
           1: { label: lang("inverter.active") || "Active", color: "#17c666" },
-          0: { label: lang("inverter.inactive") || "Inactive", color: "#ea4d4d" },
+          0: {
+            label: lang("inverter.inactive") || "Inactive",
+            color: "#ea4d4d",
+          },
         }[s] || { label: s, color: "#999" };
         return (
           <Chip
@@ -299,7 +337,7 @@ const InverterTable = () => {
             }}
           />
         );
-      }
+      },
     },
     {
       accessorKey: "actions",
@@ -357,7 +395,6 @@ const InverterTable = () => {
     setErrors({});
     setPendingEdit(null);
   };
-
 
   return (
     <>
@@ -427,14 +464,17 @@ const InverterTable = () => {
             />
 
             <FormControl fullWidth error={!!errors.selectedType}>
-              <InputLabel id="type-select-label">{lang("inverter.type")}</InputLabel>
+              <InputLabel id="type-select-label">
+                {lang("inverter.type")}
+              </InputLabel>
               <Select
                 labelId="type-select-label"
                 value={selectedType?.value || ""}
                 label={lang("inverter.type")}
                 onChange={(e) => {
                   const value = e.target.value;
-                  const option = typeOptions.find((opt) => opt.value === value) || null;
+                  const option =
+                    typeOptions.find((opt) => opt.value === value) || null;
                   setSelectedType(option);
                   if (errors.selectedType)
                     setErrors((prev) => ({ ...prev, selectedType: "" }));
@@ -449,7 +489,9 @@ const InverterTable = () => {
                     </MenuItem>
                   ))}
               </Select>
-              {errors.selectedType && <FormHelperText>{errors.selectedType}</FormHelperText>}
+              {errors.selectedType && (
+                <FormHelperText>{errors.selectedType}</FormHelperText>
+              )}
               {loadingTypes && (
                 <FormHelperText>{lang("common.loading")}</FormHelperText>
               )}
@@ -470,6 +512,25 @@ const InverterTable = () => {
             />
 
             <TextField
+              label={lang("inverter.apiUrlName") || "API URL Name"} // <-- new input
+              placeholder={
+                lang("inverter.apiUrlNamePlaceholder") || "Enter API URL name"
+              }
+              value={apiUrlName}
+              onChange={(e) => {
+                const v = e.target.value;
+                setApiUrlName(v);
+                // Clear error only when value becomes valid
+                if (errors.apiUrlName && v && isValidUrl(v)) {
+                  setErrors((prev) => ({ ...prev, apiUrlName: "" }));
+                }
+              }}
+              error={!!errors.apiUrlName}
+              helperText={errors.apiUrlName}
+              fullWidth
+            />
+
+            <TextField
               label={lang("inverter.secretKey")}
               placeholder={lang("inverter.secretKeyPlaceholder")}
               value={secretKey}
@@ -484,7 +545,9 @@ const InverterTable = () => {
             />
 
             <FormControl fullWidth error={!!statusError}>
-              <InputLabel id="status-select-label">{lang("inverter.status")}</InputLabel>
+              <InputLabel id="status-select-label">
+                {lang("inverter.status")}
+              </InputLabel>
               <Select
                 labelId="status-select-label"
                 value={status}
@@ -494,19 +557,35 @@ const InverterTable = () => {
                   if (statusError) setStatusError("");
                 }}
               >
-                <MenuItem value="">{lang("inverter.selectStatus") || "Select Status"}</MenuItem>
-                <MenuItem value="1">{lang("inverter.active") || "Active"}</MenuItem>
-                <MenuItem value="0">{lang("inverter.inactive") || "Inactive"}</MenuItem>
+                <MenuItem value="">
+                  {lang("inverter.selectStatus") || "Select Status"}
+                </MenuItem>
+                <MenuItem value="1">
+                  {lang("inverter.active") || "Active"}
+                </MenuItem>
+                <MenuItem value="0">
+                  {lang("inverter.inactive") || "Inactive"}
+                </MenuItem>
               </Select>
               {statusError && <FormHelperText>{statusError}</FormHelperText>}
             </FormControl>
           </Box>
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2.5 }}>
-          <Button onClick={handleCloseModal} color="error" variant="outlined" className="custom-orange-outline">
+          <Button
+            onClick={handleCloseModal}
+            color="error"
+            variant="outlined"
+            className="custom-orange-outline"
+          >
             {lang("common.cancel")}
           </Button>
-          <Button onClick={handleAdd} variant="contained" disabled={submitting} className="common-grey-color">
+          <Button
+            onClick={handleAdd}
+            variant="contained"
+            disabled={submitting}
+            className="common-grey-color"
+          >
             {submitting ? lang("common.loading") : lang("common.save")}
           </Button>
         </DialogActions>
