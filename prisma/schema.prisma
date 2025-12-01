@@ -164,6 +164,7 @@ model Inverter {
 
   inverterType    InverterType  @relation(fields: [inverter_type_id], references: [id])
   projectInverters  Project_inverters[]
+  inverter_data    inverter_data[] 
 
   @@map("inverters")
 }
@@ -219,6 +220,7 @@ model Project {
   interestedinvestor InterestedInvestor[]
   contract         Contract[]
   project_images   Project_images[]
+  inverter_data    inverter_data[] 
 
   @@map("projects")
 }
@@ -436,3 +438,16 @@ model Project_images {
   @@map("project_images")
 }
 
+model inverter_data {
+  id          Int       @id @default(autoincrement())
+  projectId   Int       @map("project_id")
+  inverter_id Int?      @map("inverter_id")
+  date        DateTime  @map("date")
+  time        String    @map("time")
+  generate_kw Float     @map("generate_kw")
+
+  project     Project    @relation(fields: [projectId], references: [id])
+  inverter    Inverter?  @relation(fields: [inverter_id], references: [id])
+
+  @@map("inverter_data")
+}
