@@ -8,7 +8,7 @@ router.get("/", async (req, res) => {
     try {
         // Include related Project and Inverter records
         const inverterData = await prisma.inverter_data.findMany({
-            orderBy: { date: 'asc' },
+            orderBy: { date: 'desc' },
             include: {
                 project: true,
                 inverter: true,
