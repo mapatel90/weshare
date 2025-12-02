@@ -73,7 +73,7 @@ const normalizeApiProject = (project) => {
     getPrimaryProjectImage(project.project || project) || "";
   const coverImage = rawCoverImage
     ? getFullImageUrl(rawCoverImage)
-    : "/images/general/solar-card.jpg";
+    : getFullImageUrl("/uploads/general/noimage.jpeg");
 
   return {
     id: project.project?.id ? `#${project.project.id}` : project.project?.project_code ?? "—",
@@ -130,7 +130,6 @@ const ProjectTable = () => {
         const response = await apiGet(apiUrl);
         if (response?.success) {
           const normalized = response.data.map(normalizeApiProject);
-          console.log(normalized)
           setAllProjects(normalized); // do not fallback to static data
         } else {
           // no projects returned -> keep empty
@@ -550,7 +549,7 @@ const ProjectTable = () => {
                     {/* Image and status badge */}
                     <div className="relative w-full h-36 sm:h-44 md:h-40 lg:h-36 xl:h-40 overflow-hidden">
                       <img
-                        src={project.project_image}
+                        src={project.project_image || getFullImageUrl("/uploads/general/noimage.jpeg")}
                         alt={project.projectName}
                         className="object-cover w-full h-full"
                       />
