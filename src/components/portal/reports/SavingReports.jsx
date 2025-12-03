@@ -2,9 +2,11 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { apiGet } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const SavingReports = () => {
   const { user } = useAuth();
+  const { lang } = useLanguage();
 
   const [items, setItems] = useState([]);
   const [allowedIds, setAllowedIds] = useState(null);
@@ -81,6 +83,10 @@ const SavingReports = () => {
       generatedKW: item.generate_kw
         ? (Number(item.generate_kw) / 1000).toFixed(3)
         : item.generatedKW || "",
+      Acfrequency: item.ac_frequency ?? "",
+      DailyYield: item.daily_yield ?? "",
+      AnnualYield: item.annual_yield ?? "",
+      TotalYield: item.total_yield ?? "",
     };
   };
 
@@ -129,7 +135,7 @@ const SavingReports = () => {
   // ----------------------------
   const downloadCSV = () => {
     const csv =
-      "Project,Inverter,Date,Start,End,Generated\n" +
+      "Project,Inverter,Date,Start,End,GeneratedKW,AcFrequency,DailyYield,AnnualYield,TotalYield\n" +
       filtered
         .map((r) =>
           [
@@ -139,6 +145,10 @@ const SavingReports = () => {
             r.startTime,
             r.endTime,
             r.generatedKW,
+            r.Acfrequency,
+            r.DailyYield,
+            r.AnnualYield,
+            r.TotalYield
           ].join(",")
         )
         .join("\n");
@@ -206,11 +216,15 @@ const SavingReports = () => {
       <table className="min-w-full text-sm shadow-sm border">
         <thead className="bg-gray-50">
           <tr>
-            <th className="px-4 py-3">Project</th>
-            <th className="px-4 py-3">Inverter</th>
-            <th className="px-4 py-3">Date</th>
-            <th className="px-4 py-3">Time</th>
-            <th className="px-4 py-3">Generated</th>
+            <th className="px-4 py-3">{lang("projects.projectName")}</th>
+            <th className="px-4 py-3">{lang("inverter.inverterName")}</th>
+            <th className="px-4 py-3">{lang("common.date")}</th>
+            <th className="px-4 py-3">{lang("common.time")}</th>
+            <th className="px-4 py-3">{lang("common.generatedKW")}</th>
+            <th className="px-4 py-3">{lang("common.acFrequency")}</th>
+            <th className="px-4 py-3">{lang("reports.dailyYield")}</th>
+            <th className="px-4 py-3">{lang("reports.annualYield")}</th>
+            <th className="px-4 py-3">{lang("reports.totalYield")}</th>
           </tr>
         </thead>
 
@@ -224,6 +238,10 @@ const SavingReports = () => {
               </td>
               <td className="px-4 py-2">{r.startTime}</td>
               <td className="px-4 py-2">{r.generatedKW}</td>
+              <td className="px-4 py-2">{r.Acfrequency}</td>
+              <td className="px-4 py-2">{r.DailyYield}</td>
+              <td className="px-4 py-2">{r.AnnualYield}</td>
+              <td className="px-4 py-2">{r.TotalYield}</td>
             </tr>
           ))}
         </tbody>

@@ -176,7 +176,8 @@
     "selectCountry": "Chọn quốc gia",
     "selectState": "Chọn tiểu bang",
     "selectCity": "Chọn thành phố",
-    "generatedKW": "KW TẠO RA"
+    "generatedKW": "KW TẠO RA",
+    "acFrequency": "TẦN SỐ AC"
   },
   "messages": {
     "success": "Thao tác thành công",
@@ -1289,6 +1290,9 @@
     "reports": "Báo cáo",
     "allprojects": "Tất cả dự án",
     "allinverters": "Tất cả bộ biến tần",
-    "downloadcsv": "Tải xuống CSV"
+    "downloadcsv": "Tải xuống CSV",
+    "dailyYield": "Sản lượng hàng ngày",
+    "annualYield": "Sản lượng hàng năm",
+    "totalYield": "Tổng sản lượng"
   }
 }

@@ -22,7 +22,7 @@ const SavingReports = () => {
         try {
             setLoading(true);
             const res = await apiGet('/api/inverter-data');
-
+            
             const items = Array.isArray(res?.data) ? res.data : [];
 
             const mappedData = items.map(item => ({
@@ -42,8 +42,11 @@ const SavingReports = () => {
                     item.generate_kw !== undefined && item.generate_kw !== null
                         ? (Number(item.generate_kw) / 1000).toFixed(3)
                         : '',
+                Acfrequency: item.ac_frequency ?? '',
+                DailyYield: item.daily_yield ?? '',
+                AnnualYield: item.annual_yield ?? '',
+                TotalYield: item.total_yield ?? '',
             }));
-
             setReportsData(mappedData);
             setError(null);
         } catch (err) {
@@ -108,14 +111,28 @@ const SavingReports = () => {
     // CSV Download
     // -----------------------------
     const handleDownloadCSV = () => {
-        const header = ['Project Name', 'Inverter Name', 'Date', 'Time', 'Generated kW'];
+        const header = [
+            lang("projects.projectName"),
+            lang("inverter.inverterName"),
+            lang("common.date"),
+            lang("common.time"),
+            lang("common.generatedKW"),
+            lang("common.acFrequency"),
+            lang("reports.dailyYield"),
+            lang("reports.annualYield"),
+            lang("reports.totalYield")
+        ];
 
         const rows = filteredData.map(row => [
             row.projectName,
             row.inverterName,
             row.date ? new Date(row.date).toLocaleDateString() : '',
             row.time ?? '',
-            row.generatedKW ?? ''
+            row.generatedKW ?? '',
+            row.Acfrequency ?? '',
+            row.DailyYield ?? '',
+            row.AnnualYield ?? '',
+            row.TotalYield ?? ''
         ]);
 
         const csvContent =
@@ -145,7 +162,11 @@ const SavingReports = () => {
             }
         },
         { accessorKey: 'time', header: () => lang("common.time") },
-        { accessorKey: 'generatedKW', header: () => lang("common.generatedKW") }
+        { accessorKey: 'generatedKW', header: () => lang("common.generatedKW") },
+        { accessorKey: 'Acfrequency', header: () => lang("common.acFrequency") },
+        { accessorKey: 'DailyYield', header: () => lang("reports.dailyYield") },
+        { accessorKey: 'AnnualYield', header: () => lang("reports.annualYield") },
+        { accessorKey: 'TotalYield', header: () => lang("reports.totalYield") }
     ], [lang]);
 
     // -----------------------------

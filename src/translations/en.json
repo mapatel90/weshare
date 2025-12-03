@@ -192,7 +192,8 @@
     "selectState": "Select State",
     "selectCity": "Select City",
     "uploadQrImage": "Upload your QR code image here.",
-    "generatedKW": "GENERATED KW"
+    "generatedKW": "GENERATED KW",
+    "acFrequency": "AC FREQUENCY"
   },
   "messages": {
     "success": "Operation completed successfully",
@@ -1334,6 +1335,9 @@
     "reports": "Reports",
     "allprojects": "All Projects",
     "allinverters": "All Inverters",
-    "downloadcsv": "Download CSV"
+    "downloadcsv": "Download CSV",
+    "dailyYield": "Daily Yield",
+    "annualYield": "Annual Yield",
+    "totalYield": "Total Yield"
   }
 }

@@ -1,7 +1,9 @@
 'use client'
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState, useRef, useMemo } from 'react'
 import { Sun, Zap, TrendingUp, Activity, MapPin, Calendar, Users, DollarSign } from 'lucide-react'
 import { apiGet } from '@/lib/api'
+import StatCardsGrid from './projectViewSection/StateCard'
+import PowerConsumptionDashboard from './projectViewSection/inverterChart'
 
 const useLanguage = () => ({
   lang: (key, fallback) => fallback
@@ -301,6 +303,32 @@ const ProjectViewContent = ({ projectId = '1' }) => {
     if (projectId) loadContracts()
   }, [projectId])
 
+  const [inverterData, setInverterData] = useState([])
+  const [inverterLoading, setInverterLoading] = useState(true)
+
+  useEffect(() => {
+    const loadInverterData = async () => {
+      try {
+        setInverterLoading(true)
+        const res = await apiGet('/api/inverter-data')
+        if (res?.success) setInverterData(res.data || [])
+        else setInverterData([])
+      } catch (error) {
+        setInverterData([])
+      } finally {
+        setInverterLoading(false)
+      }
+    }
+    loadInverterData()
+  }, [])
+
+  const filteredInverterData = useMemo(() => {
+    if (!projectId) return []
+    const numericId = Number(projectId)
+    if (Number.isNaN(numericId)) return []
+    return inverterData.filter((item) => Number(item.projectId) === numericId)
+  }, [inverterData, projectId])
+
   // --- demo static data for charts (temporary) ---
   const demoMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']
   const demoProduction = [12000, 18000, 24000, 20000, 22000, 26000] // kWh
@@ -339,41 +367,7 @@ const ProjectViewContent = ({ projectId = '1' }) => {
           </div>
         </div>
 
-        {/* Stats Cards */} 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px', marginBottom: '24px' }}>
-          <StatCard
-            icon={Sun}
-            title="Total Contracts"
-            value={contractsLoading ? 'Loading...' : (Array.isArray(contracts) ? `${formatNumber(contracts.length)}` : '-')}
-            subtitle="Number of contracts for this project"
-            color="linear-gradient(to bottom right, #fbbf24, #f97316)"
-            trend={null}
-          />
-          <StatCard
-            icon={Zap}
-            title="Current Output"
-            value={project.current_output ? `${formatNumber(project.current_output)} kW` : (project.current_power ? `${formatNumber(project.current_power)} kW` : '-')}
-            subtitle="Real-time power"
-            color="linear-gradient(to bottom right, #3b82f6, #2563eb)"
-            trend={project.output_trend ?? null}
-          />
-          <StatCard
-            icon={TrendingUp}
-            title="Efficiency"
-            value={project.efficiency ? `${project.efficiency}%` : '-'}
-            subtitle="System performance"
-            color="linear-gradient(to bottom right, #22c55e, #059669)"
-            trend={project.efficiency_trend ?? null}
-          />
-          <StatCard
-            icon={Activity}
-            title="Revenue"
-            value={project.monthly_revenue ? `$${formatNumber(project.monthly_revenue)}` : (project.revenue ? `$${formatNumber(project.revenue)}` : '-')}
-            subtitle="This month"
-            color="linear-gradient(to bottom right, #a855f7, #ec4899)"
-            trend={project.revenue_trend ?? null}
-          />
-        </div>
+        <StatCardsGrid project={project} contracts={contracts} contractsLoading={contractsLoading} />
 
         {/* Project Information */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px', marginBottom: '24px' }}>
@@ -540,12 +534,10 @@ const ProjectViewContent = ({ projectId = '1' }) => {
                 <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#22c55e' }}></div>
               </div>
             </div>
-            {/* pass static demo data */}
-            <LineChartComponent
-              production={demoProduction}
-              target={demoTarget}
-              consumption={demoConsumption}
-              months={demoMonths}
+            <PowerConsumptionDashboard
+              projectId={projectId}
+              readings={filteredInverterData}
+              loading={inverterLoading}
             />
           </div>
 
