@@ -47,21 +47,10 @@ const StatCard = ({ icon: Icon, title, value, subtitle, color, trend }) => (
   </div>
 )
 
-// helper: pick latest reading from inverterData array (uses createdAt or date)
-const getLatestReading = (arr = []) => {
-  if (!Array.isArray(arr) || arr.length === 0) return null
-  return arr.reduce((latest, item) => {
-    const t = new Date(item.createdAt || item.date || null).getTime() || 0
-    const lt = new Date(latest.createdAt || latest.date || null).getTime() || 0
-    return t > lt ? item : latest
-  }, arr[0])
-}
-
-const StatCardsGrid = ({ project = {}, inverterData = [], contracts = [], contractsLoading = false }) => {
-  // Use the first item in inverterData array (inverterData[0]) as requested
-  const firstItem = Array.isArray(inverterData) && inverterData.length > 0 ? inverterData[0] : null
-  console.log('StatCardsGrid - project:', inverterData)
-  console.log('StatCardsGrid - firstItem:', firstItem)
+const StatCardsGrid = ({ project = {}, contracts = [], contractsLoading = false, inverterLatest = null, inverterLatestLoading = false }) => {
+  // Prefer the dedicated /latest endpoint result when available; otherwise fall back to inverterData first item or computed latest
+  console.log('inverterLatestLoading:', inverterLatestLoading, 'inverterLatest:', inverterLatest);
+  const preferredReading = (!inverterLatestLoading && inverterLatest) ? inverterLatest : null
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 16, marginBottom: 24 }}>
@@ -77,13 +66,13 @@ const StatCardsGrid = ({ project = {}, inverterData = [], contracts = [], contra
         icon={Zap}
         title="Daily Yield"
         value={
-          firstItem?.daily_yield !== undefined && firstItem?.daily_yield !== null
-            ? `${formatNumber(firstItem.daily_yield)} kWh`
+          preferredReading?.daily_yield !== undefined && preferredReading?.daily_yield !== null
+            ? `${formatNumber(preferredReading.daily_yield)} kWh`
             : project?.daily_yield
               ? `${formatNumber(project.daily_yield)} kWh`
               : '-'
         }
-        subtitle="Energy produced today (from first inverterData item)"
+        subtitle={preferredReading ? `Energy produced today (from latest record)` : 'Energy produced today'}
         color="linear-gradient(to bottom right, #3b82f6, #2563eb)"
         trend={project?.output_trend ?? null}
       />
@@ -91,13 +80,13 @@ const StatCardsGrid = ({ project = {}, inverterData = [], contracts = [], contra
         icon={Activity}
         title="Total Yield"
         value={
-          firstItem?.total_yield !== undefined && firstItem?.total_yield !== null
-            ? `${formatNumber(firstItem.total_yield)} kWh`
+          preferredReading?.total_yield !== undefined && preferredReading?.total_yield !== null
+            ? `${formatNumber(preferredReading.total_yield)} kWh`
             : project?.total_yield
               ? `${formatNumber(project.total_yield)} kWh`
               : '-'
         }
-        subtitle="Lifetime energy produced (from first inverterData item)"
+        subtitle={preferredReading ? `Lifetime energy produced (from latest record)` : 'Lifetime energy produced'}
         color="linear-gradient(to bottom right, #06b6d4, #0891b2)"
         trend={null}
       />

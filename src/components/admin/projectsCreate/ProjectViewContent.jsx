@@ -96,6 +96,10 @@ const ProjectViewContent = ({ projectId = '1' }) => {
   const [inverterData, setInverterData] = useState([])
   const [inverterLoading, setInverterLoading] = useState(true)
 
+  // latest inverter record state (new)
+  const [inverterLatest, setInverterLatest] = useState(null)
+  const [inverterLatestLoading, setInverterLatestLoading] = useState(true)
+
   useEffect(() => {
     const loadInverterData = async () => {
       try {
@@ -111,6 +115,28 @@ const ProjectViewContent = ({ projectId = '1' }) => {
     }
     loadInverterData()
   }, [])
+
+  // load latest inverter record for this project (new)
+  useEffect(() => {
+    const loadLatest = async () => {
+      if (!projectId) {
+        setInverterLatest(null)
+        setInverterLatestLoading(false)
+        return
+      }
+      try {
+        setInverterLatestLoading(true)
+        const res = await apiGet(`/api/inverter-data/latest?projectId=${projectId}`)
+        if (res?.success) setInverterLatest(res.data || null)
+        else setInverterLatest(null)
+      } catch (e) {
+        setInverterLatest(null)
+      } finally {
+        setInverterLatestLoading(false)
+      }
+    }
+    loadLatest()
+  }, [projectId])
 
   const filteredInverterData = useMemo(() => {
     if (!projectId) return []
@@ -168,7 +194,13 @@ const ProjectViewContent = ({ projectId = '1' }) => {
           </div>
         </div>
 
-        <StatCardsGrid project={project} inverterData={filteredInverterData} contracts={contracts} contractsLoading={contractsLoading} />
+        <StatCardsGrid
+          project={project}
+          contracts={contracts}
+          contractsLoading={contractsLoading}
+          inverterLatest={inverterLatest}              // new prop: latest record for this project
+          inverterLatestLoading={inverterLatestLoading} // new prop: loading flag for latest
+        />
 
         <ProjectInformation project={project} />
 
