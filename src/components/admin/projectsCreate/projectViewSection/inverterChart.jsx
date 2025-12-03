@@ -98,7 +98,7 @@ const navIconButtonStyle = {
 
 const containerStyle = {
   width: '100%',
-  height: '100vh',
+  height: '60vh',
   backgroundColor: '#ffffff',
   padding: '24px',
   display: 'flex',
@@ -115,10 +115,11 @@ const headerRowStyle = {
 const dateSelectorStyle = {
   display: 'flex',
   alignItems: 'center',
-  gap: '8px',
+  // gap: '8px',
   border: '1px solid #d1d5db',
   borderRadius: '10px',
-  padding: '4px 8px',
+  padding: '4px 0px',
+  width: 'fit-content'
 };
 
 const viewButtonsWrapperStyle = {
@@ -317,14 +318,14 @@ const PowerConsumptionDashboard = ({ projectId, readings = [], loading = false }
               {label.charAt(0).toUpperCase() + label.slice(1)}
             </button>
           ))}
-          <button
+          {/* <button
             type="button"
             onClick={handleExport}
             style={{ ...buttonBaseStyle, display: 'flex', alignItems: 'center', gap: '8px', whiteSpace: 'nowrap' }}
           >
             <Download size={16} />
             Export
-          </button>
+          </button> */}
         </div>
       </div>
  
