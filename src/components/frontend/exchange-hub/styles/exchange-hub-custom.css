@@ -324,6 +324,7 @@ a.normalBtn img,
   gap: 16px;
   margin: 0 0 24px;
   text-align: center;
+  height: 105px;
 }
 
 .stat-image {
