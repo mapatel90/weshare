@@ -47,53 +47,76 @@ const StatCard = ({ icon: Icon, title, value, subtitle, color, trend }) => (
   </div>
 )
 
-const StatCardsGrid = ({ project = {}, contracts = [], contractsLoading = false }) => (
-  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 16, marginBottom: 24 }}>
-    <StatCard
-      icon={Sun}
-      title="Total Contracts"
-      value={contractsLoading ? 'Loading...' : (Array.isArray(contracts) ? formatNumber(contracts.length) : '-')}
-      subtitle="Number of contracts for this project"
-      color="linear-gradient(to bottom right, #fbbf24, #f97316)"
-      trend={null}
-    />
-    <StatCard
-      icon={Zap}
-      title="Current Output"
-      value={
-        project?.current_output
-          ? `${formatNumber(project.current_output)} kW`
-          : project?.current_power
-            ? `${formatNumber(project.current_power)} kW`
-            : '-'
-      }
-      subtitle="Real-time power"
-      color="linear-gradient(to bottom right, #3b82f6, #2563eb)"
-      trend={project?.output_trend ?? null}
-    />
-    <StatCard
-      icon={TrendingUp}
-      title="Efficiency"
-      value={project?.efficiency ? `${formatNumber(project.efficiency)}%` : '-'}
-      subtitle="System performance"
-      color="linear-gradient(to bottom right, #22c55e, #059669)"
-      trend={project?.efficiency_trend ?? null}
-    />
-    <StatCard
-      icon={Activity}
-      title="Revenue"
-      value={
-        project?.monthly_revenue
-          ? `$${formatNumber(project.monthly_revenue)}`
-          : project?.revenue
-            ? `$${formatNumber(project.revenue)}`
-            : '-'
-      }
-      subtitle="This month"
-      color="linear-gradient(to bottom right, #a855f7, #ec4899)"
-      trend={project?.revenue_trend ?? null}
-    />
-  </div>
-)
+// helper: pick latest reading from inverterData array (uses createdAt or date)
+const getLatestReading = (arr = []) => {
+  if (!Array.isArray(arr) || arr.length === 0) return null
+  return arr.reduce((latest, item) => {
+    const t = new Date(item.createdAt || item.date || null).getTime() || 0
+    const lt = new Date(latest.createdAt || latest.date || null).getTime() || 0
+    return t > lt ? item : latest
+  }, arr[0])
+}
+
+const StatCardsGrid = ({ project = {}, inverterData = [], contracts = [], contractsLoading = false }) => {
+  // Use the first item in inverterData array (inverterData[0]) as requested
+  const firstItem = Array.isArray(inverterData) && inverterData.length > 0 ? inverterData[0] : null
+  console.log('StatCardsGrid - project:', inverterData)
+  console.log('StatCardsGrid - firstItem:', firstItem)
+
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 16, marginBottom: 24 }}>
+      <StatCard
+        icon={Sun}
+        title="Total Contracts"
+        value={contractsLoading ? 'Loading...' : (Array.isArray(contracts) ? formatNumber(contracts.length) : '-')}
+        subtitle="Number of contracts for this project"
+        color="linear-gradient(to bottom right, #fbbf24, #f97316)"
+        trend={null}
+      />
+      <StatCard
+        icon={Zap}
+        title="Daily Yield"
+        value={
+          firstItem?.daily_yield !== undefined && firstItem?.daily_yield !== null
+            ? `${formatNumber(firstItem.daily_yield)} kWh`
+            : project?.daily_yield
+              ? `${formatNumber(project.daily_yield)} kWh`
+              : '-'
+        }
+        subtitle="Energy produced today (from first inverterData item)"
+        color="linear-gradient(to bottom right, #3b82f6, #2563eb)"
+        trend={project?.output_trend ?? null}
+      />
+      <StatCard
+        icon={Activity}
+        title="Total Yield"
+        value={
+          firstItem?.total_yield !== undefined && firstItem?.total_yield !== null
+            ? `${formatNumber(firstItem.total_yield)} kWh`
+            : project?.total_yield
+              ? `${formatNumber(project.total_yield)} kWh`
+              : '-'
+        }
+        subtitle="Lifetime energy produced (from first inverterData item)"
+        color="linear-gradient(to bottom right, #06b6d4, #0891b2)"
+        trend={null}
+      />
+      <StatCard
+        icon={Activity}
+        title="Revenue"
+        value={
+          project?.monthly_revenue
+            ? `$${formatNumber(project.monthly_revenue)}`
+            : project?.revenue
+              ? `$${formatNumber(project.revenue)}`
+              : '-'
+        }
+        subtitle="This month"
+        color="linear-gradient(to bottom right, #a855f7, #ec4899)"
+        trend={project?.revenue_trend ?? null}
+      />
+    </div>
+  )
+}
 
 export default StatCardsGrid
