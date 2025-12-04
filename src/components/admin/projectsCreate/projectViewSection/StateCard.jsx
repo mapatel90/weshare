@@ -8,6 +8,27 @@ const formatNumber = (v, suffix = '') => {
   return String(v) + suffix
 }
 
+const toNumericOrNull = (value) => {
+  if (value === null || value === undefined || value === '') return null
+  const numeric = Number(value)
+  return Number.isNaN(numeric) ? null : numeric
+}
+
+const getAggregatedMetric = (source, key) => {
+  if (!source) return null
+  if (Array.isArray(source)) {
+    let hasValue = false
+    const total = source.reduce((sum, entry) => {
+      const numeric = toNumericOrNull(entry?.[key])
+      if (numeric === null) return sum
+      hasValue = true
+      return sum + numeric
+    }, 0)
+    return hasValue ? total : null
+  }
+  return toNumericOrNull(source?.[key])
+}
+
 const StatCard = ({ icon: Icon, title, value, subtitle, color, trend }) => (
   <div style={{
     backgroundColor: '#fff',
@@ -47,10 +68,60 @@ const StatCard = ({ icon: Icon, title, value, subtitle, color, trend }) => (
   </div>
 )
 
-const StatCardsGrid = ({ project = {}, contracts = [], contractsLoading = false, inverterLatest = null, inverterLatestLoading = false }) => {
-  // Prefer the dedicated /latest endpoint result when available; otherwise fall back to inverterData first item or computed latest
-  console.log('inverterLatestLoading:', inverterLatestLoading, 'inverterLatest:', inverterLatest);
-  const preferredReading = (!inverterLatestLoading && inverterLatest) ? inverterLatest : null
+const StatCardsGrid = ({
+  project = {},
+  contracts = [],
+  contractsLoading = false,
+  inverterLatest = null,
+  inverterLatestLoading = false,
+  selectedInverterId = ''
+}) => {
+  // If an inverter is selected, show its data; otherwise show project-level data
+  const isInverterSelected = !!selectedInverterId
+  const hasAggregatedData = Array.isArray(inverterLatest)
+  const dailyYieldMetric = getAggregatedMetric(inverterLatest, 'daily_yield')
+  const totalYieldMetric = getAggregatedMetric(inverterLatest, 'total_yield')
+  const contextLabel = isInverterSelected
+    ? 'Selected Inverter'
+    : hasAggregatedData
+      ? 'All Inverters'
+      : 'Project'
+  
+  // Determine daily yield
+  let dailyYieldValue, dailyYieldSubtitle
+  if (inverterLatestLoading) {
+    dailyYieldValue = 'Loading...'
+    dailyYieldSubtitle = `Loading ${isInverterSelected ? 'inverter' : 'project'} data...`
+  } else if (dailyYieldMetric !== null) {
+    dailyYieldValue = `${formatNumber(dailyYieldMetric)} kWh`
+    dailyYieldSubtitle = `Energy produced today (${contextLabel})`
+  } else if (!isInverterSelected && project?.daily_yield !== undefined && project?.daily_yield !== null) {
+    dailyYieldValue = `${formatNumber(project.daily_yield)} kWh`
+    dailyYieldSubtitle = 'Energy produced today (Project)'
+  } else {
+    dailyYieldValue = '-'
+    dailyYieldSubtitle = isInverterSelected
+      ? 'No data available for selected inverter'
+      : 'No data available'
+  }
+
+  // Determine total yield
+  let totalYieldValue, totalYieldSubtitle
+  if (inverterLatestLoading) {
+    totalYieldValue = 'Loading...'
+    totalYieldSubtitle = `Loading ${isInverterSelected ? 'inverter' : 'project'} data...`
+  } else if (totalYieldMetric !== null) {
+    totalYieldValue = `${formatNumber(totalYieldMetric)} kWh`
+    totalYieldSubtitle = `Lifetime energy produced (${contextLabel})`
+  } else if (!isInverterSelected && project?.total_yield !== undefined && project?.total_yield !== null) {
+    totalYieldValue = `${formatNumber(project.total_yield)} kWh`
+    totalYieldSubtitle = 'Lifetime energy produced (Project)'
+  } else {
+    totalYieldValue = '-'
+    totalYieldSubtitle = isInverterSelected
+      ? 'No data available for selected inverter'
+      : 'No data available'
+  }
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 16, marginBottom: 24 }}>
@@ -65,28 +136,16 @@ const StatCardsGrid = ({ project = {}, contracts = [], contractsLoading = false,
       <StatCard
         icon={Zap}
         title="Daily Yield"
-        value={
-          preferredReading?.daily_yield !== undefined && preferredReading?.daily_yield !== null
-            ? `${formatNumber(preferredReading.daily_yield)} kWh`
-            : project?.daily_yield
-              ? `${formatNumber(project.daily_yield)} kWh`
-              : '-'
-        }
-        subtitle={preferredReading ? `Energy produced today (from latest record)` : 'Energy produced today'}
+        value={dailyYieldValue}
+        subtitle={dailyYieldSubtitle}
         color="linear-gradient(to bottom right, #3b82f6, #2563eb)"
-        trend={project?.output_trend ?? null}
+        trend={isInverterSelected ? null : (project?.output_trend ?? null)}
       />
       <StatCard
         icon={Activity}
         title="Total Yield"
-        value={
-          preferredReading?.total_yield !== undefined && preferredReading?.total_yield !== null
-            ? `${formatNumber(preferredReading.total_yield)} kWh`
-            : project?.total_yield
-              ? `${formatNumber(project.total_yield)} kWh`
-              : '-'
-        }
-        subtitle={preferredReading ? `Lifetime energy produced (from latest record)` : 'Lifetime energy produced'}
+        value={totalYieldValue}
+        subtitle={totalYieldSubtitle}
         color="linear-gradient(to bottom right, #06b6d4, #0891b2)"
         trend={null}
       />
@@ -100,7 +159,7 @@ const StatCardsGrid = ({ project = {}, contracts = [], contractsLoading = false,
               ? `$${formatNumber(project.revenue)}`
               : '-'
         }
-        subtitle="This month"
+        subtitle="This month (Project Level)"
         color="linear-gradient(to bottom right, #a855f7, #ec4899)"
         trend={project?.revenue_trend ?? null}
       />
