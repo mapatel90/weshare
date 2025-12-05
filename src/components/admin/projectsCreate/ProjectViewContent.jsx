@@ -131,7 +131,6 @@ const ProjectViewContent = ({ projectId = '1' }) => {
         setSelectedInverterLatestLoading(true)
         // Fetch data for specific inverter - include both projectId and projectInverterId
         const res = await apiGet(`/api/inverter-data/latest?projectId=${projectId}&projectInverterId=${selectedInverterId}`)
-        console.log('Loaded latest data for selected inverter:', res)
         setSelectedInverterLatest(res?.success ? res.data : null)
       } finally {
         setSelectedInverterLatestLoading(false)

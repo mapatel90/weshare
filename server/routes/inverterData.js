@@ -29,61 +29,32 @@ router.get("/latest", async (req, res) => {
   try {
     const { projectId, projectInverterId } = req.query;
 
+    // -------------------------
+    //  CASE 1: NO projectId PROVIDED → LATEST FOR ALL PROJECTS / INVERTERS
+    // -------------------------
     if (!projectId) {
-      return res.status(400).json({
-        success: false,
-        message: "projectId is required",
-      });
-    }
-
-    const pid = Number(projectId);
-
-    // -------------------------
-    //  IF SELECTED INVERTER GIVEN → ONLY THAT INVERTER LATEST
-    // -------------------------
-    if (projectInverterId) {
-      const latestRecord = await prisma.inverter_data.findFirst({
-        where: {
-          projectId: pid,
-          inverter_id: Number(projectInverterId),
-        },
-        orderBy: { date: "desc" },
-        include: {
-          project: true,
-          inverter: true,
-        },
-      });
-
-      return res.status(200).json({
-        success: true,
-        single: true,
-        data: latestRecord || null,
-      });
-    } else {
-      // -------------------------
-      //  ELSE → GET LATEST RECORD FOR ALL INVERTERS
-      // -------------------------
-
+      // Find all active project_inverters
       const projectInverters = await prisma.project_inverters.findMany({
-        where: { project_id: pid, is_deleted: 0 },
+        where: { is_deleted: 0 },
       });
 
       if (projectInverters.length === 0) {
         return res.status(200).json({
           success: true,
+          single: false,
+          count: 0,
           data: [],
-          message: "No inverters found for this project",
+          message: "No inverters found",
         });
       }
 
-      const inverterIds = projectInverters.map((inv) => inv.inverter_id);
-
+      // For each project_inverters record, fetch latest inverter_data
       const latestRecords = await Promise.all(
-        inverterIds.map(async (invId) => {
+        projectInverters.map(async (pi) => {
           return await prisma.inverter_data.findFirst({
             where: {
-              projectId: pid,
-              inverter_id: invId,
+              projectId: pi.project_id,
+              inverter_id: pi.inverter_id,
             },
             orderBy: { date: "desc" },
             include: {
@@ -103,6 +74,76 @@ router.get("/latest", async (req, res) => {
         data: filtered,
       });
     }
+
+    const pid = Number(projectId);
+
+    // -------------------------
+    //  CASE 2: projectId + projectInverterId → ONLY THAT INVERTER LATEST
+    // -------------------------
+    if (projectInverterId) {
+      const latestRecord = await prisma.inverter_data.findFirst({
+        where: {
+          projectId: pid,
+          inverter_id: Number(projectInverterId),
+        },
+        orderBy: { date: "desc" },
+        include: {
+          project: true,
+          inverter: true,
+        },
+      });
+
+      return res.status(200).json({
+        success: true,
+        single: true,
+        data: latestRecord || null,
+      });
+    }
+
+    // -------------------------
+    //  CASE 3: ONLY projectId → LATEST RECORD FOR ALL INVERTERS OF THAT PROJECT
+    // -------------------------
+
+    const projectInverters = await prisma.project_inverters.findMany({
+      where: { project_id: pid, is_deleted: 0 },
+    });
+
+    if (projectInverters.length === 0) {
+      return res.status(200).json({
+        success: true,
+        single: false,
+        count: 0,
+        data: [],
+        message: "No inverters found for this project",
+      });
+    }
+
+    const inverterIds = projectInverters.map((inv) => inv.inverter_id);
+
+    const latestRecords = await Promise.all(
+      inverterIds.map(async (invId) => {
+        return await prisma.inverter_data.findFirst({
+          where: {
+            projectId: pid,
+            inverter_id: invId,
+          },
+          orderBy: { date: "desc" },
+          include: {
+            project: true,
+            inverter: true,
+          },
+        });
+      })
+    );
+
+    const filtered = latestRecords.filter((rec) => rec !== null);
+
+    return res.status(200).json({
+      success: true,
+      single: false,
+      count: filtered.length,
+      data: filtered,
+    });
   } catch (error) {
     console.error("Error fetching latest inverter data:", error);
     return res.status(500).json({
