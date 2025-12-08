@@ -6,15 +6,38 @@ const router = express.Router();
 
 router.get("/", async (req, res) => {
   try {
-    // Include related Project and Inverter records
+    // Pagination parameters
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    // Get total count for pagination metadata
+    const totalCount = await prisma.inverter_data.count();
+
+    // Include related Project and Inverter records with pagination
     const inverterData = await prisma.inverter_data.findMany({
       orderBy: { date: "desc" },
       include: {
         project: true,
         inverter: true,
       },
+      skip: skip,
+      take: limit,
     });
-    res.status(200).json({ success: true, data: inverterData });
+
+    // Calculate pagination metadata
+    const totalPages = Math.ceil(totalCount / limit);
+
+    res.status(200).json({
+      success: true,
+      data: inverterData,
+      pagination: {
+        page,
+        limit,
+        total: totalCount,
+        pages: totalPages,
+      },
+    });
   } catch (error) {
     console.error("Error fetching inverter data:", error.message, error.stack);
     res.status(500).json({

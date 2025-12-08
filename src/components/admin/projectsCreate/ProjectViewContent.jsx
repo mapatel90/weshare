@@ -277,6 +277,8 @@ const ProjectViewContent = ({ projectId = '1' }) => {
               projectId={projectId}
               readings={filteredInverterData}
               loading={inverterLoading}
+              selectedInverterId={selectedInverterId}
+              projectInverters={projectInverters}
             />
           </div>
 

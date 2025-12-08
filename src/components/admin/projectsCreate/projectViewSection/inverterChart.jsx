@@ -145,6 +145,8 @@ const legendWrapperStyle = {
   alignItems: 'center',
   justifyContent: 'center',
   marginTop: '16px',
+  gap: '12px',
+  flexWrap: 'wrap',
 };
 
 const legendItemStyle = {
@@ -162,7 +164,8 @@ const legendDotStyle = {
   backgroundColor: '#f97316',
 };
 
-const PowerConsumptionDashboard = ({ projectId, readings = [], loading = false }) => {
+// Changed: support multiple inverter series & single inverter selection
+const PowerConsumptionDashboard = ({ projectId, readings = [], loading = false, selectedInverterId = '', projectInverters = [] }) => {
   const [selectedDateKey, setSelectedDateKey] = useState(null);
   const [viewType, setViewType] = useState('day');
 
@@ -208,7 +211,7 @@ const PowerConsumptionDashboard = ({ projectId, readings = [], loading = false }
       return availableDates[availableDates.length - 1];
     });
   }, [availableDates]);
- 
+
   const formatDate = (date) => {
     if (!date) return '-';
     return new Date(date).toLocaleDateString('en-GB', {
@@ -217,63 +220,121 @@ const PowerConsumptionDashboard = ({ projectId, readings = [], loading = false }
       year: 'numeric'
     }).replace(/\//g, '/');
   };
- 
+
   const handlePrevDay = () => {
     if (!selectedDateKey) return;
     const currentIndex = availableDates.indexOf(selectedDateKey);
     if (currentIndex > 0) setSelectedDateKey(availableDates[currentIndex - 1]);
   };
- 
+
   const handleNextDay = () => {
     if (!selectedDateKey) return;
     const currentIndex = availableDates.indexOf(selectedDateKey);
     if (currentIndex < availableDates.length - 1) setSelectedDateKey(availableDates[currentIndex + 1]);
   };
- 
+
   const handleExport = () => {
     alert('Export functionality would download the data as CSV/Excel');
   };
- 
-  const selectedDayData = useMemo(() => {
-    if (!selectedDateKey) return [];
+
+  // Helper: extract a stable inverter id from a reading (tries several common keys)
+  const getInverterId = (entry) => {
+    return String(entry?.inverter_id ?? entry?.inverterId ?? entry?.projectInverterId ?? entry?.project_inverter_id ?? entry?.project_inverterid ?? entry?.project_inverter_id ?? entry?.inverter?.id ?? 'unknown');
+  };
+
+  // Map inverter id to friendly name (from projectInverters if available)
+  const inverterNameFor = (invId) => {
+    const pi = projectInverters.find(p => String(p.inverter_id) === String(invId) || String(p.id) === String(invId));
+    if (pi) {
+      const inv = pi.inverter || {};
+      return inv.inverterName ? `${inv.inverterName} (S: ${pi.inverter_serial_number || 'N/A'})` : `Inverter ${pi.inverter_id || pi.id}`;
+    }
+    return `Inverter ${invId}`;
+  };
+
+  // palette for multiple inverter lines
+  const palette = ['#10B981', '#F59E0B', '#3B82F6', '#ef4444', '#8B5CF6', '#06B6D4', '#A78BFA'];
+
+  // Build chart data for the selected date. If no inverter selected => build multiple series.
+  const { chartData, seriesInfo } = useMemo(() => {
+    if (!selectedDateKey) return { chartData: [], seriesInfo: [] };
     const entries = readingsByDate[selectedDateKey] || [];
-    // normalize and keep power as Number (kW)
-    const points = entries
-      .map((entry) => {
+    if (!entries.length) return { chartData: [], seriesInfo: [] };
+
+    // group by inverter id
+    const perInv = entries.reduce((acc, e) => {
+      const invId = getInverterId(e);
+      if (!acc[invId]) acc[invId] = [];
+      acc[invId].push(e);
+      return acc;
+    }, {});
+
+    // If specific inverter selected, only keep that one
+    const inverterIds = selectedInverterId ? [String(selectedInverterId)] : Object.keys(perInv);
+
+    // Build all hourValues present across all inverters (as number: hour + minute/60)
+    const hourSet = new Set();
+
+    const invPoints = {};
+    inverterIds.forEach((invId) => {
+      const list = (perInv[invId] || []).map((entry) => {
         const normalizedTime = normalizeTimeLabel(entry.time);
         const { hour, minute } = extractHourMinute(entry.time);
         const hourValue = Number((hour + minute / 60).toFixed(2));
-        return {
-          time: normalizedTime,
-          displayTime: entry.time || normalizedTime,
-          hourValue,
-          // keep numeric value (kW) so recharts treats it as number
-          power: Number((pickPowerValue(entry) / 1000)),
-        };
-      })
-      .filter((point) => Boolean(point.time) && !Number.isNaN(point.hourValue))
-      .sort((a, b) => timeToMinutes(a.time) - timeToMinutes(b.time));
+        const powerKW = Number((pickPowerValue(entry) / 1000));
+        hourSet.add(hourValue);
+        return { hourValue, displayTime: entry.time || normalizedTime, power: powerKW };
+      }).sort((a, b) => a.hourValue - b.hourValue);
 
-    if (!points.length) return [];
+      // keep
+      invPoints[invId] = list;
+    });
 
-    // Ensure chart stays at 0 until the first actual reading:
-    // add a baseline point at the earliest x-axis tick (e.g. 2) with power 0,
-    // then append actual points. Use a step line to avoid a diagonal spike.
-    const startTick = xAxisTicks[0] ?? 2;
-    const baseline = { time: normalizeTimeLabel(`${Math.floor(startTick)}:00`), displayTime: null, hourValue: startTick, power: 0 };
+    // include xAxis baseline ticks as possible domain points
+    xAxisTicks.forEach(t => hourSet.add(t));
 
-    // If there's already a point at or before startTick, don't duplicate baseline
-    const filled = (points[0].hourValue > startTick) ? [baseline, ...points] : [...points];
+    const allHours = Array.from(hourSet).sort((a, b) => a - b);
 
-    // ensure sorted
-    return filled.sort((a, b) => a.hourValue - b.hourValue);
-  }, [readingsByDate, selectedDateKey]);
+    // Create merged objects where each inverter has a key p_${invId}
+    const data = allHours.map((hv) => {
+      const obj = { hourValue: hv };
+      // create displayTime from hv
+      const hh = Math.floor(hv);
+      const mm = Math.round((hv - hh) * 60);
+      const displayTime = `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`;
+      obj.displayTime = displayTime;
 
-  const isEmptyState = !loading && (!selectedDayData || !selectedDayData.length);
+      inverterIds.forEach(invId => {
+        const points = invPoints[invId] || [];
+        // find exact point with same hourValue (could be decimals) or nearest earlier one
+        const exact = points.find(p => Math.abs(p.hourValue - hv) < 0.01);
+        if (exact) {
+          obj[`p_${invId}`] = exact.power;
+        } else {
+          // default 0 to keep flat until the reading appears
+          obj[`p_${invId}`] = 0;
+        }
+      });
+
+      return obj;
+    });
+
+    // series info for rendering lines
+    const series = inverterIds.map((invId, idx) => ({
+      id: invId,
+      key: `p_${invId}`,
+      color: palette[idx % palette.length],
+      name: inverterNameFor(invId),
+    }));
+
+    return { chartData: data, seriesInfo: series };
+  }, [readingsByDate, selectedDateKey, selectedInverterId, projectInverters]);
+
+  const isEmptyState = !loading && (!chartData || !chartData.length);
 
   const tooltipLabelFormatter = (label, payload) => {
     const dateLabel = formatDate(selectedDateKey);
-    const displayTime = payload && payload.length ? payload[0]?.payload?.displayTime || label : label;
+    const displayTime = payload && payload.length ? payload[0]?.payload?.displayTime || (String(label)) : label;
     if (!dateLabel) return `Time: ${displayTime}`;
     return `${dateLabel} • ${displayTime || label}`;
   };
@@ -302,7 +363,7 @@ const PowerConsumptionDashboard = ({ projectId, readings = [], loading = false }
             <ChevronRight color="#4b5563" size={20} />
           </button>
         </div>
- 
+
         {/* View Type Buttons */}
         <div style={viewButtonsStyle}>
           {['day', 'month', 'year', 'total'].map((label) => (
@@ -319,17 +380,9 @@ const PowerConsumptionDashboard = ({ projectId, readings = [], loading = false }
               {label.charAt(0).toUpperCase() + label.slice(1)}
             </button>
           ))}
-          {/* <button
-            type="button"
-            onClick={handleExport}
-            style={{ ...buttonBaseStyle, display: 'flex', alignItems: 'center', gap: '8px', whiteSpace: 'nowrap' }}
-          >
-            <Download size={16} />
-            Export
-          </button> */}
         </div>
       </div>
- 
+
       {/* Chart */}
       <div style={{ width: '100%', height: 'calc(100vh - 180px)' }}>
         {loading ? (
@@ -344,7 +397,7 @@ const PowerConsumptionDashboard = ({ projectId, readings = [], loading = false }
           <>
             <ResponsiveContainer width="100%" height="100%">
               <LineChart
-                data={selectedDayData}
+                data={chartData}
                 margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
               >
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
@@ -374,28 +427,34 @@ const PowerConsumptionDashboard = ({ projectId, readings = [], loading = false }
                     borderRadius: '8px',
                     padding: '8px 12px'
                   }}
-                  // format numeric value and ensure 3 decimals
-                  formatter={(value) => [`${Number(value).toFixed(3)} kW`, 'Generated']}
+                  formatter={(value, name) => [`${Number(value).toFixed(3)} kW`, name]}
                   labelFormatter={tooltipLabelFormatter}
                 />
-                <Line
-                  // use a step line so chart stays flat at 0 until the first reading then jumps
-                  type="stepAfter"
-                  dataKey="power"
-                  stroke="#ff8c00"
-                  strokeWidth={2}
-                  dot={false}
-                  name="Total Power"
-                />
+
+                {/* Render series: if single inverter selected, seriesInfo will contain only that */}
+                {seriesInfo.map((s) => (
+                  <Line
+                    key={s.key}
+                    type="stepAfter"
+                    dataKey={s.key}
+                    stroke={s.color}
+                    strokeWidth={2}
+                    dot={false}
+                    name={s.name}
+                    isAnimationActive={false}
+                  />
+                ))}
               </LineChart>
             </ResponsiveContainer>
-        
+
             {/* Legend */}
             <div style={legendWrapperStyle}>
-              <div style={legendItemStyle}>
-                <div style={legendDotStyle}></div>
-                <span>Generated kW</span>
-              </div>
+              {seriesInfo.map(s => (
+                <div key={s.id} style={legendItemStyle}>
+                  <div style={{ ...legendDotStyle, backgroundColor: s.color }}></div>
+                  <span>{s.name}</span>
+                </div>
+              ))}
             </div>
           </>
         )}
@@ -403,5 +462,5 @@ const PowerConsumptionDashboard = ({ projectId, readings = [], loading = false }
     </div>
   );
 };
- 
+
 export default PowerConsumptionDashboard;

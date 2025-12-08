@@ -11,14 +11,19 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 
-const Table = ({ data, columns }) => {
+const Table = ({ data, columns, disablePagination = false, onPaginationChange, serverSideTotal = null, pageIndex: controlledPageIndex = null, pageSize: controlledPageSize = null }) => {
   // const [data] = useState([...Data])
   const [sorting, setSorting] = useState([]);
   const [globalFilter, setGlobalFilter] = useState("");
-  const [pagination, setPagination] = useState({
+  const [internalPagination, setInternalPagination] = useState({
     pageIndex: 0,
-    pageSize: 10,
+    pageSize: disablePagination ? Math.max(data?.length || 10, 10) : 10,
   });
+  
+  // Use controlled pagination if provided, otherwise use internal state
+  const pagination = controlledPageIndex !== null && controlledPageSize !== null
+    ? { pageIndex: controlledPageIndex, pageSize: controlledPageSize }
+    : internalPagination;
 
   const table = useReactTable({
     data,
@@ -34,8 +39,23 @@ const Table = ({ data, columns }) => {
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onGlobalFilterChange: setGlobalFilter,
-    getPaginationRowModel: getPaginationRowModel(),
-    onPaginationChange: setPagination,
+    manualPagination: disablePagination || (controlledPageIndex !== null),
+    pageCount: serverSideTotal !== null ? Math.ceil(serverSideTotal / pagination.pageSize) : undefined,
+    ...(disablePagination ? {} : {
+      ...(controlledPageIndex !== null ? {} : {
+        getPaginationRowModel: getPaginationRowModel(),
+      }),
+      onPaginationChange: (updater) => {
+        const newPagination = typeof updater === 'function' ? updater(pagination) : updater;
+        if (onPaginationChange) {
+          // Call parent callback with new pagination
+          onPaginationChange(newPagination);
+        } else {
+          // Use internal state if no callback provided
+          setInternalPagination(newPagination);
+        }
+      },
+    }),
   });
 
   return (
@@ -117,7 +137,7 @@ const Table = ({ data, columns }) => {
                 </div>
               </div>
 
-              <TablePagination table={table} />
+              {!disablePagination && <TablePagination table={table} serverSideTotal={serverSideTotal} />}
             </div>
           </div>
         </div>

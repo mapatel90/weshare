@@ -12,16 +12,28 @@ const SavingReports = () => {
     const [reportsData, setReportsData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [pagination, setPagination] = useState({
+        page: 1,
+        limit: 10,
+        total: 0,
+        pages: 0
+    });
 
     const { lang } = useLanguage();
 
     // -----------------------------
     // Fetch Reports Function
     // -----------------------------
-    const fetchReports = async () => {
+    const fetchReports = async (page = 1, limit = null) => {
         try {
             setLoading(true);
-            const res = await apiGet('/api/inverter-data');
+            const limitToUse = limit !== null ? limit : pagination.limit;
+            const params = new URLSearchParams({
+                page: page.toString(),
+                limit: limitToUse.toString(),
+            });
+            
+            const res = await apiGet(`/api/inverter-data?${params.toString()}`);
             
             const items = Array.isArray(res?.data) ? res.data : [];
 
@@ -48,6 +60,17 @@ const SavingReports = () => {
                 TotalYield: item.total_yield ?? '',
             }));
             setReportsData(mappedData);
+            
+            // Update pagination from API response
+            if (res?.pagination) {
+                setPagination({
+                    page: res.pagination.page,
+                    limit: res.pagination.limit,
+                    total: res.pagination.total,
+                    pages: res.pagination.pages,
+                });
+            }
+            
             setError(null);
         } catch (err) {
             setError(err?.message || "Failed to load reports");
@@ -59,15 +82,23 @@ const SavingReports = () => {
     // -----------------------------
     // Initial fetch + every 2 min refresh
     // -----------------------------
+    // Store current page in ref to avoid stale closure in interval
+    const currentPageRef = React.useRef(pagination.page);
+    
+    // Update ref when pagination changes
     useEffect(() => {
-        fetchReports(); // first time load
+        currentPageRef.current = pagination.page;
+    }, [pagination.page]);
+
+    useEffect(() => {
+        fetchReports(1); // first time load - always start from page 1
 
         const interval = setInterval(() => {
-            fetchReports();  // auto refresh every 2 min
+            fetchReports(currentPageRef.current);  // auto refresh every 2 min with current page
         }, 120000); // 120000 = 2 minutes
 
         return () => clearInterval(interval); // cleanup
-    }, []);
+    }, []); // Only run on mount
 
     // -----------------------------
     // Dropdown Options
@@ -97,7 +128,7 @@ const SavingReports = () => {
     }, [projectFilter, reportsData, inverterFilter]);
 
     // -----------------------------
-    // Filtered Data
+    // Filtered Data (client-side filtering on current page)
     // -----------------------------
     const filteredData = useMemo(() => {
         return reportsData.filter(d => {
@@ -106,6 +137,25 @@ const SavingReports = () => {
             return true;
         });
     }, [projectFilter, inverterFilter, reportsData]);
+
+    // -----------------------------
+    // Handle Pagination Change from Table
+    // -----------------------------
+    const handlePaginationChange = (newPagination) => {
+        const newPage = newPagination.pageIndex + 1; // Convert 0-based to 1-based
+        const newLimit = newPagination.pageSize;
+        
+        // If page size changed, reset to page 1, otherwise use new page
+        const pageToFetch = (newLimit !== pagination.limit) ? 1 : newPage;
+        
+        // Fetch with new pagination - API response will update state
+        if (pageToFetch >= 1) {
+            fetchReports(pageToFetch, newLimit);
+        }
+        
+        // Scroll to top of table
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
 
     // -----------------------------
     // CSV Download
@@ -210,7 +260,15 @@ const SavingReports = () => {
                 ) : filteredData.length === 0 ? (
                     <div className="text-center py-6 text-gray-600">{lang("common.noData")}</div>
                 ) : (
-                    <Table data={filteredData} columns={columns} />
+                    <Table 
+                        data={filteredData} 
+                        columns={columns} 
+                        disablePagination={false}
+                        onPaginationChange={handlePaginationChange}
+                        serverSideTotal={pagination.total}
+                        pageIndex={pagination.page - 1} // Convert 1-based to 0-based
+                        pageSize={pagination.limit}
+                    />
                 )}
             </div>
 
