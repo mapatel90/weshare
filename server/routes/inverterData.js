@@ -12,11 +12,14 @@ router.get("/", async (req, res) => {
     const skip = (page - 1) * limit;
 
     // Get total count for pagination metadata
-    const totalCount = await prisma.inverter_data.count();
+    const totalCount = await prisma.inverter_data.count({
+      distinct: ["inverter_id", "date"], // unique rows
+    });
 
     // Include related Project and Inverter records with pagination
     const inverterData = await prisma.inverter_data.findMany({
       orderBy: { date: "desc" },
+      distinct: ["inverter_id", "date"], // prevents duplicate records
       include: {
         project: true,
         inverter: true,
