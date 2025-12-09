@@ -106,7 +106,7 @@ const LoginForm = ({ registerPath, resetPath }) => {
                 } else if (result.user?.role === 4) {
                     window.location.href = '/investor/dashboard';
                 } else {
-                    window.location.href = '/admin/dashboards/analytics';
+                    window.location.href = '/admin/dashboards';
                 }
             }
         } else {

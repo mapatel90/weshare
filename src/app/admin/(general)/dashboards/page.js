@@ -10,6 +10,7 @@ import VisitorsOverviewChart from '@/components/widgetsCharts/VisitorsOverviewCh
 import SocialMediaStatisticsChart from '@/components/widgetsCharts/SocialMediaStatisticsChart'
 import MarketingChart from '@/components/widgetsCharts/MarketingChart'
 import Footer from '@/components/shared/Footer'
+import StatsCardOverview from '@/components/admin/dashboard/StatsCardOverview'
 
 
 const page = () => {
@@ -20,7 +21,7 @@ const page = () => {
             </PageHeader>
             <div className='main-content'>
                 <div className='row'>
-                    <EmailOverview />
+                    <StatsCardOverview />
                     <VisitorsOverviewChart />
                     <Browser title={"Browser States"} />
                     <SiteOverviewChart />
