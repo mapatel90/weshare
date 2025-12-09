@@ -63,7 +63,7 @@ router.post('/', authenticateToken, async (req, res) => {
       data: {
         project_id: parseInt(project_id),
         inverter_id: parseInt(inverter_id),
-        kilowatt: String(kilowatt),
+        kilowatt: parseFloat(kilowatt),
         inverter_serial_number: inverter_serial_number || null,
         status: parseInt(status),
       }
@@ -86,7 +86,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
       where: { id: parseInt(id) },
       data: {
         inverter_id: parseInt(inverter_id),
-        kilowatt: String(kilowatt),
+        kilowatt: parseFloat(kilowatt),
         inverter_serial_number: inverter_serial_number || null,
         status: parseInt(status),
       }
