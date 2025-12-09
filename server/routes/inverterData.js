@@ -13,7 +13,7 @@ router.get("/", async (req, res) => {
       project: { is_deleted: 0 },
     };
     // Get total count for pagination metadata
-    const totalCount = await prisma.inverter_data.count({
+    const totalCounts = await prisma.inverter_data.count({
       distinct: ["inverter_id", "date"], // unique rows
     });
 
