@@ -110,8 +110,8 @@ const StatCardsGrid = ({
   } else {
     dailyYieldValue = '-'
     dailyYieldSubtitle = isInverterSelected
-      ? 'No data available for selected inverter'
-      : 'No data available'
+      ? 'No revenue available for selected inverter'
+      : 'No revenue available'
   }
 
   // Determine total yield
@@ -128,8 +128,8 @@ const StatCardsGrid = ({
   } else {
     totalYieldValue = '-'
     totalYieldSubtitle = isInverterSelected
-      ? 'No data available for selected inverter'
-      : 'No data available'
+      ? 'No revenue available for selected inverter'
+      : 'No revenue available'
   }
 
   return (
@@ -137,8 +137,8 @@ const StatCardsGrid = ({
       <StatCard
         icon={Sun}
         title="Capacity"
-        value={(project?.price_kwh !== undefined ? formatNumber(project.price_kwh) : '-')}
-        subtitle="Capacity Price per kWh"
+        value={(project?.price_kwh !== undefined ? formatNumber(project.price_kwh) : '-') + ' kWh'}
+        subtitle="Capacity price per kWh"
         color="linear-gradient(to bottom right, #fbbf24, #f97316)"
         trend={null}
       />
@@ -168,7 +168,7 @@ const StatCardsGrid = ({
               ? `$${formatNumber(project.revenue)}`
               : '-'
         }
-        subtitle="This month (Project Level)"
+        subtitle="Total revenue generated"
         color="linear-gradient(to bottom right, #a855f7, #ec4899)"
         trend={project?.revenue_trend ?? null}
       />
