@@ -56,6 +56,7 @@ const ProjectEditContent = ({ projectId }) => {
         project_size: '',
         project_close_date: '',
         project_location: '',
+        price_kwh: '',
         status: ''
     })
     const [projectTypes, setProjectTypes] = useState([])
@@ -238,6 +239,7 @@ const ProjectEditContent = ({ projectId }) => {
                         project_size: p.project_size || '',
                         project_close_date: p.project_close_date ? new Date(p.project_close_date).toISOString().split('T')[0] : '',
                         project_location: p.project_location || '',
+                        price_kwh: p.price_kwh !== undefined && p.price_kwh !== null ? String(p.price_kwh) : '',
                         solis_plant_id: p.solis_plant_id || '', // ← add Solis Plant ID into form
                         status: p.status === 1 ? 'active' : 'inactive'
                     })

@@ -111,6 +111,7 @@ app.use("/api/investors", investerRoutes);
 app.use("/api/contracts", contractRoutes);
 app.use("/api/cron", cronRoutes);
 app.use("/api/inverter-data", inverterDataRoutes);
+app.use("/api/projectInverters", projectInvertersRoutes);
 
 // 404 handler
 app.use((req, res) => {

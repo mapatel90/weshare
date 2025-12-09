@@ -267,6 +267,24 @@ const ProjectForm = ({
             <div className="col-md-3 mb-3">
               <TextField
                 fullWidth
+                label={lang("projects.priceKwh", "Price (kWh)")}
+                name="price_kwh"
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">kWh</InputAdornment>
+                  ),
+                }}
+                value={formData.price_kwh || ""}
+                onChange={handleInputChange}
+                inputMode="decimal"
+                placeholder={lang("projects.priceKwhPlaceholder", "Enter price per kWh")}
+                error={!!error.price_kwh}
+                helperText={error.price_kwh}
+              />
+            </div>
+            <div className="col-md-3 mb-3">
+              <TextField
+                fullWidth
                 type="date"
                 label={lang("projects.projectCloseDate", "Project Close Date")}
                 name="project_close_date"
@@ -277,7 +295,7 @@ const ProjectForm = ({
                 helperText={error.project_close_date}
               />
             </div>
-            <div className="col-md-6 mb-3">
+            <div className="col-md-3 mb-3">
               <TextField
                 fullWidth
                 label={lang("projects.projectLocation", "Project Location")}
