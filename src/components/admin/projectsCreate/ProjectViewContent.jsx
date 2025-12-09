@@ -96,7 +96,7 @@ const ProjectViewContent = ({ projectId = '1' }) => {
     const load = async () => {
       try {
         setInverterLoading(true)
-        const res = await apiGet('/api/inverter-data')
+        const res = await apiGet('/api/inverter-data/project-invert-chart')
         setInverterData(res?.success ? res.data : [])
       } finally {
         setInverterLoading(false)
