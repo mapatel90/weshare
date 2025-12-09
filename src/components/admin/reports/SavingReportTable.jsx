@@ -7,14 +7,17 @@ import { useLanguage } from '@/contexts/LanguageContext';
 
 const SavingReports = () => {
 
-    const [projectFilter, setProjectFilter] = useState('');
-    const [inverterFilter, setInverterFilter] = useState('');
+    const FETCH_LIMIT = 50; // always fetch latest 50 from server
+    const PAGE_SIZE = 10;   // always show 10 rows per table page
+
+    const [projectFilter, setProjectFilter] = useState(''); // store projectId (string)
+    const [inverterFilter, setInverterFilter] = useState(''); // store inverterId (string)
     const [reportsData, setReportsData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [pagination, setPagination] = useState({
         page: 1,
-        limit: 10,
+        limit: PAGE_SIZE,
         total: 0,
         pages: 0
     });
@@ -22,32 +25,27 @@ const SavingReports = () => {
     const { lang } = useLanguage();
 
     // -----------------------------
-    // Fetch Reports Function
+    // Fetch Reports Function (always fetch latest 50)
     // -----------------------------
-    const fetchReports = async (page = 1, limit = null) => {
+    const fetchReports = async () => {
         try {
             setLoading(true);
-            const limitToUse = limit !== null ? limit : pagination.limit;
+
             const params = new URLSearchParams({
-                page: page.toString(),
-                limit: limitToUse.toString(),
+                page: '1', // server returns latest set
+                limit: FETCH_LIMIT.toString(),
             });
-            
+
             const res = await apiGet(`/api/inverter-data?${params.toString()}`);
-            
+
             const items = Array.isArray(res?.data) ? res.data : [];
 
             const mappedData = items.map(item => ({
                 id: item.id,
-                projectName:
-                    item.project?.name ||
-                    item.project?.project_name ||
-                    item.project?.title ||
-                    `Project ${item.projectId}`,
-                inverterName:
-                    item.inverter?.name ||
-                    item.inverter?.inverterName ||
-                    `Inverter ${item.inverter_id ?? ''}`,
+                projectId: (item.projectId ?? item.project_id) ?? null,
+                inverterId: (item.inverterId ?? item.inverter_id) ?? null,
+                projectName: item.project?.project_name || `Project ${item.projectId ?? item.project_id ?? ''}`,
+                inverterName: item.inverter?.inverterName || `Inverter ${item.inverterId ?? item.inverter_id ?? ''}`,
                 date: item.date,
                 time: item.time ?? "",
                 generatedKW:
@@ -60,17 +58,18 @@ const SavingReports = () => {
                 TotalYield: item.total_yield ?? '',
             }));
             setReportsData(mappedData);
-            
-            // Update pagination from API response
-            if (res?.pagination) {
-                setPagination({
-                    page: res.pagination.page,
-                    limit: res.pagination.limit,
-                    total: res.pagination.total,
-                    pages: res.pagination.pages,
-                });
-            }
-            
+
+            // Update pagination: total = min(api total, FETCH_LIMIT)
+            const apiTotal = res?.pagination?.total ?? mappedData.length;
+            const total = Math.min(apiTotal, FETCH_LIMIT);
+
+            setPagination({
+                page: 1,
+                limit: PAGE_SIZE,
+                total,
+                pages: Math.max(1, Math.ceil(total / PAGE_SIZE))
+            });
+
             setError(null);
         } catch (err) {
             setError(err?.message || "Failed to load reports");
@@ -80,47 +79,45 @@ const SavingReports = () => {
     };
 
     // -----------------------------
-    // Initial fetch + every 2 min refresh
+    // Initial fetch + refresh
     // -----------------------------
-    // Store current page in ref to avoid stale closure in interval
-    const currentPageRef = React.useRef(pagination.page);
-    
-    // Update ref when pagination changes
     useEffect(() => {
-        currentPageRef.current = pagination.page;
-    }, [pagination.page]);
-
-    useEffect(() => {
-        fetchReports(1); // first time load - always start from page 1
+        fetchReports();
 
         const interval = setInterval(() => {
-            fetchReports(currentPageRef.current);  // auto refresh every 2 min with current page
-        }, 120000); // 120000 = 2 minutes
+            fetchReports();
+        }, 120000); // 2 minutes
 
-        return () => clearInterval(interval); // cleanup
-    }, []); // Only run on mount
+        return () => clearInterval(interval);
+    }, []);
 
     // -----------------------------
-    // Dropdown Options
+    // Dropdown Options (from fetched 50)
     // -----------------------------
-    const projects = useMemo(
-        () => Array.from(new Set(reportsData.map(d => d.projectName))).filter(Boolean),
-        [reportsData]
-    );
+    const projects = useMemo(() => {
+        const map = new Map();
+        reportsData.forEach(d => {
+            if (d.projectId) map.set(String(d.projectId), d.projectName);
+        });
+        return Array.from(map.entries()).map(([id, name]) => ({ id, name }));
+    }, [reportsData]);
 
     const inverters = useMemo(() => {
-        const list = reportsData
-            .filter(d => !projectFilter || d.projectName === projectFilter)
-            .map(d => d.inverterName);
-        return Array.from(new Set(list)).filter(Boolean);
+        const map = new Map();
+        reportsData
+            .filter(d => !projectFilter || String(d.projectId) === projectFilter)
+            .forEach(d => {
+                if (d.inverterId) map.set(String(d.inverterId), d.inverterName);
+            });
+        return Array.from(map.entries()).map(([id, name]) => ({ id, name }));
     }, [reportsData, projectFilter]);
 
     // Reset inverter if not valid for selected project
     useEffect(() => {
         const available = new Set(
             reportsData
-                .filter(d => !projectFilter || d.projectName === projectFilter)
-                .map(d => d.inverterName)
+                .filter(d => !projectFilter || String(d.projectId) === projectFilter)
+                .map(d => String(d.inverterId))
         );
         if (inverterFilter && !available.has(inverterFilter)) {
             setInverterFilter('');
@@ -128,37 +125,18 @@ const SavingReports = () => {
     }, [projectFilter, reportsData, inverterFilter]);
 
     // -----------------------------
-    // Filtered Data (client-side filtering on current page)
+    // Filtered Data (client-side filtering on fetched 50)
     // -----------------------------
     const filteredData = useMemo(() => {
         return reportsData.filter(d => {
-            if (projectFilter && d.projectName !== projectFilter) return false;
-            if (inverterFilter && d.inverterName !== inverterFilter) return false;
+            if (projectFilter && String(d.projectId) !== projectFilter) return false;
+            if (inverterFilter && String(d.inverterId) !== inverterFilter) return false;
             return true;
         });
     }, [projectFilter, inverterFilter, reportsData]);
 
     // -----------------------------
-    // Handle Pagination Change from Table
-    // -----------------------------
-    const handlePaginationChange = (newPagination) => {
-        const newPage = newPagination.pageIndex + 1; // Convert 0-based to 1-based
-        const newLimit = newPagination.pageSize;
-        
-        // If page size changed, reset to page 1, otherwise use new page
-        const pageToFetch = (newLimit !== pagination.limit) ? 1 : newPage;
-        
-        // Fetch with new pagination - API response will update state
-        if (pageToFetch >= 1) {
-            fetchReports(pageToFetch, newLimit);
-        }
-        
-        // Scroll to top of table
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    };
-
-    // -----------------------------
-    // CSV Download
+    // CSV Download (exports filtered set from the 50)
     // -----------------------------
     const handleDownloadCSV = () => {
         const header = [
@@ -232,7 +210,7 @@ const SavingReports = () => {
                     className="theme-btn-blue-color border rounded-md px-3 py-2 mx-2 text-sm"
                 >
                     <option value="">{lang("reports.allprojects")}</option>
-                    {projects.map(p => <option key={p} value={p}>{p}</option>)}
+                    {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
                 </select>
 
                 <select
@@ -241,7 +219,7 @@ const SavingReports = () => {
                     className="theme-btn-blue-color border rounded-md px-3 py-2 me-2 text-sm"
                 >
                     <option value="">{lang("reports.allinverters")}</option>
-                    {inverters.map(i => <option key={i} value={i}>{i}</option>)}
+                    {inverters.map(i => <option key={i.id} value={i.id}>{i.name}</option>)}
                 </select>
 
                 <button
@@ -260,14 +238,13 @@ const SavingReports = () => {
                 ) : filteredData.length === 0 ? (
                     <div className="text-center py-6 text-gray-600">{lang("common.noData")}</div>
                 ) : (
+                    // Pass the filtered 50-record set to Table so global search applies across all 50.
+                    // Table will handle client-side pagination (10 rows per page).
                     <Table 
                         data={filteredData} 
                         columns={columns} 
                         disablePagination={false}
-                        onPaginationChange={handlePaginationChange}
-                        serverSideTotal={pagination.total}
-                        pageIndex={pagination.page - 1} // Convert 1-based to 0-based
-                        pageSize={pagination.limit}
+                        serverSideTotal={pagination.total} // always show total as capped 50
                     />
                 )}
             </div>

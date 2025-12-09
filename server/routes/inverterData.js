@@ -6,36 +6,39 @@ const router = express.Router();
 
 router.get("/", async (req, res) => {
   try {
-    // Pagination parameters
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const skip = (page - 1) * limit;
+    const MAX_LIMIT = 50;
 
-    // Get total count for pagination metadata
-    const totalCount = await prisma.inverter_data.count();
+    // Only return latest MAX_LIMIT records (overall). Ignore page from client.
+    const where = {
+      project: { is_deleted: 0 },
+    };
 
-    // Include related Project and Inverter records with pagination
+    // total count of active records
+    const totalCount = await prisma.inverter_data.count({ where });
+
+    // fetch latest up to MAX_LIMIT
     const inverterData = await prisma.inverter_data.findMany({
+      where,
       orderBy: { date: "desc" },
       include: {
         project: true,
         inverter: true,
       },
-      skip: skip,
-      take: limit,
+      skip: 0,
+      take: MAX_LIMIT,
     });
 
-    // Calculate pagination metadata
-    const totalPages = Math.ceil(totalCount / limit);
+    const returnedCount = Math.min(totalCount, MAX_LIMIT);
+    const pageSize = 10; // frontend will show 10 per page
 
     res.status(200).json({
       success: true,
       data: inverterData,
       pagination: {
-        page,
-        limit,
-        total: totalCount,
-        pages: totalPages,
+        page: 1,
+        limit: MAX_LIMIT,
+        total: returnedCount, // show total as max 50
+        pages: Math.max(1, Math.ceil(returnedCount / pageSize)),
       },
     });
   } catch (error) {
@@ -50,8 +53,11 @@ router.get("/", async (req, res) => {
 
 router.get("/project-invert-chart", async (req, res) => {
   try {
-    // Include related Project and Inverter records
+    // Include related Project and Inverter records (only projects with is_deleted = 0)
     const inverterData = await prisma.inverter_data.findMany({
+      where: {
+        project: { is_deleted: 0 },
+      },
       orderBy: { date: "desc" },
       include: {
         project: true,
@@ -92,7 +98,7 @@ router.get("/latest", async (req, res) => {
         });
       }
 
-      // For each project_inverters record, fetch latest inverter_data
+      // For each project_inverters record, fetch latest inverter_data (only if related project is not deleted)
       const latestRecords = await Promise.all(
         projectInverters.map(async (pi) => {
           return await prisma.inverter_data.findFirst({
@@ -129,6 +135,7 @@ router.get("/latest", async (req, res) => {
         where: {
           projectId: pid,
           inverter_id: Number(projectInverterId),
+          project: { is_deleted: 0 },
         },
         orderBy: { date: "desc" },
         include: {
@@ -170,6 +177,7 @@ router.get("/latest", async (req, res) => {
           where: {
             projectId: pid,
             inverter_id: invId,
+            project: { is_deleted: 0 },
           },
           orderBy: { date: "desc" },
           include: {

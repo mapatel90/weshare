@@ -866,6 +866,17 @@ router.delete("/:id", authenticateToken, async (req, res) => {
       where: { projectId },
     });
 
+    // Delete inverter_data rows for this project
+    await prisma.inverter_data.deleteMany({
+      where: { projectId },
+    });
+
+    // Soft-delete project_inverters rows for this project (mark soft_delete = 1)
+    await prisma.project_inverters.updateMany({
+      where: { project_id: projectId },
+      data: { is_deleted: 1 },
+    });
+
     // Soft-delete project (keep behaviour as before)
     await prisma.project.update({
       where: { id: projectId },

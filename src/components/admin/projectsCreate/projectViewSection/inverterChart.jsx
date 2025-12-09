@@ -400,7 +400,7 @@ const PowerConsumptionDashboard = ({ projectId, readings = [], loading = false, 
                 data={chartData}
                 margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
               >
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <CartesianGrid strokeDasharray="4 4" stroke="#f0f0f0" />
                 <XAxis
                   dataKey="hourValue"
                   type="number"
@@ -435,13 +435,20 @@ const PowerConsumptionDashboard = ({ projectId, readings = [], loading = false, 
                 {seriesInfo.map((s) => (
                   <Line
                     key={s.key}
-                    type="stepAfter"
+                    type="linear"
                     dataKey={s.key}
                     stroke={s.color}
-                    strokeWidth={2}
+                    strokeWidth={2.5}
                     dot={false}
                     name={s.name}
+                    activeDot={{ r: 5 }}
                     isAnimationActive={false}
+                    connectNulls={false}
+                    // explicitly disable any area fill that can appear with multiple series
+                    fill="none"
+                    fillOpacity={0}
+                    strokeOpacity={0.95}
+                    legendType="line"
                   />
                 ))}
               </LineChart>
