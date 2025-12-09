@@ -413,6 +413,7 @@ const ProjectEditContent = ({ projectId }) => {
                 project_size: formData.project_size || '',
                 project_close_date: formData.project_close_date || null,
                 project_location: formData.project_location || '',
+                price_kwh: formData.price_kwh && formData.price_kwh !== '' ? parseFloat(formData.price_kwh) : null,
                 solis_plant_id: formData.solis_plant_id || '', // ← include when updating
                 status: formData.status === 'active' ? 1 : 0
             }
