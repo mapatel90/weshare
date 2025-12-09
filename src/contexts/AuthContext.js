@@ -136,15 +136,6 @@ export default function AuthProvider({ children }) {
         // Cache user data
         localStorage.setItem('cachedUser', JSON.stringify(transformedUser))
 
-        // Redirect to dashboard
-        // if (transformedUser.role === 3) {
-        //   router.push('/offtaker/dashboard')
-        // } else if (transformedUser.role === 4) {
-        //   router.push('/investor/dashboard')
-        // } else {
-        //   router.push('/admin/dashboards/analytics')
-        // }
-
         return { success: true, message: data.message, user: transformedUser }
       } else {
         console.log('❌ Login failed:', data.message)

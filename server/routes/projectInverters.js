@@ -3,6 +3,31 @@ import prisma from '../utils/prisma.js';
 import { authenticateToken } from '../middleware/auth.js';
 
 const router = express.Router();
+// Get inverter counts (active/total) for all projects
+router.get('/counts', authenticateToken, async (req, res) => {
+  try {
+    // Get all project IDs
+    const projects = await prisma.project.findMany({
+      where: { is_deleted: 0 },
+      select: { id: true }
+    });
+
+    // For each project, get inverter counts
+    const counts = await Promise.all(projects.map(async (project) => {
+      const total = await prisma.project_inverters.count({
+        where: { project_id: project.id, is_deleted: 0 }
+      });
+      const active = await prisma.project_inverters.count({
+        where: { project_id: project.id, is_deleted: 0, status: 1 }
+      });
+      return { project_id: project.id, total, active };
+    }));
+
+    res.json({ success: true, data: counts });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Server error', error: error.message });
+  }
+});
 
 // List project_inverters for a specific projectId, except soft-deleted
 router.get('/', authenticateToken, async (req, res) => {

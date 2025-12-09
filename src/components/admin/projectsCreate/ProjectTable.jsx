@@ -49,6 +49,7 @@ const ProjectTable = () => {
   const { lang } = useLanguage();
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [inverterCounts, setInverterCounts] = useState([]);
 
   // helper to call server cron -> /stationdetail
   const fetchStationDetail = async (plantId) => {
@@ -71,23 +72,31 @@ const ProjectTable = () => {
   const fetchProjects = async () => {
     try {
       setLoading(true);
+      // Fetch projects
       const res = await apiGet("/api/projects?page=1&limit=20");
+      // Fetch inverter counts
+      const countsRes = await apiGet("/api/projectInverters/counts");
+      if (countsRes?.success) {
+        setInverterCounts(countsRes.data || []);
+      }
       if (res?.success) {
         const projects = res.data.projects || [];
-
         // For projects that have solis_plant_id, fetch station detail and attach it
         const projectsWithDetails = await Promise.all(
           projects.map(async (p) => {
             if (p?.solis_plant_id) {
               const detail = await fetchStationDetail(p.solis_plant_id);
-
               return { ...p, solisStationDetail: detail };
             }
             return p;
           })
         );
-
-        setData(projectsWithDetails);
+        // Merge inverter counts
+        const projectsWithCounts = projectsWithDetails.map((p) => {
+          const count = countsRes?.data?.find((c) => c.project_id === p.id);
+          return { ...p, inverterCount: count ? `${count.active}/${count.total}` : "0/0" };
+        });
+        setData(projectsWithCounts);
       }
     } catch (err) {
       console.error("Fetch projects failed:", err);
@@ -134,6 +143,11 @@ const ProjectTable = () => {
       cell: (info) => info.getValue() || "-",
     },
     {
+      accessorKey: "inverterCount",
+      header: () => "Inverters",
+      cell: (info) => info.getValue() || "-",
+    },
+    {
       accessorKey: "projectType.type_name",
       header: () => lang("projects.projectType", "Project Type"),
       cell: (info) => info.row.original.projectType?.type_name || "-",
@@ -164,32 +178,32 @@ const ProjectTable = () => {
       },
     },
     {
-  accessorKey: "solis_status",
-  header: () => "Solis Status",
-  cell: ({ row }) => {
-    const detail = row.original.solisStationDetail;
+      accessorKey: "solis_status",
+      header: () => "Solis Status",
+      cell: ({ row }) => {
+        const detail = row.original.solisStationDetail;
 
-    let label = "-";
-    let color = "secondary";
+        let label = "-";
+        let color = "secondary";
 
-    if (detail === 1) {
-      label = "Online";
-      color = "success";
-    } else if (detail === 2) {
-      label = "Offline";
-      color = "danger";
-    } else if (detail === 3) {
-      label = "Alarm";
-      color = "warning";
-    }
+        if (detail === 1) {
+          label = "Online";
+          color = "success";
+        } else if (detail === 2) {
+          label = "Offline";
+          color = "danger";
+        } else if (detail === 3) {
+          label = "Alarm";
+          color = "warning";
+        }
 
-    return (
-      <span className={`badge bg-soft-${color} text-${color}`}>
-        {label}
-      </span>
-    );
-  },
-},
+        return (
+          <span className={`badge bg-soft-${color} text-${color}`}>
+            {label}
+          </span>
+        );
+      },
+    },
     {
       accessorKey: "offtaker",
       header: () => lang("projects.selectOfftaker", "Offtaker"),

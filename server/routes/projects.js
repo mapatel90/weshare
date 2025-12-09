@@ -189,6 +189,7 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
       project_close_date,
       project_location,
       start_date,
+      price_kwh,
       status = 1,
     } = req.body;
 
@@ -237,6 +238,7 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
           : null,
         project_start_date: start_date ? new Date(start_date) : null,
         project_location: project_location || "",
+        price_kwh: price_kwh || "",
         status: parseInt(status),
       },
       include: {
@@ -682,6 +684,7 @@ router.put("/:id", authenticateToken, async (req, res) => {
       project_size,
       project_close_date,
       project_location,
+      price_kwh,
       status,
       solis_plant_id,
     } = req.body;
@@ -736,6 +739,7 @@ router.put("/:id", authenticateToken, async (req, res) => {
         project_location: project_location || "",
       }),
       ...(status !== undefined && { status: parseInt(status) }),
+      ...(price_kwh !== undefined && { price_kwh: price_kwh || "" }),
     };
 
     if (project_slug !== undefined) {

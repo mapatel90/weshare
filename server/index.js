@@ -8,6 +8,7 @@ import path, { dirname, join } from "path";
 
 // Import routes
 import authRoutes from "./routes/auth.js";
+import dashboardRoutes from "./routes/dashboard.js";
 import userRoutes from "./routes/users.js";
 import roleRoutes from "./routes/roles.js";
 import locationRoutes from "./routes/locations.js";
@@ -89,6 +90,7 @@ app.use((req, res, next) => {
 
 // API Routes
 app.use("/api/auth", authRoutes);
+app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/roles", roleRoutes);
 app.use("/api/locations", locationRoutes);
@@ -109,6 +111,7 @@ app.use("/api/investors", investerRoutes);
 app.use("/api/contracts", contractRoutes);
 app.use("/api/cron", cronRoutes);
 app.use("/api/inverter-data", inverterDataRoutes);
+app.use("/api/projectInverters", projectInvertersRoutes);
 
 // 404 handler
 app.use((req, res) => {

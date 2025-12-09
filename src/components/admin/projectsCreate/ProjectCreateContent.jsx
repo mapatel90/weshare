@@ -9,7 +9,7 @@ const ProjectCreateContent = () => {
         projectType: "",
         projectManage: "",
         project_name: '',
-        project_type: '',
+        project_type_id: '',
         offtaker: '',
         address1: '',
         address2: '',
@@ -24,6 +24,7 @@ const ProjectCreateContent = () => {
         project_size: '',
         project_close_date: '',
         project_location: '',
+        price_kwh: '',
         status: 'active'
     });
 

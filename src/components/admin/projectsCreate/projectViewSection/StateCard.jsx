@@ -78,6 +78,7 @@ const StatCardsGrid = ({
 }) => {
   // If an inverter is selected, show its data; otherwise show project-level data
   const isInverterSelected = !!selectedInverterId
+  const projectPriceKwh = project?.price_kwh
   const hasAggregatedData = Array.isArray(inverterLatest)
   const dailyYieldMetric = getAggregatedMetric(inverterLatest, 'daily_yield')
   const totalYieldMetric = getAggregatedMetric(inverterLatest, 'total_yield')
@@ -91,13 +92,21 @@ const StatCardsGrid = ({
   let dailyYieldValue, dailyYieldSubtitle
   if (inverterLatestLoading) {
     dailyYieldValue = 'Loading...'
-    dailyYieldSubtitle = `Loading ${isInverterSelected ? 'inverter' : 'project'} data...`
+      dailyYieldSubtitle = `Loading ${isInverterSelected ? 'inverter' : 'project'} data...`
   } else if (dailyYieldMetric !== null) {
     dailyYieldValue = `${formatNumber(dailyYieldMetric)} kWh`
-    dailyYieldSubtitle = `Energy produced today (${contextLabel})`
+      let monetaryValue = null
+      if (projectPriceKwh !== undefined && projectPriceKwh !== null && dailyYieldMetric !== null) {
+        monetaryValue = dailyYieldMetric * projectPriceKwh
+      }
+      dailyYieldSubtitle = (monetaryValue !== null ? ` • Revenue: VND ${formatNumber(monetaryValue)}` : '')
   } else if (!isInverterSelected && project?.daily_yield !== undefined && project?.daily_yield !== null) {
     dailyYieldValue = `${formatNumber(project.daily_yield)} kWh`
-    dailyYieldSubtitle = 'Energy produced today (Project)'
+      let monetaryValue = null
+      if (projectPriceKwh !== undefined && projectPriceKwh !== null && project.daily_yield !== null) {
+        monetaryValue = project.daily_yield * projectPriceKwh
+      }
+      dailyYieldSubtitle = (monetaryValue !== null ? ` • Revenue: VND ${formatNumber(monetaryValue)}` : '')
   } else {
     dailyYieldValue = '-'
     dailyYieldSubtitle = isInverterSelected
@@ -127,9 +136,9 @@ const StatCardsGrid = ({
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 16, marginBottom: 24 }}>
       <StatCard
         icon={Sun}
-        title="Total Contracts"
-        value={contractsLoading ? 'Loading...' : (Array.isArray(contracts) ? formatNumber(contracts.length) : '-')}
-        subtitle="Number of contracts for this project"
+        title="Capacity"
+        value={(project?.price_kwh !== undefined ? formatNumber(project.price_kwh) : '-')}
+        subtitle="Capacity Price per kWh"
         color="linear-gradient(to bottom right, #fbbf24, #f97316)"
         trend={null}
       />

@@ -193,6 +193,7 @@ model Project {
   project_start_date DateTime?
   project_close_date DateTime?
   project_location String?   @db.VarChar(500)
+  price_kwh        Float?   
   status           Int       @default(0)
   is_deleted       Int       @default(0)
   createdAt        DateTime  @default(now()) @map("created_at")
@@ -230,7 +231,7 @@ model Project_inverters {
   id           Int       @id @default(autoincrement())
   project_id   Int
   inverter_id  Int
-  kilowatt     Float?    @db.VarChar(255)
+  kilowatt     Float? 
   inverter_serial_number String?  @db.VarChar(255)
   status       Int       @default(0)
   is_deleted   Int       @default(0)
