@@ -7,43 +7,113 @@ const router = express.Router();
 router.get("/", async (req, res) => {
   try {
     const MAX_LIMIT = 50;
+    const { projectId, inverterId, search, downloadAll } = req.query;
 
-    // Only return latest MAX_LIMIT records (overall). Ignore page from client.
-    const where = {
+    const fetchAll = downloadAll === "1" || downloadAll === "true";
+
+    // Build the base where clause based on filters
+    let where = {
       project: { is_deleted: 0 },
     };
 
-    // removed invalid distinct count (Prisma count() doesn't accept `distinct`)
-    // const totalCounts = await prisma.inverter_data.count({
-    //   distinct: ["inverter_id", "date"], // unique rows
-    // });
+    if (projectId) {
+      where.projectId = Number(projectId);
+    }
 
-    // total count of active records
+    if (inverterId) {
+      where.inverter_id = Number(inverterId);
+    }
+
+    // If a search term is provided, search across relevant columns in the whole table
+    const trimmedSearch = typeof search === "string" ? search.trim() : "";
+    if (trimmedSearch) {
+      const numericSearch = Number(trimmedSearch);
+      const isNumeric = !Number.isNaN(numericSearch);
+
+      // Detect YYYY-MM-DD date and build a day range (UTC) to avoid tz offsets
+      const isISODate = /^\d{4}-\d{2}-\d{2}$/.test(trimmedSearch);
+      const dateRange = isISODate
+        ? {
+            gte: new Date(`${trimmedSearch}T00:00:00.000Z`),
+            lte: new Date(`${trimmedSearch}T23:59:59.999Z`),
+          }
+        : null;
+
+      const orFilters = [
+        { project: { project_name: { contains: trimmedSearch, mode: "insensitive" } } },
+        { inverter: { inverterName: { contains: trimmedSearch, mode: "insensitive" } } },
+        { time: { contains: trimmedSearch, mode: "insensitive" } },
+      ];
+
+      if (dateRange) {
+        orFilters.push({ date: dateRange });
+      }
+
+      if (isNumeric) {
+        orFilters.push(
+          { generate_kw: numericSearch },
+          { ac_frequency: numericSearch },
+          { daily_yield: numericSearch },
+          { annual_yield: numericSearch },
+          { total_yield: numericSearch }
+        );
+      }
+
+      if (orFilters.length) {
+        where.AND = [...(where.AND || []), { OR: orFilters }];
+      }
+    }
+
+    // Get total count for pagination
     const totalCount = await prisma.inverter_data.count({ where });
 
-    // fetch latest up to MAX_LIMIT
+    // Fetch records: capped to 50 unless downloadAll is set
     const inverterData = await prisma.inverter_data.findMany({
       where,
       orderBy: { date: "desc" },
-      distinct: ["inverter_id", "date"], // prevents duplicate records
+      distinct: ["inverter_id", "date"],
       include: {
         project: true,
         inverter: true,
       },
       skip: 0,
-      take: MAX_LIMIT,
+      take: fetchAll ? undefined : MAX_LIMIT,
     });
 
-    const returnedCount = Math.min(totalCount, MAX_LIMIT);
+    const returnedCount = fetchAll ? totalCount : Math.min(totalCount, MAX_LIMIT);
     const pageSize = 10; // frontend will show 10 per page
+
+    // --- Fetch full project list (for dropdown) ---
+    const projectList = await prisma.project.findMany({
+      where: { is_deleted: 0 },
+      orderBy: { project_name: "asc" }
+    });
+
+    const inverterRawList = await prisma.project_inverters.findMany({
+      where: {
+        is_deleted: 0,
+        ...(projectId ? { project_id: Number(projectId) } : {}),
+      },
+      include: { inverter: true },
+      orderBy: { inverter_id: "asc" },
+    });
+
+     // Map inverter list to simple {id, name} shape
+    const inverterList = inverterRawList.map(i => ({
+      id: i.inverter_id,
+      name: (i.inverter && (i.inverter.inverterName || i.inverter.name)) || `Inverter ${i.inverter_id}`,
+      projectId: i.project_id
+    }));
 
     res.status(200).json({
       success: true,
       data: inverterData,
+       projectList,
+      inverterList, 
       pagination: {
         page: 1,
-        limit: MAX_LIMIT,
-        total: returnedCount, // show total as max 50
+        limit: fetchAll ? totalCount : MAX_LIMIT,
+        total: returnedCount, // show total as max 50 unless downloadAll
         pages: Math.max(1, Math.ceil(returnedCount / pageSize)),
       },
     });

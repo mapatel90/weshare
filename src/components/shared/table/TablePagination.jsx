@@ -8,8 +8,18 @@ const TablePagination = ({table, serverSideTotal = null}) => {
     
     // Use server-side total if provided, otherwise use client-side row count
     const total = serverSideTotal !== null ? serverSideTotal : rowCount;
-    const start = pageIndex * pageSize + 1;
-    const end = Math.min((pageIndex + 1) * pageSize, total);
+    const start = total === 0 ? 0 : pageIndex * pageSize + 1;
+    const end = total === 0 ? 0 : Math.min((pageIndex + 1) * pageSize, total);
+
+    const handlePrevious = () => {
+        if (!table.getCanPreviousPage()) return;
+        table.previousPage();
+    };
+
+    const handleNext = () => {
+        if (!table.getCanNextPage()) return;
+        table.nextPage();
+    };
     
     return (
         <div className="row gy-2">
@@ -22,7 +32,7 @@ const TablePagination = ({table, serverSideTotal = null}) => {
                 <div className="dataTables_paginate paging_simple_numbers" id="proposalList_paginate">
                     <ul className="pagination mb-0 justify-content-md-end justify-content-center">
                         <li className={`paginate_button page-item previous ${!table.getCanPreviousPage() ? "disabled" : ""} `}
-                            onClick={() => table.previousPage()}
+                            onClick={handlePrevious}
                             disabled={!table.getCanPreviousPage()}
                         >
                             <a href="#" className="page-link">Previous</a></li>
@@ -33,7 +43,7 @@ const TablePagination = ({table, serverSideTotal = null}) => {
                             </a>
                         </li>
                         <li className={`paginate_button page-item next ${!table.getCanNextPage() ? "disabled" : ""}`}
-                            onClick={() => table.nextPage()}
+                            onClick={handleNext}
                             disabled={!table.getCanNextPage()}
                         >
                             <a href="#" className="page-link">Next</a>

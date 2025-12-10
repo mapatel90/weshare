@@ -81,7 +81,6 @@ const ProjectViewContent = ({ projectId = '1' }) => {
         setProjectInvertersLoading(true)
         const res = await apiGet(`/api/project-inverters?project_id=${projectId}`)
         const list = res?.success ? res.data : []
-        console.log('Loaded project inverters:', list)
         setProjectInverters(list)
         // Do NOT auto-select first inverter
       } finally {
