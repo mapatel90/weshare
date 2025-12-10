@@ -1,6 +1,8 @@
 'use client'
 import React from 'react'
 import { Sun, Zap, TrendingUp, Activity } from 'lucide-react'
+import { getSettingValue } from '@/utils/settingsHelper';
+import getSetting from "@/hooks/useSettings";
 
 const formatNumber = (v, suffix = '') => {
   if (v === null || v === undefined || v === '') return '-'
@@ -74,7 +76,8 @@ const StatCardsGrid = ({
   contractsLoading = false,
   inverterLatest = null,
   inverterLatestLoading = false,
-  selectedInverterId = ''
+  selectedInverterId = '',
+  settingsArray = []
 }) => {
   // If an inverter is selected, show its data; otherwise show project-level data
   const isInverterSelected = !!selectedInverterId
@@ -82,31 +85,33 @@ const StatCardsGrid = ({
   const hasAggregatedData = Array.isArray(inverterLatest)
   const dailyYieldMetric = getAggregatedMetric(inverterLatest, 'daily_yield')
   const totalYieldMetric = getAggregatedMetric(inverterLatest, 'total_yield')
+  const settings_data = getSetting();
+  const currency = settings_data?.settings?.finance_currency;
   const contextLabel = isInverterSelected
     ? 'Selected Inverter'
     : hasAggregatedData
       ? 'All Inverters'
       : 'Project'
-  
+
   // Determine daily yield
   let dailyYieldValue, dailyYieldSubtitle
   if (inverterLatestLoading) {
     dailyYieldValue = 'Loading...'
-      dailyYieldSubtitle = `Loading ${isInverterSelected ? 'inverter' : 'project'} data...`
+    dailyYieldSubtitle = `Loading ${isInverterSelected ? 'inverter' : 'project'} data...`
   } else if (dailyYieldMetric !== null) {
     dailyYieldValue = `${formatNumber(dailyYieldMetric)} kWh`
-      let monetaryValue = null
-      if (projectPriceKwh !== undefined && projectPriceKwh !== null && dailyYieldMetric !== null) {
-        monetaryValue = dailyYieldMetric * projectPriceKwh
-      }
-      dailyYieldSubtitle = (monetaryValue !== null ? ` • Daily Revenue: VND ${formatNumber(monetaryValue)}` : '')
+    let monetaryValue = null
+    if (projectPriceKwh !== undefined && projectPriceKwh !== null && dailyYieldMetric !== null) {
+      monetaryValue = dailyYieldMetric * projectPriceKwh
+    }
+    dailyYieldSubtitle = (monetaryValue !== null ? ` • Daily Revenue: ${currency} ${formatNumber(monetaryValue)}` : '')
   } else if (!isInverterSelected && project?.daily_yield !== undefined && project?.daily_yield !== null) {
     dailyYieldValue = `${formatNumber(project.daily_yield)} kWh`
-      let monetaryValue = null
-      if (projectPriceKwh !== undefined && projectPriceKwh !== null && project.daily_yield !== null) {
-        monetaryValue = project.daily_yield * projectPriceKwh
-      }
-      dailyYieldSubtitle = (monetaryValue !== null ? ` • Daily Revenue: VND ${formatNumber(monetaryValue)}` : '')
+    let monetaryValue = null
+    if (projectPriceKwh !== undefined && projectPriceKwh !== null && project.daily_yield !== null) {
+      monetaryValue = project.daily_yield * projectPriceKwh
+    }
+    dailyYieldSubtitle = (monetaryValue !== null ? ` • Daily Revenue: ${currency} ${formatNumber(monetaryValue)}` : '')
   } else {
     dailyYieldValue = '-'
     dailyYieldSubtitle = isInverterSelected
@@ -125,14 +130,14 @@ const StatCardsGrid = ({
     if (projectPriceKwh !== undefined && projectPriceKwh !== null && totalYieldMetric !== null) {
       totalMonetaryValue = totalYieldMetric * projectPriceKwh
     }
-    totalYieldSubtitle = (totalMonetaryValue !== null ? ` • Total Revenue: VND ${formatNumber(totalMonetaryValue)}` : '')
+    totalYieldSubtitle = (totalMonetaryValue !== null ? ` • Total Revenue: ${currency} ${formatNumber(totalMonetaryValue)}` : '')
   } else if (!isInverterSelected && project?.total_yield !== undefined && project?.total_yield !== null) {
     totalYieldValue = `${formatNumber(project.total_yield)} kWh`
     let totalMonetaryValue = null
     if (projectPriceKwh !== undefined && projectPriceKwh !== null && project.total_yield !== null) {
       totalMonetaryValue = project.total_yield * projectPriceKwh
     }
-    totalYieldSubtitle = (totalMonetaryValue !== null ? ` • Total Revenue: VND ${formatNumber(totalMonetaryValue)}` : '')
+    totalYieldSubtitle = (totalMonetaryValue !== null ? ` • Total Revenue: ${currency} ${formatNumber(totalMonetaryValue)}` : '')
   } else {
     totalYieldValue = '-'
     totalYieldSubtitle = isInverterSelected
