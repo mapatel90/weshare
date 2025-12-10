@@ -92,21 +92,6 @@ const ProjectViewContent = ({ projectId = '1' }) => {
     loadProjectInverters()
   }, [projectId])
 
-  // ------------------- Load All Inverter Data -------------------
-  useEffect(() => {
-    const load = async () => {
-      try {
-        setInverterLoading(true)
-        const res = await apiGet('/api/inverter-data/project-invert-chart')
-        console.log("Inverter data loaded:", res);
-        setInverterData(res?.success ? res.data : [])
-      } finally {
-        setInverterLoading(false)
-      }
-    }
-    load()
-  }, [])
-
   // ------------------- Load Latest Inverter Data for this project (default) -------------------
   useEffect(() => {
     const loadLatest = async () => {
