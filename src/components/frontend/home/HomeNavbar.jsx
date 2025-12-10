@@ -128,7 +128,7 @@ const HomeNavbar = () => {
     } else if (user?.role === 4) {
       router.push('/investor/projects')
     } else {
-      router.push('/admin/dashboards/analytics')
+      router.push('/admin/dashboards')
     }
     setUserAnchor(null)
   }
