@@ -34,9 +34,9 @@ router.get("/", async (req, res) => {
       const isISODate = /^\d{4}-\d{2}-\d{2}$/.test(trimmedSearch);
       const dateRange = isISODate
         ? {
-            gte: new Date(`${trimmedSearch}T00:00:00.000Z`),
-            lte: new Date(`${trimmedSearch}T23:59:59.999Z`),
-          }
+          gte: new Date(`${trimmedSearch}T00:00:00.000Z`),
+          lte: new Date(`${trimmedSearch}T23:59:59.999Z`),
+        }
         : null;
 
       const orFilters = [
@@ -98,7 +98,7 @@ router.get("/", async (req, res) => {
       orderBy: { inverter_id: "asc" },
     });
 
-     // Map inverter list to simple {id, name} shape
+    // Map inverter list to simple {id, name} shape
     const inverterList = inverterRawList.map(i => ({
       id: i.inverter_id,
       name: (i.inverter && (i.inverter.inverterName || i.inverter.name)) || `Inverter ${i.inverter_id}`,
@@ -108,8 +108,8 @@ router.get("/", async (req, res) => {
     res.status(200).json({
       success: true,
       data: inverterData,
-       projectList,
-      inverterList, 
+      projectList,
+      inverterList,
       pagination: {
         page: 1,
         limit: fetchAll ? totalCount : MAX_LIMIT,
@@ -127,14 +127,14 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.get("/project-invert-chart", async (req, res) => {
+router.post("/project-invert-chart", async (req, res) => {
   try {
     // Include related Project and Inverter records (only projects with is_deleted = 0)
     const inverterData = await prisma.inverter_data.findMany({
       where: {
         project: { is_deleted: 0 },
       },
-      orderBy: { date: "desc" },
+      orderBy: { date: "asc" },
       include: {
         project: true,
         inverter: true,
@@ -151,135 +151,46 @@ router.get("/project-invert-chart", async (req, res) => {
   }
 });
 
-router.get("/latest", async (req, res) => {
+router.post("/latest", async (req, res) => {
   try {
-    const { projectId, projectInverterId } = req.query;
+    const { projectId, projectInverterId } = req.body;
 
-    // -------------------------
-    //  CASE 1: NO projectId PROVIDED → LATEST FOR ALL PROJECTS / INVERTERS
-    // -------------------------
-    if (!projectId) {
-      // Find all active project_inverters
-      const projectInverters = await prisma.project_inverters.findMany({
-        where: { is_deleted: 0 },
-      });
+    console.log("projectId", projectId);
+    console.log("projectInverterId", projectInverterId);
 
-      if (projectInverters.length === 0) {
-        return res.status(200).json({
-          success: true,
-          single: false,
-          count: 0,
-          data: [],
-          message: "No inverters found",
-        });
-      }
+    // Build WHERE condition step-by-step
+    let where = {
+      project: { is_deleted: 0 }
+    };
 
-      // For each project_inverters record, fetch latest inverter_data (only if related project is not deleted)
-      const latestRecords = await Promise.all(
-        projectInverters.map(async (pi) => {
-          return await prisma.inverter_data.findFirst({
-            where: {
-              projectId: pi.project_id,
-              inverter_id: pi.inverter_id,
-            },
-            orderBy: { date: "desc" },
-            include: {
-              project: true,
-              inverter: true,
-            },
-          });
-        })
-      );
-
-      const filtered = latestRecords.filter((rec) => rec !== null);
-
-      return res.status(200).json({
-        success: true,
-        single: false,
-        count: filtered.length,
-        data: filtered,
-      });
+    // Filter by projectId if provided
+    if (projectId) {
+      where.project = Number(projectId);
     }
 
-    const pid = Number(projectId);
-
-    // -------------------------
-    //  CASE 2: projectId + projectInverterId → ONLY THAT INVERTER LATEST
-    // -------------------------
+    // Filter by inverter_id if provided
     if (projectInverterId) {
-      const latestRecord = await prisma.inverter_data.findFirst({
-        where: {
-          projectId: pid,
-          inverter_id: Number(projectInverterId),
-          project: { is_deleted: 0 },
-        },
-        orderBy: { date: "desc" },
-        include: {
-          project: true,
-          inverter: true,
-        },
-      });
-
-      return res.status(200).json({
-        success: true,
-        single: true,
-        data: latestRecord || null,
-      });
+      where.inverter_id = Number(projectInverterId);
     }
 
-    // -------------------------
-    //  CASE 3: ONLY projectId → LATEST RECORD FOR ALL INVERTERS OF THAT PROJECT
-    // -------------------------
-
-    const projectInverters = await prisma.project_inverters.findMany({
-      where: { project_id: pid, is_deleted: 0 },
+    const allData = await prisma.inverter_data.findMany({
+      where,
+      orderBy: { date: "asc" },
     });
 
-    if (projectInverters.length === 0) {
-      return res.status(200).json({
-        success: true,
-        single: false,
-        count: 0,
-        data: [],
-        message: "No inverters found for this project",
-      });
-    }
+    console.log(allData);
 
-    const inverterIds = projectInverters.map((inv) => inv.inverter_id);
-
-    const latestRecords = await Promise.all(
-      inverterIds.map(async (invId) => {
-        return await prisma.inverter_data.findFirst({
-          where: {
-            projectId: pid,
-            inverter_id: invId,
-            project: { is_deleted: 0 },
-          },
-          orderBy: { date: "desc" },
-          include: {
-            project: true,
-            inverter: true,
-          },
-        });
-      })
-    );
-
-    const filtered = latestRecords.filter((rec) => rec !== null);
-
-    return res.status(200).json({
+    return res.json({
       success: true,
-      single: false,
-      count: filtered.length,
-      data: filtered,
+      count: allData.length,
+      data: allData,
     });
+
   } catch (error) {
     console.error("Error fetching latest inverter data:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Internal server error",
-      error: error.message,
-    });
+    return res.status(500).json({ error: "Server error" });
   }
 });
+
 
 export default router;

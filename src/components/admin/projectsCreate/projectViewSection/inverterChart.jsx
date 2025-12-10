@@ -54,12 +54,6 @@ const normalizeTimeLabel = (value) => {
   return `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
 };
 
-const timeToMinutes = (value) => {
-  if (!value) return 0;
-  const [hours = '0', minutes = '0'] = value.split(':');
-  return Number(hours) * 60 + Number(minutes);
-};
-
 const pickPowerValue = (entry) => {
   const candidates = [
     entry?.generate_kw,
@@ -164,6 +158,14 @@ const legendDotStyle = {
   backgroundColor: '#f97316',
 };
 
+// map month index to short label
+const monthLabel = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+const daysInMonth = (year, monthIndex) => {
+  if (!Number.isFinite(year) || !Number.isFinite(monthIndex)) return 31;
+  return new Date(year, monthIndex + 1, 0).getDate();
+};
+
 // Changed: support multiple inverter series & single inverter selection
 const PowerConsumptionDashboard = ({ projectId, readings = [], loading = false, selectedInverterId = '', projectInverters = [] }) => {
   const [selectedDateKey, setSelectedDateKey] = useState(null);
@@ -255,71 +257,152 @@ const PowerConsumptionDashboard = ({ projectId, readings = [], loading = false, 
   // palette for multiple inverter lines
   const palette = ['#10B981', '#F59E0B', '#3B82F6', '#ef4444', '#8B5CF6', '#06B6D4', '#A78BFA'];
 
-  // Build chart data for the selected date. If no inverter selected => build multiple series.
-  const { chartData, seriesInfo } = useMemo(() => {
-    if (!selectedDateKey) return { chartData: [], seriesInfo: [] };
-    const entries = readingsByDate[selectedDateKey] || [];
-    if (!entries.length) return { chartData: [], seriesInfo: [] };
+  // Build chart data based on view type.
+  const { chartData, seriesInfo, xAxisProps, yAxisDomain } = useMemo(() => {
+    if (!selectedDateKey && !availableDates.length) {
+      return { chartData: [], seriesInfo: [], xAxisProps: {}, yAxisDomain: [0, 15] };
+    }
 
-    // group by inverter id
-    const perInv = entries.reduce((acc, e) => {
-      const invId = getInverterId(e);
+    const baseDateKey = selectedDateKey || availableDates[availableDates.length - 1];
+    const baseDate = baseDateKey ? new Date(baseDateKey) : null;
+
+    // group by inverter id for the full dataset (we'll filter per view)
+    const grouped = readings.reduce((acc, entry) => {
+      const key = normalizeDateKey(entry.date);
+      if (!key) return acc;
+      const invId = getInverterId(entry);
       if (!acc[invId]) acc[invId] = [];
-      acc[invId].push(e);
+      acc[invId].push({ ...entry, dateKey: key });
       return acc;
     }, {});
 
-    // If specific inverter selected, only keep that one
-    const inverterIds = selectedInverterId ? [String(selectedInverterId)] : Object.keys(perInv);
+    const inverterIds = selectedInverterId
+      ? [String(selectedInverterId)]
+      : Object.keys(grouped);
 
-    // Build all hourValues present across all inverters (as number: hour + minute/60)
-    const hourSet = new Set();
-
-    const invPoints = {};
+    const filtered = {};
     inverterIds.forEach((invId) => {
-      const list = (perInv[invId] || []).map((entry) => {
-        const normalizedTime = normalizeTimeLabel(entry.time);
-        const { hour, minute } = extractHourMinute(entry.time);
-        const hourValue = Number((hour + minute / 60).toFixed(2));
-        const powerKW = Number((pickPowerValue(entry) / 1000));
-        hourSet.add(hourValue);
-        return { hourValue, displayTime: entry.time || normalizedTime, power: powerKW };
-      }).sort((a, b) => a.hourValue - b.hourValue);
-
-      // keep
-      invPoints[invId] = list;
+      const list = grouped[invId] || [];
+      filtered[invId] = list.filter((e) => {
+        if (!baseDate) return true;
+        const d = new Date(e.dateKey);
+        if (viewType === 'day') {
+          return e.dateKey === baseDateKey;
+        }
+        if (viewType === 'month') {
+          return d.getFullYear() === baseDate.getFullYear() && d.getMonth() === baseDate.getMonth();
+        }
+        if (viewType === 'year') {
+          return d.getFullYear() === baseDate.getFullYear();
+        }
+        return true; // total
+      });
     });
 
-    // include xAxis baseline ticks as possible domain points
-    xAxisTicks.forEach(t => hourSet.add(t));
+    // Build helpers per view
+    let data = [];
+    let xProps = {};
 
-    const allHours = Array.from(hourSet).sort((a, b) => a - b);
-
-    // Create merged objects where each inverter has a key p_${invId}
-    const data = allHours.map((hv) => {
-      const obj = { hourValue: hv };
-      // create displayTime from hv
-      const hh = Math.floor(hv);
-      const mm = Math.round((hv - hh) * 60);
-      const displayTime = `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`;
-      obj.displayTime = displayTime;
-
-      inverterIds.forEach(invId => {
-        const points = invPoints[invId] || [];
-        // find exact point with same hourValue (could be decimals) or nearest earlier one
-        const exact = points.find(p => Math.abs(p.hourValue - hv) < 0.01);
-        if (exact) {
-          obj[`p_${invId}`] = exact.power;
-        } else {
-          // default 0 to keep flat until the reading appears
-          obj[`p_${invId}`] = 0;
-        }
+    if (viewType === 'day') {
+      // time-series within the selected day
+      const hourSet = new Set();
+      const invPoints = {};
+      inverterIds.forEach((invId) => {
+        const list = (filtered[invId] || []).map((entry) => {
+          const normalizedTime = normalizeTimeLabel(entry.time);
+          const { hour, minute } = extractHourMinute(entry.time);
+          const hourValue = Number((hour + minute / 60).toFixed(2));
+          const powerKW = Number(pickPowerValue(entry) / 1000);
+          hourSet.add(hourValue);
+          return { hourValue, displayTime: entry.time || normalizedTime, power: powerKW };
+        }).sort((a, b) => a.hourValue - b.hourValue);
+        invPoints[invId] = list;
       });
 
-      return obj;
-    });
+      xAxisTicks.forEach(t => hourSet.add(t));
+      const allHours = Array.from(hourSet).sort((a, b) => a - b);
 
-    // series info for rendering lines
+      data = allHours.map((hv) => {
+        const obj = { xValue: hv };
+        const hh = Math.floor(hv);
+        const mm = Math.round((hv - hh) * 60);
+        obj.displayTime = `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`;
+        inverterIds.forEach((invId) => {
+          const points = invPoints[invId] || [];
+          const exact = points.find(p => Math.abs(p.hourValue - hv) < 0.01);
+          obj[`p_${invId}`] = exact ? exact.power : null;
+        });
+        return obj;
+      });
+
+      xProps = {
+        dataKey: 'xValue',
+        type: 'number',
+        domain: [2, 22],
+        ticks: xAxisTicks,
+        tickFormatter: (value) => `${value}`,
+      };
+    } else {
+      // aggregation buckets for month/year/total (category axis for readable labels)
+      const bucketMap = {};
+      const addBucket = (key, label, order, invId, value) => {
+        if (!bucketMap[key]) {
+          bucketMap[key] = { xValue: label, order, displayTime: label };
+          inverterIds.forEach(id => { bucketMap[key][`p_${id}`] = null; });
+        }
+        bucketMap[key][`p_${invId}`] = (bucketMap[key][`p_${invId}`] || 0) + value;
+      };
+
+      // month view: pre-create all days of the month to avoid stretched lines
+      if (viewType === 'month' && baseDate) {
+        const dim = daysInMonth(baseDate.getFullYear(), baseDate.getMonth());
+        for (let day = 1; day <= dim; day += 1) {
+          addBucket(
+            `day-${day}`,
+            `${String(day).padStart(2, '0')}/${String(baseDate.getMonth() + 1).padStart(2, '0')}`,
+            day,
+            inverterIds[0] ?? '0',
+            0
+          );
+          // reset to null for all inverter ids
+          inverterIds.forEach(id => { bucketMap[`day-${day}`][`p_${id}`] = null; });
+        }
+      }
+
+      inverterIds.forEach((invId) => {
+        (filtered[invId] || []).forEach((entry) => {
+          const d = new Date(entry.dateKey);
+          const powerKW = Number(pickPowerValue(entry) / 1000);
+          if (viewType === 'month') {
+            const day = d.getDate();
+            addBucket(
+              `day-${day}`,
+              `${String(day).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}`,
+              day,
+              invId,
+              powerKW
+            );
+          } else if (viewType === 'year') {
+            const m = d.getMonth();
+            addBucket(`month-${m}`, monthLabel[m], m + 1, invId, powerKW);
+          } else {
+            // total
+            const order = d.getTime();
+            addBucket(entry.dateKey, entry.dateKey, order, invId, powerKW);
+          }
+        });
+      });
+
+      data = Object.values(bucketMap).sort((a, b) => a.order - b.order);
+
+      xProps = {
+        dataKey: 'xValue',
+        type: 'category',
+        ticks: data.map(d => d.xValue),
+        tickFormatter: (value) => value,
+      };
+    }
+
     const series = inverterIds.map((invId, idx) => ({
       id: invId,
       key: `p_${invId}`,
@@ -327,8 +410,20 @@ const PowerConsumptionDashboard = ({ projectId, readings = [], loading = false, 
       name: inverterNameFor(invId),
     }));
 
-    return { chartData: data, seriesInfo: series };
-  }, [readingsByDate, selectedDateKey, selectedInverterId, projectInverters]);
+    // dynamic y-domain based on data max
+    let maxY = 0;
+    data.forEach((row) => {
+      inverterIds.forEach((invId) => {
+        const v = row[`p_${invId}`];
+        if (v !== null && v !== undefined) {
+          maxY = Math.max(maxY, Number(v));
+        }
+      });
+    });
+    const upper = maxY > 0 ? Math.ceil(maxY * 1.1) : 15;
+
+    return { chartData: data, seriesInfo: series, xAxisProps: xProps, yAxisDomain: [0, upper] };
+  }, [availableDates, readings, selectedDateKey, selectedInverterId, projectInverters, viewType]);
 
   const isEmptyState = !loading && (!chartData || !chartData.length);
 
@@ -384,7 +479,7 @@ const PowerConsumptionDashboard = ({ projectId, readings = [], loading = false, 
       </div>
 
       {/* Chart */}
-      <div style={{ width: '100%', height: 'calc(100vh - 180px)' }}>
+      <div style={{ width: '100%', height: 'calc(100vh - 180px)', minHeight: '420px' }}>
         {loading ? (
           <div style={stateMessageStyle}>
             Loading inverter data...
@@ -402,22 +497,22 @@ const PowerConsumptionDashboard = ({ projectId, readings = [], loading = false, 
               >
                 <CartesianGrid strokeDasharray="4 4" stroke="#f0f0f0" />
                 <XAxis
-                  dataKey="hourValue"
-                  type="number"
-                  domain={[2, 22]}
-                  ticks={xAxisTicks}
+                  dataKey={xAxisProps.dataKey || 'xValue'}
+                  type={xAxisProps.type || 'category'}
+                  domain={xAxisProps.domain}
+                  ticks={xAxisProps.ticks}
                   tick={{ fill: '#666', fontSize: 12 }}
                   tickLine={{ stroke: '#ccc' }}
                   axisLine={{ stroke: '#ccc' }}
                   allowDecimals={false}
-                  tickFormatter={(value) => `${value}`}
+                  tickFormatter={xAxisProps.tickFormatter}
                 />
                 <YAxis
                   label={{ value: 'kW', angle: -90, position: 'insideLeft', style: { fill: '#666', fontSize: 14 } }}
                   tick={{ fill: '#666', fontSize: 12 }}
                   tickLine={{ stroke: '#ccc' }}
                   axisLine={{ stroke: '#ccc' }}
-                  domain={[0, 15]}
+                  domain={yAxisDomain}
                   ticks={yAxisTicks}
                 />
                 <Tooltip
@@ -435,7 +530,7 @@ const PowerConsumptionDashboard = ({ projectId, readings = [], loading = false, 
                 {seriesInfo.map((s) => (
                   <Line
                     key={s.key}
-                    type="linear"
+                    type="monotone"
                     dataKey={s.key}
                     stroke={s.color}
                     strokeWidth={2.5}
@@ -443,7 +538,7 @@ const PowerConsumptionDashboard = ({ projectId, readings = [], loading = false, 
                     name={s.name}
                     activeDot={{ r: 5 }}
                     isAnimationActive={false}
-                    connectNulls={false}
+                    connectNulls={true}
                     // explicitly disable any area fill that can appear with multiple series
                     fill="none"
                     fillOpacity={0}

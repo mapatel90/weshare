@@ -1,6 +1,6 @@
 'use client'
 import React, { useEffect, useState, useMemo } from 'react'
-import { apiGet } from '@/lib/api'
+import { apiGet, apiPost } from '@/lib/api'
 import StatCardsGrid from './projectViewSection/StateCard'
 import PowerConsumptionDashboard from './projectViewSection/inverterChart'
 import ProjectInformation from './projectViewSection/ProjectInformation'
@@ -36,6 +36,8 @@ const ProjectViewContent = ({ projectId = '1' }) => {
 
   // Inverter Data (all projects)
   const [inverterData, setInverterData] = useState([])
+
+
   const [inverterLoading, setInverterLoading] = useState(true)
 
   // Latest inverter data for selected inverter
@@ -43,7 +45,7 @@ const ProjectViewContent = ({ projectId = '1' }) => {
   const [selectedInverterLatestLoading, setSelectedInverterLatestLoading] = useState(false)
 
   // Latest inverter data for this project (default)
-  const [inverterLatest, setInverterLatest] = useState(null)
+  const [inverterChartData, setInverterChartData] = useState(null)
   const [inverterLatestLoading, setInverterLatestLoading] = useState(true)
 
   // ------------------- Load Project -------------------
@@ -96,6 +98,7 @@ const ProjectViewContent = ({ projectId = '1' }) => {
       try {
         setInverterLoading(true)
         const res = await apiGet('/api/inverter-data/project-invert-chart')
+        console.log("Inverter data loaded:", res);
         setInverterData(res?.success ? res.data : [])
       } finally {
         setInverterLoading(false)
@@ -107,43 +110,23 @@ const ProjectViewContent = ({ projectId = '1' }) => {
   // ------------------- Load Latest Inverter Data for this project (default) -------------------
   useEffect(() => {
     const loadLatest = async () => {
+      const payload = {
+        projectId: projectId ?? null,
+        projectInverterId: selectedInverterId ?? null,
+      };
       try {
         setInverterLatestLoading(true)
-        const res = await apiGet(`/api/inverter-data/latest?projectId=${projectId}`)
-        setInverterLatest(res?.success ? res.data : null)
+        const res = await apiPost(`/api/inverter-data/latest`, payload)
+        setInverterChartData(res?.success ? res.data : null)
       } finally {
         setInverterLatestLoading(false)
       }
     }
     loadLatest()
-  }, [projectId])
-
-  // ------------------- Load Data for Selected Inverter -------------------
-  useEffect(() => {
-    // if (!selectedInverterId) {
-    //   setSelectedInverterLatest(null)
-    //   return
-    // }
-
-    const loadSelectedInverterData = async () => {
-      try {
-        setSelectedInverterLatestLoading(true)
-        // Fetch data for specific inverter - include both projectId and projectInverterId
-        const res = await apiGet(`/api/inverter-data/latest?projectId=${projectId}&projectInverterId=${selectedInverterId}`)
-        setSelectedInverterLatest(res?.success ? res.data : null)
-      } finally {
-        setSelectedInverterLatestLoading(false)
-      }
-    }
-    loadSelectedInverterData()
   }, [selectedInverterId, projectId])
 
-  // ------------------- Filter Inverter Data for this Project -------------------
-  const filteredInverterData = useMemo(() => {
-    const pid = Number(projectId)
-    if (!pid) return []
-    return inverterData.filter(item => Number(item.projectId) === pid)
-  }, [inverterData, projectId])
+  console.log("inverterChartData",inverterChartData);
+
 
   // Dummy monthly chart data
   const demoMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']
@@ -156,7 +139,7 @@ const ProjectViewContent = ({ projectId = '1' }) => {
   ]
 
   // ------------------- Determine which data to show -------------------
-  const displayData = selectedInverterId ? selectedInverterLatest : inverterLatest
+  const displayData = selectedInverterId ? selectedInverterLatest : inverterChartData
   const displayDataLoading = selectedInverterId ? selectedInverterLatestLoading : inverterLatestLoading
 
   // ------------------- Loading / Not Found UI -------------------
@@ -178,9 +161,9 @@ const ProjectViewContent = ({ projectId = '1' }) => {
 
   // ------------------- MAIN UI -------------------
   return (
-    <div style={{ minHeight: '100vh',  height: 'auto', overflowY: 'hidden', background: 'linear-gradient(to bottom right, #eff6ff, #ffffff, #faf5ff)', padding: '24px' }}>
+    <div style={{ minHeight: '100vh', height: 'auto', overflowY: 'hidden', background: 'linear-gradient(to bottom right, #eff6ff, #ffffff, #faf5ff)', padding: '24px' }}>
       <div style={{ margin: '0 auto' }}>
-        
+
         {/* HEADER */}
         <div style={{ marginBottom: '24px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -192,7 +175,7 @@ const ProjectViewContent = ({ projectId = '1' }) => {
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              
+
               {/* ----- INVERTER DROPDOWN ----- */}
               <div>
                 {projectInvertersLoading ? (
@@ -260,7 +243,7 @@ const ProjectViewContent = ({ projectId = '1' }) => {
 
         {/* CHART SECTION */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(500px, 1fr))', gap: '24px' }}>
-          
+
           {/* PRODUCTION CHART */}
           <div style={{ backgroundColor: '#fff', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', border: '1px solid #f3f4f6', padding: '24px' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
@@ -274,7 +257,7 @@ const ProjectViewContent = ({ projectId = '1' }) => {
 
             <PowerConsumptionDashboard
               projectId={projectId}
-              readings={filteredInverterData}
+              readings={inverterChartData}
               loading={inverterLoading}
               selectedInverterId={selectedInverterId}
               projectInverters={projectInverters}
