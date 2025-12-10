@@ -50,12 +50,18 @@ const SavingReports = () => {
                 time: item.time ?? "",
                 generatedKW:
                     item.generate_kw !== undefined && item.generate_kw !== null
-                        ? (Number(item.generate_kw) / 1000).toFixed(3)
+                        ? (Number(item.generate_kw) / 1000).toFixed(2) + ' kwh'
                         : '',
                 Acfrequency: item.ac_frequency ?? '',
-                DailyYield: item.daily_yield ?? '',
-                AnnualYield: item.annual_yield ?? '',
-                TotalYield: item.total_yield ?? '',
+                DailyYield: item.daily_yield !== undefined && item.daily_yield !== null
+                    ? item.daily_yield + ' kwh'
+                    : '',
+                AnnualYield: item.annual_yield !== undefined && item.annual_yield !== null
+                    ? item.annual_yield + ' kwh'
+                    : '',
+                TotalYield: item.total_yield !== undefined && item.total_yield !== null
+                    ? item.total_yield + ' kwh'
+                    : '',
             }));
             setReportsData(mappedData);
 
