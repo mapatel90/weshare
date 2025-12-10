@@ -80,7 +80,7 @@ router.get('/', async (req, res) => {
 });
 
 // Get single setting by key
-router.get('/:key', authenticateToken, async (req, res) => {
+router.get('/:key', async (req, res) => {
   try {
     const { key } = req.params;
     
