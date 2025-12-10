@@ -231,7 +231,8 @@ model Project_inverters {
   id           Int       @id @default(autoincrement())
   project_id   Int
   inverter_id  Int
-  kilowatt     Float? 
+  kilowatt     Float?   @default(0.0)
+
   inverter_serial_number String?  @db.VarChar(255)
   status       Int       @default(0)
   is_deleted   Int       @default(0)
