@@ -211,14 +211,14 @@ router.post("/latest", async (req, res) => {
 
     // Filter by projectId if provided
     if (projectId) {
-      where.project = Number(projectId);
+      where.projectId = Number(projectId);
     }
 
     // Filter by inverter_id if provided
     if (projectInverterId) {
       where.inverter_id = Number(projectInverterId);
     }
-
+    
     const allData = await prisma.inverter_data.findMany({
       where,
       orderBy: { date: "asc" },
