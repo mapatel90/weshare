@@ -218,7 +218,7 @@ router.post("/latest", async (req, res) => {
     if (projectInverterId) {
       where.inverter_id = Number(projectInverterId);
     }
-
+    
     const allData = await prisma.inverter_data.findMany({
       where,
       orderBy: { date: "asc" },
