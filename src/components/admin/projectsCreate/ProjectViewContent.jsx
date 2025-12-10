@@ -19,7 +19,7 @@ const formatNumber = (v, suffix = '') => {
   return String(v) + suffix
 }
 
-const ProjectViewContent = ({ projectId = '1' }) => {
+const ProjectViewContent = ({ projectId = '' }) => {
   const { lang } = useLanguage()
 
   const [loading, setLoading] = useState(true)
