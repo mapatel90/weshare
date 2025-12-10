@@ -306,7 +306,8 @@ const SavingReports = () => {
     return (
         <div className="p-6 bg-white rounded-3xl shadow-md">
 
-            <div className="flex flex-row items-center justify-between gap-2 mb-4 mt-4 w-full flex-wrap">
+            <div className="d-flex items-center justify-content-between gap-2 mb-4 mt-4 w-full flex-wrap">
+                <div className="filter-button">
                 <select
                     value={projectFilter}
                     onChange={(e) => setProjectFilter(e.target.value)}
@@ -345,10 +346,11 @@ const SavingReports = () => {
                     className="theme-btn-blue-color border rounded-md px-3 py-2 me-2 text-sm"
                     placeholder={lang("common.endDate") || "End Date"}
                 />
+                </div>
 
                 <button
                     onClick={handleDownloadCSV}
-                    className="theme-btn-blue-color border rounded-md btn-primary px-3 py-2 text-sm"
+                    className="theme-btn-blue-color common-grey-color border rounded-md px-3 py-2 text-sm"
                 >
                     {lang("reports.downloadcsv")}
                 </button>
