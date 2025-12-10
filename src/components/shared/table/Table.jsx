@@ -11,7 +11,16 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 
-const Table = ({ data, columns, disablePagination = false, onPaginationChange, serverSideTotal = null, pageIndex: controlledPageIndex = null, pageSize: controlledPageSize = null }) => {
+const Table = ({
+  data,
+  columns,
+  disablePagination = false,
+  onPaginationChange,
+  onSearchChange = null,
+  serverSideTotal = null,
+  pageIndex: controlledPageIndex = null,
+  pageSize: controlledPageSize = null,
+}) => {
   // const [data] = useState([...Data])
   const [sorting, setSorting] = useState([]);
   const [globalFilter, setGlobalFilter] = useState("");
@@ -24,6 +33,13 @@ const Table = ({ data, columns, disablePagination = false, onPaginationChange, s
   const pagination = controlledPageIndex !== null && controlledPageSize !== null
     ? { pageIndex: controlledPageIndex, pageSize: controlledPageSize }
     : internalPagination;
+
+  const handleGlobalFilterChange = (value) => {
+    setGlobalFilter(value);
+    if (onSearchChange) {
+      onSearchChange(value);
+    }
+  };
 
   const table = useReactTable({
     data,
@@ -38,7 +54,7 @@ const Table = ({ data, columns, disablePagination = false, onPaginationChange, s
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    onGlobalFilterChange: setGlobalFilter,
+    onGlobalFilterChange: handleGlobalFilterChange,
     manualPagination: disablePagination || (controlledPageIndex !== null),
     pageCount: serverSideTotal !== null ? Math.ceil(serverSideTotal / pagination.pageSize) : undefined,
     ...(disablePagination ? {} : {
@@ -66,7 +82,7 @@ const Table = ({ data, columns, disablePagination = false, onPaginationChange, s
             <div className="dataTables_wrapper dt-bootstrap5 no-footer">
               <TableSearch
                 table={table}
-                setGlobalFilter={setGlobalFilter}
+                setGlobalFilter={handleGlobalFilterChange}
                 globalFilter={globalFilter}
               />
 

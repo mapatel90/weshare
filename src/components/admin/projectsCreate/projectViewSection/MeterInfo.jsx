@@ -6,6 +6,12 @@ const MeterInfo = ({
   contractsLoading = false,
   inverters = [],
 }) => {
+  // Calculate active inverters (you can modify the condition based on your needs)
+  const activeInverters = inverters.filter(
+    (inv) => inv?.inverter?.status === 1 || inv.status === "active"
+  ).length;
+  const totalInverters = inverters.length;
+
   return (
     <div
       style={{
@@ -198,18 +204,33 @@ const MeterInfo = ({
             marginBottom: "16px",
             display: "flex",
             alignItems: "center",
+            justifyContent: "space-between",
           }}
         >
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <div
+              style={{
+                width: "8px",
+                height: "24px",
+                backgroundColor: "#3b82f6",
+                borderRadius: "9999px",
+                marginRight: "12px",
+              }}
+            ></div>
+            Inverter Details
+          </div>
           <div
             style={{
-              width: "8px",
-              height: "24px",
-              backgroundColor: "#3b82f6",
+              fontSize: "14px",
+              fontWeight: "600",
+              color: "#3b82f6",
+              backgroundColor: "#dbeafe",
+              padding: "6px 12px",
               borderRadius: "9999px",
-              marginRight: "12px",
             }}
-          ></div>
-          Inverter Details
+          >
+            {activeInverters} / {totalInverters}
+          </div>
         </h3>
 
         <div
@@ -229,56 +250,88 @@ const MeterInfo = ({
               No inverters found for this project.
             </div>
           ) : (
-            inverters.map(
-              (inverter) =>
-                console.log(inverter) || (
+            inverters.map((inverter) => (
+              <div
+                key={inverter.id}
+                style={{
+                  padding: "16px",
+                  borderRadius: "10px",
+                  background:
+                    "linear-gradient(to bottom right, #f1f5f9, #e2e8f0)",
+                  border: "1px solid #e5e7eb",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "6px",
+                  transition: "transform 0.2s ease, box-shadow 0.2s ease",
+                  cursor: "pointer",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = "translateY(-2px)";
+                  e.currentTarget.style.boxShadow =
+                    "0 4px 12px rgba(0,0,0,0.08)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = "translateY(0)";
+                  e.currentTarget.style.boxShadow = "none";
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    marginBottom: "8px",
+                  }}
+                >
                   <div
-                    key={inverter.id}
                     style={{
-                      padding: "16px",
-                      borderRadius: "10px",
-                      background:
-                        "linear-gradient(to bottom right, #f1f5f9, #e2e8f0)",
-                      border: "1px solid #e5e7eb",
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: "6px",
-                      transition: "transform 0.2s ease, box-shadow 0.2s ease",
-                      cursor: "pointer",
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.transform = "translateY(-2px)";
-                      e.currentTarget.style.boxShadow =
-                        "0 4px 12px rgba(0,0,0,0.08)";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = "translateY(0)";
-                      e.currentTarget.style.boxShadow = "none";
+                      fontSize: "15px",
+                      fontWeight: "600",
+                      color: "#0f172a",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      flex: 1,
                     }}
                   >
-                    <div
-                      style={{
-                        fontSize: "15px",
-                        fontWeight: "600",
-                        color: "#0f172a",
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                      }}
-                    >
-                      {inverter?.inverter?.inverterName || "Untitled"}
-                    </div>
-
-                    <div style={{ fontSize: "13px", color: "#475569" }}>
-                      Serial Number:
-                      <span style={{ fontWeight: 600, color: "#1e293b" }}>
-                        {" "}
-                        {inverter.inverter_serial_number || "N/A"}
-                      </span>
-                    </div>
+                    {inverter?.inverter?.inverterName || "Untitled"}
                   </div>
-                )
-            )
+                  <span
+                    style={{
+                      padding: "4px 10px",
+                      borderRadius: "9999px",
+                      backgroundColor:
+                        inverter?.inverter?.status === 1 ||
+                        inverter.status === "active"
+                          ? "#dcfce7"
+                          : "#fee2e2",
+                      color:
+                        inverter?.inverter?.status === 1 ||
+                        inverter.status === "active"
+                          ? "#166534"
+                          : "#991b1b",
+                      fontWeight: 600,
+                      fontSize: "11px",
+                      whiteSpace: "nowrap",
+                      marginLeft: "8px",
+                    }}
+                  >
+                    {inverter?.inverter?.status === 1 ||
+                    inverter.status === "active"
+                      ? "Active"
+                      : "Inactive"}
+                  </span>
+                </div>
+
+                <div style={{ fontSize: "13px", color: "#475569" }}>
+                  Serial Number:
+                  <span style={{ fontWeight: 600, color: "#1e293b" }}>
+                    {" "}
+                    {inverter.inverter_serial_number || "N/A"}
+                  </span>
+                </div>
+              </div>
+            ))
           )}
         </div>
       </div>
