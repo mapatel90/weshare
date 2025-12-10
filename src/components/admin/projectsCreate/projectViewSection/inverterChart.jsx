@@ -455,14 +455,14 @@ const PowerConsumptionDashboard = ({ projectId, readings = [], loading = false, 
             </ResponsiveContainer>
 
             {/* Legend */}
-            <div style={legendWrapperStyle}>
+            {/* <div style={legendWrapperStyle}>
               {seriesInfo.map(s => (
                 <div key={s.id} style={legendItemStyle}>
                   <div style={{ ...legendDotStyle, backgroundColor: s.color }}></div>
                   <span>{s.name}</span>
                 </div>
               ))}
-            </div>
+            </div> */}
           </>
         )}
       </div>

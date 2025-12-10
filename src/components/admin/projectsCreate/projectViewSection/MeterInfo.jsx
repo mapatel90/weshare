@@ -1,172 +1,429 @@
-import React from 'react';
+import React from "react";
 
-const MeterInfo = ({ project = {}, contracts = [], contractsLoading = false }) => {
+const MeterInfo = ({
+  project = {},
+  contracts = [],
+  contractsLoading = false,
+  inverters = [],
+}) => {
   return (
     <div
       style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-        gap: '24px',
-        marginBottom: '24px',
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fit, minmax(350px, 1fr))",
+        gap: "24px",
+        marginBottom: "24px",
       }}
     >
+      {/* -------------------- METER INFORMATION -------------------- */}
       <div
         style={{
-          backgroundColor: '#fff',
-          borderRadius: '12px',
-          boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-          border: '1px solid #f3f4f6',
-          padding: '24px',
+          backgroundColor: "#fff",
+          borderRadius: "12px",
+          boxShadow: "0px 2px 6px rgba(0,0,0,0.06)",
+          border: "1px solid #f3f4f6",
+          padding: "24px",
         }}
       >
         <h3
           style={{
-            fontSize: '18px',
-            fontWeight: 'bold',
-            color: '#111827',
-            marginBottom: '16px',
-            display: 'flex',
-            alignItems: 'center',
+            fontSize: "18px",
+            fontWeight: "700",
+            color: "#111827",
+            marginBottom: "20px",
+            display: "flex",
+            alignItems: "center",
           }}
         >
           <div
             style={{
-              width: '8px',
-              height: '24px',
-              backgroundColor: '#10b981',
-              borderRadius: '9999px',
-              marginRight: '12px',
+              width: "8px",
+              height: "24px",
+              backgroundColor: "#10b981",
+              borderRadius: "9999px",
+              marginRight: "12px",
             }}
-          ></div>
+          />
           Meter Information
         </h3>
+
         <div
           style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-            gap: '16px',
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+            gap: "16px",
           }}
         >
-          <div style={{ padding: '16px', background: 'linear-gradient(to bottom right, #eef2ff, #e9d5ff)', borderRadius: '8px' }}>
-            <p style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>Meter Name</p>
-            <p style={{ fontSize: '14px', fontWeight: '600', color: '#111827' }}>{project.meter_name || '-'}</p>
-          </div>
-          <div style={{ padding: '16px', background: 'linear-gradient(to bottom right, #fef3c7, #fde68a)', borderRadius: '8px' }}>
-            <p style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>Meter Number</p>
-            <p style={{ fontSize: '14px', fontWeight: '600', color: '#111827' }}>{project.meter_number || '-'}</p>
-          </div>
-          <div style={{ padding: '16px', background: 'linear-gradient(to bottom right, #d1fae5, #a7f3d0)', borderRadius: '8px' }}>
-            <p style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>SIM Number</p>
-            <p style={{ fontSize: '14px', fontWeight: '600', color: '#111827' }}>{project.sim_number || '-'}</p>
-          </div>
-          <div style={{ padding: '16px', background: 'linear-gradient(to bottom right, #dbeafe, #bfdbfe)', borderRadius: '8px' }}>
-            <p style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>SIM Start Date</p>
-            <p style={{ fontSize: '14px', fontWeight: '600', color: '#111827' }}>
-              {project.sim_start_date ? new Date(project.sim_start_date).toLocaleDateString() : '-'}
+          {/* Meter Name */}
+          <div
+            style={{
+              padding: "16px",
+              background: "linear-gradient(to bottom right, #eef2ff, #e9d5ff)",
+              borderRadius: "10px",
+            }}
+          >
+            <p
+              style={{
+                fontSize: "12px",
+                color: "#6b7280",
+                marginBottom: "4px",
+              }}
+            >
+              Meter Name
+            </p>
+            <p
+              style={{ fontSize: "15px", fontWeight: "600", color: "#111827" }}
+            >
+              {project.meter_name || "-"}
             </p>
           </div>
-          <div style={{ padding: '16px', background: 'linear-gradient(to bottom right, #fee2e2, #fecaca)', borderRadius: '8px' }}>
-            <p style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>SIM Expire Date</p>
-            <p style={{ fontSize: '14px', fontWeight: '600', color: '#111827' }}>
-              {project.sim_expire_date ? new Date(project.sim_expire_date).toLocaleDateString() : '-'}
+
+          {/* Meter Number */}
+          <div
+            style={{
+              padding: "16px",
+              background: "linear-gradient(to bottom right, #fef3c7, #fde68a)",
+              borderRadius: "10px",
+            }}
+          >
+            <p
+              style={{
+                fontSize: "12px",
+                color: "#6b7280",
+                marginBottom: "4px",
+              }}
+            >
+              Meter Number
+            </p>
+            <p
+              style={{ fontSize: "15px", fontWeight: "600", color: "#111827" }}
+            >
+              {project.meter_number || "-"}
+            </p>
+          </div>
+
+          {/* SIM Number */}
+          <div
+            style={{
+              padding: "16px",
+              background: "linear-gradient(to bottom right, #d1fae5, #a7f3d0)",
+              borderRadius: "10px",
+            }}
+          >
+            <p
+              style={{
+                fontSize: "12px",
+                color: "#6b7280",
+                marginBottom: "4px",
+              }}
+            >
+              SIM Number
+            </p>
+            <p
+              style={{ fontSize: "15px", fontWeight: "600", color: "#111827" }}
+            >
+              {project.sim_number || "-"}
+            </p>
+          </div>
+
+          {/* SIM Start Date */}
+          <div
+            style={{
+              padding: "16px",
+              background: "linear-gradient(to bottom right, #dbeafe, #bfdbfe)",
+              borderRadius: "10px",
+            }}
+          >
+            <p
+              style={{
+                fontSize: "12px",
+                color: "#6b7280",
+                marginBottom: "4px",
+              }}
+            >
+              SIM Start Date
+            </p>
+            <p
+              style={{ fontSize: "15px", fontWeight: "600", color: "#111827" }}
+            >
+              {project.sim_start_date
+                ? new Date(project.sim_start_date).toLocaleDateString()
+                : "-"}
+            </p>
+          </div>
+
+          {/* SIM Expire Date */}
+          <div
+            style={{
+              padding: "16px",
+              background: "linear-gradient(to bottom right, #fee2e2, #fecaca)",
+              borderRadius: "10px",
+            }}
+          >
+            <p
+              style={{
+                fontSize: "12px",
+                color: "#6b7280",
+                marginBottom: "4px",
+              }}
+            >
+              SIM Expire Date
+            </p>
+            <p
+              style={{ fontSize: "15px", fontWeight: "600", color: "#111827" }}
+            >
+              {project.sim_expire_date
+                ? new Date(project.sim_expire_date).toLocaleDateString()
+                : "-"}
             </p>
           </div>
         </div>
       </div>
 
+      {/* -------------------- INVERTERS -------------------- */}
       <div
         style={{
-          backgroundColor: '#fff',
-          borderRadius: '12px',
-          boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-          border: '1px solid #f3f4f6',
-          padding: '24px',
+          backgroundColor: "#fff",
+          borderRadius: "12px",
+          boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+          border: "1px solid #f3f4f6",
+          padding: "24px",
         }}
       >
         <h3
           style={{
-            fontSize: '18px',
-            fontWeight: 'bold',
-            color: '#111827',
-            marginBottom: '16px',
-            display: 'flex',
-            alignItems: 'center',
+            fontSize: "18px",
+            fontWeight: "bold",
+            color: "#111827",
+            marginBottom: "16px",
+            display: "flex",
+            alignItems: "center",
           }}
         >
           <div
             style={{
-              width: '8px',
-              height: '24px',
-              backgroundColor: '#f59e0b',
-              borderRadius: '9999px',
-              marginRight: '12px',
+              width: "8px",
+              height: "24px",
+              backgroundColor: "#3b82f6",
+              borderRadius: "9999px",
+              marginRight: "12px",
             }}
           ></div>
+          Inverter Details
+        </h3>
+
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+            gap: "16px",
+          }}
+        >
+          {inverters.length === 0 ? (
+            <div
+              style={{
+                color: "#6b7280",
+                gridColumn: "1 / -1",
+              }}
+            >
+              No inverters found for this project.
+            </div>
+          ) : (
+            inverters.map(
+              (inverter) =>
+                console.log(inverter) || (
+                  <div
+                    key={inverter.id}
+                    style={{
+                      padding: "16px",
+                      borderRadius: "10px",
+                      background:
+                        "linear-gradient(to bottom right, #f1f5f9, #e2e8f0)",
+                      border: "1px solid #e5e7eb",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "6px",
+                      transition: "transform 0.2s ease, box-shadow 0.2s ease",
+                      cursor: "pointer",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = "translateY(-2px)";
+                      e.currentTarget.style.boxShadow =
+                        "0 4px 12px rgba(0,0,0,0.08)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = "translateY(0)";
+                      e.currentTarget.style.boxShadow = "none";
+                    }}
+                  >
+                    <div
+                      style={{
+                        fontSize: "15px",
+                        fontWeight: "600",
+                        color: "#0f172a",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
+                      {inverter?.inverter?.inverterName || "Untitled"}
+                    </div>
+
+                    <div style={{ fontSize: "13px", color: "#475569" }}>
+                      Serial Number:
+                      <span style={{ fontWeight: 600, color: "#1e293b" }}>
+                        {" "}
+                        {inverter.inverter_serial_number || "N/A"}
+                      </span>
+                    </div>
+                  </div>
+                )
+            )
+          )}
+        </div>
+      </div>
+
+      {/* -------------------- CONTRACTS -------------------- */}
+      <div
+        style={{
+          backgroundColor: "#fff",
+          borderRadius: "12px",
+          boxShadow: "0px 2px 6px rgba(0,0,0,0.06)",
+          border: "1px solid #f3f4f6",
+          padding: "24px",
+        }}
+      >
+        <h3
+          style={{
+            fontSize: "18px",
+            fontWeight: "700",
+            color: "#111827",
+            marginBottom: "20px",
+            display: "flex",
+            alignItems: "center",
+          }}
+        >
+          <div
+            style={{
+              width: "8px",
+              height: "24px",
+              backgroundColor: "#f59e0b",
+              borderRadius: "9999px",
+              marginRight: "12px",
+            }}
+          />
           Contracts
         </h3>
+
         {contractsLoading ? (
-          <div style={{ color: '#6b7280' }}>Loading contracts...</div>
-        ) : !contracts || contracts.length === 0 ? (
-          <div style={{ color: '#6b7280' }}>No contracts found for this project.</div>
+          <p style={{ color: "#6b7280" }}>Loading contracts...</p>
+        ) : contracts.length === 0 ? (
+          <p style={{ color: "#6b7280" }}>No contracts found.</p>
         ) : (
-          <div style={{ display: 'grid', gap: '12px' }}>
+          <div style={{ display: "grid", gap: "12px" }}>
             {contracts.map((c) => (
               <div
                 key={c.id}
                 style={{
-                  padding: '12px',
-                  borderRadius: '8px',
-                  background: '#f8fafc',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
+                  padding: "14px",
+                  borderRadius: "10px",
+                  background: "#f8fafc",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  border: "1px solid #e5e7eb",
                 }}
               >
                 <div style={{ minWidth: 0 }}>
                   <div
                     style={{
-                      fontSize: '14px',
-                      fontWeight: '600',
-                      color: '#111827',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap',
+                      fontSize: "15px",
+                      fontWeight: "600",
+                      color: "#111827",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                      marginBottom: "6px",
                     }}
                   >
-                    {c.contractTitle || 'Untitled'}
+                    {c.contractTitle || "Untitled"}
                   </div>
-                  <div style={{ fontSize: '12px', color: '#6b7280' }}>
-                    {c.offtaker?.fullName ? `Offtaker: ${c.offtaker.fullName}` : ''}
-                    {c.investor?.fullName ? ` ${c.offtaker ? '·' : ''} Investor: ${c.investor.fullName}` : ''}
+
+                  <div style={{ fontSize: "12px", color: "#6b7280" }}>
+                    {c.offtaker?.fullName
+                      ? `Offtaker: ${c.offtaker.fullName}`
+                      : ""}
+                    {c.investor?.fullName
+                      ? ` ${c.offtaker ? "·" : ""} Investor: ${
+                          c.investor.fullName
+                        }`
+                      : ""}
                   </div>
-                  <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '6px' }}>
-                    {c.contractDate ? new Date(c.contractDate).toLocaleDateString() : '-'}
+
+                  <div
+                    style={{
+                      fontSize: "12px",
+                      color: "#6b7280",
+                      marginTop: "6px",
+                    }}
+                  >
+                    {c.contractDate
+                      ? new Date(c.contractDate).toLocaleDateString()
+                      : "-"}
                   </div>
                 </div>
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+
+                <div
+                  style={{ display: "flex", gap: "8px", alignItems: "center" }}
+                >
                   {c.documentUpload ? (
                     <a
-                      href={c.documentUpload.startsWith('/') ? c.documentUpload : `/${c.documentUpload}`}
+                      href={
+                        c.documentUpload.startsWith("/")
+                          ? c.documentUpload
+                          : `/${c.documentUpload}`
+                      }
                       target="_blank"
                       rel="noreferrer"
-                      style={{ fontSize: '13px', color: '#2563eb', textDecoration: 'none' }}
+                      style={{
+                        fontSize: "13px",
+                        color: "#2563eb",
+                        textDecoration: "none",
+                      }}
                     >
-                      View Document
+                      View
                     </a>
                   ) : (
-                    <span style={{ fontSize: '13px', color: '#9ca3af' }}>No document</span>
+                    <span style={{ fontSize: "13px", color: "#9ca3af" }}>
+                      No file
+                    </span>
                   )}
+
                   <span
                     style={{
-                      padding: '6px 10px',
-                      borderRadius: '9999px',
-                      backgroundColor: c.status === 1 ? '#dcfce7' : c.status === 2 ? '#fee2e2' : '#f3f4f6',
-                      color: c.status === 1 ? '#166534' : c.status === 2 ? '#991b1b' : '#6b7280',
+                      padding: "6px 10px",
+                      borderRadius: "9999px",
+                      backgroundColor:
+                        c.status === 1
+                          ? "#dcfce7"
+                          : c.status === 2
+                          ? "#fee2e2"
+                          : "#f3f4f6",
+                      color:
+                        c.status === 1
+                          ? "#166534"
+                          : c.status === 2
+                          ? "#991b1b"
+                          : "#6b7280",
                       fontWeight: 600,
-                      fontSize: '12px',
+                      fontSize: "12px",
                     }}
                   >
-                    {c.status === 1 ? 'Active' : c.status === 2 ? 'Rejected' : 'Pending'}
+                    {c.status === 1
+                      ? "Active"
+                      : c.status === 2
+                      ? "Rejected"
+                      : "Pending"}
                   </span>
                 </div>
               </div>

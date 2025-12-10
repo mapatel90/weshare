@@ -179,7 +179,7 @@ const ProjectViewContent = ({ projectId = '1' }) => {
 
   // ------------------- MAIN UI -------------------
   return (
-    <div style={{ minHeight: '100vh', background: 'linear-gradient(to bottom right, #eff6ff, #ffffff, #faf5ff)', padding: '24px' }}>
+    <div style={{ minHeight: '100vh',  height: 'auto', overflowY: 'hidden', background: 'linear-gradient(to bottom right, #eff6ff, #ffffff, #faf5ff)', padding: '24px' }}>
       <div style={{ margin: '0 auto' }}>
         
         {/* HEADER */}
@@ -257,7 +257,7 @@ const ProjectViewContent = ({ projectId = '1' }) => {
         <ProjectInformation project={project} />
 
         {/* METER INFO */}
-        <MeterInfo project={project} contracts={contracts} contractsLoading={contractsLoading} />
+        <MeterInfo project={project} contracts={contracts} contractsLoading={contractsLoading} inverters={projectInverters} />
 
         {/* CHART SECTION */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(500px, 1fr))', gap: '24px' }}>
