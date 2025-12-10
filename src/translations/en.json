@@ -1080,8 +1080,10 @@
   "finance": {
     "title": "Finance General",
     "subtitle": "Financial general settings",
-    "decimalSeparator": "Decimal Separator",
+    "currency": "Currency",
+    "currencyInfo": "Currency  [Ex: IND,VND,USD]",
     "decimalSeparatorInfo": "Decimal Separator [Ex: ./,]",
+    "decimalSeparator": "Decimal Separator",
     "thousandSeparator": "Thousand Separator",
     "thousandSeparatorInfo": "Thousand Separator [Ex: ./,/'/None/Space]",
     "defaultTax": "Default Tax",
