@@ -99,14 +99,14 @@ const StatCardsGrid = ({
       if (projectPriceKwh !== undefined && projectPriceKwh !== null && dailyYieldMetric !== null) {
         monetaryValue = dailyYieldMetric * projectPriceKwh
       }
-      dailyYieldSubtitle = (monetaryValue !== null ? ` • Revenue: VND ${formatNumber(monetaryValue)}` : '')
+      dailyYieldSubtitle = (monetaryValue !== null ? ` • Daily Revenue: VND ${formatNumber(monetaryValue)}` : '')
   } else if (!isInverterSelected && project?.daily_yield !== undefined && project?.daily_yield !== null) {
     dailyYieldValue = `${formatNumber(project.daily_yield)} kWh`
       let monetaryValue = null
       if (projectPriceKwh !== undefined && projectPriceKwh !== null && project.daily_yield !== null) {
         monetaryValue = project.daily_yield * projectPriceKwh
       }
-      dailyYieldSubtitle = (monetaryValue !== null ? ` • Revenue: VND ${formatNumber(monetaryValue)}` : '')
+      dailyYieldSubtitle = (monetaryValue !== null ? ` • Daily Revenue: VND ${formatNumber(monetaryValue)}` : '')
   } else {
     dailyYieldValue = '-'
     dailyYieldSubtitle = isInverterSelected
@@ -121,10 +121,18 @@ const StatCardsGrid = ({
     totalYieldSubtitle = `Loading ${isInverterSelected ? 'inverter' : 'project'} data...`
   } else if (totalYieldMetric !== null) {
     totalYieldValue = `${formatNumber(totalYieldMetric)} kWh`
-    totalYieldSubtitle = `Lifetime energy produced (${contextLabel})`
+    let totalMonetaryValue = null
+    if (projectPriceKwh !== undefined && projectPriceKwh !== null && totalYieldMetric !== null) {
+      totalMonetaryValue = totalYieldMetric * projectPriceKwh
+    }
+    totalYieldSubtitle = (totalMonetaryValue !== null ? ` • Total Revenue: VND ${formatNumber(totalMonetaryValue)}` : '')
   } else if (!isInverterSelected && project?.total_yield !== undefined && project?.total_yield !== null) {
     totalYieldValue = `${formatNumber(project.total_yield)} kWh`
-    totalYieldSubtitle = 'Lifetime energy produced (Project)'
+    let totalMonetaryValue = null
+    if (projectPriceKwh !== undefined && projectPriceKwh !== null && project.total_yield !== null) {
+      totalMonetaryValue = project.total_yield * projectPriceKwh
+    }
+    totalYieldSubtitle = (totalMonetaryValue !== null ? ` • Total Revenue: VND ${formatNumber(totalMonetaryValue)}` : '')
   } else {
     totalYieldValue = '-'
     totalYieldSubtitle = isInverterSelected
