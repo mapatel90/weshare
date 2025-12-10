@@ -211,7 +211,7 @@ router.post("/latest", async (req, res) => {
 
     // Filter by projectId if provided
     if (projectId) {
-      where.project = Number(projectId);
+      where.projectId = Number(projectId);
     }
 
     // Filter by inverter_id if provided
