@@ -20,13 +20,16 @@ const Table = ({
   serverSideTotal = null,
   pageIndex: controlledPageIndex = null,
   pageSize: controlledPageSize = null,
+  initialPageSize = 10,
 }) => {
   // const [data] = useState([...Data])
   const [sorting, setSorting] = useState([]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [internalPagination, setInternalPagination] = useState({
     pageIndex: 0,
-    pageSize: disablePagination ? Math.max(data?.length || 10, 10) : 10,
+    pageSize: disablePagination
+      ? Math.max(data?.length || initialPageSize, initialPageSize)
+      : (controlledPageSize ?? initialPageSize ?? 10),
   });
   
   // Use controlled pagination if provided, otherwise use internal state

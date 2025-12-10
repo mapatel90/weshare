@@ -6,10 +6,20 @@ const router = express.Router();
 
 router.get("/", async (req, res) => {
   try {
-    const MAX_LIMIT = 50;
-    const { projectId, inverterId, search, downloadAll } = req.query;
+    const {
+      projectId,
+      inverterId,
+      search,
+      downloadAll,
+      limit,
+      startDate,
+      endDate,
+    } = req.query;
 
-    const fetchAll = downloadAll === "1" || downloadAll === "true";
+    const parsedLimit = Number(limit);
+    const limitNumber = !Number.isNaN(parsedLimit) && parsedLimit > 0 ? parsedLimit : null;
+    // Default: fetch all records unless an explicit limit is provided
+    const fetchAll = downloadAll === "1" || downloadAll === "true" || !limitNumber;
 
     // Build the base where clause based on filters
     let where = {
@@ -22,6 +32,31 @@ router.get("/", async (req, res) => {
 
     if (inverterId) {
       where.inverter_id = Number(inverterId);
+    }
+
+    // Date range filtering (inclusive). If only start is provided, first try that exact day.
+    // If nothing is found for that day, we will fallback to >= startDate (see below).
+    let dateFilter = undefined;
+    const hasStart = typeof startDate === "string" && /^\d{4}-\d{2}-\d{2}$/.test(startDate);
+    const hasEnd = typeof endDate === "string" && /^\d{4}-\d{2}-\d{2}$/.test(endDate);
+
+    if (hasStart && hasEnd) {
+      const gte = new Date(`${startDate}T00:00:00.000Z`);
+      const lte = new Date(`${endDate}T23:59:59.999Z`);
+      // swap if inverted
+      dateFilter = gte > lte ? { gte: lte, lte: gte } : { gte, lte };
+    } else if (hasStart && !hasEnd) {
+      // primary attempt: only that calendar day
+      dateFilter = {
+        gte: new Date(`${startDate}T00:00:00.000Z`),
+        lte: new Date(`${startDate}T23:59:59.999Z`),
+      };
+    } else if (!hasStart && hasEnd) {
+      dateFilter = { lte: new Date(`${endDate}T23:59:59.999Z`) };
+    }
+
+    if (dateFilter) {
+      where.date = dateFilter;
     }
 
     // If a search term is provided, search across relevant columns in the whole table
@@ -64,12 +99,22 @@ router.get("/", async (req, res) => {
       }
     }
 
-    // Get total count for pagination
-    const totalCount = await prisma.inverter_data.count({ where });
+    // Get total count for pagination (with possible fallback if single-day has no rows)
+    let primaryWhere = { ...where };
+    let totalCount = await prisma.inverter_data.count({ where: primaryWhere });
+    let effectiveWhere = primaryWhere;
 
-    // Fetch records: capped to 50 unless downloadAll is set
+    // Fallback: if user selected only startDate (single day) and no rows found,
+    // broaden to >= startDate to show later dates.
+    if (totalCount === 0 && hasStart && !hasEnd) {
+      const fallbackDate = { gte: new Date(`${startDate}T00:00:00.000Z`) };
+      effectiveWhere = { ...where, date: fallbackDate };
+      totalCount = await prisma.inverter_data.count({ where: effectiveWhere });
+    }
+
+    // Fetch records: fetch all by default or cap to provided limit
     const inverterData = await prisma.inverter_data.findMany({
-      where,
+      where: effectiveWhere,
       orderBy: { date: "desc" },
       distinct: ["inverter_id", "date"],
       include: {
@@ -77,11 +122,12 @@ router.get("/", async (req, res) => {
         inverter: true,
       },
       skip: 0,
-      take: fetchAll ? undefined : MAX_LIMIT,
+      take: fetchAll ? undefined : limitNumber,
     });
 
-    const returnedCount = fetchAll ? totalCount : Math.min(totalCount, MAX_LIMIT);
-    const pageSize = 10; // frontend will show 10 per page
+    const effectiveLimit = limitNumber || totalCount;
+    const returnedCount = fetchAll ? totalCount : Math.min(totalCount, effectiveLimit);
+    const pageSize = 50; // frontend will show 50 per page
 
     // --- Fetch full project list (for dropdown) ---
     const projectList = await prisma.project.findMany({
@@ -112,8 +158,8 @@ router.get("/", async (req, res) => {
       inverterList, 
       pagination: {
         page: 1,
-        limit: fetchAll ? totalCount : MAX_LIMIT,
-        total: returnedCount, // show total as max 50 unless downloadAll
+        limit: fetchAll ? totalCount : effectiveLimit,
+        total: returnedCount,
         pages: Math.max(1, Math.ceil(returnedCount / pageSize)),
       },
     });

@@ -7,12 +7,13 @@ import { useLanguage } from '@/contexts/LanguageContext';
 
 const SavingReports = () => {
 
-    const FETCH_LIMIT = 50; // always fetch up to latest 50 (including search)
-    const PAGE_SIZE = 10;   // always show 10 rows per table page
+    const PAGE_SIZE = 50;   // show 50 rows per table page
 
     const [projectFilter, setProjectFilter] = useState(''); // store projectId (string)
     const [inverterFilter, setInverterFilter] = useState(''); // store inverterId (string)
     const [searchTerm, setSearchTerm] = useState(''); // global search value from Table
+    const [startDate, setStartDate] = useState('');   // YYYY-MM-DD
+    const [endDate, setEndDate] = useState('');       // YYYY-MM-DD
     const [reportsData, setReportsData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
@@ -36,10 +37,23 @@ const SavingReports = () => {
     const fetchReports = async () => {
         try {
             setLoading(true);
+            setError(null);
+
+            // basic client-side validation to avoid inverted ranges
+            if (startDate && endDate) {
+                const startTs = new Date(`${startDate}T00:00:00`);
+                const endTs = new Date(`${endDate}T23:59:59`);
+                if (startTs > endTs) {
+                    setError("Start date cannot be after end date.");
+                    setLoading(false);
+                    setHasLoadedOnce(true);
+                    return;
+                }
+            }
 
             const params = new URLSearchParams({
                 page: '1',
-                limit: FETCH_LIMIT.toString(),
+                downloadAll: '1',
             });
 
             // Add projectId if selected
@@ -55,6 +69,14 @@ const SavingReports = () => {
             // Add searchTerm for server-side search
             if (searchTerm) {
                 params.append('search', searchTerm);
+            }
+
+            // Add date range filters (inclusive)
+            if (startDate) {
+                params.append('startDate', startDate);
+            }
+            if (endDate) {
+                params.append('endDate', endDate);
             }
 
             const res = await apiGet(`/api/inverter-data?${params.toString()}`);
@@ -92,7 +114,7 @@ const SavingReports = () => {
             setInverterList(Array.isArray(res?.inverterList) ? res.inverterList : []);
             
             const apiTotal = res?.pagination?.total ?? mappedData.length;
-            const total = Math.min(apiTotal, FETCH_LIMIT);
+            const total = apiTotal;
 
             setPagination({
                 page: 1,
@@ -119,7 +141,7 @@ const SavingReports = () => {
         }, 120000); // 2 minutes
 
         return () => clearInterval(interval);
-    }, [projectFilter, inverterFilter, searchTerm]);
+    }, [projectFilter, inverterFilter, searchTerm, startDate, endDate]);
 
     // When projectFilter changes: if the currently selected inverter is not in returned inverterList => reset inverterFilter
     useEffect(() => {
@@ -225,7 +247,7 @@ const SavingReports = () => {
             const csvRows = rows.map(row => [
                 row.projectName,
                 row.inverterName,
-                row.date ? new Date(row.date).toLocaleDateString() : '',
+                formatDateDDMMYYYY(row.date),
                 row.time ?? '',
                 row.generatedKW ?? '',
                 row.Acfrequency ?? '',
@@ -249,6 +271,16 @@ const SavingReports = () => {
         }
     };
 
+    // helper to show date without timezone shift (dd/mm/yyyy)
+    const formatDateDDMMYYYY = (raw) => {
+        if (!raw) return '';
+        // take only date part (works for "YYYY-MM-DD" or "YYYY-MM-DD HH:mm:ss")
+        const datePart = String(raw).trim().split(/[ T]/)[0];
+        const [y, m, d] = datePart.split('-');
+        if (y && m && d) return `${d}/${m}/${y}`;
+        return '';
+    };
+
     // -----------------------------
     // Table Columns
     // -----------------------------
@@ -258,10 +290,7 @@ const SavingReports = () => {
         {
             accessorKey: 'date',
             header: () => lang("common.date"),
-            cell: ({ row }) => {
-                const d = row.original.date ? new Date(row.original.date) : null;
-                return d ? d.toLocaleDateString() : '';
-            }
+            cell: ({ row }) => formatDateDDMMYYYY(row.original.date)
         },
         { accessorKey: 'time', header: () => lang("common.time") },
         { accessorKey: 'generatedKW', header: () => lang("common.generatedKW") },
@@ -277,7 +306,7 @@ const SavingReports = () => {
     return (
         <div className="p-6 bg-white rounded-3xl shadow-md">
 
-            <div className="flex flex-row flex-wrap items-center justify-start md:justify-end gap-2 mb-4 mt-4">
+            <div className="flex flex-row items-center justify-between gap-2 mb-4 mt-4 w-full flex-wrap">
                 <select
                     value={projectFilter}
                     onChange={(e) => setProjectFilter(e.target.value)}
@@ -300,9 +329,26 @@ const SavingReports = () => {
                    {inverterList.map(i => <option key={i.id} value={i.id}>{i.name}</option>)}
                 </select>
 
+                <input
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    className="theme-btn-blue-color border rounded-md px-3 py-2 me-2 text-sm"
+                    placeholder={lang("common.startDate") || "Start Date"}
+                />
+
+                <input
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    min={startDate || undefined}
+                    className="theme-btn-blue-color border rounded-md px-3 py-2 me-2 text-sm"
+                    placeholder={lang("common.endDate") || "End Date"}
+                />
+
                 <button
                     onClick={handleDownloadCSV}
-                    className="theme-btn-blue-color border rounded-md px-3 py-2 text-sm"
+                    className="theme-btn-blue-color border rounded-md btn-primary px-3 py-2 text-sm"
                 >
                     {lang("reports.downloadcsv")}
                 </button>
@@ -329,7 +375,8 @@ const SavingReports = () => {
                             columns={columns} 
                             disablePagination={false}
                             onSearchChange={setSearchTerm}
-                            serverSideTotal={pagination.total} // always show total as capped 50
+                            serverSideTotal={pagination.total} // total rows from server
+                            initialPageSize={PAGE_SIZE}
                         />
                         {loading && (
                             <div className="absolute inset-0 bg-white/70 flex items-center justify-center text-gray-600">
