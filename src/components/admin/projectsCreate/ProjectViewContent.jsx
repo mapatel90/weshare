@@ -243,7 +243,7 @@ const ProjectViewContent = ({ projectId = '' }) => {
             <PowerConsumptionDashboard
               projectId={projectId}
               readings={inverterChartData || []}
-              loading={inverterLoading}
+              loading={inverterLatestLoading}
               selectedInverterId={selectedInverterId}
               projectInverters={projectInverters}
             />
