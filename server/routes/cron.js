@@ -205,6 +205,47 @@ router.post("/inverter/detail", async (req, res) => {
     }
 });
 
+
+router.post("/inverter/inverterMonth/data", async (req, res) => {
+    try {
+        const { id, sn, money, month } = req.body;
+        // Validation
+        if (!id && !sn) {
+            return res.status(400).json({
+                error: "Either inverter 'id' or 'sn' is required"
+            });
+        }
+        
+        if (!month) {
+            return res.status(400).json({ error: "month is required" });
+        }
+
+        // Prepare payload
+        const payload = {
+            id: id || null,
+            sn: sn || null,
+            month
+        };
+
+        console.log("InverterMonth Payload:", payload);
+
+        // Call SolisCloud API
+        const result = await solisRequest("/v1/api/inverterMonth", payload);
+
+        res.json({
+            message: "Inverter month data fetched",
+            solisData: result
+        });
+
+    } catch (err) {
+        console.error("InverterMonth Error:", err);
+        res.status(500).json({
+            error: "Failed to fetch inverter month data",
+            details: err.message
+        });
+    }
+});
+
 router.post("/inverter/real-time/data", async (req, res) => {
     try {
         const { id, sn, money, time, timeZone } = req.body;
