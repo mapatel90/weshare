@@ -19,11 +19,11 @@ const CardHeader = ({ title, viewHref }) => {
             style={{
               fontSize: "12px",
               fontWeight: "600",
-              color: hover ? "#1d4ed8" : "#3b82f6",
-              backgroundColor: hover ? "#bfdbfe" : "#dbeafe",
-              padding: "6px 12px",
-              borderRadius: "9999px",
-              boxShadow: hover ? "0 2px 12px rgba(59, 130, 246, 0.25)" : "none",
+              color: "#1d4ed8",
+              // backgroundColor: hover ? "#bfdbfe" : "#dbeafe",
+              // padding: "6px 12px",
+              // borderRadius: "9999px",
+              // boxShadow: hover ? "0 2px 12px rgba(59, 130, 246, 0.25)" : "none",
               transition: "all 0.2s ease",
             }}
           >
