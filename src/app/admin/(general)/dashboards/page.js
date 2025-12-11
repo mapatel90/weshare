@@ -7,6 +7,7 @@ import AllInverters from '@/components/admin/dashboard/AllInverters'
 import AllContracts from '@/components/admin/dashboard/AllContracts'
 import AllLeaseRequest from '@/components/admin/dashboard/AllLeaseRequest'
 import AllInvestor from '@/components/admin/dashboard/AllInvestor'
+import AllReports from '@/components/admin/dashboard/AllReports'
 import Remainders from '@/components/widgetsTables/Remainders'
 import GoalMiscellaneous from '@/components/widgetsMiscellaneous/GoalMiscellaneous'
 import VisitorsOverviewChart from '@/components/widgetsCharts/VisitorsOverviewChart'
@@ -33,6 +34,7 @@ const page = () => {
                     <AllContracts />
                     <AllLeaseRequest />
                     <AllInvestor />
+                    <AllReports />
                     {/* <SiteOverviewChart /> */}
                     <GoalMiscellaneous />
                     <MarketingChart />

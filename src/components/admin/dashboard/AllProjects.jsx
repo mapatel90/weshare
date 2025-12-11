@@ -26,9 +26,8 @@ const AllProjects = ({ title = "All Projects" }) => {
         setLoading(true);
         setError(null);
         const res = await apiGet("/api/projects");
-        // expect res.data.data.projects based on route
         const list = res?.data?.projects || [];
-        setProjects(list);
+        setProjects(list.slice(0, 6)); // Show first 6 projects
       } catch (err) {
         setError("Failed to load projects");
       } finally {
@@ -39,6 +38,11 @@ const AllProjects = ({ title = "All Projects" }) => {
   }, [refreshKey]);
 
   if (isRemoved) return null;
+
+  const truncateText = (text, maxLength = 20) => {
+    if (!text) return "N/A";
+    return text.length > maxLength ? text.substring(0, maxLength) + "..." : text;
+  };
 
   return (
     <div className="col-xxl-4">
@@ -66,8 +70,9 @@ const AllProjects = ({ title = "All Projects" }) => {
                           <Link
                             href={`/admin/projects/view/${id}`}
                             className="fw-semibold text-decoration-none"
+                            title={project_name || "Untitled"}
                           >
-                            {project_name || "Untitled"}
+                            {truncateText(project_name || "Untitled", 20)}
                           </Link>
                           <div className="fs-12 text-muted">
                             Code: {product_code || "N/A"}

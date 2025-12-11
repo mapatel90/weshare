@@ -238,7 +238,7 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
           : null,
         project_start_date: start_date ? new Date(start_date) : null,
         project_location: project_location || "",
-        price_kwh: price_kwh || "",
+        price_kwh: parseFloat(price_kwh) || null,
         status: parseInt(status),
       },
       include: {
@@ -739,7 +739,7 @@ router.put("/:id", authenticateToken, async (req, res) => {
         project_location: project_location || "",
       }),
       ...(status !== undefined && { status: parseInt(status) }),
-      ...(price_kwh !== undefined && { price_kwh: price_kwh || "" }),
+      ...(price_kwh !== undefined && { price_kwh: parseFloat(price_kwh) || null }),
     };
 
     if (project_slug !== undefined) {

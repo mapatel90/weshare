@@ -14,10 +14,10 @@ const PageHeaderDate = () => {
   return (
     <>
       <div className="d-flex align-items-center gap-2 page-header-right-items-wrapper">
-        <div className="position-relative date-picker-field" onClick={() => setToggleDateRange(!toggleDateRange)}>
+        {/* <div className="position-relative date-picker-field" onClick={() => setToggleDateRange(!toggleDateRange)}>
           <DateRange toggleDateRange={toggleDateRange} setToggleDateRange={setToggleDateRange} />
-        </div>
-        <div className="filter-dropdown">
+        </div> */}
+        {/* <div className="filter-dropdown">
           <Link href={"#"} className="btn btn-md btn-light-brand" data-bs-toggle="dropdown" data-bs-offset="0, 10" data-bs-auto-close="outside">
             <i className="me-2"><FiFilter /></i>
             <span>Filter</span>
@@ -39,7 +39,7 @@ const PageHeaderDate = () => {
               <span>Manage Filter</span>
             </Link>
           </div>
-        </div>
+        </div> */}
       </div>
     </>
   )

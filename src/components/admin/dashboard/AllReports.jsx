@@ -1,44 +1,41 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import Link from "next/link";
 import CardHeader from "@/components/shared/CardHeader";
 import useCardTitleActions from "@/hooks/useCardTitleActions";
 import CardLoader from "@/components/shared/CardLoader";
 import { apiGet } from "@/lib/api";
 
-const AllInvestor = ({ title = "All Investors" }) => {
+const AllReports = ({ title = "All Reports" }) => {
   const {
     refreshKey,
     isRemoved,
     isExpanded,
-    handleRefresh,
-    handleExpand,
-    handleDelete,
   } = useCardTitleActions();
-  const [investors, setInvestors] = useState([]);
+  const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchInvestors = async () => {
+    const fetchReports = async () => {
       try {
         setLoading(true);
         setError(null);
-        const res = await apiGet("/api/investors?limit=6");
+        const res = await apiGet("/api/inverter-data?limit=6");
+        console.log(res?.data);
         const list = res?.data || [];
-        setInvestors(list.slice(0, 6)); // Show first 6 investors
+        setReports(list.slice(0, 6)); // Show first 6 reports
       } catch (err) {
-        setError("Failed to load investors");
+        setError("Failed to load reports");
       } finally {
         setLoading(false);
       }
     };
-    fetchInvestors();
+    fetchReports();
   }, [refreshKey]);
 
   if (isRemoved) return null;
 
-  const truncateText = (text, maxLength = 20) => {
+    const truncateText = (text, maxLength = 20) => {
     if (!text) return "N/A";
     return text.length > maxLength ? text.substring(0, maxLength) + "..." : text;
   };
@@ -50,49 +47,39 @@ const AllInvestor = ({ title = "All Investors" }) => {
           isExpanded ? "card-expand" : ""
         } ${refreshKey ? "card-loading" : ""}`}
       >
-        <CardHeader title={title} />
+        <CardHeader title={title} viewHref="/admin/reports/shaving" />
         <div className="card-body custom-card-action p-0">
           {loading ? (
             <div className="p-4 text-center text-muted">Loading...</div>
           ) : error ? (
             <div className="p-4 text-center text-danger">{error}</div>
-          ) : investors.length === 0 ? (
-            <div className="p-4 text-center text-muted">No investors found</div>
+          ) : reports.length === 0 ? (
+            <div className="p-4 text-center text-muted">No reports found</div>
           ) : (
             <div className="table-responsive">
               <table className="table table-hover mb-0">
                 <tbody>
-                  {investors.map(({ id, fullName, email, phoneNumber, project, status }) => {
-                    const isActive = status === 1;
+                  {reports.map(({ id, project, inverter, date, daily_yield, total_yield }) => {
                     return (
                       <tr key={id} className="align-middle" style={{ borderBottom: "1px solid #e5e7eb" }}>
                         <td>
-                          <div className="fw-semibold text-decoration-none" title={fullName || "Unnamed"}>
-                            {truncateText(fullName || "Unnamed", 20)}
+                          <div className="fw-semibold text-decoration-none">
+                            {truncateText(project?.project_name || "Unnamed", 20)}
                           </div>
-                          <div className="fs-12 text-muted" title={email || "N/A"}>
-                            Email: {truncateText(email, 25)}
+                          <div className="fs-12 text-muted">
+                            Inverter: {inverter?.inverterName || "N/A"}
                           </div>
-                          <div className="fs-12 text-muted" title={project?.project_name || "N/A"}>
-                            Project: {truncateText(project?.project_name, 20)}
+                          <div className="fs-12 text-muted">
+                            Date: {new Date(date).toLocaleDateString()}
                           </div>
                         </td>
                         <td className="text-end">
-                          <span
-                            className="px-2 py-1 rounded-pill fw-semibold"
-                            style={{
-                              fontSize: "12px",
-                              border:
-                                isActive
-                                  ? "1px solid #16a34a30"
-                                  : "1px solid #dc262630",
-                              backgroundColor:
-                                isActive ? "#16a34a15" : "#dc262615",
-                              color: isActive ? "#15803d" : "#b91c1c",
-                            }}
-                          >
-                            {isActive ? "Active" : "Inactive"}
-                          </span>
+                          <div className="fs-12 fw-semibold">
+                            Daily: {daily_yield?.toFixed(2) || "0.00"} kW
+                          </div>
+                          <div className="fs-12 text-muted">
+                            Total: {total_yield?.toFixed(2) || "0.00"} kW
+                          </div>
                         </td>
                       </tr>
                     );
@@ -108,4 +95,4 @@ const AllInvestor = ({ title = "All Investors" }) => {
   );
 };
 
-export default AllInvestor;
+export default AllReports;
