@@ -173,36 +173,75 @@ router.get("/", async (req, res) => {
   }
 });
 
-// router.post("/project-invert-chart", async (req, res) => {
-//   try {
-//     // Include related Project and Inverter records (only projects with is_deleted = 0)
-//     const inverterData = await prisma.inverter_data.findMany({
-//       where: {
-//         project: { is_deleted: 0 },
-//       },
-//       orderBy: { date: "asc" },
-//       include: {
-//         project: true,
-//         inverter: true,
-//       },
-//     });
-//     res.status(200).json({ success: true, data: inverterData });
-//   } catch (error) {
-//     console.error("Error fetching inverter data:", error.message, error.stack);
-//     res.status(500).json({
-//       success: false,
-//       message: "Internal server error",
-//       error: error.message,
-//     });
-//   }
-// });
-
-router.post("/latest", async (req, res) => {
+router.post("/latest-record", async (req, res) => {
   try {
     const { projectId, projectInverterId } = req.body;
+    // Build WHERE condition step-by-step
+    let where = {
+      project: { is_deleted: 0 }
+    };
 
-    console.log("projectId", projectId);
-    console.log("projectInverterId", projectInverterId);
+    // Filter by projectId if provided
+    if (projectId) {
+      where.projectId = Number(projectId);
+    }
+
+    // If inverter selected, return latest for that inverter
+    if (projectInverterId) {
+      where.inverter_id = Number(projectInverterId);
+      const latest = await prisma.inverter_data.findFirst({
+        where,
+        orderBy: { date: "desc" },
+      });
+      return res.json({
+        success: true,
+        data: latest ? {
+          inverter_id: latest.inverter_id,
+          daily_yield: latest.daily_yield,
+          total_yield: latest.total_yield,
+          date: latest.date,
+        } : null,
+      });
+    } else {
+      // No inverter selected: get all inverters for project
+      const inverters = await prisma.project_inverters.findMany({
+        where: {
+          is_deleted: 0,
+          ...(projectId ? { project_id: Number(projectId) } : {}),
+        },
+      });
+      // For each inverter, get latest record
+      const results = await Promise.all(inverters.map(async (inv) => {
+        const latest = await prisma.inverter_data.findFirst({
+          where: {
+            ...where,
+            inverter_id: inv.inverter_id,
+          },
+          orderBy: { date: "desc" },
+        });
+        return latest ? {
+          inverter_id: latest.inverter_id,
+          daily_yield: latest.daily_yield,
+          total_yield: latest.total_yield,
+          date: latest.date,
+        } : null;
+      }));
+      // Filter out nulls
+      const filtered = results.filter(r => r !== null);
+      return res.json({
+        success: true,
+        data: filtered,
+      });
+    }
+  } catch (error) {
+    console.error("Error fetching latest inverter data:", error);
+    return res.status(500).json({ error: "Server error" });
+  }
+});
+
+router.post("/chart-data", async (req, res) => {
+  try {
+    const { projectId, projectInverterId, date } = req.body;
 
     // Build WHERE condition step-by-step
     let where = {
@@ -218,13 +257,19 @@ router.post("/latest", async (req, res) => {
     if (projectInverterId) {
       where.inverter_id = Number(projectInverterId);
     }
-    
+
+    // Filter by date if provided (expecting YYYY-MM-DD)
+    if (typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      where.date = {
+        gte: new Date(`${date}T00:00:00.000Z`),
+        lte: new Date(`${date}T23:59:59.999Z`)
+      };
+    }
+
     const allData = await prisma.inverter_data.findMany({
       where,
       orderBy: { date: "asc" },
     });
-
-    console.log(allData);
 
     return res.json({
       success: true,

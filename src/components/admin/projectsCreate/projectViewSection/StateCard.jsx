@@ -72,26 +72,39 @@ const StatCard = ({ icon: Icon, title, value, subtitle, color, trend }) => (
 
 const StatCardsGrid = ({
   project = {},
-  contracts = [],
-  contractsLoading = false,
   inverterLatest = null,
   inverterLatestLoading = false,
   selectedInverterId = '',
-  settingsArray = []
+  statCardsData = []
 }) => {
   // If an inverter is selected, show its data; otherwise show project-level data
-  const isInverterSelected = !!selectedInverterId
-  const projectPriceKwh = project?.price_kwh
-  const hasAggregatedData = Array.isArray(inverterLatest)
-  const dailyYieldMetric = getAggregatedMetric(inverterLatest, 'daily_yield')
-  const totalYieldMetric = getAggregatedMetric(inverterLatest, 'total_yield')
+  const isInverterSelected = !!selectedInverterId;
+  const projectPriceKwh = project?.price_kwh;
+  // Prefer statCardsData for yield metrics if available
+  let dailyYieldMetric = null;
+  let totalYieldMetric = null;
+  let hasAggregatedData = Array.isArray(statCardsData) && statCardsData.length > 0;
+  if (!isInverterSelected && hasAggregatedData) {
+    // Sum all daily_yield and total_yield from statCardsData
+    dailyYieldMetric = statCardsData.reduce((sum, item) => sum + (item.daily_yield || 0), 0);
+    totalYieldMetric = statCardsData.reduce((sum, item) => sum + (item.total_yield || 0), 0);
+  } else if (isInverterSelected && hasAggregatedData) {
+    // Find the selected inverter's values
+    const selected = statCardsData.find(item => String(item.inverter_id) === String(selectedInverterId));
+    dailyYieldMetric = selected?.daily_yield ?? null;
+    totalYieldMetric = selected?.total_yield ?? null;
+  } else {
+    // Fallback to inverterLatest
+    dailyYieldMetric = getAggregatedMetric(statCardsData, 'daily_yield');
+    totalYieldMetric = getAggregatedMetric(statCardsData, 'total_yield');
+  }
   const settings_data = getSetting();
   const currency = settings_data?.settings?.finance_currency;
   const contextLabel = isInverterSelected
     ? 'Selected Inverter'
     : hasAggregatedData
       ? 'All Inverters'
-      : 'Project'
+      : 'Project';
 
   // Determine daily yield
   let dailyYieldValue, dailyYieldSubtitle
