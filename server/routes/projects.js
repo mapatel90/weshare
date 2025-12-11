@@ -875,6 +875,16 @@ router.delete("/:id", authenticateToken, async (req, res) => {
       where: { projectId },
     });
 
+    await prisma.contracts.updateMany({
+      where: { project_id: projectId },
+      data: { is_deleted: 1 },
+    });
+
+    await prisma.interested_investors.updateMany({
+      where: { project_id: projectId },
+      data: { is_deleted: 1 },
+    });
+
     // Soft-delete project_inverters rows for this project (mark soft_delete = 1)
     await prisma.project_inverters.updateMany({
       where: { project_id: projectId },

@@ -1,0 +1,127 @@
+"use client";
+import React, { useEffect, useState } from "react";
+import Link from "next/link";
+import CardHeader from "@/components/shared/CardHeader";
+import useCardTitleActions from "@/hooks/useCardTitleActions";
+import CardLoader from "@/components/shared/CardLoader";
+import { apiGet } from "@/lib/api";
+
+const AllContracts = ({ title = "All Contracts" }) => {
+  const {
+    refreshKey,
+    isRemoved,
+    isExpanded,
+    handleRefresh,
+    handleExpand,
+    handleDelete,
+  } = useCardTitleActions();
+  const [contracts, setContracts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchContracts = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const res = await apiGet("/api/contracts?limit=6");
+        const list = res?.data || [];
+        setContracts(list.slice(0, 6)); // Show first 6 contracts
+      } catch (err) {
+        setError("Failed to load contracts");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchContracts();
+  }, [refreshKey]);
+
+  if (isRemoved) return null;
+
+  const getStatusBadge = (status) => {
+    let bgColor = "#f5f5f5";
+    let borderColor = "#d5d5d5";
+    let textColor = "#666666";
+    let statusText = "Pending";
+
+    if (status === 1) {
+      bgColor = "#16a34a15";
+      borderColor = "#16a34a30";
+      textColor = "#15803d";
+      statusText = "Approved";
+    } else if (status === 2) {
+      bgColor = "#dc262615";
+      borderColor = "#dc262630";
+      textColor = "#b91c1c";
+      statusText = "Rejected";
+    }
+
+    return { bgColor, borderColor, textColor, statusText };
+  };
+
+  return (
+    <div className="col-xxl-4">
+      <div
+        className={`card stretch stretch-full ${
+          isExpanded ? "card-expand" : ""
+        } ${refreshKey ? "card-loading" : ""}`}
+      >
+        <CardHeader title={title} viewHref="/admin/contracts/list" />
+        <div className="card-body custom-card-action p-0">
+          {loading ? (
+            <div className="p-4 text-center text-muted">Loading...</div>
+          ) : error ? (
+            <div className="p-4 text-center text-danger">{error}</div>
+          ) : contracts.length === 0 ? (
+            <div className="p-4 text-center text-muted">No contracts found</div>
+          ) : (
+            <div className="table-responsive">
+              <table className="table table-hover mb-0">
+                <tbody>
+                  {contracts.map(({ id, contractTitle, project, status, contractDate }) => {
+                    const badge = getStatusBadge(status);
+                    const formattedDate = contractDate
+                      ? new Date(contractDate).toLocaleDateString()
+                      : "N/A";
+
+                    return (
+                      <tr key={id} className="align-middle" style={{ borderBottom: "1px solid #e5e7eb" }}>
+                        <td>
+                          <div className="fw-semibold text-decoration-none">
+                            {contractTitle || "Unnamed"}
+                          </div>
+                          <div className="fs-12 text-muted">
+                            Project: {project?.project_name || "N/A"}
+                          </div>
+                          <div className="fs-12 text-muted">
+                            Date: {formattedDate}
+                          </div>
+                        </td>
+                        <td className="text-end">
+                          <span
+                            className="px-2 py-1 rounded-pill fw-semibold"
+                            style={{
+                              fontSize: "12px",
+                              border: `1px solid ${badge.borderColor}`,
+                              backgroundColor: badge.bgColor,
+                              color: badge.textColor,
+                            }}
+                          >
+                            {badge.statusText}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+        <CardLoader refreshKey={refreshKey} />
+      </div>
+    </div>
+  );
+};
+
+export default AllContracts;

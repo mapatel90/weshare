@@ -34,7 +34,7 @@ const NotificationsModal = () => {
                 onClick={toggle}
             >
                 <FiBell size={20} />
-                <span className="badge bg-danger nxl-h-badge">3</span>
+                {/* <span className="badge bg-danger nxl-h-badge">3</span> */}
             </button>
 
             <div className={`dropdown-menu dropdown-menu-end nxl-h-dropdown nxl-notifications-menu ${open ? 'show' : ''}`}>

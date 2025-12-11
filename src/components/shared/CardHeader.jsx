@@ -1,98 +1,35 @@
 import Link from "next/link";
-import React from "react";
-import {
-  FiAtSign,
-  FiBell,
-  FiCalendar,
-  FiLifeBuoy,
-  FiMoreVertical,
-  FiSettings,
-  FiTrash,
-} from "react-icons/fi";
+import React, { useState } from "react";
 
+const CardHeader = ({ title, viewHref }) => {
+  const [hover, setHover] = useState(false);
 
-const CardHeader = ({ title, refresh, remove, expanded }) => {
   return (
-    <div className="card-header">
-      <h5 className="card-title">{title}</h5>
-      <div className="card-header-action">
-        <div className="card-header-btn">
-          <div data-toggle="tooltip" data-title="Delete" onClick={remove}>
-            <span
-              className="avatar-text avatar-xs bg-danger"
-              data-bs-toggle="remove"
-            >
-              {" "}
-            </span>
-          </div>
-          <div data-toggle="tooltip" data-title="Refresh" onClick={refresh}>
-            <span
-              className="avatar-text avatar-xs bg-warning"
-              data-bs-toggle="refresh"
-            >
-              {" "}
-            </span>
-          </div>
-          <div data-toggle="tooltip" data-title="Maximize/Minimize" onClick={expanded}>
-            <span
-              className="avatar-text avatar-xs bg-success"
-              data-bs-toggle="expand"
-            >
-              {" "}
-            </span>
-          </div>
-        </div>
-        <div className="filter-dropdown">
+    <div className="card-header d-flex align-items-center justify-content-between mb-0">
+      <h5 className="card-title mb-0">{title}</h5>
+      {viewHref && (
+        <Link
+          href={viewHref}
+          className="text-decoration-none"
+          onMouseEnter={() => setHover(true)}
+          onMouseLeave={() => setHover(false)}
+        >
           <div
-            className="avatar-text avatar-sm"
-            data-bs-toggle="dropdown"
-            data-bs-offset="25, 25"
+            style={{
+              fontSize: "12px",
+              fontWeight: "600",
+              color: hover ? "#1d4ed8" : "#3b82f6",
+              backgroundColor: hover ? "#bfdbfe" : "#dbeafe",
+              padding: "6px 12px",
+              borderRadius: "9999px",
+              boxShadow: hover ? "0 2px 12px rgba(59, 130, 246, 0.25)" : "none",
+              transition: "all 0.2s ease",
+            }}
           >
-            <div data-toggle="tooltip" data-title="Options" className="lh-1">
-              <FiMoreVertical />
-            </div>
+            View
           </div>
-          <div className="dropdown-menu dropdown-menu-end">
-            <Link href="#" className="dropdown-item">
-              <i>
-                <FiAtSign />
-              </i>
-              New
-            </Link>
-            <Link href="#" className="dropdown-item">
-              <i>
-                <FiCalendar />
-              </i>
-              Event
-            </Link>
-            <Link href="#" className="dropdown-item">
-              <i>
-                <FiBell />
-              </i>
-              Snoozed
-            </Link>
-            <Link href="#" className="dropdown-item">
-              <i>
-                <FiTrash />
-              </i>
-              Deleted
-            </Link>
-            <div className="dropdown-divider"></div>
-            <Link href="#" className="dropdown-item">
-              <i>
-                <FiSettings />
-              </i>
-              Settings
-            </Link>
-            <Link href="#" className="dropdown-item">
-              <i>
-                <FiLifeBuoy />
-              </i>
-              Tips & Tricks
-            </Link>
-          </div>
-        </div>
-      </div>
+        </Link>
+      )}
     </div>
   );
 };

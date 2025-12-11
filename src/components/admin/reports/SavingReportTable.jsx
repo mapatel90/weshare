@@ -350,7 +350,7 @@ const SavingReports = () => {
 
                 <button
                     onClick={handleDownloadCSV}
-                    className="theme-btn-blue-color common-grey-color border rounded-md px-3 py-2 text-sm"
+                    className="common-grey-color border rounded-3 btn"
                 >
                     {lang("reports.downloadcsv")}
                 </button>

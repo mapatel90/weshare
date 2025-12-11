@@ -1,11 +1,14 @@
 import React from 'react'
 import PageHeader from '@/components/shared/pageHeader/PageHeader'
 import PageHeaderDate from '@/components/shared/pageHeader/PageHeaderDate'
-import EmailOverview from '@/components/EmailOverview'
-import Browser from '@/components/widgetsList/Browser'
+import AllProjects from '@/components/admin/dashboard/AllProjects'
+import AllUsers from '@/components/admin/dashboard/AllUsers'
+import AllInverters from '@/components/admin/dashboard/AllInverters'
+import AllContracts from '@/components/admin/dashboard/AllContracts'
+import AllLeaseRequest from '@/components/admin/dashboard/AllLeaseRequest'
+import AllInvestor from '@/components/admin/dashboard/AllInvestor'
 import Remainders from '@/components/widgetsTables/Remainders'
 import GoalMiscellaneous from '@/components/widgetsMiscellaneous/GoalMiscellaneous'
-import SiteOverviewChart from '@/components/widgetsCharts/SiteOverviewChart'
 import VisitorsOverviewChart from '@/components/widgetsCharts/VisitorsOverviewChart'
 import SocialMediaStatisticsChart from '@/components/widgetsCharts/SocialMediaStatisticsChart'
 import MarketingChart from '@/components/widgetsCharts/MarketingChart'
@@ -23,12 +26,18 @@ const page = () => {
                 <div className='row'>
                     <StatsCardOverview />
                     <VisitorsOverviewChart />
-                    <Browser title={"Browser States"} />
-                    <SiteOverviewChart />
+                    {/* <Browser /> */}
+                    <AllProjects />
+                    <AllUsers />
+                    <AllInverters />
+                    <AllContracts />
+                    <AllLeaseRequest />
+                    <AllInvestor />
+                    {/* <SiteOverviewChart /> */}
                     <GoalMiscellaneous />
                     <MarketingChart />
-                    <Remainders title={"Project Remainders"} />
-                    <SocialMediaStatisticsChart />
+                    {/* <Remainders title={"Project Remainders"} /> */}
+                    {/* <SocialMediaStatisticsChart /> */}
                 </div>
             </div>
             <Footer />

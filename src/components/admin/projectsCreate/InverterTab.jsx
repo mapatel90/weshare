@@ -199,10 +199,17 @@ const InverterTab = ({ projectId }) => {
     {
       accessorKey: 'status',
       header: () => lang('common.status', 'Status'),
-      cell: info =>
-        info.getValue() == 1
-          ? <span className="badge bg-soft-success text-success">{lang('common.active', 'Active')}</span>
-          : <span className="badge bg-soft-danger text-danger">{lang('common.inactive', 'Inactive')}</span>,
+      cell: info => {
+        const statusValue = info.getValue();
+        if (statusValue === 1) {
+          return <span className="badge bg-soft-success text-success">{lang('common.online', 'Online')}</span>;
+        } else if (statusValue === 2) {
+          return <span className="badge bg-soft-danger text-danger">{lang('common.offline', 'Offline')}</span>;
+        } else if (statusValue === 3) {
+          return <span className="badge bg-soft-warning text-warning">{lang('common.alarm', 'Alarm')}</span>;
+        }
+        return '-';
+      },
     },
     {
       accessorKey: "actions",
