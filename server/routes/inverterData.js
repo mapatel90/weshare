@@ -241,10 +241,7 @@ router.post("/latest-record", async (req, res) => {
 
 router.post("/chart-data", async (req, res) => {
   try {
-    const { projectId, projectInverterId } = req.body;
-
-    console.log("projectId", projectId);
-    console.log("projectInverterId", projectInverterId);
+    const { projectId, projectInverterId, date } = req.body;
 
     // Build WHERE condition step-by-step
     let where = {
@@ -261,12 +258,18 @@ router.post("/chart-data", async (req, res) => {
       where.inverter_id = Number(projectInverterId);
     }
 
+    // Filter by date if provided (expecting YYYY-MM-DD)
+    if (typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      where.date = {
+        gte: new Date(`${date}T00:00:00.000Z`),
+        lte: new Date(`${date}T23:59:59.999Z`)
+      };
+    }
+
     const allData = await prisma.inverter_data.findMany({
       where,
       orderBy: { date: "asc" },
     });
-
-    console.log(allData);
 
     return res.json({
       success: true,

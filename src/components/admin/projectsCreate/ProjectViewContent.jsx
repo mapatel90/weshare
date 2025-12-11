@@ -6,6 +6,7 @@ import PowerConsumptionDashboard from './projectViewSection/inverterChart'
 import ProjectInformation from './projectViewSection/ProjectInformation'
 import MeterInfo from './projectViewSection/MeterInfo'
 import MonthlyChart from './projectViewSection/MonthlyChart'
+import { FiEdit3 } from 'react-icons/fi'
 
 // -------- LANGUAGE HOOK (temporary) ----------
 const useLanguage = () => ({
@@ -41,6 +42,7 @@ const ProjectViewContent = ({ projectId = '' }) => {
   // Latest inverter data for this project (default)
   const [inverterChartData, setInverterChartData] = useState(null)
   const [inverterLatestLoading, setInverterLatestLoading] = useState(true)
+  const [selectedDate, setSelectedDate] = useState(null); // New: track selected date
 
   // ------------------- Load Project -------------------
   useEffect(() => {
@@ -92,6 +94,7 @@ const ProjectViewContent = ({ projectId = '' }) => {
       const payload = {
         projectId: projectId ?? null,
         projectInverterId: selectedInverterId ?? null,
+        date: selectedDate ?? null,
       };
       try {
         setInverterLatestLoading(true)
@@ -102,7 +105,7 @@ const ProjectViewContent = ({ projectId = '' }) => {
       }
     }
     loadLatest()
-  }, [selectedInverterId, projectId])
+  }, [selectedInverterId, projectId, selectedDate])
 
   // ------------------- Load Count of daily yiled and total yiled -------------------
   useEffect(() => {
@@ -165,111 +168,110 @@ const ProjectViewContent = ({ projectId = '' }) => {
             <div>
               <h1 style={{ fontSize: '30px', fontWeight: 'bold', color: '#111827', marginBottom: '8px' }}>
                 {project.project_name}
+                <FiEdit3 style={{ cursor: 'pointer', marginLeft: '8px', color: '#3b82f6' }} onClick={() => window.location.href = `/admin/projects/edit/${project.id}`} />
               </h1>
               <p style={{ color: '#6b7280' }}>{project.project_type}</p>
             </div>
+            {/* PROJECT STATUS */}
+            <div style={{
+              padding: '8px 16px',
+              borderRadius: '9999px',
+              backgroundColor: project.status === 1 ? '#dcfce7' : '#fee2e2',
+              color: project.status === 1 ? '#166534' : '#991b1b',
+              fontWeight: '600'
+            }}>
+              {project.status === 1 ? '● Active' : '● Inactive'}
+            </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'end', gap: '12px' }}>
+            {/* ----- INVERTER DROPDOWN ----- */}
+            <div>
+              {projectInvertersLoading ? (
+                <div style={{ color: '#6b7280', fontSize: '14px' }}>Loading inverters...</div>
+              ) : (
+                <select
+                  value={selectedInverterId}
+                  onChange={(e) => setSelectedInverterId(e.target.value)}
+                  style={{
+                    padding: '8px 12px',
+                    borderRadius: '8px',
+                    border: '1px solid #e5e7eb',
+                    background: '#fff',
+                    fontSize: '14px',
+                    minWidth: '220px'
+                  }}
+                >
+                  <option value="">Select inverter</option>
+                  {projectInverters.map((pi) => {
+                    const inv = pi.inverter || {}
+                    const label = inv.inverterName
+                      ? `${inv.inverterName} (Serial: ${pi.inverter_serial_number || 'N/A'})`
+                      : `Inverter ID: ${pi.id}`
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-
-              {/* ----- INVERTER DROPDOWN ----- */}
-              <div>
-                {projectInvertersLoading ? (
-                  <div style={{ color: '#6b7280', fontSize: '14px' }}>Loading inverters...</div>
-                ) : (
-                  <select
-                    value={selectedInverterId}
-                    onChange={(e) => setSelectedInverterId(e.target.value)}
-                    style={{
-                      padding: '8px 12px',
-                      borderRadius: '8px',
-                      border: '1px solid #e5e7eb',
-                      background: '#fff',
-                      fontSize: '14px',
-                      minWidth: '220px'
-                    }}
-                  >
-                    <option value="">Select inverter (Project View)</option>
-                    {projectInverters.map((pi) => {
-                      const inv = pi.inverter || {}
-                      const label = inv.inverterName
-                        ? `${inv.inverterName} (Serial: ${pi.inverter_serial_number || 'N/A'})`
-                        : `Inverter ID: ${pi.id}`
-
-                      return (
-                        <option key={pi.id} value={pi.inverter_id}>
-                          {label}
-                        </option>
-                      )
-                    })}
-                  </select>
-                )}
-              </div>
-
-              {/* PROJECT STATUS */}
-              <div style={{
-                padding: '8px 16px',
-                borderRadius: '9999px',
-                backgroundColor: project.status === 1 ? '#dcfce7' : '#fee2e2',
-                color: project.status === 1 ? '#166534' : '#991b1b',
-                fontWeight: '600'
-              }}>
-                {project.status === 1 ? '● Active' : '● Inactive'}
-              </div>
-
+                    return (
+                      <option key={pi.id} value={pi.inverter_id}>
+                        {label}
+                      </option>
+                    )
+                  })}
+                </select>
+              )}
             </div>
           </div>
         </div>
+      </div>
 
-        {/* STAT CARDS */}
-        <StatCardsGrid
-          project={project}
-          contracts={contracts}
-          contractsLoading={contractsLoading}
-          inverterLatest={displayData}
-          inverterLatestLoading={displayDataLoading}
-          selectedInverterId={selectedInverterId}
-          statCardsData={statCardsData}
+      {/* STAT CARDS */}
+      <StatCardsGrid
+        project={project}
+        contracts={contracts}
+        contractsLoading={contractsLoading}
+        inverterLatest={displayData}
+        inverterLatestLoading={displayDataLoading}
+        selectedInverterId={selectedInverterId}
+        statCardsData={statCardsData}
+      />
+
+      {/* PROJECT DETAILS */}
+      <ProjectInformation project={project} />
+
+      {/* METER INFO */}
+      <MeterInfo project={project} contracts={contracts} contractsLoading={contractsLoading} inverters={projectInverters} />
+
+      {/* CHART SECTION */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(500px, 1fr))', gap: '24px' }}>
+
+        {/* PRODUCTION CHART */}
+        <div style={{ backgroundColor: '#fff', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', border: '1px solid #f3f4f6', padding: '24px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+            <h3 style={{ fontSize: '18px', fontWeight: 'bold', color: '#111827' }}>Energy Production Overview</h3>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#ef4444' }}></div>
+              <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#fbbf24' }}></div>
+              <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#22c55e' }}></div>
+            </div>
+          </div>
+
+          <PowerConsumptionDashboard
+            projectId={projectId}
+            readings={inverterChartData || []}
+            loading={inverterLatestLoading}
+            selectedInverterId={selectedInverterId}
+            projectInverters={projectInverters}
+            selectedDate={selectedDate}
+            onDateChange={setSelectedDate}
+          />
+        </div>
+
+        {/* MONTHLY CHART */}
+        <MonthlyChart
+          revenue={demoRevenue}
+          months={demoMonths}
+          summaryCards={revenueSummaryCards}
         />
 
-        {/* PROJECT DETAILS */}
-        <ProjectInformation project={project} />
-
-        {/* METER INFO */}
-        <MeterInfo project={project} contracts={contracts} contractsLoading={contractsLoading} inverters={projectInverters} />
-
-        {/* CHART SECTION */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(500px, 1fr))', gap: '24px' }}>
-
-          {/* PRODUCTION CHART */}
-          <div style={{ backgroundColor: '#fff', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', border: '1px solid #f3f4f6', padding: '24px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-              <h3 style={{ fontSize: '18px', fontWeight: 'bold', color: '#111827' }}>Energy Production Overview</h3>
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#ef4444' }}></div>
-                <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#fbbf24' }}></div>
-                <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#22c55e' }}></div>
-              </div>
-            </div>
-
-            <PowerConsumptionDashboard
-              projectId={projectId}
-              readings={inverterChartData || []}
-              loading={inverterLatestLoading}
-              selectedInverterId={selectedInverterId}
-              projectInverters={projectInverters}
-            />
-          </div>
-
-          {/* MONTHLY CHART */}
-          <MonthlyChart
-            revenue={demoRevenue}
-            months={demoMonths}
-            summaryCards={revenueSummaryCards}
-          />
-
-        </div>
-
       </div>
+
     </div>
   )
 }

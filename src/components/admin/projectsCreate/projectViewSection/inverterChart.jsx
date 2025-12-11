@@ -167,8 +167,8 @@ const daysInMonth = (year, monthIndex) => {
 };
 
 // Changed: support multiple inverter series & single inverter selection
-const PowerConsumptionDashboard = ({ projectId, readings = [], loading = false, selectedInverterId = '', projectInverters = [] }) => {
-  const [selectedDateKey, setSelectedDateKey] = useState(null);
+const PowerConsumptionDashboard = ({ projectId, readings = [], loading = false, selectedInverterId = '', projectInverters = [], selectedDate, onDateChange }) => {
+  const [selectedDateKey, setSelectedDateKey] = useState(selectedDate || null);
   const [viewType, setViewType] = useState('day');
 
   // add responsive state to switch styles on small screens
@@ -214,6 +214,21 @@ const PowerConsumptionDashboard = ({ projectId, readings = [], loading = false, 
       return availableDates[availableDates.length - 1];
     });
   }, [availableDates]);
+
+  // Sync with parent selectedDate
+  useEffect(() => {
+    if (selectedDate && availableDates.includes(selectedDate)) {
+      setSelectedDateKey(selectedDate);
+    }
+  }, [selectedDate, availableDates]);
+
+  // Notify parent on date change
+  useEffect(() => {
+    if (onDateChange && selectedDateKey) {
+      onDateChange(selectedDateKey);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedDateKey]);
 
   const formatDate = (date) => {
     if (!date) return '-';
@@ -458,24 +473,6 @@ const PowerConsumptionDashboard = ({ projectId, readings = [], loading = false, 
           >
             <ChevronRight color="#4b5563" size={20} />
           </button>
-        </div>
-
-        {/* View Type Buttons */}
-        <div style={viewButtonsStyle}>
-          {['day', 'month', 'year', 'total'].map((label) => (
-            <button
-              key={label}
-              type="button"
-              onClick={() => setViewType(label)}
-              style={{
-                ...buttonBaseStyle,
-                ...(viewType === label ? buttonActiveStyle : {}),
-                whiteSpace: 'nowrap'
-              }}
-            >
-              {label.charAt(0).toUpperCase() + label.slice(1)}
-            </button>
-          ))}
         </div>
       </div>
 
