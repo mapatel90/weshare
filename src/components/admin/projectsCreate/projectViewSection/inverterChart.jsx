@@ -190,6 +190,7 @@ const PowerConsumptionDashboard = ({ projectId, readings = [], loading = false, 
   };
 
   const readingsByDate = useMemo(() => {
+    if (!readings || !Array.isArray(readings)) return {};
     return readings.reduce((acc, entry) => {
       const key = normalizeDateKey(entry.date);
       if (!key) return acc;
@@ -267,7 +268,7 @@ const PowerConsumptionDashboard = ({ projectId, readings = [], loading = false, 
     const baseDate = baseDateKey ? new Date(baseDateKey) : null;
 
     // group by inverter id for the full dataset (we'll filter per view)
-    const grouped = readings.reduce((acc, entry) => {
+    const grouped = (readings || []).reduce((acc, entry) => {
       const key = normalizeDateKey(entry.date);
       if (!key) return acc;
       const invId = getInverterId(entry);
