@@ -33,13 +33,7 @@ const ProjectViewContent = ({ projectId = '' }) => {
   const [projectInverters, setProjectInverters] = useState([])
   const [projectInvertersLoading, setProjectInvertersLoading] = useState(true)
   const [selectedInverterId, setSelectedInverterId] = useState('') // No auto-select
-
-  // Inverter Data (all projects)
-  const [inverterData, setInverterData] = useState([])
-
-
-  const [inverterLoading, setInverterLoading] = useState(true)
-
+  const [statCardsData, setStatCardsData] = useState([])
   // Latest inverter data for selected inverter
   const [selectedInverterLatest, setSelectedInverterLatest] = useState(null)
   const [selectedInverterLatestLoading, setSelectedInverterLatestLoading] = useState(false)
@@ -101,7 +95,7 @@ const ProjectViewContent = ({ projectId = '' }) => {
       };
       try {
         setInverterLatestLoading(true)
-        const res = await apiPost(`/api/inverter-data/latest`, payload)
+        const res = await apiPost(`/api/inverter-data/chart-data`, payload)
         setInverterChartData(res?.success ? res.data : null)
       } finally {
         setInverterLatestLoading(false)
@@ -110,7 +104,23 @@ const ProjectViewContent = ({ projectId = '' }) => {
     loadLatest()
   }, [selectedInverterId, projectId])
 
-  console.log("inverterChartData",inverterChartData);
+  // ------------------- Load Count of daily yiled and total yiled -------------------
+  useEffect(() => {
+    const loadSelectedInverterLatest = async () => {
+      const payload = {
+        projectId: projectId ?? null,
+        projectInverterId: selectedInverterId ?? null,
+      };
+      try {
+        setSelectedInverterLatestLoading(true)
+        const res = await apiPost(`/api/inverter-data/latest-record`, payload)
+        setStatCardsData(res?.success ? res.data : null)
+      } finally {
+        setSelectedInverterLatestLoading(false)
+      }
+    }
+    loadSelectedInverterLatest()
+  }, [selectedInverterId, projectId])
 
 
   // Dummy monthly chart data
@@ -124,7 +134,7 @@ const ProjectViewContent = ({ projectId = '' }) => {
   ]
 
   // ------------------- Determine which data to show -------------------
-  const displayData = selectedInverterId ? selectedInverterLatest : inverterChartData
+  const displayData = selectedInverterId ? inverterChartData : inverterChartData
   const displayDataLoading = selectedInverterId ? selectedInverterLatestLoading : inverterLatestLoading
 
   // ------------------- Loading / Not Found UI -------------------
@@ -218,6 +228,7 @@ const ProjectViewContent = ({ projectId = '' }) => {
           inverterLatest={displayData}
           inverterLatestLoading={displayDataLoading}
           selectedInverterId={selectedInverterId}
+          statCardsData={statCardsData}
         />
 
         {/* PROJECT DETAILS */}
