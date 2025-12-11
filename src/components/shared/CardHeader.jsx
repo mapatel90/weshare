@@ -26,7 +26,7 @@ const CardHeader = ({ title, viewHref }) => {
               transition: "all 0.2s ease",
             }}
           >
-            View
+            View All
           </div>
         </Link>
       )}

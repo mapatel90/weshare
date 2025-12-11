@@ -59,6 +59,11 @@ const AllContracts = ({ title = "All Contracts" }) => {
     return { bgColor, borderColor, textColor, statusText };
   };
 
+  const truncateText = (text, maxLength = 20) => {
+    if (!text) return "N/A";
+    return text.length > maxLength ? text.substring(0, maxLength) + "..." : text;
+  };
+
   return (
     <div className="col-xxl-4">
       <div
@@ -87,11 +92,11 @@ const AllContracts = ({ title = "All Contracts" }) => {
                     return (
                       <tr key={id} className="align-middle" style={{ borderBottom: "1px solid #e5e7eb" }}>
                         <td>
-                          <div className="fw-semibold text-decoration-none">
-                            {contractTitle || "Unnamed"}
+                          <div className="fw-semibold text-decoration-none" title={contractTitle || "Unnamed"}>
+                            {truncateText(contractTitle || "Unnamed", 20)}
                           </div>
-                          <div className="fs-12 text-muted">
-                            Project: {project?.project_name || "N/A"}
+                          <div className="fs-12 text-muted" title={project?.project_name || "N/A"}>
+                            Project: {truncateText(project?.project_name, 20)}
                           </div>
                           <div className="fs-12 text-muted">
                             Date: {formattedDate}
