@@ -2,6 +2,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { ChevronLeft, ChevronRight, Download } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const TIME_TICK_HOURS = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22];
 const xAxisTicks = [...TIME_TICK_HOURS];
@@ -167,9 +168,9 @@ const daysInMonth = (year, monthIndex) => {
 };
 
 // Changed: support multiple inverter series & single inverter selection
-const PowerConsumptionDashboard = ({ projectId, readings = [], loading = false, selectedInverterId = '', projectInverters = [], selectedDate, onDateChange }) => {
-  const [selectedDateKey, setSelectedDateKey] = useState(selectedDate || null);
+const PowerConsumptionDashboard = ({ projectId, readings = [], loading = false, selectedInverterId = '', projectInverters = [], selectedDate, onDateChange, setSelectedDate }) => {
   const [viewType, setViewType] = useState('day');
+  const { lang } = useLanguage();
 
   // add responsive state to switch styles on small screens
   const [isSmallScreen, setIsSmallScreen] = useState(() => typeof window !== 'undefined' ? window.innerWidth < 600 : false);
@@ -189,68 +190,7 @@ const PowerConsumptionDashboard = ({ projectId, readings = [], loading = false, 
     paddingBottom: isSmallScreen ? '6px' : undefined,
   };
 
-  const readingsByDate = useMemo(() => {
-    if (!readings || !Array.isArray(readings)) return {};
-    return readings.reduce((acc, entry) => {
-      const key = normalizeDateKey(entry.date);
-      if (!key) return acc;
-      if (!acc[key]) acc[key] = [];
-      acc[key].push(entry);
-      return acc;
-    }, {});
-  }, [readings]);
-
-  const availableDates = useMemo(() => {
-    return Object.keys(readingsByDate).sort((a, b) => new Date(a) - new Date(b));
-  }, [readingsByDate]);
-
-  useEffect(() => {
-    if (!availableDates.length) {
-      setSelectedDateKey(null);
-      return;
-    }
-    setSelectedDateKey((prev) => {
-      if (prev && availableDates.includes(prev)) return prev;
-      return availableDates[availableDates.length - 1];
-    });
-  }, [availableDates]);
-
-  // Sync with parent selectedDate
-  useEffect(() => {
-    if (selectedDate && availableDates.includes(selectedDate)) {
-      setSelectedDateKey(selectedDate);
-    }
-  }, [selectedDate, availableDates]);
-
-  // Notify parent on date change
-  useEffect(() => {
-    if (onDateChange && selectedDateKey) {
-      onDateChange(selectedDateKey);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedDateKey]);
-
-  const formatDate = (date) => {
-    if (!date) return '-';
-    return new Date(date).toLocaleDateString('en-GB', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    }).replace(/\//g, '/');
-  };
-
-  const handlePrevDay = () => {
-    if (!selectedDateKey) return;
-    const currentIndex = availableDates.indexOf(selectedDateKey);
-    if (currentIndex > 0) setSelectedDateKey(availableDates[currentIndex - 1]);
-  };
-
-  const handleNextDay = () => {
-    if (!selectedDateKey) return;
-    const currentIndex = availableDates.indexOf(selectedDateKey);
-    if (currentIndex < availableDates.length - 1) setSelectedDateKey(availableDates[currentIndex + 1]);
-  };
-
+  
   const handleExport = () => {
     alert('Export functionality would download the data as CSV/Excel');
   };
@@ -275,13 +215,6 @@ const PowerConsumptionDashboard = ({ projectId, readings = [], loading = false, 
 
   // Build chart data based on view type.
   const { chartData, seriesInfo, xAxisProps, yAxisDomain } = useMemo(() => {
-    if (!selectedDateKey && !availableDates.length) {
-      return { chartData: [], seriesInfo: [], xAxisProps: {}, yAxisDomain: [0, 15] };
-    }
-
-    const baseDateKey = selectedDateKey || availableDates[availableDates.length - 1];
-    const baseDate = baseDateKey ? new Date(baseDateKey) : null;
-
     // group by inverter id for the full dataset (we'll filter per view)
     const grouped = (readings || []).reduce((acc, entry) => {
       const key = normalizeDateKey(entry.date);
@@ -300,11 +233,6 @@ const PowerConsumptionDashboard = ({ projectId, readings = [], loading = false, 
     inverterIds.forEach((invId) => {
       const list = grouped[invId] || [];
       filtered[invId] = list.filter((e) => {
-        if (!baseDate) return true;
-        const d = new Date(e.dateKey);
-        if (viewType === 'day') {
-          return e.dateKey === baseDateKey;
-        }
         if (viewType === 'month') {
           return d.getFullYear() === baseDate.getFullYear() && d.getMonth() === baseDate.getMonth();
         }
@@ -439,15 +367,14 @@ const PowerConsumptionDashboard = ({ projectId, readings = [], loading = false, 
     const upper = maxY > 0 ? Math.ceil(maxY * 1.1) : 15;
 
     return { chartData: data, seriesInfo: series, xAxisProps: xProps, yAxisDomain: [0, upper] };
-  }, [availableDates, readings, selectedDateKey, selectedInverterId, projectInverters, viewType]);
+  }, [readings, selectedInverterId, projectInverters, viewType]);
 
   const isEmptyState = !loading && (!chartData || !chartData.length);
 
   const tooltipLabelFormatter = (label, payload) => {
-    const dateLabel = formatDate(selectedDateKey);
     const displayTime = payload && payload.length ? payload[0]?.payload?.displayTime || (String(label)) : label;
-    if (!dateLabel) return `Time: ${displayTime}`;
-    return `${dateLabel} • ${displayTime || label}`;
+    // if (!dateLabel) return `Time: ${displayTime}`;
+    return `${displayTime || label}`;
   };
 
   return (
@@ -455,25 +382,14 @@ const PowerConsumptionDashboard = ({ projectId, readings = [], loading = false, 
       {/* Header Controls */}
       <div style={headerRowStyle}>
         {/* Date Navigation */}
-        <div style={dateSelectorStyle}>
-          <button
-            type="button"
-            onClick={handlePrevDay}
-            style={navIconButtonStyle}
-          >
-            <ChevronLeft color="#4b5563" size={20} />
-          </button>
-          <span style={{ padding: '4px 16px', color: '#374151', fontWeight: 500, minWidth: '120px', textAlign: 'center' }}>
-            {formatDate(selectedDateKey)}
-          </span>
-          <button
-            type="button"
-            onClick={handleNextDay}
-            style={navIconButtonStyle}
-          >
-            <ChevronRight color="#4b5563" size={20} />
-          </button>
-        </div>
+        <input
+                type="date"
+                value={selectedDate}
+                onChange={(e) => onDateChange(e.target.value)}
+                className="theme-btn-blue-color border rounded-md px-3 py-2 me-2 text-sm"
+                placeholder={lang("common.endDate") || "End Date"}
+            />
+        
       </div>
 
       {/* Chart */}

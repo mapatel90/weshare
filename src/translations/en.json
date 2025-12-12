@@ -193,7 +193,10 @@
     "selectCity": "Select City",
     "uploadQrImage": "Upload your QR code image here.",
     "generatedKW": "GENERATED KW",
-    "acFrequency": "AC FREQUENCY"
+    "acFrequency": "AC FREQUENCY",
+    "online": "ONLINE",
+    "offline": "OFFLINE",
+    "alarm": "ALARM"
   },
   "messages": {
     "success": "Operation completed successfully",

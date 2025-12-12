@@ -177,7 +177,10 @@
     "selectState": "Chọn tiểu bang",
     "selectCity": "Chọn thành phố",
     "generatedKW": "KW TẠO RA",
-    "acFrequency": "TẦN SỐ AC"
+    "acFrequency": "TẦN SỐ AC",
+    "online": "TRỰC TUYẾN",
+    "offline": "NGOẠI TUYẾN",
+    "alarm": "BÁO ĐỘNG"
   },
   "messages": {
     "success": "Thao tác thành công",

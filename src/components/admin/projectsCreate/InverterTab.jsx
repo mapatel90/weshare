@@ -97,8 +97,9 @@ const InverterTab = ({ projectId }) => {
   const closeModal = () => setShowModal(false);
 
   const STATUS_OPTIONS = [
-    { label: lang('common.active', 'Active'), value: 1 },
-    { label: lang('common.inactive', 'Inactive'), value: 0 },
+    { label: lang('common.online', 'Online'), value: 1 },
+    { label: lang('common.offline', 'Offline'), value: 2 },
+    { label: lang('common.alarm', 'Alarm'), value: 3 },
   ];
 
   const handleSave = async (e) => {

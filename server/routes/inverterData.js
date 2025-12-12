@@ -266,6 +266,8 @@ router.post("/chart-data", async (req, res) => {
       };
     }
 
+    console.log("where", where);
+
     const allData = await prisma.inverter_data.findMany({
       where,
       orderBy: { date: "asc" },

@@ -536,36 +536,71 @@ router.delete(
  */
 router.get("/", async (req, res) => {
   try {
-    const { page = 1, limit = 10, search, status, offtaker_id } = req.query;
+    const { 
+      page = 1, 
+      limit, 
+      search, 
+      status, 
+      offtaker_id,
+      project_id,
+      downloadAll,
+      solisStatus
+    } = req.query;
+    
     const pageInt = parseInt(page);
-    const offtakerIdInt = offtaker_id ? parseInt(offtaker_id) : "";
+    const offtakerIdInt = offtaker_id ? parseInt(offtaker_id) : null;
+    const projectIdInt = project_id ? parseInt(project_id) : null;
     const limitInt = parseInt(limit);
     const offset = (pageInt - 1) * limitInt;
+    
+    const parsedLimit = Number(limit);
+    const limitNumber = !Number.isNaN(parsedLimit) && parsedLimit > 0 ? parsedLimit : null;
+    const fetchAll = downloadAll === "1" || downloadAll === "true" || !limitNumber;
 
     const where = { is_deleted: 0 };
 
-    // Optional filters
-    if (search) {
+    // Search functionality - search across project_name, product_code, meter_number, address1, address2, city, state, country
+    const trimmedSearch = typeof search === "string" ? search.trim() : "";
+    if (trimmedSearch) {
       where.OR = [
-        { project_name: { contains: search, mode: "insensitive" } },
-        { project_type: { contains: search, mode: "insensitive" } },
+        { project_name: { contains: trimmedSearch, mode: "insensitive" } },
+        { product_code: { contains: trimmedSearch, mode: "insensitive" } },
+        { meter_number: { contains: trimmedSearch, mode: "insensitive" } },
+        { address1: { contains: trimmedSearch, mode: "insensitive" } },
+        { address2: { contains: trimmedSearch, mode: "insensitive" } },
+        { project_location: { contains: trimmedSearch, mode: "insensitive" } },
+        { project_description: { contains: trimmedSearch, mode: "insensitive" } },
+        { offtaker: { fullName: { contains: trimmedSearch, mode: "insensitive" } } },
+        { city: { name: { contains: trimmedSearch, mode: "insensitive" } } },
+        { state: { name: { contains: trimmedSearch, mode: "insensitive" } } },
+        { country: { name: { contains: trimmedSearch, mode: "insensitive" } } },
       ];
     }
 
+    // Filter by offtaker
     if (offtakerIdInt) {
       where.offtaker_id = offtakerIdInt;
     }
 
-    if (status !== undefined) {
+    // Filter by project
+    if (projectIdInt) {
+      where.id = projectIdInt;
+    }
+
+    // Filter by status
+    if (status !== undefined && status !== "") {
       where.status = parseInt(status);
     }
 
-    const [projects, total] = await Promise.all([
+    // Get total count before applying limit
+    let totalCount = await prisma.project.count({ where });
+
+    const [projects, _] = await Promise.all([
       prisma.project.findMany({
         where,
         include: {
           offtaker: {
-            select: { fullName: true, email: true },
+            select: { id: true, fullName: true, email: true },
           },
           city: true,
           state: true,
@@ -573,23 +608,39 @@ router.get("/", async (req, res) => {
           projectType: true,
           project_images: true,
         },
-        skip: offset,
-        take: limitInt,
-        orderBy: { id: "asc" },
+        skip: fetchAll ? 0 : offset,
+        take: fetchAll ? undefined : limitInt,
+        orderBy: { createdAt: "desc" },
       }),
-      prisma.project.count({ where }),
+      Promise.resolve(null),
     ]);
+
+    // Fetch dropdown lists (all non-deleted)
+    const offtakerList = await prisma.user.findMany({
+      where: { is_deleted: 0, userRole: { in: [3] } },
+      select: { id: true, fullName: true, email: true },
+      orderBy: { fullName: "asc" },
+    });
+
+    const projectList = await prisma.project.findMany({
+      where: { is_deleted: 0 },
+      orderBy: { project_name: "asc" },
+    });
+
+    const effectiveLimit = limitNumber || totalCount;
+    const returnedCount = fetchAll ? totalCount : Math.min(totalCount, effectiveLimit);
+    const pageSize = 20;
 
     res.json({
       success: true,
-      data: {
-        projects,
-        pagination: {
-          page: pageInt,
-          limit: limitInt,
-          total,
-          pages: Math.ceil(total / limitInt),
-        },
+      data: projects,
+      offtakerList,
+      projectList,
+      pagination: {
+        page: pageInt,
+        limit: fetchAll ? totalCount : effectiveLimit,
+        total: returnedCount,
+        pages: Math.max(1, Math.ceil(returnedCount / pageSize)),
       },
     });
   } catch (error) {

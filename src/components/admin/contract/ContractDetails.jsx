@@ -37,6 +37,10 @@ const ContractDetails = () => {
   }, [contractId, lang]);
 
   const contractName = data?.contractTitle || "-";
+  const contractStatus = 
+    data?.status === 0 ? "Pending" : 
+    data?.status === 1 ? "Active" : 
+    data?.status === 2 ? "Inactive" : "-";
   const contractDate = data?.contractDate
     ? new Date(data.contractDate).toLocaleDateString("en-GB")
     : "-";
@@ -74,7 +78,21 @@ const ContractDetails = () => {
         </div>
       ) : (
         <>
-          <h3 className="fw-bold mb-4">{contractName}</h3>
+          <div className="d-flex justify-content-between align-items-center mb-4">
+            <h3 className="fw-bold mb-0">{contractName}</h3>
+            <span 
+              className={`badge px-3 py-2 shadow-sm ${
+                data?.status === 0 
+                  ? 'bg-warning text-white' 
+                  : data?.status === 1 
+                  ? 'bg-success text-white' 
+                  : 'bg-danger text-white'
+              }`} 
+              style={{ fontSize: "0.9rem" }}
+            >
+              {contractStatus}
+            </span>
+          </div>
 
           {/* Contract Summary Section */}
           <div className="card shadow-sm mb-4">
