@@ -335,13 +335,13 @@ router.post("/monthly-chart", async (req, res) => {
 
     // Group by month-year and collect inverter details
     const monthlyMap = new Map();
-    
+
     allData.forEach((record) => {
       const date = new Date(record.date);
       const year = date.getFullYear();
       const month = date.getMonth(); // 0-11
       const monthKey = `${year}-${String(month + 1).padStart(2, '0')}`; // YYYY-MM format
-      
+
       if (!monthlyMap.has(monthKey)) {
         monthlyMap.set(monthKey, {
           year,
@@ -351,10 +351,10 @@ router.post("/monthly-chart", async (req, res) => {
           inverters: new Map(), // Map to store inverter_id -> {name, serial, totalKw}
         });
       }
-      
+
       const monthData = monthlyMap.get(monthKey);
       monthData.totalGenerateKw += Number(record.generate_kw) || 0;
-      
+
       // Group by inverter
       if (record.inverter_id) {
         const invId = record.inverter_id;
@@ -363,7 +363,7 @@ router.post("/monthly-chart", async (req, res) => {
           const projectInverter = record.project?.projectInverters?.find(
             pi => pi.inverter_id === invId
           );
-          
+
           monthData.inverters.set(invId, {
             inverterId: invId,
             inverterName: record.inverter?.inverterName || `Inverter ${invId}`,
@@ -371,7 +371,7 @@ router.post("/monthly-chart", async (req, res) => {
             totalKw: 0,
           });
         }
-        
+
         const invData = monthData.inverters.get(invId);
         invData.totalKw += Number(record.generate_kw) || 0;
       }
@@ -403,5 +403,114 @@ router.post("/monthly-chart", async (req, res) => {
     return res.status(500).json({ error: "Server error", message: error.message });
   }
 });
+
+// Offtaker Summary Card count fetch Api
+router.post("/offtaker/summary/data", async (req, res) => {
+  try {
+    let { projectId, projectInverterId, userId } = req.body;
+
+    // 1️⃣ If userId is given → map user to projectId
+    if (userId) {
+      const userProjects = await prisma.project.findMany({
+        where: {
+          is_deleted: 0,
+          offtaker_id: Number(userId)
+        },
+        select: { id: true }
+      });
+
+      const userProjectIds = userProjects.map(p => p.id);
+
+      // If API does not receive projectId → use user's projects
+      if (!projectId) {
+        projectId = userProjectIds;
+      }
+    }
+
+    // 2️⃣ Build WHERE for normal flow
+    let where = {
+      project: { is_deleted: 0 }
+    };
+
+    if (projectId) {
+      // projectId can be array (from user) or single
+      where.projectId = Array.isArray(projectId)
+        ? { in: projectId.map(Number) }
+        : Number(projectId);
+    }
+
+    if (projectInverterId) {
+      where.inverter_id = Number(projectInverterId);
+    }
+
+    // 3️⃣ If inverter selected → return latest inverter data (same as your old logic)
+    if (projectInverterId) {
+      const latest = await prisma.inverter_data.findFirst({
+        where,
+        orderBy: { date: "desc" },
+      });
+
+      return res.json({
+        success: true,
+        data: latest
+          ? {
+              inverter_id: latest.inverter_id,
+              daily_yield: latest.daily_yield,
+              total_yield: latest.total_yield,
+              date: latest.date,
+            }
+          : null,
+      });
+    }
+
+    // 4️⃣ No inverter selected → get all inverters for project(s)
+    const inverters = await prisma.project_inverters.findMany({
+      where: {
+        is_deleted: 0,
+        ...(projectId
+          ? {
+              project_id: Array.isArray(projectId)
+                ? { in: projectId.map(Number) }
+                : Number(projectId),
+            }
+          : {}),
+      },
+    });
+
+    // 5️⃣ For each inverter find latest record
+    const results = await Promise.all(
+      inverters.map(async (inv) => {
+        const latest = await prisma.inverter_data.findFirst({
+          where: {
+            ...where,
+            inverter_id: inv.inverter_id,
+          },
+          orderBy: { date: "desc" },
+        });
+
+        return latest
+          ? {
+              inverter_id: latest.inverter_id,
+              daily_yield: latest.daily_yield,
+              total_yield: latest.total_yield,
+              date: latest.date,
+            }
+          : null;
+      })
+    );
+
+    // 6️⃣ Remove nulls
+    const filtered = results.filter((r) => r !== null);
+
+    return res.json({
+      success: true,
+      data: filtered,
+    });
+  } catch (error) {
+    console.error("Error fetching latest inverter data:", error);
+    return res.status(500).json({ error: "Server error" });
+  }
+});
+
 
 export default router;
