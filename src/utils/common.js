@@ -41,3 +41,43 @@ export const getFullImageUrl = (imagePath) => {
   const base = ASSET_BASE_URL.replace(/\/+$/, "");
   return `${base}${normalizedPath}`;
 };
+
+/**
+ * Get current date and time in the specified timezone
+ * @param {string} timeZone - IANA timezone name (e.g., 'Asia/Kolkata', 'America/New_York', 'Asia/Ho_Chi_Minh')
+ * @returns {Date} Date object representing current time converted to the specified timezone
+ */
+export function getDateTimeInTZ(timeZone) {
+  const now = new Date();
+
+  // Format the current time in the target timezone
+  const formatter = new Intl.DateTimeFormat("en-CA", {
+    timeZone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  });
+
+  const parts = formatter.formatToParts(now);
+  const get = (type) => parts.find((p) => p.type === type)?.value;
+
+  // Get date/time components as they appear in the target timezone
+  const year = get("year");
+  const month = get("month");
+  const day = get("day");
+  const hour = get("hour");
+  const minute = get("minute");
+  const second = get("second");
+
+  // Build ISO string representing the wall-clock time in target timezone
+  // Important: Adding 'Z' tells Date constructor to treat this as UTC
+  const isoString = `${year}-${month}-${day}T${hour}:${minute}:${second}.000Z`;
+
+  // Return Date object - will be stored as UTC in database
+  // When retrieved and formatted with the same timezone, it will show the correct time
+  return new Date(isoString);
+}
