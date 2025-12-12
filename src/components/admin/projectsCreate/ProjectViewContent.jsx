@@ -42,7 +42,11 @@ const ProjectViewContent = ({ projectId = '' }) => {
   // Latest inverter data for this project (default)
   const [inverterChartData, setInverterChartData] = useState(null)
   const [inverterLatestLoading, setInverterLatestLoading] = useState(true)
-  const [selectedDate, setSelectedDate] = useState(null); // New: track selected date
+  const [selectedDate, setSelectedDate] = useState(
+    new Date().toISOString().split("T")[0]
+  ); // New: track selected date
+
+  console.log("selectedDate", new Date().toISOString().split("T")[0]);
 
   // ------------------- Load Project -------------------
   useEffect(() => {
@@ -157,6 +161,8 @@ const ProjectViewContent = ({ projectId = '' }) => {
     )
   }
 
+  console.log("setSelectedDate", setSelectedDate);
+
   // ------------------- MAIN UI -------------------
   return (
     <div style={{ minHeight: '100vh', height: 'auto', overflowY: 'hidden', background: 'linear-gradient(to bottom right, #eff6ff, #ffffff, #faf5ff)', padding: '24px' }}>
@@ -259,6 +265,7 @@ const ProjectViewContent = ({ projectId = '' }) => {
             projectInverters={projectInverters}
             selectedDate={selectedDate}
             onDateChange={setSelectedDate}
+            setSelectedDate={setSelectedDate}
           />
         </div>
 
