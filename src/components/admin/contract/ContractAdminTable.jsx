@@ -1,7 +1,8 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { apiGet, apiDelete } from "@/lib/api";
+import { apiGet } from "@/lib/api";
+import Link from "next/link";
 import Table from "@/components/shared/table/Table";
 import { FiEye } from "react-icons/fi";
 import { showErrorToast } from "@/utils/topTost";
@@ -183,12 +184,18 @@ const ContractAdminTable = () => {
         const item = row.original;
         return (
           <div className="hstack gap-2 justify-content-start">
-            <a
+            {/* <a
               href={`/admin/contract/view/${item.id}`}
               className="avatar-text avatar-md"
+              target="_blank"
             >
               <FiEye />
-            </a>
+            </a> */}
+            <Link href={`/admin/contract/view/${item.id}`} target="_blank">
+              <span className="avatar-text avatar-md">
+                <FiEye />
+              </span>
+            </Link>
           </div>
         );
       },
