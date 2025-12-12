@@ -81,29 +81,108 @@ router.post("/", upload.single('document'), async (req, res) => {
   }
 });
 
-// List contracts (filterable, pagination)
+// List contracts (filterable, pagination, search)
 router.get("/", async (req, res) => {
   try {
+    const { 
+      projectId, 
+      investorId, 
+      offtakerId, 
+      status, 
+      includeDeleted, 
+      page = 1, 
+      limit, 
+      userId, 
+      id,
+      search,
+      downloadAll,
+      startDate,
+      endDate
+    } = req.query;
 
-    const { projectId, investorId, offtakerId, status, includeDeleted, page = 1, limit = 20, userId, id } = req.query;
+    const parsedLimit = Number(limit);
+    const limitNumber = !Number.isNaN(parsedLimit) && parsedLimit > 0 ? parsedLimit : null;
+    const fetchAll = downloadAll === "1" || downloadAll === "true" || !limitNumber;
 
-    const where = {
+    let where = {
       ...(id ? { id: Number(id) } : {}),
       ...(projectId ? { projectId: Number(projectId) } : {}),
       ...(investorId ? { investorId: Number(investorId) } : {}),
-      ...(offtakerId ? { offtaker_id: Number(offtakerId) } : {}),
+      ...(offtakerId ? { offtakerId: Number(offtakerId) } : {}),
       ...(typeof status !== 'undefined' ? { status: Number(status) } : {}),
       ...(includeDeleted === '1' ? {} : { is_deleted: 0 }),
       ...(userId ? { userId: Number(userId) } : {}),
     };
 
-    const skip = (Number(page) - 1) * Number(limit);
+    // Date range filtering
+    let dateFilter = undefined;
+    const hasStart = typeof startDate === "string" && /^\d{4}-\d{2}-\d{2}$/.test(startDate);
+    const hasEnd = typeof endDate === "string" && /^\d{4}-\d{2}-\d{2}$/.test(endDate);
+
+    if (hasStart && hasEnd) {
+      const gte = new Date(`${startDate}T00:00:00.000Z`);
+      const lte = new Date(`${endDate}T23:59:59.999Z`);
+      dateFilter = gte > lte ? { gte: lte, lte: gte } : { gte, lte };
+    } else if (hasStart && !hasEnd) {
+      dateFilter = {
+        gte: new Date(`${startDate}T00:00:00.000Z`),
+        lte: new Date(`${startDate}T23:59:59.999Z`),
+      };
+    } else if (!hasStart && hasEnd) {
+      dateFilter = { lte: new Date(`${endDate}T23:59:59.999Z`) };
+    }
+
+    if (dateFilter) {
+      where.contractDate = dateFilter;
+    }
+
+    // Search functionality
+    const trimmedSearch = typeof search === "string" ? search.trim() : "";
+    if (trimmedSearch) {
+      const numericSearch = Number(trimmedSearch);
+      const isNumeric = !Number.isNaN(numericSearch);
+
+      const isISODate = /^\d{4}-\d{2}-\d{2}$/.test(trimmedSearch);
+      const dateRange = isISODate
+        ? {
+            gte: new Date(`${trimmedSearch}T00:00:00.000Z`),
+            lte: new Date(`${trimmedSearch}T23:59:59.999Z`),
+          }
+        : null;
+
+      const orFilters = [
+        { contractTitle: { contains: trimmedSearch, mode: "insensitive" } },
+        { project: { project_name: { contains: trimmedSearch, mode: "insensitive" } } },
+        { offtaker: { fullName: { contains: trimmedSearch, mode: "insensitive" } } },
+        { investor: { fullName: { contains: trimmedSearch, mode: "insensitive" } } },
+      ];
+
+      if (dateRange) {
+        orFilters.push({ contractDate: dateRange });
+      }
+
+      if (orFilters.length) {
+        where.AND = [...(where.AND || []), { OR: orFilters }];
+      }
+    }
+
+    // Get total count
+    let totalCount = await prisma.contract.count({ where });
+
+    // Fallback for single-day search with no results
+    if (totalCount === 0 && hasStart && !hasEnd) {
+      const fallbackDate = { gte: new Date(`${startDate}T00:00:00.000Z`) };
+      where = { ...where, contractDate: fallbackDate };
+      totalCount = await prisma.contract.count({ where });
+    }
+
+    const skip = (Number(page) - 1) * (limitNumber || 20);
 
     const data = await prisma.contract.findMany({
       where,
-      orderBy: { createdAt: 'asc' },
-      skip,
-      take: Number(limit),
+      orderBy: { createdAt: 'desc' },
+      skip: fetchAll ? 0 : skip,
+      take: fetchAll ? undefined : limitNumber,
       include: {
         project: {
           include: {
@@ -118,7 +197,43 @@ router.get("/", async (req, res) => {
       },
     });
 
-    return res.json({ success: true, data });
+    // Fetch project list for dropdown
+    const projectList = await prisma.project.findMany({
+      where: { is_deleted: 0 },
+      orderBy: { project_name: "asc" },
+    });
+
+    const offtaker = await prisma.role.findFirst({
+      where: { is_deleted: 0, name: 'offtaker' },
+    });
+
+    const offtakerList = await prisma.user.findMany({
+      where: { is_deleted: 0, userRole: offtaker?.id ?? 3 },
+      orderBy: { fullName: "asc" },
+    });
+
+    const investorList = await prisma.interestedInvestor.findMany({
+      where: { is_deleted: 0 },
+      orderBy: { fullName: "asc" },
+    });
+
+    const effectiveLimit = limitNumber || totalCount;
+    const returnedCount = fetchAll ? totalCount : Math.min(totalCount, effectiveLimit);
+    const pageSize = 20;
+
+    return res.json({ 
+      success: true, 
+      data,
+      projectList,
+      offtakerList,
+      investorList,
+      pagination: {
+        page: Number(page),
+        limit: fetchAll ? totalCount : effectiveLimit,
+        total: returnedCount,
+        pages: Math.max(1, Math.ceil(returnedCount / pageSize)),
+      },
+    });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ success: false, message: error.message });

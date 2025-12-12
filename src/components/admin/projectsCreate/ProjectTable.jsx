@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState, memo } from "react";
+import React, { useEffect, useState, memo, useMemo } from "react";
 import Table from "@/components/shared/table/Table";
 import {
   FiEdit3,
@@ -16,13 +16,6 @@ import Swal from "sweetalert2";
 import { showSuccessToast, showErrorToast } from "@/utils/topTost";
 import { apiGet, apiPut, apiDelete, apiPost } from "@/lib/api";
 import { useLanguage } from "@/contexts/LanguageContext";
-
-const actions = [
-  { label: "Edit", icon: <FiEdit3 /> },
-  { label: "Print", icon: <FiPrinter /> },
-  { type: "divider" },
-  { label: "Delete", icon: <FiTrash2 /> },
-];
 
 const StatusDropdown = memo(({ value, onChange }) => {
   const { lang } = useLanguage();
@@ -47,21 +40,39 @@ const StatusDropdown = memo(({ value, onChange }) => {
 
 const ProjectTable = () => {
   const { lang } = useLanguage();
+  const PAGE_SIZE = 20;
+
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
+  const [error, setError] = useState(null);
   const [inverterCounts, setInverterCounts] = useState([]);
 
-  // helper to call server cron -> /stationdetail
+  // Filter states
+  const [projectFilter, setProjectFilter] = useState("");
+  const [offtakerFilter, setOfftakerFilter] = useState("");
+  const [solisStatusFilter, setSolisStatusFilter] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+
+  // Dropdown lists
+  const [projectList, setProjectList] = useState([]);
+  const [offtakerList, setOfftakerList] = useState([]);
+
+  // Pagination
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: PAGE_SIZE,
+    total: 0,
+    pages: 0,
+  });
+
+  // Helper to call server cron -> /stationdetail
   const fetchStationDetail = async (plantId) => {
     try {
       const res = await apiPost("/api/cron/stationdetail", { id: plantId });
-      console.log("Station Detail Response:", res?.solisData?.data?.state);
-
-      // Check success based on your API structure
       if (!res || res.error) {
         throw new Error(res.error || "Failed to fetch station detail");
       }
-
       return res.solisData?.data?.state ?? res;
     } catch (err) {
       console.error("fetchStationDetail error:", err);
@@ -72,16 +83,31 @@ const ProjectTable = () => {
   const fetchProjects = async () => {
     try {
       setLoading(true);
-      // Fetch projects
-      const res = await apiGet("/api/projects?page=1&limit=20");
-      // Fetch inverter counts
-      const countsRes = await apiGet("/api/projectInverters/counts");
-      if (countsRes?.success) {
-        setInverterCounts(countsRes.data || []);
+      setError(null);
+
+      const params = new URLSearchParams({
+        page: "1",
+        downloadAll: "1",
+      });
+
+      if (projectFilter) {
+        params.append("project_id", projectFilter);
       }
+
+      if (offtakerFilter) {
+        params.append("offtaker_id", offtakerFilter);
+      }
+
+      if (searchTerm) {
+        params.append("search", searchTerm);
+      }
+
+      const res = await apiGet(`/api/projects?${params.toString()}`);
+
       if (res?.success) {
-        const projects = res.data.projects || [];
-        // For projects that have solis_plant_id, fetch station detail and attach it
+        const projects = Array.isArray(res.data) ? res.data : [];
+
+        // Fetch station details for projects with solis_plant_id
         const projectsWithDetails = await Promise.all(
           projects.map(async (p) => {
             if (p?.solis_plant_id) {
@@ -91,23 +117,62 @@ const ProjectTable = () => {
             return p;
           })
         );
-        // Merge inverter counts
+
+        // Fetch inverter counts
+        const countsRes = await apiGet("/api/projectInverters/counts");
         const projectsWithCounts = projectsWithDetails.map((p) => {
           const count = countsRes?.data?.find((c) => c.project_id === p.id);
           return { ...p, inverterCount: count ? `${count.active}/${count.total}` : "0/0" };
         });
+
         setData(projectsWithCounts);
+        setProjectList(Array.isArray(res?.projectList) ? res.projectList : []);
+        setOfftakerList(Array.isArray(res?.offtakerList) ? res.offtakerList : []);
+
+        const apiTotal = res?.pagination?.total ?? projectsWithCounts.length;
+        setPagination({
+          page: 1,
+          limit: PAGE_SIZE,
+          total: apiTotal,
+          pages: Math.max(1, Math.ceil(apiTotal / PAGE_SIZE)),
+        });
+      } else {
+        setData([]);
       }
+      setError(null);
     } catch (err) {
       console.error("Fetch projects failed:", err);
+      setError(err?.message || "Failed to load projects");
+      setData([]);
     } finally {
       setLoading(false);
+      setHasLoadedOnce(true);
     }
   };
 
+  // Fetch and auto-refresh every 2 minutes
   useEffect(() => {
     fetchProjects();
-  }, []);
+
+    const interval = setInterval(() => {
+      fetchProjects();
+    }, 120000); // 2 minutes
+
+    return () => clearInterval(interval);
+  }, [projectFilter, offtakerFilter, searchTerm]);
+
+  // Filter data by solis status (client-side)
+  const filteredData = useMemo(() => {
+    return data.filter((d) => {
+      if (solisStatusFilter) {
+        const status = d.solisStationDetail;
+        if (solisStatusFilter === "online" && status !== 1) return false;
+        if (solisStatusFilter === "offline" && status !== 2) return false;
+        if (solisStatusFilter === "alarm" && status !== 3) return false;
+      }
+      return true;
+    });
+  }, [data, solisStatusFilter]);
 
   const handleStatusChange = async (id, statusValue) => {
     try {
@@ -170,7 +235,6 @@ const ProjectTable = () => {
                 {address1} - {address2}
               </div>
             )}
-            {/* {address2 && <div>{address2}</div>} */}
             {locationParts.length > 0 && <div>{locationParts.join(", ")}</div>}
             {!address1 && !address2 && locationParts.length === 0 && "-"}
           </div>
@@ -220,7 +284,6 @@ const ProjectTable = () => {
         const location = row.original.project_location;
         if (!location) return "-";
 
-        // If location looks like a URL, make it clickable
         const isUrl =
           location.startsWith("http://") || location.startsWith("https://");
 
@@ -337,19 +400,89 @@ const ProjectTable = () => {
           </div>
         );
       },
-      meta: { headerClassName: "text-end" },
+      meta: { disableSort: true },
     },
   ];
 
   return (
-    <>
-      {/* Commented out - using global loader instead */}
-      {/* {loading ? (
-        <div className="text-center py-5">Loading...</div>
-      ) : ( */}
-      <Table data={data} columns={columns} />
-      {/* )} */}
-    </>
+    <div className="p-6 bg-white rounded-3xl shadow-md">
+      {/* Filters */}
+      <div className="d-flex items-center justify-content-between gap-2 mb-4 mt-4 w-full flex-wrap">
+        <div className="filter-button">
+          <select
+            value={projectFilter}
+            onChange={(e) => setProjectFilter(e.target.value)}
+            className="theme-btn-blue-color border rounded-md px-3 py-2 mx-2 text-sm"
+          >
+            <option value="">{lang("reports.allprojects", "All Projects")}</option>
+            {projectList.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.project_name || `Project ${p.id}`}
+              </option>
+            ))}
+          </select>
+
+          <select
+            value={offtakerFilter}
+            onChange={(e) => setOfftakerFilter(e.target.value)}
+            className="theme-btn-blue-color border rounded-md px-3 py-2 mx-2 text-sm"
+          >
+            <option value="">{lang("projects.allOfftakers", "All Offtakers")}</option>
+            {offtakerList.map((o) => (
+              <option key={o.id} value={o.id}>
+                {o.fullName || o.email || `Offtaker ${o.id}`}
+              </option>
+            ))}
+          </select>
+
+          <select
+            value={solisStatusFilter}
+            onChange={(e) => setSolisStatusFilter(e.target.value)}
+            className="theme-btn-blue-color border rounded-md px-3 py-2 me-2 text-sm"
+          >
+            <option value="">{lang("projects.allSolisStatus", "All Solis Status")}</option>
+            <option value="online">Online</option>
+            <option value="offline">Offline</option>
+            <option value="alarm">Alarm</option>
+          </select>
+        </div>
+      </div>
+
+      {/* Table */}
+      <div className="overflow-x-auto relative">
+        {!hasLoadedOnce && loading && (
+          <div className="text-center py-6 text-gray-600">
+            {lang("common.loading", "Loading...")}
+          </div>
+        )}
+
+        {error && <div className="text-red-600">Error: {error}</div>}
+
+        {hasLoadedOnce && filteredData.length === 0 && !error && !loading && (
+          <div className="text-center py-6 text-gray-600">
+            {lang("common.noData", "No Data")}
+          </div>
+        )}
+
+        {hasLoadedOnce && (
+          <>
+            <Table
+              data={filteredData}
+              columns={columns}
+              disablePagination={false}
+              onSearchChange={setSearchTerm}
+              serverSideTotal={pagination.total}
+              initialPageSize={PAGE_SIZE}
+            />
+            {loading && (
+              <div className="absolute inset-0 bg-white/70 flex items-center justify-center text-gray-600">
+                Refreshing...
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    </div>
   );
 };
 

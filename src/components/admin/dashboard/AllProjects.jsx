@@ -25,8 +25,8 @@ const AllProjects = ({ title = "All Projects" }) => {
       try {
         setLoading(true);
         setError(null);
-        const res = await apiGet("/api/projects");
-        const list = res?.data?.projects || [];
+        const res = await apiGet("/api/projects?limit=6&page=1");
+        const list = Array.isArray(res?.data) ? res.data : [];
         setProjects(list.slice(0, 6)); // Show first 6 projects
       } catch (err) {
         setError("Failed to load projects");
