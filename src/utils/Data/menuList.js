@@ -88,7 +88,7 @@ export const menuList = [
   //   dropdownMenu: false,
   // },
   // End Settings Menu
-    {
+  {
     id: 5,
     name: "news",
     path: "/admin/news/list",
@@ -125,6 +125,13 @@ export const menuList = [
   },
   {
     id: 10,
+    name: "contracts",
+    path: "/admin/contract/list",
+    icon: "feather-shield",
+    dropdownMenu: false,
+  },
+  {
+    id: 11,
     name: "Reports",
     path: "#",
     icon: "feather-file-text",
@@ -158,7 +165,7 @@ export const menuList = [
         name: "investmentsummaryreports",
         path: "/admin/reports/investment-summary",
         subdropdownMenu: false,
-      }
+      },
     ],
   },
   {

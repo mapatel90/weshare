@@ -172,20 +172,8 @@ const ProjectViewContent = ({ projectId = '' }) => {
               </h1>
               <p style={{ color: '#6b7280' }}>{project.project_type}</p>
             </div>
-            {/* PROJECT STATUS */}
-            <div style={{
-              padding: '8px 16px',
-              borderRadius: '9999px',
-              backgroundColor: project.status === 1 ? '#dcfce7' : '#fee2e2',
-              color: project.status === 1 ? '#166534' : '#991b1b',
-              fontWeight: '600'
-            }}>
-              {project.status === 1 ? '● Active' : '● Inactive'}
-            </div>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'end', gap: '12px' }}>
-            {/* ----- INVERTER DROPDOWN ----- */}
-            <div>
+
+          <div>
               {projectInvertersLoading ? (
                 <div style={{ color: '#6b7280', fontSize: '14px' }}>Loading inverters...</div>
               ) : (
@@ -216,6 +204,17 @@ const ProjectViewContent = ({ projectId = '' }) => {
                   })}
                 </select>
               )}
+            </div>
+
+            {/* PROJECT STATUS */}
+            <div style={{
+              padding: '8px 16px',
+              borderRadius: '9999px',
+              backgroundColor: project.status === 1 ? '#dcfce7' : '#fee2e2',
+              color: project.status === 1 ? '#166534' : '#991b1b',
+              fontWeight: '600'
+            }}>
+              {project.status === 1 ? '● Active' : '● Inactive'}
             </div>
           </div>
         </div>

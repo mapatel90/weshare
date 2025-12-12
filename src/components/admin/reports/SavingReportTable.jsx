@@ -297,7 +297,7 @@ const SavingReports = () => {
         { accessorKey: 'Acfrequency', header: () => lang("common.acFrequency") },
         { accessorKey: 'DailyYield', header: () => lang("reports.dailyYield") },
         { accessorKey: 'AnnualYield', header: () => lang("reports.annualYield") },
-        { accessorKey: 'TotalYield', header: () => lang("reports.totalYield") }
+        { accessorKey: 'TotalYield', header: () => lang("reports.totalYield"), meta: { disableSort: true } }
     ], [lang]);
 
     // -----------------------------
