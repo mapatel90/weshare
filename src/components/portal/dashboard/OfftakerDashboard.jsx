@@ -8,6 +8,7 @@ import DocumentsCard from "./sections/DocumentsCard";
 import KriLineChart from "./sections/KriLineChart";
 import { useAuth } from "@/contexts/AuthContext";
 import { apiGet, apiPost } from "@/lib/api";
+import PowerConsumptionDashboard from "@/components/admin/projectsCreate/projectViewSection/inverterChart";
 
 function DashboardView() {
   const { user } = useAuth();
@@ -41,7 +42,7 @@ function DashboardView() {
         if (user?.id) apiUrl += `&offtaker_id=${user.id}`;
         const res = await apiGet(apiUrl);
         console.log("Fetched projects for dropdown:", res);
-        
+
         // Handle different response structures: res.projectList, res.data (array), or res.data.projects
         let projectsArray = null;
         if (res?.projectList && Array.isArray(res.projectList)) {
@@ -51,7 +52,7 @@ function DashboardView() {
         } else if (Array.isArray(res?.data?.projects)) {
           projectsArray = res.data.projects;
         }
-        
+
         if (res?.success && projectsArray && projectsArray.length > 0) {
           // minimal normalization for dropdown
           const normalized = projectsArray.map((p) => {
@@ -320,7 +321,7 @@ function DashboardView() {
                   </li>
                 ) : projects.length ? (
                   projects.map((proj) => {
-                    console.log("projects",projects);
+                    console.log("projects", projects);
                     const isSelected =
                       selectedProject &&
                       (selectedProject.id === proj.id ||
@@ -667,7 +668,7 @@ function DashboardView() {
       {/* KRI Line Graph (1,1 min intervals) */}
       <div className="chart-card" style={{ margin: "30px 0" }}>
         <div className="card-title" style={{ marginBottom: "20px" }}>
-          Kw Generated (every minute)
+          Kw Generated
         </div>
         <KriLineChart />
       </div>
