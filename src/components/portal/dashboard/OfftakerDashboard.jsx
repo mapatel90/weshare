@@ -7,7 +7,7 @@ import BillingCard from "./sections/BillingCard";
 import DocumentsCard from "./sections/DocumentsCard";
 import KriLineChart from "./sections/KriLineChart";
 import { useAuth } from "@/contexts/AuthContext";
-import { apiGet } from "@/lib/api";
+import { apiGet, apiPost } from "@/lib/api";
 
 function DashboardView() {
   const { user } = useAuth();
@@ -28,8 +28,7 @@ function DashboardView() {
 
   // NEW: latest inverter data (for all projects / project / inverter)
   const [inverterLatest, setInverterLatest] = useState(null);
-  const [inverterLatestLoading, setInverterLatestLoading] =
-    useState(false);
+  const [inverterLatestLoading, setInverterLatestLoading] = useState(false);
   const [inverterLatestError, setInverterLatestError] = useState(null);
 
   // fetch offtaker projects similar to ProjectTable
@@ -42,9 +41,20 @@ function DashboardView() {
         if (user?.id) apiUrl += `&offtaker_id=${user.id}`;
         const res = await apiGet(apiUrl);
         console.log("Fetched projects for dropdown:", res);
-        if (res?.success && Array.isArray(res?.data?.projects)) {
+        
+        // Handle different response structures: res.projectList, res.data (array), or res.data.projects
+        let projectsArray = null;
+        if (res?.projectList && Array.isArray(res.projectList)) {
+          projectsArray = res.projectList;
+        } else if (Array.isArray(res?.data)) {
+          projectsArray = res.data;
+        } else if (Array.isArray(res?.data?.projects)) {
+          projectsArray = res.data.projects;
+        }
+        
+        if (res?.success && projectsArray && projectsArray.length > 0) {
           // minimal normalization for dropdown
-          const normalized = res.data.projects.map((p) => {
+          const normalized = projectsArray.map((p) => {
             // try common keys for project size/capacity
             const rawSize =
               p.project_size ??
@@ -144,20 +154,24 @@ function DashboardView() {
 
   // NEW: fetch latest inverter data depending on selection
   useEffect(() => {
-    const fetchLatest = async () => {
+    const fetchSummaryCardData = async () => {
       setInverterLatestLoading(true);
       setInverterLatestError(null);
       try {
-        let url = "/api/inverter-data/latest";
-
+        const payload = {};
         if (selectedProject?.id) {
-          url += `?projectId=${selectedProject.id}`;
-          if (selectedInverter?.inverterId) {
-            url += `&projectInverterId=${selectedInverter.inverterId}`;
-          }
+          payload.projectId = selectedProject.id;
+        }
+        if (selectedInverter?.inverterId) {
+          payload.projectInverterId = selectedInverter.inverterId;
         }
 
-        const res = await apiGet(url);
+        if (!selectedProject?.id && !selectedInverter?.inverterId) {
+          payload.userId = user?.id
+        }
+
+        const res = await apiPost('/api/inverter-data/offtaker/summary/data', payload);
+        console.log("res:", res);
         if (res?.success) {
           setInverterLatest(res.data ?? null);
         } else {
@@ -173,7 +187,7 @@ function DashboardView() {
       }
     };
 
-    fetchLatest();
+    fetchSummaryCardData();
   }, [selectedProject?.id, selectedInverter?.inverterId]);
 
   // Optional: Close dropdown when clicking outside
@@ -306,6 +320,7 @@ function DashboardView() {
                   </li>
                 ) : projects.length ? (
                   projects.map((proj) => {
+                    console.log("projects",projects);
                     const isSelected =
                       selectedProject &&
                       (selectedProject.id === proj.id ||

@@ -163,7 +163,7 @@ const StatCardsGrid = ({
       <StatCard
         icon={Sun}
         title="Capacity"
-        value={(project?.price_kwh !== undefined ? formatNumber(project.price_kwh) : '-') + ' kWh'}
+        value={(project?.project_size !== undefined ? formatNumber(project.project_size) : '-') + ' kWh'}
         subtitle="Capacity price per kWh"
         color="linear-gradient(to bottom right, #fbbf24, #f97316)"
         trend={null}

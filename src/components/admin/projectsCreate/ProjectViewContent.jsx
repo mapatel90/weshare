@@ -42,6 +42,8 @@ const ProjectViewContent = ({ projectId = '' }) => {
   // Latest inverter data for this project (default)
   const [inverterChartData, setInverterChartData] = useState(null)
   const [inverterLatestLoading, setInverterLatestLoading] = useState(true)
+  const [monthlyChartData, setMonthlyChartData] = useState(null)
+  const [monthlyChartDataLoading, setMonthlyChartDataLoading] = useState(true)
   const [selectedDate, setSelectedDate] = useState(
     new Date().toISOString().split("T")[0]
   ); // New: track selected date
@@ -129,10 +131,59 @@ const ProjectViewContent = ({ projectId = '' }) => {
     loadSelectedInverterLatest()
   }, [selectedInverterId, projectId])
 
+  // ------------------- Load Monthly Chart Data -------------------
+  useEffect(() => {   
+    const loadMonthlyChartData = async () => {
+      const payload = {
+        projectId: projectId ?? null,
+        projectInverterId: (selectedInverterId && selectedInverterId.trim() !== '') ? selectedInverterId : null,
+      };
+      try {
+        setMonthlyChartDataLoading(true)
+        const res = await apiPost(`/api/inverter-data/monthly-chart`, payload)
+        console.log("month data:",res.data);
+        setMonthlyChartData(res?.success ? res.data : null)
+      } finally {
+        setMonthlyChartDataLoading(false)
+      }
+    }
+    loadMonthlyChartData()
+  }, [selectedInverterId, projectId])
 
-  // Dummy monthly chart data
-  const demoMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']
-  const demoRevenue = [3000, 4200, 5100, 4800, 5300, 6000]
+  // Transform monthly chart data from backend - always show all 12 months
+  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+  
+  // Always show all 12 months, fill with 0 if no data
+  const monthlyChartMonths = useMemo(() => {
+    return monthNames // Always return all 12 months
+  }, [])
+
+  const monthlyChartRevenue = useMemo(() => {
+    // Create a map of month index to value from backend data
+    const dataMap = new Map()
+    if (monthlyChartData && Array.isArray(monthlyChartData)) {
+      monthlyChartData.forEach(item => {
+        dataMap.set(item.month, item.totalGenerateKw || 0)
+      })
+    }
+    
+    // Return array with all 12 months, filling 0 for months without data
+    return monthNames.map((_, index) => dataMap.get(index) || 0)
+  }, [monthlyChartData])
+
+  // Map month index to inverter details for tooltip
+  const monthlyChartInverters = useMemo(() => {
+    const inverterMap = new Map()
+    if (monthlyChartData && Array.isArray(monthlyChartData)) {
+      monthlyChartData.forEach(item => {
+        inverterMap.set(item.month, item.inverters || [])
+      })
+    }
+    
+    // Return array with all 12 months, filling empty array for months without data
+    return monthNames.map((_, index) => inverterMap.get(index) || [])
+  }, [monthlyChartData])
+
   const revenueSummaryCards = [
     { label: 'Reach', value: '5,486', bgColor: '#dbeafe', valueColor: '#111827' },
     { label: 'Opened', value: '42.75%', bgColor: '#dcfce7', valueColor: '#059669' },
@@ -271,9 +322,11 @@ const ProjectViewContent = ({ projectId = '' }) => {
 
         {/* MONTHLY CHART */}
         <MonthlyChart
-          revenue={demoRevenue}
-          months={demoMonths}
+          revenue={monthlyChartRevenue}
+          months={monthlyChartMonths}
+          inverters={monthlyChartInverters}
           summaryCards={revenueSummaryCards}
+          loading={monthlyChartDataLoading}
         />
 
       </div>
