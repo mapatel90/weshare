@@ -285,5 +285,4 @@ router.post("/chart-data", async (req, res) => {
   }
 });
 
-
 export default router;
