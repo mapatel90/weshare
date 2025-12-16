@@ -71,13 +71,30 @@ const ExchangeHub = () => {
       setLoading(true)
       const response = await apiGet(`/api/projects?page=${pageNum}&limit=50&status=1`, { showLoader: false })
       console.log('Projects Response:', response)
-      if (response.success && response.data?.projects) {
+
+      if (response?.success) {
+        // API now returns data in "data" (array) plus projectList/offtakerList helpers
+        const projectsPayload = Array.isArray(response?.data?.projects)
+          ? response.data.projects
+          : Array.isArray(response?.data?.data)
+            ? response.data.data
+            : Array.isArray(response?.data)
+              ? response.data
+              : []
+
         if (reset) {
-          setAllProjects(response.data.projects)
+          setAllProjects(projectsPayload)
         } else {
-          setAllProjects(prev => [...prev, ...response.data.projects])
+          setAllProjects((prev) => [...prev, ...projectsPayload])
         }
-        setHasMore(response.data.projects.length === 50)
+
+        const total = response?.data?.pagination?.total ?? response?.pagination?.total
+        const limit = response?.data?.pagination?.limit ?? response?.pagination?.limit ?? projectsPayload.length
+        const computedHasMore = typeof total === 'number' && typeof limit === 'number'
+          ? pageNum * limit < total
+          : projectsPayload.length === 50
+
+        setHasMore(computedHasMore)
         setPage(pageNum)
       }
     } catch (error) {

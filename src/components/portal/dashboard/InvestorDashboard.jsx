@@ -3,11 +3,9 @@ import React, { useEffect, useMemo, useState } from 'react';
 import '../../../assets/portal/offtaker.css';
 import ProjectsTable from './sections/ProjectsTable';
 import OverViewCards from './sections/OverViewCards';
-import BillingCard from './sections/BillingCard';
-import DocumentsCard from './sections/DocumentsCard';
 import KriLineChart from './sections/KriLineChart';
 import PayoutCard from './sections/PayoutCard';
-import { apiGet } from '@/lib/api';
+import { apiGet, apiPost } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 
 function DashboardView() {
@@ -139,14 +137,16 @@ function DashboardView() {
       setInverterLatestLoading(true);
       setInverterLatestError(null);
       try {
-        let url = '/api/inverter-data/latest';
+        const payload = {};
         if (selectedProject?.id) {
-          url += `?projectId=${selectedProject.id}`;
-          if (selectedInverter?.inverterId) {
-            url += `&projectInverterId=${selectedInverter.inverterId}`;
-          }
+          payload.projectId = selectedProject.id;
         }
-        const res = await apiGet(url);
+        if (selectedInverter?.inverterId) {
+          payload.projectInverterId = selectedInverter.inverterId;
+        }
+
+        const res = await apiPost('/api/inverter-data/latest-record', payload);
+        console.log('Latest inverter data response:', res);
         if (res?.success) {
           setInverterLatest(res.data ?? null);
         } else {
