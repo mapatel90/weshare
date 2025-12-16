@@ -167,10 +167,6 @@ function DashboardView() {
           payload.projectInverterId = selectedInverter.inverterId;
         }
 
-        if (!selectedProject?.id && !selectedInverter?.inverterId) {
-          payload.userId = user?.id
-        }
-
         const res = await apiPost('/api/inverter-data/offtaker/summary/data', payload);
         console.log("res:", res);
         if (res?.success) {

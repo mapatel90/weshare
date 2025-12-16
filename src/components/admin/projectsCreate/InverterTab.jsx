@@ -269,7 +269,10 @@ const InverterTab = ({ projectId }) => {
     {
       accessorKey: "warranty_expire_date",
       header: () => lang("inverter.warrantyExpireDate", "Warranty Expire Date"),
-      cell: (info) => info.row.original.warranty_expire_date || "-",
+      cell: (info) => {
+        const val = info.row.original.warranty_expire_date;
+        return val ? String(val).split("T")[0] : "-";
+      },
     },
     {
       accessorKey: "kilowatt",
