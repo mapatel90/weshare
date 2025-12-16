@@ -234,8 +234,8 @@ const InverterTab = ({ projectId }) => {
   // Datatable columns (translated)
   const columns = [
     {
-      accessorKey: "inverter.inverterName",
-      header: () => lang("inverter.inverterName", "Inverter Name"),
+      accessorKey: "inverter_type",
+      header: () => lang("inverter.type", "Inverter Type"),
       cell: (info) => {
         const row = info.row.original;
         const name = row.inverter?.inverterName || "-";
@@ -247,12 +247,9 @@ const InverterTab = ({ projectId }) => {
       },
     },
     {
-      accessorKey: "inverter.companyName",
-      header: () => lang("inverter.companyName", "Company Name"),
-      cell: (info) => {
-        const inv = info.row.original.inverter;
-        return inv.companyName;
-      },
+      accessorKey: "inverter_name",
+      header: () => lang("inverter.inverterName", "Inverter Name"),
+      cell: (info) => info.row.original.inverter_name || "-",
     },
     {
       accessorKey: "inverter_serial_number",
@@ -260,9 +257,24 @@ const InverterTab = ({ projectId }) => {
       cell: (info) => info.row.original.inverter_serial_number || "-",
     },
     {
+      accessorKey: "version",
+      header: () => lang("inverter.version", "Version"),
+      cell: (info) => info.row.original.version || "-",
+    },
+    {
+      accessorKey: "model",
+      header: () => lang("inverter.model", "Model"),
+      cell: (info) => info.row.original.model || "-",
+    },
+    {
+      accessorKey: "warranty_expire_date",
+      header: () => lang("inverter.warrantyExpireDate", "Warranty Expire Date"),
+      cell: (info) => info.row.original.warranty_expire_date || "-",
+    },
+    {
       accessorKey: "kilowatt",
       header: () => lang("inverter.kilowatt", "Kilowatt"),
-      cell: (info) => info.getValue() || "-",
+      cell: (info) => info.getValue() + ' kwh' || "-",
     },
     {
       accessorKey: "status",
@@ -298,7 +310,7 @@ const InverterTab = ({ projectId }) => {
         const item = row.original;
         return (
           <div
-            className="d-flex gap-2 justify-content-end"
+            className="d-flex gap-2 justify-content-start"
             style={{ flexWrap: "nowrap" }}
           >
             {/* Edit Icon */}
@@ -341,7 +353,6 @@ const InverterTab = ({ projectId }) => {
       },
       meta: {
         disableSort: true,
-        headerClassName: "text-end",
       },
     },
   ];
