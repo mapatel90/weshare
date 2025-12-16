@@ -231,9 +231,14 @@ model Project_inverters {
   id           Int       @id @default(autoincrement())
   project_id   Int
   inverter_id  Int
+
   kilowatt     Float?   @default(0.0)
 
   inverter_serial_number String?  @db.VarChar(255)
+  inverter_name           String?  @map("inverter_name") @db.VarChar(255)
+  model                   String?  @map("model") @db.VarChar(255)
+  version                 String?  @map("version") @db.VarChar(255)
+  warranty_expire_date    DateTime? @map("warranty_expire_date")
   status       Int       @default(0)
   is_deleted   Int       @default(0)
   createdAt    DateTime  @default(now()) @map("created_at")
