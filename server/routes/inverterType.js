@@ -7,7 +7,8 @@ const router = express.Router();
 router.get('/', authenticateToken, async (req, res) => {
   try {
     const inverterTypes = await prisma.inverterType.findMany({
-      orderBy: { type: 'asc' },
+     where: { is_deleted: 0 },
+     orderBy: { type: 'asc' },
     });
     res.status(200).json({ success: true, data: inverterTypes });
   } catch (error) {

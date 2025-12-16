@@ -134,6 +134,10 @@ function DashboardView() {
 
   useEffect(() => {
     const fetchLatest = async () => {
+      if (!user?.id) {
+        setInverterLatest(null);
+        return;
+      }
       setInverterLatestLoading(true);
       setInverterLatestError(null);
       try {
@@ -145,8 +149,7 @@ function DashboardView() {
           payload.projectInverterId = selectedInverter.inverterId;
         }
 
-        const res = await apiPost('/api/inverter-data/latest-record', payload);
-        console.log('Latest inverter data response:', res);
+        const res = await apiPost('/api/inverter-data/investor/latest-record', payload);
         if (res?.success) {
           setInverterLatest(res.data ?? null);
         } else {
@@ -163,7 +166,7 @@ function DashboardView() {
     };
 
     fetchLatest();
-  }, [selectedProject?.id, selectedInverter?.inverterId]);
+  }, [selectedProject?.id, selectedInverter?.inverterId, user?.id]);
 
   useEffect(() => {
     function handleClick(e) {

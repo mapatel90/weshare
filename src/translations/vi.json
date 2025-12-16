@@ -933,7 +933,11 @@
     "kilowatt": "Kilowatt",
     "inverterList": "Danh sách biến tần",
     "inverterType": "Loại biến tần",
-    "apiUrlName": "URL API"
+    "apiUrlName": "URL API",
+    "version": "Phiên bản",
+    "model": "Mô hình",
+    "Warranty": "Bảo hành",
+    "warrantyExpireDate": "Ngày hết hạn bảo hành"
   },
   "projectType": {
     "title": "Loại dự án",

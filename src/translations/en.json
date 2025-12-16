@@ -976,7 +976,11 @@
     "serialNumber": "Serial Number",
     "inverterlist": "Inverter List",
     "invertertype": "Inverter Type",
-    "apiUrlName": "API URL"
+    "apiUrlName": "API URL",
+    "version": "Version",
+    "model": "Model",
+    "Warranty": "Warranty",
+    "warrantyExpireDate": "Warranty Expire Date"
   },
   "projectType": {
     "title": "Project Types",
