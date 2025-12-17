@@ -386,7 +386,7 @@ const PowerConsumptionDashboard = ({ projectId, readings = [], loading = false, 
                 type="date"
                 value={selectedDate}
                 onChange={(e) => onDateChange(e.target.value)}
-                className="theme-btn-blue-color border rounded-md px-3 py-2 me-2 text-sm"
+                className="bg-black text-white border rounded-md px-3 py-2 me-2 text-sm"
                 placeholder={lang("common.endDate") || "End Date"}
             />
         
