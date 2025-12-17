@@ -83,6 +83,50 @@ router.post('/station/realtime-data', async (req, res) => {
         });
     }
 });
+router.post('/station/stationDayEnergyList', async (req, res) => {
+    try {
+        const { pageNo, pageSize, time, nmiCode } = req.body;
+        // Fix: check raw body before destructuring
+        if (!req.body) {
+            return res.status(400).json({ error: "Empty body received" });
+        }
+
+        if (!nmiCode) {
+            return res.status(400).json({ error: "nmiCode required" });
+        }
+        if (!pageSize) {
+            return res.status(400).json({ error: "pageSize required" });
+        }
+        if (!pageNo) {
+            return res.status(400).json({ error: "pageNo is required" });
+        }
+        if (!time) {
+            return res.status(400).json({ error: "time is required" });
+        }
+
+        const payload = {
+            pageNo,
+            pageSize,
+            time,
+            nmiCode: nmiCode || null
+        };
+        console.log("payload", payload);
+
+        const result = await solisRequest("/v1/api/stationDayEnergyList", payload);
+
+        res.json({
+            message: "Station Day Data Fetched",
+            solisData: result
+        });
+
+    } catch (err) {
+        console.error("StationData Error:", err);
+        res.status(500).json({
+            error: "Failed to fetch station day data",
+            details: err.message
+        });
+    }
+});
 
 router.post('/station/month-data', async (req, res) => {
     try {
@@ -205,7 +249,6 @@ router.post("/inverter/detail", async (req, res) => {
     }
 });
 
-
 router.post("/inverter/inverterMonth/data", async (req, res) => {
     try {
         const { id, sn, money, month } = req.body;
@@ -215,7 +258,7 @@ router.post("/inverter/inverterMonth/data", async (req, res) => {
                 error: "Either inverter 'id' or 'sn' is required"
             });
         }
-        
+
         if (!month) {
             return res.status(400).json({ error: "month is required" });
         }

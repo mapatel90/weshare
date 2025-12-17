@@ -4,6 +4,7 @@ import { apiGet, apiPost } from '@/lib/api'
 import StatCardsGrid from './projectViewSection/StateCard'
 import PowerConsumptionDashboard from './projectViewSection/inverterChart'
 import ProjectInformation from './projectViewSection/ProjectInformation'
+import ProjectOverviewChart from './projectViewSection/ProjectOverviewChart'
 import MeterInfo from './projectViewSection/MeterInfo'
 import MonthlyChart from './projectViewSection/MonthlyChart'
 import { FiEdit3 } from 'react-icons/fi'
@@ -40,6 +41,8 @@ const ProjectViewContent = ({ projectId = '' }) => {
   const [selectedInverterLatestLoading, setSelectedInverterLatestLoading] = useState(false)
 
   // Latest inverter data for this project (default)
+  const [projectChartData, setProjectChartData] = useState(null)
+  const [projectLatestLoading, setProjectLatestLoading] = useState(true)
   const [inverterChartData, setInverterChartData] = useState(null)
   const [inverterLatestLoading, setInverterLatestLoading] = useState(true)
   const [monthlyChartData, setMonthlyChartData] = useState(null)
@@ -113,6 +116,24 @@ const ProjectViewContent = ({ projectId = '' }) => {
     loadLatest()
   }, [selectedInverterId, projectId, selectedDate])
 
+  // ------------------- Load Project Overview Chat (default) -------------------
+  useEffect(() => {
+    const loadLatest = async () => {
+      const payload = {
+        projectId: projectId ?? null,
+        date: selectedDate ?? null,
+      };
+      try {
+        setProjectLatestLoading(true)
+        const res = await apiPost(`/api/projects/chart-data`, payload)
+        setProjectChartData(res?.success ? res.data : null)
+      } finally {
+        setProjectLatestLoading(false)
+      }
+    }
+    loadLatest()
+  }, [projectId, selectedDate])
+
   // ------------------- Load Count of daily yiled and total yiled -------------------
   useEffect(() => {
     const loadSelectedInverterLatest = async () => {
@@ -132,7 +153,7 @@ const ProjectViewContent = ({ projectId = '' }) => {
   }, [selectedInverterId, projectId])
 
   // ------------------- Load Monthly Chart Data -------------------
-  useEffect(() => {   
+  useEffect(() => {
     const loadMonthlyChartData = async () => {
       const payload = {
         projectId: projectId ?? null,
@@ -141,7 +162,7 @@ const ProjectViewContent = ({ projectId = '' }) => {
       try {
         setMonthlyChartDataLoading(true)
         const res = await apiPost(`/api/inverter-data/monthly-chart`, payload)
-        console.log("month data:",res.data);
+        console.log("month data:", res.data);
         setMonthlyChartData(res?.success ? res.data : null)
       } finally {
         setMonthlyChartDataLoading(false)
@@ -152,7 +173,7 @@ const ProjectViewContent = ({ projectId = '' }) => {
 
   // Transform monthly chart data from backend - always show all 12 months
   const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-  
+
   // Always show all 12 months, fill with 0 if no data
   const monthlyChartMonths = useMemo(() => {
     return monthNames // Always return all 12 months
@@ -166,7 +187,7 @@ const ProjectViewContent = ({ projectId = '' }) => {
         dataMap.set(item.month, item.totalGenerateKw || 0)
       })
     }
-    
+
     // Return array with all 12 months, filling 0 for months without data
     return monthNames.map((_, index) => dataMap.get(index) || 0)
   }, [monthlyChartData])
@@ -179,7 +200,7 @@ const ProjectViewContent = ({ projectId = '' }) => {
         inverterMap.set(item.month, item.inverters || [])
       })
     }
-    
+
     // Return array with all 12 months, filling empty array for months without data
     return monthNames.map((_, index) => inverterMap.get(index) || [])
   }, [monthlyChartData])
@@ -230,7 +251,7 @@ const ProjectViewContent = ({ projectId = '' }) => {
               <p style={{ color: '#6b7280' }}>{project.project_type}</p>
             </div>
 
-          <div>
+            <div>
               {projectInvertersLoading ? (
                 <div style={{ color: '#6b7280', fontSize: '14px' }}>Loading inverters...</div>
               ) : (
@@ -307,17 +328,28 @@ const ProjectViewContent = ({ projectId = '' }) => {
               <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#22c55e' }}></div>
             </div>
           </div>
+          {selectedInverterId ? (
+            <PowerConsumptionDashboard
+              projectId={projectId}
+              readings={inverterChartData || []}
+              loading={inverterLatestLoading}
+              selectedInverterId={selectedInverterId}
+              projectInverters={projectInverters}
+              selectedDate={selectedDate}
+              onDateChange={setSelectedDate}
+              setSelectedDate={setSelectedDate}
+            />
+          ) : (
+            <ProjectOverviewChart
+              projectId={projectId}
+              readings={projectChartData || []}
+              loading={projectLatestLoading}
+              selectedDate={selectedDate}
+              onDateChange={setSelectedDate}
+              setSelectedDate={setSelectedDate}
+            />
+          )}
 
-          <PowerConsumptionDashboard
-            projectId={projectId}
-            readings={inverterChartData || []}
-            loading={inverterLatestLoading}
-            selectedInverterId={selectedInverterId}
-            projectInverters={projectInverters}
-            selectedDate={selectedDate}
-            onDateChange={setSelectedDate}
-            setSelectedDate={setSelectedDate}
-          />
         </div>
 
         {/* MONTHLY CHART */}

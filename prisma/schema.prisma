@@ -225,6 +225,7 @@ model Project {
   project_images   Project_images[]
   inverter_data    inverter_data[] 
   interestedinvestor InterestedInvestor[]
+  project_data     project_data[]
 
   @@map("projects")
 }
@@ -456,7 +457,7 @@ model inverter_data {
   inverter_id Int?      @map("inverter_id")
   date        DateTime  @map("date")
   time        String    @map("time")
-  generate_kw Float     @map("generate_kw")
+  generate_kw  Float     @map("generate_kw")
   ac_frequency Float?      @map("ac_frequency")
   daily_yield  Float?      @map("daily_yield")
   annual_yield Float?      @map("annual_yield")
@@ -467,4 +468,20 @@ model inverter_data {
   inverter    Inverter?  @relation(fields: [inverter_id], references: [id])
 
   @@map("inverter_data")
+}
+
+
+model project_data {
+  id          Int       @id @default(autoincrement())
+  projectId   Int       @map("project_id")
+  date        DateTime  @map("date")
+  time        String    @map("time")
+  pv          Float     @map("pv")
+  grid        Float     @map("grid")
+  load        Float     @map("load")
+  createdAt   DateTime   @default(now()) @map("created_at")
+
+  project     Project    @relation(fields: [projectId], references: [id])
+
+  @@map("project_data")
 }

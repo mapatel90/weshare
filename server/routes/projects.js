@@ -224,8 +224,8 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
         asking_price: asking_price || "",
         lease_term:
           lease_term !== undefined &&
-          lease_term !== null &&
-          `${lease_term}` !== ""
+            lease_term !== null &&
+            `${lease_term}` !== ""
             ? parseInt(lease_term)
             : null,
         product_code: product_code || "",
@@ -330,8 +330,8 @@ router.post(
       const defaultIndexRaw = req.body?.default_index;
       const defaultIndex =
         defaultIndexRaw !== undefined &&
-        defaultIndexRaw !== null &&
-        defaultIndexRaw !== ""
+          defaultIndexRaw !== null &&
+          defaultIndexRaw !== ""
           ? parseInt(defaultIndexRaw, 10)
           : null;
 
@@ -343,12 +343,12 @@ router.post(
         default: hasDefault
           ? 0
           : defaultIndex !== null && !Number.isNaN(defaultIndex)
-          ? index === defaultIndex
-            ? 1
-            : 0
-          : index === 0
-          ? 1
-          : 0,
+            ? index === defaultIndex
+              ? 1
+              : 0
+            : index === 0
+              ? 1
+              : 0,
       }));
 
       await prisma.project_images.createMany({
@@ -536,23 +536,23 @@ router.delete(
  */
 router.get("/", async (req, res) => {
   try {
-    const { 
-      page = 1, 
-      limit, 
-      search, 
-      status, 
+    const {
+      page = 1,
+      limit,
+      search,
+      status,
       offtaker_id,
       project_id,
       downloadAll,
       solisStatus
     } = req.query;
-    
+
     const pageInt = parseInt(page);
     const offtakerIdInt = offtaker_id ? parseInt(offtaker_id) : null;
     const projectIdInt = project_id ? parseInt(project_id) : null;
     const limitInt = parseInt(limit);
     const offset = (pageInt - 1) * limitInt;
-    
+
     const parsedLimit = Number(limit);
     const limitNumber = !Number.isNaN(parsedLimit) && parsedLimit > 0 ? parsedLimit : null;
     const fetchAll = downloadAll === "1" || downloadAll === "true" || !limitNumber;
@@ -957,6 +957,46 @@ router.delete("/:id", authenticateToken, async (req, res) => {
   } catch (error) {
     console.error("Delete project error:", error);
     res.status(500).json({ success: false, message: "Internal server error" });
+  }
+});
+
+
+// Project Chart Data Is Get
+router.post("/chart-data", async (req, res) => {
+  try {
+    const { projectId, date } = req.body;
+
+    // Build WHERE condition step-by-step
+    let where = {
+      project: { is_deleted: 0 },
+    };
+
+    // Filter by projectId if provided
+    if (projectId) {
+      where.projectId = Number(projectId);
+    }
+
+    // Filter by date if provided (expecting YYYY-MM-DD)
+    if (typeof date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      where.date = {
+        gte: new Date(`${date}T00:00:00.000Z`),
+        lte: new Date(`${date}T23:59:59.999Z`),
+      };
+    }
+
+    const allData = await prisma.project_data.findMany({
+      where,
+      orderBy: { date: "asc" },
+    });
+    return res.json({
+      success: true,
+      count: allData.length,
+      data: allData,
+    });
+
+  } catch (error) {
+    console.error("Error fetching latest inverter data:", error);
+    return res.status(500).json({ error: "Server error" });
   }
 });
 
