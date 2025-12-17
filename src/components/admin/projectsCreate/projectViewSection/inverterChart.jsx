@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useMemo, useState } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,Legend } from 'recharts';
 import { ChevronLeft, ChevronRight, Download } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -190,7 +190,7 @@ const PowerConsumptionDashboard = ({ projectId, readings = [], loading = false, 
     paddingBottom: isSmallScreen ? '6px' : undefined,
   };
 
-  
+
   const handleExport = () => {
     alert('Export functionality would download the data as CSV/Excel');
   };
@@ -383,13 +383,13 @@ const PowerConsumptionDashboard = ({ projectId, readings = [], loading = false, 
       <div style={headerRowStyle}>
         {/* Date Navigation */}
         <input
-                type="date"
-                value={selectedDate}
-                onChange={(e) => onDateChange(e.target.value)}
-                className="bg-black text-white border rounded-md px-3 py-2 me-2 text-sm"
-                placeholder={lang("common.endDate") || "End Date"}
-            />
-        
+          type="date"
+          value={selectedDate}
+          onChange={(e) => onDateChange(e.target.value)}
+          className="bg-black text-white border rounded-md px-3 py-2 me-2 text-sm"
+          placeholder={lang("common.endDate") || "End Date"}
+        />
+
       </div>
 
       {/* Chart */}
@@ -439,6 +439,8 @@ const PowerConsumptionDashboard = ({ projectId, readings = [], loading = false, 
                   formatter={(value, name) => [`${Number(value).toFixed(3)} kW`, name]}
                   labelFormatter={tooltipLabelFormatter}
                 />
+
+                <Legend verticalAlign="bottom" height={40} />
 
                 {/* Render series: if single inverter selected, seriesInfo will contain only that */}
                 {seriesInfo.map((s) => (
