@@ -322,13 +322,13 @@ const ProjectOverviewChart = ({ projectId, readings = [], loading = false, selec
                   content={<CustomTooltip />}
                 />
                 <Legend verticalAlign="bottom" height={40} />
-                
+
                 {SERIES.map((s) => (
                   <Area
                     key={`${s.key}-area`}
                     type="monotone"
                     dataKey={s.key}
-                    name={s.name}
+                    legendType="none"
                     stroke="none"
                     fill={`url(#${s.key}Fill)`}
                     baseValue={0}
