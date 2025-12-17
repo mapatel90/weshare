@@ -91,7 +91,6 @@ const stateMessageStyle = {
 // Project-level single-series chart (no inverter selection)
 const ProjectOverviewChart = ({ projectId, readings = [], loading = false, selectedDate, onDateChange }) => {
   const { lang } = useLanguage();
-  console.log("projectChartData",readings);
   const { chartData, xAxisProps, yAxisDomain } = useMemo(() => {
     const selectedKey = normalizeDateKey(selectedDate);
 

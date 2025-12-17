@@ -48,44 +48,39 @@ function DashboardView() {
       setProjectsError(null);
       try {
         let apiUrl = "/api/projects?page=1&limit=50";
-        if (user?.id) apiUrl += `&offtaker_id=${user.id}`;
-        const res = await apiGet(apiUrl);
-        console.log("Fetched projects for dropdown:", res);
-
-        // Handle different response structures: res.projectList, res.data (array), or res.data.projects
-        let projectsArray = null;
-        if (res?.projectList && Array.isArray(res.projectList)) {
-          projectsArray = res.projectList;
-        } else if (Array.isArray(res?.data)) {
-          projectsArray = res.data;
-        } else if (Array.isArray(res?.data?.projects)) {
-          projectsArray = res.data.projects;
+        if (user?.id) {
+          apiUrl += `&offtaker_id=${user.id}`;
         }
+        const res = await apiGet(apiUrl);
 
-        if (res?.success && projectsArray && projectsArray.length > 0) {
-          // minimal normalization for dropdown
-          const normalized = projectsArray.map((p) => {
-            // try common keys for project size/capacity
-            const rawSize =
-              p.project_size ??
-              p.project_capacity ??
-              p.size_kw ??
-              p.project_kw ??
-              p.capacity ??
-              p.project_size_kw ??
-              null;
-            const project_size =
-              rawSize === null || rawSize === undefined || rawSize === ""
-                ? null
-                : Number(rawSize);
-            return {
-              id: p.id ?? p.project_code ?? null,
-              name: p.project_name ?? p.project_code ?? "Untitled Project",
-              slug: p.project_slug ?? "",
-              project_size,
-            };
-          });
-          setProjects(normalized);
+        if (res?.success && Array.isArray(res?.data)) {
+          if (res.data.length > 0) {
+            // minimal normalization for dropdown
+            const normalized = res.data.map((p) => {
+              // try common keys for project size/capacity
+              const rawSize =
+                p.project_size ??
+                p.project_capacity ??
+                p.size_kw ??
+                p.project_kw ??
+                p.capacity ??
+                p.project_size_kw ??
+                null;
+              const project_size =
+                rawSize === null || rawSize === undefined || rawSize === ""
+                  ? null
+                  : Number(rawSize);
+              return {
+                id: p.id ?? p.project_code ?? null,
+                name: p.project_name ?? p.project_code ?? "Untitled Project",
+                slug: p.project_slug ?? "",
+                project_size,
+              };
+            });
+            setProjects(normalized);
+          } else {
+            setProjects([]);
+          }
         } else {
           setProjects([]);
         }
@@ -106,11 +101,17 @@ function DashboardView() {
 
   // Auto-select first project when projects load
   useEffect(() => {
-    if (projects.length > 0 && !selectedProject) {
+    if (projects.length === 0) return;
+
+    // auto select only once OR when selected project is not in list
+    if (
+      !selectedProject ||
+      !projects.some((p) => p.id === selectedProject.id)
+    ) {
       setSelectedProject(projects[0]);
       setSelectedInverter(null);
     }
-  }, [projects, selectedProject]);
+  }, [projects]); // ✅ only projects dependency
 
   // compute total project size (sum of all projects' project_size)
   const totalProjectSize = useMemo(() => {
@@ -188,7 +189,6 @@ function DashboardView() {
           "/api/inverter-data/offtaker/summary/data",
           payload
         );
-        console.log("res:", res);
         if (res?.success) {
           setInverterLatest(res.data ?? null);
         } else {
@@ -346,29 +346,6 @@ function DashboardView() {
                   overflowY: "auto",
                 }}
               >
-                {/* ALL PROJECTS option */}
-                <li
-                  key="all-projects"
-                  role="button"
-                  tabIndex={0}
-                  style={{
-                    padding: "8px 16px",
-                    cursor: "pointer",
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    background: selectedProject ? undefined : "#eef2ff",
-                    fontWeight: selectedProject ? 400 : 600,
-                    color: "#111827",
-                  }}
-                  onClick={() => {
-                    setSelectedProject(null);
-                    setShowProjectsDropdown(false);
-                    setSelectedInverter(null);
-                  }}
-                >
-                  <span>All Projects</span>
-                </li>
                 <li style={{ padding: "4px 0" }}>
                   <hr
                     style={{
@@ -388,7 +365,6 @@ function DashboardView() {
                   </li>
                 ) : projects.length ? (
                   projects.map((proj) => {
-                    console.log("projects", projects);
                     const isSelected =
                       selectedProject &&
                       (selectedProject.id === proj.id ||
@@ -552,44 +528,44 @@ function DashboardView() {
       />
 
       {/* CHART SECTION */}
-      {selectedProject && (
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(500px, 1fr))",
+          gap: "24px",
+          marginBottom: "24px",
+        }}
+      >
+        {/* PRODUCTION CHART */}
         <div
           style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(500px, 1fr))",
-            gap: "24px",
-            marginBottom: "24px",
+            backgroundColor: "#fff",
+            borderRadius: "12px",
+            boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+            border: "1px solid #f3f4f6",
+            padding: "24px",
           }}
         >
-          {/* PRODUCTION CHART */}
           <div
             style={{
-              backgroundColor: "#fff",
-              borderRadius: "12px",
-              boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-              border: "1px solid #f3f4f6",
-              padding: "24px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              marginBottom: "16px",
             }}
           >
-            <div
+            <h3
               style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                marginBottom: "16px",
+                fontSize: "18px",
+                fontWeight: "bold",
+                color: "#111827",
               }}
             >
-              <h3
-                style={{
-                  fontSize: "18px",
-                  fontWeight: "bold",
-                  color: "#111827",
-                }}
-              >
-                Energy Production Overview
-              </h3>
-            </div>
-            {selectedInverter ? (
+              Energy Production Overview
+            </h3>
+          </div>
+          {selectedProject ? (
+            selectedInverter ? (
               <PowerConsumptionDashboard
                 projectId={selectedProject.id}
                 readings={inverterChartData || []}
@@ -609,10 +585,19 @@ function DashboardView() {
                 onDateChange={setSelectedDate}
                 setSelectedDate={setSelectedDate}
               />
-            )}
-          </div>
+            )
+          ) : (
+            <ProjectOverviewChart
+              projectId={null}
+              readings={[]}
+              loading={false}
+              selectedDate={selectedDate}
+              onDateChange={setSelectedDate}
+              setSelectedDate={setSelectedDate}
+            />
+          )}
         </div>
-      )}
+      </div>
 
       {/* Dashboard */}
       <div className="dashboard-row">
