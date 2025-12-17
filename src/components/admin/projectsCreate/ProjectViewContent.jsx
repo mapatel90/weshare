@@ -269,9 +269,10 @@ const ProjectViewContent = ({ projectId = '' }) => {
                 >
                   <option value="">Select inverter</option>
                   {projectInverters.map((pi) => {
+                    console.log("projectInverters",projectInverters);
                     const inv = pi.inverter || {}
-                    const label = inv.inverterName
-                      ? `${inv.inverterName} (Serial: ${pi.inverter_serial_number || 'N/A'})`
+                    const label = pi.inverter_name
+                      ? `${pi.inverter_name} (Serial: ${pi.inverter_serial_number || 'N/A'})`
                       : `Inverter ID: ${pi.id}`
 
                     return (
