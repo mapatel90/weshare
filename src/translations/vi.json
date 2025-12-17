@@ -830,7 +830,8 @@
     "viewLocation": "Xem vị trí",
     "uploadImage": "Tải lên hình ảnh",
     "imageUploaded": "Tải lên hình ảnh thành công",
-    "imageUploadFailed": "Không thể tải lên hình ảnh"
+    "imageUploadFailed": "Không thể tải lên hình ảnh",
+    "selectInvestor": "Chọn nhà đầu tư"
   },
   "placeholders": {
     "your_company_name": "Tên công ty của bạn [Ví dụ: Theme Ocean]",

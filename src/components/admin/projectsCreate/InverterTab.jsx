@@ -110,7 +110,7 @@ const InverterTab = ({ projectId }) => {
     setWarrantyExpireDate(
       row.warranty_expire_date ? row.warranty_expire_date.split("T")[0] : ""
     );
-    setHasWarranty(!!row.warranty_expire_date);
+    setHasWarranty(!!row.in_warranty || !!row.warranty_expire_date);
     setStatus(row.status);
     setEditId(row.id);
     setShowModal(true);
@@ -146,7 +146,8 @@ const InverterTab = ({ projectId }) => {
           inverter_name: inverterName,
           model: model,
           version: version,
-          warranty_expire_date: warrantyExpireDate,
+          warranty_expire_date: hasWarranty ? warrantyExpireDate : null,
+          in_warranty: hasWarranty ? 1 : 0,
           status,
         });
         if (res.success) {
@@ -173,7 +174,8 @@ const InverterTab = ({ projectId }) => {
           inverter_name: inverterName,
           model: model,
           version: version,
-          warranty_expire_date: warrantyExpireDate,
+          warranty_expire_date: hasWarranty ? warrantyExpireDate : null,
+          in_warranty: hasWarranty ? 1 : 0,
           status,
         });
         if (res.success) {

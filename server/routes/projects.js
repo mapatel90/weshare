@@ -602,6 +602,10 @@ router.get("/", async (req, res) => {
           offtaker: {
             select: { id: true, fullName: true, email: true },
           },
+          // Include investor details from InterestedInvestor using the relation
+          investor: {
+            select: { id: true, fullName: true, email: true, phoneNumber: true }
+          },
           city: true,
           state: true,
           country: true,
@@ -683,6 +687,7 @@ router.get("/:identifier", async (req, res) => {
         : { project_slug: identifier },
       include: {
         offtaker: { select: { id: true, fullName: true, email: true } },
+        investor: { select: { id: true, fullName: true, email: true, phoneNumber: true } },
         city: true,
         state: true,
         country: true,

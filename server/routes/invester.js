@@ -132,4 +132,43 @@ router.delete("/:id", authenticateToken, async (req, res) => {
   }
 });
 
+// Mark investor for project - updates project.investor_id
+router.post("/:id/mark-investor", authenticateToken, async (req, res) => {
+  try {
+    const investorId = Number(req.params.id);
+    const { projectId } = req.body;
+
+    if (!projectId) {
+      return res.status(400).json({ success: false, message: "projectId is required" });
+    }
+
+    // Verify investor exists and is not deleted
+    const investor = await prisma.interestedInvestor.findFirst({
+      where: { id: investorId, is_deleted: 0 },
+    });
+    if (!investor) {
+      return res.status(404).json({ success: false, message: "Investor not found" });
+    }
+
+    // Verify project exists
+    const project = await prisma.project.findFirst({
+      where: { id: Number(projectId), is_deleted: 0 },
+    });
+    if (!project) {
+      return res.status(404).json({ success: false, message: "Project not found" });
+    }
+
+    // Update project with investor_id
+    const updated = await prisma.project.update({
+      where: { id: Number(projectId) },
+      data: { investor_id: investorId },
+    });
+
+    return res.json({ success: true, data: updated, message: "Investor marked successfully" });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: error.message });
+  }
+});
+
 export default router;

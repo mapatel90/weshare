@@ -647,7 +647,7 @@
       "seekingInvestor": "Seeking Investor",
       "investNow": "Invest Now",
       "testimonials": "Offtaker & Investor Testimonials",
-      "investor": "Investor",
+      "investor": "Interested Investor",
       "signInToInvest": "Sign In to Invest",
       "submit": "Submit",
       "notes": "Notes",
@@ -855,7 +855,8 @@
     "viewLocation": "View Location",
     "uploadImage": "Upload Image",
     "imageUploaded": "Image uploaded successfully",
-    "imageUploadFailed": "Failed to upload image"
+    "imageUploadFailed": "Failed to upload image",
+    "selectInvestor": "Select Investors"
   },
   "settings": {
     "title": "Settings",
