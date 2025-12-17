@@ -309,12 +309,6 @@ const ProjectViewContent = ({ projectId = '' }) => {
         statCardsData={statCardsData}
       />
 
-      {/* PROJECT DETAILS */}
-      <ProjectInformation project={project} />
-
-      {/* METER INFO */}
-      <MeterInfo project={project} contracts={contracts} contractsLoading={contractsLoading} inverters={projectInverters} />
-
       {/* CHART SECTION */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(500px, 1fr))', gap: '24px' }}>
 
@@ -353,15 +347,21 @@ const ProjectViewContent = ({ projectId = '' }) => {
         </div>
 
         {/* MONTHLY CHART */}
-        <MonthlyChart
+        {/* <MonthlyChart
           revenue={monthlyChartRevenue}
           months={monthlyChartMonths}
           inverters={monthlyChartInverters}
           summaryCards={revenueSummaryCards}
           loading={monthlyChartDataLoading}
-        />
+        /> */}
 
       </div>
+
+      {/* PROJECT DETAILS */}
+      <ProjectInformation project={project} />
+
+      {/* METER INFO */}
+      <MeterInfo project={project} contracts={contracts} contractsLoading={contractsLoading} inverters={projectInverters} />
 
     </div>
   )
