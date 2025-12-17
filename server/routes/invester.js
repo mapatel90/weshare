@@ -72,7 +72,7 @@ router.get("/", async (req, res) => {
 });
 
 // Get single by id
-router.get("/:id", async (req, res) => {
+router.get("/:id", authenticateToken, async (req, res) => {
   try {
     const id = Number(req.params.id);
     const record = await prisma.interestedInvestor.findFirst({
