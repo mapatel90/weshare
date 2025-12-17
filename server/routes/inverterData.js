@@ -73,9 +73,9 @@ router.get("/", async (req, res) => {
       const isISODate = /^\d{4}-\d{2}-\d{2}$/.test(trimmedSearch);
       const dateRange = isISODate
         ? {
-            gte: new Date(`${trimmedSearch}T00:00:00.000Z`),
-            lte: new Date(`${trimmedSearch}T23:59:59.999Z`),
-          }
+          gte: new Date(`${trimmedSearch}T00:00:00.000Z`),
+          lte: new Date(`${trimmedSearch}T23:59:59.999Z`),
+        }
         : null;
 
       const orFilters = [
@@ -189,7 +189,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.post("/latest-record", async (req, res) => {
+router.post("/latest-record", authenticateToken, async (req, res) => {
   try {
     const { projectId, projectInverterId } = req.body;
     // Build WHERE condition step-by-step
@@ -213,11 +213,11 @@ router.post("/latest-record", async (req, res) => {
         success: true,
         data: latest
           ? {
-              inverter_id: latest.inverter_id,
-              daily_yield: latest.daily_yield,
-              total_yield: latest.total_yield,
-              date: latest.date,
-            }
+            inverter_id: latest.inverter_id,
+            daily_yield: latest.daily_yield,
+            total_yield: latest.total_yield,
+            date: latest.date,
+          }
           : null,
       });
     } else {
@@ -240,11 +240,11 @@ router.post("/latest-record", async (req, res) => {
           });
           return latest
             ? {
-                inverter_id: latest.inverter_id,
-                daily_yield: latest.daily_yield,
-                total_yield: latest.total_yield,
-                date: latest.date,
-              }
+              inverter_id: latest.inverter_id,
+              daily_yield: latest.daily_yield,
+              total_yield: latest.total_yield,
+              date: latest.date,
+            }
             : null;
         })
       );
