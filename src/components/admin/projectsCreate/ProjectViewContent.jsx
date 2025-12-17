@@ -269,9 +269,10 @@ const ProjectViewContent = ({ projectId = '' }) => {
                 >
                   <option value="">Select inverter</option>
                   {projectInverters.map((pi) => {
+                    console.log("projectInverters",projectInverters);
                     const inv = pi.inverter || {}
-                    const label = inv.inverterName
-                      ? `${inv.inverterName} (Serial: ${pi.inverter_serial_number || 'N/A'})`
+                    const label = pi.inverter_name
+                      ? `${pi.inverter_name} (Serial: ${pi.inverter_serial_number || 'N/A'})`
                       : `Inverter ID: ${pi.id}`
 
                     return (
@@ -308,12 +309,6 @@ const ProjectViewContent = ({ projectId = '' }) => {
         selectedInverterId={selectedInverterId}
         statCardsData={statCardsData}
       />
-
-      {/* PROJECT DETAILS */}
-      <ProjectInformation project={project} />
-
-      {/* METER INFO */}
-      <MeterInfo project={project} contracts={contracts} contractsLoading={contractsLoading} inverters={projectInverters} />
 
       {/* CHART SECTION */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(500px, 1fr))', gap: '24px' }}>
@@ -353,15 +348,21 @@ const ProjectViewContent = ({ projectId = '' }) => {
         </div>
 
         {/* MONTHLY CHART */}
-        <MonthlyChart
+        {/* <MonthlyChart
           revenue={monthlyChartRevenue}
           months={monthlyChartMonths}
           inverters={monthlyChartInverters}
           summaryCards={revenueSummaryCards}
           loading={monthlyChartDataLoading}
-        />
+        /> */}
 
       </div>
+
+      {/* PROJECT DETAILS */}
+      <ProjectInformation project={project} />
+
+      {/* METER INFO */}
+      <MeterInfo project={project} contracts={contracts} contractsLoading={contractsLoading} inverters={projectInverters} />
 
     </div>
   )
