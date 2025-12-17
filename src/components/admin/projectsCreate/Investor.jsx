@@ -153,6 +153,27 @@ const Investor = ({ projectId }) => {
     }
   };
 
+  const handleMarkInvestor = async (row) => {
+    if (!projectId) {
+      showErrorToast(lang("common.error", "Project ID is required"));
+      return;
+    }
+
+    try {
+      const res = await apiPost(`/api/investors/${row.id}/mark-investor`, {
+        projectId,
+      });
+      if (res?.success) {
+        showSuccessToast(lang("investor.markedSuccessfully", "Investor marked successfully"));
+        fetchInvestors();
+      } else {
+        showErrorToast(res.message || lang("common.error", "Error"));
+      }
+    } catch (err) {
+      showErrorToast(err.message || lang("common.error", "Error"));
+    }
+  };
+
   const columns = [
     {
       accessorKey: "fullName",
@@ -185,10 +206,37 @@ const Investor = ({ projectId }) => {
     {
       accessorKey: "status",
       header: () => lang("common.status", "Status"),
-      cell: (info) =>
-        info.getValue() == 1
-          ? <span className="badge bg-soft-success text-success">{lang("common.active", "Active")}</span>
-          : <span className="badge bg-soft-danger text-danger">{lang("common.inactive", "Inactive")}</span>,
+      cell: (info) => {
+        const row = info.row.original;
+        const isCurrentInvestor =
+          (row?.project?.investor_id && Number(row.project.investor_id) === Number(row.id)) ||
+          (row?.project?.investorId && Number(row.project.investorId) === Number(row.id));
+        return (
+          <div style={{ display: "flex", gap: "8px", alignItems: "center", flexWrap: "wrap" }}>
+            {isCurrentInvestor ? (
+              <span className="badge bg-soft-success text-success">
+                {lang("common.active", "Active")}
+              </span>
+            ) : (
+              <Button
+                size="small"
+                variant="contained"
+                onClick={() => handleMarkInvestor(row)}
+                sx={{
+                  backgroundColor: "#28a745",
+                  color: "#fff",
+                  padding: "4px 8px",
+                  fontSize: "12px",
+                  textTransform: "none",
+                  "&:hover": { backgroundColor: "#218838" },
+                }}
+              >
+                {lang("investor.markAsInvestor", "Mark as Investor")}
+              </Button>
+            )}
+          </div>
+        );
+      },
     },
     {
       accessorKey: "actions",

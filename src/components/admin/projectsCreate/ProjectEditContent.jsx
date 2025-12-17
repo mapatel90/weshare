@@ -40,6 +40,8 @@ const ProjectEditContent = ({ projectId }) => {
         project_slug: '',
         project_type_id: '',
         offtaker: '',
+        investorId: '',
+        investorName: '',
         address1: '',
         address2: '',
         countryId: '',
@@ -217,12 +219,15 @@ const ProjectEditContent = ({ projectId }) => {
                 const res = await apiGet(`/api/projects/${projectId}`)
                 if (res?.success && res.data) {
                     const p = res.data
+                    console.log('Loaded project data:', p)
                     setFormData({
                         id: p.id, // ← added so ProjectForm's `formData?.id` is truthy
                         project_name: p.project_name || '',
                         project_slug: p.project_slug || '',
                         project_type_id: p.project_type_id || p.projectType?.id || '',
                         offtaker: String(p.offtaker_id || ''),
+                        investorId: String(p.investor_id || p.investor?.id || ''),
+                        investorName: p.investor?.fullName || '',
                         address1: p.address1 || '',
                         address2: p.address2 || '',
                         countryId: p.countryId || '',
