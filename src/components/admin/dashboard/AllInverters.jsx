@@ -5,6 +5,7 @@ import CardHeader from "@/components/shared/CardHeader";
 import useCardTitleActions from "@/hooks/useCardTitleActions";
 import CardLoader from "@/components/shared/CardLoader";
 import { apiGet } from "@/lib/api";
+import { clippingParents } from "@popperjs/core";
 
 const AllInverters = ({ title = "All Inverters" }) => {
   const {
@@ -16,6 +17,7 @@ const AllInverters = ({ title = "All Inverters" }) => {
     handleDelete,
   } = useCardTitleActions();
   const [inverters, setInverters] = useState([]);
+console.log("inverters::",inverters);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -85,7 +87,7 @@ const AllInverters = ({ title = "All Inverters" }) => {
                               color: status === 1 ? "#15803d" : "#b91c1c",
                             }}
                           >
-                            {status === 1 ? "Active" : "Inactive"}
+                            {status === 1 ? "online" : "Offline"}
                           </span>
                         </td>
                       </tr>
