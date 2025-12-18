@@ -100,6 +100,15 @@ const ProjectEditContent = ({ projectId }) => {
         return galleryImages.filter(img => !removedImageIds.includes(img.id))
     }, [galleryImages, removedImageIds])
 
+    const handleInvestorMarked = useCallback((investor) => {
+        if (!investor?.id) return
+        setFormData(prev => ({
+            ...prev,
+            investorId: String(investor.id),
+            investorName: investor.fullName ||  ''
+        }))
+    }, [])
+
     const handleDropImages = useCallback((acceptedFiles = [], rejectedFiles = []) => {
         rejectedFiles.forEach(reject => {
             reject.errors?.forEach(err => showErrorToast(err.message || lang('projects.imageRejected', 'Image rejected')))
@@ -494,7 +503,7 @@ const ProjectEditContent = ({ projectId }) => {
                             <InverterTab projectId={projectId} />
                         )}
                         {activeTab === 'investor' && (
-                            <Investor projectId={projectId} />
+                            <Investor projectId={projectId} onInvestorMarked={handleInvestorMarked} />
                         )}
                         {activeTab === 'contract' && (
                             <Contract projectId={projectId} />

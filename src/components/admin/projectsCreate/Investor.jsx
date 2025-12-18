@@ -19,7 +19,7 @@ import {
 } from "@mui/material";
 import { Close as CloseIcon } from "@mui/icons-material";
 
-const Investor = ({ projectId }) => {
+const Investor = ({ projectId, onInvestorMarked }) => {
   const { lang } = useLanguage();
 
   const [showModal, setShowModal] = useState(false);
@@ -165,6 +165,10 @@ const Investor = ({ projectId }) => {
       });
       if (res?.success) {
         showSuccessToast(lang("investor.markedSuccessfully", "Investor marked successfully"));
+        // inform parent so edit form updates instantly without page refresh
+        if (typeof onInvestorMarked === "function") {
+          onInvestorMarked({ id: row.id, fullName: row.fullName || "" });
+        }
         fetchInvestors();
       } else {
         showErrorToast(res.message || lang("common.error", "Error"));
