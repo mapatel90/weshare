@@ -17,7 +17,6 @@ const AllInverters = ({ title = "All Inverters" }) => {
     handleDelete,
   } = useCardTitleActions();
   const [inverters, setInverters] = useState([]);
-console.log("inverters::",inverters);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
