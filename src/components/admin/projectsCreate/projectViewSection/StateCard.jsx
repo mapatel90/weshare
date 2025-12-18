@@ -31,51 +31,67 @@ const getAggregatedMetric = (source, key) => {
   return toNumericOrNull(source?.[key])
 }
 
-const StatCard = ({ icon: Icon, title, value, subtitle, color, trend }) => (
-  <div style={{
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-    padding: 24,
-    border: '1px solid #f3f4f6',
-    transition: 'box-shadow 0.3s'
-  }}>
-    <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 16 }}>
-      <div style={{
-        padding: 12,
-        borderRadius: 8,
-        background: color,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center'
-      }}>
-        <Icon style={{ width: 24, height: 24, color: '#fff' }} />
-      </div>
-      {trend !== null && trend !== undefined && (
-        <span style={{
-          fontSize: 12,
-          fontWeight: 600,
-          padding: '4px 8px',
-          borderRadius: 4,
-          backgroundColor: trend > 0 ? '#dcfce7' : '#fee2e2',
-          color: trend > 0 ? '#166534' : '#991b1b'
+const StatCard = ({ icon: Icon, title, value, subtitle, color, trend, isDark = false }) => {
+  const colors = {
+    cardBg: isDark ? '#121a2d' : '#fff',
+    text: isDark ? '#ffffff' : '#111827',
+    textMuted: isDark ? '#b1b4c0' : '#6b7280',
+    textSubtitle: isDark ? '#9ca3af' : '#9ca3af',
+    border: isDark ? '#1b2436' : '#f3f4f6',
+    trendPositiveBg: isDark ? 'rgba(34, 197, 94, 0.2)' : '#dcfce7',
+    trendPositiveText: isDark ? '#22c55e' : '#166534',
+    trendNegativeBg: isDark ? 'rgba(239, 68, 68, 0.2)' : '#fee2e2',
+    trendNegativeText: isDark ? '#ef4444' : '#991b1b',
+    boxShadow: isDark ? '0 0 20px rgba(14, 32, 56, 0.3)' : '0 1px 3px rgba(0,0,0,0.1)',
+  }
+  
+  return (
+    <div style={{
+      backgroundColor: colors.cardBg,
+      borderRadius: 12,
+      boxShadow: colors.boxShadow,
+      padding: 24,
+      border: `1px solid ${colors.border}`,
+      transition: 'box-shadow 0.3s'
+    }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 16 }}>
+        <div style={{
+          padding: 12,
+          borderRadius: 8,
+          background: color,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
         }}>
-          {trend > 0 ? '+' : ''}{trend}%
-        </span>
-      )}
+          <Icon style={{ width: 24, height: 24, color: '#fff' }} />
+        </div>
+        {trend !== null && trend !== undefined && (
+          <span style={{
+            fontSize: 12,
+            fontWeight: 600,
+            padding: '4px 8px',
+            borderRadius: 4,
+            backgroundColor: trend > 0 ? colors.trendPositiveBg : colors.trendNegativeBg,
+            color: trend > 0 ? colors.trendPositiveText : colors.trendNegativeText
+          }}>
+            {trend > 0 ? '+' : ''}{trend}%
+          </span>
+        )}
+      </div>
+      <h3 style={{ fontSize: 24, fontWeight: 'bold', color: colors.text, marginBottom: 4 }}>{value}</h3>
+      <p style={{ fontSize: 14, color: colors.textMuted }}>{title}</p>
+      <p style={{ fontSize: 12, color: colors.textSubtitle, marginTop: 4 }}>{subtitle}</p>
     </div>
-    <h3 style={{ fontSize: 24, fontWeight: 'bold', color: '#111827', marginBottom: 4 }}>{value}</h3>
-    <p style={{ fontSize: 14, color: '#6b7280' }}>{title}</p>
-    <p style={{ fontSize: 12, color: '#9ca3af', marginTop: 4 }}>{subtitle}</p>
-  </div>
-)
+  )
+}
 
 const StatCardsGrid = ({
   project = {},
   inverterLatest = null,
   inverterLatestLoading = false,
   selectedInverterId = '',
-  statCardsData = []
+  statCardsData = [],
+  isDark = false
 }) => {
   // If an inverter is selected, show its data; otherwise show project-level data
   const isInverterSelected = !!selectedInverterId;
@@ -167,6 +183,7 @@ const StatCardsGrid = ({
         subtitle="Capacity price per kWh"
         color="linear-gradient(to bottom right, #fbbf24, #f97316)"
         trend={null}
+        isDark={isDark}
       />
       <StatCard
         icon={Zap}
@@ -175,6 +192,7 @@ const StatCardsGrid = ({
         subtitle={dailyYieldSubtitle}
         color="linear-gradient(to bottom right, #3b82f6, #2563eb)"
         trend={isInverterSelected ? null : (project?.output_trend ?? null)}
+        isDark={isDark}
       />
       <StatCard
         icon={Activity}
@@ -183,6 +201,7 @@ const StatCardsGrid = ({
         subtitle={totalYieldSubtitle}
         color="linear-gradient(to bottom right, #06b6d4, #0891b2)"
         trend={null}
+        isDark={isDark}
       />
       <StatCard
         icon={Activity}
@@ -197,6 +216,7 @@ const StatCardsGrid = ({
         subtitle="Total revenue generated"
         color="linear-gradient(to bottom right, #a855f7, #ec4899)"
         trend={project?.revenue_trend ?? null}
+        isDark={isDark}
       />
     </div>
   )
