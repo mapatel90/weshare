@@ -206,6 +206,20 @@ model Project {
   sim_expire_date    DateTime?
   investor_id        Int?
 
+  // New Temperature Columns Added
+  cityStr   String?   @db.VarChar(255)
+  windSpd   String?   @db.VarChar(255)
+  windDir   String?   @db.VarChar(255)
+  condTxtD  String?   @db.VarChar(255)
+  condTxtN  String?   @db.VarChar(255)
+  hum       String?   @db.VarChar(255)
+  tmpMax    String?   @db.VarChar(255)
+  tmpMin    String?   @db.VarChar(255)
+  tmpUnit   String?   @db.VarChar(255)
+  sr        String?   @db.VarChar(255)
+  ss        String?   @db.VarChar(255)
+
+
   solis_plant_id   String?   @db.VarChar(255)
 
   // Relations
