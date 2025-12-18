@@ -1320,6 +1320,7 @@
   },
   "meter":{
     "meter": "Meter",
+    "meterUrl": "Meter Url",
     "meterName": "Meter Name",
     "meterNumber": "Meter Number",
     "addMeter": "Add Meter",
@@ -1339,7 +1340,8 @@
     "inactive": "Inactive",
     "createdSuccessfully": "Meter Created Successfully",
     "updatedSuccessfully": "Meter Updated Successfully",
-    "deletedSuccessfully": "Meter Deleted Successfully"
+    "deletedSuccessfully": "Meter Deleted Successfully",
+    "enterMeterUrl": "Enter Meter Url"
   },
   "reports":{
     "reports": "Reports",

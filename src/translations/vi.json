@@ -1273,6 +1273,7 @@
   },
   "meter": {
     "meter": "Công tơ",
+    "meterUrl": "Url mét",
     "meterName": "Tên Công tơ",
     "meterNumber": "Số Công tơ",
     "addMeter": "Thêm Công tơ",
@@ -1292,7 +1293,8 @@
     "inactive": "Không hoạt động",
     "createdSuccessfully": "Tạo Công tơ Thành công",
     "updatedSuccessfully": "Cập nhật Công tơ Thành công",
-    "deletedSuccessfully": "Xóa Công tơ Thành công"
+    "deletedSuccessfully": "Xóa Công tơ Thành công",
+    "enterMeterUrl": "Nhập Url đồng hồ đo"
   },
   "reports": {
     "reports": "Báo cáo",

@@ -6,10 +6,14 @@ const MeterInfo = ({
   contractsLoading = false,
   inverters = [],
 }) => {
+
   // Calculate active inverters (you can modify the condition based on your needs)
-  const activeInverters = inverters.filter(
-    (inv) => inv?.inverter?.status === 1 || inv.status === "active"
-  ).length;
+  // console.log("inverters:", inverters)
+  const activeInverters = inverters.filter((inv, index) => {
+    // console.log(`Inverter: ${index} status:`, inv?.status);
+    return inv?.status === 1;
+  }).length;
+
   const totalInverters = inverters.length;
 
   return (
@@ -60,7 +64,7 @@ const MeterInfo = ({
             gap: "16px",
           }}
         >
-          {/* Meter Name */}
+          {/* Meter Link */}
           <div
             style={{
               padding: "16px",
@@ -75,38 +79,29 @@ const MeterInfo = ({
                 marginBottom: "4px",
               }}
             >
-              Meter Name
+              Meter Link
             </p>
-            <p
-              style={{ fontSize: "15px", fontWeight: "600", color: "#111827" }}
-            >
-              {project.meter_name || "-"}
-            </p>
+
+            {project.meter_url ? (
+              <a
+                href={project.meter_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  fontSize: "15px",
+                  fontWeight: "600",
+                  color: "#2563eb",
+                  textDecoration: "underline",
+                  wordBreak: "break-all",
+                }}
+              >
+                {project.meter_url}
+              </a>
+            ) : (
+              <span style={{ fontSize: "15px", color: "#9ca3af" }}>-</span>
+            )}
           </div>
 
-          {/* Meter Number */}
-          <div
-            style={{
-              padding: "16px",
-              background: "linear-gradient(to bottom right, #fef3c7, #fde68a)",
-              borderRadius: "10px",
-            }}
-          >
-            <p
-              style={{
-                fontSize: "12px",
-                color: "#6b7280",
-                marginBottom: "4px",
-              }}
-            >
-              Meter Number
-            </p>
-            <p
-              style={{ fontSize: "15px", fontWeight: "600", color: "#111827" }}
-            >
-              {project.meter_number || "-"}
-            </p>
-          </div>
 
           {/* SIM Number */}
           <div
@@ -294,20 +289,20 @@ const MeterInfo = ({
                       flex: 1,
                     }}
                   >
-                    {inverter?.inverter?.inverterName || "Untitled"}
+                    {inverter?.inverter_name || "Untitled"}
                   </div>
                   <span
                     style={{
                       padding: "4px 10px",
                       borderRadius: "9999px",
                       backgroundColor:
-                        inverter?.inverter?.status === 1 ||
-                        inverter.status === "active"
+                        inverter?.status === 1 ||
+                          inverter.status === "active"
                           ? "#dcfce7"
                           : "#fee2e2",
                       color:
-                        inverter?.inverter?.status === 1 ||
-                        inverter.status === "active"
+                        inverter?.status === 1 ||
+                          inverter.status === "active"
                           ? "#166534"
                           : "#991b1b",
                       fontWeight: 600,
@@ -316,10 +311,10 @@ const MeterInfo = ({
                       marginLeft: "8px",
                     }}
                   >
-                    {inverter?.inverter?.status === 1 ||
-                    inverter.status === "active"
-                      ? "Active"
-                      : "Inactive"}
+                    {inverter?.status === 1 ||
+                      inverter.status === "active"
+                      ? "Online"
+                      : "Offline"}
                   </span>
                 </div>
 
@@ -407,9 +402,8 @@ const MeterInfo = ({
                       ? `Offtaker: ${c.offtaker.fullName}`
                       : ""}
                     {c.investor?.fullName
-                      ? ` ${c.offtaker ? "·" : ""} Investor: ${
-                          c.investor.fullName
-                        }`
+                      ? ` ${c.offtaker ? "·" : ""} Investor: ${c.investor.fullName
+                      }`
                       : ""}
                   </div>
 
@@ -460,14 +454,14 @@ const MeterInfo = ({
                         c.status === 1
                           ? "#dcfce7"
                           : c.status === 2
-                          ? "#fee2e2"
-                          : "#f3f4f6",
+                            ? "#fee2e2"
+                            : "#f3f4f6",
                       color:
                         c.status === 1
                           ? "#166534"
                           : c.status === 2
-                          ? "#991b1b"
-                          : "#6b7280",
+                            ? "#991b1b"
+                            : "#6b7280",
                       fontWeight: 600,
                       fontSize: "12px",
                     }}
@@ -475,8 +469,8 @@ const MeterInfo = ({
                     {c.status === 1
                       ? "Active"
                       : c.status === 2
-                      ? "Rejected"
-                      : "Pending"}
+                        ? "Rejected"
+                        : "Pending"}
                   </span>
                 </div>
               </div>
