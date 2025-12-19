@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { CircularProgress, TextField, Button } from "@mui/material";
-import { FiSave } from "react-icons/fi";
+import { FiArrowRight, FiSave } from "react-icons/fi";
 import { apiGet, apiPut } from "@/lib/api";
 import { showErrorToast, showSuccessToast } from "@/utils/topTost";
 
@@ -214,6 +214,7 @@ const MeterView = ({ projectId, handleSaveAction }) => {
                             {loading
                                 ? lang("common.saving", "Saving")
                                 : lang("projects.saveNext", "Save & Next")}
+                            <FiArrowRight />
                         </Button>
                     </div>
                 </div>

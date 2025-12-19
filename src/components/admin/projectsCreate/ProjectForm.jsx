@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from "react";
-import { FiSave, FiUpload, FiX, FiStar } from "react-icons/fi";
+import { FiSave, FiUpload, FiX, FiStar, FiArrowRight } from "react-icons/fi";
 import { useDropzone } from "react-dropzone";
 import { getFullImageUrl } from "@/utils/common";
 import {
@@ -854,13 +854,12 @@ const ProjectForm = ({
         >
           {loading.form
             ? lang("common.saving", "Saving")
-            : lang("projects.saveProject", "Save Project & Next")}
+            : lang("projects.saveandclose", "Save & Close ")}
         </Button>
         <Button
           type="button"
           variant="outlined"
           disabled={loading.form}
-          startIcon={loading.form ? <CircularProgress size={16} /> : <FiSave />}
           onClick={() => handleSaveAction('saveprojectNext')}
           style={{
             marginTop: "2px",
@@ -870,6 +869,7 @@ const ProjectForm = ({
           {loading.form
             ? lang("common.saving", "Saving")
             : lang("projects.saveNext", "Save & Next")}
+          <FiArrowRight />
         </Button>
       </div>
     </form>

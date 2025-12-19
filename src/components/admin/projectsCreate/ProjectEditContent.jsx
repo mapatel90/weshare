@@ -479,6 +479,10 @@ const ProjectEditContent = ({ projectId }) => {
         }
     }
 
+    const handleCloseForm = async (action) => {
+        router.push('/admin/projects/list')
+    }
+
     return (
         <div className="col-lg-12">
             <div className="card border-top-0">
@@ -540,7 +544,7 @@ const ProjectEditContent = ({ projectId }) => {
                             <Investor projectId={projectId} onInvestorMarked={handleInvestorMarked} handleSaveAction={handleSaveAction} />
                         )}
                         {activeTab === 'contract' && (
-                            <Contract projectId={projectId} />
+                            <Contract projectId={projectId} handleCloseForm={handleCloseForm} />
                         )}
                         {activeTab === 'meter' && (
                             <MeterView projectId={projectId} handleSaveAction={handleSaveAction} />

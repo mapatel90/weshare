@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { apiGet, apiPost, apiPut, apiDelete } from "@/lib/api";
 import Table from "@/components/shared/table/Table";
-import { FiEdit3, FiTrash2 } from "react-icons/fi";
+import { FiArrowRight, FiEdit3, FiTrash2 } from "react-icons/fi";
 import Swal from "sweetalert2";
 import { showSuccessToast, showErrorToast } from "@/utils/topTost";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -19,7 +19,7 @@ import {
 } from "@mui/material";
 import { Close as CloseIcon } from "@mui/icons-material";
 
-const Investor = ({ projectId, onInvestorMarked,handleSaveAction }) => {
+const Investor = ({ projectId, onInvestorMarked, handleSaveAction }) => {
   const { lang } = useLanguage();
 
   const [showModal, setShowModal] = useState(false);
@@ -321,6 +321,8 @@ const Investor = ({ projectId, onInvestorMarked,handleSaveAction }) => {
           {loading.form
             ? lang("common.saving", "Saving")
             : lang("projects.saveNext", "Next")}
+
+          <FiArrowRight />
         </Button>
       </div>
     </div>

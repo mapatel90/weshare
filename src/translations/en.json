@@ -807,6 +807,7 @@
     "zipcode": "Zipcode",
     "zipcodeRequired": "Zipcode is required",
     "saveProject": "Save Project",
+    "saveandclose": "Save & Close",
     "updateProject": "Update Project",
     "projectupdatedsuccessfully": "Project updated successfully",
     "statusUpdated": "Status updated successfully",
