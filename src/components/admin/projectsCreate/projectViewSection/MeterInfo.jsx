@@ -1,3 +1,4 @@
+import { useLanguage } from "@/contexts/LanguageContext";
 import React from "react";
 
 const MeterInfo = ({
@@ -29,6 +30,7 @@ const MeterInfo = ({
     badgeBg: isDark ? 'rgba(59, 130, 246, 0.2)' : '#dbeafe',
     badgeText: isDark ? '#60a5fa' : '#3b82f6',
   }
+  const { lang } = useLanguage()
 
   // Calculate active inverters (you can modify the condition based on your needs)
   // console.log("inverters:", inverters)
@@ -77,7 +79,7 @@ const MeterInfo = ({
               marginRight: "12px",
             }}
           />
-          Meter Information
+          {lang('meter.meterInformation', 'Meter Information')}
         </h3>
 
         <div
@@ -102,7 +104,7 @@ const MeterInfo = ({
                 marginBottom: "4px",
               }}
             >
-              Meter Link
+              {lang('meter.meterUrl', 'Meter Url')}
             </p>
 
             {project.meter_url ? (
@@ -141,7 +143,7 @@ const MeterInfo = ({
                 marginBottom: "4px",
               }}
             >
-              SIM Number
+              {lang('meter.simNumber', 'SIM Number')}
             </p>
             <p
               style={{ fontSize: "15px", fontWeight: "600", color: colors.text }}
@@ -165,7 +167,7 @@ const MeterInfo = ({
                 marginBottom: "4px",
               }}
             >
-              SIM Start Date
+              {lang('meter.simStartDate', 'SIM Start Date')}
             </p>
             <p
               style={{ fontSize: "15px", fontWeight: "600", color: colors.text }}
@@ -191,7 +193,7 @@ const MeterInfo = ({
                 marginBottom: "4px",
               }}
             >
-              SIM Expire Date
+              {lang('meter.simExpireDate', 'SIM Expire Date')}
             </p>
             <p
               style={{ fontSize: "15px", fontWeight: "600", color: colors.text }}
@@ -235,7 +237,7 @@ const MeterInfo = ({
                 marginRight: "12px",
               }}
             ></div>
-            Inverter Details
+            {lang('inverter.inverterdetails', 'Inverter Details')}
           </div>
           <div
             style={{
@@ -341,7 +343,7 @@ const MeterInfo = ({
                 </div>
 
                 <div style={{ fontSize: "13px", color: colors.textMuted }}>
-                  Serial Number:
+                  {lang('inverter.serialNumber', 'Serial Number')}
                   <span style={{ fontWeight: 600, color: colors.text }}>
                     {" "}
                     {inverter.inverter_serial_number || "N/A"}
@@ -382,13 +384,13 @@ const MeterInfo = ({
               marginRight: "12px",
             }}
           />
-          Contracts
+          {lang('contract.contract', 'contract')}
         </h3>
 
         {contractsLoading ? (
           <p style={{ color: colors.textMuted }}>Loading contracts...</p>
         ) : contracts.length === 0 ? (
-          <p style={{ color: colors.textMuted }}>No contracts found.</p>
+          <p style={{ color: colors.textMuted }}>{lang('contract.no_contracts_found', 'No contracts found')}.</p>
         ) : (
           <div style={{ display: "grid", gap: "12px" }}>
             {contracts.map((c) => (

@@ -950,6 +950,7 @@
     "deletedSuccessfully": "Role Deleted Successfully"
   },
   "inverter": {
+    "inverterdetails": "Inverter Details",
     "inverter": "Inverter",
     "addInverter": "Add Inverter",
     "editInverter": "Edit Inverter",
@@ -1287,7 +1288,7 @@
       "projectList": "Project List",
       "billings": "Billings",
       "payments": "Payments",
-      "notifications": "Notifications",      
+      "notifications": "Notifications",
       "reports": "Reports",
       "savingreports": "Saving Reports",
       "conjunctionreports": "Conjunction Reports",
@@ -1306,6 +1307,7 @@
   },
   "contract": {
     "contract": "Contract",
+    "no_contracts_found": "No contracts found",
     "uploadDocument": "Upload Document",
     "viewDocument": "View Document",
     "deleted": "Contract Deleted Successfully",
@@ -1318,7 +1320,7 @@
     "addContract": "Add Contract",
     "editContract": "Edit Contract"
   },
-  "meter":{
+  "meter": {
     "meter": "Meter",
     "meterUrl": "Meter Url",
     "meterName": "Meter Name",
@@ -1343,7 +1345,7 @@
     "deletedSuccessfully": "Meter Deleted Successfully",
     "enterMeterUrl": "Enter Meter Url"
   },
-  "reports":{
+  "reports": {
     "reports": "Reports",
     "allprojects": "All Projects",
     "allinverters": "All Inverters",
@@ -1351,5 +1353,31 @@
     "dailyYield": "Daily Yield",
     "annualYield": "Annual Yield",
     "totalYield": "Total Yield"
+  },
+  "projectView": {
+    "projectInformation": {
+      "project_Information": "Project Information",
+      "project_type": "Project Type",
+      "status": "Status",
+      "offtaker": "Offtaker",
+      "asking_price": "Asking Price",
+      "investor_profit": "Investor Profit",
+      "weshare_profit": "Weshare Profit",
+      "country": "Country",
+      "state": "State",
+      "city": "City",
+      "weather": "Weather",
+      "sunshine": "Sunshine",
+      "temp": "Temp",
+      "humidity": "Humidity",
+      "wind_direction": "Wind Direction",
+      "wind_speed": "Wind Speed",
+      "capacity":"Capacity",
+      "active":"● Active",
+      "inactive":"● Inactive"
+    },
+    "energyProduction": {
+      "energy_production": "Energy Production Overview"
+    }
   }
 }

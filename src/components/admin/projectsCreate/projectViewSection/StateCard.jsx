@@ -3,6 +3,7 @@ import React from 'react'
 import { Sun, Zap, TrendingUp, Activity } from 'lucide-react'
 import { getSettingValue } from '@/utils/settingsHelper';
 import getSetting from "@/hooks/useSettings";
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const formatNumber = (v, suffix = '') => {
   if (v === null || v === undefined || v === '') return '-'
@@ -94,6 +95,7 @@ const StatCardsGrid = ({
   isDark = false
 }) => {
   // If an inverter is selected, show its data; otherwise show project-level data
+  const { lang } = useLanguage()
   const isInverterSelected = !!selectedInverterId;
   const projectPriceKwh = project?.price_kwh;
   // Prefer statCardsData for yield metrics if available
@@ -178,7 +180,7 @@ const StatCardsGrid = ({
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 16, marginBottom: 24 }}>
       <StatCard
         icon={Sun}
-        title="Capacity"
+        title={lang('projectView.projectInformation.capacity','Capacity')}
         value={(project?.project_size !== undefined ? formatNumber(project.project_size) : '-') + ' kWh'}
         subtitle="Capacity price per kWh"
         color="linear-gradient(to bottom right, #fbbf24, #f97316)"
@@ -187,7 +189,7 @@ const StatCardsGrid = ({
       />
       <StatCard
         icon={Zap}
-        title="Daily Yield"
+        title={lang('reports.dailyYield', 'Daily Yield')}
         value={dailyYieldValue}
         subtitle={dailyYieldSubtitle}
         color="linear-gradient(to bottom right, #3b82f6, #2563eb)"
@@ -196,7 +198,7 @@ const StatCardsGrid = ({
       />
       <StatCard
         icon={Activity}
-        title="Total Yield"
+        title={lang('reports.totalYield','Total Yield')}
         value={totalYieldValue}
         subtitle={totalYieldSubtitle}
         color="linear-gradient(to bottom right, #06b6d4, #0891b2)"

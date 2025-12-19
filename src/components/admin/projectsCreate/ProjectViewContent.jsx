@@ -1,6 +1,7 @@
 'use client'
 import React, { useEffect, useState, useMemo } from 'react'
 import { apiGet, apiPost } from '@/lib/api'
+import { useLanguage } from '@/contexts/LanguageContext'
 import StatCardsGrid from './projectViewSection/StateCard'
 import PowerConsumptionDashboard from './projectViewSection/inverterChart'
 import ProjectInformation from './projectViewSection/ProjectInformation'
@@ -8,11 +9,6 @@ import ProjectOverviewChart from './projectViewSection/ProjectOverviewChart'
 import MeterInfo from './projectViewSection/MeterInfo'
 import MonthlyChart from './projectViewSection/MonthlyChart'
 import { FiEdit3 } from 'react-icons/fi'
-
-// -------- LANGUAGE HOOK (temporary) ----------
-const useLanguage = () => ({
-  lang: (key, fallback) => fallback
-})
 
 // -------- DARK MODE HOOK ----------
 const useDarkMode = () => {
@@ -302,7 +298,7 @@ const ProjectViewContent = ({ projectId = '' }) => {
                   fontSize: '14px',
                   whiteSpace: 'nowrap'
                 }}>
-                  {project.status === 1 ? '● Active' : '● Inactive'}
+                  {project.status === 1 ? lang('projectView.projectInformation.active') : lang('projectView.projectInformation.inactive')}
                 </p>
               </div>
             </div>
@@ -324,9 +320,8 @@ const ProjectViewContent = ({ projectId = '' }) => {
                     minWidth: '220px'
                   }}
                 >
-                  <option value="" style={{ background: isDark ? '#121a2d' : '#fff', color: colors.text }}>Select inverter</option>
+                  <option value="" style={{ background: isDark ? '#121a2d' : '#fff', color: colors.text }}>{lang("inverter.selectInverter","Select Inverter")}</option>
                   {projectInverters.map((pi) => {
-                    console.log("projectInverters", projectInverters);
                     const inv = pi.inverter || {}
                     const label = pi.inverter_name
                       ? `${pi.inverter_name} (Serial: ${pi.inverter_serial_number || 'N/A'})`
@@ -362,7 +357,7 @@ const ProjectViewContent = ({ projectId = '' }) => {
         {/* PRODUCTION CHART */}
         <div style={{ backgroundColor: colors.cardBg, borderRadius: '12px', boxShadow: isDark ? '0 0 20px rgba(14, 32, 56, 0.3)' : '0 1px 3px rgba(0,0,0,0.1)', border: `1px solid ${colors.borderLight}`, padding: '24px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-            <h3 style={{ fontSize: '18px', fontWeight: 'bold', color: colors.text }}>Energy Production Overview</h3>
+            <h3 style={{ fontSize: '18px', fontWeight: 'bold', color: colors.text }}>{lang('projectView.energyProduction.energy_production', 'Energy Production Overviews')}</h3>
             <div style={{ display: 'flex', gap: '8px' }}>
               <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#ef4444' }}></div>
               <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#fbbf24' }}></div>
