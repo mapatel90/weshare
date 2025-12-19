@@ -205,11 +205,6 @@ body {
   color: white;
 }
 
-.theme-btn-blue-color:hover {
-  background-color: #0e2536;
-  color: white;
-}
-
 /* Vertical bar separator */
 .divider {
   font-size: 22px;

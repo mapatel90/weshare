@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { apiGet, apiPost, apiPut, apiDelete } from "@/lib/api";
 import Table from "@/components/shared/table/Table";
-import { FiEdit3, FiTrash2 } from "react-icons/fi";
+import { FiArrowRight, FiEdit3, FiTrash2 } from "react-icons/fi";
 import Swal from "sweetalert2";
 import { showSuccessToast, showErrorToast } from "@/utils/topTost";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -19,7 +19,7 @@ import {
 } from "@mui/material";
 import { Close as CloseIcon } from "@mui/icons-material";
 
-const Investor = ({ projectId }) => {
+const Investor = ({ projectId, onInvestorMarked, handleSaveAction }) => {
   const { lang } = useLanguage();
 
   const [showModal, setShowModal] = useState(false);
@@ -153,6 +153,31 @@ const Investor = ({ projectId }) => {
     }
   };
 
+  const handleMarkInvestor = async (row) => {
+    if (!projectId) {
+      showErrorToast(lang("common.error", "Project ID is required"));
+      return;
+    }
+
+    try {
+      const res = await apiPost(`/api/investors/${row.id}/mark-investor`, {
+        projectId,
+      });
+      if (res?.success) {
+        showSuccessToast(lang("investor.markedSuccessfully", "Investor marked successfully"));
+        // inform parent so edit form updates instantly without page refresh
+        if (typeof onInvestorMarked === "function") {
+          onInvestorMarked({ id: row.id, fullName: row.fullName || "" });
+        }
+        fetchInvestors();
+      } else {
+        showErrorToast(res.message || lang("common.error", "Error"));
+      }
+    } catch (err) {
+      showErrorToast(err.message || lang("common.error", "Error"));
+    }
+  };
+
   const columns = [
     {
       accessorKey: "fullName",
@@ -185,10 +210,37 @@ const Investor = ({ projectId }) => {
     {
       accessorKey: "status",
       header: () => lang("common.status", "Status"),
-      cell: (info) =>
-        info.getValue() == 1
-          ? <span className="badge bg-soft-success text-success">{lang("common.active", "Active")}</span>
-          : <span className="badge bg-soft-danger text-danger">{lang("common.inactive", "Inactive")}</span>,
+      cell: (info) => {
+        const row = info.row.original;
+        const isCurrentInvestor =
+          (row?.project?.investor_id && Number(row.project.investor_id) === Number(row.id)) ||
+          (row?.project?.investorId && Number(row.project.investorId) === Number(row.id));
+        return (
+          <div style={{ display: "flex", gap: "8px", alignItems: "center", flexWrap: "wrap" }}>
+            {isCurrentInvestor ? (
+              <span className="badge bg-soft-success text-success">
+                {lang("common.active", "Active")}
+              </span>
+            ) : (
+              <Button
+                size="small"
+                variant="contained"
+                onClick={() => handleMarkInvestor(row)}
+                sx={{
+                  backgroundColor: "#28a745",
+                  color: "#fff",
+                  padding: "4px 8px",
+                  fontSize: "12px",
+                  textTransform: "none",
+                  "&:hover": { backgroundColor: "#218838" },
+                }}
+              >
+                {lang("investor.markAsInvestor", "Mark as Investor")}
+              </Button>
+            )}
+          </div>
+        );
+      },
     },
     {
       accessorKey: "actions",
@@ -212,7 +264,7 @@ const Investor = ({ projectId }) => {
           </div>
         );
       },
-      meta: { disableSort: true},
+      meta: { disableSort: true },
     },
   ];
 
@@ -255,6 +307,24 @@ const Investor = ({ projectId }) => {
       </Dialog>
 
       <Table data={investors} columns={columns} />
+      <div className="col-12 d-flex justify-content-end gap-2">
+        <Button
+          type="button"
+          variant="outlined"
+          disabled={loading.form}
+          onClick={() => handleSaveAction('saveNext')}
+          style={{
+            marginTop: "2px",
+            marginBottom: "2px",
+          }}
+        >
+          {loading.form
+            ? lang("common.saving", "Saving")
+            : lang("projects.saveNext", "Next")}
+
+          <FiArrowRight />
+        </Button>
+      </div>
     </div>
   );
 };

@@ -830,7 +830,8 @@
     "viewLocation": "Xem vị trí",
     "uploadImage": "Tải lên hình ảnh",
     "imageUploaded": "Tải lên hình ảnh thành công",
-    "imageUploadFailed": "Không thể tải lên hình ảnh"
+    "imageUploadFailed": "Không thể tải lên hình ảnh",
+    "selectInvestor": "Chọn nhà đầu tư"
   },
   "placeholders": {
     "your_company_name": "Tên công ty của bạn [Ví dụ: Theme Ocean]",
@@ -907,6 +908,7 @@
     }
   },
   "inverter": {
+    "inverterdetails": "Chi tiết biến tần",
     "inverter": "biến tần",
     "addInverter": "Thêm bộ biến tần",
     "editInverter": "Sửa bộ biến tần",
@@ -1258,6 +1260,7 @@
   },
   "contract": {
     "contract": "Hợp đồng",
+    "no_contracts_found": "Không tìm thấy hợp đồng nào",
     "uploadDocument": "Tải lên tài liệu",
     "viewDocument": "Xem tài liệu",
     "deleted": "Hợp đồng đã được xóa thành công",
@@ -1272,6 +1275,7 @@
   },
   "meter": {
     "meter": "Công tơ",
+    "meterUrl": "Url mét",
     "meterName": "Tên Công tơ",
     "meterNumber": "Số Công tơ",
     "addMeter": "Thêm Công tơ",
@@ -1291,7 +1295,8 @@
     "inactive": "Không hoạt động",
     "createdSuccessfully": "Tạo Công tơ Thành công",
     "updatedSuccessfully": "Cập nhật Công tơ Thành công",
-    "deletedSuccessfully": "Xóa Công tơ Thành công"
+    "deletedSuccessfully": "Xóa Công tơ Thành công",
+    "enterMeterUrl": "Nhập Url đồng hồ đo"
   },
   "reports": {
     "reports": "Báo cáo",
@@ -1300,6 +1305,35 @@
     "downloadcsv": "Tải xuống CSV",
     "dailyYield": "Sản lượng hàng ngày",
     "annualYield": "Sản lượng hàng năm",
-    "totalYield": "Tổng sản lượng"
+    "totalYield": "Tổng sản lượng",
+    "capacityperKWh": "Giá điện năng tiêu thụ trên mỗi kWh",
+    "dailyRevenue": "Doanh thu hàng ngày",
+    "totalRevenue": "Tổng doanh thu"
+  },
+  "projectView": {
+    "projectInformation": {
+      "project_Information": "Thông tin dự án",
+      "project_type": "Loại dự án",
+      "status": "Trạng thái",
+      "offtaker": "Bên mua",
+      "asking_price": "Giá chào bán",
+      "investor_profit": "Lợi nhuận của nhà đầu tư",
+      "weshare_profit": "Lợi nhuận chia sẻ",
+      "country": "Quốc gia",
+      "state": "Bang",
+      "city": "Thành phố",
+      "weather": "Thời tiết",
+      "sunshine": "Nắng",
+      "temp": "Nhiệt độ",
+      "humidity": "Độ ẩm",
+      "wind_direction": "Hướng gió",
+      "wind_speed": "Tốc độ gió",
+      "capacity": "Dung lượng",
+      "active": "● tích cực",
+      "inactive": "● không hoạt động"
+    },
+    "energyProduction": {
+      "energy_production": "Tổng quan về sản xuất năng lượng"
+    }
   }
 }

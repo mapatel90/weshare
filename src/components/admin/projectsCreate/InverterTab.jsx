@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { apiGet, apiPost, apiPut, apiPatch } from "@/lib/api";
 import Table from "@/components/shared/table/Table";
-import { FiEdit3, FiTrash2 } from "react-icons/fi";
+import { FiArrowRight, FiEdit3, FiSave, FiTrash2 } from "react-icons/fi";
 import Swal from "sweetalert2";
 import { showSuccessToast, showErrorToast } from "@/utils/topTost";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -24,8 +24,9 @@ import {
 } from "@mui/material";
 import { Close as CloseIcon } from "@mui/icons-material";
 
-const InverterTab = ({ projectId }) => {
+const InverterTab = ({ projectId, handleSaveAction }) => {
   const { lang } = useLanguage();
+
 
   // Modal & Form state
   const [showModal, setShowModal] = useState(false);
@@ -110,7 +111,7 @@ const InverterTab = ({ projectId }) => {
     setWarrantyExpireDate(
       row.warranty_expire_date ? row.warranty_expire_date.split("T")[0] : ""
     );
-    setHasWarranty(!!row.warranty_expire_date);
+    setHasWarranty(!!row.in_warranty || !!row.warranty_expire_date);
     setStatus(row.status);
     setEditId(row.id);
     setShowModal(true);
@@ -146,7 +147,8 @@ const InverterTab = ({ projectId }) => {
           inverter_name: inverterName,
           model: model,
           version: version,
-          warranty_expire_date: warrantyExpireDate,
+          warranty_expire_date: hasWarranty ? warrantyExpireDate : null,
+          in_warranty: hasWarranty ? 1 : 0,
           status,
         });
         if (res.success) {
@@ -159,10 +161,10 @@ const InverterTab = ({ projectId }) => {
         } else {
           showErrorToast(
             res.message ||
-              lang(
-                "inverter.errorOccurred",
-                "An error occurred. Please try again."
-              )
+            lang(
+              "inverter.errorOccurred",
+              "An error occurred. Please try again."
+            )
           );
         }
       } else {
@@ -173,7 +175,8 @@ const InverterTab = ({ projectId }) => {
           inverter_name: inverterName,
           model: model,
           version: version,
-          warranty_expire_date: warrantyExpireDate,
+          warranty_expire_date: hasWarranty ? warrantyExpireDate : null,
+          in_warranty: hasWarranty ? 1 : 0,
           status,
         });
         if (res.success) {
@@ -186,10 +189,10 @@ const InverterTab = ({ projectId }) => {
         } else {
           showErrorToast(
             res.message ||
-              lang(
-                "inverter.errorOccurred",
-                "An error occurred. Please try again."
-              )
+            lang(
+              "inverter.errorOccurred",
+              "An error occurred. Please try again."
+            )
           );
         }
       }
@@ -222,10 +225,10 @@ const InverterTab = ({ projectId }) => {
       } else {
         showErrorToast(
           res.message ||
-            lang(
-              "inverter.errorOccurred",
-              "An error occurred. Please try again."
-            )
+          lang(
+            "inverter.errorOccurred",
+            "An error occurred. Please try again."
+          )
         );
       }
     }
@@ -234,8 +237,8 @@ const InverterTab = ({ projectId }) => {
   // Datatable columns (translated)
   const columns = [
     {
-      accessorKey: "inverter.inverterName",
-      header: () => lang("inverter.inverterName", "Inverter Name"),
+      accessorKey: "inverter_type",
+      header: () => lang("inverter.type", "Inverter Type"),
       cell: (info) => {
         const row = info.row.original;
         const name = row.inverter?.inverterName || "-";
@@ -247,12 +250,9 @@ const InverterTab = ({ projectId }) => {
       },
     },
     {
-      accessorKey: "inverter.companyName",
-      header: () => lang("inverter.companyName", "Company Name"),
-      cell: (info) => {
-        const inv = info.row.original.inverter;
-        return inv.companyName;
-      },
+      accessorKey: "inverter_name",
+      header: () => lang("inverter.inverterName", "Inverter Name"),
+      cell: (info) => info.row.original.inverter_name || "-",
     },
     {
       accessorKey: "inverter_serial_number",
@@ -260,9 +260,27 @@ const InverterTab = ({ projectId }) => {
       cell: (info) => info.row.original.inverter_serial_number || "-",
     },
     {
+      accessorKey: "version",
+      header: () => lang("inverter.version", "Version"),
+      cell: (info) => info.row.original.version || "-",
+    },
+    {
+      accessorKey: "model",
+      header: () => lang("inverter.model", "Model"),
+      cell: (info) => info.row.original.model || "-",
+    },
+    {
+      accessorKey: "warranty_expire_date",
+      header: () => lang("inverter.warrantyExpireDate", "Warranty Expire Date"),
+      cell: (info) => {
+        const val = info.row.original.warranty_expire_date;
+        return val ? String(val).split("T")[0] : "-";
+      },
+    },
+    {
       accessorKey: "kilowatt",
       header: () => lang("inverter.kilowatt", "Kilowatt"),
-      cell: (info) => info.getValue() || "-",
+      cell: (info) => info.getValue() + ' kwh' || "-",
     },
     {
       accessorKey: "status",
@@ -298,7 +316,7 @@ const InverterTab = ({ projectId }) => {
         const item = row.original;
         return (
           <div
-            className="d-flex gap-2 justify-content-end"
+            className="d-flex gap-2 justify-content-start"
             style={{ flexWrap: "nowrap" }}
           >
             {/* Edit Icon */}
@@ -341,7 +359,6 @@ const InverterTab = ({ projectId }) => {
       },
       meta: {
         disableSort: true,
-        headerClassName: "text-end",
       },
     },
   ];
@@ -501,7 +518,7 @@ const InverterTab = ({ projectId }) => {
                   </div>
                   {hasWarranty && (
                     <TextField
-                      label={lang("inverter.warrantyExpireDate", "Warranty Expire Date")} 
+                      label={lang("inverter.warrantyExpireDate", "Warranty Expire Date")}
                       type="date"
                       value={warrantyExpireDate}
                       onChange={(e) => setWarrantyExpireDate(e.target.value)}
@@ -556,6 +573,23 @@ const InverterTab = ({ projectId }) => {
       </Dialog>
       {/* Enhanced Table */}
       <Table data={projectInverters} columns={columns} />
+      <div className="col-12 d-flex justify-content-end gap-2">
+        <Button
+          type="button"
+          variant="outlined"
+          disabled={loading.form}
+          onClick={() => handleSaveAction('saveNext')}
+          style={{
+            marginTop: "2px",
+            marginBottom: "2px",
+          }}
+        >
+          {loading.form
+            ? lang("common.saving", "Saving")
+            : lang("projects.saveNext", "Next")}
+          <FiArrowRight />
+        </Button>
+      </div>
     </div>
   );
 };

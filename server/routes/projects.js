@@ -224,8 +224,8 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
         asking_price: asking_price || "",
         lease_term:
           lease_term !== undefined &&
-          lease_term !== null &&
-          `${lease_term}` !== ""
+            lease_term !== null &&
+            `${lease_term}` !== ""
             ? parseInt(lease_term)
             : null,
         product_code: product_code || "",
@@ -330,8 +330,8 @@ router.post(
       const defaultIndexRaw = req.body?.default_index;
       const defaultIndex =
         defaultIndexRaw !== undefined &&
-        defaultIndexRaw !== null &&
-        defaultIndexRaw !== ""
+          defaultIndexRaw !== null &&
+          defaultIndexRaw !== ""
           ? parseInt(defaultIndexRaw, 10)
           : null;
 
@@ -343,12 +343,12 @@ router.post(
         default: hasDefault
           ? 0
           : defaultIndex !== null && !Number.isNaN(defaultIndex)
-          ? index === defaultIndex
-            ? 1
-            : 0
-          : index === 0
-          ? 1
-          : 0,
+            ? index === defaultIndex
+              ? 1
+              : 0
+            : index === 0
+              ? 1
+              : 0,
       }));
 
       await prisma.project_images.createMany({
@@ -536,36 +536,35 @@ router.delete(
  */
 router.get("/", async (req, res) => {
   try {
-    const { 
-      page = 1, 
-      limit, 
-      search, 
-      status, 
+    const {
+      page = 1,
+      limit,
+      search,
+      status,
       offtaker_id,
       project_id,
       downloadAll,
       solisStatus
     } = req.query;
-    
+
     const pageInt = parseInt(page);
     const offtakerIdInt = offtaker_id ? parseInt(offtaker_id) : null;
     const projectIdInt = project_id ? parseInt(project_id) : null;
     const limitInt = parseInt(limit);
     const offset = (pageInt - 1) * limitInt;
-    
+
     const parsedLimit = Number(limit);
     const limitNumber = !Number.isNaN(parsedLimit) && parsedLimit > 0 ? parsedLimit : null;
     const fetchAll = downloadAll === "1" || downloadAll === "true" || !limitNumber;
 
     const where = { is_deleted: 0 };
 
-    // Search functionality - search across project_name, product_code, meter_number, address1, address2, city, state, country
+    // Search functionality - search across project_name, product_code, address1, address2, city, state, country
     const trimmedSearch = typeof search === "string" ? search.trim() : "";
     if (trimmedSearch) {
       where.OR = [
         { project_name: { contains: trimmedSearch, mode: "insensitive" } },
         { product_code: { contains: trimmedSearch, mode: "insensitive" } },
-        { meter_number: { contains: trimmedSearch, mode: "insensitive" } },
         { address1: { contains: trimmedSearch, mode: "insensitive" } },
         { address2: { contains: trimmedSearch, mode: "insensitive" } },
         { project_location: { contains: trimmedSearch, mode: "insensitive" } },
@@ -601,6 +600,10 @@ router.get("/", async (req, res) => {
         include: {
           offtaker: {
             select: { id: true, fullName: true, email: true },
+          },
+          // Include investor details from InterestedInvestor using the relation
+          investor: {
+            select: { id: true, fullName: true, email: true, phoneNumber: true }
           },
           city: true,
           state: true,
@@ -683,6 +686,7 @@ router.get("/:identifier", async (req, res) => {
         : { project_slug: identifier },
       include: {
         offtaker: { select: { id: true, fullName: true, email: true } },
+        investor: { select: { id: true, fullName: true, email: true, phoneNumber: true } },
         city: true,
         state: true,
         country: true,
@@ -832,8 +836,7 @@ router.put("/meter/:id", authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
     const {
-      meter_name,
-      meter_number,
+      meter_url,
       sim_number,
       sim_start_date,
       sim_expire_date,
@@ -843,8 +846,7 @@ router.put("/meter/:id", authenticateToken, async (req, res) => {
     const updated = await prisma.project.update({
       where: { id: parseInt(id) },
       data: {
-        ...(meter_name !== undefined && { meter_name }),
-        ...(meter_number !== undefined && { meter_number }),
+        ...(meter_url !== undefined && { meter_url }),
         ...(sim_number !== undefined && { sim_number }),
         ...(sim_start_date !== undefined && {
           sim_start_date: sim_start_date ? new Date(sim_start_date) : null,
@@ -869,8 +871,7 @@ router.get("/meter/:id", authenticateToken, async (req, res) => {
     const meter = await prisma.project.findUnique({
       where: { id: parseInt(id) },
       select: {
-        meter_name: true,
-        meter_number: true,
+        meter_url: true,
         sim_number: true,
         sim_start_date: true,
         sim_expire_date: true,
@@ -952,6 +953,46 @@ router.delete("/:id", authenticateToken, async (req, res) => {
   } catch (error) {
     console.error("Delete project error:", error);
     res.status(500).json({ success: false, message: "Internal server error" });
+  }
+});
+
+
+// Project Chart Data Is Get
+router.post("/chart-data", async (req, res) => {
+  try {
+    const { projectId, date } = req.body;
+
+    // Build WHERE condition step-by-step
+    let where = {
+      project: { is_deleted: 0 },
+    };
+
+    // Filter by projectId if provided
+    if (projectId) {
+      where.projectId = Number(projectId);
+    }
+
+    // Filter by date if provided (expecting YYYY-MM-DD)
+    if (typeof date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      where.date = {
+        gte: new Date(`${date}T00:00:00.000Z`),
+        lte: new Date(`${date}T23:59:59.999Z`),
+      };
+    }
+
+    const allData = await prisma.project_data.findMany({
+      where,
+      orderBy: { date: "asc" },
+    });
+    return res.json({
+      success: true,
+      count: allData.length,
+      data: allData,
+    });
+
+  } catch (error) {
+    console.error("Error fetching latest inverter data:", error);
+    return res.status(500).json({ error: "Server error" });
   }
 });
 

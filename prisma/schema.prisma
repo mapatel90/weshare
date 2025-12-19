@@ -203,7 +203,292 @@ model payments {
   @@unique([invoice_id, offtaker_id], map: "payments_unique_invoice_offtaker")
 }
 
+<<<<<<< HEAD
 model project_data {
+=======
+model Project {
+  id               Int       @id @default(autoincrement())
+  offtaker_id      Int?
+  project_name     String    @db.VarChar(255)
+  project_slug     String    @unique @db.VarChar(255)
+  project_type_id  Int       
+  address1         String?   @map("address_1") @db.VarChar(255)
+  address2         String?   @map("address_2") @db.VarChar(255)
+  project_description String? @db.Text
+  asking_price     String?   @db.VarChar(255)
+  lease_term       Int?
+  product_code     String?   @db.VarChar(255)
+  cityId           Int?      @map("city_id")
+  stateId          Int?      @map("state_id")
+  countryId        Int?      @map("country_id")
+  zipcode          String?   @db.VarChar(20)
+  investor_profit  String    @db.VarChar(255)
+  weshare_profit   String    @db.VarChar(255)
+  project_image    String?   @db.VarChar(500)
+  project_size     String?   @db.VarChar(255)
+  project_start_date DateTime?
+  project_close_date DateTime?
+  project_location String?   @db.VarChar(500)
+  price_kwh        Float?   
+  status           Int       @default(0)
+  is_deleted       Int       @default(0)
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+
+  // ⭐ New Columns Added
+  meter_url          String?   @db.VarChar(255)
+  sim_number         String?   @db.VarChar(255)
+  sim_start_date     DateTime?
+  sim_expire_date    DateTime?
+  investor_id        Int?
+
+  // New Temperature Columns Added
+  cityStr   String?   @db.VarChar(255)
+  windSpd   String?   @db.VarChar(255)
+  windDir   String?   @db.VarChar(255)
+  condTxtD  String?   @db.VarChar(255)
+  condTxtN  String?   @db.VarChar(255)
+  hum       String?   @db.VarChar(255)
+  tmpMax    String?   @db.VarChar(255)
+  tmpMin    String?   @db.VarChar(255)
+  tmpUnit   String?   @db.VarChar(255)
+  sr        String?   @db.VarChar(255)
+  ss        String?   @db.VarChar(255)
+
+
+  solis_plant_id   String?   @db.VarChar(255)
+
+  // Relations
+  city             City?        @relation(fields: [cityId], references: [id])
+  state            State?       @relation(fields: [stateId], references: [id])
+  country          Country?     @relation(fields: [countryId], references: [id])
+  offtaker         User?        @relation(fields: [offtaker_id], references: [id])
+  projectType      Project_type @relation(fields: [project_type_id], references: [id])
+  investor         InterestedInvestor? @relation("ProjectInvestor", fields: [investor_id], references: [id])
+
+  projectInverters  Project_inverters[]
+  invoices         Invoice[]
+  testimonial      Testimonial[]
+  contactus        ContactUs[]
+  contract         Contract[]
+  project_images   Project_images[]
+  inverter_data    inverter_data[] 
+  interestedinvestor InterestedInvestor[]
+  project_data     project_data[]
+
+  @@map("projects")
+}
+
+model Project_inverters {
+  id           Int       @id @default(autoincrement())
+  project_id   Int
+  inverter_id  Int
+
+  kilowatt     Float?   @default(0.0)
+
+  inverter_serial_number String?  @db.VarChar(255)
+  inverter_name           String?  @map("inverter_name") @db.VarChar(255)
+  model                   String?  @map("model") @db.VarChar(255)
+  version                 String?  @map("version") @db.VarChar(255)
+  warranty_expire_date    DateTime? @map("warranty_expire_date")
+  in_warranty  Int       @default(0)
+  status       Int       @default(0)
+  is_deleted   Int       @default(0)
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @default(now()) @updatedAt @map("updated_at")
+
+  // Relations
+  project      Project?  @relation(fields: [project_id], references: [id])
+  inverter     Inverter? @relation(fields: [inverter_id], references: [id])
+
+  @@map("project_inverters")
+}
+
+model Invoice {
+  id           Int       @id @default(autoincrement())
+  offtaker_id  Int
+  project_id   Int
+  amount       Float
+  total_unit   Float
+  start_time   DateTime  @default(now())
+  end_time     DateTime  @default(now())
+  status       Int       @default(0)
+  is_deleted   Int       @default(0)
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @default(now()) @updatedAt @map("updated_at")
+
+  // Relations
+  offtaker     User      @relation(fields: [offtaker_id], references: [id])
+  project      Project   @relation(fields: [project_id], references: [id])
+
+  @@map("invoices")
+}
+
+model Project_type {
+  id          Int       @id @default(autoincrement())
+  type_name   String    @db.VarChar(255)
+  status      Int       @default(0)
+  is_deleted  Int       @default(0)
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @default(now()) @updatedAt @map("updated_at")
+
+  projects    Project[]
+
+  @@map("project_types")
+}
+
+model Payment {
+  id          Int       @id @default(autoincrement())
+  invoice_id  Int    @default(0)
+  offtaker_id    Int    @default(0)
+  amount      Int    @default(0)
+  status      Int       @default(0)
+  is_deleted  Int       @default(0)
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @default(now()) @updatedAt @map("updated_at")
+
+  offtaker     User      @relation("UserPayments", fields: [offtaker_id], references: [id])
+
+  @@map("payments")
+}
+
+model News {
+  id              Int       @id @default(autoincrement())
+  news_title      String    @db.VarChar(255)
+  news_date       DateTime  @default(now())
+  news_image      String?   @db.VarChar(255)
+  news_description String?  @db.Text
+  news_slug       String    @db.VarChar(255)
+  is_deleted      Int       @default(0)
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @default(now()) @updatedAt @map("updated_at")
+
+  @@map("news")
+}
+
+model Testimonial {
+  id             Int       @id @default(autoincrement())
+  project_id     Int 
+  offtaker_id    Int
+  image          String?   @db.VarChar(255)
+  description    String?   @db.Text
+  review_status  Int       @default(1) // 1 to 5 rating
+  is_deleted     Int       @default(0)
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @default(now()) @updatedAt @map("updated_at")
+
+  // 🔗 Relations
+  project        Project   @relation(fields: [project_id], references: [id])
+  offtaker       User      @relation(fields: [offtaker_id], references: [id])
+
+  @@map("testimonials")
+}
+
+model ContactUs {
+  id            Int       @id @default(autoincrement())
+  fullName      String    @map("full_name") @db.VarChar(255)
+  email         String    @db.VarChar(255)
+  phoneNumber   String?   @map("phone_number") @db.VarChar(20)
+  subject       String    @db.VarChar(255)
+  message       String    @db.Text
+  project_id     Int?
+  status        Int       @default(1)
+  is_deleted    Int       @default(0)
+  createdAt     DateTime  @default(now()) @map("created_at")
+
+  // changed: make relation optional because project_id is Int?
+  project        Project?   @relation(fields: [project_id], references: [id])
+
+  @@map("contact_us")
+}
+
+model Blog {
+  id              Int       @id @default(autoincrement())
+  blog_title      String    @db.VarChar(255)
+  blog_date       DateTime  @default(now())
+  blog_image      String?   @db.VarChar(255)
+  blog_description String?  @db.Text
+  blog_slug       String    @db.VarChar(255)
+  is_deleted      Int       @default(0)
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @default(now()) @updatedAt @map("updated_at")
+
+  @@map("blogs")
+}
+
+model LeaseRequest {
+  id          Int      @id @default(autoincrement())
+  fullName    String   @map("full_name") @db.VarChar(255)
+  email       String   @db.VarChar(255)
+  phoneNumber String?  @map("phone_number") @db.VarChar(20)
+  countryId   Int?     @map("country_id")
+  stateId     Int?     @map("state_id")
+  cityId      Int?     @map("city_id")
+  address     String?  @db.VarChar(500)
+  subject     String?  @db.VarChar(255)
+  message     String   @db.Text
+  status      Int      @default(1)
+  is_deleted  Int      @default(0)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relations to existing location tables
+  country     Country? @relation(fields: [countryId], references: [id])
+  state       State?   @relation(fields: [stateId], references: [id])
+  city        City?    @relation(fields: [cityId], references: [id])
+
+  @@map("lease_requests")
+}
+
+// New model: interested investors
+model InterestedInvestor {
+  id          Int      @id @default(autoincrement())
+  projectId   Int?      @map("project_id")
+  userId      Int?     @map("user_id")
+  fullName    String   @map("full_name") @db.VarChar(255)
+  email       String   @db.VarChar(150)
+  phoneNumber String?  @map("phone_number") @db.VarChar(20)
+  notes       String?  @db.Text
+  status      Int      @default(1)
+  is_deleted  Int      @default(0)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+
+  // changed: make relation optional because projectId is Int?
+  project     Project?  @relation(fields: [projectId], references: [id])
+  user        User?     @relation(fields: [userId], references: [id])
+  projectAsInvestor Project[] @relation("ProjectInvestor")
+
+  contracts   Contract[]
+
+  @@map("interested_investors")
+}
+
+model Contract {
+  id                   Int       @id @default(autoincrement())
+  offtaker_id          Int?      
+  projectId            Int?      @map("project_id")
+  investorId           Int?      @map("investor_id")
+  contractTitle        String    @map("contract_title") @db.VarChar(255)
+  contractDescription  String?   @map("contract_description") @db.Text
+  documentUpload       String?   @map("document_upload") @db.VarChar(500)
+  contractDate         DateTime? @map("contract_date")
+  status               Int       @default(0) // 0 = Pending, 1 = Accepted, 2 = Rejected
+  is_deleted           Int       @default(0)
+  createdAt            DateTime  @default(now()) @map("created_at")
+  updatedAt            DateTime  @default(now()) @updatedAt @map("updated_at")
+  rejectreason         String?    @db.VarChar(255)
+
+  // Relations
+  project              Project?  @relation(fields: [projectId], references: [id])
+  offtaker             User?     @relation(fields: [offtaker_id], references: [id])
+  investor             InterestedInvestor? @relation(fields: [investorId], references: [id])
+
+  @@map("contracts")
+}
+
+model Project_images {
+>>>>>>> 04335a59b58d56d55b05f46a326bd4900f11e062
   id         Int      @id @default(autoincrement())
   project_id Int
   date       DateTime
@@ -228,6 +513,7 @@ model project_images {
   @@unique([project_id, path], map: "project_images_unique_project_path")
 }
 
+<<<<<<< HEAD
 model project_inverters {
   id                     Int       @id @default(autoincrement())
   project_id             Int
@@ -244,10 +530,25 @@ model project_inverters {
   updated_at             DateTime  @default(now())
   inverters              inverters @relation(fields: [inverter_id], references: [id])
   projects               projects  @relation(fields: [project_id], references: [id])
+=======
+model inverter_data {
+  id          Int       @id @default(autoincrement())
+  projectId   Int       @map("project_id")
+  inverter_id Int?      @map("inverter_id")
+  date        DateTime  @map("date")
+  time        String    @map("time")
+  generate_kw  Float     @map("generate_kw")
+  ac_frequency Float?      @map("ac_frequency")
+  daily_yield  Float?      @map("daily_yield")
+  annual_yield Float?      @map("annual_yield")
+  total_yield  Float?      @map("total_yield")
+  createdAt   DateTime   @default(now()) @map("created_at")
+>>>>>>> 04335a59b58d56d55b05f46a326bd4900f11e062
 
   @@unique([project_id, inverter_id], map: "project_inverters_project_inverter_unique")
 }
 
+<<<<<<< HEAD
 model project_types {
   id         Int        @id(map: "project_types_id_unique") @default(autoincrement())
   type_name  String     @db.VarChar(255)
@@ -393,3 +694,23 @@ model users {
   countries            countries?             @relation(fields: [country_id], references: [id])
   states               states?                @relation(fields: [state_id], references: [id])
 }
+=======
+  @@map("inverter_data")
+}
+
+
+model project_data {
+  id          Int       @id @default(autoincrement())
+  projectId   Int       @map("project_id")
+  date        DateTime  @map("date")
+  time        String    @map("time")
+  pv          Float     @map("pv")
+  grid        Float     @map("grid")
+  load        Float     @map("load")
+  createdAt   DateTime   @default(now()) @map("created_at")
+
+  project     Project    @relation(fields: [projectId], references: [id])
+
+  @@map("project_data")
+}
+>>>>>>> 04335a59b58d56d55b05f46a326bd4900f11e062

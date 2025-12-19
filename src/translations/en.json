@@ -647,7 +647,7 @@
       "seekingInvestor": "Seeking Investor",
       "investNow": "Invest Now",
       "testimonials": "Offtaker & Investor Testimonials",
-      "investor": "Investor",
+      "investor": "Interested Investor",
       "signInToInvest": "Sign In to Invest",
       "submit": "Submit",
       "notes": "Notes",
@@ -807,6 +807,7 @@
     "zipcode": "Zipcode",
     "zipcodeRequired": "Zipcode is required",
     "saveProject": "Save Project",
+    "saveandclose": "Save & Close",
     "updateProject": "Update Project",
     "projectupdatedsuccessfully": "Project updated successfully",
     "statusUpdated": "Status updated successfully",
@@ -855,7 +856,8 @@
     "viewLocation": "View Location",
     "uploadImage": "Upload Image",
     "imageUploaded": "Image uploaded successfully",
-    "imageUploadFailed": "Failed to upload image"
+    "imageUploadFailed": "Failed to upload image",
+    "selectInvestor": "Select Investors"
   },
   "settings": {
     "title": "Settings",
@@ -949,6 +951,7 @@
     "deletedSuccessfully": "Role Deleted Successfully"
   },
   "inverter": {
+    "inverterdetails": "Inverter Details",
     "inverter": "Inverter",
     "addInverter": "Add Inverter",
     "editInverter": "Edit Inverter",
@@ -1286,7 +1289,7 @@
       "projectList": "Project List",
       "billings": "Billings",
       "payments": "Payments",
-      "notifications": "Notifications",      
+      "notifications": "Notifications",
       "reports": "Reports",
       "savingreports": "Saving Reports",
       "conjunctionreports": "Conjunction Reports",
@@ -1305,6 +1308,7 @@
   },
   "contract": {
     "contract": "Contract",
+    "no_contracts_found": "No contracts found",
     "uploadDocument": "Upload Document",
     "viewDocument": "View Document",
     "deleted": "Contract Deleted Successfully",
@@ -1317,8 +1321,9 @@
     "addContract": "Add Contract",
     "editContract": "Edit Contract"
   },
-  "meter":{
+  "meter": {
     "meter": "Meter",
+    "meterUrl": "Meter Url",
     "meterName": "Meter Name",
     "meterNumber": "Meter Number",
     "addMeter": "Add Meter",
@@ -1338,15 +1343,45 @@
     "inactive": "Inactive",
     "createdSuccessfully": "Meter Created Successfully",
     "updatedSuccessfully": "Meter Updated Successfully",
-    "deletedSuccessfully": "Meter Deleted Successfully"
+    "deletedSuccessfully": "Meter Deleted Successfully",
+    "enterMeterUrl": "Enter Meter Url"
   },
-  "reports":{
+  "reports": {
     "reports": "Reports",
     "allprojects": "All Projects",
     "allinverters": "All Inverters",
     "downloadcsv": "Download CSV",
     "dailyYield": "Daily Yield",
     "annualYield": "Annual Yield",
-    "totalYield": "Total Yield"
+    "totalYield": "Total Yield",
+    "capacityperKWh":"Capacity price per kWh",
+    "dailyRevenue": "Daily Revenue",
+    "totalRevenue": "Total Revenue"
+  },
+  "projectView": {
+    "projectInformation": {
+      "project_Information": "Project Information",
+      "project_type": "Project Type",
+      "status": "Status",
+      "offtaker": "Offtaker",
+      "asking_price": "Asking Price",
+      "investor_profit": "Investor Profit",
+      "weshare_profit": "Weshare Profit",
+      "country": "Country",
+      "state": "State",
+      "city": "City",
+      "weather": "Weather",
+      "sunshine": "Sunshine",
+      "temp": "Temp",
+      "humidity": "Humidity",
+      "wind_direction": "Wind Direction",
+      "wind_speed": "Wind Speed",
+      "capacity": "Capacity",
+      "active": "● Active",
+      "inactive": "● Inactive"
+    },
+    "energyProduction": {
+      "energy_production": "Energy Production Overview"
+    }
   }
 }

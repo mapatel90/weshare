@@ -5,10 +5,10 @@ import ProjectsTable from "./sections/ProjectsTable";
 import OverViewCards from "./sections/OverViewCards";
 import BillingCard from "./sections/BillingCard";
 import DocumentsCard from "./sections/DocumentsCard";
-import KriLineChart from "./sections/KriLineChart";
+import ProjectOverviewChart from "@/components/admin/projectsCreate/projectViewSection/ProjectOverviewChart";
+import PowerConsumptionDashboard from "@/components/admin/projectsCreate/projectViewSection/inverterChart";
 import { useAuth } from "@/contexts/AuthContext";
 import { apiGet, apiPost } from "@/lib/api";
-import PowerConsumptionDashboard from "@/components/admin/projectsCreate/projectViewSection/inverterChart";
 
 function DashboardView() {
   const { user } = useAuth();
@@ -32,6 +32,15 @@ function DashboardView() {
   const [inverterLatestLoading, setInverterLatestLoading] = useState(false);
   const [inverterLatestError, setInverterLatestError] = useState(null);
 
+  // Chart data states
+  const [projectChartData, setProjectChartData] = useState(null);
+  const [projectChartLoading, setProjectChartLoading] = useState(false);
+  const [inverterChartData, setInverterChartData] = useState(null);
+  const [inverterChartLoading, setInverterChartLoading] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(
+    new Date().toISOString().split("T")[0]
+  );
+
   // fetch offtaker projects similar to ProjectTable
   useEffect(() => {
     const fetchProjects = async () => {
@@ -39,44 +48,39 @@ function DashboardView() {
       setProjectsError(null);
       try {
         let apiUrl = "/api/projects?page=1&limit=50";
-        if (user?.id) apiUrl += `&offtaker_id=${user.id}`;
-        const res = await apiGet(apiUrl);
-        console.log("Fetched projects for dropdown:", res);
-
-        // Handle different response structures: res.projectList, res.data (array), or res.data.projects
-        let projectsArray = null;
-        if (res?.projectList && Array.isArray(res.projectList)) {
-          projectsArray = res.projectList;
-        } else if (Array.isArray(res?.data)) {
-          projectsArray = res.data;
-        } else if (Array.isArray(res?.data?.projects)) {
-          projectsArray = res.data.projects;
+        if (user?.id) {
+          apiUrl += `&offtaker_id=${user.id}`;
         }
+        const res = await apiGet(apiUrl);
 
-        if (res?.success && projectsArray && projectsArray.length > 0) {
-          // minimal normalization for dropdown
-          const normalized = projectsArray.map((p) => {
-            // try common keys for project size/capacity
-            const rawSize =
-              p.project_size ??
-              p.project_capacity ??
-              p.size_kw ??
-              p.project_kw ??
-              p.capacity ??
-              p.project_size_kw ??
-              null;
-            const project_size =
-              rawSize === null || rawSize === undefined || rawSize === ""
-                ? null
-                : Number(rawSize);
-            return {
-              id: p.id ?? p.project_code ?? null,
-              name: p.project_name ?? p.project_code ?? "Untitled Project",
-              slug: p.project_slug ?? "",
-              project_size,
-            };
-          });
-          setProjects(normalized);
+        if (res?.success && Array.isArray(res?.data)) {
+          if (res.data.length > 0) {
+            // minimal normalization for dropdown
+            const normalized = res.data.map((p) => {
+              // try common keys for project size/capacity
+              const rawSize =
+                p.project_size ??
+                p.project_capacity ??
+                p.size_kw ??
+                p.project_kw ??
+                p.capacity ??
+                p.project_size_kw ??
+                null;
+              const project_size =
+                rawSize === null || rawSize === undefined || rawSize === ""
+                  ? null
+                  : Number(rawSize);
+              return {
+                id: p.id ?? p.project_code ?? null,
+                name: p.project_name ?? p.project_code ?? "Untitled Project",
+                slug: p.project_slug ?? "",
+                project_size,
+              };
+            });
+            setProjects(normalized);
+          } else {
+            setProjects([]);
+          }
         } else {
           setProjects([]);
         }
@@ -94,6 +98,20 @@ function DashboardView() {
       fetchProjects();
     }
   }, [user?.id]);
+
+  // Auto-select first project when projects load
+  useEffect(() => {
+    if (projects.length === 0) return;
+
+    // auto select only once OR when selected project is not in list
+    if (
+      !selectedProject ||
+      !projects.some((p) => p.id === selectedProject.id)
+    ) {
+      setSelectedProject(projects[0]);
+      setSelectedInverter(null);
+    }
+  }, [projects]); // ✅ only projects dependency
 
   // compute total project size (sum of all projects' project_size)
   const totalProjectSize = useMemo(() => {
@@ -167,12 +185,10 @@ function DashboardView() {
           payload.projectInverterId = selectedInverter.inverterId;
         }
 
-        if (!selectedProject?.id && !selectedInverter?.inverterId) {
-          payload.userId = user?.id
-        }
-
-        const res = await apiPost('/api/inverter-data/offtaker/summary/data', payload);
-        console.log("res:", res);
+        const res = await apiPost(
+          "/api/inverter-data/offtaker/summary/data",
+          payload
+        );
         if (res?.success) {
           setInverterLatest(res.data ?? null);
         } else {
@@ -190,6 +206,57 @@ function DashboardView() {
 
     fetchSummaryCardData();
   }, [selectedProject?.id, selectedInverter?.inverterId]);
+
+  // ------------------- Load Project Overview Chart Data -------------------
+  useEffect(() => {
+    const loadProjectChartData = async () => {
+      if (!selectedProject?.id) {
+        setProjectChartData(null);
+        return;
+      }
+      try {
+        setProjectChartLoading(true);
+        const payload = {
+          projectId: selectedProject.id,
+          date: selectedDate || null,
+        };
+        const res = await apiPost("/api/projects/chart-data", payload);
+        setProjectChartData(res?.success ? res.data : null);
+      } catch (err) {
+        console.error("Failed to load project chart data", err);
+        setProjectChartData(null);
+      } finally {
+        setProjectChartLoading(false);
+      }
+    };
+    loadProjectChartData();
+  }, [selectedProject?.id, selectedDate]);
+
+  // ------------------- Load Inverter Chart Data -------------------
+  useEffect(() => {
+    const loadInverterChartData = async () => {
+      if (!selectedProject?.id) {
+        setInverterChartData(null);
+        return;
+      }
+      try {
+        setInverterChartLoading(true);
+        const payload = {
+          projectId: selectedProject.id,
+          projectInverterId: selectedInverter?.inverterId || null,
+          date: selectedDate || null,
+        };
+        const res = await apiPost("/api/inverter-data/chart-data", payload);
+        setInverterChartData(res?.success ? res.data : null);
+      } catch (err) {
+        console.error("Failed to load inverter chart data", err);
+        setInverterChartData(null);
+      } finally {
+        setInverterChartLoading(false);
+      }
+    };
+    loadInverterChartData();
+  }, [selectedProject?.id, selectedInverter?.inverterId, selectedDate]);
 
   // Optional: Close dropdown when clicking outside
   useEffect(() => {
@@ -244,7 +311,7 @@ function DashboardView() {
         >
           <button
             type="button"
-            className="btn theme-btn-blue-color"
+            className="btn bg-black text-white"
             id="projects-dropdown-btn"
             aria-expanded={showProjectsDropdown}
             onClick={() => {
@@ -279,29 +346,6 @@ function DashboardView() {
                   overflowY: "auto",
                 }}
               >
-                {/* ALL PROJECTS option */}
-                <li
-                  key="all-projects"
-                  role="button"
-                  tabIndex={0}
-                  style={{
-                    padding: "8px 16px",
-                    cursor: "pointer",
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    background: selectedProject ? undefined : "#eef2ff",
-                    fontWeight: selectedProject ? 400 : 600,
-                    color: "#111827",
-                  }}
-                  onClick={() => {
-                    setSelectedProject(null);
-                    setShowProjectsDropdown(false);
-                    setSelectedInverter(null);
-                  }}
-                >
-                  <span>All Projects</span>
-                </li>
                 <li style={{ padding: "4px 0" }}>
                   <hr
                     style={{
@@ -321,7 +365,6 @@ function DashboardView() {
                   </li>
                 ) : projects.length ? (
                   projects.map((proj) => {
-                    console.log("projects", projects);
                     const isSelected =
                       selectedProject &&
                       (selectedProject.id === proj.id ||
@@ -372,7 +415,7 @@ function DashboardView() {
         >
           <button
             type="button"
-            className="btn theme-btn-blue-color"
+            className="btn bg-black text-white"
             id="inverter-dropdown-btn"
             aria-expanded={showInverterDropdown}
             onClick={() => {
@@ -483,6 +526,78 @@ function DashboardView() {
         selectedInverter={selectedInverter}
         totalProjectSize={totalProjectSize}
       />
+
+      {/* CHART SECTION */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(500px, 1fr))",
+          gap: "24px",
+          marginBottom: "24px",
+        }}
+      >
+        {/* PRODUCTION CHART */}
+        <div
+          style={{
+            backgroundColor: "#fff",
+            borderRadius: "12px",
+            boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+            border: "1px solid #f3f4f6",
+            padding: "24px",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              marginBottom: "16px",
+            }}
+          >
+            <h3
+              style={{
+                fontSize: "18px",
+                fontWeight: "bold",
+                color: "#111827",
+              }}
+            >
+              Energy Production Overview
+            </h3>
+          </div>
+          {selectedProject ? (
+            selectedInverter ? (
+              <PowerConsumptionDashboard
+                projectId={selectedProject.id}
+                readings={inverterChartData || []}
+                loading={inverterChartLoading}
+                selectedInverterId={selectedInverter.inverterId}
+                projectInverters={inverters}
+                selectedDate={selectedDate}
+                onDateChange={setSelectedDate}
+                setSelectedDate={setSelectedDate}
+              />
+            ) : (
+              <ProjectOverviewChart
+                projectId={selectedProject.id}
+                readings={projectChartData || []}
+                loading={projectChartLoading}
+                selectedDate={selectedDate}
+                onDateChange={setSelectedDate}
+                setSelectedDate={setSelectedDate}
+              />
+            )
+          ) : (
+            <ProjectOverviewChart
+              projectId={null}
+              readings={[]}
+              loading={false}
+              selectedDate={selectedDate}
+              onDateChange={setSelectedDate}
+              setSelectedDate={setSelectedDate}
+            />
+          )}
+        </div>
+      </div>
 
       {/* Dashboard */}
       <div className="dashboard-row">
@@ -663,15 +778,6 @@ function DashboardView() {
 
       {/* Projects Table */}
       <ProjectsTable />
-      {/* LINE GRAPH CHART IMPLEMENTATION */}
-
-      {/* KRI Line Graph (1,1 min intervals) */}
-      <div className="chart-card" style={{ margin: "30px 0" }}>
-        <div className="card-title" style={{ marginBottom: "20px" }}>
-          Kw Generated
-        </div>
-        <KriLineChart />
-      </div>
 
       {/* Bottom Row */}
       <div className="bottom-row">

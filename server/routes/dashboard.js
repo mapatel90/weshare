@@ -1,10 +1,11 @@
 import express from 'express';
 import prisma from '../utils/prisma.js';
+import { authenticateToken } from '../middleware/auth.js';
 
 const router = express.Router();
 
 // GET /api/dashboard/statscount
-router.get('/statscount', async (req, res) => {
+router.get('/statscount',authenticateToken, async (req, res) => {
     try {
         const [projects, users, inverters, contracts, lease_request, interested_investors] = await Promise.all([
             prisma.project.count({ where: { is_deleted: 0 } }),

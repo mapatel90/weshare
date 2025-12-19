@@ -1,17 +1,37 @@
 'use client'
 import React, { useEffect, useState, useMemo } from 'react'
 import { apiGet, apiPost } from '@/lib/api'
+import { useLanguage } from '@/contexts/LanguageContext'
 import StatCardsGrid from './projectViewSection/StateCard'
 import PowerConsumptionDashboard from './projectViewSection/inverterChart'
 import ProjectInformation from './projectViewSection/ProjectInformation'
+import ProjectOverviewChart from './projectViewSection/ProjectOverviewChart'
 import MeterInfo from './projectViewSection/MeterInfo'
 import MonthlyChart from './projectViewSection/MonthlyChart'
 import { FiEdit3 } from 'react-icons/fi'
 
-// -------- LANGUAGE HOOK (temporary) ----------
-const useLanguage = () => ({
-  lang: (key, fallback) => fallback
-})
+// -------- DARK MODE HOOK ----------
+const useDarkMode = () => {
+  const [isDark, setIsDark] = useState(false)
+
+  useEffect(() => {
+    const checkDarkMode = () => {
+      setIsDark(document.documentElement.classList.contains('app-skin-dark'))
+    }
+
+    checkDarkMode()
+
+    const observer = new MutationObserver(checkDarkMode)
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class']
+    })
+
+    return () => observer.disconnect()
+  }, [])
+
+  return isDark
+}
 
 // -------- NUMBER FORMATTER ----------
 const formatNumber = (v, suffix = '') => {
@@ -22,6 +42,7 @@ const formatNumber = (v, suffix = '') => {
 
 const ProjectViewContent = ({ projectId = '' }) => {
   const { lang } = useLanguage()
+  const isDark = useDarkMode()
 
   const [loading, setLoading] = useState(true)
   const [project, setProject] = useState(null)
@@ -40,6 +61,8 @@ const ProjectViewContent = ({ projectId = '' }) => {
   const [selectedInverterLatestLoading, setSelectedInverterLatestLoading] = useState(false)
 
   // Latest inverter data for this project (default)
+  const [projectChartData, setProjectChartData] = useState(null)
+  const [projectLatestLoading, setProjectLatestLoading] = useState(true)
   const [inverterChartData, setInverterChartData] = useState(null)
   const [inverterLatestLoading, setInverterLatestLoading] = useState(true)
   const [monthlyChartData, setMonthlyChartData] = useState(null)
@@ -113,6 +136,24 @@ const ProjectViewContent = ({ projectId = '' }) => {
     loadLatest()
   }, [selectedInverterId, projectId, selectedDate])
 
+  // ------------------- Load Project Overview Chat (default) -------------------
+  useEffect(() => {
+    const loadLatest = async () => {
+      const payload = {
+        projectId: projectId ?? null,
+        date: selectedDate ?? null,
+      };
+      try {
+        setProjectLatestLoading(true)
+        const res = await apiPost(`/api/projects/chart-data`, payload)
+        setProjectChartData(res?.success ? res.data : null)
+      } finally {
+        setProjectLatestLoading(false)
+      }
+    }
+    loadLatest()
+  }, [projectId, selectedDate])
+
   // ------------------- Load Count of daily yiled and total yiled -------------------
   useEffect(() => {
     const loadSelectedInverterLatest = async () => {
@@ -132,7 +173,7 @@ const ProjectViewContent = ({ projectId = '' }) => {
   }, [selectedInverterId, projectId])
 
   // ------------------- Load Monthly Chart Data -------------------
-  useEffect(() => {   
+  useEffect(() => {
     const loadMonthlyChartData = async () => {
       const payload = {
         projectId: projectId ?? null,
@@ -141,7 +182,7 @@ const ProjectViewContent = ({ projectId = '' }) => {
       try {
         setMonthlyChartDataLoading(true)
         const res = await apiPost(`/api/inverter-data/monthly-chart`, payload)
-        console.log("month data:",res.data);
+        console.log("month data:", res.data);
         setMonthlyChartData(res?.success ? res.data : null)
       } finally {
         setMonthlyChartDataLoading(false)
@@ -152,7 +193,7 @@ const ProjectViewContent = ({ projectId = '' }) => {
 
   // Transform monthly chart data from backend - always show all 12 months
   const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-  
+
   // Always show all 12 months, fill with 0 if no data
   const monthlyChartMonths = useMemo(() => {
     return monthNames // Always return all 12 months
@@ -166,7 +207,7 @@ const ProjectViewContent = ({ projectId = '' }) => {
         dataMap.set(item.month, item.totalGenerateKw || 0)
       })
     }
-    
+
     // Return array with all 12 months, filling 0 for months without data
     return monthNames.map((_, index) => dataMap.get(index) || 0)
   }, [monthlyChartData])
@@ -179,7 +220,7 @@ const ProjectViewContent = ({ projectId = '' }) => {
         inverterMap.set(item.month, item.inverters || [])
       })
     }
-    
+
     // Return array with all 12 months, filling empty array for months without data
     return monthNames.map((_, index) => inverterMap.get(index) || [])
   }, [monthlyChartData])
@@ -195,19 +236,32 @@ const ProjectViewContent = ({ projectId = '' }) => {
   const displayData = selectedInverterId ? inverterChartData : inverterChartData
   const displayDataLoading = selectedInverterId ? selectedInverterLatestLoading : inverterLatestLoading
 
+  // Dark mode colors
+  const colors = {
+    bg: isDark ? '#0f172a' : '#f9fafb',
+    cardBg: isDark ? '#121a2d' : '#fff',
+    text: isDark ? '#ffffff' : '#111827',
+    textMuted: isDark ? '#b1b4c0' : '#6b7280',
+    border: isDark ? '#1b2436' : '#e5e7eb',
+    borderLight: isDark ? '#1b2436' : '#f3f4f6',
+    gradientBg: isDark
+      ? 'linear-gradient(to bottom right, #1a1f2e, #0f172a, #1a1628)'
+      : 'linear-gradient(to bottom right, #eff6ff, #ffffff, #faf5ff)',
+  }
+
   // ------------------- Loading / Not Found UI -------------------
   if (loading) {
     return (
-      <div style={{ minHeight: '100vh', backgroundColor: '#f9fafb', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ color: '#6b7280' }}>Loading project details...</div>
+      <div style={{ minHeight: '100vh', backgroundColor: colors.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ color: colors.textMuted }}>Loading project details...</div>
       </div>
     )
   }
 
   if (!project) {
     return (
-      <div style={{ minHeight: '100vh', backgroundColor: '#f9fafb', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ color: '#6b7280' }}>Project not found</div>
+      <div style={{ minHeight: '100vh', backgroundColor: colors.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ color: colors.textMuted }}>Project not found</div>
       </div>
     )
   }
@@ -216,23 +270,42 @@ const ProjectViewContent = ({ projectId = '' }) => {
 
   // ------------------- MAIN UI -------------------
   return (
-    <div style={{ minHeight: '100vh', height: 'auto', overflowY: 'hidden', background: 'linear-gradient(to bottom right, #eff6ff, #ffffff, #faf5ff)', padding: '24px' }}>
+    <div style={{ minHeight: '100vh', height: 'auto', overflowY: 'hidden', background: colors.gradientBg, padding: '24px' }}>
       <div style={{ margin: '0 auto' }}>
-
         {/* HEADER */}
         <div style={{ marginBottom: '24px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div>
-              <h1 style={{ fontSize: '30px', fontWeight: 'bold', color: '#111827', marginBottom: '8px' }}>
-                {project.project_name}
-                <FiEdit3 style={{ cursor: 'pointer', marginLeft: '8px', color: '#3b82f6' }} onClick={() => window.location.href = `/admin/projects/edit/${project.id}`} />
-              </h1>
-              <p style={{ color: '#6b7280' }}>{project.project_type}</p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+                <h1 style={{ fontSize: '30px', fontWeight: 'bold', color: colors.text, margin: 0, display: 'flex', alignItems: 'center' }}>
+                  {project.project_name}
+                  <FiEdit3
+                    style={{ cursor: 'pointer', marginLeft: '8px', color: '#3b82f6', fontSize: '20px' }}
+                    onClick={() => window.location.href = `/admin/projects/edit/${project.id}`}
+                  />
+                </h1>
+                <p style={{
+                  padding: '8px 16px',
+                  borderRadius: '9999px',
+                  backgroundColor: project.status === 1
+                    ? (isDark ? 'rgba(34, 197, 94, 0.2)' : '#dcfce7')
+                    : (isDark ? 'rgba(239, 68, 68, 0.2)' : '#fee2e2'),
+                  color: project.status === 1
+                    ? (isDark ? '#22c55e' : '#166534')
+                    : (isDark ? '#ef4444' : '#991b1b'),
+                  fontWeight: '600',
+                  margin: 0,
+                  fontSize: '14px',
+                  whiteSpace: 'nowrap'
+                }}>
+                  {project.status === 1 ? lang('projectView.projectInformation.active') : lang('projectView.projectInformation.inactive')}
+                </p>
+              </div>
             </div>
-
-          <div>
+            {/* PROJECT STATUS */}
+            <div>
               {projectInvertersLoading ? (
-                <div style={{ color: '#6b7280', fontSize: '14px' }}>Loading inverters...</div>
+                <div style={{ color: colors.textMuted, fontSize: '14px' }}>Loading inverters...</div>
               ) : (
                 <select
                   value={selectedInverterId}
@@ -240,38 +313,27 @@ const ProjectViewContent = ({ projectId = '' }) => {
                   style={{
                     padding: '8px 12px',
                     borderRadius: '8px',
-                    border: '1px solid #e5e7eb',
-                    background: '#fff',
+                    border: `1px solid ${colors.border}`,
+                    background: isDark ? '#121a2d' : '#fff',
+                    color: colors.text,
                     fontSize: '14px',
                     minWidth: '220px'
                   }}
                 >
-                  <option value="">Select inverter</option>
+                  <option value="" style={{ background: isDark ? '#121a2d' : '#fff', color: colors.text }}>{lang("inverter.selectInverter","Select Inverter")}</option>
                   {projectInverters.map((pi) => {
                     const inv = pi.inverter || {}
-                    const label = inv.inverterName
-                      ? `${inv.inverterName} (Serial: ${pi.inverter_serial_number || 'N/A'})`
+                    const label = pi.inverter_name
+                      ? `${pi.inverter_name} (Serial: ${pi.inverter_serial_number || 'N/A'})`
                       : `Inverter ID: ${pi.id}`
-
                     return (
-                      <option key={pi.id} value={pi.inverter_id}>
+                      <option key={pi.id} value={pi.inverter_id} style={{ background: isDark ? '#121a2d' : '#fff', color: colors.text }}>
                         {label}
                       </option>
                     )
                   })}
                 </select>
               )}
-            </div>
-
-            {/* PROJECT STATUS */}
-            <div style={{
-              padding: '8px 16px',
-              borderRadius: '9999px',
-              backgroundColor: project.status === 1 ? '#dcfce7' : '#fee2e2',
-              color: project.status === 1 ? '#166534' : '#991b1b',
-              fontWeight: '600'
-            }}>
-              {project.status === 1 ? '● Active' : '● Inactive'}
             </div>
           </div>
         </div>
@@ -286,50 +348,64 @@ const ProjectViewContent = ({ projectId = '' }) => {
         inverterLatestLoading={displayDataLoading}
         selectedInverterId={selectedInverterId}
         statCardsData={statCardsData}
+        isDark={isDark}
       />
-
-      {/* PROJECT DETAILS */}
-      <ProjectInformation project={project} />
-
-      {/* METER INFO */}
-      <MeterInfo project={project} contracts={contracts} contractsLoading={contractsLoading} inverters={projectInverters} />
 
       {/* CHART SECTION */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(500px, 1fr))', gap: '24px' }}>
 
         {/* PRODUCTION CHART */}
-        <div style={{ backgroundColor: '#fff', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', border: '1px solid #f3f4f6', padding: '24px' }}>
+        <div style={{ backgroundColor: colors.cardBg, borderRadius: '12px', boxShadow: isDark ? '0 0 20px rgba(14, 32, 56, 0.3)' : '0 1px 3px rgba(0,0,0,0.1)', border: `1px solid ${colors.borderLight}`, padding: '24px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-            <h3 style={{ fontSize: '18px', fontWeight: 'bold', color: '#111827' }}>Energy Production Overview</h3>
+            <h3 style={{ fontSize: '18px', fontWeight: 'bold', color: colors.text }}>{lang('projectView.energyProduction.energy_production', 'Energy Production Overviews')}</h3>
             <div style={{ display: 'flex', gap: '8px' }}>
               <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#ef4444' }}></div>
               <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#fbbf24' }}></div>
               <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#22c55e' }}></div>
             </div>
           </div>
+          {selectedInverterId ? (
+            <PowerConsumptionDashboard
+              projectId={projectId}
+              readings={inverterChartData || []}
+              loading={inverterLatestLoading}
+              selectedInverterId={selectedInverterId}
+              projectInverters={projectInverters}
+              selectedDate={selectedDate}
+              onDateChange={setSelectedDate}
+              setSelectedDate={setSelectedDate}
+              isDark={isDark}
+            />
+          ) : (
+            <ProjectOverviewChart
+              projectId={projectId}
+              readings={projectChartData || []}
+              loading={projectLatestLoading}
+              selectedDate={selectedDate}
+              onDateChange={setSelectedDate}
+              setSelectedDate={setSelectedDate}
+              isDark={isDark}
+            />
+          )}
 
-          <PowerConsumptionDashboard
-            projectId={projectId}
-            readings={inverterChartData || []}
-            loading={inverterLatestLoading}
-            selectedInverterId={selectedInverterId}
-            projectInverters={projectInverters}
-            selectedDate={selectedDate}
-            onDateChange={setSelectedDate}
-            setSelectedDate={setSelectedDate}
-          />
         </div>
 
         {/* MONTHLY CHART */}
-        <MonthlyChart
+        {/* <MonthlyChart
           revenue={monthlyChartRevenue}
           months={monthlyChartMonths}
           inverters={monthlyChartInverters}
           summaryCards={revenueSummaryCards}
           loading={monthlyChartDataLoading}
-        />
+        /> */}
 
       </div>
+
+      {/* PROJECT DETAILS */}
+      <ProjectInformation project={project} isDark={isDark} />
+
+      {/* METER INFO */}
+      <MeterInfo project={project} contracts={contracts} contractsLoading={contractsLoading} inverters={projectInverters} isDark={isDark} />
 
     </div>
   )
