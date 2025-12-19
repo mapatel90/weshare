@@ -17,8 +17,8 @@ async function main() {
 
   console.log("📝 Creating roles...");
   for (const roleData of roles) {
-    await prisma.role.upsert({
-      where: { name: roleData.name },
+    await prisma.roles.upsert({
+      where: { id: roleData.id },
       update: {},
       create: roleData,
     });
@@ -29,13 +29,13 @@ async function main() {
   console.log("🌍 Inserting comprehensive location data...");
   const locationStats = await insertLocationData();
   // Get some location data for user creation
-  const indiaCountry = await prisma.country.findFirst({
+  const indiaCountry = await prisma.countries.findFirst({
     where: { name: "India" },
   });
-  const usaCountry = await prisma.country.findFirst({
+  const usaCountry = await prisma.countries.findFirst({
     where: { name: "United States" },
   });
-  const vietnamCountry = await prisma.country.findFirst({
+  const vietnamCountry = await prisma.countries.findFirst({
     where: { name: "Vietnam" },
   });
 
@@ -43,41 +43,37 @@ async function main() {
   const adminPassword = await bcrypt.hash("admin123", 12);
 
   console.log("👤 Creating admin user...");
-  const ahmedabadCity = await prisma.city.findFirst({
+  const ahmedabadCity = await prisma.cities.findFirst({
     where: { name: "Ahmedabad" },
-    include: { state: true },
   });
 
   // Create sample users with location data
-  const mumbaiCity = await prisma.city.findFirst({
+  const mumbaiCity = await prisma.cities.findFirst({
     where: { name: "Mumbai" },
-    include: { state: true },
   });
 
-  const losAngelesCity = await prisma.city.findFirst({
+  const losAngelesCity = await prisma.cities.findFirst({
     where: { name: "Los Angeles" },
-    include: { state: true },
   });
 
-  const hoChiMinhCity = await prisma.city.findFirst({
+  const hoChiMinhCity = await prisma.cities.findFirst({
     where: { name: "Ho Chi Minh City" },
-    include: { state: true },
   });
 
-  await prisma.user.upsert({
+  await prisma.users.upsert({
     where: { username: 'admin' },
     update: {},
     create: {
-      fullName: 'System Administrator',
+      full_name: 'System Administrator',
       username: 'admin',
       email: 'admin@sunshare.com',
       password: adminPassword,
-      userRole: 1,
-      phoneNumber: "+1234567890",
-      countryId: vietnamCountry?.id,
-      stateId: hoChiMinhCity?.stateId,
-      cityId: hoChiMinhCity?.id,
-      address1: "123 Admin Street",
+      role_id: 1,
+      phone_number: "+1234567890",
+      country_id: vietnamCountry?.id,
+      state_id: hoChiMinhCity?.state_id,
+      city_id: hoChiMinhCity?.id,
+      address_1: "123 Admin Street",
       zipcode: "700000",
       status: 1, // Active
     },
@@ -88,39 +84,39 @@ async function main() {
 
   const sampleUsers = [
     {
-      fullName: 'John Manager',
+      full_name: 'John Manager',
       username: 'johnmanager',
       email: 'manager@sunshare.com',
-      userRole: 2,
-      phoneNumber: "+1234567891",
-      countryId: indiaCountry?.id,
-      stateId: mumbaiCity?.stateId,
-      cityId: mumbaiCity?.id,
-      address1: "456 Manager Avenue",
+      role_id: 2,
+      phone_number: "+1234567891",
+      country_id: indiaCountry?.id,
+      state_id: mumbaiCity?.state_id,
+      city_id: mumbaiCity?.id,
+      address_1: "456 Manager Avenue",
       zipcode: "400001",
     },
     {
-      fullName: 'Test User',
+      full_name: 'Test User',
       username: 'testuser',
       email: 'wrapcode.info@gmail.com',
-      userRole: 3,
-      phoneNumber: "+1234567892",
-      countryId: usaCountry?.id,
-      stateId: losAngelesCity?.stateId,
-      cityId: losAngelesCity?.id,
-      address1: "789 Test Boulevard",
+      role_id: 3,
+      phone_number: "+1234567892",
+      country_id: usaCountry?.id,
+      state_id: losAngelesCity?.state_id,
+      city_id: losAngelesCity?.id,
+      address_1: "789 Test Boulevard",
       zipcode: "90210",
     },
     {
-      fullName: 'Nguyen Van Minh',
+      full_name: 'Nguyen Van Minh',
       username: 'vietnamuser',
       email: 'vietnam.user@sunshare.com',
-      userRole: 3,
-      phoneNumber: "+84901234567",
-      countryId: vietnamCountry?.id,
-      stateId: hoChiMinhCity?.stateId,
-      cityId: hoChiMinhCity?.id,
-      address1: "123 Nguyen Hue Street",
+      role_id: 3,
+      phone_number: "+84901234567",
+      country_id: vietnamCountry?.id,
+      state_id: hoChiMinhCity?.state_id,
+      city_id: hoChiMinhCity?.id,
+      address_1: "123 Nguyen Hue Street",
       zipcode: "700000",
     },
   ];
@@ -134,7 +130,7 @@ async function main() {
       userData.email === "wrapcode.info@gmail.com"
         ? testPassword
         : defaultPassword;
-    await prisma.user.upsert({
+    await prisma.users.upsert({
       // Prisma schema requires a unique field in `where`. Use `username` which is unique.
       where: { username: userData.username },
       update: {},
@@ -165,7 +161,7 @@ async function main() {
   ];
 
   for (const inverterType of inverterTypes) {
-    await prisma.inverterType.upsert({
+    await prisma.inverter_type.upsert({
       where: { type: inverterType.type },
       update: {},
       create: inverterType,

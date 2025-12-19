@@ -486,7 +486,7 @@ async function insertLocationData() {
       // console.log(`\n📍 Processing ${countryName}...`);
       
       // Insert or update country
-      const country = await prisma.country.upsert({
+      const country = await prisma.countries.upsert({
         where: { name: countryName },
         update: { code: countryInfo.code },
         create: {
@@ -500,18 +500,18 @@ async function insertLocationData() {
 
       // Process states
       for (const [stateName, stateInfo] of Object.entries(countryInfo.states)) {
-        const state = await prisma.state.upsert({
+        const state = await prisma.states.upsert({
           where: {
-            name_countryId: {
+            name_country_id: {
               name: stateName,
-              countryId: country.id
+              country_id: country.id
             }
           },
           update: { code: stateInfo.code },
           create: {
             name: stateName,
             code: stateInfo.code,
-            countryId: country.id,
+            country_id: country.id,
             status: 1
           }
         });
@@ -523,17 +523,17 @@ async function insertLocationData() {
         // console.log(`    🏙️ Processing ${cities.length} cities...`);
         
         for (const cityName of cities) {
-          await prisma.city.upsert({
+          await prisma.cities.upsert({
             where: {
-              name_stateId: {
+              name_state_id: {
                 name: cityName,
-                stateId: state.id
+                state_id: state.id
               }
             },
             update: {},
             create: {
               name: cityName,
-              stateId: state.id,
+              state_id: state.id,
               status: 1
             }
           });
