@@ -105,7 +105,7 @@ const ProjectEditContent = ({ projectId }) => {
         setFormData(prev => ({
             ...prev,
             investorId: String(investor.id),
-            investorName: investor.fullName ||  ''
+            investorName: investor.fullName || ''
         }))
     }, [])
 
@@ -368,9 +368,7 @@ const ProjectEditContent = ({ projectId }) => {
         }
     }
 
-    const handleSubmit = async (e) => {
-        e.preventDefault()
-
+    const saveProject = async () => {
         const requiredFields = ['project_name', 'project_type_id', 'offtaker']
         const errors = {}
         requiredFields.forEach(field => { if (!formData[field]) { errors[field] = lang('validation.required', 'Required') } })
@@ -400,7 +398,7 @@ const ProjectEditContent = ({ projectId }) => {
         if (formData.project_size && !numberRegex.test(formData.project_size)) {
             errors.project_size = lang('projects.onlynumbers', 'Only numbers are allowed (e.g. 1234.56)')
         }
-        if (Object.keys(errors).length) { setError(errors); return }
+        if (Object.keys(errors).length) { setError(errors); return false }
 
         setLoading(prev => ({ ...prev, form: true }))
         try {
@@ -437,12 +435,47 @@ const ProjectEditContent = ({ projectId }) => {
             }
 
             showSuccessToast(lang('projects.projectupdatedsuccessfully', 'Project updated successfully'))
-            router.push('/admin/projects/list')
+            return true
         } catch (e) {
             console.error('Update project failed', e)
             showErrorToast(e.message || 'Failed to update project')
+            return false
         } finally {
             setLoading(prev => ({ ...prev, form: false }))
+        }
+    }
+
+    const handleSubmit = async (e) => {
+        e.preventDefault()
+        const success = await saveProject()
+        if (success) {
+            router.push('/admin/projects/list')
+        }
+    }
+
+    const handleSaveAction = async (action) => {
+        if (action === 'saveproject' || action === 'saveprojectNext') {
+            console.log('if');
+            const success = await saveProject()
+            if (success) {
+                if (action === 'saveproject') {
+                    router.push('/admin/projects/list')
+                } else if (action === 'saveprojectNext') {
+                    const currentIndex = steps.findIndex(step => step.key === activeTab)
+                    if (currentIndex < steps.length - 1) {
+                        setActiveTab(steps[currentIndex + 1].key)
+                    }
+                }
+            }
+        } else {
+            if (action === 'saveAndClose') {
+                router.push('/admin/projects/list')
+            } else if (action === 'saveNext') {
+                const currentIndex = steps.findIndex(step => step.key === activeTab)
+                if (currentIndex < steps.length - 1) {
+                    setActiveTab(steps[currentIndex + 1].key)
+                }
+            }
         }
     }
 
@@ -488,6 +521,7 @@ const ProjectEditContent = ({ projectId }) => {
                                 handleOfftakerChange={handleOfftakerChange}
                                 handleLocationChange={handleLocationChange}
                                 handleSubmit={handleSubmit}
+                                handleSaveAction={handleSaveAction}
                                 imageQueue={queuedImages}
                                 existingImages={visibleGalleryImages}
                                 onDropImages={handleDropImages}
@@ -500,16 +534,16 @@ const ProjectEditContent = ({ projectId }) => {
                             />
                         )}
                         {activeTab === 'inverter' && (
-                            <InverterTab projectId={projectId} />
+                            <InverterTab projectId={projectId} handleSaveAction={handleSaveAction} />
                         )}
                         {activeTab === 'investor' && (
-                            <Investor projectId={projectId} onInvestorMarked={handleInvestorMarked} />
+                            <Investor projectId={projectId} onInvestorMarked={handleInvestorMarked} handleSaveAction={handleSaveAction} />
                         )}
                         {activeTab === 'contract' && (
                             <Contract projectId={projectId} />
                         )}
                         {activeTab === 'meter' && (
-                            <MeterView projectId={projectId} />
+                            <MeterView projectId={projectId} handleSaveAction={handleSaveAction} />
                         )}
                     </div>
                 </div>

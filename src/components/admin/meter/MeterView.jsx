@@ -6,7 +6,7 @@ import { FiSave } from "react-icons/fi";
 import { apiGet, apiPut } from "@/lib/api";
 import { showErrorToast, showSuccessToast } from "@/utils/topTost";
 
-const MeterView = ({ projectId }) => {
+const MeterView = ({ projectId, handleSaveAction }) => {
     const [form, setForm] = useState({
         meter_url: '',
         sim_number: '',
@@ -32,7 +32,7 @@ const MeterView = ({ projectId }) => {
     const handleChange = (e) => {
         const { name, value } = e.target;
         setForm((prev) => ({ ...prev, [name]: value }));
-        
+
         // Validate URL format for meter_url field
         if (name === 'meter_url' && value && !validateUrl(value)) {
             setFieldErrors((prev) => ({ ...prev, [name]: lang('validation.invalidUrl', 'Please enter a valid URL') }));
@@ -42,7 +42,7 @@ const MeterView = ({ projectId }) => {
     };
 
     const fetchMeterData = async () => {
-        setLoading(true);   
+        setLoading(true);
         try {
             const res = await apiGet(`/api/projects/meter/${projectId}`);
             // const data = await res.json();
@@ -66,8 +66,7 @@ const MeterView = ({ projectId }) => {
         fetchMeterData();
     }, [projectId]);
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    const saveMeterData = async () => {
         setLoading(true);
         setError('');
         setSuccess(false);
@@ -84,7 +83,7 @@ const MeterView = ({ projectId }) => {
         setFieldErrors(errors);
         if (Object.keys(errors).length) {
             setLoading(false);
-            return;
+            return false;
         }
         try {
             const res = await apiPut(`/api/projects/meter/${projectId}`, form);
@@ -92,13 +91,29 @@ const MeterView = ({ projectId }) => {
                 setSuccess(true);
                 showSuccessToast(lang('meter.meterUpdatedSuccessfully', 'Meter updated successfully'));
                 setFieldErrors({});
+                return true;
             } else {
                 showErrorToast(res.message || 'Failed to save meter info');
+                return false;
             }
         } catch (err) {
             setError('Network error');
+            return false;
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        await saveMeterData();
+    };
+
+    const handleSaveActionLocal = async (action) => {
+        const success = await saveMeterData();
+        if (success) {
+            handleSaveAction(action);
+        }
     };
 
     return (
@@ -168,14 +183,39 @@ const MeterView = ({ projectId }) => {
                         </div>
                     </div>
                     {/* Actions inside Address Information */}
-                    <Button
-                        type="submit"
-                        disabled={loading}
-                        className="common-grey-color"
-                        style={{ float: 'inline-end' }}
-                    >
-                        {loading ? 'Saving...' : lang('common.save', 'Save')}
-                    </Button>
+                    <div className="col-12 d-flex justify-content-end gap-2">
+                        <Button
+                            type="button"
+                            variant="contained"
+                            disabled={loading}
+                            startIcon={loading ? <CircularProgress size={16} /> : <FiSave />}
+                            onClick={() => handleSaveActionLocal('saveAndClose')}
+                            className="common-grey-color"
+                            style={{
+                                marginTop: "2px",
+                                marginBottom: "2px",
+                            }}
+                        >
+                            {loading
+                                ? lang("common.saving", "Saving")
+                                : lang("projects.saveAndClose", "Save & Close")}
+                        </Button>
+                        <Button
+                            type="button"
+                            variant="outlined"
+                            disabled={loading}
+                            startIcon={loading ? <CircularProgress size={16} /> : <FiSave />}
+                            onClick={() => handleSaveActionLocal('saveNext')}
+                            style={{
+                                marginTop: "2px",
+                                marginBottom: "2px",
+                            }}
+                        >
+                            {loading
+                                ? lang("common.saving", "Saving")
+                                : lang("projects.saveNext", "Save & Next")}
+                        </Button>
+                    </div>
                 </div>
             </div>
         </form>

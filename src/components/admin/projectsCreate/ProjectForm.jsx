@@ -36,6 +36,7 @@ const ProjectForm = ({
   handleOfftakerChange,
   handleLocationChange,
   handleSubmit,
+  handleSaveAction,
 
   // gallery dropzone
   imageQueue = [],
@@ -125,7 +126,7 @@ const ProjectForm = ({
                   <FormHelperText>{error.project_type_id}</FormHelperText>
                 )}
               </FormControl> */}
-               <TextField
+              <TextField
                 fullWidth
                 label={`${lang("projects.projectSlug", "Project Slug")} *`}
                 name="project_slug"
@@ -404,7 +405,7 @@ const ProjectForm = ({
             </div>
           </div>
 
-          { /* Show Solis Plant ID only in edit mode (when formData.id exists) */ }
+          { /* Show Solis Plant ID only in edit mode (when formData.id exists) */}
           {formData?.id ? (
             <div className="row">
               <div className="col-md-12 mb-3">
@@ -440,9 +441,8 @@ const ProjectForm = ({
           <div className="card-body">
             <div
               {...getRootProps()}
-              className={`border rounded text-center p-4 project-dropzone ${
-                dropDisabled ? "dropzone-disabled" : ""
-              } ${isDragActive ? "dropzone-active" : ""}`}
+              className={`border rounded text-center p-4 project-dropzone ${dropDisabled ? "dropzone-disabled" : ""
+                } ${isDragActive ? "dropzone-active" : ""}`}
               style={{
                 borderStyle: "dashed",
                 cursor: dropDisabled ? "not-allowed" : "pointer",
@@ -464,13 +464,13 @@ const ProjectForm = ({
                 <small className="text-danger d-block mt-2">
                   {isGalleryFull
                     ? lang(
-                        "projects.galleryLimitReached",
-                        "Maximum gallery size reached"
-                      )
+                      "projects.galleryLimitReached",
+                      "Maximum gallery size reached"
+                    )
                     : lang(
-                        "projects.galleryDisabledWhileSaving",
-                        "Please wait, saving project images..."
-                      )}
+                      "projects.galleryDisabledWhileSaving",
+                      "Please wait, saving project images..."
+                    )}
                 </small>
               )}
             </div>
@@ -515,7 +515,7 @@ const ProjectForm = ({
                           style={{ gap: 8 }}
                         >
                           {image.default !== 1 &&
-                          typeof onSetDefaultImage === "function" ? (
+                            typeof onSetDefaultImage === "function" ? (
                             <button
                               type="button"
                               className="btn btn-sm btn-outline-primary"
@@ -591,7 +591,7 @@ const ProjectForm = ({
                           style={{ gap: 8 }}
                         >
                           {!(file.default === 1 || file.isDefault) &&
-                          typeof onSetDefaultImage === "function" ? (
+                            typeof onSetDefaultImage === "function" ? (
                             <button
                               type="button"
                               className="btn btn-sm btn-outline-primary"
@@ -837,10 +837,11 @@ const ProjectForm = ({
         </div>
       </div>
 
-      <div className="col-12 d-flex justify-content-end">
+      <div className="col-12 d-flex justify-content-end gap-2">
         <Button
           type="submit"
           variant="contained"
+          onClick={() => handleSaveAction('saveproject')}
           disabled={loading.form}
           startIcon={loading.form ? <CircularProgress size={16} /> : <FiSave />}
           className="common-grey-color"
@@ -853,7 +854,22 @@ const ProjectForm = ({
         >
           {loading.form
             ? lang("common.saving", "Saving")
-            : lang("projects.saveProject", "Save Project")}
+            : lang("projects.saveProject", "Save Project & Next")}
+        </Button>
+        <Button
+          type="button"
+          variant="outlined"
+          disabled={loading.form}
+          startIcon={loading.form ? <CircularProgress size={16} /> : <FiSave />}
+          onClick={() => handleSaveAction('saveprojectNext')}
+          style={{
+            marginTop: "2px",
+            marginBottom: "2px",
+          }}
+        >
+          {loading.form
+            ? lang("common.saving", "Saving")
+            : lang("projects.saveNext", "Save & Next")}
         </Button>
       </div>
     </form>
