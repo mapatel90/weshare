@@ -45,7 +45,7 @@ const StatCard = ({ icon: Icon, title, value, subtitle, color, trend, isDark = f
     trendNegativeText: isDark ? '#ef4444' : '#991b1b',
     boxShadow: isDark ? '0 0 20px rgba(14, 32, 56, 0.3)' : '0 1px 3px rgba(0,0,0,0.1)',
   }
-  
+
   return (
     <div style={{
       backgroundColor: colors.cardBg,
@@ -135,14 +135,14 @@ const StatCardsGrid = ({
     if (projectPriceKwh !== undefined && projectPriceKwh !== null && dailyYieldMetric !== null) {
       monetaryValue = dailyYieldMetric * projectPriceKwh
     }
-    dailyYieldSubtitle = (monetaryValue !== null ? ` • Daily Revenue: ${currency} ${formatNumber(monetaryValue)}` : '')
+    dailyYieldSubtitle = (monetaryValue !== null ? ` • ${lang('reports.dailyRevenue')}: ${currency} ${formatNumber(monetaryValue)}` : '')
   } else if (!isInverterSelected && project?.daily_yield !== undefined && project?.daily_yield !== null) {
     dailyYieldValue = `${formatNumber(project.daily_yield)} kWh`
     let monetaryValue = null
     if (projectPriceKwh !== undefined && projectPriceKwh !== null && project.daily_yield !== null) {
       monetaryValue = project.daily_yield * projectPriceKwh
     }
-    dailyYieldSubtitle = (monetaryValue !== null ? ` • Daily Revenue: ${currency} ${formatNumber(monetaryValue)}` : '')
+    dailyYieldSubtitle = (monetaryValue !== null ? ` • ${lang('reports.dailyRevenue')}: ${currency} ${formatNumber(monetaryValue)}` : '')
   } else {
     dailyYieldValue = '-'
     dailyYieldSubtitle = isInverterSelected
@@ -161,14 +161,14 @@ const StatCardsGrid = ({
     if (projectPriceKwh !== undefined && projectPriceKwh !== null && totalYieldMetric !== null) {
       totalMonetaryValue = totalYieldMetric * projectPriceKwh
     }
-    totalYieldSubtitle = (totalMonetaryValue !== null ? ` • Total Revenue: ${currency} ${formatNumber(totalMonetaryValue)}` : '')
+    totalYieldSubtitle = (totalMonetaryValue !== null ? ` • ${lang('reports.totalRevenue')}: ${currency} ${formatNumber(totalMonetaryValue)}` : '')
   } else if (!isInverterSelected && project?.total_yield !== undefined && project?.total_yield !== null) {
     totalYieldValue = `${formatNumber(project.total_yield)} kWh`
     let totalMonetaryValue = null
     if (projectPriceKwh !== undefined && projectPriceKwh !== null && project.total_yield !== null) {
       totalMonetaryValue = project.total_yield * projectPriceKwh
     }
-    totalYieldSubtitle = (totalMonetaryValue !== null ? ` • Total Revenue: ${currency} ${formatNumber(totalMonetaryValue)}` : '')
+    totalYieldSubtitle = (totalMonetaryValue !== null ? ` • ${lang('reports.totalRevenue')}: ${currency} ${formatNumber(totalMonetaryValue)}` : '')
   } else {
     totalYieldValue = '-'
     totalYieldSubtitle = isInverterSelected
@@ -180,9 +180,9 @@ const StatCardsGrid = ({
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 16, marginBottom: 24 }}>
       <StatCard
         icon={Sun}
-        title={lang('projectView.projectInformation.capacity','Capacity')}
+        title={lang('projectView.projectInformation.capacity', 'Capacity')}
         value={(project?.project_size !== undefined ? formatNumber(project.project_size) : '-') + ' kWh'}
-        subtitle="Capacity price per kWh"
+        subtitle={lang('reports.capacityperKWh', 'Capacity price per kWh')}
         color="linear-gradient(to bottom right, #fbbf24, #f97316)"
         trend={null}
         isDark={isDark}
@@ -198,7 +198,7 @@ const StatCardsGrid = ({
       />
       <StatCard
         icon={Activity}
-        title={lang('reports.totalYield','Total Yield')}
+        title={lang('reports.totalYield', 'Total Yield')}
         value={totalYieldValue}
         subtitle={totalYieldSubtitle}
         color="linear-gradient(to bottom right, #06b6d4, #0891b2)"

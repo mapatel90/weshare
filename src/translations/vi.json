@@ -908,7 +908,7 @@
     }
   },
   "inverter": {
-    "inverterdetails":"Chi tiết biến tần",
+    "inverterdetails": "Chi tiết biến tần",
     "inverter": "biến tần",
     "addInverter": "Thêm bộ biến tần",
     "editInverter": "Sửa bộ biến tần",
@@ -1260,7 +1260,7 @@
   },
   "contract": {
     "contract": "Hợp đồng",
-    "no_contracts_found":"Không tìm thấy hợp đồng nào",
+    "no_contracts_found": "Không tìm thấy hợp đồng nào",
     "uploadDocument": "Tải lên tài liệu",
     "viewDocument": "Xem tài liệu",
     "deleted": "Hợp đồng đã được xóa thành công",
@@ -1305,7 +1305,10 @@
     "downloadcsv": "Tải xuống CSV",
     "dailyYield": "Sản lượng hàng ngày",
     "annualYield": "Sản lượng hàng năm",
-    "totalYield": "Tổng sản lượng"
+    "totalYield": "Tổng sản lượng",
+    "capacityperKWh": "Giá điện năng tiêu thụ trên mỗi kWh",
+    "dailyRevenue": "Doanh thu hàng ngày",
+    "totalRevenue": "Tổng doanh thu"
   },
   "projectView": {
     "projectInformation": {
@@ -1325,9 +1328,9 @@
       "humidity": "Độ ẩm",
       "wind_direction": "Hướng gió",
       "wind_speed": "Tốc độ gió",
-      "capacity":"Dung lượng",
-      "active":"● tích cực",
-      "inactive":"● không hoạt động"
+      "capacity": "Dung lượng",
+      "active": "● tích cực",
+      "inactive": "● không hoạt động"
     },
     "energyProduction": {
       "energy_production": "Tổng quan về sản xuất năng lượng"

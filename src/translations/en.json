@@ -1352,7 +1352,10 @@
     "downloadcsv": "Download CSV",
     "dailyYield": "Daily Yield",
     "annualYield": "Annual Yield",
-    "totalYield": "Total Yield"
+    "totalYield": "Total Yield",
+    "capacityperKWh":"Capacity price per kWh",
+    "dailyRevenue": "Daily Revenue",
+    "totalRevenue": "Total Revenue"
   },
   "projectView": {
     "projectInformation": {
@@ -1372,9 +1375,9 @@
       "humidity": "Humidity",
       "wind_direction": "Wind Direction",
       "wind_speed": "Wind Speed",
-      "capacity":"Capacity",
-      "active":"● Active",
-      "inactive":"● Inactive"
+      "capacity": "Capacity",
+      "active": "● Active",
+      "inactive": "● Inactive"
     },
     "energyProduction": {
       "energy_production": "Energy Production Overview"
