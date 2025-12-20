@@ -339,7 +339,7 @@ const InverterTab = ({ projectId, handleSaveAction }) => {
         const item = row.original;
         return (
           <div
-            className="d-flex gap-2 justify-content-start"
+            className="gap-2 d-flex justify-content-start"
             style={{ flexWrap: "nowrap" }}
           >
             {/* Edit Icon */}
@@ -388,8 +388,8 @@ const InverterTab = ({ projectId, handleSaveAction }) => {
 
   return (
     <div className="inverter-management">
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <h6 className="fw-bold mb-0">
+      <div className="mb-3 d-flex justify-content-between align-items-center">
+        <h6 className="mb-0 fw-bold">
           {lang("inverter.inverter", "Inverters")}{" "}
           {lang("projects.projectlist", "Project List")}
         </h6>
@@ -463,10 +463,10 @@ const InverterTab = ({ projectId, handleSaveAction }) => {
                   </MenuItem>
                   {inverterList.map((inv) => (
                     <MenuItem key={inv.id} value={inv.id}>
-                      {inv.inverterName +
+                      {inv.inverter_name +
                         ` - ` +
                         inv.inverter_type_id +
-                        (inv.companyName ? ` (${inv.companyName})` : "")}
+                        (inv.company_name ? ` (${inv.company_name})` : "")}
                     </MenuItem>
                   ))}
                 </Select>
@@ -601,7 +601,7 @@ const InverterTab = ({ projectId, handleSaveAction }) => {
       </Dialog>
       {/* Enhanced Table */}
       <Table data={projectInverters} columns={columns} />
-      <div className="col-12 d-flex justify-content-end gap-2">
+      <div className="gap-2 col-12 d-flex justify-content-end">
         <Button
           type="button"
           variant="outlined"

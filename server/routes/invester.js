@@ -13,7 +13,7 @@ router.post("/", async (req, res) => {
         .json({ success: false, message: "fullName and email are required" });
     }
 
-    const created = await prisma.interestedInvestor.create({
+    const created = await prisma.interested_investors.create({
       data: {
         projectId: projectId ?? null,
         userId: userId ?? null,
@@ -44,24 +44,24 @@ router.get("/", async (req, res) => {
     const skip = (Number(page) - 1) * take;
 
     const [data, total] = await Promise.all([
-      prisma.interestedInvestor.findMany({
+      prisma.interested_investors.findMany({
         where,
-        orderBy: { createdAt: "desc" },
+        orderBy: { created_at: "desc" },
         skip,
         take,
         include: {
-          project: {
+          projects: {
             include: {
               offtaker: {
-                select: { fullName: true, email: true },
+                select: { full_name: true, email: true },
               },
               project_images: true,
             },
           },
-          user: true,
+          users: true,
         },
       }),
-      prisma.interestedInvestor.count({ where }),
+      prisma.interested_investors.count({ where }),
     ]);
 
     return res.json({ success: true, data, total, page: Number(page), limit: take });

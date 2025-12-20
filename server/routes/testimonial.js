@@ -41,7 +41,7 @@ router.post('/', authenticateToken, upload.single('image'), async (req, res) => 
             return res.status(400).json({ error: 'All fields are required' });
         }
 
-        const testimonial = await prisma.testimonial.create({
+        const testimonial = await prisma.testimonials.create({
             data: {
                 project_id: Number(project),
                 offtaker_id: Number(offtaker),
@@ -51,7 +51,7 @@ router.post('/', authenticateToken, upload.single('image'), async (req, res) => 
             }
         });
 
-        res.status(201).json(testimonial);
+        res.status(200).json(testimonial);
     } catch (error) {
         console.error('Error creating testimonial:', error);
         res.status(500).json({ error: 'Failed to create testimonial' });
@@ -60,11 +60,11 @@ router.post('/', authenticateToken, upload.single('image'), async (req, res) => 
 
 router.get('/', async (req, res) => {
     try {
-        const testimonials = await prisma.testimonial.findMany({
+        const testimonials = await prisma.testimonials.findMany({
             where: { is_deleted: 0 },
             include: {
-                project: { select: { id: true, project_name: true } },
-                offtaker: { select: { id: true, fullName: true } }
+                projects: { select: { id: true, project_name: true } },
+                users: { select: { id: true, full_name: true } }
             }
         });
         res.json(testimonials);
@@ -92,7 +92,7 @@ router.put('/:id', authenticateToken, upload.single('image'), async (req, res) =
         // If a new image uploaded, best-effort delete old one
         if (newImagePath) {
             try {
-                const existing = await prisma.testimonial.findUnique({ where: { id: Number(id) } });
+                const existing = await prisma.testimonials.findUnique({ where: { id: Number(id) } });
                 const oldPath = existing?.image
                     ? path.join(PUBLIC_DIR, existing.image.replace(/^\//, ''))
                     : null;
@@ -104,7 +104,7 @@ router.put('/:id', authenticateToken, upload.single('image'), async (req, res) =
             }
         }
 
-        const updatedTestimonial = await prisma.testimonial.update({
+        const updatedTestimonial = await prisma.testimonials.update({
             where: { id: Number(id) },
             data: {
                 project_id: Number(project),
@@ -125,7 +125,7 @@ router.put('/:id', authenticateToken, upload.single('image'), async (req, res) =
 router.delete('/:id', authenticateToken, async (req, res) => {
     try {
         const { id } = req.params;
-        const existing = await prisma.testimonial.findUnique({ where: { id: Number(id) } });
+        const existing = await prisma.testimonials.findUnique({ where: { id: Number(id) } });
         await prisma.testimonial.update({
             where: { id: Number(id) },
             data: { is_deleted: 1 }
