@@ -129,6 +129,7 @@ const navIconButtonStyle = {
 
 const containerStyle = {
   width: '100%',
+  minWidth: '600px',
   height: '60vh',
   backgroundColor: '#ffffff',
   padding: '24px',
@@ -470,7 +471,7 @@ const PowerConsumptionDashboard = ({ projectId, readings = [], loading = false, 
           </div>
         ) : (
           <>
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height="100%" minWidth={600}>
               <LineChart
                 data={chartData}
                 margin={{ top: 20, right: 30, left: 20, bottom: 60 }}

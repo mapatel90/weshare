@@ -36,10 +36,11 @@ const InverterTab = ({ projectId, handleSaveAction }) => {
   const [selectedInverter, setSelectedInverter] = useState(null);
   const [kilowatt, setKilowatt] = useState("");
   const [kilowattError, setKilowattError] = useState("");
+  const [serialNumber, setSerialNumber] = useState("");
+  const [serialNumberError, setSerialNumberError] = useState("");
   const [status, setStatus] = useState(1);
   const [editId, setEditId] = useState(null);
   // ------- STATE: add for serial number field -------
-  const [serialNumber, setSerialNumber] = useState("");
   const [inverterName, setInverterName] = useState("");
   const [model, setModel] = useState("");
   const [version, setVersion] = useState("");
@@ -88,7 +89,9 @@ const InverterTab = ({ projectId, handleSaveAction }) => {
     setModalType("add");
     setSelectedInverter(null);
     setKilowatt("");
+    setKilowattError("");
     setSerialNumber(""); // <--
+    setSerialNumberError("");
     setInverterName("");
     setModel("");
     setVersion("");
@@ -126,15 +129,35 @@ const InverterTab = ({ projectId, handleSaveAction }) => {
 
   const handleSave = async (e) => {
     e.preventDefault();
-    if (!selectedInverter || !kilowatt) return;
-    if (!/^[0-9]*\.?[0-9]+$/.test(kilowatt)) {
+    
+    // Reset errors
+    setKilowattError("");
+    setSerialNumberError("");
+    
+    // Validate required fields
+    if (!selectedInverter) return;
+    
+    if (!kilowatt || kilowatt.trim() === "") {
       setKilowattError(
-        lang("inverter.onlynumbers", "Only numbers are allowed (e.g. 1234.56)")
+        lang("validation.kilowattRequired", "Kilowatt is required")
       );
       return;
-    } else {
-      setKilowattError("");
     }
+    
+    if (!serialNumber || serialNumber.trim() === "") {
+      setSerialNumberError(
+        lang("validation.serialNumberRequired", "Serial Number is required")
+      );
+      return;
+    }
+    
+    if (!/^[0-9]*\.?[0-9]+$/.test(kilowatt)) {
+      setKilowattError(
+        lang("inverter.onlyNumbers", "Only numbers are allowed (e.g. 1234.56)")
+      );
+      return;
+    }
+    
     setLoading(true);
     let res = {};
     try {
@@ -478,7 +501,6 @@ const InverterTab = ({ projectId, handleSaveAction }) => {
                     }}
                     error={!!kilowattError}
                     helperText={kilowattError}
-                    required
                     fullWidth
                     inputMode="decimal"
                   />
@@ -488,8 +510,15 @@ const InverterTab = ({ projectId, handleSaveAction }) => {
                       "Inverter Serial Number"
                     )}
                     value={serialNumber}
-                    onChange={(e) => setSerialNumber(e.target.value)}
-                    required
+                    onChange={(e) => {
+                      setSerialNumber(e.target.value);
+                      // Clear error as soon as valid
+                      if (serialNumberError && e.target.value.trim() !== "") {
+                        setSerialNumberError("");
+                      }
+                    }}
+                    error={!!serialNumberError}
+                    helperText={serialNumberError}
                     fullWidth
                   />
                   <TextField
@@ -560,7 +589,6 @@ const InverterTab = ({ projectId, handleSaveAction }) => {
             <Button
               type="submit"
               variant="contained"
-              disabled={loading || !selectedInverter || !kilowatt}
               startIcon={loading ? <CircularProgress size={16} /> : null}
               className="common-grey-color"
             >

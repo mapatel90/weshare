@@ -207,7 +207,7 @@ const MeterInfo = ({
       </div>
 
       {/* -------------------- INVERTERS -------------------- */}
-      <div
+      {/* <div
         style={{
           backgroundColor: colors.cardBg,
           borderRadius: "12px",
@@ -353,7 +353,7 @@ const MeterInfo = ({
             ))
           )}
         </div>
-      </div>
+      </div> */}
 
       {/* -------------------- CONTRACTS -------------------- */}
       <div
