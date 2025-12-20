@@ -752,8 +752,8 @@ router.put("/:id", authenticateToken, async (req, res) => {
           : { project_types: { disconnect: true } })),
       ...(offtaker_id !== undefined &&
         (offtaker_id
-          ? { users: { connect: { id: parseInt(offtaker_id) } } }
-          : { users: { disconnect: true } })),
+          ? { offtaker: { connect: { id: parseInt(offtaker_id) } } }
+          : { offtaker: { disconnect: true } })),
       ...(address_1 !== undefined && { address_1 }),
       ...(address_2 !== undefined && { address_2 }),
       ...(country_id !== undefined &&
@@ -804,7 +804,7 @@ router.put("/:id", authenticateToken, async (req, res) => {
       where: { id: projectId },
       data: updateData,
       include: {
-        users: { select: { id: true, full_name: true, email: true, phone_number: true } },
+        offtaker: { select: { id: true, full_name: true, email: true, phone_number: true } },
         cities: true,
         states: true,
         countries: true,

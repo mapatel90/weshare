@@ -75,8 +75,7 @@ router.get("/", authenticateToken, async (req, res) => {
         include: {
           inverter_type: {
             select: {
-              id: true,
-              type: true, // 👈 include type name
+              type: true
             },
           },
         },
