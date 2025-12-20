@@ -44,9 +44,9 @@ const ProjectEditContent = ({ projectId }) => {
         investorName: '',
         address_1: '',
         address_2: '',
-        countryId: '',
-        stateId: '',
-        cityId: '',
+        country_id: '',
+        state_id: '',
+        city_id: '',
         zipcode: '',
         asking_price: '',
         lease_term: '',
@@ -239,9 +239,9 @@ const ProjectEditContent = ({ projectId }) => {
                         investorName: p.investor?.fullName || '',
                         address_1: p.address_1 || '',
                         address_2: p.address_2 || '',
-                        countryId: p.countryId || '',
-                        stateId: p.stateId || '',
-                        cityId: p.cityId || '',
+                        country_id: p.country_id || '',
+                        state_id: p.state_id || '',
+                        city_id: p.city_id || '',
                         zipcode: p.zipcode || '',
                         asking_price: p.asking_price || '',
                         lease_term: p.lease_term ?? '',
@@ -257,8 +257,8 @@ const ProjectEditContent = ({ projectId }) => {
                         solis_plant_id: p.solis_plant_id || '', // ← add Solis Plant ID into form
                         status: p.status === 1 ? 'active' : 'inactive'
                     })
-                    if (p.countryId) handleCountryChange(p.countryId)
-                    if (p.stateId) handleStateChange(p.stateId)
+                    if (p.country_id) handleCountryChange(p.country_id)
+                    if (p.state_id) handleStateChange(p.state_id)
                 }
                 await loadProjectGallery(projectId)
             } catch (e) {
@@ -330,13 +330,13 @@ const ProjectEditContent = ({ projectId }) => {
 
     const handleLocationChange = (type, value) => {
         if (type === 'country') {
-            setFormData(prev => ({ ...prev, countryId: value, stateId: '', cityId: '' }))
+            setFormData(prev => ({ ...prev, country_id: value, state_id: '', city_id: '' }))
             handleCountryChange(value)
         } else if (type === 'state') {
-            setFormData(prev => ({ ...prev, stateId: value, cityId: '' }))
+            setFormData(prev => ({ ...prev, state_id: value, city_id: '' }))
             handleStateChange(value)
         } else if (type === 'city') {
-            setFormData(prev => ({ ...prev, cityId: value }))
+            setFormData(prev => ({ ...prev, city_id: value }))
         }
     }
 
@@ -350,16 +350,16 @@ const ProjectEditContent = ({ projectId }) => {
                     ...prev,
                     address_1: offtaker?.address_1 || '',
                     address_2: offtaker?.address_2 || '',
-                    cityId: offtaker?.cityId || '',
-                    stateId: offtaker?.stateId || '',
-                    countryId: offtaker?.countryId || '',
+                    city_id: offtaker?.city_id || '',
+                    state_id: offtaker?.state_id || '',
+                    country_id: offtaker?.country_id || '',
                     zipcode: offtaker?.zipcode || ''
                 }))
-                if (offtaker?.countryId) {
-                    handleCountryChange(offtaker.countryId)
+                if (offtaker?.country_id) {
+                    handleCountryChange(offtaker.country_id)
                 }
-                if (offtaker?.stateId) {
-                    handleStateChange(offtaker.stateId)
+                if (offtaker?.state_id) {
+                    handleStateChange(offtaker.state_id)
                 }
             } catch (err) {
                 console.error('Error fetching offtaker details:', err)
@@ -411,9 +411,9 @@ const ProjectEditContent = ({ projectId }) => {
                 ...(formData.offtaker && { offtaker_id: Number(formData.offtaker) }),
                 address_1: formData.address_1 || '',
                 address_2: formData.address_2 || '',
-                ...(formData.countryId && { country_id: Number(formData.countryId) }),
-                ...(formData.stateId && { state_id: Number(formData.stateId) }),
-                ...(formData.cityId && { city_id: Number(formData.cityId) }),
+                ...(formData.country_id && { country_id: Number(formData.country_id) }),
+                ...(formData.state_id && { state_id: Number(formData.state_id) }),
+                ...(formData.city_id && { city_id: Number(formData.city_id) }),
                 zipcode: formData.zipcode || '',
                 asking_price: formData.asking_price || '',
                 lease_term: formData.lease_term ? Number(formData.lease_term) : null,

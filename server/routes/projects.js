@@ -192,7 +192,7 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
       price_kwh,
       status = 1,
     } = req.body;
-    console.log("req.body",req.body);
+    console.log("req.body", req.body);
 
     if (!name || !project_type_id) {
       return res.status(400).json({
@@ -313,7 +313,7 @@ router.post(
       }
 
       const currentCount = await prisma.project_images.count({
-        where: { projectId },
+        where: { project_id: projectId },
       });
 
       console.log("currentCount", currentCount);
@@ -327,7 +327,7 @@ router.post(
       }
 
       const hasDefault = await prisma.project_images.findFirst({
-        where: { projectId, default: 1 },
+        where: { project_id: projectId, default: 1 },
       });
 
       // allow client to specify which uploaded file should be default (0-based index)
@@ -340,7 +340,7 @@ router.post(
           : null;
 
       const insertPayload = files.map((file, index) => ({
-        projectId,
+        project_id: projectId,
         path: buildPublicImagePath(path.basename(file.path)),
         // If a default already exists for the project, all new images are non-default.
         // Otherwise, if client provided default_index use that index, else fall back to first file.
@@ -369,7 +369,7 @@ router.post(
       }
 
       const images = await prisma.project_images.findMany({
-        where: { projectId },
+        where: { project_id: projectId },
         orderBy: { id: "asc" },
       });
 
@@ -400,7 +400,7 @@ router.put(
       }
 
       const img = await prisma.project_images.findFirst({
-        where: { id: imageId, projectId },
+        where: { id: imageId, project_id: projectId },
       });
       if (!img) {
         return res
@@ -410,7 +410,7 @@ router.put(
 
       // clear previous default
       await prisma.project_images.updateMany({
-        where: { projectId, default: 1 },
+        where: { project_id: projectId, default: 1 },
         data: { default: 0 },
       });
 
@@ -421,7 +421,7 @@ router.put(
       });
 
       const images = await prisma.project_images.findMany({
-        where: { projectId },
+        where: { project_id: projectId },
         orderBy: { id: "asc" },
       });
 
@@ -467,7 +467,7 @@ router.get("/:id/images", authenticateToken, async (req, res) => {
     }
 
     const images = await prisma.project_images.findMany({
-      where: { projectId },
+      where: { project_id: projectId },
       orderBy: { id: "asc" },
     });
 
@@ -500,7 +500,7 @@ router.delete(
       }
 
       const imageRecord = await prisma.project_images.findFirst({
-        where: { id: imageId, projectId },
+        where: { id: imageId, project_id: projectId },
       });
 
       await prisma.project_images.delete({
@@ -511,7 +511,7 @@ router.delete(
 
       if (imageRecord.default === 1) {
         const nextImage = await prisma.project_images.findFirst({
-          where: { projectId },
+          where: { project_id: projectId },
           orderBy: { id: "asc" },
         });
 
@@ -555,13 +555,13 @@ router.get("/", async (req, res) => {
     const projectIdInt = project_id ? parseInt(project_id) : null;
     const limitInt = parseInt(limit);
     const offset = (pageInt - 1) * limitInt;
-    
+
     const parsedLimit = Number(limit);
     const limitNumber = !Number.isNaN(parsedLimit) && parsedLimit > 0 ? parsedLimit : null;
     const fetchAll = downloadAll === "1" || downloadAll === "true" || !limitNumber;
-    
+
     const where = { is_deleted: 0 };
-    
+
     // Search functionality - search across project_name, product_code, address_1, address_2, city, state, country
     const trimmedSearch = typeof search === "string" ? search.trim() : "";
     if (trimmedSearch) {
@@ -752,8 +752,8 @@ router.put("/:id", authenticateToken, async (req, res) => {
           : { project_types: { disconnect: true } })),
       ...(offtaker_id !== undefined &&
         (offtaker_id
-          ? { users: { connect: { id: parseInt(offtaker_id) } } }
-          : { users: { disconnect: true } })),
+          ? { offtaker: { connect: { id: parseInt(offtaker_id) } } }
+          : { offtaker: { disconnect: true } })),
       ...(address_1 !== undefined && { address_1 }),
       ...(address_2 !== undefined && { address_2 }),
       ...(country_id !== undefined &&
@@ -804,7 +804,7 @@ router.put("/:id", authenticateToken, async (req, res) => {
       where: { id: projectId },
       data: updateData,
       include: {
-        users: { select: { id: true, full_name: true, email: true, phone_number: true } },
+        offtaker: { select: { id: true, full_name: true, email: true, phone_number: true } },
         cities: true,
         states: true,
         countries: true,
@@ -900,7 +900,7 @@ router.delete("/:id", authenticateToken, async (req, res) => {
 
     // Fetch all images for project, remove physical files
     const images = await prisma.project_images.findMany({
-      where: { projectId },
+      where: { project_id: projectId },
     });
 
     images.forEach((img) => {

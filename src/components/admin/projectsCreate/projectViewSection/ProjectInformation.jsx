@@ -134,13 +134,13 @@ const ProjectInformation = ({ project = {}, isDark = false }) => {
           <div className="col-lg-8 col-md-12">
             <div className="row g-3">
               <div className="col-6">
-                <InfoCard icon={Sun} label={lang('projectView.projectInformation.project_type', 'Project Type')} value={project.projectType?.type_name} color={getAutoRandomColor()} isDark={isDark} />
+                <InfoCard icon={Sun} label={lang('projectView.projectInformation.project_type', 'Project Type')} value={project.project_types?.type_name} color={getAutoRandomColor()} isDark={isDark} />
               </div>
               <div className="col-6">
                 <InfoCard icon={Activity} label={lang('projectView.projectInformation.status', 'Status')} value={project.status === 1 ? 'Active' : 'Inactive'} color={getAutoRandomColor()} isDark={isDark} />
               </div>
               <div className="col-6">
-                <InfoCard icon={Users} label={lang('projectView.projectInformation.offtaker', 'offtaker')} value={project.offtaker?.fullName} color={getAutoRandomColor()} isDark={isDark} />
+                <InfoCard icon={Users} label={lang('projectView.projectInformation.offtaker', 'offtaker')} value={project.offtaker?.full_name} color={getAutoRandomColor()} isDark={isDark} />
               </div>
               <div className="col-6">
                 <InfoCard icon={TrendingUp} label={lang('projectView.projectInformation.asking_price', 'Asking Price')} value={project.asking_price} color={getAutoRandomColor()} isDark={isDark} />
@@ -158,13 +158,13 @@ const ProjectInformation = ({ project = {}, isDark = false }) => {
                 <InfoCard icon={DollarSign} label={lang('projectView.projectInformation.weshare_profit', 'Weshare Profit')} value={`${project.weshare_profit}%`} color={getAutoRandomColor()} isDark={isDark} />
               </div>
               <div className="col-lg-4 col-md-4 col-sm-12">
-                <InfoCard icon={MapPin} label={lang('projectView.projectInformation.country', 'Country')} value={project.country?.name} color={getAutoRandomColor()} isDark={isDark} />
+                <InfoCard icon={MapPin} label={lang('projectView.projectInformation.country', 'Country')} value={project.countries?.name} color={getAutoRandomColor()} isDark={isDark} />
               </div>
               <div className="col-lg-4 col-md-4 col-sm-12">
-                <InfoCard icon={MapPin} label={lang('projectView.projectInformation.state', 'State')} value={project.state?.name} color={getAutoRandomColor()} isDark={isDark} />
+                <InfoCard icon={MapPin} label={lang('projectView.projectInformation.state', 'State')} value={project.states?.name} color={getAutoRandomColor()} isDark={isDark} />
               </div>
               <div className="col-lg-4 col-md-4 col-sm-12">
-                <InfoCard icon={MapPin} label={lang('projectView.projectInformation.city', 'City')} value={project.city?.name} color={getAutoRandomColor()} isDark={isDark} />
+                <InfoCard icon={MapPin} label={lang('projectView.projectInformation.city', 'City')} value={project.states?.name} color={getAutoRandomColor()} isDark={isDark} />
               </div>
               <div className="col-lg-4 col-md-4 col-sm-12">
                 <InfoCard icon={CloudSun} label={lang('projectView.projectInformation.weather', 'Weather')} value={project.city?.name} color={getAutoRandomColor()} isDark={isDark} />

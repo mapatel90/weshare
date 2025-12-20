@@ -42,7 +42,15 @@ router.get('/', authenticateToken, async (req, res) => {
         is_deleted: 0
       },
       include: {
-        inverters: true,
+        inverters: {
+          include: {
+            inverter_type: {
+              select: {
+                type: true,
+              },
+            }
+          }
+        },
       },
       orderBy: { id: 'desc' }
     });

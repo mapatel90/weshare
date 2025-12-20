@@ -78,6 +78,8 @@ export default function SolarEnergyFlow({ inverters = [], isDark = false }) {
     </path>
   );
 
+  console.log("displayInverters", displayInverters);
+
   return (
     <div
       style={{
@@ -556,7 +558,7 @@ export default function SolarEnergyFlow({ inverters = [], isDark = false }) {
                       flex: 1,
                     }}
                   >
-                    {inverter?.inverter?.inverterName || "Untitled"}
+                    {inverter?.inverter_name || "Untitled"}
                   </div>
                   <span
                     style={{
@@ -564,12 +566,12 @@ export default function SolarEnergyFlow({ inverters = [], isDark = false }) {
                       borderRadius: "9999px",
                       backgroundColor:
                         inverter?.inverter?.status === 1 ||
-                        inverter.status === "active"
+                        inverter.status === 1
                           ? "#dcfce7"
                           : "#fee2e2",
                       color:
                         inverter?.inverter?.status === 1 ||
-                        inverter.status === "active"
+                        inverter.status === 1
                           ? "#166534"
                           : "#991b1b",
                       fontWeight: 600,
@@ -579,9 +581,9 @@ export default function SolarEnergyFlow({ inverters = [], isDark = false }) {
                     }}
                   >
                     {inverter?.inverter?.status === 1 ||
-                    inverter.status === "active"
-                      ? lang("common.active", "Active")
-                      : lang("common.inactive", "Inactive")}
+                    inverter.status === 1
+                      ? lang("common.online", "Online")
+                      : lang("common.offline", "Offline")}
                   </span>
                 </div>
 
