@@ -7,7 +7,7 @@ const router = express.Router();
 router.get('/counts', authenticateToken, async (req, res) => {
   try {
     // Get all project IDs
-    const projects = await prisma.project.findMany({
+    const projects = await prisma.projects.findMany({
       where: { is_deleted: 0 },
       select: { id: true }
     });

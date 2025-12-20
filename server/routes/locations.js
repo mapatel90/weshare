@@ -8,7 +8,7 @@ const prisma = new PrismaClient();
 // Get all countries
 router.get('/countries', async (req, res) => {
   try {
-    const countries = await prisma.country.findMany({
+    const countries = await prisma.countries.findMany({
       where: { status: 1 },
       orderBy: { name: 'asc' },
       select: {
@@ -38,9 +38,9 @@ router.get('/countries/:countryId/states', async (req, res) => {
   try {
     const { countryId } = req.params;
     
-    const states = await prisma.state.findMany({
+    const states = await prisma.states.findMany({
       where: { 
-        countryId: parseInt(countryId),
+        country_id: parseInt(countryId),
         status: 1 
       },
       orderBy: { name: 'asc' },
@@ -48,7 +48,7 @@ router.get('/countries/:countryId/states', async (req, res) => {
         id: true,
         name: true,
         code: true,
-        countryId: true
+        country_id: true
       }
     });
 
@@ -72,16 +72,16 @@ router.get('/states/:stateId/cities', async (req, res) => {
   try {
     const { stateId } = req.params;
     
-    const cities = await prisma.city.findMany({
+    const cities = await prisma.cities.findMany({
       where: { 
-        stateId: parseInt(stateId),
+        state_id: parseInt(stateId),
         status: 1 
       },
       orderBy: { name: 'asc' },
       select: {
         id: true,
         name: true,
-        stateId: true
+        state_id: true
       }
     });
 
@@ -163,7 +163,7 @@ router.post('/countries', authenticateToken, async (req, res) => {
       });
     }
 
-    const country = await prisma.country.create({
+    const country = await prisma.countries.create({
       data: {
         name: name.trim(),
         code: code.trim().toUpperCase()
@@ -221,7 +221,7 @@ router.post('/states', authenticateToken, async (req, res) => {
       data: {
         name: name.trim(),
         code: code?.trim(),
-        countryId: parseInt(countryId)
+        country_id: parseInt(countryId)
       }
     });
 
@@ -261,7 +261,7 @@ router.post('/cities', authenticateToken, async (req, res) => {
     }
 
     // Verify state exists
-    const state = await prisma.state.findUnique({
+    const state = await prisma.states.findUnique({
       where: { id: parseInt(stateId) }
     });
 
@@ -272,10 +272,10 @@ router.post('/cities', authenticateToken, async (req, res) => {
       });
     }
 
-    const city = await prisma.city.create({
+    const city = await prisma.cities.create({
       data: {
         name: name.trim(),
-        stateId: parseInt(stateId)
+        state_id: parseInt(stateId)
       }
     });
 
@@ -318,7 +318,7 @@ router.get('/search', authenticateToken, async (req, res) => {
     let results = {};
 
     if (!type || type === 'countries') {
-      results.countries = await prisma.country.findMany({
+      results.countries = await prisma.countries.findMany({
         where: {
           AND: [
             { status: 1 },
@@ -340,7 +340,7 @@ router.get('/search', authenticateToken, async (req, res) => {
     }
 
     if (!type || type === 'states') {
-      results.states = await prisma.state.findMany({
+      results.states = await prisma.states.findMany({
         where: {
           AND: [
             { status: 1 },
@@ -361,7 +361,7 @@ router.get('/search', authenticateToken, async (req, res) => {
     }
 
     if (!type || type === 'cities') {
-      results.cities = await prisma.city.findMany({
+      results.cities = await prisma.cities.findMany({
         where: {
           AND: [
             { status: 1 },
