@@ -169,8 +169,8 @@ const UsersTable = () => {
       header: () => lang("common.user"),
       cell: ({ row }) => {
         const user = row.original
-        const fullName = `${user.fullName}` || 'N/A'
-        const initials = `${user.fullName?.charAt(0) || ''}`
+        const fullName = `${user.full_name}` || 'N/A'
+        const initials = `${user.full_name?.charAt(0) || ''}`
 
         return (
           <div className="hstack gap-3">

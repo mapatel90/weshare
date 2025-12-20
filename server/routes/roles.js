@@ -26,13 +26,13 @@ router.get('/', authenticateToken, async (req, res) => {
 
     // Get roles with pagination
     const [roles, total] = await Promise.all([
-      prisma.role.findMany({
+      prisma.roles.findMany({
         where,
         skip: parseInt(offset),
         take: parseInt(limit),
         orderBy: { id: 'asc' }
       }),
-      prisma.role.count({ where })
+      prisma.roles.count({ where })
     ]);
 
     res.json({
@@ -62,7 +62,7 @@ router.get('/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
 
-    const role = await prisma.role.findUnique({
+    const role = await prisma.roles.findUnique({
       where: { id: parseInt(id) }
     });
 
@@ -99,26 +99,27 @@ router.post('/', authenticateToken, async (req, res) => {
       });
     }
 
+    
     // Check if role already exists
-    const existingRole = await prisma.role.findUnique({
-      where: { name }
+    const existingRole = await prisma.roles.findFirst({
+      where: { name, is_deleted: 0 }
     });
-
+    
     if (existingRole) {
       return res.status(409).json({
         success: false,
         message: 'Role with this name already exists'
       });
     }
-
+    
     // Create role
-    const newRole = await prisma.role.create({
+    const newRole = await prisma.roles.create({
       data: {
         name,
         status: parseInt(status)
       }
     });
-
+    
     res.status(200).json({
       success: true,
       message: 'Role created successfully',
@@ -141,7 +142,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
     const { name, status } = req.body;
 
     // Check if role exists
-    const existingRole = await prisma.role.findUnique({
+    const existingRole = await prisma.roles.findUnique({
       where: { id: parseInt(id) }
     });
 
@@ -154,8 +155,8 @@ router.put('/:id', authenticateToken, async (req, res) => {
 
     // Check if name is being changed and if it's already taken
     if (name && name !== existingRole.name) {
-      const nameExists = await prisma.role.findUnique({
-        where: { name }
+      const nameExists = await prisma.roles.findFirst({
+        where: { name, is_deleted: 0 }
       });
 
       if (nameExists) {
@@ -167,7 +168,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
     }
 
     // Update role
-    const updatedRole = await prisma.role.update({
+    const updatedRole = await prisma.roles.update({
       where: { id: parseInt(id) },
       data: {
         ...(name && { name }),
@@ -196,7 +197,7 @@ router.delete('/:id', authenticateToken, async (req, res) => {
     const { id } = req.params;
 
     // Check if role exists
-    const existingRole = await prisma.role.findUnique({
+    const existingRole = await prisma.roles.findUnique({
       where: { id: parseInt(id) }
     });
 
@@ -208,7 +209,7 @@ router.delete('/:id', authenticateToken, async (req, res) => {
     }
 
     // Delete role
-    await prisma.role.update({
+    await prisma.roles.update({
       where: { id: parseInt(id) },
       data: { is_deleted: 1 }
     });

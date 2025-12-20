@@ -59,29 +59,29 @@ router.get('/', authenticateToken, async (req, res) => {
     const where = {};
     if (search) {
       where.OR = [
-        { fullName: { contains: search, mode: 'insensitive' } },
+        { full_name: { contains: search, mode: 'insensitive' } },
         { email: { contains: search, mode: 'insensitive' } }
       ];
     }
 
     // Support filtering by role id or role name
     if (role) {
-      // numeric -> treat as role id on user.userRole
+      // numeric -> treat as role id on user.role_id
       const roleAsInt = parseInt(role);
       if (!isNaN(roleAsInt)) {
-        where.userRole = roleAsInt;
+        where.role_id = roleAsInt;
       } else {
         // non-numeric -> search roles by name and filter users by matching role ids
-        const matchedRoles = await prisma.role.findMany({
+        const matchedRoles = await prisma.roles.findMany({
           where: { name: { contains: role, mode: 'insensitive' } },
           select: { id: true }
         });
         const roleIds = matchedRoles.map(r => r.id);
         if (roleIds.length) {
-          where.userRole = { in: roleIds };
+          where.role_id = { in: roleIds };
         } else {
           // no matching role names -> ensure empty result
-          where.userRole = -1;
+          where.role_id = -1;
         }
       }
     }
@@ -94,7 +94,7 @@ router.get('/', authenticateToken, async (req, res) => {
 
     // Get users with pagination
     const [users, total] = await Promise.all([
-      prisma.user.findMany({
+      prisma.users.findMany({
         where,
         // select: {
         //   id: true,
@@ -108,22 +108,22 @@ router.get('/', authenticateToken, async (req, res) => {
         // },
         include: {
           // role: true,
-          city: true,
-          state: true,
-          country: true
+          cities: true,
+          states: true,
+          countries: true
         },
         skip: parseInt(offset),
         take: parseInt(limitInt),
         orderBy: { id: 'asc' }
       }),
-      prisma.user.count({ where })
+      prisma.users.count({ where })
     ]);
 
     // Attach role name for each user (Role is a separate table and User currently stores role id in `userRole`)
-    const roleIds = [...new Set(users.map(u => u.userRole).filter(Boolean))];
+    const roleIds = [...new Set(users.map(u => u.role_id).filter(Boolean))];
     let roles = [];
     if (roleIds.length) {
-      roles = await prisma.role.findMany({
+      roles = await prisma.roles.findMany({
         where: { id: { in: roleIds } },
         select: { id: true, name: true }
       });
@@ -131,7 +131,7 @@ router.get('/', authenticateToken, async (req, res) => {
     const roleMap = Object.fromEntries(roles.map(r => [r.id, r.name]));
     const usersWithRole = users.map(u => ({
       ...u,
-      role: { id: u.userRole, name: roleMap[u.userRole] ?? null }
+      role: { id: u.role_id, name: roleMap[u.role_id] ?? null }
     }));
 
     res.json({
@@ -193,14 +193,14 @@ router.post('/', authenticateToken, upload.single('qrCode'), async (req, res) =>
     }
 
     // Check if username already exists
-    const existingByUsername = await prisma.user.findUnique({ where: { username } });
+    const existingByUsername = await prisma.users.findUnique({ where: { username } });
     if (existingByUsername) {
       return res.status(409).json({ success: false, message: 'Username already in use' });
     }
 
     // Check if email already exists
     // email is not a unique field in the schema, use findFirst instead of findUnique
-    const existingUser = await prisma.user.findFirst({
+    const existingUser = await prisma.users.findFirst({
       where: { email }
     });
 
@@ -219,40 +219,40 @@ router.post('/', authenticateToken, upload.single('qrCode'), async (req, res) =>
     const qrCodePath = req.file ? `/images/qrcodes/${req.file.filename}` : null;
 
     // Create user
-    const newUser = await prisma.user.create({
+    const newUser = await prisma.users.create({
       data: {
         username,
-        fullName,
+        full_name: fullName,
         email,
-        phoneNumber,
+        phone_number: phoneNumber,
         password: hashedPassword,
         // ensure userRole is saved as integer
-        userRole: roleId,
+        role_id: roleId,
         address_1,
         address_2,
-        cityId: cityId ? parseInt(cityId) : null,
-        stateId: stateId ? parseInt(stateId) : null,
-        countryId: countryId ? parseInt(countryId) : null,
+        city_id: cityId ? parseInt(cityId) : null,
+        state_id: stateId ? parseInt(stateId) : null,
+        country_id: countryId ? parseInt(countryId) : null,
         zipcode,
-        qrCode: qrCodePath,
+        qr_code: qrCodePath,
         status: parseInt(status)
       },
       select: {
         id: true,
         username: true,
-        fullName: true,
+        full_name: true,
         email: true,
-        phoneNumber: true,
-        userRole: true,
+        phone_number: true,
+        role_id: true,
         address_1: true,
         address_2: true,
-        cityId: true,
-        stateId: true,
-        countryId: true,
+        city_id: true,
+        state_id: true,
+        country_id: true,
         zipcode: true,
-        qrCode: true,
+        qr_code: true,
         status: true,
-        createdAt: true
+        created_at: true
       }
     });
 
