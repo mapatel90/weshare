@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { apiGet, apiPost, apiPut, apiPatch } from "@/lib/api";
 import Table from "@/components/shared/table/Table";
-import { FiEdit3, FiTrash2 } from "react-icons/fi";
+import { FiArrowRight, FiEdit3, FiSave, FiTrash2 } from "react-icons/fi";
 import Swal from "sweetalert2";
 import { showSuccessToast, showErrorToast } from "@/utils/topTost";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -24,8 +24,9 @@ import {
 } from "@mui/material";
 import { Close as CloseIcon } from "@mui/icons-material";
 
-const InverterTab = ({ projectId }) => {
+const InverterTab = ({ projectId, handleSaveAction }) => {
   const { lang } = useLanguage();
+
 
   // Modal & Form state
   const [showModal, setShowModal] = useState(false);
@@ -183,10 +184,10 @@ const InverterTab = ({ projectId }) => {
         } else {
           showErrorToast(
             res.message ||
-              lang(
-                "inverter.errorOccurred",
-                "An error occurred. Please try again."
-              )
+            lang(
+              "inverter.errorOccurred",
+              "An error occurred. Please try again."
+            )
           );
         }
       } else {
@@ -211,10 +212,10 @@ const InverterTab = ({ projectId }) => {
         } else {
           showErrorToast(
             res.message ||
-              lang(
-                "inverter.errorOccurred",
-                "An error occurred. Please try again."
-              )
+            lang(
+              "inverter.errorOccurred",
+              "An error occurred. Please try again."
+            )
           );
         }
       }
@@ -247,10 +248,10 @@ const InverterTab = ({ projectId }) => {
       } else {
         showErrorToast(
           res.message ||
-            lang(
-              "inverter.errorOccurred",
-              "An error occurred. Please try again."
-            )
+          lang(
+            "inverter.errorOccurred",
+            "An error occurred. Please try again."
+          )
         );
       }
     }
@@ -546,7 +547,7 @@ const InverterTab = ({ projectId }) => {
                   </div>
                   {hasWarranty && (
                     <TextField
-                      label={lang("inverter.warrantyExpireDate", "Warranty Expire Date")} 
+                      label={lang("inverter.warrantyExpireDate", "Warranty Expire Date")}
                       type="date"
                       value={warrantyExpireDate}
                       onChange={(e) => setWarrantyExpireDate(e.target.value)}
@@ -600,6 +601,23 @@ const InverterTab = ({ projectId }) => {
       </Dialog>
       {/* Enhanced Table */}
       <Table data={projectInverters} columns={columns} />
+      <div className="col-12 d-flex justify-content-end gap-2">
+        <Button
+          type="button"
+          variant="outlined"
+          disabled={loading.form}
+          onClick={() => handleSaveAction('saveNext')}
+          style={{
+            marginTop: "2px",
+            marginBottom: "2px",
+          }}
+        >
+          {loading.form
+            ? lang("common.saving", "Saving")
+            : lang("projects.saveNext", "Next")}
+          <FiArrowRight />
+        </Button>
+      </div>
     </div>
   );
 };

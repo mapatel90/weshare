@@ -1,3 +1,4 @@
+import { useLanguage } from "@/contexts/LanguageContext";
 import React from "react";
 
 const MeterInfo = ({
@@ -5,11 +6,39 @@ const MeterInfo = ({
   contracts = [],
   contractsLoading = false,
   inverters = [],
+  isDark = false,
 }) => {
+  const colors = {
+    cardBg: isDark ? '#121a2d' : '#fff',
+    text: isDark ? '#ffffff' : '#111827',
+    textMuted: isDark ? '#b1b4c0' : '#6b7280',
+    border: isDark ? '#1b2436' : '#f3f4f6',
+    boxShadow: isDark ? '0 0 20px rgba(14, 32, 56, 0.3)' : '0px 2px 6px rgba(0,0,0,0.06)',
+    gradient1: isDark ? 'linear-gradient(to bottom right, rgba(59, 130, 246, 0.15), rgba(168, 85, 247, 0.15))' : 'linear-gradient(to bottom right, #eef2ff, #e9d5ff)',
+    gradient2: isDark ? 'linear-gradient(to bottom right, rgba(16, 185, 129, 0.15), rgba(167, 243, 208, 0.15))' : 'linear-gradient(to bottom right, #d1fae5, #a7f3d0)',
+    gradient3: isDark ? 'linear-gradient(to bottom right, rgba(59, 130, 246, 0.15), rgba(191, 219, 254, 0.15))' : 'linear-gradient(to bottom right, #dbeafe, #bfdbfe)',
+    gradient4: isDark ? 'linear-gradient(to bottom right, rgba(239, 68, 68, 0.15), rgba(254, 202, 202, 0.15))' : 'linear-gradient(to bottom right, #fee2e2, #fecaca)',
+    gradient5: isDark ? 'linear-gradient(to bottom right, rgba(241, 245, 249, 0.1), rgba(226, 232, 240, 0.1))' : 'linear-gradient(to bottom right, #f1f5f9, #e2e8f0)',
+    gradient6: isDark ? 'rgba(27, 36, 54, 0.5)' : '#f8fafc',
+    statusActiveBg: isDark ? 'rgba(34, 197, 94, 0.2)' : '#dcfce7',
+    statusActiveText: isDark ? '#22c55e' : '#166534',
+    statusInactiveBg: isDark ? 'rgba(239, 68, 68, 0.2)' : '#fee2e2',
+    statusInactiveText: isDark ? '#ef4444' : '#991b1b',
+    statusPendingBg: isDark ? 'rgba(156, 163, 175, 0.2)' : '#f3f4f6',
+    statusPendingText: isDark ? '#9ca3af' : '#6b7280',
+    linkColor: isDark ? '#60a5fa' : '#2563eb',
+    badgeBg: isDark ? 'rgba(59, 130, 246, 0.2)' : '#dbeafe',
+    badgeText: isDark ? '#60a5fa' : '#3b82f6',
+  }
+  const { lang } = useLanguage()
+
   // Calculate active inverters (you can modify the condition based on your needs)
-  const activeInverters = inverters.filter(
-    (inv) => inv?.inverter?.status === 1 || inv.status === "active"
-  ).length;
+  // console.log("inverters:", inverters)
+  const activeInverters = inverters.filter((inv, index) => {
+    // console.log(`Inverter: ${index} status:`, inv?.status);
+    return inv?.status === 1;
+  }).length;
+
   const totalInverters = inverters.length;
 
   return (
@@ -24,10 +53,10 @@ const MeterInfo = ({
       {/* -------------------- METER INFORMATION -------------------- */}
       <div
         style={{
-          backgroundColor: "#fff",
+          backgroundColor: colors.cardBg,
           borderRadius: "12px",
-          boxShadow: "0px 2px 6px rgba(0,0,0,0.06)",
-          border: "1px solid #f3f4f6",
+          boxShadow: colors.boxShadow,
+          border: `1px solid ${colors.border}`,
           padding: "24px",
         }}
       >
@@ -35,7 +64,7 @@ const MeterInfo = ({
           style={{
             fontSize: "18px",
             fontWeight: "700",
-            color: "#111827",
+            color: colors.text,
             marginBottom: "20px",
             display: "flex",
             alignItems: "center",
@@ -50,7 +79,7 @@ const MeterInfo = ({
               marginRight: "12px",
             }}
           />
-          Meter Information
+          {lang('meter.meterInformation', 'Meter Information')}
         </h3>
 
         <div
@@ -60,73 +89,64 @@ const MeterInfo = ({
             gap: "16px",
           }}
         >
-          {/* Meter Name */}
+          {/* Meter Link */}
           <div
             style={{
               padding: "16px",
-              background: "linear-gradient(to bottom right, #eef2ff, #e9d5ff)",
+              background: colors.gradient1,
               borderRadius: "10px",
             }}
           >
             <p
               style={{
                 fontSize: "12px",
-                color: "#6b7280",
+                color: colors.textMuted,
                 marginBottom: "4px",
               }}
             >
-              Meter Name
+              {lang('meter.meterUrl', 'Meter Url')}
             </p>
-            <p
-              style={{ fontSize: "15px", fontWeight: "600", color: "#111827" }}
-            >
-              {project.meter_name || "-"}
-            </p>
+
+            {project.meter_url ? (
+              <a
+                href={project.meter_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  fontSize: "15px",
+                  fontWeight: "600",
+                  color: colors.linkColor,
+                  textDecoration: "underline",
+                  wordBreak: "break-all",
+                }}
+              >
+                {project.meter_url}
+              </a>
+            ) : (
+              <span style={{ fontSize: "15px", color: colors.textMuted }}>-</span>
+            )}
           </div>
 
-          {/* Meter Number */}
-          <div
-            style={{
-              padding: "16px",
-              background: "linear-gradient(to bottom right, #fef3c7, #fde68a)",
-              borderRadius: "10px",
-            }}
-          >
-            <p
-              style={{
-                fontSize: "12px",
-                color: "#6b7280",
-                marginBottom: "4px",
-              }}
-            >
-              Meter Number
-            </p>
-            <p
-              style={{ fontSize: "15px", fontWeight: "600", color: "#111827" }}
-            >
-              {project.meter_number || "-"}
-            </p>
-          </div>
 
           {/* SIM Number */}
           <div
             style={{
               padding: "16px",
-              background: "linear-gradient(to bottom right, #d1fae5, #a7f3d0)",
+              background: colors.gradient2,
               borderRadius: "10px",
             }}
           >
             <p
               style={{
                 fontSize: "12px",
-                color: "#6b7280",
+                color: colors.textMuted,
                 marginBottom: "4px",
               }}
             >
-              SIM Number
+              {lang('meter.simNumber', 'SIM Number')}
             </p>
             <p
-              style={{ fontSize: "15px", fontWeight: "600", color: "#111827" }}
+              style={{ fontSize: "15px", fontWeight: "600", color: colors.text }}
             >
               {project.sim_number || "-"}
             </p>
@@ -136,21 +156,21 @@ const MeterInfo = ({
           <div
             style={{
               padding: "16px",
-              background: "linear-gradient(to bottom right, #dbeafe, #bfdbfe)",
+              background: colors.gradient3,
               borderRadius: "10px",
             }}
           >
             <p
               style={{
                 fontSize: "12px",
-                color: "#6b7280",
+                color: colors.textMuted,
                 marginBottom: "4px",
               }}
             >
-              SIM Start Date
+              {lang('meter.simStartDate', 'SIM Start Date')}
             </p>
             <p
-              style={{ fontSize: "15px", fontWeight: "600", color: "#111827" }}
+              style={{ fontSize: "15px", fontWeight: "600", color: colors.text }}
             >
               {project.sim_start_date
                 ? new Date(project.sim_start_date).toLocaleDateString()
@@ -162,21 +182,21 @@ const MeterInfo = ({
           <div
             style={{
               padding: "16px",
-              background: "linear-gradient(to bottom right, #fee2e2, #fecaca)",
+              background: colors.gradient4,
               borderRadius: "10px",
             }}
           >
             <p
               style={{
                 fontSize: "12px",
-                color: "#6b7280",
+                color: colors.textMuted,
                 marginBottom: "4px",
               }}
             >
-              SIM Expire Date
+              {lang('meter.simExpireDate', 'SIM Expire Date')}
             </p>
             <p
-              style={{ fontSize: "15px", fontWeight: "600", color: "#111827" }}
+              style={{ fontSize: "15px", fontWeight: "600", color: colors.text }}
             >
               {project.sim_expire_date
                 ? new Date(project.sim_expire_date).toLocaleDateString()
@@ -189,10 +209,10 @@ const MeterInfo = ({
       {/* -------------------- INVERTERS -------------------- */}
       {/* <div
         style={{
-          backgroundColor: "#fff",
+          backgroundColor: colors.cardBg,
           borderRadius: "12px",
-          boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-          border: "1px solid #f3f4f6",
+          boxShadow: colors.boxShadow,
+          border: `1px solid ${colors.border}`,
           padding: "24px",
         }}
       >
@@ -200,7 +220,7 @@ const MeterInfo = ({
           style={{
             fontSize: "18px",
             fontWeight: "bold",
-            color: "#111827",
+            color: colors.text,
             marginBottom: "16px",
             display: "flex",
             alignItems: "center",
@@ -217,14 +237,14 @@ const MeterInfo = ({
                 marginRight: "12px",
               }}
             ></div>
-            Inverter Details
+            {lang('inverter.inverterdetails', 'Inverter Details')}
           </div>
           <div
             style={{
               fontSize: "14px",
               fontWeight: "600",
-              color: "#3b82f6",
-              backgroundColor: "#dbeafe",
+              color: colors.badgeText,
+              backgroundColor: colors.badgeBg,
               padding: "6px 12px",
               borderRadius: "9999px",
             }}
@@ -243,7 +263,7 @@ const MeterInfo = ({
           {inverters.length === 0 ? (
             <div
               style={{
-                color: "#6b7280",
+                color: colors.textMuted,
                 gridColumn: "1 / -1",
               }}
             >
@@ -256,9 +276,8 @@ const MeterInfo = ({
                 style={{
                   padding: "16px",
                   borderRadius: "10px",
-                  background:
-                    "linear-gradient(to bottom right, #f1f5f9, #e2e8f0)",
-                  border: "1px solid #e5e7eb",
+                  background: colors.gradient5,
+                  border: `1px solid ${colors.border}`,
                   display: "flex",
                   flexDirection: "column",
                   gap: "6px",
@@ -268,7 +287,7 @@ const MeterInfo = ({
                 onMouseEnter={(e) => {
                   e.currentTarget.style.transform = "translateY(-2px)";
                   e.currentTarget.style.boxShadow =
-                    "0 4px 12px rgba(0,0,0,0.08)";
+                    isDark ? "0 4px 12px rgba(0,0,0,0.3)" : "0 4px 12px rgba(0,0,0,0.08)";
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.transform = "translateY(0)";
@@ -287,45 +306,45 @@ const MeterInfo = ({
                     style={{
                       fontSize: "15px",
                       fontWeight: "600",
-                      color: "#0f172a",
+                      color: colors.text,
                       whiteSpace: "nowrap",
                       overflow: "hidden",
                       textOverflow: "ellipsis",
                       flex: 1,
                     }}
                   >
-                    {inverter?.inverter?.inverterName || "Untitled"}
+                    {inverter?.inverter_name || "Untitled"}
                   </div>
                   <span
                     style={{
                       padding: "4px 10px",
                       borderRadius: "9999px",
                       backgroundColor:
-                        inverter?.inverter?.status === 1 ||
-                        inverter.status === "active"
-                          ? "#dcfce7"
-                          : "#fee2e2",
+                        inverter?.status === 1 ||
+                          inverter.status === "active"
+                          ? colors.statusActiveBg
+                          : colors.statusInactiveBg,
                       color:
-                        inverter?.inverter?.status === 1 ||
-                        inverter.status === "active"
-                          ? "#166534"
-                          : "#991b1b",
+                        inverter?.status === 1 ||
+                          inverter.status === "active"
+                          ? colors.statusActiveText
+                          : colors.statusInactiveText,
                       fontWeight: 600,
                       fontSize: "11px",
                       whiteSpace: "nowrap",
                       marginLeft: "8px",
                     }}
                   >
-                    {inverter?.inverter?.status === 1 ||
-                    inverter.status === "active"
-                      ? "Active"
-                      : "Inactive"}
+                    {inverter?.status === 1 ||
+                      inverter.status === "active"
+                      ? "Online"
+                      : "Offline"}
                   </span>
                 </div>
 
-                <div style={{ fontSize: "13px", color: "#475569" }}>
-                  Serial Number:
-                  <span style={{ fontWeight: 600, color: "#1e293b" }}>
+                <div style={{ fontSize: "13px", color: colors.textMuted }}>
+                  {lang('inverter.serialNumber', 'Serial Number')}
+                  <span style={{ fontWeight: 600, color: colors.text }}>
                     {" "}
                     {inverter.inverter_serial_number || "N/A"}
                   </span>
@@ -339,10 +358,10 @@ const MeterInfo = ({
       {/* -------------------- CONTRACTS -------------------- */}
       <div
         style={{
-          backgroundColor: "#fff",
+          backgroundColor: colors.cardBg,
           borderRadius: "12px",
-          boxShadow: "0px 2px 6px rgba(0,0,0,0.06)",
-          border: "1px solid #f3f4f6",
+          boxShadow: colors.boxShadow,
+          border: `1px solid ${colors.border}`,
           padding: "24px",
         }}
       >
@@ -350,7 +369,7 @@ const MeterInfo = ({
           style={{
             fontSize: "18px",
             fontWeight: "700",
-            color: "#111827",
+            color: colors.text,
             marginBottom: "20px",
             display: "flex",
             alignItems: "center",
@@ -365,13 +384,13 @@ const MeterInfo = ({
               marginRight: "12px",
             }}
           />
-          Contracts
+          {lang('contract.contract', 'contract')}
         </h3>
 
         {contractsLoading ? (
-          <p style={{ color: "#6b7280" }}>Loading contracts...</p>
+          <p style={{ color: colors.textMuted }}>Loading contracts...</p>
         ) : contracts.length === 0 ? (
-          <p style={{ color: "#6b7280" }}>No contracts found.</p>
+          <p style={{ color: colors.textMuted }}>{lang('contract.no_contracts_found', 'No contracts found')}.</p>
         ) : (
           <div style={{ display: "grid", gap: "12px" }}>
             {contracts.map((c) => (
@@ -380,11 +399,11 @@ const MeterInfo = ({
                 style={{
                   padding: "14px",
                   borderRadius: "10px",
-                  background: "#f8fafc",
+                  background: colors.gradient6,
                   display: "flex",
                   justifyContent: "space-between",
                   alignItems: "center",
-                  border: "1px solid #e5e7eb",
+                  border: `1px solid ${colors.border}`,
                 }}
               >
                 <div style={{ minWidth: 0 }}>
@@ -392,7 +411,7 @@ const MeterInfo = ({
                     style={{
                       fontSize: "15px",
                       fontWeight: "600",
-                      color: "#111827",
+                      color: colors.text,
                       overflow: "hidden",
                       textOverflow: "ellipsis",
                       whiteSpace: "nowrap",
@@ -402,21 +421,20 @@ const MeterInfo = ({
                     {c.contractTitle || "Untitled"}
                   </div>
 
-                  <div style={{ fontSize: "12px", color: "#6b7280" }}>
+                  <div style={{ fontSize: "12px", color: colors.textMuted }}>
                     {c.offtaker?.fullName
                       ? `Offtaker: ${c.offtaker.fullName}`
                       : ""}
                     {c.investor?.fullName
-                      ? ` ${c.offtaker ? "·" : ""} Investor: ${
-                          c.investor.fullName
-                        }`
+                      ? ` ${c.offtaker ? "·" : ""} Investor: ${c.investor.fullName
+                      }`
                       : ""}
                   </div>
 
                   <div
                     style={{
                       fontSize: "12px",
-                      color: "#6b7280",
+                      color: colors.textMuted,
                       marginTop: "6px",
                     }}
                   >
@@ -440,14 +458,14 @@ const MeterInfo = ({
                       rel="noreferrer"
                       style={{
                         fontSize: "13px",
-                        color: "#2563eb",
+                        color: colors.linkColor,
                         textDecoration: "none",
                       }}
                     >
                       View
                     </a>
                   ) : (
-                    <span style={{ fontSize: "13px", color: "#9ca3af" }}>
+                    <span style={{ fontSize: "13px", color: colors.textMuted }}>
                       No file
                     </span>
                   )}
@@ -458,16 +476,16 @@ const MeterInfo = ({
                       borderRadius: "9999px",
                       backgroundColor:
                         c.status === 1
-                          ? "#dcfce7"
+                          ? colors.statusActiveBg
                           : c.status === 2
-                          ? "#fee2e2"
-                          : "#f3f4f6",
+                            ? colors.statusInactiveBg
+                            : colors.statusPendingBg,
                       color:
                         c.status === 1
-                          ? "#166534"
+                          ? colors.statusActiveText
                           : c.status === 2
-                          ? "#991b1b"
-                          : "#6b7280",
+                            ? colors.statusInactiveText
+                            : colors.statusPendingText,
                       fontWeight: 600,
                       fontSize: "12px",
                     }}
@@ -475,8 +493,8 @@ const MeterInfo = ({
                     {c.status === 1
                       ? "Active"
                       : c.status === 2
-                      ? "Rejected"
-                      : "Pending"}
+                        ? "Rejected"
+                        : "Pending"}
                   </span>
                 </div>
               </div>

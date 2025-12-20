@@ -559,13 +559,12 @@ router.get("/", async (req, res) => {
 
     const where = { is_deleted: 0 };
 
-    // Search functionality - search across project_name, product_code, meter_number, address1, address2, city, state, country
+    // Search functionality - search across project_name, product_code, address1, address2, city, state, country
     const trimmedSearch = typeof search === "string" ? search.trim() : "";
     if (trimmedSearch) {
       where.OR = [
         { project_name: { contains: trimmedSearch, mode: "insensitive" } },
         { product_code: { contains: trimmedSearch, mode: "insensitive" } },
-        { meter_number: { contains: trimmedSearch, mode: "insensitive" } },
         { address1: { contains: trimmedSearch, mode: "insensitive" } },
         { address2: { contains: trimmedSearch, mode: "insensitive" } },
         { project_location: { contains: trimmedSearch, mode: "insensitive" } },
@@ -837,8 +836,7 @@ router.put("/meter/:id", authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
     const {
-      meter_name,
-      meter_number,
+      meter_url,
       sim_number,
       sim_start_date,
       sim_expire_date,
@@ -848,8 +846,7 @@ router.put("/meter/:id", authenticateToken, async (req, res) => {
     const updated = await prisma.project.update({
       where: { id: parseInt(id) },
       data: {
-        ...(meter_name !== undefined && { meter_name }),
-        ...(meter_number !== undefined && { meter_number }),
+        ...(meter_url !== undefined && { meter_url }),
         ...(sim_number !== undefined && { sim_number }),
         ...(sim_start_date !== undefined && {
           sim_start_date: sim_start_date ? new Date(sim_start_date) : null,
@@ -874,8 +871,7 @@ router.get("/meter/:id", authenticateToken, async (req, res) => {
     const meter = await prisma.project.findUnique({
       where: { id: parseInt(id) },
       select: {
-        meter_name: true,
-        meter_number: true,
+        meter_url: true,
         sim_number: true,
         sim_start_date: true,
         sim_expire_date: true,

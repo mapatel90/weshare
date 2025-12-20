@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { apiGet, apiPost, apiPut, apiDelete } from "@/lib/api";
 import Table from "@/components/shared/table/Table";
-import { FiEdit3, FiTrash2 } from "react-icons/fi";
+import { FiArrowRight, FiEdit3, FiTrash2 } from "react-icons/fi";
 import Swal from "sweetalert2";
 import { showSuccessToast, showErrorToast } from "@/utils/topTost";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -19,7 +19,7 @@ import {
 } from "@mui/material";
 import { Close as CloseIcon } from "@mui/icons-material";
 
-const Investor = ({ projectId, onInvestorMarked }) => {
+const Investor = ({ projectId, onInvestorMarked, handleSaveAction }) => {
   const { lang } = useLanguage();
 
   const [showModal, setShowModal] = useState(false);
@@ -264,7 +264,7 @@ const Investor = ({ projectId, onInvestorMarked }) => {
           </div>
         );
       },
-      meta: { disableSort: true},
+      meta: { disableSort: true },
     },
   ];
 
@@ -307,6 +307,24 @@ const Investor = ({ projectId, onInvestorMarked }) => {
       </Dialog>
 
       <Table data={investors} columns={columns} />
+      <div className="col-12 d-flex justify-content-end gap-2">
+        <Button
+          type="button"
+          variant="outlined"
+          disabled={loading.form}
+          onClick={() => handleSaveAction('saveNext')}
+          style={{
+            marginTop: "2px",
+            marginBottom: "2px",
+          }}
+        >
+          {loading.form
+            ? lang("common.saving", "Saving")
+            : lang("projects.saveNext", "Next")}
+
+          <FiArrowRight />
+        </Button>
+      </div>
     </div>
   );
 };

@@ -2,14 +2,13 @@
 import React, { useEffect, useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { CircularProgress, TextField, Button } from "@mui/material";
-import { FiSave } from "react-icons/fi";
+import { FiArrowRight, FiSave } from "react-icons/fi";
 import { apiGet, apiPut } from "@/lib/api";
 import { showErrorToast, showSuccessToast } from "@/utils/topTost";
 
-const MeterView = ({ projectId }) => {
+const MeterView = ({ projectId, handleSaveAction }) => {
     const [form, setForm] = useState({
-        meter_name: '',
-        meter_number: '',
+        meter_url: '',
         sim_number: '',
         sim_start_date: '',
         sim_expire_date: '',
@@ -20,22 +19,37 @@ const MeterView = ({ projectId }) => {
     const [success, setSuccess] = useState(false);
     const [error, setError] = useState('');
 
+    const validateUrl = (url) => {
+        if (!url) return true; // Empty is handled by required validation
+        try {
+            const urlPattern = /^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/i;
+            return urlPattern.test(url);
+        } catch {
+            return false;
+        }
+    };
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setForm((prev) => ({ ...prev, [name]: value }));
-        setFieldErrors((prev) => ({ ...prev, [name]: undefined }));
+
+        // Validate URL format for meter_url field
+        if (name === 'meter_url' && value && !validateUrl(value)) {
+            setFieldErrors((prev) => ({ ...prev, [name]: lang('validation.invalidUrl', 'Please enter a valid URL') }));
+        } else {
+            setFieldErrors((prev) => ({ ...prev, [name]: undefined }));
+        }
     };
 
     const fetchMeterData = async () => {
-        setLoading(true);   
+        setLoading(true);
         try {
             const res = await apiGet(`/api/projects/meter/${projectId}`);
             // const data = await res.json();
             if (res?.success && res.data) {
                 setForm(prev => ({
                     ...prev,
-                    meter_name: res.data.meter_name || '',
-                    meter_number: res.data.meter_number || '',
+                    meter_url: res.data.meter_url || '',
                     sim_number: res.data.sim_number || '',
                     sim_start_date: res.data.sim_start_date ? new Date(res.data.sim_start_date).toISOString().split('T')[0] : '',
                     sim_expire_date: res.data.sim_expire_date ? new Date(res.data.sim_expire_date).toISOString().split('T')[0] : '',
@@ -52,22 +66,24 @@ const MeterView = ({ projectId }) => {
         fetchMeterData();
     }, [projectId]);
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    const saveMeterData = async () => {
         setLoading(true);
         setError('');
         setSuccess(false);
         // Validate required fields
         let errors = {};
-        if (!form.meter_name) errors.meter_name = lang('common.requiredField', 'This field is required');
-        if (!form.meter_number) errors.meter_number = lang('common.requiredField', 'This field is required');
+        if (!form.meter_url) {
+            errors.meter_url = lang('common.requiredField', 'This field is required');
+        } else if (!validateUrl(form.meter_url)) {
+            errors.meter_url = lang('validation.invalidUrl', 'Please enter a valid URL');
+        }
         if (!form.sim_number) errors.sim_number = lang('common.requiredField', 'This field is required');
         if (!form.sim_start_date) errors.sim_start_date = lang('common.requiredField', 'This field is required');
         if (!form.sim_expire_date) errors.sim_expire_date = lang('common.requiredField', 'This field is required');
         setFieldErrors(errors);
         if (Object.keys(errors).length) {
             setLoading(false);
-            return;
+            return false;
         }
         try {
             const res = await apiPut(`/api/projects/meter/${projectId}`, form);
@@ -75,13 +91,29 @@ const MeterView = ({ projectId }) => {
                 setSuccess(true);
                 showSuccessToast(lang('meter.meterUpdatedSuccessfully', 'Meter updated successfully'));
                 setFieldErrors({});
+                return true;
             } else {
                 showErrorToast(res.message || 'Failed to save meter info');
+                return false;
             }
         } catch (err) {
             setError('Network error');
+            return false;
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        await saveMeterData();
+    };
+
+    const handleSaveActionLocal = async (action) => {
+        const success = await saveMeterData();
+        if (success) {
+            handleSaveAction(action);
+        }
     };
 
     return (
@@ -96,28 +128,14 @@ const MeterView = ({ projectId }) => {
                             <TextField
                                 fullWidth
                                 type="text"
-                                label={`${lang('meter.meterName', 'Meter Name')}`}
-                                name="meter_name"
-                                value={form.meter_name}
+                                label={`${lang('meter.meterUrl', 'Meter Url')}`}
+                                name="meter_url"
+                                value={form.meter_url}
                                 onChange={handleChange}
-                                error={!!fieldErrors.meter_name}
-                                helperText={fieldErrors.meter_name}
+                                error={!!fieldErrors.meter_url}
+                                helperText={fieldErrors.meter_url}
                                 className="w-full border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder={`${lang('meter.enterMeterName', 'Enter meter name')}`}
-                            />
-                        </div>
-                        <div className="col-md-4 mb-3">
-                            <TextField
-                                fullWidth
-                                type="text"
-                                label={`${lang('meter.meterNumber', 'Meter Number')}`}
-                                name="meter_number"
-                                value={form.meter_number}
-                                onChange={handleChange}
-                                error={!!fieldErrors.meter_number}
-                                helperText={fieldErrors.meter_number}
-                                className="w-full border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder={`${lang('meter.enterMeterNumber', 'Enter meter number')}`}
+                                placeholder={`${lang('meter.enterMeterUrl', 'Enter Meter Url')}`}
                             />
                         </div>
                         <div className="col-md-4 mb-3">
@@ -165,14 +183,40 @@ const MeterView = ({ projectId }) => {
                         </div>
                     </div>
                     {/* Actions inside Address Information */}
-                    <Button
-                        type="submit"
-                        disabled={loading}
-                        className="common-grey-color"
-                        style={{ float: 'inline-end' }}
-                    >
-                        {loading ? 'Saving...' : lang('common.save', 'Save')}
-                    </Button>
+                    <div className="col-12 d-flex justify-content-end gap-2">
+                        <Button
+                            type="button"
+                            variant="contained"
+                            disabled={loading}
+                            startIcon={loading ? <CircularProgress size={16} /> : <FiSave />}
+                            onClick={() => handleSaveActionLocal('saveAndClose')}
+                            className="common-grey-color"
+                            style={{
+                                marginTop: "2px",
+                                marginBottom: "2px",
+                            }}
+                        >
+                            {loading
+                                ? lang("common.saving", "Saving")
+                                : lang("projects.saveAndClose", "Save & Close")}
+                        </Button>
+                        <Button
+                            type="button"
+                            variant="outlined"
+                            disabled={loading}
+                            startIcon={loading ? <CircularProgress size={16} /> : <FiSave />}
+                            onClick={() => handleSaveActionLocal('saveNext')}
+                            style={{
+                                marginTop: "2px",
+                                marginBottom: "2px",
+                            }}
+                        >
+                            {loading
+                                ? lang("common.saving", "Saving")
+                                : lang("projects.saveNext", "Save & Next")}
+                            <FiArrowRight />
+                        </Button>
+                    </div>
                 </div>
             </div>
         </form>

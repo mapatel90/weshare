@@ -76,38 +76,55 @@ const containerStyle = {
   display: 'flex',
   flexDirection: 'column',
 };
+const getStyles = (isDark = false) => {
+  const colors = {
+    bg: isDark ? '#121a2d' : '#ffffff',
+    text: isDark ? '#ffffff' : '#111827',
+    textMuted: isDark ? '#b1b4c0' : '#6b7280',
+    border: isDark ? '#1b2436' : '#e5e7eb',
+    boxShadow: isDark ? '0 10px 25px rgba(0,0,0,0.5)' : '0 10px 25px rgba(0,0,0,0.08)',
+  }
+  
+  return {
+    containerStyle: {
+      width: '100%',
+      height: '60vh',
+      backgroundColor: colors.bg,
+      padding: '24px',
+      display: 'flex',
+      flexDirection: 'column',
+    },
+    headerRowStyle: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginBottom: '32px',
+    },
+    stateMessageStyle: {
+      width: '100%',
+      height: '100%',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      color: colors.textMuted,
+      fontSize: '14px',
+    },
+    tooltipWrapStyle: {
+      backgroundColor: colors.bg,
+      border: `1px solid ${colors.border}`,
+      borderRadius: '10px',
+      padding: '10px 12px',
+      boxShadow: colors.boxShadow,
+    },
+    tooltipTitleStyle: {
+      fontSize: 13,
+      fontWeight: 600,
+      color: colors.textMuted,
+      marginBottom: 8,
+    },
+  }
+}
 
-const headerRowStyle = {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  marginBottom: '32px',
-};
-
-const stateMessageStyle = {
-  width: '100%',
-  height: '100%',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  color: '#6b7280',
-  fontSize: '14px',
-};
-
-const tooltipWrapStyle = {
-  backgroundColor: '#ffffff',
-  border: '1px solid #e5e7eb',
-  borderRadius: '10px',
-  padding: '10px 12px',
-  boxShadow: '0 10px 25px rgba(0,0,0,0.08)',
-};
-
-const tooltipTitleStyle = {
-  fontSize: 13,
-  fontWeight: 600,
-  color: '#6b7280',
-  marginBottom: 8,
-};
 
 const tooltipRowStyle = {
   display: 'flex',
@@ -123,15 +140,16 @@ const formatKw = (value) => {
   return `${num.toFixed(3)} kW`;
 };
 
-const CustomTooltip = ({ active, payload, label }) => {
+const CustomTooltip = ({ active, payload, label, isDark = false }) => {
   if (!active || !payload?.length) return null;
+  const styles = getStyles(isDark);
 
   const displayTime = payload?.[0]?.payload?.displayTime || label;
   const byKey = new Map(payload.map((p) => [p.dataKey, p]));
 
   return (
-    <div style={tooltipWrapStyle}>
-      <div style={tooltipTitleStyle}>{displayTime}</div>
+    <div style={styles.tooltipWrapStyle}>
+      <div style={styles.tooltipTitleStyle}>{displayTime}</div>
       {SERIES.map((s) => {
         const entry = byKey.get(s.key);
         const value = entry?.value;
@@ -147,8 +165,9 @@ const CustomTooltip = ({ active, payload, label }) => {
 };
 
 // Project-level single-series chart (no inverter selection)
-const ProjectOverviewChart = ({ projectId, readings = [], loading = false, selectedDate, onDateChange }) => {
+const ProjectOverviewChart = ({ projectId, readings = [], loading = false, selectedDate, onDateChange, isDark = false }) => {
   const { lang } = useLanguage();
+  const styles = getStyles(isDark);
   const { chartData, xAxisProps, yAxisDomain, yAxisTicks } = useMemo(() => {
     const selectedKey = normalizeDateKey(selectedDate);
 
@@ -260,15 +279,23 @@ const ProjectOverviewChart = ({ projectId, readings = [], loading = false, selec
   const isEmptyState = !loading && (!chartData || !chartData.length);
 
   return (
-    <div style={containerStyle}>
+    <div style={styles.containerStyle}>
       {/* Header Controls */}
-      <div style={headerRowStyle}>
+      <div style={styles.headerRowStyle}>
         {/* Date input (project-level) */}
         <input
           type="date"
           value={selectedDate}
           onChange={(e) => onDateChange(e.target.value)}
-          className="bg-black text-white border rounded-md px-3 py-2 me-2 text-sm"
+          style={{
+            backgroundColor: isDark ? '#121a2d' : '#fff',
+            color: isDark ? '#ffffff' : '#111827',
+            border: `1px solid ${isDark ? '#1b2436' : '#e5e7eb'}`,
+            borderRadius: '6px',
+            padding: '8px 12px',
+            marginRight: '8px',
+            fontSize: '14px',
+          }}
           placeholder={lang("common.endDate") || "End Date"}
         />
       </div>
@@ -276,11 +303,11 @@ const ProjectOverviewChart = ({ projectId, readings = [], loading = false, selec
       {/* Chart */}
       <div style={{ width: '100%', height: 'calc(100vh - 180px)', minHeight: '420px' }}>
         {loading ? (
-          <div style={stateMessageStyle}>
+          <div style={styles.stateMessageStyle}>
             Loading project data...
           </div>
         ) : isEmptyState ? (
-          <div style={{ ...stateMessageStyle, flexDirection: 'column' }}>
+          <div style={{ ...styles.stateMessageStyle, flexDirection: 'column' }}>
             No project readings available for this date.
           </div>
         ) : (
@@ -298,29 +325,29 @@ const ProjectOverviewChart = ({ projectId, readings = [], loading = false, selec
                     </linearGradient>
                   ))}
                 </defs>
-                <CartesianGrid strokeDasharray="4 4" stroke="#f0f0f0" />
+                <CartesianGrid strokeDasharray="4 4" stroke={isDark ? '#1b2436' : '#f0f0f0'} />
                 <XAxis
                   dataKey={xAxisProps.dataKey || 'xValue'}
                   type={xAxisProps.type || 'category'}
                   domain={xAxisProps.domain}
                   ticks={xAxisProps.ticks}
-                  tick={{ fill: '#666', fontSize: 12 }}
-                  tickLine={{ stroke: '#ccc' }}
-                  axisLine={{ stroke: '#ccc' }}
+                  tick={{ fill: isDark ? '#b1b4c0' : '#666', fontSize: 12 }}
+                  tickLine={{ stroke: isDark ? '#1b2436' : '#ccc' }}
+                  axisLine={{ stroke: isDark ? '#1b2436' : '#ccc' }}
                   allowDecimals={false}
                   tickFormatter={xAxisProps.tickFormatter}
                 />
                 <YAxis
-                  label={{ value: 'kW', angle: -90, position: 'insideLeft', style: { fill: '#666', fontSize: 14 } }}
-                  tick={{ fill: '#666', fontSize: 12 }}
-                  tickLine={{ stroke: '#ccc' }}
-                  axisLine={{ stroke: '#ccc' }}
+                  label={{ value: 'kW', angle: -90, position: 'insideLeft', style: { fill: isDark ? '#b1b4c0' : '#666', fontSize: 14 } }}
+                  tick={{ fill: isDark ? '#b1b4c0' : '#666', fontSize: 12 }}
+                  tickLine={{ stroke: isDark ? '#1b2436' : '#ccc' }}
+                  axisLine={{ stroke: isDark ? '#1b2436' : '#ccc' }}
                   domain={yAxisDomain}
                   ticks={yAxisTicks || undefined}
                   tickCount={yAxisTicks ? undefined : 6}
                 />
                 <Tooltip
-                  content={<CustomTooltip />}
+                  content={<CustomTooltip isDark={isDark} />}
                 />
                 <Legend verticalAlign="bottom" height={40} />
 

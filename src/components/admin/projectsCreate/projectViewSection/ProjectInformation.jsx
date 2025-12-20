@@ -1,89 +1,201 @@
 import React from 'react';
-import { Sun, Users, Activity, DollarSign, TrendingUp, MapPin } from 'lucide-react';
+import { Sun, Users, Activity, DollarSign, TrendingUp, MapPin, CloudSun, SunriseIcon, Thermometer, Droplets, Compass, Wind } from 'lucide-react';
+import { getPrimaryProjectImage } from '@/utils/projectUtils';
+import { getFullImageUrl } from '@/utils/common';
+import { useLanguage } from '@/contexts/LanguageContext';
 
-const InfoCard = ({ icon: Icon, label, value, color }) => (
-  <div
-    style={{
-      display: 'flex',
-      alignItems: 'flex-start',
-      gap: '12px',
-      padding: '16px',
-      backgroundColor: '#f9fafb',
-      borderRadius: '8px',
-      transition: 'background-color 0.2s',
-    }}
-  >
+const InfoCard = ({ icon: Icon, label, value, color, isDark = false }) => {
+  const colors = {
+    cardBg: isDark ? 'rgba(27, 36, 54, 0.5)' : '#f9fafb',
+    text: isDark ? '#ffffff' : '#111827',
+    textMuted: isDark ? '#b1b4c0' : '#6b7280',
+  }
+
+  return (
     <div
       style={{
-        padding: '8px',
+        display: 'flex',
+        alignItems: 'flex-start',
+        gap: '12px',
+        padding: '16px',
+        backgroundColor: colors.cardBg,
         borderRadius: '8px',
-        background: color,
-        flexShrink: 0,
+        transition: 'background-color 0.2s',
       }}
     >
-      <Icon style={{ width: '16px', height: '16px', color: '#fff' }} />
-    </div>
-    <div style={{ flex: 1, minWidth: 0 }}>
-      <p style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>{label}</p>
-      <p
+      <div
         style={{
-          fontSize: '14px',
-          fontWeight: '600',
-          color: '#111827',
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-          whiteSpace: 'nowrap',
+          padding: '8px',
+          borderRadius: '8px',
+          background: color,
+          flexShrink: 0,
         }}
       >
-        {value || '-'}
-      </p>
+        <Icon style={{ width: '16px', height: '16px', color: '#fff' }} />
+      </div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <p style={{ fontSize: '12px', color: colors.textMuted, marginBottom: '4px' }}>{label}</p>
+        <p
+          style={{
+            fontSize: '14px',
+            fontWeight: '600',
+            color: colors.text,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {value || '-'}
+        </p>
+      </div>
     </div>
-  </div>
-);
+  )
+};
 
-const ProjectInformation = ({ project = {} }) => {
+
+const ProjectInformation = ({ project = {}, isDark = false }) => {
+  const { lang } = useLanguage()
+  const colors = {
+    cardBg: isDark ? '#121a2d' : '#fff',
+    headerBg: isDark ? 'rgba(27, 36, 54, 0.5)' : '#f9fafb',
+    text: isDark ? '#ffffff' : '#111827',
+    textMuted: isDark ? '#b1b4c0' : '#6b7280',
+    border: isDark ? '#1b2436' : '#e5e7eb',
+    boxShadow: isDark ? '0 0 20px rgba(14, 32, 56, 0.3)' : 'none',
+  }
+
+  const getAutoRandomColor = () => {
+    const hue = Math.floor(Math.random() * 360); // 0–360
+    return `hsl(${hue}, 70%, 50%)`;
+  };
+
+
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px', marginBottom: '24px', marginTop:'5px' }}>
-      {/* Basic Information */}
-      <div style={{ backgroundColor: '#fff', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', border: '1px solid #f3f4f6', padding: '24px' }}>
-        <h3 style={{ fontSize: '18px', fontWeight: 'bold', color: '#111827', marginBottom: '16px', display: 'flex', alignItems: 'center' }}>
-          <div style={{ width: '8px', height: '24px', backgroundColor: '#3b82f6', borderRadius: '9999px', marginRight: '12px' }}></div>
-          Basic Information
-        </h3>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <InfoCard icon={Sun} label="Project Type" value={project.projectType?.type_name} color="#3b82f6" />
-          <InfoCard icon={Users} label="Offtaker" value={project.offtaker?.fullName} color="#a855f7" />
-          <InfoCard icon={Activity} label="Status" value={project.status === 1 ? 'Active' : 'Inactive'} color={project.status === 1 ? '#22c55e' : '#ef4444'} />
+    <div className="card mb-3 mt-1" style={{ borderRadius: '12px', border: `1px solid ${colors.border}`, backgroundColor: colors.cardBg, boxShadow: colors.boxShadow }}>
+      {/* Card Header */}
+      <div
+        className="card-header d-flex align-items-center justify-content-between flex-wrap"
+        style={{
+          backgroundColor: colors.headerBg,
+          borderBottom: `1px solid ${colors.border}`,
+          borderTopLeftRadius: '12px',
+          borderTopRightRadius: '12px',
+          padding: '16px 20px',
+        }}
+      >
+        <div className="d-flex align-items-center">
+          <div
+            style={{
+              width: '8px',
+              height: '28px',
+              backgroundColor: '#3b82f6',
+              borderRadius: '9999px',
+              marginRight: '12px',
+            }}
+          ></div>
+          <h3
+            style={{
+              fontSize: '18px',
+              fontWeight: '700',
+              color: colors.text,
+              margin: 0,
+            }}
+          >
+            {lang('projectView.projectInformation.project_Information', 'Project Information')}
+          </h3>
         </div>
       </div>
 
-      {/* Financial Information */}
-      <div style={{ backgroundColor: '#fff', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', border: '1px solid #f3f4f6', padding: '24px' }}>
-        <h3 style={{ fontSize: '18px', fontWeight: 'bold', color: '#111827', marginBottom: '16px', display: 'flex', alignItems: 'center' }}>
-          <div style={{ width: '8px', height: '24px', backgroundColor: '#22c55e', borderRadius: '9999px', marginRight: '12px' }}></div>
-          Financial Details
-        </h3>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <InfoCard icon={DollarSign} label="Investor Profit" value={project.investor_profit} color="#22c55e" />
-          <InfoCard icon={DollarSign} label="Weshare Profit" value={project.weshare_profit} color="#059669" />
-          <InfoCard icon={TrendingUp} label="Asking Price" value={project.asking_price} color="#3b82f6" />
-        </div>
-      </div>
+      {/* Card Body */}
+      <div className="card-body p-4" style={{ backgroundColor: colors.cardBg }}>
+        <div className="row g-4">
+          {/* LEFT: Project Image */}
+          <div className="col-lg-4 col-md-12">
+            <div
+              className="card border-0 shadow-sm"
+              style={{
+                borderRadius: '16px',
+                overflow: 'hidden'
+              }}
+            >
+              <img
+                src={getDefaultImageUrl(project)}
+                alt="Project"
+                style={{
+                  width: '100%',
+                  height: '200px',
+                  objectFit: 'cover'
+                }}
+              />
+            </div>
+          </div>
 
-      {/* Location Information */}
-      <div style={{ backgroundColor: '#fff', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', border: '1px solid #f3f4f6', padding: '24px' }}>
-        <h3 style={{ fontSize: '18px', fontWeight: 'bold', color: '#111827', marginBottom: '16px', display: 'flex', alignItems: 'center' }}>
-          <div style={{ width: '8px', height: '24px', backgroundColor: '#f97316', borderRadius: '9999px', marginRight: '12px' }}></div>
-          Location Details
-        </h3>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <InfoCard icon={MapPin} label="Country" value={project.country?.name} color="#f97316" />
-          <InfoCard icon={MapPin} label="State" value={project.state?.name} color="#ea580c" />
-          <InfoCard icon={MapPin} label="City" value={project.city?.name} color="#ef4444" />
+          {/* RIGHT: First 6 Info Cards */}
+          <div className="col-lg-8 col-md-12">
+            <div className="row g-3">
+              <div className="col-6">
+                <InfoCard icon={Sun} label={lang('projectView.projectInformation.project_type', 'Project Type')} value={project.projectType?.type_name} color={getAutoRandomColor()} isDark={isDark} />
+              </div>
+              <div className="col-6">
+                <InfoCard icon={Activity} label={lang('projectView.projectInformation.status', 'Status')} value={project.status === 1 ? 'Active' : 'Inactive'} color={getAutoRandomColor()} isDark={isDark} />
+              </div>
+              <div className="col-6">
+                <InfoCard icon={Users} label={lang('projectView.projectInformation.offtaker', 'offtaker')} value={project.offtaker?.fullName} color={getAutoRandomColor()} isDark={isDark} />
+              </div>
+              <div className="col-6">
+                <InfoCard icon={TrendingUp} label={lang('projectView.projectInformation.asking_price', 'Asking Price')} value={project.asking_price} color={getAutoRandomColor()} isDark={isDark} />
+              </div>
+            </div>
+          </div>
+
+          {/* BOTTOM: Last 3 Cards (Country, State, City) - Full Width Below Image */}
+          <div className="col-12 mt-0">
+            <div className="row g-3">
+              <div className="col-lg-4 col-md-4 col-sm-12">
+                <InfoCard icon={DollarSign} label={lang('projectView.projectInformation.investor_profit', 'Investor Profit')} value={`${project.investor_profit}%`} color={getAutoRandomColor()} isDark={isDark} />
+              </div>
+              <div className="col-lg-4 col-md-4 col-sm-12">
+                <InfoCard icon={DollarSign} label={lang('projectView.projectInformation.weshare_profit', 'Weshare Profit')} value={`${project.weshare_profit}%`} color={getAutoRandomColor()} isDark={isDark} />
+              </div>
+              <div className="col-lg-4 col-md-4 col-sm-12">
+                <InfoCard icon={MapPin} label={lang('projectView.projectInformation.country', 'Country')} value={project.country?.name} color={getAutoRandomColor()} isDark={isDark} />
+              </div>
+              <div className="col-lg-4 col-md-4 col-sm-12">
+                <InfoCard icon={MapPin} label={lang('projectView.projectInformation.state', 'State')} value={project.state?.name} color={getAutoRandomColor()} isDark={isDark} />
+              </div>
+              <div className="col-lg-4 col-md-4 col-sm-12">
+                <InfoCard icon={MapPin} label={lang('projectView.projectInformation.city', 'City')} value={project.city?.name} color={getAutoRandomColor()} isDark={isDark} />
+              </div>
+              <div className="col-lg-4 col-md-4 col-sm-12">
+                <InfoCard icon={CloudSun} label={lang('projectView.projectInformation.weather', 'Weather')} value={project.city?.name} color={getAutoRandomColor()} isDark={isDark} />
+              </div>
+              <div className="col-lg-4 col-md-4 col-sm-12">
+                <InfoCard icon={SunriseIcon} label={lang('projectView.projectInformation.sunshine', 'Sunshine')} value={project.city?.name} color={getAutoRandomColor()} isDark={isDark} />
+              </div>
+              <div className="col-lg-4 col-md-4 col-sm-12">
+                <InfoCard icon={Thermometer} label={lang('projectView.projectInformation.temp', 'Temp')} value={project.city?.name} color={getAutoRandomColor()} isDark={isDark} />
+              </div>
+              <div className="col-lg-4 col-md-4 col-sm-12">
+                <InfoCard icon={Droplets} label={lang('projectView.projectInformation.humidity', 'Humidity')} value={project.city?.name} color={getAutoRandomColor()} isDark={isDark} />
+              </div>
+              <div className="col-lg-4 col-md-4 col-sm-12">
+                <InfoCard icon={Compass} label={lang('projectView.projectInformation.wind_direction', 'Wind Direction')} value={project.city?.name} color={getAutoRandomColor()} isDark={isDark} />
+              </div>
+              <div className="col-lg-4 col-md-4 col-sm-12">
+                <InfoCard icon={Wind} label={lang('projectView.projectInformation.wind_speed', 'Wind Speed')} value={project.city?.name} color={getAutoRandomColor()} isDark={isDark} />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   );
+};
+
+const getDefaultImageUrl = (project) => {
+  const cover = getPrimaryProjectImage(project);
+  if (!cover) return getFullImageUrl('/uploads/general/noimage_2.png');
+  return getFullImageUrl(cover) || getFullImageUrl('/uploads/general/noimage_2.png');
 };
 
 export default ProjectInformation;
