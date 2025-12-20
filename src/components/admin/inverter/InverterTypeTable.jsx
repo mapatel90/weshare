@@ -49,7 +49,7 @@ const InverterTypeTable = () => {
   const fetchTypes = async () => {
     try {
       const res = await apiGet("/api/inverterTypes/data");
-      const items = Array.isArray(res?.data?.inverterTypes) ? res.data.inverterTypes : [];
+      const items = Array.isArray(res?.data?.inverter_types) ? res.data.inverter_types : [];
       setTypes(items);
     } catch (_) {
       // noop

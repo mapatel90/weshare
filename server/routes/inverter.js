@@ -17,14 +17,14 @@ router.post("/", authenticateToken, async (req, res) => {
     }
 
     // Insert into PostgreSQL via Prisma
-    const newInverter = await prisma.inverter.create({
+    const newInverter = await prisma.inverters.create({
       data: {
-        companyName,
-        inverterName,
+        company_name: companyName,
+        inverter_name: inverterName,
         inverter_type_id,
-        apiKey,
-        apiUrl,
-        secretKey,
+        api_key: apiKey,
+        api_url: apiUrl,
+        secret_key: secretKey,
         status,  
         api_status: 1,  // 👈 fixed default
       },
@@ -57,8 +57,8 @@ router.get("/", authenticateToken, async (req, res) => {
     if (search) {
       // 👇 Search in companyName OR inverterName
       where.OR = [
-        { companyName: { contains: search, mode: "insensitive" } },
-        { inverterName: { contains: search, mode: "insensitive" } },
+        { company_name: { contains: search, mode: "insensitive" } },
+        { inverter_name: { contains: search, mode: "insensitive" } },
       ];
     }
     if (status !== undefined) {
@@ -67,13 +67,13 @@ router.get("/", authenticateToken, async (req, res) => {
 
     // Fetch with pagination + related inverter type
     const [inverters, total] = await Promise.all([
-      prisma.inverter.findMany({
+      prisma.inverters.findMany({
         where,
         skip: parseInt(offset),
         take: parseInt(limit),
-        orderBy: { createdAt: "asc" },
+        orderBy: { created_at: "asc" },
         include: {
-          inverterType: {
+          inverter_type: {
             select: {
               id: true,
               type: true, // 👈 include type name
@@ -81,22 +81,22 @@ router.get("/", authenticateToken, async (req, res) => {
           },
         },
       }),
-      prisma.inverter.count({ where }),
+      prisma.inverters.count({ where }),
     ]);
 
     // ✅ Format data to include inverter type name directly
     const formatted = inverters.map((inv) => ({
       id: inv.id,
-      companyName: inv.companyName,
-      inverterName: inv.inverterName,
-      inverter_type_id: inv.inverterType?.type || null,
-      apiUrl: inv.apiUrl,
-      apiKey: inv.apiKey,
-      secretKey: inv.secretKey,
+      inverter_type_id: inv.inverter_type?.type || null,
+      company_name: inv.company_name,
+      inverter_name: inv.inverter_name,
+      api_url: inv.api_url,
+      api_key: inv.api_key,
+      secret_key: inv.secret_key,
       status: inv.status,
       api_status: inv.api_status,
-      createdAt: inv.createdAt,
-      updatedAt: inv.updatedAt,
+      created_at: inv.created_at,
+      updated_at: inv.updated_at,
     }));
 
     res.status(200).json({
@@ -135,15 +135,15 @@ router.put("/:id", authenticateToken, async (req, res) => {
     }
 
     // Update inverter
-    const updatedInverter = await prisma.inverter.update({
+    const updatedInverter = await prisma.inverters.update({
       where: { id: parseInt(id) },
       data: {
-        companyName,
-        inverterName,
+        company_name: companyName,
+        inverter_name: inverterName,
         inverter_type_id,
-        apiKey,
-        apiUrl,
-        secretKey,
+        api_key: apiKey,
+        api_url: apiUrl,
+        secret_key: secretKey,
         status,
       },
     });
@@ -180,7 +180,7 @@ router.delete("/:id", authenticateToken, async (req, res) => {
     // }
 
     // Soft delete (set is_deleted = 1)
-    await prisma.inverter.update({
+    await prisma.inverters.update({
       where: { id: parseInt(id) },
       data: { is_deleted: 1 },
     });

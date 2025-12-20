@@ -114,6 +114,7 @@ model inverter_type {
   type       String @unique @db.VarChar(255)
   status     Int    @default(1)
   is_deleted Int    @default(0)
+  inverters  inverters[]
 }
 
 model inverters {
@@ -129,6 +130,7 @@ model inverters {
   is_deleted        Int                 @default(0)
   created_at        DateTime            @default(now())
   updated_at        DateTime            @default(now())
+  inverter_type     inverter_type       @relation(fields: [inverter_type_id], references: [id])
   project_inverters project_inverters[]
 }
 
