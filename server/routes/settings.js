@@ -133,7 +133,7 @@ router.post('/bulk', authenticateToken, async (req, res) => {
           where: { key },
           update: { 
             value: String(value),
-            updatedAt: new Date()
+            updated_at: new Date()
           },
           create: { 
             key, 
@@ -177,7 +177,7 @@ router.post('/', authenticateToken, async (req, res) => {
       where: { key },
       update: { 
         value: String(value),
-        updatedAt: new Date()
+        updated_at: new Date()
       },
       create: { 
         key, 
@@ -266,7 +266,7 @@ router.post('/delete-logo', authenticateToken, async (req, res) => {
     // Clear site_image in DB
     await prisma.settings.upsert({
       where: { key: 'site_image' },
-      update: { value: '', updatedAt: new Date() },
+      update: { value: '', updated_at: new Date() },
       create: { key: 'site_image', value: '' }
     });
 
@@ -309,7 +309,7 @@ router.post('/delete-favicon', authenticateToken, async (req, res) => {
     // Clear site_favicon in DB
     await prisma.settings.upsert({
       where: { key: 'site_favicon' },
-      update: { value: '', updatedAt: new Date() },
+      update: { value: '', updated_at: new Date() },
       create: { key: 'site_favicon', value: '' }
     });
 
@@ -352,7 +352,7 @@ router.post('/delete-qrcode', authenticateToken, async (req, res) => {
     // Clear finance_qr_code in DB
     await prisma.settings.upsert({
       where: { key: 'finance_qr_code' },
-      update: { value: '', updatedAt: new Date() },
+      update: { value: '', updated_at: new Date() },
       create: { key: 'finance_qr_code', value: '' }
     });
 
