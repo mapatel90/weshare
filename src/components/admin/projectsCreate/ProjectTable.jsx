@@ -275,7 +275,7 @@ const ProjectTable = () => {
       cell: (info) => {
         const offtaker = info.getValue();
         if (!offtaker) return "-";
-        return `${offtaker.fullName || ""}`.trim();
+        return `${offtaker.full_name || ""}`.trim();
       },
     },
     {
