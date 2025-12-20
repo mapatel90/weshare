@@ -81,9 +81,9 @@ const ContactUsTable = () => {
   const handleEdit = (item) => {
     setEditData({
       id: item.id,
-      fullName: item.fullName,
+      fullName: item.full_name,
       email: item.email,
-      phoneNumber: item.phoneNumber || "",
+      phoneNumber: item.phone_number || "",
       subject: item.subject,
       message: item.message,
     });
@@ -122,7 +122,7 @@ const ContactUsTable = () => {
   const columns = useMemo(
     () => [
       {
-        accessorKey: "fullName",
+        accessorKey: "full_name",
         header: () => lang("contactUs.fullNameTable") || "Full Name",
       },
       {
@@ -130,7 +130,7 @@ const ContactUsTable = () => {
         header: () => lang("contactUs.emailTable") || "Email",
       },
       {
-        accessorKey: "phoneNumber",
+        accessorKey: "phone_number",
         header: () => lang("contactUs.phoneTable") || "Phone",
       },
       {
@@ -243,7 +243,7 @@ const ContactUsTable = () => {
                     mt: 0.3,
                   }}
                 >
-                  {selected.fullName}
+                  {selected.full_name}
                 </Typography>
               </Box>
 
@@ -268,7 +268,7 @@ const ContactUsTable = () => {
               </Box>
 
               {/* Phone */}
-              {selected.phoneNumber && (
+              {selected.phone_number && (
                 <Box>
                   <Typography
                     variant="caption"
@@ -283,7 +283,7 @@ const ContactUsTable = () => {
                       mt: 0.3,
                     }}
                   >
-                    {selected.phoneNumber}
+                    {selected.phone_number}
                   </Typography>
                 </Box>
               )}
@@ -392,7 +392,7 @@ const ContactUsTable = () => {
           />
 
           <TextField
-            label={lang("contactUs.subjectTable") || "Subject"}
+            label={lang("contactUs.subject") || "Subject"}
             value={editData?.subject || ""}
             onChange={(e) =>
               setEditData({ ...editData, subject: e.target.value })

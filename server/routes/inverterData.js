@@ -130,7 +130,7 @@ router.get("/", async (req, res) => {
       orderBy: { date: "desc" },
       distinct: ["inverter_id", "date"],
       include: {
-        project: true,
+        projects: true,
         inverter: true,
       },
       skip: 0,
@@ -474,12 +474,12 @@ router.post("/monthly-chart", async (req, res) => {
         date: true,
         generate_kw: true,
         inverter_id: true,
-        inverter: {
+        inverters: {
           select: {
-            inverterName: true,
+            inverter_name: true,
           },
         },
-        project: {
+        projects: {
           select: {
             id: true,
             projectInverters: {

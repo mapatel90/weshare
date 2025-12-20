@@ -280,21 +280,22 @@ router.get('/check-username', async (req, res) => {
     }
 
     const where = {
-      username
+      username, is_deleted: 0
     };
 
     // If excludeId provided, ensure we don't count that user
     if (excludeId) {
-      const exists = await prisma.user.findFirst({
+      const exists = await prisma.users.findFirst({
         where: {
           username,
-          NOT: { id: parseInt(excludeId) }
+          NOT: { id: parseInt(excludeId) },
+          is_deleted: 0
         }
       });
       return res.json({ success: true, data: { exists: !!exists } });
     }
 
-    const found = await prisma.user.findUnique({ where: { username } });
+    const found = await prisma.users.findFirst({ where: { username, is_deleted: 0 } });
     return res.json({ success: true, data: { exists: !!found } });
   } catch (error) {
     console.error('Check username error:', error);
@@ -312,46 +313,46 @@ router.get('/:id', authenticateToken, async (req, res) => {
     const roleIds = Number.isInteger(parsedId) ? [parsedId] : [];
     let roles = [];
     if (roleIds.length) {
-      roles = await prisma.role.findMany({
+      roles = await prisma.roles.findMany({
         where: { id: { in: roleIds } },
         select: { id: true, name: true }
       });
     }
 
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: { id: parseInt(id) },
       select: {
         id: true,
-        fullName: true,
+        full_name: true,
         user_image: true,
         username: true,
         email: true,
         password: true,
-        phoneNumber: true,
-        userRole: true,
+        phone_number: true,
+        role_id: true,
         address_1: true,
         address_2: true,
-        cityId: true,
-        stateId: true,
-        countryId: true,
+        city_id: true,
+        state_id: true,
+        country_id: true,
         zipcode: true,
-        qrCode: true,
+        qr_code: true,
         status: true,
-        createdAt: true,
-        updatedAt: true,
-        city: {
+        created_at: true,
+        updated_at: true,
+        cities: {
           select: {
             id: true,
             name: true
           }
         },
-        state: {
+        states: {
           select: {
             id: true,
             name: true
           }
         },
-        country: {
+        countries: {
           select: {
             id: true,
             name: true
@@ -387,6 +388,7 @@ router.get('/:id', authenticateToken, async (req, res) => {
 router.put('/:id', authenticateToken, upload.single('qrCode'), async (req, res) => {
   try {
     const { id } = req.params;
+    // Accept both snake_case (backend) and camelCase (frontend) keys
     const {
       fullName,
       email,
@@ -404,7 +406,7 @@ router.put('/:id', authenticateToken, upload.single('qrCode'), async (req, res) 
     } = req.body;
 
     // Check if user exists
-    const existingUser = await prisma.user.findUnique({
+    const existingUser = await prisma.users.findUnique({
       where: { id: parseInt(id) }
     });
 
@@ -418,7 +420,7 @@ router.put('/:id', authenticateToken, upload.single('qrCode'), async (req, res) 
     // Check if email is being changed and if it's already taken
     if (email && email !== existingUser.email) {
       // email is not unique in schema, use findFirst
-      const emailExists = await prisma.user.findFirst({
+      const emailExists = await prisma.users.findFirst({
         where: { email }
       });
 
@@ -432,18 +434,37 @@ router.put('/:id', authenticateToken, upload.single('qrCode'), async (req, res) 
 
     // Build update data
     const updateData = {
-      ...(fullName && { fullName }),
-      ...(username && { username }),
-      ...(email && { email }),
-      ...(phoneNumber !== undefined && { phoneNumber }),
-      ...(userRole && { userRole: parseInt(userRole) }),
-      ...(address_1 !== undefined && { address_1 }),
-      ...(address_2 !== undefined && { address_2 }),
-      ...(cityId !== undefined && { cityId: cityId ? parseInt(cityId) : null }),
-      ...(stateId !== undefined && { stateId: stateId ? parseInt(stateId) : null }),
-      ...(countryId !== undefined && { countryId: countryId ? parseInt(countryId) : null }),
-      ...(zipcode !== undefined && { zipcode }),
-      ...(status !== undefined && { status: parseInt(status) })
+      // names
+      ...(fullName ? { full_name: fullName } : {}),
+      ...(username ? { username } : {}),
+      ...(email ? { email } : {}),
+      ...(phoneNumber !== undefined
+        ? { phone_number: phoneNumber }
+        : {}),
+      // role
+      ...(userRole
+        ? { role_id: parseInt(userRole) }
+        : {}),
+      // addresses
+      ...(address_1 !== undefined
+        ? { address_1 }
+        : {}),
+      ...(address_2 !== undefined
+        ? { address_2 }
+        : {}),
+      // location
+      ...(cityId !== undefined
+        ? { city_id: cityId ? parseInt(cityId) : null }
+        : {}),
+      ...(stateId !== undefined
+        ? { state_id: stateId ? parseInt(stateId) : null }
+        : {}),
+      ...(countryId !== undefined
+        ? { country_id: countryId ? parseInt(countryId) : null }
+        : {}),
+      // other
+      ...(zipcode !== undefined ? { zipcode } : {}),
+      ...(status !== undefined ? { status: parseInt(status) } : {})
     }
 
     // If password is provided (non-empty), hash it and include in update
@@ -456,11 +477,11 @@ router.put('/:id', authenticateToken, upload.single('qrCode'), async (req, res) 
     // Handle QR code upload
     if (req.file) {
       const qrCodePath = `/images/qrcodes/${req.file.filename}`;
-      updateData.qrCode = qrCodePath;
+      updateData.qr_code = qrCodePath;
 
       // Delete old QR code file if exists
-      if (existingUser.qrCode) {
-        const oldFilePath = path.join(PUBLIC_DIR, existingUser.qrCode.replace(/^\//, ''));
+      if (existingUser.qr_code) {
+        const oldFilePath = path.join(PUBLIC_DIR, existingUser.qr_code.replace(/^\//, ''));
         if (fs.existsSync(oldFilePath)) {
           fs.unlinkSync(oldFilePath);
         }
@@ -468,38 +489,38 @@ router.put('/:id', authenticateToken, upload.single('qrCode'), async (req, res) 
     }
 
     // Update user
-    const updatedUser = await prisma.user.update({
+    const updatedUser = await prisma.users.update({
       where: { id: parseInt(id) },
       data: updateData,
       select: {
         id: true,
-        fullName: true,
+        full_name: true,
         username: true,
         email: true,
-        phoneNumber: true,
-        userRole: true,
+        phone_number: true,
+        role_id: true,
         address_1: true,
         address_2: true,
-        cityId: true,
-        stateId: true,
-        countryId: true,
+        city_id: true,
+        state_id: true,
+        country_id: true,
         zipcode: true,
-        qrCode: true,
+        qr_code: true,
         status: true,
-        updatedAt: true,
-        city: {
+        updated_at: true,
+        cities: {
           select: {
             id: true,
             name: true
           }
         },
-        state: {
+        states: {
           select: {
             id: true,
             name: true
           }
         },
-        country: {
+        countries: {
           select: {
             id: true,
             name: true
@@ -529,7 +550,7 @@ router.delete('/:id', authenticateToken, async (req, res) => {
     const { id } = req.params;
 
     // Check if user exists
-    const existingUser = await prisma.user.findUnique({
+    const existingUser = await prisma.users.findUnique({
       where: { id: parseInt(id) }
     });
 
@@ -541,7 +562,7 @@ router.delete('/:id', authenticateToken, async (req, res) => {
     }
 
     // Delete user
-    await prisma.user.update({
+    await prisma.users.update({
       where: { id: parseInt(id) },
       data: { is_deleted: 1 }
     });
@@ -574,7 +595,7 @@ router.patch('/:id/password', authenticateToken, async (req, res) => {
     }
 
     // Get user with password
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: { id: parseInt(id) }
     });
 
@@ -599,7 +620,7 @@ router.patch('/:id/password', authenticateToken, async (req, res) => {
     const hashedNewPassword = await bcrypt.hash(newPassword, saltRounds);
 
     // Update password
-    await prisma.user.update({
+    await prisma.users.update({
       where: { id: parseInt(id) },
       data: { password: hashedNewPassword }
     });
@@ -681,7 +702,7 @@ router.put('/profile/:id', authenticateToken, uploadAvatar.single('user_image'),
     } = req.body;
 
     // Check if user exists
-    const existingUser = await prisma.user.findUnique({
+    const existingUser = await prisma.users.findUnique({
       where: { id: parseInt(id) }
     });
 
@@ -694,12 +715,12 @@ router.put('/profile/:id', authenticateToken, uploadAvatar.single('user_image'),
 
     // Build update data
     const updateData = {
-      ...(fullName && { fullName }),
+      ...(full_name && { full_name }),
       ...(email && { email }),
-      ...(phoneNumber !== undefined && { phoneNumber }),
-      ...(countryId !== undefined && { countryId: countryId ? parseInt(countryId) : null }),
-      ...(stateId !== undefined && { stateId: stateId ? parseInt(stateId) : null }),
-      ...(cityId !== undefined && { cityId: cityId ? parseInt(cityId) : null })
+      ...(phone_number !== undefined && { phone_number }),
+      ...(country_id !== undefined && { country_id: country_id ? parseInt(country_id) : null }),
+      ...(state_id !== undefined && { state_id: state_id ? parseInt(state_id) : null }),
+      ...(city_id !== undefined && { city_id: city_id ? parseInt(city_id) : null })
     };
 
     // Handle user_image upload
@@ -717,32 +738,32 @@ router.put('/profile/:id', authenticateToken, uploadAvatar.single('user_image'),
     }
 
     // Update user
-    const updatedUser = await prisma.user.update({
+    const updatedUser = await prisma.users.update({
       where: { id: parseInt(id) },
       data: updateData,
       select: {
         id: true,
-        fullName: true,
+        full_name: true,
         email: true,
-        phoneNumber: true,
+        phone_number: true,
         user_image: true,
-        countryId: true,
-        stateId: true,
-        cityId: true,
-        updatedAt: true,
-        city: {
+        country_id: true,
+        state_id: true,
+        city_id: true,
+        updated_at: true,
+        cities: {
           select: {
             id: true,
             name: true
           }
         },
-        state: {
+        states: {
           select: {
             id: true,
             name: true
           }
         },
-        country: {
+        countries: {
           select: {
             id: true,
             name: true

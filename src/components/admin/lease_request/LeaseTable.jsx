@@ -140,12 +140,12 @@ const LeaseTable = () => {
     // prepare edit payload
     const payload = {
       id: item.id,
-      fullName: item.fullName || "",
+      fullName: item.full_name || "",
       email: item.email || "",
-      phoneNumber: item.phoneNumber || "",
-      countryId: item.countryId || (item.country ? item.country.id : null),
-      stateId: item.stateId || (item.state ? item.state.id : null),
-      cityId: item.cityId || (item.city ? item.city.id : null),
+      phoneNumber: item.phone_number || "",
+      countryId: item.country_id || (item.countries ? item.countries.id : null),
+      stateId: item.state_id || (item.states ? item.states.id : null),
+      cityId: item.city_id || (item.cities ? item.cities.id : null),
       address: item.address || "",
       subject: item.subject || "",
       message: item.message || "",
@@ -197,7 +197,7 @@ const LeaseTable = () => {
   const columns = useMemo(
     () => [
       {
-        accessorKey: "fullName",
+        accessorKey: "full_name",
         header: () => lang("leaseRequest.fullNameTable") || "Full Name",
       },
       {
@@ -205,7 +205,7 @@ const LeaseTable = () => {
         header: () => lang("leaseRequest.emailTable") || "Email",
       },
       {
-        accessorKey: "phoneNumber",
+        accessorKey: "phone_number",
         header: () => lang("leaseRequest.phoneTable") || "Phone",
       },
       {
@@ -237,9 +237,9 @@ const LeaseTable = () => {
         header: () => lang("leaseRequest.location") || "Location",
         cell: ({ row }) => {
           const parts = [];
-          if (row.original.city) parts.push(row.original.city.name);
-          if (row.original.state) parts.push(row.original.state.name);
-          if (row.original.country) parts.push(row.original.country.name);
+          if (row.original.cities) parts.push(row.original.cities.name);
+          if (row.original.states) parts.push(row.original.states.name);
+          if (row.original.countries) parts.push(row.original.countries.name);
           return parts.length > 0 ? parts.join(", ") : "-";
         },
       },
@@ -333,7 +333,7 @@ const LeaseTable = () => {
                   {lang("leaseRequest.fullNameTable") || "Full Name"}
                 </Typography>
                 <Typography sx={{ fontSize: "1rem", fontWeight: 600, mt: 0.3 }}>
-                  {selected.fullName}
+                  {selected.full_name}
                 </Typography>
               </Box>
 
@@ -356,7 +356,7 @@ const LeaseTable = () => {
                 </Typography>
               </Box>
 
-              {selected.phoneNumber && (
+              {selected.phone_number && (
                 <Box>
                   <Typography
                     variant="caption"
@@ -367,7 +367,7 @@ const LeaseTable = () => {
                   <Typography
                     sx={{ fontSize: "1rem", fontWeight: 500, mt: 0.3 }}
                   >
-                    {selected.phoneNumber}
+                    {selected.phone_number}
                   </Typography>
                 </Box>
               )}
@@ -405,9 +405,9 @@ const LeaseTable = () => {
                 </Typography>
                 <Typography sx={{ fontSize: "1rem", fontWeight: 500, mt: 0.3 }}>
                   {[
-                    selected.city ? selected.city.name : null,
-                    selected.state ? selected.state.name : null,
-                    selected.country ? selected.country.name : null,
+                    selected.cities ? selected.cities.name : null,
+                    selected.states ? selected.states.name : null,
+                    selected.countries ? selected.countries.name : null,
                   ]
                     .filter(Boolean)
                     .join(", ")}
