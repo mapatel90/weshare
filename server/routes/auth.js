@@ -21,7 +21,7 @@ router.get('/check-username', async (req, res) => {
     }
 
     // Check if username exists
-    const existingUser = await prisma.user.findUnique({
+    const existingUser = await prisma.users.findUnique({
       where: { username }
     });
 
@@ -49,13 +49,13 @@ router.post('/register', async (req, res) => {
       username,
       email,
       password,
-      phoneNumber,
+      phone_number,
       userRole, 
-      address1,
-      address2,
-      city,
-      state,
-      country,
+      address_1,
+      address_2,
+      city_id,
+      state_id,
+      country_id,
       zipcode,
       termsAccepted
     } = req.body;
@@ -69,7 +69,7 @@ router.post('/register', async (req, res) => {
     }
 
     // Check if user already exists (by username)
-    const existingUser = await prisma.user.findUnique({
+    const existingUser = await prisma.users.findUnique({
       where: { username }
     });
 
@@ -85,19 +85,19 @@ router.post('/register', async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
     // Create user (store username and email)
-    const newUser = await prisma.user.create({
+    const newUser = await prisma.users.create({
       data: {
         fullName,
         username,
         email,
         password: hashedPassword,
-        phoneNumber,
+        phone_number,
         userRole,
-        address1,
-        address2,
-        city,
-        state,
-        country,
+        address_1,
+        address_2,
+        city_id,
+        state_id,
+        country_id,
         zipcode,
         status: 1,
         terms_accepted: termsAccepted || 0
@@ -107,7 +107,7 @@ router.post('/register', async (req, res) => {
         fullName: true,
         username: true,
         email: true,
-        phoneNumber: true,
+        phone_number: true,
         userRole: true,
         status: true,
         createdAt: true
@@ -231,27 +231,27 @@ router.get('/me', async (req, res) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     
     // Get user data
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: { id: decoded.userId },
       select: {
         id: true,
-        fullName: true,
+        full_name: true,
         username: true,
         email: true,
-        phoneNumber: true,
-        userRole: true,
-        address1: true,
-        address2: true,
-        city: true,
-        state: true,
-        country: true,
+        phone_number: true,
+        role_id: true,
+        address_1: true,
+        address_2: true,
+        city_id: true,
+        state_id: true,
+        country_id: true,
         zipcode: true,
         status: true,
-        createdAt: true,
-        updatedAt: true,
         user_image: true
       }
     });
+
+    console.log("user", user);
 
     if (!user) {
       return res.status(404).json({
@@ -288,7 +288,7 @@ router.post('/forgot-password', async (req, res) => {
     }
 
     // Check if user exists with this email
-    const user = await prisma.user.findFirst({
+    const user = await prisma.users.findFirst({
       where: { email }
     });
 
@@ -398,7 +398,7 @@ router.post('/reset-password', async (req, res) => {
     }
 
     // Find user by email
-    const user = await prisma.user.findFirst({
+    const user = await prisma.users.findFirst({
       where: { email: resetToken.email }
     });
 
@@ -414,7 +414,7 @@ router.post('/reset-password', async (req, res) => {
     const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
 
     // Update user password
-    await prisma.user.update({
+    await prisma.users.update({
       where: { id: user.id },
       data: { password: hashedPassword }
     });

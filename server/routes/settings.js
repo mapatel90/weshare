@@ -57,7 +57,7 @@ const deleteOldLogoIfSafe = (publicPath) => {
 // Get all settings
 router.get('/', async (req, res) => {
   try {
-    const settings = await prisma.setting.findMany();
+    const settings = await prisma.settings.findMany();
     
     // Convert array to object for easier access
     const settingsObj = {};
@@ -84,7 +84,7 @@ router.get('/:key', async (req, res) => {
   try {
     const { key } = req.params;
     
-    const setting = await prisma.setting.findUnique({
+    const setting = await prisma.settings.findUnique({
       where: { key }
     });
     
@@ -129,7 +129,7 @@ router.post('/bulk', authenticateToken, async (req, res) => {
       const results = [];
       
       for (const [key, value] of Object.entries(settings)) {
-        const setting = await prisma.setting.upsert({
+        const setting = await prisma.settings.upsert({
           where: { key },
           update: { 
             value: String(value),
@@ -173,7 +173,7 @@ router.post('/', authenticateToken, async (req, res) => {
       });
     }
     
-    const setting = await prisma.setting.upsert({
+    const setting = await prisma.settings.upsert({
       where: { key },
       update: { 
         value: String(value),
@@ -205,7 +205,7 @@ router.delete('/:key', authenticateToken, async (req, res) => {
   try {
     const { key } = req.params;
     
-    const setting = await prisma.setting.findUnique({
+    const setting = await prisma.settings.findUnique({
       where: { key }
     });
     
@@ -216,7 +216,7 @@ router.delete('/:key', authenticateToken, async (req, res) => {
       });
     }
     
-    await prisma.setting.delete({
+    await prisma.settings.delete({
       where: { key }
     });
     
@@ -264,7 +264,7 @@ router.post('/delete-logo', authenticateToken, async (req, res) => {
     deleteOldLogoIfSafe(path);
 
     // Clear site_image in DB
-    await prisma.setting.upsert({
+    await prisma.settings.upsert({
       where: { key: 'site_image' },
       update: { value: '', updatedAt: new Date() },
       create: { key: 'site_image', value: '' }
@@ -307,7 +307,7 @@ router.post('/delete-favicon', authenticateToken, async (req, res) => {
     deleteOldLogoIfSafe(path);
 
     // Clear site_favicon in DB
-    await prisma.setting.upsert({
+    await prisma.settings.upsert({
       where: { key: 'site_favicon' },
       update: { value: '', updatedAt: new Date() },
       create: { key: 'site_favicon', value: '' }
@@ -350,7 +350,7 @@ router.post('/delete-qrcode', authenticateToken, async (req, res) => {
     deleteOldLogoIfSafe(path);
 
     // Clear finance_qr_code in DB
-    await prisma.setting.upsert({
+    await prisma.settings.upsert({
       where: { key: 'finance_qr_code' },
       update: { value: '', updatedAt: new Date() },
       create: { key: 'finance_qr_code', value: '' }
@@ -385,7 +385,7 @@ router.post('/test-email', authenticateToken, async (req, res) => {
       // 'smtp_email_security_type',
     ];
 
-    const settings = await prisma.setting.findMany({ where: { key: { in: smtpKeys } } });
+    const settings = await prisma.settings.findMany({ where: { key: { in: smtpKeys } } });
     // console.log('Fetched SMTP settings from DB:', settings);
     const s = settings.reduce((acc, it) => { acc[it.key] = it.value; return acc; }, {});
 
