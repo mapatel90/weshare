@@ -247,8 +247,6 @@ model project_inverters {
   updated_at             DateTime  @default(now())
   inverters              inverters @relation(fields: [inverter_id], references: [id])
   projects               projects  @relation(fields: [project_id], references: [id])
-
-  @@unique([project_id, inverter_id], map: "project_inverters_project_inverter_unique")
 }
 
 model project_types {
