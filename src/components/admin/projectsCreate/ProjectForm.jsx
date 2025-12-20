@@ -29,7 +29,7 @@ const ProjectForm = ({
   loadingCountries = false,
   loadingStates = false,
   loadingCities = false,
-
+  
   // handlers (provided by parent)
   handleInputChange,
   handleProjectNameBlur,
@@ -47,7 +47,7 @@ const ProjectForm = ({
   onSetDefaultImage, // <-- NEW prop: (id, 'existing'|'queued') => void
   maxProjectImages = 10,
   isImageSyncing = false,
-
+  
   // i18n helper
   lang = (k, fallback) => fallback,
 }) => {
@@ -57,6 +57,7 @@ const ProjectForm = ({
   const isTemporarilyDisabled = loading.form || isImageSyncing;
   const dropDisabled = isGalleryFull || isTemporarilyDisabled;
 
+  
   const handleDrop = useCallback(
     (accepted, rejected) => {
       if (typeof onDropImages === "function") {
@@ -91,6 +92,7 @@ const ProjectForm = ({
     },
     []
   );
+  {console.log("projectformData",formData)}
   return (
     <form id="project-form" onSubmit={handleSubmit}>
       <div className="card">
@@ -627,13 +629,13 @@ const ProjectForm = ({
               </div>
 
               <div className="col-md-3 mb-3">
-                <FormControl fullWidth error={!!error.countryId}>
+                <FormControl fullWidth error={!!error.country_id}>
                   <InputLabel id="country-select-label">
                     {lang("projects.country", "Country")}
                   </InputLabel>
                   <Select
                     labelId="country-select-label"
-                    value={formData.countryId}
+                    value={formData.country_id}
                     label={lang("projects.country", "Country")}
                     onChange={(e) =>
                       handleLocationChange("country", e.target.value)
@@ -649,25 +651,25 @@ const ProjectForm = ({
                       </MenuItem>
                     ))}
                   </Select>
-                  {error.countryId && (
-                    <FormHelperText>{error.countryId}</FormHelperText>
+                  {error.country_id && (
+                    <FormHelperText>{error.country_id}</FormHelperText>
                   )}
                 </FormControl>
               </div>
 
               <div className="col-md-3 mb-3">
-                <FormControl fullWidth error={!!error.stateId}>
+                <FormControl fullWidth error={!!error.state_id}>
                   <InputLabel id="state-select-label">
                     {lang("projects.state", "State")}
                   </InputLabel>
                   <Select
                     labelId="state-select-label"
-                    value={formData.stateId}
+                    value={formData.state_id}
                     label={lang("projects.state", "State")}
                     onChange={(e) =>
                       handleLocationChange("state", e.target.value)
                     }
-                    disabled={loadingStates || !formData.countryId}
+                    disabled={loadingStates || !formData.country_id}
                   >
                     <MenuItem value="">
                       {lang("projects.selectState", "Select State")}
@@ -678,25 +680,25 @@ const ProjectForm = ({
                       </MenuItem>
                     ))}
                   </Select>
-                  {error.stateId && (
-                    <FormHelperText>{error.stateId}</FormHelperText>
+                  {error.state_id && (
+                    <FormHelperText>{error.state_id}</FormHelperText>
                   )}
                 </FormControl>
               </div>
 
               <div className="col-md-3 mb-3">
-                <FormControl fullWidth error={!!error.cityId}>
+                <FormControl fullWidth error={!!error.city_id}>
                   <InputLabel id="city-select-label">
                     {lang("projects.city", "City")}
                   </InputLabel>
                   <Select
                     labelId="city-select-label"
-                    value={formData.cityId}
+                    value={formData.city_id}
                     label={lang("projects.city", "City")}
                     onChange={(e) =>
                       handleLocationChange("city", e.target.value)
                     }
-                    disabled={loadingCities || !formData.stateId}
+                    disabled={loadingCities || !formData.state_id}
                   >
                     <MenuItem value="">
                       {lang("projects.selectCity", "Select City")}
@@ -707,8 +709,8 @@ const ProjectForm = ({
                       </MenuItem>
                     ))}
                   </Select>
-                  {error.cityId && (
-                    <FormHelperText>{error.cityId}</FormHelperText>
+                  {error.city_id && (
+                    <FormHelperText>{error.city_id}</FormHelperText>
                   )}
                 </FormControl>
               </div>
