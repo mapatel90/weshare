@@ -962,7 +962,7 @@ router.post("/chart-data", async (req, res) => {
 
     // Build WHERE condition step-by-step
     let where = {
-      project: { is_deleted: 0 },
+      project_id: { is_deleted: 0 },
     };
 
     // Filter by projectId if provided
