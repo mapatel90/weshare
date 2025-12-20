@@ -630,27 +630,27 @@ router.post('/GetUserByRole', authenticateToken, async (req, res) => {
       })
     }
 
-    const users = await prisma.user.findMany({
-      where: { userRole: parseInt(user_role) },
+    const users = await prisma.users.findMany({
+      where: { role_id: parseInt(user_role) },
       select: {
         id: true,
-        fullName: true,
+        full_name: true,
         username: true,
         email: true,
-        phoneNumber: true,
-        userRole: true,
-        address1: true,
-        address2: true,
-        cityId: true,
-        stateId: true,
-        countryId: true,
+        phone_number: true,
+        role_id: true,
+        address_1: true,
+        address_2: true,
+        city_id: true,
+        state_id: true,
+        country_id: true,
         zipcode: true,
         status: true,
-        createdAt: true,
-        updatedAt: true,
-        city: { select: { id: true, name: true } },
-        state: { select: { id: true, name: true } },
-        country: { select: { id: true, name: true } },
+        created_at: true,
+        updated_at: true,
+        cities: { select: { id: true, name: true } },
+        states: { select: { id: true, name: true } },
+        countries: { select: { id: true, name: true } },
       },
     })
 

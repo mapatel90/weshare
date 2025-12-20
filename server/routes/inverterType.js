@@ -6,7 +6,7 @@ const router = express.Router();
 
 router.get('/', authenticateToken, async (req, res) => {
   try {
-    const inverterTypes = await prisma.inverterType.findMany({
+    const inverterTypes = await prisma.inverter_type.findMany({
      where: { is_deleted: 0 },
      orderBy: { type: 'asc' },
     });
@@ -26,7 +26,7 @@ router.post('/', authenticateToken, async (req, res) => {
       return res.status(400).json({ success: false, message: 'Type and status are required.' });
     }
 
-    const created = await prisma.inverterType.create({
+    const created = await prisma.inverter_type.create({
       data: { type, status },
     });
 
@@ -58,19 +58,19 @@ router.get('/data', authenticateToken, async (req, res) => {
     }
 
     const [items, total] = await Promise.all([
-      prisma.inverterType.findMany({
+      prisma.inverter_type.findMany({
         where,
         skip: parseInt(offset),
         take: parseInt(limit),
         orderBy: { type: 'asc' },
       }),
-      prisma.inverterType.count({ where }),
+      prisma.inverter_type.count({ where }),
     ]);
 
     return res.status(200).json({
       success: true,
       data: {
-        inverterTypes: items,
+        inverter_types: items,
         pagination: {
           page: parseInt(page),
           limit: parseInt(limit),
@@ -95,7 +95,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
       return res.status(400).json({ success: false, message: 'Type and status are required.' });
     }
 
-    const updated = await prisma.inverterType.update({
+    const updated = await prisma.inverter_type.update({
       where: { id: parseInt(id) },
       data: { type, status },
     });
@@ -115,7 +115,7 @@ router.delete('/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
 
-    await prisma.inverterType.update({ where: { id: parseInt(id) } , data: { is_deleted: 1 } });
+    await prisma.inverter_type.update({ where: { id: parseInt(id) } , data: { is_deleted: 1 } });
 
     return res.status(200).json({ success: true, message: 'Inverter type deleted successfully' });
   } catch (error) {

@@ -78,7 +78,6 @@ const InverterTable = () => {
   const fetchInverters = async () => {
     try {
       const response = await apiGet("/api/inverters/");
-      console.log("Fetched inverters:", response.data);
       if (response.success && response.data.inverters) {
         setInvertersData(response.data.inverters);
       }
@@ -245,11 +244,11 @@ const InverterTable = () => {
       // Edit mode - same as before
       setModalMode("edit");
       setEditingId(item.id || null);
-      setCompanyName(item.companyName || "");
-      setInverterName(item.inverterName || "");
-      setApiKey(item.apiKey || "");
-      setSecretKey(item.secretKey || "");
-      setApiUrlName(item.apiUrl || ""); // <-- set new field from either camel or snake
+      setCompanyName(item.company_name || "");
+      setInverterName(item.inverter_name || "");
+      setApiKey(item.api_key || "");
+      setSecretKey(item.secret_key || "");
+      setApiUrlName(item.api_url || ""); // <-- set new field from either camel or snake
       setErrors({});
       setPendingEdit(item);
       // set status for edit mode
@@ -301,15 +300,15 @@ const InverterTable = () => {
 
   const columns = [
     // { accessorKey: "id", header: () => "ID" },
-    { accessorKey: "companyName", header: () => lang("inverter.companyName") },
+    { accessorKey: "company_name", header: () => lang("inverter.companyName") },
     {
-      accessorKey: "inverterName",
+      accessorKey: "inverter_name",
       header: () => lang("inverter.inverterName"),
     },
     { accessorKey: "inverter_type_id", header: () => lang("inverter.type") },
-    { accessorKey: "apiKey", header: () => lang("inverter.apiKey") },
-    { accessorKey: "apiUrl", header: () => lang("inverter.apiUrlName") }, // <-- added column
-    { accessorKey: "secretKey", header: () => lang("inverter.secretKey") },
+    { accessorKey: "api_key", header: () => lang("inverter.apiKey") },
+    { accessorKey: "api_url", header: () => lang("inverter.apiUrlName") }, // <-- added column
+    { accessorKey: "secret_key", header: () => lang("inverter.secretKey") },
     {
       accessorKey: "status",
       header: () => lang("inverter.status"),
