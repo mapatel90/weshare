@@ -20,8 +20,8 @@ export default function AddModal({ open, onClose }) {
     // try to default to logged-in user id if available
     (user && (user.id ?? user.user?.id)) ? String(user.id ?? user.user?.id) : ""
   );
-  const [address1, setAddress1] = useState("");
-  const [address2, setAddress2] = useState("");
+  const [address_1, setaddress_1] = useState("");
+  const [address_2, setaddress_2] = useState("");
   const [countryId, setCountryId] = useState("");
   const [stateId, setStateId] = useState("");
   const [cityId, setCityId] = useState("");
@@ -212,8 +212,8 @@ export default function AddModal({ open, onClose }) {
           projectSlug || (name || "").toLowerCase().replace(/\s+/g, "-"),
         project_type_id: Number(selectedProjectTypeId || 1),
         ...(offtakerId ? { offtaker_id: Number(offtakerId) } : {}),
-        address1: address1 || "",
-        address2: address2 || "",
+        address_1: address_1 || "",
+        address_2: address_2 || "",
         ...(countryId ? { country_id: Number(countryId) } : {}),
         ...(stateId ? { state_id: Number(stateId) } : {}),
         ...(cityId ? { city_id: Number(cityId) } : {}),
@@ -260,8 +260,8 @@ export default function AddModal({ open, onClose }) {
       setProjectSlug("");
       setSelectedProjectTypeId("");
       setOfftakerId("");
-      setAddress1("");
-      setAddress2("");
+      setaddress_1("");
+      setaddress_2("");
       setCountryId("");
       setStateId("");
       setCityId("");

@@ -684,7 +684,7 @@ const ProjectForm = ({
                 <TextField
                   fullWidth
                   label={lang("projects.addressLine1", "Address Line 1")}
-                  name="address1"
+                  name="address_1"
                   value={formData.address_1}
                   onChange={handleInputChange}
                   placeholder={lang(
@@ -697,7 +697,7 @@ const ProjectForm = ({
                 <TextField
                   fullWidth
                   label={lang("projects.addressLine2", "Address Line 2")}
-                  name="address2"
+                  name="address_2"
                   value={formData.address_2}
                   onChange={handleInputChange}
                   placeholder={lang(

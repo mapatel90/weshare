@@ -134,8 +134,8 @@ const TabProjectBasicDetails = ({ setFormData, formData, error, setError }) => {
                 const offtaker = await fetchOfftakerById(offtakerId)
                 setFormData(prev => ({
                     ...prev,
-                    address1: offtaker?.address1 || '',
-                    address2: offtaker?.address2 || '',
+                    address_1: offtaker?.address_1 || '',
+                    address_2: offtaker?.address_2 || '',
                     cityId: offtaker?.cityId || '',
                     stateId: offtaker?.stateId || '',
                     countryId: offtaker?.countryId || '',
@@ -308,8 +308,8 @@ const TabProjectBasicDetails = ({ setFormData, formData, error, setError }) => {
                 project_slug: formData.project_slug || generateSlug(formData.project_name),
                 project_type_id: Number(formData.project_type_id),
                 ...(formData.offtaker && { offtaker_id: Number(formData.offtaker) }),
-                address1: formData.address1 || '',
-                address2: formData.address2 || '',
+                address_1: formData.address_1 || '',
+                address_2: formData.address_2 || '',
                 ...(formData.countryId && { country_id: Number(formData.countryId) }),
                 ...(formData.stateId && { state_id: Number(formData.stateId) }),
                 ...(formData.cityId && { city_id: Number(formData.cityId) }),

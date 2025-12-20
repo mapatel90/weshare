@@ -133,8 +133,8 @@ const ContractsDetails = ({ contractId }) => {
                             <Field label={lang('projects.zipcode', 'Zip Code')} value={contract.project.zipcode} />
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                            <Field label={lang('projects.addressLine1', 'Address Line 1')} value={contract.project.address1} />
-                            {/* <Field label={lang('projects.addressLine2', 'Address Line 2')} value={contract.project.address2} /> */}
+                            <Field label={lang('projects.addressLine1', 'Address Line 1')} value={contract.project.address_1} />
+                            {/* <Field label={lang('projects.addressLine2', 'Address Line 2')} value={contract.project.address_2} /> */}
                         </div>
                         {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                                 <Field label={lang('common.createdAt', 'Created At')} value={contract.createdAt ? new Date(contract.createdAt).toLocaleString() : '-'} />
