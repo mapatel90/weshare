@@ -258,7 +258,7 @@ const ProjectForm = ({
                   </MenuItem>
                   {offtakers.map((offtaker) => (
                     <MenuItem key={offtaker.id} value={offtaker.id}>
-                      {offtaker.fullName}
+                      {offtaker.full_name}
                     </MenuItem>
                   ))}
                 </Select>
@@ -648,7 +648,7 @@ const ProjectForm = ({
                   fullWidth
                   label={lang("projects.addressLine1", "Address Line 1")}
                   name="address1"
-                  value={formData.address1}
+                  value={formData.address_1}
                   onChange={handleInputChange}
                   placeholder={lang(
                     "projects.addressLine1Placeholder",
@@ -661,7 +661,7 @@ const ProjectForm = ({
                   fullWidth
                   label={lang("projects.addressLine2", "Address Line 2")}
                   name="address2"
-                  value={formData.address2}
+                  value={formData.address_2}
                   onChange={handleInputChange}
                   placeholder={lang(
                     "projects.addressLine2Placeholder",
