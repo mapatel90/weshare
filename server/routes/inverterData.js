@@ -194,17 +194,17 @@ router.post("/latest-record", authenticateToken, async (req, res) => {
     const { projectId, projectInverterId } = req.body;
     // Build WHERE condition step-by-step
     let where = {
-      project: { is_deleted: 0 },
+      projects: { is_deleted: 0 },
     };
 
     // Filter by projectId if provided
     if (projectId) {
-      where.projectId = Number(projectId);
+      where.project_id = Number(projectId);
     }
 
     // If inverter selected, return latest for that inverter
     if (projectInverterId) {
-      where.inverter_id = Number(projectInverterId);
+      where.project_inverter_id = Number(projectInverterId);
       const latest = await prisma.inverter_data.findFirst({
         where,
         orderBy: { date: "desc" },
@@ -213,7 +213,7 @@ router.post("/latest-record", authenticateToken, async (req, res) => {
         success: true,
         data: latest
           ? {
-            inverter_id: latest.inverter_id,
+            project_inverter_id: latest.project_inverter_id,
             daily_yield: latest.daily_yield,
             total_yield: latest.total_yield,
             date: latest.date,
@@ -234,7 +234,7 @@ router.post("/latest-record", authenticateToken, async (req, res) => {
           const latest = await prisma.inverter_data.findFirst({
             where: {
               ...where,
-              inverter_id: inv.inverter_id,
+              project_inverter_id: inv.inverter_id,
             },
             orderBy: { date: "desc" },
           });
@@ -412,17 +412,17 @@ router.post("/chart-data", async (req, res) => {
 
     // Build WHERE condition step-by-step
     let where = {
-      project: { is_deleted: 0 },
+      projects: { is_deleted: 0 },
     };
 
     // Filter by projectId if provided
     if (projectId) {
-      where.projectId = Number(projectId);
+      where.project_id = Number(projectId);
     }
 
     // Filter by inverter_id if provided
     if (projectInverterId) {
-      where.inverter_id = Number(projectInverterId);
+      where.project_inverter_id = Number(projectInverterId);
     }
 
     // Filter by date if provided (expecting YYYY-MM-DD)
