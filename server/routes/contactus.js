@@ -19,7 +19,7 @@ router.get('/', async (req, res) => {
 
     if (search) {
       where.OR = [
-        { fullName: { contains: search, mode: 'insensitive' } },
+        { full_name: { contains: search, mode: 'insensitive' } },
         { email: { contains: search, mode: 'insensitive' } },
         { subject: { contains: search, mode: 'insensitive' } }
       ];
@@ -31,13 +31,13 @@ router.get('/', async (req, res) => {
 
     // Get contact messages with pagination
     const [messages, total] = await Promise.all([
-      prisma.contactUs.findMany({
+      prisma.contact_us.findMany({
         where,
         skip: offset,
         take: limitInt,
-        orderBy: { createdAt: 'desc' }
+        orderBy: { created_at: 'desc' }
       }),
-      prisma.contactUs.count({ where })
+      prisma.contact_us.count({ where })
     ]);
 
     res.json({
@@ -91,11 +91,11 @@ router.post('/', async (req, res) => {
     }
 
     // Create contact message
-    const newMessage = await prisma.contactUs.create({
+    const newMessage = await prisma.contact_us.create({
       data: {
-        fullName,
+        full_name: fullName,
         email,
-        phoneNumber: phoneNumber || null,
+        phone_number: phoneNumber || null,
         subject,
         message,
         project_id: 2,
@@ -123,7 +123,7 @@ router.get('/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
 
-    const message = await prisma.contactUs.findUnique({
+    const message = await prisma.contact_us.findUnique({
       where: { 
         id: parseInt(id),
         is_deleted: 0
@@ -158,7 +158,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
     const { fullName, email, phoneNumber, subject, message } = req.body;
 
     // Check if message exists
-    const existingMessage = await prisma.contactUs.findUnique({
+    const existingMessage = await prisma.contact_us.findUnique({
       where: { 
         id: parseInt(id),
         is_deleted: 0
@@ -173,12 +173,12 @@ router.put('/:id', authenticateToken, async (req, res) => {
     }
 
     // Update message status
-    const updatedMessage = await prisma.contactUs.update({
+    const updatedMessage = await prisma.contact_us.update({
       where: { id: parseInt(id) },
       data: {
-        fullName,
+        full_name: fullName,
         email,
-        phoneNumber,
+        phone_number: phoneNumber,
         subject,
         message
       }
@@ -205,7 +205,7 @@ router.delete('/:id', authenticateToken, async (req, res) => {
     const { id } = req.params;
 
     // Check if message exists
-    const existingMessage = await prisma.contactUs.findUnique({
+    const existingMessage = await prisma.contact_us.findUnique({
       where: { 
         id: parseInt(id),
         is_deleted: 0
@@ -220,7 +220,7 @@ router.delete('/:id', authenticateToken, async (req, res) => {
     }
 
     // Soft delete message
-    await prisma.contactUs.update({
+    await prisma.contact_us.update({
       where: { id: parseInt(id) },
       data: { is_deleted: 1 }
     });

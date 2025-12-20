@@ -27,18 +27,18 @@ router.post('/', async (req, res) => {
     }
 
     const payload = {
-      fullName: String(fullName).trim(),
+      full_name: String(fullName).trim(),
       email: String(email).trim(),
-      phoneNumber: phoneNumber ? String(phoneNumber).trim() : null,
-      countryId: countryId ? Number(countryId) : null,
-      stateId: stateId ? Number(stateId) : null,
-      cityId: cityId ? Number(cityId) : null,
+      phone_number: phoneNumber ? String(phoneNumber).trim() : null,
+      country_id: countryId ? Number(countryId) : null,
+      state_id: stateId ? Number(stateId) : null,
+      city_id: cityId ? Number(cityId) : null,
       address: address ? String(address).trim() : null,
       subject: subject ? String(subject).trim() : null,
       message: String(message).trim()
     }
 
-    const record = await prisma.leaseRequest.create({
+    const record = await prisma.lease_requests.create({
       data: payload
     })
 
@@ -79,18 +79,18 @@ router.put('/:id', authenticateToken, async (req, res) => {
     }
 
     const payload = {
-      fullName: String(fullName).trim(),
+      full_name: String(fullName).trim(),
       email: String(email).trim(),  
-      phoneNumber: phoneNumber ? String(phoneNumber).trim() : null,
-      countryId: countryId ? Number(countryId) : null,
-      stateId: stateId ? Number(stateId) : null,
-      cityId: cityId ? Number(cityId) : null,
+      phone_number: phoneNumber ? String(phoneNumber).trim() : null,
+      country_id: countryId ? Number(countryId) : null,
+      state_id: stateId ? Number(stateId) : null,
+      city_id: cityId ? Number(cityId) : null,
       address: address ? String(address).trim() : null,
       subject: subject ? String(subject).trim() : null,
       message: String(message).trim()
     }
 
-    const record = await prisma.leaseRequest.update({
+    const record = await prisma.lease_requests.update({
       where: { id: Number(id) },
       data: payload
     })
@@ -111,14 +111,14 @@ router.put('/:id', authenticateToken, async (req, res) => {
 
 router.get('/', async (req, res) => {
   try {
-    const records = await prisma.leaseRequest.findMany({
+    const records = await prisma.lease_requests.findMany({
       where: { is_deleted: 0 },
       include: {
-        country: true,
-        state: true,
-        city: true
+        countries: true,
+        states: true,
+        cities: true
       },
-      orderBy: { createdAt: 'asc' }
+      orderBy: { created_at: 'asc' }
     })
 
     return res.status(200).json({
@@ -139,7 +139,7 @@ router.delete('/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params || {}
 
-    const record = await prisma.leaseRequest.findUnique({
+    const record = await prisma.lease_requests.findUnique({
       where: { id: Number(id) }
     })  
     if (!record || record.is_deleted) {
@@ -148,7 +148,7 @@ router.delete('/:id', authenticateToken, async (req, res) => {
         message: 'Lease request not found'
       })
     }
-    await prisma.leaseRequest.update({
+    await prisma.lease_requests.update({
       where: { id: Number(id) },
       data: { is_deleted: 1 }
     })
