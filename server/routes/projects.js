@@ -212,7 +212,7 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
           project_types: { connect: { id: project_type_id } },
         }),
         ...(offtaker_id && {
-          users: { connect: { id: parseInt(offtaker_id) } },
+          offtaker: { connect: { id: parseInt(offtaker_id) } },
         }),
         address_1: address1 || "",
         address_2: address2 || "",
@@ -247,7 +247,7 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
         countries: true,
         states: true,
         cities: true,
-        users: {
+        offtaker: {
           select: { id: true, full_name: true, email: true },
         },
       },
@@ -315,6 +315,8 @@ router.post(
       const currentCount = await prisma.project_images.count({
         where: { projectId },
       });
+
+      console.log("currentCount", currentCount);
 
       if (currentCount + files.length > PROJECT_IMAGE_LIMIT) {
         files.forEach((file) => removePhysicalFile(file.path));
@@ -599,7 +601,7 @@ router.get("/", async (req, res) => {
       prisma.projects.findMany({
         where,
         include: {
-          users: { select: { id: true, full_name: true, email: true, phone_number: true } },
+          offtaker: { select: { id: true, full_name: true, email: true, phone_number: true } },
           cities: true,
           states: true,
           countries: true,
@@ -672,6 +674,8 @@ router.get("/:identifier", async (req, res) => {
   try {
     const { identifier } = req.params;
 
+    console.log("identifier", identifier);
+
     // Check if identifier is numeric (ID) or string (slug)
     const isNumeric = /^\d+$/.test(identifier);
 
@@ -680,7 +684,7 @@ router.get("/:identifier", async (req, res) => {
         ? { id: parseInt(identifier) }
         : { project_slug: identifier },
       include: {
-        users: { select: { id: true, full_name: true, email: true, phone_number: true } },
+        offtaker: { select: { id: true, full_name: true, email: true, phone_number: true } },
         cities: true,
         states: true,
         countries: true,

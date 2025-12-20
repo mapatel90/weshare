@@ -239,6 +239,7 @@ model project_inverters {
   inverter_name          String?   @db.VarChar(255)
   model                  String?   @db.VarChar(255)
   version                String?   @db.VarChar(255)
+  in_warranty            Int       @default(0)
   warranty_expire_date   DateTime?
   status                 Int       @default(0)
   is_deleted             Int       @default(0)
@@ -313,7 +314,7 @@ model projects {
   project_inverters    project_inverters[]
   cities               cities?                @relation(fields: [city_id], references: [id])
   countries            countries?             @relation(fields: [country_id], references: [id])
-  users                users?                 @relation(fields: [offtaker_id], references: [id])
+  offtaker             users?                 @relation(fields: [offtaker_id], references: [id])
   project_types        project_types          @relation(fields: [project_type_id], references: [id])
   states               states?                @relation(fields: [state_id], references: [id])
   testimonials         testimonials[]
