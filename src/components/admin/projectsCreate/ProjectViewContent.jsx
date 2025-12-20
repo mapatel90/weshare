@@ -511,6 +511,7 @@ const ProjectViewContent = ({ projectId = "" }) => {
         projectId={projectId}
         selectedInverterId={selectedInverterId}
         inverters={projectInverters}
+        isDark={isDark}
       />
 
       {/* CHART SECTION */}

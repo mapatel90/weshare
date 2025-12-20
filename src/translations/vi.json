@@ -941,7 +941,9 @@
     "version": "Phiên bản",
     "model": "Mô hình",
     "Warranty": "Bảo hành",
-    "warrantyExpireDate": "Ngày hết hạn bảo hành"
+    "warrantyExpireDate": "Ngày hết hạn bảo hành",
+    "noinverterfound": "Không tìm thấy biến tần",
+    "serial": "nối tiếp"
   },
   "projectType": {
     "title": "Loại dự án",
