@@ -47,7 +47,7 @@ export default function AuthProvider({ children }) {
 
       // Verify token by calling your backend server using API helper
       // Disable loader for auth check to prevent blocking UI
-      const data = await apiGet('/api/auth/me', { showLoader: false })
+      const data = await apiGet('/api/auth/me', { showLoader: false, includeAuth : true })
       // Transform user data to match frontend expectations
       const transformedUser = {
         id: data.data.id,
@@ -109,11 +109,9 @@ export default function AuthProvider({ children }) {
         { includeAuth: false }
       )
 
-      console.log('📡 Login API response:', data)
-
       if (data.success) {
         // Backend returns user with fullName structure
-        const userName = `${data.data.user.fullName}`
+        const userName = `${data.data.user.full_name}`
         console.log('✅ Login successful for user:', userName)
 
         // Store token (backend returns 'token', not 'accessToken')

@@ -8,12 +8,12 @@ const router = express.Router();
 router.get('/statscount',authenticateToken, async (req, res) => {
     try {
         const [projects, users, inverters, contracts, lease_request, interested_investors] = await Promise.all([
-            prisma.project.count({ where: { is_deleted: 0 } }),
-            prisma.user.count({ where: { is_deleted: 0 } }),
-            prisma.inverter.count({ where: { is_deleted: 0 } }),
-            prisma.contract.count({ where: { is_deleted: 0 } }),
-            prisma.leaseRequest.count({ where: { is_deleted: 0 } }),
-            prisma.InterestedInvestor.count({ where: { is_deleted: 0 } }),
+            prisma.projects.count({ where: { is_deleted: 0 } }),
+            prisma.users.count({ where: { is_deleted: 0 } }),
+            prisma.inverters.count({ where: { is_deleted: 0 } }),
+            prisma.contracts.count({ where: { is_deleted: 0 } }),
+            prisma.leaseRequests.count({ where: { is_deleted: 0 } }),
+            prisma.InterestedInvestors.count({ where: { is_deleted: 0 } }),
         ]);
         res.json({
             success: true,
