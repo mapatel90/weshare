@@ -985,7 +985,9 @@
     "version": "Version",
     "model": "Model",
     "Warranty": "Warranty",
-    "warrantyExpireDate": "Warranty Expire Date"
+    "warrantyExpireDate": "Warranty Expire Date",
+    "noinverterfound": "No inverters found",
+    "serial": "Serial"
   },
   "projectType": {
     "title": "Project Types",
