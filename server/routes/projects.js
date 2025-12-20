@@ -173,8 +173,8 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
       project_slug,
       project_type_id,
       offtaker_id,
-      address1,
-      address2,
+      address_1,
+      address_2,
       country_id,
       state_id,
       city_id,
@@ -214,8 +214,8 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
         ...(offtaker_id && {
           users: { connect: { id: parseInt(offtaker_id) } },
         }),
-        address_1: address1 || "",
-        address_2: address2 || "",
+        address_1: address_1 || "",
+        address_2: address_2 || "",
         ...(country_id && {
           countries: { connect: { id: parseInt(country_id) } },
         }),
@@ -560,14 +560,14 @@ router.get("/", async (req, res) => {
     
     const where = { is_deleted: 0 };
     
-    // Search functionality - search across project_name, product_code, address1, address2, city, state, country
+    // Search functionality - search across project_name, product_code, address_1, address_2, city, state, country
     const trimmedSearch = typeof search === "string" ? search.trim() : "";
     if (trimmedSearch) {
       where.OR = [
         { project_name: { contains: trimmedSearch, mode: "insensitive" } },
         { product_code: { contains: trimmedSearch, mode: "insensitive" } },
-        { address1: { contains: trimmedSearch, mode: "insensitive" } },
-        { address2: { contains: trimmedSearch, mode: "insensitive" } },
+        { address_1: { contains: trimmedSearch, mode: "insensitive" } },
+        { address_2: { contains: trimmedSearch, mode: "insensitive" } },
         { project_location: { contains: trimmedSearch, mode: "insensitive" } },
         { project_description: { contains: trimmedSearch, mode: "insensitive" } },
         { offtaker: { fullName: { contains: trimmedSearch, mode: "insensitive" } } },
@@ -718,8 +718,8 @@ router.put("/:id", authenticateToken, async (req, res) => {
       project_slug,
       project_type_id,
       offtaker_id,
-      address1,
-      address2,
+      address_1,
+      address_2,
       country_id,
       state_id,
       city_id,
@@ -744,14 +744,14 @@ router.put("/:id", authenticateToken, async (req, res) => {
       // update relation: connect projectType by id when provided
       ...(project_type_id !== undefined &&
         (project_type_id
-          ? { projectType: { connect: { id: parseInt(project_type_id) } } }
-          : { projectType: { disconnect: true } })),
+          ? { project_types: { connect: { id: parseInt(project_type_id) } } }
+          : { project_types: { disconnect: true } })),
       ...(offtaker_id !== undefined &&
         (offtaker_id
           ? { users: { connect: { id: parseInt(offtaker_id) } } }
           : { users: { disconnect: true } })),
-      ...(address1 !== undefined && { address_1 }),
-      ...(address2 !== undefined && { address_2 }),
+      ...(address_1 !== undefined && { address_1 }),
+      ...(address_2 !== undefined && { address_2 }),
       ...(country_id !== undefined &&
         (country_id
           ? { countries: { connect: { id: parseInt(country_id) } } }
@@ -963,7 +963,7 @@ router.post("/chart-data", async (req, res) => {
 
     // Filter by projectId if provided
     if (projectId) {
-      where.projectId = Number(projectId);
+      where.project_id = Number(projectId);
     }
 
     // Filter by date if provided (expecting YYYY-MM-DD)

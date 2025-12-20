@@ -59,7 +59,7 @@ const ContractDetails = () => {
   const state = project?.state?.name || project?.state_name || "-";
   const city = project?.city?.name || project?.city_name || "-";
   const zipcode = project?.zipcode || "-";
-  const addressLine1 = project?.address1 || project?.address_line1 || "-";
+  const addressLine1 = project?.address_1 || project?.address_line1 || "-";
 
   return (
     <div className="container-fluid py-4" style={{ maxWidth: "1400px" }}>
