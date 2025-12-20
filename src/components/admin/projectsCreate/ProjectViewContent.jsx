@@ -6,8 +6,8 @@ import PowerConsumptionDashboard from './projectViewSection/inverterChart'
 import ProjectInformation from './projectViewSection/ProjectInformation'
 import ProjectOverviewChart from './projectViewSection/ProjectOverviewChart'
 import MeterInfo from './projectViewSection/MeterInfo'
-import MonthlyChart from './projectViewSection/MonthlyChart'
 import { FiEdit3 } from 'react-icons/fi'
+import SolarFlowCard from './projectViewSection/Animated'
 
 // -------- LANGUAGE HOOK (temporary) ----------
 const useLanguage = () => ({
@@ -26,6 +26,7 @@ const ProjectViewContent = ({ projectId = '' }) => {
 
   const [loading, setLoading] = useState(true)
   const [project, setProject] = useState(null)
+  const [isMobile, setIsMobile] = useState(false)
 
   // Contracts
   const [contracts, setContracts] = useState([])
@@ -52,6 +53,16 @@ const ProjectViewContent = ({ projectId = '' }) => {
   ); // New: track selected date
 
   console.log("selectedDate", new Date().toISOString().split("T")[0]);
+
+  // ------------------- Detect Mobile Screen -------------------
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   // ------------------- Load Project -------------------
   useEffect(() => {
@@ -242,16 +253,47 @@ const ProjectViewContent = ({ projectId = '' }) => {
 
         {/* HEADER */}
         <div style={{ marginBottom: '24px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div>
-              <h1 style={{ fontSize: '30px', fontWeight: 'bold', color: '#111827', marginBottom: '8px' }}>
-                {project.project_name}
-                <FiEdit3 style={{ cursor: 'pointer', marginLeft: '8px', color: '#3b82f6' }} onClick={() => window.location.href = `/admin/projects/edit/${project.id}`} />
-              </h1>
-              <p style={{ color: '#6b7280' }}>{project.project_type}</p>
+          <div style={{ 
+            display: 'flex', 
+            alignItems: isMobile ? 'flex-start' : 'center', 
+            justifyContent: 'space-between',
+            flexDirection: isMobile ? 'column' : 'row',
+            gap: isMobile ? '16px' : '0'
+          }}>
+            {/* PROJECT NAME + STATUS (Mobile) or just PROJECT NAME */}
+            <div style={{ 
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              width: isMobile ? '100%' : 'auto',
+              gap: isMobile ? '12px' : '0'
+            }}>
+              <div>
+                <h1 style={{ fontSize: isMobile ? '24px' : '30px', fontWeight: 'bold', color: '#111827', marginBottom: '8px' }}>
+                  {project.project_name}
+                  <FiEdit3 style={{ cursor: 'pointer', marginLeft: '8px', color: '#3b82f6' }} onClick={() => window.location.href = `/admin/projects/edit/${project.id}`} />
+                </h1>
+                <p style={{ color: '#6b7280' }}>{project.project_type}</p>
+              </div>
+
+              {/* PROJECT STATUS - Mobile Only on Same Row */}
+              {isMobile && (
+                <div style={{
+                  padding: '8px 16px',
+                  borderRadius: '9999px',
+                  backgroundColor: project.status === 1 ? '#dcfce7' : '#fee2e2',
+                  color: project.status === 1 ? '#166534' : '#991b1b',
+                  fontWeight: '600',
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0
+                }}>
+                  {project.status === 1 ? '● Active' : '● Inactive'}
+                </div>
+              )}
             </div>
 
-            <div>
+            {/* SELECT INVERTER */}
+            <div style={{ width: isMobile ? '100%' : 'auto' }}>
               {projectInvertersLoading ? (
                 <div style={{ color: '#6b7280', fontSize: '14px' }}>Loading inverters...</div>
               ) : (
@@ -264,7 +306,8 @@ const ProjectViewContent = ({ projectId = '' }) => {
                     border: '1px solid #e5e7eb',
                     background: '#fff',
                     fontSize: '14px',
-                    minWidth: '220px'
+                    minWidth: isMobile ? '100%' : '220px',
+                    width: isMobile ? '100%' : 'auto'
                   }}
                 >
                   <option value="">Select inverter</option>
@@ -285,16 +328,18 @@ const ProjectViewContent = ({ projectId = '' }) => {
               )}
             </div>
 
-            {/* PROJECT STATUS */}
-            <div style={{
-              padding: '8px 16px',
-              borderRadius: '9999px',
-              backgroundColor: project.status === 1 ? '#dcfce7' : '#fee2e2',
-              color: project.status === 1 ? '#166534' : '#991b1b',
-              fontWeight: '600'
-            }}>
-              {project.status === 1 ? '● Active' : '● Inactive'}
-            </div>
+            {/* PROJECT STATUS - Desktop/Tablet */}
+            {!isMobile && (
+              <div style={{
+                padding: '8px 16px',
+                borderRadius: '9999px',
+                backgroundColor: project.status === 1 ? '#dcfce7' : '#fee2e2',
+                color: project.status === 1 ? '#166534' : '#991b1b',
+                fontWeight: '600'
+              }}>
+                {project.status === 1 ? '● Active' : '● Inactive'}
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -310,11 +355,17 @@ const ProjectViewContent = ({ projectId = '' }) => {
         statCardsData={statCardsData}
       />
 
+        <SolarFlowCard
+          projectId={projectId}
+          selectedInverterId={selectedInverterId}
+          inverters={projectInverters}
+        />
+
       {/* CHART SECTION */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(500px, 1fr))', gap: '24px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
 
         {/* PRODUCTION CHART */}
-        <div style={{ backgroundColor: '#fff', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', border: '1px solid #f3f4f6', padding: '24px' }}>
+        <div style={{ backgroundColor: '#fff', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', border: '1px solid #f3f4f6', padding: '24px', marginBottom: '24px', overflowX: 'auto' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
             <h3 style={{ fontSize: '18px', fontWeight: 'bold', color: '#111827' }}>Energy Production Overview</h3>
             <div style={{ display: 'flex', gap: '8px' }}>

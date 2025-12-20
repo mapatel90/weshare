@@ -256,7 +256,9 @@
     "blogDateRequired": "Date is required",
     "blogSlugExists": "Slug already exists",
     "apiUrlNameRequired": "API URL is required",
-    "invalidUrl": "Please enter a valid URL"
+    "invalidUrl": "Please enter a valid URL",
+    "serialNumberRequired": "Serial Number is required",
+    "kilowattRequired": "Kilowatt is required"
   },
   "menu": {
     "dashboards": "Dashboards",

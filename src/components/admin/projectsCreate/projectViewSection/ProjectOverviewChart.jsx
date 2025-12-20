@@ -69,6 +69,7 @@ const normalizePowerValueKw = (value) => {
 
 const containerStyle = {
   width: '100%',
+  minWidth: '600px',
   height: '60vh',
   backgroundColor: '#ffffff',
   padding: '24px',
@@ -284,7 +285,7 @@ const ProjectOverviewChart = ({ projectId, readings = [], loading = false, selec
           </div>
         ) : (
           <>
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height="100%" minWidth={600}>
               <ComposedChart
                 data={chartData}
                 margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
