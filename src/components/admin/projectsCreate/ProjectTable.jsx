@@ -106,6 +106,7 @@ const ProjectTable = () => {
 
       if (res?.success) {
         const projects = Array.isArray(res.data) ? res.data : [];
+        console.log("projects",projects);
 
         // Fetch station details for projects with solis_plant_id
         const projectsWithDetails = await Promise.all(
@@ -215,18 +216,18 @@ const ProjectTable = () => {
     {
       accessorKey: "projectType.type_name",
       header: () => lang("projects.projectType", "Project Type"),
-      cell: (info) => info.row.original.projectType?.type_name || "-",
+      cell: (info) => info.row.original.project_types?.type_name || "-",
     },
     {
       accessorKey: "address",
       header: () => lang("projects.addressInformation", "Address"),
       cell: ({ row }) => {
-        const { city, state, country, address_1, address_2 } = row.original;
+        const { cities, states, countries, address_1, address_2 } = row.original;
         const locationParts = [];
 
-        if (city?.name) locationParts.push(city.name);
-        if (state?.name) locationParts.push(state.name);
-        if (country?.name) locationParts.push(country.name);
+        if (cities?.name) locationParts.push(cities.name);
+        if (states?.name) locationParts.push(states.name);
+        if (countries?.name) locationParts.push(countries.name);
 
         return (
           <div>
