@@ -54,7 +54,7 @@ export default function AuthProvider({ children }) {
         name: `${data.data.fullName}`,
         email: data.data.email,
         phone: data.data.phoneNumber,
-        role: data.data.userRole,
+        role: data.data.role_id,
         status: data.data.status === 1 ? 'active' : 'inactive',
         avatar: data.data.user_image || null
       }
@@ -127,7 +127,7 @@ export default function AuthProvider({ children }) {
           name: userName,
           email: data.data.user.email,
           phone: data.data.user.phoneNumber,
-          role: data.data.user.userRole,
+          role: data.data.user.role_id,
           status: data.data.user.status === 1 ? 'active' : 'inactive',
           avatar: data.data.user.avatar || null
         }
