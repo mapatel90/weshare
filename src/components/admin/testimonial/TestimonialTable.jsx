@@ -89,7 +89,7 @@ const TestimonialTable = () => {
     const fetchProjects = async () => {
         try {
             const res = await apiGet("/api/projects?status=1&limit=1000");
-            const items = Array.isArray(res?.data?.projects) ? res.data.projects : [];
+            const items = Array.isArray(res?.projectList) ? res.projectList : [];
             const active = items.filter((p) => String(p?.status) === "1");
             const mapped = active.map((p) => ({ label: p.project_name, value: String(p.id) }));
             setProjectOptions([{ label: lang("invoice.selectProject"), value: "" }, ...mapped]);
@@ -102,9 +102,9 @@ const TestimonialTable = () => {
         try {
             const res = await apiGet(`/api/projects/${projectId}`);
             const proj = res?.data;
-            const ot = proj?.offtaker;
+            const ot = proj?.users;
             if (ot?.id) {
-                const option = { label: (ot.fullName || ot.email || ""), value: String(ot.id) };
+                const option = { label: (ot.full_name || ot.email || ""), value: String(ot.id) };
                 setOfftakerOptions([option]);
                 setSelectedOfftaker(option);
                 if (errors.offtaker) setErrors((prev) => ({ ...prev, offtaker: "" }));
@@ -148,8 +148,8 @@ const TestimonialTable = () => {
                 const projId = item?.project_id || item?.project?.id;
                 const projLabel = item?.project?.project_name || "";
                 setSelectedProject(projId ? { label: projLabel, value: String(projId) } : null);
-                const otId = item?.offtaker_id || item?.offtaker?.id;
-                const otLabel = item?.offtaker ? (item.offtaker.fullName || item.offtaker.email || "") : "";
+                const otId = item?.offtaker_id || item?.users?.id;
+                const otLabel = item?.users ? (item.users.full_name || item.users.email || "") : "";
                 const editOfftaker = otId ? { label: otLabel, value: String(otId) } : null;
                 setSelectedOfftaker(editOfftaker);
                 setOfftakerOptions(editOfftaker ? [editOfftaker] : []);
@@ -257,12 +257,12 @@ const TestimonialTable = () => {
             {
                 accessorKey: "project.project_name",
                 header: () => lang("testimonial.project") || "Project",
-                cell: ({ row }) => row.original?.project?.project_name || row.original?.project_name || "",
+                cell: ({ row }) => row.original?.projects?.project_name || row.original?.project_name || "",
             },
             {
                 accessorKey: "offtaker.fullName",
                 header: () => lang("testimonial.offtaker") || "Offtaker",
-                cell: ({ row }) => row.original?.offtaker?.fullName || "",
+                cell: ({ row }) => row.original?.users?.full_name || "",
             },
             {
                 accessorKey: "image",
@@ -423,6 +423,7 @@ const TestimonialTable = () => {
                                 }}
                             >
                                 <MenuItem value="">{lang("testimonial.selectOfftaker") || "Select Offtaker"}</MenuItem>
+                                {console.log("offtakerOptions",offtakerOptions)}
                                 {offtakerOptions.map((option) => (
                                     <MenuItem key={option.value} value={option.value}>
                                         {option.label}

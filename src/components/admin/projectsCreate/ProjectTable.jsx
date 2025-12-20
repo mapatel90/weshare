@@ -221,7 +221,7 @@ const ProjectTable = () => {
       accessorKey: "address",
       header: () => lang("projects.addressInformation", "Address"),
       cell: ({ row }) => {
-        const { city, state, country, address1, address2 } = row.original;
+        const { city, state, country, address_1, address_2 } = row.original;
         const locationParts = [];
 
         if (city?.name) locationParts.push(city.name);
@@ -230,13 +230,13 @@ const ProjectTable = () => {
 
         return (
           <div>
-            {address1 && (
+            {address_1 && (
               <div>
-                {address1} - {address2}
+                {address_1} - {address_2}
               </div>
             )}
             {locationParts.length > 0 && <div>{locationParts.join(", ")}</div>}
-            {!address1 && !address2 && locationParts.length === 0 && "-"}
+            {!address_1 && !address_2 && locationParts.length === 0 && "-"}
           </div>
         );
       },

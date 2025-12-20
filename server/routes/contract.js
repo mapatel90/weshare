@@ -106,12 +106,12 @@ router.get("/", async (req, res) => {
 
     let where = {
       ...(id ? { id: Number(id) } : {}),
-      ...(projectId ? { projectId: Number(projectId) } : {}),
-      ...(investorId ? { investorId: Number(investorId) } : {}),
-      ...(offtakerId ? { offtakerId: Number(offtakerId) } : {}),
+      ...(projectId ? { project_id: Number(projectId) } : {}),
+      ...(investorId ? { investor_id: Number(investorId) } : {}),
+      ...(offtakerId ? { offtaker_id: Number(offtakerId) } : {}),
       ...(typeof status !== 'undefined' ? { status: Number(status) } : {}),
       ...(includeDeleted === '1' ? {} : { is_deleted: 0 }),
-      ...(userId ? { userId: Number(userId) } : {}),
+      // ...(userId ? { userId: Number(userId) } : {}),
     };
 
     // Date range filtering
@@ -133,7 +133,7 @@ router.get("/", async (req, res) => {
     }
 
     if (dateFilter) {
-      where.contractDate = dateFilter;
+      where.contract_date = dateFilter;
     }
 
     // Search functionality
@@ -152,13 +152,13 @@ router.get("/", async (req, res) => {
 
       const orFilters = [
         { contractTitle: { contains: trimmedSearch, mode: "insensitive" } },
-        { project: { project_name: { contains: trimmedSearch, mode: "insensitive" } } },
-        { offtaker: { fullName: { contains: trimmedSearch, mode: "insensitive" } } },
-        { investor: { fullName: { contains: trimmedSearch, mode: "insensitive" } } },
+        { projects: { project_name: { contains: trimmedSearch, mode: "insensitive" } } },
+        { users: { full_name: { contains: trimmedSearch, mode: "insensitive" } } },
+        { interested_investors: { fullName: { contains: trimmedSearch, mode: "insensitive" } } },
       ];
 
       if (dateRange) {
-        orFilters.push({ contractDate: dateRange });
+        orFilters.push({ contract_date: dateRange });
       }
 
       if (orFilters.length) {
@@ -167,7 +167,7 @@ router.get("/", async (req, res) => {
     }
 
     // Get total count
-    let totalCount = await prisma.contract.count({ where });
+    let totalCount = await prisma.contracts.count({ where });
 
     // Fallback for single-day search with no results
     if (totalCount === 0 && hasStart && !hasEnd) {
@@ -178,43 +178,43 @@ router.get("/", async (req, res) => {
 
     const skip = (Number(page) - 1) * (limitNumber || 20);
 
-    const data = await prisma.contract.findMany({
+    const data = await prisma.contracts.findMany({
       where,
-      orderBy: { createdAt: 'desc' },
+      orderBy: { created_at: 'desc' },
       skip: fetchAll ? 0 : skip,
       take: fetchAll ? undefined : limitNumber,
       include: {
-        project: {
+        projects: {
           include: {
-            city: true,
-            state: true,
-            country: true,
-            projectType: true,
+            cities: true,
+            states: true,
+            countries: true,
+            project_types: true,
           },
         },
-        offtaker: true,
-        investor: true,
+        users: true,
+        interested_investors: true,
       },
     });
 
     // Fetch project list for dropdown
-    const projectList = await prisma.project.findMany({
+    const projectList = await prisma.projects.findMany({
       where: { is_deleted: 0 },
       orderBy: { project_name: "asc" },
     });
 
-    const offtaker = await prisma.role.findFirst({
+    const offtaker = await prisma.roles.findFirst({
       where: { is_deleted: 0, name: 'offtaker' },
     });
 
-    const offtakerList = await prisma.user.findMany({
-      where: { is_deleted: 0, userRole: offtaker?.id ?? 3 },
-      orderBy: { fullName: "asc" },
+    const offtakerList = await prisma.users.findMany({
+      where: { is_deleted: 0, role_id: offtaker?.id ?? 3 },
+      orderBy: { full_name: "asc" },
     });
 
-    const investorList = await prisma.interestedInvestor.findMany({
+    const investorList = await prisma.interested_investors.findMany({
       where: { is_deleted: 0 },
-      orderBy: { fullName: "asc" },
+      orderBy: { full_name: "asc" },
     });
 
     const effectiveLimit = limitNumber || totalCount;

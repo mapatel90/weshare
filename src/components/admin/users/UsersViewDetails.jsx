@@ -226,7 +226,7 @@ const UsersViewDetails = () => {
               </div>
 
               {/* Address Information */}
-              {(user.address1 || user.city || user.state || user.country) && (
+              {(user.address_1 || user.city || user.state || user.country) && (
                 console.log("test", user),
                 <div className="col-lg-12">
                   <div className="border rounded p-3 bg-white shadow-sm">
@@ -236,24 +236,24 @@ const UsersViewDetails = () => {
                     </h6>
 
                     <div className="row gy-2 gx-4">
-                      {user.address1 && (
+                      {user.address_1 && (
                         <div className="col-md-6">
                           <div>
                             <span className="text-muted d-block small">
-                              {lang('usersView.address1', 'Address 1')}
+                              {lang('usersView.address_1', 'Address 1')}
                             </span>
-                            <span className="fw-semibold">{user.address1}</span>
+                            <span className="fw-semibold">{user.address_1}</span>
                           </div>
                         </div>
                       )}
 
-                      {user.address2 && (
+                      {user.address_2 && (
                         <div className="col-md-6">
                           <div>
                             <span className="text-muted d-block small">
-                              {lang('usersView.address2', 'Address 2')}
+                              {lang('usersView.address_2', 'Address 2')}
                             </span>
-                            <span className="fw-semibold">{user.address2}</span>
+                            <span className="fw-semibold">{user.address_2}</span>
                           </div>
                         </div>
                       )}

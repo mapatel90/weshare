@@ -49,7 +49,7 @@ router.post("/", authenticateToken, upload.single('blog_image'), async (req, res
       return res.status(400).json({ success: false, message: "Invalid date format." });
     }
 
-    const blog = await prisma.blog.create({
+    const blog = await prisma.blogs.create({
       data: {
         blog_title,
         blog_date: formattedDate,
@@ -68,7 +68,7 @@ router.post("/", authenticateToken, upload.single('blog_image'), async (req, res
 
 router.get("/", async (req, res) => {
   try {
-    const blogList = await prisma.blog.findMany({
+    const blogList = await prisma.blogs.findMany({
       where: { is_deleted: 0 },
       orderBy: { blog_date: 'asc' },
     });
@@ -88,7 +88,7 @@ router.get("/check-slug", async (req, res) => {
     }
 
     const parsedExcludeId = excludeId ? parseInt(excludeId) : null;
-    const existing = await prisma.blog.findFirst({
+    const existing = await prisma.blogs.findFirst({
       where: {
         blog_slug: slug,
         is_deleted: 0,
@@ -112,11 +112,11 @@ router.get("/:identifier", async (req, res) => {
 
     let blog;
     if (isNumeric) {
-      blog = await prisma.blog.findFirst({
+      blog = await prisma.blogs.findFirst({
         where: { id: parseInt(identifier), is_deleted: 0 },
       });
     } else {
-      blog = await prisma.blog.findFirst({
+      blog = await prisma.blogs.findFirst({
         where: { 
           blog_slug: identifier,
           is_deleted: 0
@@ -138,7 +138,7 @@ router.get("/:identifier", async (req, res) => {
 router.delete("/:id", authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
-    await prisma.blog.update({ where: { id: parseInt(id) }, data: { is_deleted: 1 } });
+    await prisma.blogs.update({ where: { id: parseInt(id) }, data: { is_deleted: 1 } });
     return res.status(200).json({ success: true, message: "Blog deleted successfully." });
   } catch (error) {
     console.error("Error deleting blog:", error);
@@ -165,7 +165,7 @@ router.put("/:id", authenticateToken, upload.single('blog_image'), async (req, r
     // If new image uploaded, remove old file (best-effort)
     if (newImagePath) {
       try {
-        const existing = await prisma.blog.findUnique({ where: { id: parseInt(id) } });
+        const existing = await prisma.blogs.findUnique({ where: { id: parseInt(id) } });
         const oldPath = existing?.blog_image
           ? path.join(PUBLIC_DIR, existing.blog_image.replace(/^\//, ''))
           : null;
@@ -177,7 +177,7 @@ router.put("/:id", authenticateToken, upload.single('blog_image'), async (req, r
       }
     }
 
-    const updatedBlog = await prisma.blog.update({
+    const updatedBlog = await prisma.blogs.update({
       where: { id: parseInt(id) },
       data: {
         blog_title,
