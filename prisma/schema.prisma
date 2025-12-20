@@ -20,7 +20,7 @@ model blogs {
 }
 
 model cities {
-  id         BigInt     @id @default(autoincrement())
+  id         Int     @id @default(autoincrement())
   name       String     @db.VarChar(100)
   state_id   Int
   status     Int        @default(1)
@@ -155,7 +155,7 @@ model lease_requests {
   phone_number String?  @db.VarChar(20)
   country_id   Int?
   state_id     Int?
-  city_id      BigInt?
+  city_id      Int?
   address      String?  @db.VarChar(500)
   subject      String?  @db.VarChar(255)
   message      String
@@ -277,7 +277,7 @@ model projects {
   price_kwh            Float?
   address_1            String?                @db.VarChar(255)
   address_2            String?                @db.VarChar(255)
-  city_id              BigInt?
+  city_id              Int?
   state_id             Int?
   country_id           Int?
   zipcode              String?                @db.VarChar(20)
@@ -373,7 +373,7 @@ model users {
   user_image           String?                @db.VarChar(500)
   address_1            String?                @db.VarChar(255)
   address_2            String?                @db.VarChar(255)
-  city_id              BigInt?
+  city_id              Int?
   state_id             Int?
   country_id           Int?
   zipcode              String?                @db.VarChar(20)

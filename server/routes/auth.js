@@ -155,7 +155,7 @@ router.post('/login', async (req, res) => {
     }
 
     // Find user by username
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: { username }
     });
 
