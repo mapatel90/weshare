@@ -22,7 +22,7 @@ router.get('/check-username', async (req, res) => {
     }
 
     // Check if username exists
-    const existingUser = await prisma.users.findUnique({
+    const existingUser = await prisma.users.findFirst({
       where: { username }
     });
 
@@ -70,7 +70,7 @@ router.post('/register', async (req, res) => {
     }
 
     // Check if user already exists (by username)
-    const existingUser = await prisma.users.findUnique({
+    const existingUser = await prisma.users.findFirst({
       where: { username }
     });
 
