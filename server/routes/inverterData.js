@@ -234,13 +234,13 @@ router.post("/latest-record", authenticateToken, async (req, res) => {
           const latest = await prisma.inverter_data.findFirst({
             where: {
               ...where,
-              project_inverter_id: inv.inverter_id,
+              project_inverter_id: inv.id,
             },
             orderBy: { date: "desc" },
           });
           return latest
             ? {
-              inverter_id: latest.inverter_id,
+              project_inverter_id: latest.project_inverter_id,
               daily_yield: latest.daily_yield,
               total_yield: latest.total_yield,
               date: latest.date,

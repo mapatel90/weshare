@@ -32,10 +32,7 @@ const MeterInfo = ({
   }
   const { lang } = useLanguage()
 
-  // Calculate active inverters (you can modify the condition based on your needs)
-  // console.log("inverters:", inverters)
   const activeInverters = inverters.filter((inv, index) => {
-    // console.log(`Inverter: ${index} status:`, inv?.status);
     return inv?.status === 1;
   }).length;
 

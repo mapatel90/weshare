@@ -73,8 +73,6 @@ const ProjectViewContent = ({ projectId = "" }) => {
     new Date().toISOString().split("T")[0]
   ); // New: track selected date
 
-  console.log("selectedDate", new Date().toISOString().split("T")[0]);
-
   // ------------------- Detect Mobile Screen -------------------
   useEffect(() => {
     const checkMobile = () => {
@@ -199,7 +197,6 @@ const ProjectViewContent = ({ projectId = "" }) => {
       try {
         setMonthlyChartDataLoading(true);
         const res = await apiPost(`/api/inverter-data/monthly-chart`, payload);
-        console.log("month data:", res.data);
         setMonthlyChartData(res?.success ? res.data : null);
       } finally {
         setMonthlyChartDataLoading(false);
@@ -337,8 +334,6 @@ const ProjectViewContent = ({ projectId = "" }) => {
       </div>
     );
   }
-
-  console.log("setSelectedDate", setSelectedDate);
 
   // ------------------- MAIN UI -------------------
   return (
