@@ -22,7 +22,7 @@ router.get('/check-username', async (req, res) => {
     }
 
     // Check if username exists
-    const existingUser = await prisma.users.findUnique({
+    const existingUser = await prisma.users.findFirst({
       where: { username }
     });
 
@@ -70,7 +70,7 @@ router.post('/register', async (req, res) => {
     }
 
     // Check if user already exists (by username)
-    const existingUser = await prisma.users.findUnique({
+    const existingUser = await prisma.users.findFirst({
       where: { username }
     });
 
@@ -156,7 +156,7 @@ router.post('/login', async (req, res) => {
     }
 
     // Find user by username
-    const user = await prisma.users.findUnique({
+    const user = await prisma.users.findFirst({
       where: { username }
     });
 
@@ -317,7 +317,7 @@ router.get('/me', async (req, res) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     
     // Get user data
-    const user = await prisma.users.findUnique({
+    const user = await prisma.users.findFirst({
       where: { id: decoded.userId },
       select: {
         id: true,
