@@ -29,7 +29,7 @@ router.get("/", async (req, res) => {
     };
 
     if (projectId) {
-      where.projectId = Number(projectId);
+      where.project_id = Number(projectId);
     }
 
     if (inverterId) {
@@ -164,7 +164,7 @@ router.get("/", async (req, res) => {
       name:
         (i.inverter && (i.inverter.inverterName || i.inverter.name)) ||
         `Inverter ${i.inverter_id}`,
-      projectId: i.project_id,
+      project_id: i.project_id,
     }));
 
     res.status(200).json({
@@ -284,14 +284,14 @@ router.post("/investor/latest-record", authenticateToken, async (req, res) => {
     });
 
     const interestedProjects = await prisma.interestedInvestor.findMany({
-      where: { is_deleted: 0, userId, projectId: { not: null } },
-      select: { projectId: true },
+      where: { is_deleted: 0, userId, project_id: { not: null } },
+      select: { project_id: true },
     });
 
     const allowedProjectIds = [
       ...new Set([
         ...ownedProjects.map((p) => p.id),
-        ...interestedProjects.map((p) => p.projectId),
+        ...interestedProjects.map((p) => p.project_id),
       ]),
     ];
 
@@ -314,7 +314,7 @@ router.post("/investor/latest-record", authenticateToken, async (req, res) => {
       if (!data) return null;
 
       return {
-        projectId: data.projectId,
+        project_id: data.project_id,
         inverter_id: data.inverter_id,
         inverter_name: inverterMeta?.inverter?.inverterName || null,
         inverter_serial_number: inverterMeta?.inverter_serial_number || null,
@@ -333,8 +333,8 @@ router.post("/investor/latest-record", authenticateToken, async (req, res) => {
         where: {
           inverter_id,
           ...(project_id
-            ? { projectId: project_id }
-            : { projectId: { in: allowedProjectIds } }),
+            ? { project_id: project_id }
+            : { project_id: { in: allowedProjectIds } }),
           projects: { is_deleted: 0 },
         },
         orderBy: { date: "desc" },
@@ -378,7 +378,7 @@ router.post("/investor/latest-record", authenticateToken, async (req, res) => {
     for (const pi of projectInverters) {
       const latest = await prisma.inverter_data.findFirst({
         where: {
-          projectId: pi.project_id,
+          project_id: pi.project_id,
           inverter_id: pi.inverter_id,
           projects: { is_deleted: 0 },
         },
@@ -458,13 +458,13 @@ router.post("/monthly-chart", async (req, res) => {
     };
 
     if (projectId) {
-      where.projectId = Number(projectId);
+      where.project_id = Number(projectId);
     }
 
     // If projectInverterId is provided, filter by that inverter
     // If not provided (null/empty), show all inverters for the project
     if (projectInverterId) {
-      where.inverter_id = Number(projectInverterId);
+      where.project_inverter_id  = Number(projectInverterId);
     }
 
     // Fetch all data matching the criteria with inverter and project_inverters relations
@@ -473,7 +473,7 @@ router.post("/monthly-chart", async (req, res) => {
       select: {
         date: true,
         generate_kw: true,
-        inverter_id: true,
+        project_inverter_id: true,
         project_inverters: {
           select: {
             inverter_name: true,
@@ -482,7 +482,7 @@ router.post("/monthly-chart", async (req, res) => {
         projects: {
           select: {
             id: true,
-            projectInverters: {
+            project_inverters: {
               where: {
                 is_deleted: 0,
               },
@@ -608,7 +608,7 @@ router.post("/offtaker/summary/data", authenticateToken, async (req, res) => {
       if (!data) return null;
 
       return {
-        projectId: data.projectId,
+        project_id: data.project_id,
         inverter_id: data.inverter_id,
         inverter_name: inverterMeta?.inverter?.inverterName || null,
         inverter_serial_number: inverterMeta?.inverter_serial_number || null,
@@ -627,8 +627,8 @@ router.post("/offtaker/summary/data", authenticateToken, async (req, res) => {
         where: {
           inverter_id,
           ...(project_id
-            ? { projectId: project_id }
-            : { projectId: { in: allowedProjectIds } }),
+            ? { project_id: project_id }
+            : { project_id: { in: allowedProjectIds } }),
           projects: { is_deleted: 0 },
         },
         orderBy: { date: "desc" },
@@ -672,7 +672,7 @@ router.post("/offtaker/summary/data", authenticateToken, async (req, res) => {
     for (const pi of projectInverters) {
       const latest = await prisma.inverter_data.findFirst({
         where: {
-          projectId: pi.project_id,
+          project_id: pi.project_id,
           inverter_id: pi.inverter_id,
           projects: { is_deleted: 0 },
         },
