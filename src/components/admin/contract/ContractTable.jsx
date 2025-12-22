@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { apiGet, apiPost, apiPut, apiDelete, apiUpload } from "@/lib/api";
 import Table from "@/components/shared/table/Table";
-import { FiEdit3, FiTrash2 } from "react-icons/fi";
+import { FiEdit3, FiTrash2, FiX } from "react-icons/fi";
 import Swal from "sweetalert2";
 import { showSuccessToast, showErrorToast } from "@/utils/topTost";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 import ContractModal from "./ContractModal";
 
-const Contract = ({ projectId }) => {
+const Contract = ({ projectId, handleCloseForm }) => {
   const { lang } = useLanguage();
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState("add");
@@ -518,6 +518,24 @@ const Contract = ({ projectId }) => {
           },
         }}
       />
+      <div className="col-12 d-flex justify-content-end gap-2">
+        <Button
+          type="button"
+          variant="outlined"
+          disabled={loading.form}
+          startIcon={<FiX />}
+          onClick={() => handleCloseForm('close')}
+          className="common-grey-color"
+          style={{
+            marginTop: "2px",
+            marginBottom: "2px",
+          }}
+        >
+          {loading.form
+            ? lang("common.saving", "Saving")
+            : lang("common.close", "close")}
+        </Button>
+      </div>
     </div>
   );
 };

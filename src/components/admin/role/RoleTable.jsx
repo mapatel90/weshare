@@ -114,8 +114,13 @@ const RoleTable = () => {
         setError(response.message || "Something went wrong");
       }
     } catch (err) {
-      console.error("Role save error:", err);
-      setError("Server error");
+      console.error("Role save error:", err.message);
+
+      if (err.message) {
+        showSuccessToast(err.message); // 👈 SAME SUCCESS TOAST
+      } else {
+        showSuccessToast("Something went wrong");
+      }
     }
   };
 

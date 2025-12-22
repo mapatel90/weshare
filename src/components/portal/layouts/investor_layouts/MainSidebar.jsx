@@ -1,10 +1,10 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import DashboardOutlinedIcon from '@mui/icons-material/DashboardOutlined';
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
 import PaymentIcon from '@mui/icons-material/Payment';
-import ReceiptIcon from '@mui/icons-material/Receipt';
 import AutoGraphOutlinedIcon from '@mui/icons-material/AutoGraphOutlined';
 import NoteAltOutlinedIcon from '@mui/icons-material/NoteAltOutlined';
 import HomeWorkOutlinedIcon from '@mui/icons-material/HomeWorkOutlined';
@@ -15,7 +15,9 @@ function MainSidebar({ activeMenu, setActiveMenu }) {
     return (
         <div className="icon-sidebar" id="iconSidebar">
             <div className='icon-size'>
-                <img src="/images/logo/icon.png" className="logo-icon" alt="weshare logo" />
+                <Link href="/">
+                    <img src="/images/logo/icon.png" className="logo-icon" alt="weshare logo" />
+                </Link>
             </div>
             <div className="logo-separator" />
 

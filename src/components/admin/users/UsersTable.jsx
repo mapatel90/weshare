@@ -169,8 +169,8 @@ const UsersTable = () => {
       header: () => lang("common.user"),
       cell: ({ row }) => {
         const user = row.original
-        const fullName = `${user.fullName}` || 'N/A'
-        const initials = `${user.fullName?.charAt(0) || ''}`
+        const fullName = `${user.full_name}` || 'N/A'
+        const initials = `${user.full_name?.charAt(0) || ''}`
 
         return (
           <div className="hstack gap-3">
@@ -213,7 +213,7 @@ const UsersTable = () => {
       accessorKey: 'phoneNumber',
       header: () => lang("common.phone"),
       cell: ({ row }) => {
-        const phone = row.original?.phoneNumber || ''
+        const phone = row.original?.phone_number || ''
         return phone ? (
           <a href={`tel:${phone}`} className="text-decoration-none">
             <FiPhone size={14} className="me-2" />
@@ -260,7 +260,7 @@ const UsersTable = () => {
         return (
           <button
             className="btn btn-sm btn-soft-primary"
-            onClick={() => handleShowQRCode(user?.qrCode, user?.fullName)}
+            onClick={() => handleShowQRCode(user?.qr_code, user?.full_name)}
           >
             <BsQrCode className="me-1" />
             {lang("table.qr_code")}
@@ -287,7 +287,7 @@ const UsersTable = () => {
             label: lang("common.delete"),
             icon: <FiTrash2 />,
             className: 'text-danger',
-            onClick: () => handleDeleteUser(user.id, `${user?.fullName}`)
+            onClick: () => handleDeleteUser(user.id, `${user?.full_name}`)
           }
         ]
 
@@ -296,7 +296,7 @@ const UsersTable = () => {
             <Link href={`/admin/users/edit?id=${user.id}`} className="avatar-text avatar-md">
               <FiEdit3 />
             </Link>
-            <a  className="avatar-text avatar-md" onClick={() => handleDeleteUser(user.id, `${user?.fullName}`)}>
+            <a  className="avatar-text avatar-md" onClick={() => handleDeleteUser(user.id, `${user?.full_name}`)}>
               <FiTrash2 />
             </a>
           </div>

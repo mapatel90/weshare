@@ -47,14 +47,14 @@ export default function AuthProvider({ children }) {
 
       // Verify token by calling your backend server using API helper
       // Disable loader for auth check to prevent blocking UI
-      const data = await apiGet('/api/auth/me', { showLoader: false })
+      const data = await apiGet('/api/auth/me', { showLoader: false, includeAuth : true })
       // Transform user data to match frontend expectations
       const transformedUser = {
         id: data.data.id,
         name: `${data.data.fullName}`,
         email: data.data.email,
         phone: data.data.phoneNumber,
-        role: data.data.userRole,
+        role: data.data.role_id,
         status: data.data.status === 1 ? 'active' : 'inactive',
         avatar: data.data.user_image || null
       }
@@ -103,17 +103,16 @@ export default function AuthProvider({ children }) {
   const login = async (username, password, rememberMe) => {
     try {
       // Use API helper for login (without auth token)
+      console.log('rememberMe:', rememberMe)
       const data = await apiPost(
         '/api/auth/login',
         { username, password, rememberMe },
         { includeAuth: false }
       )
 
-      console.log('📡 Login API response:', data)
-
       if (data.success) {
         // Backend returns user with fullName structure
-        const userName = `${data.data.user.fullName}`
+        const userName = `${data.data.user.full_name}`
         console.log('✅ Login successful for user:', userName)
 
         // Store token (backend returns 'token', not 'accessToken')
@@ -127,7 +126,7 @@ export default function AuthProvider({ children }) {
           name: userName,
           email: data.data.user.email,
           phone: data.data.user.phoneNumber,
-          role: data.data.user.userRole,
+          role: data.data.user.role_id,
           status: data.data.user.status === 1 ? 'active' : 'inactive',
           avatar: data.data.user.avatar || null
         }

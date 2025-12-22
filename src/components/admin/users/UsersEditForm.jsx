@@ -69,19 +69,19 @@ const UsersEditForm = () => {
         const user = response.data
         setFormData({
           username: user.username || '',
-          fullName: user.fullName || '',
+          fullName: user.full_name || '',
           email: user.email || '',
           password: user.password || '',
           confirmPassword: user.password || '',
-          phoneNumber: user.phoneNumber || '',
-          userRole: user.userRole?.toString() || '',
-          address1: user.address1 || '',
-          address2: user.address2 || '',
-          countryId: user.countryId?.toString() || '',
-          stateId: user.stateId?.toString() || '',
-          cityId: user.cityId?.toString() || '',
+          phoneNumber: user.phone_number || '',
+          userRole: user.role_id?.toString() || '',
+          address_1: user.address_1 || '',
+          address_2: user.address_2 || '',
+          countryId: user.country_id?.toString() || '',
+          stateId: user.state_id?.toString() || '',
+          cityId: user.city_id?.toString() || '',
           zipcode: user.zipcode || '',
-          qrCode: user.qrCode || '',
+          qrCode: user.qr_code || '',
           status: user.status?.toString() || ''
         })
 

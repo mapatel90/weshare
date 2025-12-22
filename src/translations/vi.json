@@ -239,7 +239,9 @@
     "blogDateRequired": "Ngày là bắt buộc",
     "blogSlugExists": "Slug đã tồn tại",
     "apiUrlNameRequired": "API URL là bắt buộc",
-    "invalidUrl": "Vui lòng nhập URL hợp lệ"
+    "invalidUrl": "Vui lòng nhập URL hợp lệ",
+    "serialNumberRequired": "Số serial là bắt buộc",
+    "kilowattRequired": "Kilowatt là bắt buộc"
   },
   "menu": {
     "dashboards": "Bảng điều khiển",
@@ -830,7 +832,8 @@
     "viewLocation": "Xem vị trí",
     "uploadImage": "Tải lên hình ảnh",
     "imageUploaded": "Tải lên hình ảnh thành công",
-    "imageUploadFailed": "Không thể tải lên hình ảnh"
+    "imageUploadFailed": "Không thể tải lên hình ảnh",
+    "selectInvestor": "Chọn nhà đầu tư"
   },
   "placeholders": {
     "your_company_name": "Tên công ty của bạn [Ví dụ: Theme Ocean]",
@@ -849,8 +852,8 @@
     "enterpassword": "Nhập mật khẩu",
     "enternewpassword": "Nhập mật khẩu mới",
     "confirmPassword": "Xác nhận mật khẩu",
-    "enteraddress1": "Nhập địa chỉ dòng 1",
-    "enteraddress2": "Nhập địa chỉ dòng 2",
+    "enteraddress_1": "Nhập địa chỉ dòng 1",
+    "enteraddress_2": "Nhập địa chỉ dòng 2",
     "enterzipcode": "Nhập mã zip",
     "enterphonenumber": "Nhập số điện thoại",
     "your_company_mail": "Địa chỉ email công ty của bạn"
@@ -907,6 +910,7 @@
     }
   },
   "inverter": {
+    "inverterdetails": "Chi tiết biến tần",
     "inverter": "biến tần",
     "addInverter": "Thêm bộ biến tần",
     "editInverter": "Sửa bộ biến tần",
@@ -933,7 +937,13 @@
     "kilowatt": "Kilowatt",
     "inverterList": "Danh sách biến tần",
     "inverterType": "Loại biến tần",
-    "apiUrlName": "URL API"
+    "apiUrlName": "URL API",
+    "version": "Phiên bản",
+    "model": "Mô hình",
+    "Warranty": "Bảo hành",
+    "warrantyExpireDate": "Ngày hết hạn bảo hành",
+    "noinverterfound": "Không tìm thấy biến tần",
+    "serial": "nối tiếp"
   },
   "projectType": {
     "title": "Loại dự án",
@@ -996,8 +1006,8 @@
     "role": "Vai trò",
     "created": "Ngày tạo",
     "addressInformation": "Thông tin địa chỉ",
-    "address1": "Địa chỉ 1",
-    "address2": "Địa chỉ 2",
+    "address_1": "Địa chỉ 1",
+    "address_2": "Địa chỉ 2",
     "suspended": "Bị đình chỉ",
     "banned": "Bị cấm",
     "phonenumber": "Số điện thoại",
@@ -1254,6 +1264,7 @@
   },
   "contract": {
     "contract": "Hợp đồng",
+    "no_contracts_found": "Không tìm thấy hợp đồng nào",
     "uploadDocument": "Tải lên tài liệu",
     "viewDocument": "Xem tài liệu",
     "deleted": "Hợp đồng đã được xóa thành công",
@@ -1268,6 +1279,7 @@
   },
   "meter": {
     "meter": "Công tơ",
+    "meterUrl": "Url mét",
     "meterName": "Tên Công tơ",
     "meterNumber": "Số Công tơ",
     "addMeter": "Thêm Công tơ",
@@ -1287,7 +1299,8 @@
     "inactive": "Không hoạt động",
     "createdSuccessfully": "Tạo Công tơ Thành công",
     "updatedSuccessfully": "Cập nhật Công tơ Thành công",
-    "deletedSuccessfully": "Xóa Công tơ Thành công"
+    "deletedSuccessfully": "Xóa Công tơ Thành công",
+    "enterMeterUrl": "Nhập Url đồng hồ đo"
   },
   "reports": {
     "reports": "Báo cáo",
@@ -1296,6 +1309,35 @@
     "downloadcsv": "Tải xuống CSV",
     "dailyYield": "Sản lượng hàng ngày",
     "annualYield": "Sản lượng hàng năm",
-    "totalYield": "Tổng sản lượng"
+    "totalYield": "Tổng sản lượng",
+    "capacityperKWh": "Giá điện năng tiêu thụ trên mỗi kWh",
+    "dailyRevenue": "Doanh thu hàng ngày",
+    "totalRevenue": "Tổng doanh thu"
+  },
+  "projectView": {
+    "projectInformation": {
+      "project_Information": "Thông tin dự án",
+      "project_type": "Loại dự án",
+      "status": "Trạng thái",
+      "offtaker": "Bên mua",
+      "asking_price": "Giá chào bán",
+      "investor_profit": "Lợi nhuận của nhà đầu tư",
+      "weshare_profit": "Lợi nhuận chia sẻ",
+      "country": "Quốc gia",
+      "state": "Bang",
+      "city": "Thành phố",
+      "weather": "Thời tiết",
+      "sunshine": "Nắng",
+      "temp": "Nhiệt độ",
+      "humidity": "Độ ẩm",
+      "wind_direction": "Hướng gió",
+      "wind_speed": "Tốc độ gió",
+      "capacity": "Dung lượng",
+      "active": "● tích cực",
+      "inactive": "● không hoạt động"
+    },
+    "energyProduction": {
+      "energy_production": "Tổng quan về sản xuất năng lượng"
+    }
   }
 }

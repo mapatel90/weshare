@@ -13,7 +13,7 @@ router.post("/", async (req, res) => {
         .json({ success: false, message: "fullName and email are required" });
     }
 
-    const created = await prisma.interestedInvestor.create({
+    const created = await prisma.interested_investors.create({
       data: {
         projectId: projectId ?? null,
         userId: userId ?? null,
@@ -44,24 +44,24 @@ router.get("/", async (req, res) => {
     const skip = (Number(page) - 1) * take;
 
     const [data, total] = await Promise.all([
-      prisma.interestedInvestor.findMany({
+      prisma.interested_investors.findMany({
         where,
-        orderBy: { createdAt: "desc" },
+        orderBy: { created_at: "desc" },
         skip,
         take,
         include: {
-          project: {
+          projects: {
             include: {
               offtaker: {
-                select: { fullName: true, email: true },
+                select: { full_name: true, email: true },
               },
               project_images: true,
             },
           },
-          user: true,
+          users: true,
         },
       }),
-      prisma.interestedInvestor.count({ where }),
+      prisma.interested_investors.count({ where }),
     ]);
 
     return res.json({ success: true, data, total, page: Number(page), limit: take });
@@ -72,7 +72,7 @@ router.get("/", async (req, res) => {
 });
 
 // Get single by id
-router.get("/:id", async (req, res) => {
+router.get("/:id", authenticateToken, async (req, res) => {
   try {
     const id = Number(req.params.id);
     const record = await prisma.interestedInvestor.findFirst({
@@ -126,6 +126,45 @@ router.delete("/:id", authenticateToken, async (req, res) => {
       data: { is_deleted: 1 },
     });
     return res.json({ success: true, message: "Deleted (soft)" });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Mark investor for project - updates project.investor_id
+router.post("/:id/mark-investor", authenticateToken, async (req, res) => {
+  try {
+    const investorId = Number(req.params.id);
+    const { projectId } = req.body;
+
+    if (!projectId) {
+      return res.status(400).json({ success: false, message: "projectId is required" });
+    }
+
+    // Verify investor exists and is not deleted
+    const investor = await prisma.interestedInvestor.findFirst({
+      where: { id: investorId, is_deleted: 0 },
+    });
+    if (!investor) {
+      return res.status(404).json({ success: false, message: "Investor not found" });
+    }
+
+    // Verify project exists
+    const project = await prisma.project.findFirst({
+      where: { id: Number(projectId), is_deleted: 0 },
+    });
+    if (!project) {
+      return res.status(404).json({ success: false, message: "Project not found" });
+    }
+
+    // Update project with investor_id
+    const updated = await prisma.project.update({
+      where: { id: Number(projectId) },
+      data: { investor_id: investorId },
+    });
+
+    return res.json({ success: true, data: updated, message: "Investor marked successfully" });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ success: false, message: error.message });

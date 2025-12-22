@@ -40,11 +40,13 @@ const ProjectEditContent = ({ projectId }) => {
         project_slug: '',
         project_type_id: '',
         offtaker: '',
-        address1: '',
-        address2: '',
-        countryId: '',
-        stateId: '',
-        cityId: '',
+        investorId: '',
+        investorName: '',
+        address_1: '',
+        address_2: '',
+        country_id: '',
+        state_id: '',
+        city_id: '',
         zipcode: '',
         asking_price: '',
         lease_term: '',
@@ -97,6 +99,15 @@ const ProjectEditContent = ({ projectId }) => {
     const visibleGalleryImages = useMemo(() => {
         return galleryImages.filter(img => !removedImageIds.includes(img.id))
     }, [galleryImages, removedImageIds])
+
+    const handleInvestorMarked = useCallback((investor) => {
+        if (!investor?.id) return
+        setFormData(prev => ({
+            ...prev,
+            investorId: String(investor.id),
+            investorName: investor.fullName || ''
+        }))
+    }, [])
 
     const handleDropImages = useCallback((acceptedFiles = [], rejectedFiles = []) => {
         rejectedFiles.forEach(reject => {
@@ -217,17 +228,20 @@ const ProjectEditContent = ({ projectId }) => {
                 const res = await apiGet(`/api/projects/${projectId}`)
                 if (res?.success && res.data) {
                     const p = res.data
+                    console.log('Loaded project data:', p)
                     setFormData({
                         id: p.id, // ← added so ProjectForm's `formData?.id` is truthy
                         project_name: p.project_name || '',
                         project_slug: p.project_slug || '',
                         project_type_id: p.project_type_id || p.projectType?.id || '',
                         offtaker: String(p.offtaker_id || ''),
-                        address1: p.address1 || '',
-                        address2: p.address2 || '',
-                        countryId: p.countryId || '',
-                        stateId: p.stateId || '',
-                        cityId: p.cityId || '',
+                        investorId: String(p.investor_id || p.investor?.id || ''),
+                        investorName: p.investor?.fullName || '',
+                        address_1: p.address_1 || '',
+                        address_2: p.address_2 || '',
+                        country_id: p.country_id || '',
+                        state_id: p.state_id || '',
+                        city_id: p.city_id || '',
                         zipcode: p.zipcode || '',
                         asking_price: p.asking_price || '',
                         lease_term: p.lease_term ?? '',
@@ -243,8 +257,8 @@ const ProjectEditContent = ({ projectId }) => {
                         solis_plant_id: p.solis_plant_id || '', // ← add Solis Plant ID into form
                         status: p.status === 1 ? 'active' : 'inactive'
                     })
-                    if (p.countryId) handleCountryChange(p.countryId)
-                    if (p.stateId) handleStateChange(p.stateId)
+                    if (p.country_id) handleCountryChange(p.country_id)
+                    if (p.state_id) handleStateChange(p.state_id)
                 }
                 await loadProjectGallery(projectId)
             } catch (e) {
@@ -316,13 +330,13 @@ const ProjectEditContent = ({ projectId }) => {
 
     const handleLocationChange = (type, value) => {
         if (type === 'country') {
-            setFormData(prev => ({ ...prev, countryId: value, stateId: '', cityId: '' }))
+            setFormData(prev => ({ ...prev, country_id: value, state_id: '', city_id: '' }))
             handleCountryChange(value)
         } else if (type === 'state') {
-            setFormData(prev => ({ ...prev, stateId: value, cityId: '' }))
+            setFormData(prev => ({ ...prev, state_id: value, city_id: '' }))
             handleStateChange(value)
         } else if (type === 'city') {
-            setFormData(prev => ({ ...prev, cityId: value }))
+            setFormData(prev => ({ ...prev, city_id: value }))
         }
     }
 
@@ -334,18 +348,18 @@ const ProjectEditContent = ({ projectId }) => {
                 const offtaker = await fetchOfftakerById(offtakerId)
                 setFormData(prev => ({
                     ...prev,
-                    address1: offtaker?.address1 || '',
-                    address2: offtaker?.address2 || '',
-                    cityId: offtaker?.cityId || '',
-                    stateId: offtaker?.stateId || '',
-                    countryId: offtaker?.countryId || '',
+                    address_1: offtaker?.address_1 || '',
+                    address_2: offtaker?.address_2 || '',
+                    city_id: offtaker?.city_id || '',
+                    state_id: offtaker?.state_id || '',
+                    country_id: offtaker?.country_id || '',
                     zipcode: offtaker?.zipcode || ''
                 }))
-                if (offtaker?.countryId) {
-                    handleCountryChange(offtaker.countryId)
+                if (offtaker?.country_id) {
+                    handleCountryChange(offtaker.country_id)
                 }
-                if (offtaker?.stateId) {
-                    handleStateChange(offtaker.stateId)
+                if (offtaker?.state_id) {
+                    handleStateChange(offtaker.state_id)
                 }
             } catch (err) {
                 console.error('Error fetching offtaker details:', err)
@@ -354,9 +368,7 @@ const ProjectEditContent = ({ projectId }) => {
         }
     }
 
-    const handleSubmit = async (e) => {
-        e.preventDefault()
-
+    const saveProject = async () => {
         const requiredFields = ['project_name', 'project_type_id', 'offtaker']
         const errors = {}
         requiredFields.forEach(field => { if (!formData[field]) { errors[field] = lang('validation.required', 'Required') } })
@@ -386,7 +398,7 @@ const ProjectEditContent = ({ projectId }) => {
         if (formData.project_size && !numberRegex.test(formData.project_size)) {
             errors.project_size = lang('projects.onlynumbers', 'Only numbers are allowed (e.g. 1234.56)')
         }
-        if (Object.keys(errors).length) { setError(errors); return }
+        if (Object.keys(errors).length) { setError(errors); return false }
 
         setLoading(prev => ({ ...prev, form: true }))
         try {
@@ -397,11 +409,11 @@ const ProjectEditContent = ({ projectId }) => {
                 project_slug: formData.project_slug || generateSlug(formData.project_name),
                 project_type_id: Number(formData.project_type_id),
                 ...(formData.offtaker && { offtaker_id: Number(formData.offtaker) }),
-                address1: formData.address1 || '',
-                address2: formData.address2 || '',
-                ...(formData.countryId && { country_id: Number(formData.countryId) }),
-                ...(formData.stateId && { state_id: Number(formData.stateId) }),
-                ...(formData.cityId && { city_id: Number(formData.cityId) }),
+                address_1: formData.address_1 || '',
+                address_2: formData.address_2 || '',
+                ...(formData.country_id && { country_id: Number(formData.country_id) }),
+                ...(formData.state_id && { state_id: Number(formData.state_id) }),
+                ...(formData.city_id && { city_id: Number(formData.city_id) }),
                 zipcode: formData.zipcode || '',
                 asking_price: formData.asking_price || '',
                 lease_term: formData.lease_term ? Number(formData.lease_term) : null,
@@ -423,13 +435,52 @@ const ProjectEditContent = ({ projectId }) => {
             }
 
             showSuccessToast(lang('projects.projectupdatedsuccessfully', 'Project updated successfully'))
-            router.push('/admin/projects/list')
+            return true
         } catch (e) {
             console.error('Update project failed', e)
             showErrorToast(e.message || 'Failed to update project')
+            return false
         } finally {
             setLoading(prev => ({ ...prev, form: false }))
         }
+    }
+
+    const handleSubmit = async (e) => {
+        e.preventDefault()
+        const success = await saveProject()
+        if (success) {
+            router.push('/admin/projects/list')
+        }
+    }
+
+    const handleSaveAction = async (action) => {
+        if (action === 'saveproject' || action === 'saveprojectNext') {
+            console.log('if');
+            const success = await saveProject()
+            if (success) {
+                if (action === 'saveproject') {
+                    router.push('/admin/projects/list')
+                } else if (action === 'saveprojectNext') {
+                    const currentIndex = steps.findIndex(step => step.key === activeTab)
+                    if (currentIndex < steps.length - 1) {
+                        setActiveTab(steps[currentIndex + 1].key)
+                    }
+                }
+            }
+        } else {
+            if (action === 'saveAndClose') {
+                router.push('/admin/projects/list')
+            } else if (action === 'saveNext') {
+                const currentIndex = steps.findIndex(step => step.key === activeTab)
+                if (currentIndex < steps.length - 1) {
+                    setActiveTab(steps[currentIndex + 1].key)
+                }
+            }
+        }
+    }
+
+    const handleCloseForm = async (action) => {
+        router.push('/admin/projects/list')
     }
 
     return (
@@ -474,6 +525,7 @@ const ProjectEditContent = ({ projectId }) => {
                                 handleOfftakerChange={handleOfftakerChange}
                                 handleLocationChange={handleLocationChange}
                                 handleSubmit={handleSubmit}
+                                handleSaveAction={handleSaveAction}
                                 imageQueue={queuedImages}
                                 existingImages={visibleGalleryImages}
                                 onDropImages={handleDropImages}
@@ -486,16 +538,16 @@ const ProjectEditContent = ({ projectId }) => {
                             />
                         )}
                         {activeTab === 'inverter' && (
-                            <InverterTab projectId={projectId} />
+                            <InverterTab projectId={projectId} handleSaveAction={handleSaveAction} />
                         )}
                         {activeTab === 'investor' && (
-                            <Investor projectId={projectId} />
+                            <Investor projectId={projectId} onInvestorMarked={handleInvestorMarked} handleSaveAction={handleSaveAction} />
                         )}
                         {activeTab === 'contract' && (
-                            <Contract projectId={projectId} />
+                            <Contract projectId={projectId} handleCloseForm={handleCloseForm} />
                         )}
                         {activeTab === 'meter' && (
-                            <MeterView projectId={projectId} />
+                            <MeterView projectId={projectId} handleSaveAction={handleSaveAction} />
                         )}
                     </div>
                 </div>

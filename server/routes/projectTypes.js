@@ -7,7 +7,7 @@ const router = express.Router();
 // Get all project types (exclude soft-deleted)
 router.get('/', authenticateToken, async (req, res) => {
   try {
-    const items = await prisma.project_type.findMany({
+    const items = await prisma.project_types.findMany({
       where: { is_deleted: 0 },
       orderBy: { id: 'desc' }
     });
@@ -24,7 +24,7 @@ router.post('/', authenticateToken, async (req, res) => {
     if (!name || status === undefined) {
       return res.status(400).json({ success: false, message: 'name and status are required' });
     }
-    const created = await prisma.project_type.create({
+    const created = await prisma.project_types.create({
       data: {
         type_name: name,
         status: parseInt(status)
@@ -41,7 +41,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
     const { name, status } = req.body;
-    const updated = await prisma.project_type.update({
+    const updated = await prisma.project_types.update({
       where: { id: parseInt(id) },
       data: {
         ...(name !== undefined && { type_name: name }),
@@ -58,7 +58,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
 router.patch('/:id/soft-delete', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
-    await prisma.project_type.update({
+    await prisma.project_types.update({
       where: { id: parseInt(id) },
       data: { is_deleted: 1 }
     });

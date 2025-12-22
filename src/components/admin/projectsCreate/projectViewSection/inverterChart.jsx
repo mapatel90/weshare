@@ -1,12 +1,47 @@
 "use client";
 import React, { useEffect, useMemo, useState } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,Legend } from 'recharts';
 import { ChevronLeft, ChevronRight, Download } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
-const TIME_TICK_HOURS = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22];
+const TIME_TICK_HOURS = [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22];
 const xAxisTicks = [...TIME_TICK_HOURS];
-const yAxisTicks = [0, 3, 6, 9, 12, 15];
+
+const formatHourTick = (value) => {
+  const num = Number(value);
+  if (!Number.isFinite(num)) return '';
+  const hh = Math.floor(num);
+  const mm = Math.round((num - hh) * 60);
+  return `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`;
+};
+
+// Create "nice" Y-axis ticks like 0,2,4,6... based on data range.
+const buildNiceTicks = (minValue, maxValue, preferredStep = 2, maxTicks = 60) => {
+  const min = Number(minValue);
+  const max = Number(maxValue);
+  if (!Number.isFinite(min) || !Number.isFinite(max) || max <= min) return null;
+
+  // Keep step >= 1 and prefer whole numbers for readability.
+  let step = Number(preferredStep);
+  if (!Number.isFinite(step) || step <= 0) step = 1;
+
+  const snapDown = (v) => Math.floor(v / step) * step;
+  const snapUp = (v) => Math.ceil(v / step) * step;
+
+  let start = snapDown(min);
+  let end = snapUp(max);
+
+  // If too many ticks, increase step until we fit.
+  while (Number.isFinite(start) && Number.isFinite(end) && (end - start) / step + 1 > maxTicks) {
+    step *= 2;
+    start = snapDown(min);
+    end = snapUp(max);
+  }
+
+  const total = Math.floor((end - start) / step) + 1;
+  if (!Number.isFinite(total) || total < 2 || total > maxTicks) return null;
+  return Array.from({ length: total }, (_, idx) => start + idx * step);
+};
 
 const normalizeDateKey = (value) => {
   if (!value) return null;
@@ -94,6 +129,7 @@ const navIconButtonStyle = {
 
 const containerStyle = {
   width: '100%',
+  minWidth: '600px',
   height: '60vh',
   backgroundColor: '#ffffff',
   padding: '24px',
@@ -190,7 +226,7 @@ const PowerConsumptionDashboard = ({ projectId, readings = [], loading = false, 
     paddingBottom: isSmallScreen ? '6px' : undefined,
   };
 
-  
+
   const handleExport = () => {
     alert('Export functionality would download the data as CSV/Excel');
   };
@@ -214,7 +250,7 @@ const PowerConsumptionDashboard = ({ projectId, readings = [], loading = false, 
   const palette = ['#10B981', '#F59E0B', '#3B82F6', '#ef4444', '#8B5CF6', '#06B6D4', '#A78BFA'];
 
   // Build chart data based on view type.
-  const { chartData, seriesInfo, xAxisProps, yAxisDomain } = useMemo(() => {
+  const { chartData, seriesInfo, xAxisProps, yAxisDomain, yAxisTicks } = useMemo(() => {
     // group by inverter id for the full dataset (we'll filter per view)
     const grouped = (readings || []).reduce((acc, entry) => {
       const key = normalizeDateKey(entry.date);
@@ -282,12 +318,11 @@ const PowerConsumptionDashboard = ({ projectId, readings = [], loading = false, 
       xProps = {
         dataKey: 'xValue',
         type: 'number',
-        domain: [2, 22],
+        domain: [0, 22],
         ticks: xAxisTicks,
-        tickFormatter: (value) => `${value}`,
+        tickFormatter: formatHourTick,
       };
     } else {
-      // aggregation buckets for month/year/total (category axis for readable labels)
       const bucketMap = {};
       const addBucket = (key, label, order, invId, value) => {
         if (!bucketMap[key]) {
@@ -354,19 +389,51 @@ const PowerConsumptionDashboard = ({ projectId, readings = [], loading = false, 
       name: inverterNameFor(invId),
     }));
 
-    // dynamic y-domain based on data max
-    let maxY = 0;
+    // dynamic y-domain based on actual min/max across all series
+    let minY = null;
+    let maxY = null;
     data.forEach((row) => {
       inverterIds.forEach((invId) => {
         const v = row[`p_${invId}`];
-        if (v !== null && v !== undefined) {
-          maxY = Math.max(maxY, Number(v));
+        const num = Number(v);
+        if (v !== null && v !== undefined && !Number.isNaN(num)) {
+          minY = minY === null ? num : Math.min(minY, num);
+          maxY = maxY === null ? num : Math.max(maxY, num);
         }
       });
     });
-    const upper = maxY > 0 ? Math.ceil(maxY * 1.1) : 15;
 
-    return { chartData: data, seriesInfo: series, xAxisProps: xProps, yAxisDomain: [0, upper] };
+    let domainMin;
+    let domainMax;
+    if (minY === null || maxY === null) {
+      domainMin = 0;
+      domainMax = 15;
+    } else {
+      const range = maxY - minY;
+      const padUp = range === 0 ? 1 : range * 0.1;
+      domainMin = 0;
+      domainMax = Math.ceil(maxY + padUp);
+
+      if (!Number.isFinite(domainMin) || !Number.isFinite(domainMax)) {
+        domainMin = 0;
+        domainMax = 15;
+      } else if (domainMax <= domainMin) {
+        domainMax = domainMin + 1;
+      }
+    }
+
+    const ticks = buildNiceTicks(domainMin, domainMax, 2, 60);
+    // If we generated ticks, snap domain to the tick endpoints for clean axis labels.
+    const finalDomainMin = ticks?.length ? ticks[0] : domainMin;
+    const finalDomainMax = ticks?.length ? ticks[ticks.length - 1] : domainMax;
+
+    return {
+      chartData: data,
+      seriesInfo: series,
+      xAxisProps: xProps,
+      yAxisDomain: [finalDomainMin, finalDomainMax],
+      yAxisTicks: ticks,
+    };
   }, [readings, selectedInverterId, projectInverters, viewType]);
 
   const isEmptyState = !loading && (!chartData || !chartData.length);
@@ -383,13 +450,13 @@ const PowerConsumptionDashboard = ({ projectId, readings = [], loading = false, 
       <div style={headerRowStyle}>
         {/* Date Navigation */}
         <input
-                type="date"
-                value={selectedDate}
-                onChange={(e) => onDateChange(e.target.value)}
-                className="theme-btn-blue-color border rounded-md px-3 py-2 me-2 text-sm"
-                placeholder={lang("common.endDate") || "End Date"}
-            />
-        
+          type="date"
+          value={selectedDate}
+          onChange={(e) => onDateChange(e.target.value)}
+          className="bg-black text-white border rounded-md px-3 py-2 me-2 text-sm"
+          placeholder={lang("common.endDate") || "End Date"}
+        />
+
       </div>
 
       {/* Chart */}
@@ -404,7 +471,7 @@ const PowerConsumptionDashboard = ({ projectId, readings = [], loading = false, 
           </div>
         ) : (
           <>
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height="100%" minWidth={600}>
               <LineChart
                 data={chartData}
                 margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
@@ -427,7 +494,8 @@ const PowerConsumptionDashboard = ({ projectId, readings = [], loading = false, 
                   tickLine={{ stroke: '#ccc' }}
                   axisLine={{ stroke: '#ccc' }}
                   domain={yAxisDomain}
-                  ticks={yAxisTicks}
+                  ticks={yAxisTicks || undefined}
+                  tickCount={yAxisTicks ? undefined : 6}
                 />
                 <Tooltip
                   contentStyle={{
@@ -439,6 +507,8 @@ const PowerConsumptionDashboard = ({ projectId, readings = [], loading = false, 
                   formatter={(value, name) => [`${Number(value).toFixed(3)} kW`, name]}
                   labelFormatter={tooltipLabelFormatter}
                 />
+
+                <Legend verticalAlign="bottom" height={40} />
 
                 {/* Render series: if single inverter selected, seriesInfo will contain only that */}
                 {seriesInfo.map((s) => (

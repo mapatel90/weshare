@@ -28,8 +28,8 @@ const UserForm = ({ initialData = {}, onSubmit, includePassword = false, exclude
         password: '',
         confirmPassword: '',
         userRole: '',
-        address1: '',
-        address2: '',
+        address_1: '',
+        address_2: '',
         countryId: '',
         stateId: '',
         cityId: '',
@@ -433,21 +433,21 @@ const UserForm = ({ initialData = {}, onSubmit, includePassword = false, exclude
                                     <div className="col-md-6 mb-3">
                                         <TextField
                                             fullWidth
-                                            label={lang('usersView.address1')}
-                                            name="address1"
-                                            value={formData?.address1}
+                                            label={lang('usersView.address_1')}
+                                            name="address_1"
+                                            value={formData?.address_1}
                                             onChange={handleInputChange}
-                                            placeholder={lang('placeholders.enteraddress1')}
+                                            placeholder={lang('placeholders.enteraddress_1')}
                                         />
                                     </div>
                                     <div className="col-md-6 mb-3">
                                         <TextField
                                             fullWidth
-                                            label={lang('usersView.address2')}
-                                            name="address2"
-                                            value={formData?.address2}
+                                            label={lang('usersView.address_2')}
+                                            name="address_2"
+                                            value={formData?.address_2}
                                             onChange={handleInputChange}
-                                            placeholder={lang('placeholders.enteraddress2')}
+                                            placeholder={lang('placeholders.enteraddress_2')}
                                         />
                                     </div>
                                     <div className="col-md-3 mb-3">

@@ -91,7 +91,7 @@ const ensureUniqueSlug = async (desiredSlug, excludeId = null) => {
   let isUnique = false;
 
   while (!isUnique) {
-    const existing = await prisma.project.findFirst({
+    const existing = await prisma.projects.findFirst({
       where: {
         project_slug: candidate,
         ...(excludeId && { id: { not: excludeId } }),
@@ -138,7 +138,7 @@ router.post("/check-name", async (req, res) => {
       };
     }
 
-    const existingProject = await prisma.project.findFirst({
+    const existingProject = await prisma.projects.findFirst({
       where: whereClause,
       select: {
         id: true,
@@ -173,8 +173,8 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
       project_slug,
       project_type_id,
       offtaker_id,
-      address1,
-      address2,
+      address_1,
+      address_2,
       country_id,
       state_id,
       city_id,
@@ -192,6 +192,7 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
       price_kwh,
       status = 1,
     } = req.body;
+    console.log("req.body", req.body);
 
     if (!name || !project_type_id) {
       return res.status(400).json({
@@ -203,29 +204,29 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
     const baseSlug = slugify(project_slug || name);
     const uniqueSlug = await ensureUniqueSlug(baseSlug);
 
-    const project = await prisma.project.create({
+    const project = await prisma.projects.create({
       data: {
         project_name: name,
         project_slug: uniqueSlug,
         ...(project_type_id && {
-          projectType: { connect: { id: parseInt(project_type_id) } },
+          project_types: { connect: { id: project_type_id } },
         }),
         ...(offtaker_id && {
           offtaker: { connect: { id: parseInt(offtaker_id) } },
         }),
-        address1: address1 || "",
-        address2: address2 || "",
+        address_1: address_1 || "",
+        address_2: address_2 || "",
         ...(country_id && {
-          country: { connect: { id: parseInt(country_id) } },
+          countries: { connect: { id: parseInt(country_id) } },
         }),
-        ...(state_id && { state: { connect: { id: parseInt(state_id) } } }),
-        ...(city_id && { city: { connect: { id: parseInt(city_id) } } }),
+        ...(state_id && { states: { connect: { id: parseInt(state_id) } } }),
+        ...(city_id && { cities: { connect: { id: parseInt(city_id) } } }),
         zipcode: zipcode || "",
         asking_price: asking_price || "",
         lease_term:
           lease_term !== undefined &&
-          lease_term !== null &&
-          `${lease_term}` !== ""
+            lease_term !== null &&
+            `${lease_term}` !== ""
             ? parseInt(lease_term)
             : null,
         product_code: product_code || "",
@@ -240,13 +241,14 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
         project_location: project_location || "",
         price_kwh: parseFloat(price_kwh) || null,
         status: parseInt(status),
+        updated_at: new Date()
       },
       include: {
-        country: true,
-        state: true,
-        city: true,
+        countries: true,
+        states: true,
+        cities: true,
         offtaker: {
-          select: { id: true, fullName: true, email: true },
+          select: { id: true, full_name: true, email: true },
         },
       },
     });
@@ -311,8 +313,10 @@ router.post(
       }
 
       const currentCount = await prisma.project_images.count({
-        where: { projectId },
+        where: { project_id: projectId },
       });
+
+      console.log("currentCount", currentCount);
 
       if (currentCount + files.length > PROJECT_IMAGE_LIMIT) {
         files.forEach((file) => removePhysicalFile(file.path));
@@ -323,32 +327,32 @@ router.post(
       }
 
       const hasDefault = await prisma.project_images.findFirst({
-        where: { projectId, default: 1 },
+        where: { project_id: projectId, default: 1 },
       });
 
       // allow client to specify which uploaded file should be default (0-based index)
       const defaultIndexRaw = req.body?.default_index;
       const defaultIndex =
         defaultIndexRaw !== undefined &&
-        defaultIndexRaw !== null &&
-        defaultIndexRaw !== ""
+          defaultIndexRaw !== null &&
+          defaultIndexRaw !== ""
           ? parseInt(defaultIndexRaw, 10)
           : null;
 
       const insertPayload = files.map((file, index) => ({
-        projectId,
+        project_id: projectId,
         path: buildPublicImagePath(path.basename(file.path)),
         // If a default already exists for the project, all new images are non-default.
         // Otherwise, if client provided default_index use that index, else fall back to first file.
         default: hasDefault
           ? 0
           : defaultIndex !== null && !Number.isNaN(defaultIndex)
-          ? index === defaultIndex
-            ? 1
-            : 0
-          : index === 0
-          ? 1
-          : 0,
+            ? index === defaultIndex
+              ? 1
+              : 0
+            : index === 0
+              ? 1
+              : 0,
       }));
 
       await prisma.project_images.createMany({
@@ -358,14 +362,14 @@ router.post(
       if (!hasDefault && insertPayload.length) {
         const chosen =
           insertPayload.find((p) => p.default === 1) || insertPayload[0];
-        // await prisma.project.update({
+        // await prisma.projects.update({
         //   where: { id: projectId },
         //   data: { project_image: chosen.path },
         // });
       }
 
       const images = await prisma.project_images.findMany({
-        where: { projectId },
+        where: { project_id: projectId },
         orderBy: { id: "asc" },
       });
 
@@ -396,7 +400,7 @@ router.put(
       }
 
       const img = await prisma.project_images.findFirst({
-        where: { id: imageId, projectId },
+        where: { id: imageId, project_id: projectId },
       });
       if (!img) {
         return res
@@ -406,7 +410,7 @@ router.put(
 
       // clear previous default
       await prisma.project_images.updateMany({
-        where: { projectId, default: 1 },
+        where: { project_id: projectId, default: 1 },
         data: { default: 0 },
       });
 
@@ -417,7 +421,7 @@ router.put(
       });
 
       const images = await prisma.project_images.findMany({
-        where: { projectId },
+        where: { project_id: projectId },
         orderBy: { id: "asc" },
       });
 
@@ -428,7 +432,7 @@ router.put(
       });
 
       // update project's main image path
-      // await prisma.project.update({
+      // await prisma.projects.update({
       //     where: { id: projectId },
       //     data: { project_image: img.path }
       // });
@@ -463,7 +467,7 @@ router.get("/:id/images", authenticateToken, async (req, res) => {
     }
 
     const images = await prisma.project_images.findMany({
-      where: { projectId },
+      where: { project_id: projectId },
       orderBy: { id: "asc" },
     });
 
@@ -496,7 +500,7 @@ router.delete(
       }
 
       const imageRecord = await prisma.project_images.findFirst({
-        where: { id: imageId, projectId },
+        where: { id: imageId, project_id: projectId },
       });
 
       await prisma.project_images.delete({
@@ -507,7 +511,7 @@ router.delete(
 
       if (imageRecord.default === 1) {
         const nextImage = await prisma.project_images.findFirst({
-          where: { projectId },
+          where: { project_id: projectId },
           orderBy: { id: "asc" },
         });
 
@@ -536,38 +540,36 @@ router.delete(
  */
 router.get("/", async (req, res) => {
   try {
-    const { 
-      page = 1, 
-      limit, 
-      search, 
-      status, 
+    const {
+      page = 1,
+      limit,
+      search,
+      status,
       offtaker_id,
       project_id,
       downloadAll,
       solisStatus
     } = req.query;
-    
     const pageInt = parseInt(page);
     const offtakerIdInt = offtaker_id ? parseInt(offtaker_id) : null;
     const projectIdInt = project_id ? parseInt(project_id) : null;
     const limitInt = parseInt(limit);
     const offset = (pageInt - 1) * limitInt;
-    
+
     const parsedLimit = Number(limit);
     const limitNumber = !Number.isNaN(parsedLimit) && parsedLimit > 0 ? parsedLimit : null;
     const fetchAll = downloadAll === "1" || downloadAll === "true" || !limitNumber;
 
     const where = { is_deleted: 0 };
 
-    // Search functionality - search across project_name, product_code, meter_number, address1, address2, city, state, country
+    // Search functionality - search across project_name, product_code, address_1, address_2, city, state, country
     const trimmedSearch = typeof search === "string" ? search.trim() : "";
     if (trimmedSearch) {
       where.OR = [
         { project_name: { contains: trimmedSearch, mode: "insensitive" } },
         { product_code: { contains: trimmedSearch, mode: "insensitive" } },
-        { meter_number: { contains: trimmedSearch, mode: "insensitive" } },
-        { address1: { contains: trimmedSearch, mode: "insensitive" } },
-        { address2: { contains: trimmedSearch, mode: "insensitive" } },
+        { address_1: { contains: trimmedSearch, mode: "insensitive" } },
+        { address_2: { contains: trimmedSearch, mode: "insensitive" } },
         { project_location: { contains: trimmedSearch, mode: "insensitive" } },
         { project_description: { contains: trimmedSearch, mode: "insensitive" } },
         { offtaker: { fullName: { contains: trimmedSearch, mode: "insensitive" } } },
@@ -593,36 +595,34 @@ router.get("/", async (req, res) => {
     }
 
     // Get total count before applying limit
-    let totalCount = await prisma.project.count({ where });
+    let totalCount = await prisma.projects.count({ where });
 
     const [projects, _] = await Promise.all([
-      prisma.project.findMany({
+      prisma.projects.findMany({
         where,
         include: {
-          offtaker: {
-            select: { id: true, fullName: true, email: true },
-          },
-          city: true,
-          state: true,
-          country: true,
-          projectType: true,
+          offtaker: { select: { id: true, full_name: true, email: true, phone_number: true } },
+          cities: true,
+          states: true,
+          countries: true,
+          project_types: true,
           project_images: true,
         },
         skip: fetchAll ? 0 : offset,
         take: fetchAll ? undefined : limitInt,
-        orderBy: { createdAt: "desc" },
+        orderBy: { created_at: "desc" },
       }),
       Promise.resolve(null),
     ]);
 
     // Fetch dropdown lists (all non-deleted)
-    const offtakerList = await prisma.user.findMany({
-      where: { is_deleted: 0, userRole: { in: [3] } },
-      select: { id: true, fullName: true, email: true },
-      orderBy: { fullName: "asc" },
+    const offtakerList = await prisma.users.findMany({
+      where: { is_deleted: 0, role_id: { in: [3] } },
+      select: { id: true, full_name: true, email: true },
+      orderBy: { full_name: "asc" },
     });
 
-    const projectList = await prisma.project.findMany({
+    const projectList = await prisma.projects.findMany({
       where: { is_deleted: 0 },
       orderBy: { project_name: "asc" },
     });
@@ -657,7 +657,7 @@ router.put("/:id/status", authenticateToken, async (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
 
-    const updated = await prisma.project.update({
+    const updated = await prisma.projects.update({
       where: { id: parseInt(id) },
       data: { status: parseInt(status) },
     });
@@ -674,19 +674,21 @@ router.get("/:identifier", async (req, res) => {
   try {
     const { identifier } = req.params;
 
+    console.log("identifier", identifier);
+
     // Check if identifier is numeric (ID) or string (slug)
     const isNumeric = /^\d+$/.test(identifier);
 
-    const project = await prisma.project.findUnique({
+    const project = await prisma.projects.findUnique({
       where: isNumeric
         ? { id: parseInt(identifier) }
         : { project_slug: identifier },
       include: {
-        offtaker: { select: { id: true, fullName: true, email: true } },
-        city: true,
-        state: true,
-        country: true,
-        projectType: true,
+        offtaker: { select: { id: true, full_name: true, email: true, phone_number: true } },
+        cities: true,
+        states: true,
+        countries: true,
+        project_types: true,
         project_images: true,
       },
     });
@@ -720,8 +722,8 @@ router.put("/:id", authenticateToken, async (req, res) => {
       project_slug,
       project_type_id,
       offtaker_id,
-      address1,
-      address2,
+      address_1,
+      address_2,
       country_id,
       state_id,
       city_id,
@@ -746,26 +748,26 @@ router.put("/:id", authenticateToken, async (req, res) => {
       // update relation: connect projectType by id when provided
       ...(project_type_id !== undefined &&
         (project_type_id
-          ? { projectType: { connect: { id: parseInt(project_type_id) } } }
-          : { projectType: { disconnect: true } })),
+          ? { project_types: { connect: { id: parseInt(project_type_id) } } }
+          : { project_types: { disconnect: true } })),
       ...(offtaker_id !== undefined &&
         (offtaker_id
           ? { offtaker: { connect: { id: parseInt(offtaker_id) } } }
           : { offtaker: { disconnect: true } })),
-      ...(address1 !== undefined && { address1 }),
-      ...(address2 !== undefined && { address2 }),
+      ...(address_1 !== undefined && { address_1 }),
+      ...(address_2 !== undefined && { address_2 }),
       ...(country_id !== undefined &&
         (country_id
-          ? { country: { connect: { id: parseInt(country_id) } } }
-          : { country: { disconnect: true } })),
+          ? { countries: { connect: { id: parseInt(country_id) } } }
+          : { countries: { disconnect: true } })),
       ...(state_id !== undefined &&
         (state_id
-          ? { state: { connect: { id: parseInt(state_id) } } }
-          : { state: { disconnect: true } })),
+          ? { states: { connect: { id: parseInt(state_id) } } }
+          : { states: { disconnect: true } })),
       ...(city_id !== undefined &&
         (city_id
-          ? { city: { connect: { id: parseInt(city_id) } } }
-          : { city: { disconnect: true } })),
+          ? { cities: { connect: { id: parseInt(city_id) } } }
+          : { cities: { disconnect: true } })),
       ...(zipcode !== undefined && { zipcode }),
       ...(asking_price !== undefined && { asking_price: asking_price || "" }),
       ...(lease_term !== undefined && {
@@ -798,15 +800,15 @@ router.put("/:id", authenticateToken, async (req, res) => {
       updateData.project_slug = await ensureUniqueSlug(baseSlug, projectId);
     }
 
-    const updated = await prisma.project.update({
+    const updated = await prisma.projects.update({
       where: { id: projectId },
       data: updateData,
       include: {
-        offtaker: { select: { id: true, fullName: true, email: true } },
-        city: true,
-        state: true,
-        country: true,
-        projectType: true,
+        offtaker: { select: { id: true, full_name: true, email: true, phone_number: true } },
+        cities: true,
+        states: true,
+        countries: true,
+        project_types: true,
       },
     });
 
@@ -832,19 +834,17 @@ router.put("/meter/:id", authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
     const {
-      meter_name,
-      meter_number,
+      meter_url,
       sim_number,
       sim_start_date,
       sim_expire_date,
     } = req.body;
     console.log("Data::", req.body);
 
-    const updated = await prisma.project.update({
+    const updated = await prisma.projects.update({
       where: { id: parseInt(id) },
       data: {
-        ...(meter_name !== undefined && { meter_name }),
-        ...(meter_number !== undefined && { meter_number }),
+        ...(meter_url !== undefined && { meter_url }),
         ...(sim_number !== undefined && { sim_number }),
         ...(sim_start_date !== undefined && {
           sim_start_date: sim_start_date ? new Date(sim_start_date) : null,
@@ -866,11 +866,10 @@ router.put("/meter/:id", authenticateToken, async (req, res) => {
 router.get("/meter/:id", authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
-    const meter = await prisma.project.findUnique({
+    const meter = await prisma.projects.findUnique({
       where: { id: parseInt(id) },
       select: {
-        meter_name: true,
-        meter_number: true,
+        meter_url: true,
         sim_number: true,
         sim_start_date: true,
         sim_expire_date: true,
@@ -901,7 +900,7 @@ router.delete("/:id", authenticateToken, async (req, res) => {
 
     // Fetch all images for project, remove physical files
     const images = await prisma.project_images.findMany({
-      where: { projectId },
+      where: { project_id: projectId },
     });
 
     images.forEach((img) => {
@@ -943,7 +942,7 @@ router.delete("/:id", authenticateToken, async (req, res) => {
     });
 
     // Soft-delete project (keep behaviour as before)
-    await prisma.project.update({
+    await prisma.projects.update({
       where: { id: projectId },
       data: { is_deleted: 1 },
     });
@@ -952,6 +951,46 @@ router.delete("/:id", authenticateToken, async (req, res) => {
   } catch (error) {
     console.error("Delete project error:", error);
     res.status(500).json({ success: false, message: "Internal server error" });
+  }
+});
+
+
+// Project Chart Data Is Get
+router.post("/chart-data", async (req, res) => {
+  try {
+    const { projectId, date } = req.body;
+
+    // Build WHERE condition step-by-step
+    let where = {
+      project_id: { is_deleted: 0 },
+    };
+
+    // Filter by projectId if provided
+    if (projectId) {
+      where.project_id = Number(projectId);
+    }
+
+    // Filter by date if provided (expecting YYYY-MM-DD)
+    if (typeof date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      where.date = {
+        gte: new Date(`${date}T00:00:00.000Z`),
+        lte: new Date(`${date}T23:59:59.999Z`),
+      };
+    }
+
+    const allData = await prisma.project_data.findMany({
+      where,
+      orderBy: { date: "asc" },
+    });
+    return res.json({
+      success: true,
+      count: allData.length,
+      data: allData,
+    });
+
+  } catch (error) {
+    console.error("Error fetching latest inverter data:", error);
+    return res.status(500).json({ error: "Server error" });
   }
 });
 

@@ -69,8 +69,8 @@ const normalizeApiProject = (project) => {
     statusString === "Upcoming"
       ? 1
       : statusString === "Under Installation"
-        ? 0
-        : project?.status ?? null;
+      ? 0
+      : project?.status ?? null;
   return {
     id: project?.id ? `#${project.id}` : project?.project_code ?? "—",
     project_image: normalizedCover,
@@ -78,7 +78,9 @@ const normalizeApiProject = (project) => {
     status: statusString,
     statusCode,
     expectedROI: formatPercent(project?.expected_roi ?? project?.roi),
-    targetInvestment: formatCurrency(project?.asking_price ?? project?.asking_price),
+    targetInvestment: formatCurrency(
+      project?.asking_price ?? project?.asking_price
+    ),
     paybackPeriod: project?.lease_term ? String(project.lease_term) : "—",
     startDate: formatDateForDisplay(project?.createdAt),
     endDate: formatDateForDisplay(project?.project_close_date),
@@ -86,9 +88,9 @@ const normalizeApiProject = (project) => {
     endDateTs: tsOrZero(project?.project_close_date),
     expectedGeneration: formatNumber(project?.project_size),
     offtakerId: project?.offtaker_id ?? null,
-    product_code: project?.product_code ?? '-',
-    offtaker_name: project?.offtaker?.fullName ?? '-',
-    project_slug: project?.project_slug ?? '',
+    product_code: project?.product_code ?? "-",
+    offtaker_name: project?.offtaker?.fullName ?? "-",
+    project_slug: project?.project_slug ?? "",
   };
 };
 
@@ -117,24 +119,31 @@ const SolarProjectTable = () => {
     const fetchProjects = async () => {
       setIsLoading(true);
       setFetchError(null);
+
       try {
-        // Add offtaker_id param if user.id exists
         let apiUrl = "/api/projects?page=1&limit=50";
         if (user?.id) {
           apiUrl += `&offtaker_id=${user.id}`;
         }
+
         const response = await apiGet(apiUrl);
-        if (response?.success && Array.isArray(response?.data?.projects)) {
-          const normalized = response.data.projects.map(normalizeApiProject);
-          setAllProjects(normalized); // do not fallback to static data
+
+        // ✅ response.data is the projects array
+        if (response?.success && Array.isArray(response?.data)) {
+          if (response.data.length > 0) {
+            const normalized = response.data.map(normalizeApiProject);
+            setAllProjects(normalized);
+          } else {
+            // no records
+            setAllProjects([]);
+          }
         } else {
-          // no projects returned -> keep empty
           setAllProjects([]);
         }
       } catch (error) {
         console.error("Failed to fetch projects:", error);
         setFetchError("Unable to fetch live project data.");
-        setAllProjects([]); // ensure no static data used
+        setAllProjects([]);
       } finally {
         setIsLoading(false);
       }
@@ -146,17 +155,20 @@ const SolarProjectTable = () => {
   // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (dateDropdownOpen && !event.target.closest('.date-filter-dropdown')) {
+      if (dateDropdownOpen && !event.target.closest(".date-filter-dropdown")) {
         setDateDropdownOpen(false);
       }
-      if (statusDropdownOpen && !event.target.closest('.status-filter-dropdown')) {
+      if (
+        statusDropdownOpen &&
+        !event.target.closest(".status-filter-dropdown")
+      ) {
         setStatusDropdownOpen(false);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [dateDropdownOpen, statusDropdownOpen]);
 
@@ -223,8 +235,12 @@ const SolarProjectTable = () => {
         }
 
         // Get project timestamps (only if valid, not 0)
-        const projectStartTs = project.startDateTs && project.startDateTs > 0 ? project.startDateTs : null;
-        const projectEndTs = project.endDateTs && project.endDateTs > 0 ? project.endDateTs : null;
+        const projectStartTs =
+          project.startDateTs && project.startDateTs > 0
+            ? project.startDateTs
+            : null;
+        const projectEndTs =
+          project.endDateTs && project.endDateTs > 0 ? project.endDateTs : null;
 
         // If project has no valid dates, exclude it
         if (!projectStartTs && !projectEndTs) {
@@ -237,29 +253,63 @@ const SolarProjectTable = () => {
               projectStartTs &&
               projectEndTs &&
               projectStartTs >= startDateTs &&
-
               projectEndTs <= endDateTs;
           } else if (startDateTs) {
             // Only start date entered: show projects where start date OR end date matches/falls on or after this date
-            const filterDateStart = new Date(dateFilterStart).setHours(0, 0, 0, 0);
-            const filterDateEnd = new Date(dateFilterStart).setHours(23, 59, 59, 999);
+            const filterDateStart = new Date(dateFilterStart).setHours(
+              0,
+              0,
+              0,
+              0
+            );
+            const filterDateEnd = new Date(dateFilterStart).setHours(
+              23,
+              59,
+              59,
+              999
+            );
             matchesDateRange =
-              (projectStartTs && projectStartTs >= filterDateStart && projectStartTs <= filterDateEnd) ||
-              (projectEndTs && projectEndTs >= filterDateStart && projectEndTs <= filterDateEnd);
+              (projectStartTs &&
+                projectStartTs >= filterDateStart &&
+                projectStartTs <= filterDateEnd) ||
+              (projectEndTs &&
+                projectEndTs >= filterDateStart &&
+                projectEndTs <= filterDateEnd);
           } else if (endDateTs) {
             // Only end date entered: show projects where start date OR end date matches/falls on or before this date
-            const filterDateStart = new Date(dateFilterEnd).setHours(0, 0, 0, 0);
-            const filterDateEnd = new Date(dateFilterEnd).setHours(23, 59, 59, 999);
+            const filterDateStart = new Date(dateFilterEnd).setHours(
+              0,
+              0,
+              0,
+              0
+            );
+            const filterDateEnd = new Date(dateFilterEnd).setHours(
+              23,
+              59,
+              59,
+              999
+            );
             matchesDateRange =
-              (projectStartTs && projectStartTs >= filterDateStart && projectStartTs <= filterDateEnd) ||
-              (projectEndTs && projectEndTs >= filterDateStart && projectEndTs <= filterDateEnd);
+              (projectStartTs &&
+                projectStartTs >= filterDateStart &&
+                projectStartTs <= filterDateEnd) ||
+              (projectEndTs &&
+                projectEndTs >= filterDateStart &&
+                projectEndTs <= filterDateEnd);
           }
         }
       }
 
       return matchesSearch && matchesStatus && matchesDateRange;
     });
-  }, [searchTerm, statusFilter, dateFilterStart, dateFilterEnd, allProjects, user]);
+  }, [
+    searchTerm,
+    statusFilter,
+    dateFilterStart,
+    dateFilterEnd,
+    allProjects,
+    user,
+  ]);
 
   const sortedProjects = useMemo(() => {
     let sorted = [...filteredProjects];
@@ -320,10 +370,11 @@ const SolarProjectTable = () => {
       <div className="flex items-center gap-1">
         {label}
         <ChevronDown
-          className={`w-3 h-3 transition-transform ${sortConfig.key === sortKey && sortConfig.direction === "desc"
-            ? "rotate-180"
-            : ""
-            }`}
+          className={`w-3 h-3 transition-transform ${
+            sortConfig.key === sortKey && sortConfig.direction === "desc"
+              ? "rotate-180"
+              : ""
+          }`}
         />
       </div>
     </th>
@@ -486,10 +537,11 @@ const SolarProjectTable = () => {
                           setStatusDropdownOpen(false);
                           setCurrentPage(1);
                         }}
-                        className={`w-full text-left px-3 py-2 text-sm ${statusFilter === "All"
-                          ? "bg-slate-100"
-                          : "hover:bg-gray-50"
-                          }`}
+                        className={`w-full text-left px-3 py-2 text-sm ${
+                          statusFilter === "All"
+                            ? "bg-slate-100"
+                            : "hover:bg-gray-50"
+                        }`}
                       >
                         All
                       </button>
@@ -499,10 +551,11 @@ const SolarProjectTable = () => {
                           setStatusDropdownOpen(false);
                           setCurrentPage(1);
                         }}
-                        className={`w-full text-left px-3 py-2 text-sm ${statusFilter == 1
-                          ? "bg-slate-100"
-                          : "hover:bg-gray-50"
-                          }`}
+                        className={`w-full text-left px-3 py-2 text-sm ${
+                          statusFilter == 1
+                            ? "bg-slate-100"
+                            : "hover:bg-gray-50"
+                        }`}
                       >
                         Upcoming
                       </button>
@@ -512,10 +565,11 @@ const SolarProjectTable = () => {
                           setStatusDropdownOpen(false);
                           setCurrentPage(1);
                         }}
-                        className={`w-full text-left px-3 py-2 text-sm ${statusFilter == 0
-                          ? "bg-slate-100"
-                          : "hover:bg-gray-50"
-                          }`}
+                        className={`w-full text-left px-3 py-2 text-sm ${
+                          statusFilter == 0
+                            ? "bg-slate-100"
+                            : "hover:bg-gray-50"
+                        }`}
                       >
                         Under Installation
                       </button>
@@ -534,7 +588,9 @@ const SolarProjectTable = () => {
               </div>
             )}
             {isLoading ? (
-              <div className="text-center text-sm text-gray-500 py-8">Loading projects...</div>
+              <div className="text-center text-sm text-gray-500 py-8">
+                Loading projects...
+              </div>
             ) : currentProjects.length ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-4 md:gap-6">
                 {currentProjects.map((project, idx) => (
@@ -545,17 +601,35 @@ const SolarProjectTable = () => {
                     {/* Image and status badge */}
                     <div className="relative w-full h-36 sm:h-44 md:h-40 lg:h-36 xl:h-40 overflow-hidden">
                       <img
-                        src={project.project_image || getFullImageUrl("/uploads/general/noimage.jpeg")}
+                        src={
+                          project.project_image ||
+                          getFullImageUrl("/uploads/general/noimage.jpeg")
+                        }
                         alt={project.projectName}
                         className="object-cover w-full h-full"
                       />
-                      <span className={`absolute top-2 right-2 px-3 py-1 text-xs font-semibold rounded-full shadow ${getStatusColor(project.status)}`}>{project.status}</span>
+                      <span
+                        className={`absolute top-2 right-2 px-3 py-1 text-xs font-semibold rounded-full shadow ${getStatusColor(
+                          project.status
+                        )}`}
+                      >
+                        {project.status}
+                      </span>
                     </div>
                     {/* Card content */}
                     <div className="p-3 md:p-4 flex flex-col flex-1">
-                      <h2 className="text-lg font-bold text-slate-900 mb-1 w-[220px] h-10 leading-5 overflow-hidden break-words line-clamp-2">{project.projectName}</h2>
-                      <div className="text-xs text-gray-500 mb-1">ID: {project.product_code}</div>
-                      <div className="text-sm text-gray-600 mb-2">Offtaker: <span className="font-medium">{project.offtaker_name}</span></div>
+                      <h2 className="text-lg font-bold text-slate-900 mb-1 w-[220px] h-10 leading-5 overflow-hidden break-words line-clamp-2">
+                        {project.projectName}
+                      </h2>
+                      <div className="text-xs text-gray-500 mb-1">
+                        ID: {project.product_code}
+                      </div>
+                      <div className="text-sm text-gray-600 mb-2">
+                        Offtaker:{" "}
+                        <span className="font-medium">
+                          {project.offtaker_name}
+                        </span>
+                      </div>
                       {/* Ratings */}
                       {/* <div className="flex items-center gap-2 mb-2">
                         <span className="text-xs text-gray-500 font-semibold">Ratings:</span>
@@ -569,27 +643,43 @@ const SolarProjectTable = () => {
                       {/* Stats boxes */}
                       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 mb-3">
                         <div className="bg-gray-50 rounded-lg p-2 text-center">
-                          <div className="text-base font-bold text-slate-900">{project.targetInvestment}</div>
-                          <div className="text-xs text-gray-500">Target Investment</div>
+                          <div className="text-base font-bold text-slate-900">
+                            {project.targetInvestment}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            Target Investment
+                          </div>
                         </div>
                         <div className="bg-gray-50 rounded-lg p-2 text-center">
-                          <div className="text-base font-bold text-amber-600">{project.expectedGeneration} kWh/year</div>
-                          <div className="text-xs text-gray-500">Expected Generation</div>
+                          <div className="text-base font-bold text-amber-600">
+                            {project.expectedGeneration} kWh/year
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            Expected Generation
+                          </div>
                         </div>
                         <div className="bg-gray-50 rounded-lg p-2 text-center">
-                          <div className="text-base font-bold text-orange-600">{project.expectedROI}</div>
-                          <div className="text-xs text-gray-500">Expected ROI</div>
+                          <div className="text-base font-bold text-orange-600">
+                            {project.expectedROI}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            Expected ROI
+                          </div>
                         </div>
                       </div>
                       {/* Payback/Lease info */}
                       <div className="flex flex-col md:flex-row gap-2 bg-gray-100 rounded-lg p-2 mb-3 text-center text-xs font-medium text-gray-700">
                         <div className="flex-1 md:border-r border-gray-300">
                           <div>Payback Period</div>
-                          <div className="text-lg font-bold text-slate-900">{project.paybackPeriod}</div>
+                          <div className="text-lg font-bold text-slate-900">
+                            {project.paybackPeriod}
+                          </div>
                         </div>
                         <div className="flex-1">
                           <div>Lease Term</div>
-                          <div className="text-lg font-bold text-slate-900">15 years</div>
+                          <div className="text-lg font-bold text-slate-900">
+                            15 years
+                          </div>
                         </div>
                       </div>
                       {/* Action buttons */}
@@ -601,7 +691,19 @@ const SolarProjectTable = () => {
                           target="_blank"
                           rel="noopener noreferrer"
                         >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"
+                            />
+                          </svg>
                           View Details
                         </a>
                       </div>
@@ -610,7 +712,9 @@ const SolarProjectTable = () => {
                 ))}
               </div>
             ) : (
-              <div className="text-center text-sm text-gray-500 py-8">No data available.</div>
+              <div className="text-center text-sm text-gray-500 py-8">
+                No data available.
+              </div>
             )}
           </div>
         </div>
