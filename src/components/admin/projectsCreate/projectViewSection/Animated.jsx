@@ -78,8 +78,6 @@ export default function SolarEnergyFlow({ inverters = [], isDark = false }) {
     </path>
   );
 
-  console.log("displayInverters", displayInverters);
-
   return (
     <div
       style={{
