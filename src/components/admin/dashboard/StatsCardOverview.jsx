@@ -101,7 +101,7 @@ const StatsCardOverview = () => {
                                                 width: "55px",
                                                 height: "55px",
                                                 borderRadius: "50%",
-                                                background: "#f3f4f6",
+                                                // background: "#f3f4f6",
                                                 display: "flex",
                                                 alignItems: "center",
                                                 justifyContent: "center",
@@ -119,7 +119,7 @@ const StatsCardOverview = () => {
                                                 fontWeight: "700",
                                                 marginTop: "14px",
                                                 marginBottom: "2px",
-                                                color: "#111827"
+                                                // color: "#111827"
                                             }}
                                         >
                                             {stats[key]}

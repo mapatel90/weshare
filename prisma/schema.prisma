@@ -109,6 +109,9 @@ model inverter_data {
   total_yield         Float?
   created_at          DateTime  @default(now())
   projects            projects  @relation(fields: [project_id], references: [id])
+  project_inverters    project_inverters?  @relation(fields: [project_inverter_id], references: [id])
+
+  @@map("inverter_data")
 }
 
 model inverter_type {
@@ -252,7 +255,11 @@ model project_inverters {
   updated_at             DateTime  @default(now())
   inverters              inverters @relation(fields: [inverter_id], references: [id])
   projects               projects  @relation(fields: [project_id], references: [id])
+  inverter_data    inverter_data[] 
+
+  @@map("project_inverters")
 }
+
 
 model project_types {
   id         Int        @id(map: "project_types_id_unique") @default(autoincrement())
