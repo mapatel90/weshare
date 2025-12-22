@@ -459,12 +459,6 @@ const ProjectTable = () => {
 
         {error && <div className="text-red-600">Error: {error}</div>}
 
-        {hasLoadedOnce && filteredData.length === 0 && !error && !loading && (
-          <div className="text-center py-6 text-gray-600">
-            {lang("common.noData", "No Data")}
-          </div>
-        )}
-
         {hasLoadedOnce && (
           <>
             <Table
@@ -474,6 +468,7 @@ const ProjectTable = () => {
               onSearchChange={setSearchTerm}
               serverSideTotal={pagination.total}
               initialPageSize={PAGE_SIZE}
+              emptyMessage={lang("common.noData", "No Data")}
             />
             {loading && (
               <div className="absolute inset-0 bg-white/70 flex items-center justify-center text-gray-600">

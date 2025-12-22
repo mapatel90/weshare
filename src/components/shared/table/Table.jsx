@@ -21,6 +21,7 @@ const Table = ({
   pageIndex: controlledPageIndex = null,
   pageSize: controlledPageSize = null,
   initialPageSize = 10,
+  emptyMessage = "No data available",
 }) => {
   // const [data] = useState([...Data])
   const [sorting, setSorting] = useState([]);
@@ -129,28 +130,39 @@ const Table = ({
                       ))}
                     </thead>
                     <tbody>
-                      {table.getRowModel().rows.map((row) => (
-                        <tr
-                          key={row.id}
-                          className="single-item chat-single-item"
-                        >
-                          {row.getVisibleCells().map((cell) => {
-                            return (
-                              <td
-                                key={cell.id}
-                                className={
-                                  cell.column.columnDef.meta?.className
-                                }
-                              >
-                                {flexRender(
-                                  cell.column.columnDef.cell,
-                                  cell.getContext()
-                                )}
-                              </td>
-                            );
-                          })}
+                      {table.getRowModel().rows.length === 0 ? (
+                        <tr>
+                          <td
+                            colSpan={table.getVisibleLeafColumns().length || 1}
+                            className="text-center py-4 text-muted"
+                          >
+                            {emptyMessage}
+                          </td>
                         </tr>
-                      ))}
+                      ) : (
+                        table.getRowModel().rows.map((row) => (
+                          <tr
+                            key={row.id}
+                            className="single-item chat-single-item"
+                          >
+                            {row.getVisibleCells().map((cell) => {
+                              return (
+                                <td
+                                  key={cell.id}
+                                  className={
+                                    cell.column.columnDef.meta?.className
+                                  }
+                                >
+                                  {flexRender(
+                                    cell.column.columnDef.cell,
+                                    cell.getContext()
+                                  )}
+                                </td>
+                              );
+                            })}
+                          </tr>
+                        ))
+                      )}
                     </tbody>
                   </table>
                 </div>
