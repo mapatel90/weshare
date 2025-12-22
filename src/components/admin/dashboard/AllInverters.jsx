@@ -58,15 +58,15 @@ const AllInverters = ({ title = "All Inverters" }) => {
             <div className="table-responsive">
               <table className="table table-hover mb-0">
                 <tbody>
-                  {inverters.map(({ id, companyName, inverterName, inverter_type_id, status }) => {
+                  {inverters.map(({ id, company_name, inverter_name, inverter_type_id, status }) => {
                     return (
                       <tr key={id} className="align-middle" style={{ borderBottom: "1px solid #e5e7eb" }}>
                         <td>
                           <div className="fw-semibold text-decoration-none">
-                            {inverterName || "Unnamed"}
+                            {inverter_name || "Unnamed"}
                           </div>
                           <div className="fs-12 text-muted">
-                           Company: {companyName || "N/A"}
+                           Company: {company_name || "N/A"}
                           </div>
                             <div className="fs-12 text-muted">
                             Inverter Type: {inverter_type_id || "N/A"}

@@ -59,15 +59,16 @@ const AllReports = ({ title = "All Reports" }) => {
             <div className="table-responsive">
               <table className="table table-hover mb-0">
                 <tbody>
-                  {reports.map(({ id, project, inverter, date, daily_yield, total_yield }) => {
+                  {reports.map(({ id, projects, project_inverters, date, daily_yield, total_yield }) => {
+                    console.log("reports", reports);
                     return (
                       <tr key={id} className="align-middle" style={{ borderBottom: "1px solid #e5e7eb" }}>
                         <td>
                           <div className="fw-semibold text-decoration-none">
-                            {truncateText(project?.project_name || "Unnamed", 20)}
+                            {truncateText(projects?.project_name || "Unnamed", 20)}
                           </div>
                           <div className="fs-12 text-muted">
-                            Inverter: {inverter?.inverterName || "N/A"}
+                            Inverter: {project_inverters?.inverter_name || "N/A"}
                           </div>
                           <div className="fs-12 text-muted">
                             Date: {new Date(date).toLocaleDateString()}

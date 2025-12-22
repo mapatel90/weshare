@@ -57,13 +57,13 @@ const AllUsers = ({ title = "All Users" }) => {
             <div className="table-responsive">
               <table className="table table-hover mb-0">
                 <tbody>
-                  {users.map(({ id, fullName, email, status, role }) => {
+                  {users.map(({ id, full_name, email, status, role }) => {
                     const isActive = status === 1;
                     return (
                       <tr key={id} className="align-middle" style={{ borderBottom: "1px solid #e5e7eb" }}>
                         <td>
                           <div className="fw-semibold text-decoration-none">
-                            {fullName || "Unnamed"}
+                            {full_name || "Unnamed"}
                           </div>
                           <div className="fs-12 text-muted">
                             Email: {email || "N/A"}

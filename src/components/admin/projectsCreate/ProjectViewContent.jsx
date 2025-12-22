@@ -465,7 +465,7 @@ const ProjectViewContent = ({ projectId = "" }) => {
                     return (
                       <option
                         key={pi.id}
-                        value={pi.inverter_id}
+                        value={pi.id}
                         style={{
                           background: isDark ? "#121a2d" : "#fff",
                           color: colors.text,
