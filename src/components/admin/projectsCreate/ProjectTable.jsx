@@ -431,7 +431,7 @@ const ProjectTable = () => {
             <option value="">{lang("projects.allOfftakers", "All Offtakers")}</option>
             {offtakerList.map((o) => (
               <option key={o.id} value={o.id}>
-                {o.fullName || o.email || `Offtaker ${o.id}`}
+                {o.full_name || `Offtaker ${o.id}`}
               </option>
             ))}
           </select>
