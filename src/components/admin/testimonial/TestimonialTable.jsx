@@ -102,7 +102,7 @@ const TestimonialTable = () => {
         try {
             const res = await apiGet(`/api/projects/${projectId}`);
             const proj = res?.data;
-            const ot = proj?.users;
+            const ot = proj?.offtaker;
             if (ot?.id) {
                 const option = { label: (ot.full_name || ot.email || ""), value: String(ot.id) };
                 setOfftakerOptions([option]);
