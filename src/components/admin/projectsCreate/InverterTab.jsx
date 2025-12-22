@@ -106,7 +106,7 @@ const InverterTab = ({ projectId, handleSaveAction }) => {
     setSelectedInverter(
       inverterList.find((i) => i.id === row.inverter_id) || null
     );
-    setKilowatt(row.kilowatt);
+    setKilowatt(row.kilowatt?.toString() || "");
     setSerialNumber(row.inverter_serial_number || ""); // <--
     setInverterName(row.inverter_name || "");
     setModel(row.model || "");
@@ -137,7 +137,7 @@ const InverterTab = ({ projectId, handleSaveAction }) => {
     // Validate required fields
     if (!selectedInverter) return;
     
-    if (!kilowatt || kilowatt.trim() === "") {
+    if (!kilowatt || String(kilowatt).trim() === "") {
       setKilowattError(
         lang("validation.kilowattRequired", "Kilowatt is required")
       );
