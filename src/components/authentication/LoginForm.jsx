@@ -86,13 +86,13 @@ const LoginForm = ({ registerPath, resetPath }) => {
         // 🔥 Handle Remember Me before login API
         const remember = document.getElementById("rememberMe").checked;
 
-        if (remember) {
-            localStorage.setItem(storageKey, JSON.stringify({ username, password }));
-        } else {
-            localStorage.removeItem(storageKey);
-        }
+        // if (remember) {
+        //     localStorage.setItem(storageKey, JSON.stringify({ username, password }));
+        // } else {
+        //     localStorage.removeItem(storageKey);
+        // }
 
-        const result = await login(username, password)
+        const result = await login(username, password, remember ? storageKey : null)
 
         if (result.success) {
             if (expectedRole && result.user?.role !== expectedRole) {
