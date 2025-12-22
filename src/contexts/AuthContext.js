@@ -100,12 +100,13 @@ export default function AuthProvider({ children }) {
     checkAuth(false)
   }, [checkAuth])
 
-  const login = async (username, password) => {
+  const login = async (username, password, rememberMe) => {
     try {
       // Use API helper for login (without auth token)
+      console.log('rememberMe:', rememberMe)
       const data = await apiPost(
         '/api/auth/login',
-        { username, password },
+        { username, password, rememberMe },
         { includeAuth: false }
       )
 
@@ -148,26 +149,18 @@ export default function AuthProvider({ children }) {
     }
   }
 
-  const logout = () => {
-    console.log("Logging out, current path:", pathname);
-    // Clear storage
-    localStorage.removeItem('accessToken')
-    localStorage.removeItem('cachedUser')
+  const logout = async () => {
+    try {
+      await apiPost('/api/auth/logout');
+    } catch { }
 
-    // Clear cookie
-    document.cookie = 'accessToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('cachedUser');
+    document.cookie = 'accessToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+    setUser(null);
+    router.push('/login');
+  };
 
-    // Clear user
-    setUser(null)
-    authCheckInProgress.current = false
-
-    // Redirect to login
-    if (pathname === '/') {
-      router.push('/')
-    } else {
-      router.push('/login')
-    }
-  }
 
   const value = {
     user,

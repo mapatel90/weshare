@@ -28,7 +28,7 @@ const RegisterForm = ({loginPath}) => {
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState('')
     // Form fields
-    const [fullName, setFullName] = useState('')
+    const [full_name, setFullName] = useState('')
     const [username, setUsername] = useState('')
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
@@ -90,7 +90,7 @@ const RegisterForm = ({loginPath}) => {
         // Validation
         let isValid = true
 
-        if (!fullName.trim()) {
+        if (!full_name.trim()) {
             setFullNameError(lang('validation.fullNameRequired'))
             isValid = false
         }
@@ -135,11 +135,11 @@ const RegisterForm = ({loginPath}) => {
         }
         try {
             const data = await apiPost('/api/auth/register', {
-                fullName,
+                full_name,
                 username,
                 email,
                 password,
-                userRole: parseInt(userType),
+                role_id: parseInt(userType),
                 termsAccepted: agreeTerms ? 1 : 0
             })
 
@@ -152,8 +152,8 @@ const RegisterForm = ({loginPath}) => {
                     setError(data.message || 'Registration failed')
                 }
             } else {
-                // Check userRole from data.data object
-                if (data.data && data.data.userRole == 3) {
+                // Check role_id from data.data object
+                if (data.data && data.data.role_id == 3) {
                     router.push('/offtaker/login')
                 } else {
                     router.push('/investor/login')
@@ -223,7 +223,7 @@ const RegisterForm = ({loginPath}) => {
                     <TextField
                         fullWidth
                         placeholder={lang('authentication.fullName')}
-                        value={fullName}
+                        value={full_name}
                         onChange={(e) => {
                             setFullName(e.target.value)
                             if (fullNameError) setFullNameError('')

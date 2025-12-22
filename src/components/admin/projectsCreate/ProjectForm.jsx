@@ -36,7 +36,7 @@ const ProjectForm = ({
   handleOfftakerChange,
   handleLocationChange,
   handleSubmit,
-  handleSaveAction,
+  handleSaveAction = null, // optional - only for edit mode
 
   // gallery dropzone
   imageQueue = [],
@@ -796,39 +796,63 @@ const ProjectForm = ({
       </div>
 
       <div className="col-12 d-flex justify-content-end gap-2">
-        <Button
-          type="submit"
-          variant="contained"
-          onClick={() => handleSaveAction('saveproject')}
-          disabled={loading.form}
-          startIcon={loading.form ? <CircularProgress size={16} /> : <FiSave />}
-          className="common-grey-color"
-          style={{
-            marginTop: "2px",
-            marginBottom: "2px",
-            marginRight: 0,
-            marginLeft: 0,
-          }}
-        >
-          {loading.form
-            ? lang("common.saving", "Saving")
-            : lang("projects.saveandclose", "Save & Close ")}
-        </Button>
-        <Button
-          type="button"
-          variant="outlined"
-          disabled={loading.form}
-          onClick={() => handleSaveAction('saveprojectNext')}
-          style={{
-            marginTop: "2px",
-            marginBottom: "2px",
-          }}
-        >
-          {loading.form
-            ? lang("common.saving", "Saving")
-            : lang("projects.saveNext", "Save & Next")}
-          <FiArrowRight />
-        </Button>
+        {handleSaveAction ? (
+          // Edit mode: Show Save & Close and Save & Next buttons
+          <>
+            <Button
+              type="submit"
+              variant="contained"
+              onClick={() => handleSaveAction('saveproject')}
+              disabled={loading.form}
+              startIcon={loading.form ? <CircularProgress size={16} /> : <FiSave />}
+              className="common-grey-color"
+              style={{
+                marginTop: "2px",
+                marginBottom: "2px",
+                marginRight: 0,
+                marginLeft: 0,
+              }}
+            >
+              {loading.form
+                ? lang("common.saving", "Saving")
+                : lang("projects.saveandclose", "Save & Close ")}
+            </Button>
+            <Button
+              type="button"
+              variant="outlined"
+              disabled={loading.form}
+              onClick={() => handleSaveAction('saveprojectNext')}
+              style={{
+                marginTop: "2px",
+                marginBottom: "2px",
+              }}
+            >
+              {loading.form
+                ? lang("common.saving", "Saving")
+                : lang("projects.saveNext", "Save & Next")}
+              <FiArrowRight />
+            </Button>
+          </>
+        ) : (
+          // Create mode: Show simple Create Project button
+          <Button
+            type="submit"
+            variant="contained"
+            disabled={loading.form}
+            startIcon={loading.form ? <CircularProgress size={16} /> : <FiSave />}
+            className="common-grey-color"
+            style={{
+              marginTop: "2px",
+              marginBottom: "2px",
+              marginRight: 0,
+              marginLeft: 0,
+            }}
+          >
+            {loading.form
+              ? lang("common.saving", "Saving")
+              : lang("projects.saveandclose", "Save & Close ")}
+          </Button>
+        )}
       </div>
     </form>
   );

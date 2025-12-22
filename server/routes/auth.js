@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import prisma from '../utils/prisma.js';
+import redis from '../utils/redis.js';
 import { sendPasswordResetEmail, sendPasswordResetConfirmationEmail } from '../utils/email.js';
 
 const router = express.Router();
@@ -45,12 +46,12 @@ router.get('/check-username', async (req, res) => {
 router.post('/register', async (req, res) => {
   try {
     const {
-      fullName,
+      full_name,
       username,
       email,
       password,
       phone_number,
-      userRole, 
+      role_id, 
       address_1,
       address_2,
       city_id,
@@ -61,7 +62,7 @@ router.post('/register', async (req, res) => {
     } = req.body;
 
     // Validate required fields
-    if (!fullName || !username || !password) {
+    if (!full_name || !username || !password) {
       return res.status(400).json({
         success: false,
         message: 'Full name, username, and password are required'
@@ -87,12 +88,12 @@ router.post('/register', async (req, res) => {
     // Create user (store username and email)
     const newUser = await prisma.users.create({
       data: {
-        fullName,
+        full_name,
         username,
         email,
         password: hashedPassword,
         phone_number,
-        userRole,
+        role_id,
         address_1,
         address_2,
         city_id,
@@ -104,13 +105,13 @@ router.post('/register', async (req, res) => {
       },
       select: {
         id: true,
-        fullName: true,
+        full_name: true,
         username: true,
         email: true,
         phone_number: true,
-        userRole: true,
+        role_id: true,
         status: true,
-        createdAt: true
+        created_at: true
       }
     });
 
@@ -135,7 +136,7 @@ router.post('/login', async (req, res) => {
     // Debug logging
     // console.log('Request headers:', req.headers);
     // console.log('Request body:', req.body);
-    
+
     // Check if body exists
     if (!req.body) {
       return res.status(400).json({
@@ -143,7 +144,7 @@ router.post('/login', async (req, res) => {
         message: 'Request body is required'
       });
     }
-    
+
     const { username, password } = req.body;
 
     // Validate input
@@ -184,19 +185,59 @@ router.post('/login', async (req, res) => {
     }
 
     // Generate JWT token
+    // const token = jwt.sign(
+    //   { 
+    //     userId: user.id,
+    //     username: user.username,
+    //     role: user.userRole 
+    //   },
+    //   process.env.JWT_SECRET,
+    //   { expiresIn: process.env.JWT_EXPIRES_IN }
+    // );
+
+    // // Return user data (excluding password)
+    // const { password: _, ...userWithoutPassword } = user;
+
+    // res.json({
+    //   success: true,
+    //   message: 'Login successful',
+    //   data: {
+    //     user: userWithoutPassword,
+    //     token
+    //   }
+    // });
+
     const token = jwt.sign(
-      { 
+      {
         userId: user.id,
         username: user.username,
-        role: user.userRole 
+        role: user.role_id 
       },
       process.env.JWT_SECRET,
       { expiresIn: process.env.JWT_EXPIRES_IN }
     );
 
-    // Return user data (excluding password)
-    const { password: _, ...userWithoutPassword } = user;
+    // 🔑 Redis session
+    const rememberMe = req.body.rememberMe === true;
+    const sessionTTL = rememberMe ? 60 * 60 * 24 * 7 : 60 * 60 * 2; // 7 days /  2 hours
 
+    // Hash token so raw JWT is never stored
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+
+    const redisKey = `session:${user.id}:${tokenHash}`;
+
+    await redis.set(
+      redisKey,
+      JSON.stringify({
+        userId: user.id,
+        role: user.userRole,
+        loginAt: Date.now()
+      }),
+      'EX',
+      sessionTTL
+    );
+
+    const { password: _, ...userWithoutPassword } = user;
     res.json({
       success: true,
       message: 'Login successful',
@@ -218,12 +259,57 @@ router.post('/login', async (req, res) => {
 // Get current user profile
 router.get('/me', async (req, res) => {
   try {
+    console.log('res:', res);
+    console.log('req:', req)
+    // const token = req.headers.authorization?.replace('Bearer ', '');
+
+    // if (!token) {
+    //   return res.status(401).json({
+    //     success: false,
+    //     message: 'No token provided'
+    //   });
+    // }
+
+    // // Verify token
+    // const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    // // Get user data
+  
+
+    // if (!user) {
+    //   return res.status(404).json({
+    //     success: false,
+    //     message: 'User not found'
+    //   });
+    // }
+
+    // res.json({
+    //   success: true,
+    //   data: user
+    // });
     const token = req.headers.authorization?.replace('Bearer ', '');
-    
+    console.log('token:', token)
     if (!token) {
+      return res.status(401).json({ success: false });
+    }
+
+    // const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log('decoded:', decoded)
+
+
+    // 🔐 Redis validation
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+    console.log('tokenHash:', tokenHash)
+    const redisKey = `session:${decoded.userId}:${tokenHash}`;
+    console.log('redisKey:', redisKey)
+
+    const session = await redis.get(redisKey);
+    console.log('session:', session)
+
+    if (!session) {
       return res.status(401).json({
         success: false,
-        message: 'No token provided'
+        message: 'Session expired'
       });
     }
 
@@ -263,12 +349,29 @@ router.get('/me', async (req, res) => {
       data: user
     });
 
+
   } catch (error) {
     console.error('Get profile error:', error);
     res.status(401).json({
       success: false,
       message: 'Invalid or expired token'
     });
+  }
+});
+router.post('/logout', async (req, res) => {
+  try {
+    const token = req.headers.authorization?.replace('Bearer ', '');
+    if (!token) return res.json({ success: true });
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+
+    const redisKey = `session:${decoded.userId}:${tokenHash}`;
+    await redis.del(redisKey);
+
+    res.json({ success: true });
+  } catch {
+    res.json({ success: true });
   }
 });
 
@@ -300,7 +403,7 @@ router.post('/forgot-password', async (req, res) => {
 
     // Generate secure random token
     const resetToken = crypto.randomBytes(32).toString('hex');
-    
+
     // Hash the token before storing
     const hashedToken = crypto
       .createHash('sha256')
