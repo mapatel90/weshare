@@ -25,7 +25,7 @@ router.get("/", async (req, res) => {
 
     // Build the base where clause based on filters
     let where = {
-      project: { is_deleted: 0 },
+      projects: { is_deleted: 0 },
     };
 
     if (projectId) {
@@ -80,12 +80,12 @@ router.get("/", async (req, res) => {
 
       const orFilters = [
         {
-          project: {
+          projects: {
             project_name: { contains: trimmedSearch, mode: "insensitive" },
           },
         },
         {
-          inverter: {
+          inverters: {
             inverterName: { contains: trimmedSearch, mode: "insensitive" },
           },
         },
@@ -128,10 +128,10 @@ router.get("/", async (req, res) => {
     const inverterData = await prisma.inverter_data.findMany({
       where: effectiveWhere,
       orderBy: { date: "desc" },
-      distinct: ["inverter_id", "date"],
+      // distinct: ["inverter_id", "date"],
       include: {
         projects: true,
-        inverter: true,
+        project_inverters: true,
       },
       skip: 0,
       take: fetchAll ? undefined : limitNumber,
@@ -144,7 +144,7 @@ router.get("/", async (req, res) => {
     const pageSize = 50; // frontend will show 50 per page
 
     // --- Fetch full project list (for dropdown) ---
-    const projectList = await prisma.project.findMany({
+    const projectList = await prisma.projects.findMany({
       where: { is_deleted: 0 },
       orderBy: { project_name: "asc" },
     });
@@ -154,7 +154,7 @@ router.get("/", async (req, res) => {
         is_deleted: 0,
         ...(projectId ? { project_id: Number(projectId) } : {}),
       },
-      include: { inverter: true },
+      include: { inverters: true },
       orderBy: { inverter_id: "asc" },
     });
 
@@ -278,7 +278,7 @@ router.post("/investor/latest-record", authenticateToken, async (req, res) => {
        STEP 1: Find projects investor can access
     ---------------------------------------------------- */
 
-    const ownedProjects = await prisma.project.findMany({
+    const ownedProjects = await prisma.projects.findMany({
       where: { is_deleted: 0, offtaker_id: userId },
       select: { id: true },
     });
@@ -335,7 +335,7 @@ router.post("/investor/latest-record", authenticateToken, async (req, res) => {
           ...(project_id
             ? { projectId: project_id }
             : { projectId: { in: allowedProjectIds } }),
-          project: { is_deleted: 0 },
+          projects: { is_deleted: 0 },
         },
         orderBy: { date: "desc" },
       });
@@ -365,7 +365,7 @@ router.post("/investor/latest-record", authenticateToken, async (req, res) => {
     const projectInverters = await prisma.project_inverters.findMany({
       where: { is_deleted: 0, ...projectFilter },
       include: {
-        inverter: { select: { inverterName: true } },
+        inverters: { select: { inverterName: true } },
       },
     });
 
@@ -380,7 +380,7 @@ router.post("/investor/latest-record", authenticateToken, async (req, res) => {
         where: {
           projectId: pi.project_id,
           inverter_id: pi.inverter_id,
-          project: { is_deleted: 0 },
+          projects: { is_deleted: 0 },
         },
         orderBy: { date: "desc" },
       });
@@ -454,7 +454,7 @@ router.post("/monthly-chart", async (req, res) => {
     const { projectId, projectInverterId } = req.body;
 
     let where = {
-      project: { is_deleted: 0 },
+      projects: { is_deleted: 0 },
     };
 
     if (projectId) {
@@ -474,7 +474,7 @@ router.post("/monthly-chart", async (req, res) => {
         date: true,
         generate_kw: true,
         inverter_id: true,
-        inverters: {
+        project_inverters: {
           select: {
             inverter_name: true,
           },
@@ -582,7 +582,7 @@ router.post("/offtaker/summary/data", authenticateToken, async (req, res) => {
        STEP 1: Find projects offtaker can access
     ---------------------------------------------------- */
 
-    const ownedProjects = await prisma.project.findMany({
+    const ownedProjects = await prisma.projects.findMany({
       where: { is_deleted: 0, offtaker_id: userId },
       select: { id: true },
     });
@@ -629,7 +629,7 @@ router.post("/offtaker/summary/data", authenticateToken, async (req, res) => {
           ...(project_id
             ? { projectId: project_id }
             : { projectId: { in: allowedProjectIds } }),
-          project: { is_deleted: 0 },
+          projects: { is_deleted: 0 },
         },
         orderBy: { date: "desc" },
       });
@@ -659,7 +659,7 @@ router.post("/offtaker/summary/data", authenticateToken, async (req, res) => {
     const projectInverters = await prisma.project_inverters.findMany({
       where: { is_deleted: 0, ...projectFilter },
       include: {
-        inverter: { select: { inverterName: true } },
+        inverters: { select: { inverterName: true } },
       },
     });
 
@@ -674,7 +674,7 @@ router.post("/offtaker/summary/data", authenticateToken, async (req, res) => {
         where: {
           projectId: pi.project_id,
           inverter_id: pi.inverter_id,
-          project: { is_deleted: 0 },
+          projects: { is_deleted: 0 },
         },
         orderBy: { date: "desc" },
       });
