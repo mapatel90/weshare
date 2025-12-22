@@ -486,57 +486,80 @@ async function insertLocationData() {
       // console.log(`\n📍 Processing ${countryName}...`);
       
       // Insert or update country
-      const country = await prisma.countries.upsert({
-        where: { name: countryName },
-        update: { code: countryInfo.code },
-        create: {
-          name: countryName,
-          code: countryInfo.code,
-          status: 1
-        }
+      let country = await prisma.countries.findFirst({
+        where: { name: countryName }
       });
+
+      if (country) {
+        country = await prisma.countries.update({
+          where: { id: country.id },
+          data: { code: countryInfo.code }
+        });
+      } else {
+        country = await prisma.countries.create({
+          data: {
+            name: countryName,
+            code: countryInfo.code,
+            status: 1
+          }
+        });
+      }
       insertedData.countries++;
       // console.log(`✅ Country: ${countryName} (${countryInfo.code})`);
 
       // Process states
       for (const [stateName, stateInfo] of Object.entries(countryInfo.states)) {
-        const state = await prisma.states.upsert({
+        // Check if state already exists
+        let state = await prisma.states.findFirst({
           where: {
-            name_country_id: {
-              name: stateName,
-              country_id: country.id
-            }
-          },
-          update: { code: stateInfo.code },
-          create: {
             name: stateName,
-            code: stateInfo.code,
-            country_id: country.id,
-            status: 1
+            country_id: country.id
           }
         });
+
+        if (state) {
+          // Update existing state
+          state = await prisma.states.update({
+            where: { id: state.id },
+            data: { code: stateInfo.code }
+          });
+        } else {
+          // Create new state
+          state = await prisma.states.create({
+            data: {
+              name: stateName,
+              code: stateInfo.code,
+              country_id: country.id,
+              status: 1
+            }
+          });
+        }
         insertedData.states++;
         // console.log(`  ✅ State: ${stateName} (${stateInfo.code || 'N/A'})`);
 
         // Process cities in batches for better performance
         const cities = stateInfo.cities;
         // console.log(`    🏙️ Processing ${cities.length} cities...`);
-        
+
         for (const cityName of cities) {
-          await prisma.cities.upsert({
+          // Check if city already exists
+          let city = await prisma.cities.findFirst({
             where: {
-              name_state_id: {
-                name: cityName,
-                state_id: state.id
-              }
-            },
-            update: {},
-            create: {
               name: cityName,
-              state_id: state.id,
-              status: 1
+              state_id: state.id
             }
           });
+
+          if (!city) {
+            // Create new city only if it doesn't exist
+            await prisma.cities.create({
+              data: {
+                name: cityName,
+                state_id: state.id,
+                status: 1
+              }
+            });
+          }
           insertedData.cities++;
         }
         // console.log(`    ✅ Added ${cities.length} cities to ${stateName}`);

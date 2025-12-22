@@ -60,25 +60,31 @@ async function main() {
     where: { name: "Ho Chi Minh City" },
   });
 
-  await prisma.users.upsert({
+  const existingAdmin = await prisma.users.findFirst({
     where: { username: 'admin' },
-    update: {},
-    create: {
-      full_name: 'System Administrator',
-      username: 'admin',
-      email: 'admin@sunshare.com',
-      password: adminPassword,
-      role_id: 1,
-      phone_number: "+1234567890",
-      country_id: vietnamCountry?.id,
-      state_id: hoChiMinhCity?.state_id,
-      city_id: hoChiMinhCity?.id,
-      address_1: "123 Admin Street",
-      zipcode: "700000",
-      status: 1, // Active
-    },
   });
-  console.log('✅ Admin user created: admin (password: admin123)');
+
+  if (!existingAdmin) {
+    await prisma.users.create({
+      data: {
+        full_name: 'System Administrator',
+        username: 'admin',
+        email: 'admin@sunshare.com',
+        password: adminPassword,
+        role_id: 1,
+        phone_number: "+1234567890",
+        country_id: vietnamCountry?.id,
+        state_id: hoChiMinhCity?.state_id,
+        city_id: hoChiMinhCity?.id,
+        address_1: "123 Admin Street",
+        zipcode: "700000",
+        status: 1, // Active
+      },
+    });
+    console.log('✅ Admin user created: admin (password: admin123)');
+  } else {
+    console.log('ℹ️ Admin user already exists, skipping...');
+  }
 
 
 
@@ -130,21 +136,27 @@ async function main() {
       userData.email === "wrapcode.info@gmail.com"
         ? testPassword
         : defaultPassword;
-    await prisma.users.upsert({
-      // Prisma schema requires a unique field in `where`. Use `username` which is unique.
+
+    const existingUser = await prisma.users.findFirst({
       where: { username: userData.username },
-      update: {},
-      create: {
-        ...userData,
-        password: password,
-        status: 1, // Active
-      },
     });
-    const passwordText =
-      userData.email === "wrapcode.info@gmail.com" ? "123456" : "password123";
-    console.log(
-      `✅ User created: ${userData.email} (password: ${passwordText})`
-    );
+
+    if (!existingUser) {
+      await prisma.users.create({
+        data: {
+          ...userData,
+          password: password,
+          status: 1, // Active
+        },
+      });
+      const passwordText =
+        userData.email === "wrapcode.info@gmail.com" ? "123456" : "password123";
+      console.log(
+        `✅ User created: ${userData.email} (password: ${passwordText})`
+      );
+    } else {
+      console.log(`ℹ️ User ${userData.username} already exists, skipping...`);
+    }
   }
 
   // -----------------------------
@@ -161,12 +173,18 @@ async function main() {
   ];
 
   for (const inverterType of inverterTypes) {
-    await prisma.inverter_type.upsert({
+    const existingType = await prisma.inverter_type.findFirst({
       where: { type: inverterType.type },
-      update: {},
-      create: inverterType,
     });
-    console.log(`✅ Inverter type added: ${inverterType.type}`);
+
+    if (!existingType) {
+      await prisma.inverter_type.create({
+        data: inverterType,
+      });
+      console.log(`✅ Inverter type added: ${inverterType.type}`);
+    } else {
+      console.log(`ℹ️ Inverter type ${inverterType.type} already exists, skipping...`);
+    }
   }
 
   console.log("🎉 Database seeding completed successfully!");

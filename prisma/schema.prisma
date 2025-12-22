@@ -255,7 +255,7 @@ model project_inverters {
 
 
 model project_types {
-  id         Int        @id(map: "project_types_id_unique") @default(autoincrement())
+  id         Int        @id @default(autoincrement())
   type_name  String     @db.VarChar(255)
   status     Int        @default(0)
   is_deleted Int        @default(0)
