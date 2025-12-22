@@ -917,12 +917,12 @@ router.delete("/:id", authenticateToken, async (req, res) => {
 
     // Delete image records from DB
     await prisma.project_images.deleteMany({
-      where: { projectId },
+      where: { project_id: projectId },
     });
 
     // Delete inverter_data rows for this project
     await prisma.inverter_data.deleteMany({
-      where: { projectId },
+      where: { project_id: projectId },
     });
 
     await prisma.contracts.updateMany({
