@@ -46,12 +46,12 @@ router.get('/check-username', async (req, res) => {
 router.post('/register', async (req, res) => {
   try {
     const {
-      fullName,
+      full_name,
       username,
       email,
       password,
       phone_number,
-      userRole, 
+      role_id, 
       address_1,
       address_2,
       city_id,
@@ -62,7 +62,7 @@ router.post('/register', async (req, res) => {
     } = req.body;
 
     // Validate required fields
-    if (!fullName || !username || !password) {
+    if (!full_name || !username || !password) {
       return res.status(400).json({
         success: false,
         message: 'Full name, username, and password are required'
@@ -88,12 +88,12 @@ router.post('/register', async (req, res) => {
     // Create user (store username and email)
     const newUser = await prisma.users.create({
       data: {
-        fullName,
+        full_name,
         username,
         email,
         password: hashedPassword,
         phone_number,
-        userRole,
+        role_id,
         address_1,
         address_2,
         city_id,
@@ -105,13 +105,13 @@ router.post('/register', async (req, res) => {
       },
       select: {
         id: true,
-        fullName: true,
+        full_name: true,
         username: true,
         email: true,
         phone_number: true,
-        userRole: true,
+        role_id: true,
         status: true,
-        createdAt: true
+        created_at: true
       }
     });
 
@@ -210,7 +210,8 @@ router.post('/login', async (req, res) => {
     const token = jwt.sign(
       {
         userId: user.id,
-        role: user.userRole
+        username: user.username,
+        role: user.role_id 
       },
       process.env.JWT_SECRET,
       { expiresIn: process.env.JWT_EXPIRES_IN }
