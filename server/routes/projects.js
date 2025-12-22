@@ -679,7 +679,7 @@ router.get("/:identifier", async (req, res) => {
     // Check if identifier is numeric (ID) or string (slug)
     const isNumeric = /^\d+$/.test(identifier);
 
-    const project = await prisma.projects.findUnique({
+    const project = await prisma.projects.findFirst({
       where: isNumeric
         ? { id: parseInt(identifier) }
         : { project_slug: identifier },
@@ -866,7 +866,7 @@ router.put("/meter/:id", authenticateToken, async (req, res) => {
 router.get("/meter/:id", authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
-    const meter = await prisma.projects.findUnique({
+    const meter = await prisma.projects.findFirst({
       where: { id: parseInt(id) },
       select: {
         meter_url: true,

@@ -123,7 +123,7 @@ router.get('/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
 
-    const message = await prisma.contact_us.findUnique({
+    const message = await prisma.contact_us.findFirst({
       where: { 
         id: parseInt(id),
         is_deleted: 0
@@ -158,7 +158,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
     const { fullName, email, phoneNumber, subject, message } = req.body;
 
     // Check if message exists
-    const existingMessage = await prisma.contact_us.findUnique({
+    const existingMessage = await prisma.contact_us.findFirst({
       where: { 
         id: parseInt(id),
         is_deleted: 0
@@ -205,7 +205,7 @@ router.delete('/:id', authenticateToken, async (req, res) => {
     const { id } = req.params;
 
     // Check if message exists
-    const existingMessage = await prisma.contact_us.findUnique({
+    const existingMessage = await prisma.contact_us.findFirst({
       where: { 
         id: parseInt(id),
         is_deleted: 0

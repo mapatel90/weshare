@@ -13,7 +13,7 @@ export async function POST(request) {
     }
 
     // Check if username exists
-    const existingUser = await prisma.user.findUnique({
+    const existingUser = await prisma.users.findFirst({
       where: { username }
     })
 

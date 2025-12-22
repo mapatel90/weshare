@@ -275,7 +275,7 @@ router.put("/:id", authenticateToken, upload.single('document'), async (req, res
       status,
     } = req.body;
 
-    const existing = await prisma.contract.findUnique({ where: { id } });
+    const existing = await prisma.contract.findFirst({ where: { id } });
     if (!existing || existing.is_deleted) {
       return res.status(404).json({ success: false, message: 'Contract not found' });
     }
@@ -332,7 +332,7 @@ router.put("/:id/status", authenticateToken, async (req, res) => {
   try {
     const id = Number(req.params.id);
     const { status, reason } = req.body;
-    const existing = await prisma.contract.findUnique({ where: { id } });
+    const existing = await prisma.contract.findFirst({ where: { id } });
     if (!existing || existing.is_deleted) {
       return res.status(404).json({ success: false, message: 'Contract not found' });
     }
@@ -358,7 +358,7 @@ router.put("/:id/status", authenticateToken, async (req, res) => {
 router.delete("/:id", authenticateToken, async (req, res) => {
   try {
     const id = Number(req.params.id);
-    const existing = await prisma.contract.findUnique({ where: { id } });
+    const existing = await prisma.contract.findFirst({ where: { id } });
     if (!existing || existing.is_deleted) {
       return res.status(404).json({ success: false, message: 'Contract not found' });
     }

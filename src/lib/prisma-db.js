@@ -33,21 +33,21 @@ export class DatabaseAdapter {
   static users = {
     // Find user by email
     findByEmail: async (email) => {
-      return await prisma.user.findUnique({
+      return await prisma.users.findFirst({
         where: { email }
       });
     },
 
     // Create new user
     create: async (userData) => {
-      return await prisma.user.create({
+      return await prisma.users.create({
         data: userData
       });
     },
 
     // Find user by ID
     findById: async (id) => {
-      return await prisma.user.findUnique({
+      return await prisma.users.findFirst({
         where: { id: parseInt(id) }
       });
     },
@@ -122,14 +122,14 @@ export class DatabaseAdapter {
 
     // Find role by ID
     findById: async (id) => {
-      return await prisma.role.findUnique({
+      return await prisma.roles.findFirst({
         where: { id: parseInt(id) }
       });
     },
 
     // Find role by name
     findByName: async (name) => {
-      return await prisma.role.findUnique({
+      return await prisma.roles.findFirst({
         where: { name }
       });
     },

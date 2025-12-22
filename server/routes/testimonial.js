@@ -92,7 +92,7 @@ router.put('/:id', authenticateToken, upload.single('image'), async (req, res) =
         // If a new image uploaded, best-effort delete old one
         if (newImagePath) {
             try {
-                const existing = await prisma.testimonials.findUnique({ where: { id: Number(id) } });
+                const existing = await prisma.testimonials.findFirst({ where: { id: Number(id) } });
                 const oldPath = existing?.image
                     ? path.join(PUBLIC_DIR, existing.image.replace(/^\//, ''))
                     : null;
@@ -125,7 +125,7 @@ router.put('/:id', authenticateToken, upload.single('image'), async (req, res) =
 router.delete('/:id', authenticateToken, async (req, res) => {
     try {
         const { id } = req.params;
-        const existing = await prisma.testimonials.findUnique({ where: { id: Number(id) } });
+        const existing = await prisma.testimonials.findFirst({ where: { id: Number(id) } });
         await prisma.testimonial.update({
             where: { id: Number(id) },
             data: { is_deleted: 1 }

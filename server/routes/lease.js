@@ -139,7 +139,7 @@ router.delete('/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params || {}
 
-    const record = await prisma.lease_requests.findUnique({
+    const record = await prisma.lease_requests.findFirst({
       where: { id: Number(id) }
     })  
     if (!record || record.is_deleted) {

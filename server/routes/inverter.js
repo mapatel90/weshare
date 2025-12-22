@@ -166,7 +166,7 @@ router.delete("/:id", authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
 
-    //  const inverter = await prisma.inverter.findUnique({
+    //  const inverter = await prisma.inverter.findFirst({
     //   where: { id: parseInt(id) },
     //   data: { is_deleted: 0 },
     // });

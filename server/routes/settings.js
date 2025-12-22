@@ -84,7 +84,7 @@ router.get('/:key', async (req, res) => {
   try {
     const { key } = req.params;
     
-    const setting = await prisma.settings.findUnique({
+    const setting = await prisma.settings.findFirst({
       where: { key }
     });
     
@@ -205,7 +205,7 @@ router.delete('/:key', authenticateToken, async (req, res) => {
   try {
     const { key } = req.params;
     
-    const setting = await prisma.settings.findUnique({
+    const setting = await prisma.settings.findFirst({
       where: { key }
     });
     
