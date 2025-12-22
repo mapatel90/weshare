@@ -216,6 +216,7 @@ router.post('/login', async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: process.env.JWT_EXPIRES_IN }
     );
+    console.log("Login Token::", token);
 
     // 🔑 Redis session
     const rememberMe = req.body.rememberMe === true;

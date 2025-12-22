@@ -193,13 +193,13 @@ router.post('/', authenticateToken, upload.single('qrCode'), async (req, res) =>
     }
 
     // Check if username already exists
-    const existingByUsername = await prisma.users.findUnique({ where: { username } });
+    const existingByUsername = await prisma.users.findFirst({ where: { username } });
     if (existingByUsername) {
       return res.status(409).json({ success: false, message: 'Username already in use' });
     }
 
     // Check if email already exists
-    // email is not a unique field in the schema, use findFirst instead of findUnique
+    // email is not a unique field in the schema, use findFirst instead of findFirst
     const existingUser = await prisma.users.findFirst({
       where: { email }
     });
@@ -319,7 +319,7 @@ router.get('/:id', authenticateToken, async (req, res) => {
       });
     }
 
-    const user = await prisma.users.findUnique({
+    const user = await prisma.users.findFirst({
       where: { id: parseInt(id) },
       select: {
         id: true,
@@ -406,7 +406,7 @@ router.put('/:id', authenticateToken, upload.single('qrCode'), async (req, res) 
     } = req.body;
 
     // Check if user exists
-    const existingUser = await prisma.users.findUnique({
+    const existingUser = await prisma.users.findFirst({
       where: { id: parseInt(id) }
     });
 
@@ -550,7 +550,7 @@ router.delete('/:id', authenticateToken, async (req, res) => {
     const { id } = req.params;
 
     // Check if user exists
-    const existingUser = await prisma.users.findUnique({
+    const existingUser = await prisma.users.findFirst({
       where: { id: parseInt(id) }
     });
 
@@ -595,7 +595,7 @@ router.patch('/:id/password', authenticateToken, async (req, res) => {
     }
 
     // Get user with password
-    const user = await prisma.users.findUnique({
+    const user = await prisma.users.findFirst({
       where: { id: parseInt(id) }
     });
 
@@ -702,7 +702,7 @@ router.put('/profile/:id', authenticateToken, uploadAvatar.single('user_image'),
     } = req.body;
 
     // Check if user exists
-    const existingUser = await prisma.users.findUnique({
+    const existingUser = await prisma.users.findFirst({
       where: { id: parseInt(id) }
     });
 

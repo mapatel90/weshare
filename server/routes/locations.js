@@ -206,7 +206,7 @@ router.post('/states', authenticateToken, async (req, res) => {
     }
 
     // Verify country exists
-    const country = await prisma.country.findUnique({
+    const country = await prisma.country.findFirst({
       where: { id: parseInt(countryId) }
     });
 
@@ -261,7 +261,7 @@ router.post('/cities', authenticateToken, async (req, res) => {
     }
 
     // Verify state exists
-    const state = await prisma.states.findUnique({
+    const state = await prisma.states.findFirst({
       where: { id: parseInt(stateId) }
     });
 

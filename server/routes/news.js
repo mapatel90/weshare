@@ -217,7 +217,7 @@ router.put("/:id", authenticateToken, upload.single('news_image'), async (req, r
     // If new image uploaded, remove old file (best-effort)
     if (newImagePath) {
       try {
-        const existing = await prisma.news.findUnique({ where: { id: parseInt(id) } });
+        const existing = await prisma.news.findFirst({ where: { id: parseInt(id) } });
         const oldPath = existing?.news_image
           ? path.join(PUBLIC_DIR, existing.news_image.replace(/^\//, ''))
           : null;

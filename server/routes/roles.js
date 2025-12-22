@@ -62,7 +62,7 @@ router.get('/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
 
-    const role = await prisma.roles.findUnique({
+    const role = await prisma.roles.findFirst({
       where: { id: parseInt(id) }
     });
 
@@ -142,7 +142,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
     const { name, status } = req.body;
 
     // Check if role exists
-    const existingRole = await prisma.roles.findUnique({
+    const existingRole = await prisma.roles.findFirst({
       where: { id: parseInt(id) }
     });
 
@@ -197,7 +197,7 @@ router.delete('/:id', authenticateToken, async (req, res) => {
     const { id } = req.params;
 
     // Check if role exists
-    const existingRole = await prisma.roles.findUnique({
+    const existingRole = await prisma.roles.findFirst({
       where: { id: parseInt(id) }
     });
 
