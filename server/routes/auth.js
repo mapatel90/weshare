@@ -22,7 +22,7 @@ router.get('/check-username', async (req, res) => {
     }
 
     // Check if username exists
-    const existingUser = await prisma.users.findUnique({
+    const existingUser = await prisma.users.findFirst({
       where: { username }
     });
 
@@ -70,7 +70,7 @@ router.post('/register', async (req, res) => {
     }
 
     // Check if user already exists (by username)
-    const existingUser = await prisma.users.findUnique({
+    const existingUser = await prisma.users.findFirst({
       where: { username }
     });
 
@@ -156,7 +156,7 @@ router.post('/login', async (req, res) => {
     }
 
     // Find user by username
-    const user = await prisma.users.findUnique({
+    const user = await prisma.users.findFirst({
       where: { username }
     });
 
@@ -260,53 +260,22 @@ router.post('/login', async (req, res) => {
 // Get current user profile
 router.get('/me', async (req, res) => {
   try {
-    console.log('res:', res);
-    console.log('req:', req)
-    // const token = req.headers.authorization?.replace('Bearer ', '');
 
-    // if (!token) {
-    //   return res.status(401).json({
-    //     success: false,
-    //     message: 'No token provided'
-    //   });
-    // }
-
-    // // Verify token
-    // const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-    // // Get user data
-  
-
-    // if (!user) {
-    //   return res.status(404).json({
-    //     success: false,
-    //     message: 'User not found'
-    //   });
-    // }
-
-    // res.json({
-    //   success: true,
-    //   data: user
-    // });
     const token = req.headers.authorization?.replace('Bearer ', '');
-    console.log('token:', token)
     if (!token) {
       return res.status(401).json({ success: false });
     }
 
-    // const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log('decoded:', decoded)
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    // console.log('decoded:', decoded)
 
 
     // 🔐 Redis validation
     const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
-    console.log('tokenHash:', tokenHash)
     const redisKey = `session:${decoded.userId}:${tokenHash}`;
-    console.log('redisKey:', redisKey)
-
+    
     const session = await redis.get(redisKey);
-    console.log('session:', session)
-
+    
     if (!session) {
       return res.status(401).json({
         success: false,
@@ -315,10 +284,10 @@ router.get('/me', async (req, res) => {
     }
 
     // Verify token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    // const decoded = jwt.verify(token, process.env.JWT_SECRET);
     
     // Get user data
-    const user = await prisma.users.findUnique({
+    const user = await prisma.users.findFirst({
       where: { id: decoded.userId },
       select: {
         id: true,
