@@ -85,7 +85,7 @@ router.get("/", async (req, res) => {
           },
         },
         {
-          inverters: {
+          project_inverters: {
             inverter_name: { contains: trimmedSearch, mode: "insensitive" },
           },
         },
@@ -363,7 +363,7 @@ router.post("/investor/latest-record", authenticateToken, async (req, res) => {
     const projectInverters = await prisma.project_inverters.findMany({
       where: { is_deleted: 0, ...projectFilter },
       include: {
-        inverters: { select: { inverterName: true } },
+        inverters: { select: { inverter_name: true } },
       },
     });
 

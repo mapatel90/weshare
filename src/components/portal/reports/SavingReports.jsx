@@ -24,10 +24,9 @@ const SavingReports = () => {
 
     apiGet(`/api/projects?offtaker_id=${user.id}`)
       .then((res) => {
-        const ids = (res?.data?.projects || [])
+        const ids = (res?.data || [])
           .map((p) => Number(p.id || p.project_id))
           .filter(Boolean);
-
         setAllowedIds(ids);
       })
       .catch(() => setAllowedIds([]));
@@ -36,10 +35,9 @@ const SavingReports = () => {
   // ----------------------------
   // Load inverter data + Auto Refresh
   // ----------------------------
-  const fetchInverterData = () => {
-    apiGet("/api/inverter-data")
-      .then((res) => setItems(res?.data || []))
-      .catch(() => setItems([]));
+  const fetchInverterData = async (page = 1) => {
+    const res = await apiGet(`/api/inverter-data?page=${page}&limit=50`);
+    setItems(res?.data ?? []);
   };
 
   useEffect(() => {
@@ -60,23 +58,16 @@ const SavingReports = () => {
     const pid =
       Number(
         item?.project?.id ||
-          item?.project_id ||
-          item?.projectId ||
-          item?.project?.project_id
+        item?.project_id ||
+        item?.projectId ||
+        item?.project?.project_id
       ) || null;
 
     return {
       id: item.id ?? idx,
       projectId: pid,
-      projectName:
-        item?.project?.name ||
-        item?.project?.project_name ||
-        item?.projectName ||
-        `Project ${pid}`,
-      inverterName:
-        item?.inverter?.name ||
-        item?.inverter?.inverterName ||
-        `Inverter ${item?.inverter_id || ""}`,
+      projectName: item?.projects?.project_name || '-',
+      inverterName: item?.project_inverters?.inverter_name || '-',
       date: item.date || item.created_at || "",
       startTime: item.time || item.startTime || "",
       endTime: item.endTime || item.end_time || "",
@@ -166,6 +157,7 @@ const SavingReports = () => {
   }, [projectFilter]);
 
   const projects = [...new Set(cleaned.map((r) => r.projectName))];
+  console.log("projects", projects);
   const inverters = [
     ...new Set(
       cleaned
@@ -227,7 +219,7 @@ const SavingReports = () => {
             <th className="px-4 py-3">{lang("reports.totalYield")}</th>
           </tr>
         </thead>
-
+        {console.log("paginated", paginated)}
         <tbody>
           {paginated.map((r, idx) => (
             <tr key={idx} className={idx % 2 ? "bg-white" : "bg-gray-50"}>
@@ -255,11 +247,10 @@ const SavingReports = () => {
           <button
             disabled={page === 1}
             onClick={() => setPage((p) => Math.max(1, p - 1))}
-            className={`px-3 py-1 rounded ${
-              page === 1
-                ? "bg-gray-200 text-gray-400"
-                : "bg-gray-100 hover:bg-gray-200"
-            }`}
+            className={`px-3 py-1 rounded ${page === 1
+              ? "bg-gray-200 text-gray-400"
+              : "bg-gray-100 hover:bg-gray-200"
+              }`}
           >
             Prev
           </button>
@@ -277,11 +268,10 @@ const SavingReports = () => {
               <button
                 key={i}
                 onClick={() => setPage(i)}
-                className={`w-8 h-8 rounded ${
-                  page === i
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-100 hover:bg-gray-200"
-                }`}
+                className={`w-8 h-8 rounded ${page === i
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-100 hover:bg-gray-200"
+                  }`}
               >
                 {i}
               </button>
@@ -293,11 +283,10 @@ const SavingReports = () => {
             onClick={() =>
               setPage((p) => Math.min(totalPages, p + 1))
             }
-            className={`px-3 py-1 rounded ${
-              page === totalPages
-                ? "bg-gray-200 text-gray-400"
-                : "bg-gray-100 hover:bg-gray-200"
-            }`}
+            className={`px-3 py-1 rounded ${page === totalPages
+              ? "bg-gray-200 text-gray-400"
+              : "bg-gray-100 hover:bg-gray-200"
+              }`}
           >
             Next
           </button>
