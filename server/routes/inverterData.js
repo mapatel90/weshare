@@ -33,7 +33,7 @@ router.get("/", async (req, res) => {
     }
 
     if (inverterId) {
-      where.inverter_id = Number(inverterId);
+      where.project_inverter_id = Number(inverterId);
     }
 
     // Date range filtering (inclusive). If only start is provided, first try that exact day.
@@ -86,7 +86,7 @@ router.get("/", async (req, res) => {
         },
         {
           inverters: {
-            inverterName: { contains: trimmedSearch, mode: "insensitive" },
+            inverter_name: { contains: trimmedSearch, mode: "insensitive" },
           },
         },
         { time: { contains: trimmedSearch, mode: "insensitive" } },
@@ -157,15 +157,13 @@ router.get("/", async (req, res) => {
       include: { inverters: true },
       orderBy: { inverter_id: "asc" },
     });
-
     // Map inverter list to simple {id, name} shape
     const inverterList = inverterRawList.map((i) => ({
       id: i.inverter_id,
-      name:
-        (i.inverter && (i.inverters.inverter_name)) ||
-        `Inverter ${i.inverter_id}`,
+      name: i?.inverter_name || `Inverter ${i.inverter_id}`,
       project_id: i.project_id,
     }));
+    // {console.log("inverterRawList", inverterRawList);}
 
     res.status(200).json({
       success: true,
