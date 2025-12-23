@@ -1359,7 +1359,7 @@
     "dailyYield": "Daily Yield",
     "annualYield": "Annual Yield",
     "totalYield": "Total Yield",
-    "capacityperKWh":"Capacity price per kWh",
+    "capacityperKWh": "Capacity price per kWh",
     "dailyRevenue": "Daily Revenue",
     "totalRevenue": "Total Revenue"
   },
@@ -1388,5 +1388,24 @@
     "energyProduction": {
       "energy_production": "Energy Production Overview"
     }
+  },
+  "projecttablelabel": {
+    "name": "Name",
+    "code,": "Code",
+    "type": "type",
+    "inverter": "Inverter",
+    "projectID": "Project ID",
+    "offtaker": "Offtaker",
+    "location": "Location",
+    "solisplantid": "Plant ID",
+    "systemSize": "System Size (kWp)",
+    "capacity": "Capacity (kWp)",
+    "roi": "ROI (%)",
+    "leaseTerm": "Lease Term (years)",
+    "status": "Status",
+    "actions": "Actions",
+    "viewDetails": "View Details",
+    "investNow": "Invest Now",
+    "noProjects": "No projects available"
   }
 }

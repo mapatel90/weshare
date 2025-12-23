@@ -71,20 +71,20 @@ const MeterView = ({ projectId, handleSaveAction }) => {
         setError('');
         setSuccess(false);
         // Validate required fields
-        let errors = {};
-        if (!form.meter_url) {
-            errors.meter_url = lang('common.requiredField', 'This field is required');
-        } else if (!validateUrl(form.meter_url)) {
-            errors.meter_url = lang('validation.invalidUrl', 'Please enter a valid URL');
-        }
-        if (!form.sim_number) errors.sim_number = lang('common.requiredField', 'This field is required');
-        if (!form.sim_start_date) errors.sim_start_date = lang('common.requiredField', 'This field is required');
-        if (!form.sim_expire_date) errors.sim_expire_date = lang('common.requiredField', 'This field is required');
-        setFieldErrors(errors);
-        if (Object.keys(errors).length) {
-            setLoading(false);
-            return false;
-        }
+        // let errors = {};
+        // if (!form.meter_url) {
+        //     errors.meter_url = lang('common.requiredField', 'This field is required');
+        // } else if (!validateUrl(form.meter_url)) {
+        //     errors.meter_url = lang('validation.invalidUrl', 'Please enter a valid URL');
+        // }
+        // if (!form.sim_number) errors.sim_number = lang('common.requiredField', 'This field is required');
+        // if (!form.sim_start_date) errors.sim_start_date = lang('common.requiredField', 'This field is required');
+        // if (!form.sim_expire_date) errors.sim_expire_date = lang('common.requiredField', 'This field is required');
+        // setFieldErrors(errors);
+        // if (Object.keys(errors).length) {
+        //     setLoading(false);
+        //     return false;
+        // }
         try {
             const res = await apiPut(`/api/projects/meter/${projectId}`, form);
             if (res.success) {
@@ -132,8 +132,6 @@ const MeterView = ({ projectId, handleSaveAction }) => {
                                 name="meter_url"
                                 value={form.meter_url}
                                 onChange={handleChange}
-                                error={!!fieldErrors.meter_url}
-                                helperText={fieldErrors.meter_url}
                                 className="w-full border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder={`${lang('meter.enterMeterUrl', 'Enter Meter Url')}`}
                             />
@@ -146,8 +144,6 @@ const MeterView = ({ projectId, handleSaveAction }) => {
                                 name="sim_number"
                                 value={form.sim_number}
                                 onChange={handleChange}
-                                error={!!fieldErrors.sim_number}
-                                helperText={fieldErrors.sim_number}
                                 className="w-full border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder={`${lang('meter.enterSimNumber', 'Enter SIM number')}`}
                             />
@@ -161,8 +157,6 @@ const MeterView = ({ projectId, handleSaveAction }) => {
                                 name="sim_start_date"
                                 value={form.sim_start_date}
                                 onChange={handleChange}
-                                error={!!fieldErrors.sim_start_date}
-                                helperText={fieldErrors.sim_start_date}
                                 className="w-full border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder={`${lang('meter.enterSimStartDate', 'Enter SIM start date')}`}
                             />
@@ -176,8 +170,6 @@ const MeterView = ({ projectId, handleSaveAction }) => {
                                 name="sim_expire_date"
                                 value={form.sim_expire_date}
                                 onChange={handleChange}
-                                error={!!fieldErrors.sim_expire_date}
-                                helperText={fieldErrors.sim_expire_date}
                                 className="w-full border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                             />
                         </div>
