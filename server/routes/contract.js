@@ -56,21 +56,21 @@ router.post("/", upload.single('document'), async (req, res) => {
       return res.status(400).json({ success: false, message: 'Invalid date format' });
     }
 
-    const created = await prisma.contract.create({
+    const created = await prisma.contracts.create({
       data: {
-        project: projectId ? { connect: { id: Number(projectId) } } : undefined,
-        offtaker: offtakerId ? { connect: { id: Number(offtakerId) } } : undefined,
-        investor: investorId ? { connect: { id: Number(investorId) } } : undefined, // connects to InterestedInvestor
-        contractTitle,
-        contractDescription: contractDescription || null,
-        documentUpload: uploadedPath || null,
-        contractDate: formattedDate,
+        projects: projectId ? { connect: { id: Number(projectId) } } : undefined,
+        users: offtakerId ? { connect: { id: Number(offtakerId) } } : undefined,
+        interested_investors: investorId ? { connect: { id: Number(investorId) } } : undefined, // connects to InterestedInvestor
+        contract_title: contractTitle,
+        contract_description: contractDescription || null,
+        document_upload: uploadedPath || null,
+        contract_date: formattedDate,
         status: typeof status !== 'undefined' ? Number(status) : 0,
       },
       include: {
-        project: true,
-        offtaker: true,
-        investor: true,
+        projects: true,
+        users: true,
+        interested_investors: true,
       },
     });
 
@@ -244,12 +244,12 @@ router.get("/", async (req, res) => {
 router.get("/:id", authenticateToken, async (req, res) => {
   try {
     const id = Number(req.params.id);
-    const contract = await prisma.contract.findFirst({
+    const contract = await prisma.contracts.findFirst({
       where: { id, is_deleted: 0 },
       include: {
-        project: true,
-        offtaker: true,
-        investor: true,
+        projects: true,
+        users: true,
+        interested_investors: true,
       },
     });
     if (!contract) return res.status(404).json({ success: false, message: 'Contract not found' });
@@ -275,7 +275,7 @@ router.put("/:id", authenticateToken, upload.single('document'), async (req, res
       status,
     } = req.body;
 
-    const existing = await prisma.contract.findFirst({ where: { id } });
+    const existing = await prisma.contracts.findFirst({ where: { id } });
     if (!existing || existing.is_deleted) {
       return res.status(404).json({ success: false, message: 'Contract not found' });
     }
@@ -300,23 +300,23 @@ router.put("/:id", authenticateToken, upload.single('document'), async (req, res
     }
 
     const dataUpdate = {
-      project: typeof projectId !== 'undefined' ? (projectId ? { connect: { id: Number(projectId) } } : { disconnect: true }) : undefined,
-      offtaker: typeof offtakerId !== 'undefined' ? (offtakerId ? { connect: { id: Number(offtakerId) } } : { disconnect: true }) : undefined,
-      investor: typeof investorId !== 'undefined' ? (investorId ? { connect: { id: Number(investorId) } } : { disconnect: true }) : undefined,
-      contractTitle: typeof contractTitle !== 'undefined' ? contractTitle : undefined,
-      contractDescription: typeof contractDescription !== 'undefined' ? contractDescription : undefined,
-      documentUpload: newDocumentPath ? newDocumentPath : (typeof documentUpload !== 'undefined' ? documentUpload : undefined),
-      contractDate: typeof contractDate !== 'undefined' ? (formattedDate ? formattedDate : null) : undefined,
+      projects: typeof projectId !== 'undefined' ? (projectId ? { connect: { id: Number(projectId) } } : { disconnect: true }) : undefined,
+      users: typeof offtakerId !== 'undefined' ? (offtakerId ? { connect: { id: Number(offtakerId) } } : { disconnect: true }) : undefined,
+      interested_investors: typeof investorId !== 'undefined' ? (investorId ? { connect: { id: Number(investorId) } } : { disconnect: true }) : undefined,
+      contract_title: typeof contractTitle !== 'undefined' ? contractTitle : undefined,
+      contract_description: typeof contractDescription !== 'undefined' ? contractDescription : undefined,
+      document_upload: newDocumentPath ? newDocumentPath : (typeof documentUpload !== 'undefined' ? documentUpload : undefined),
+      contract_date: typeof contractDate !== 'undefined' ? (formattedDate ? formattedDate : null) : undefined,
       status: typeof status !== 'undefined' ? Number(status) : undefined,
     };
 
-    const updated = await prisma.contract.update({
+    const updated = await prisma.contracts.update({
       where: { id },
       data: dataUpdate,
       include: {
-        project: true,
-        offtaker: true,
-        investor: true,
+        projects: true,
+        users: true,
+        interested_investors: true,
       },
     });
 
@@ -332,7 +332,7 @@ router.put("/:id/status", authenticateToken, async (req, res) => {
   try {
     const id = Number(req.params.id);
     const { status, reason } = req.body;
-    const existing = await prisma.contract.findFirst({ where: { id } });
+    const existing = await prisma.contracts.findFirst({ where: { id } });
     if (!existing || existing.is_deleted) {
       return res.status(404).json({ success: false, message: 'Contract not found' });
     }
@@ -343,7 +343,7 @@ router.put("/:id/status", authenticateToken, async (req, res) => {
     } else if (Number(status) !== 2) {
       updateData.rejectreason = null;
     }
-    const updated = await prisma.contract.update({
+    const updated = await prisma.contracts.update({
       where: { id },
       data: updateData,
     });
@@ -358,12 +358,12 @@ router.put("/:id/status", authenticateToken, async (req, res) => {
 router.delete("/:id", authenticateToken, async (req, res) => {
   try {
     const id = Number(req.params.id);
-    const existing = await prisma.contract.findFirst({ where: { id } });
+    const existing = await prisma.contracts.findFirst({ where: { id } });
     if (!existing || existing.is_deleted) {
       return res.status(404).json({ success: false, message: 'Contract not found' });
     }
 
-    await prisma.contract.update({
+    await prisma.contracts.update({
       where: { id },
       data: { is_deleted: 1 },
     });

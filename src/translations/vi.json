@@ -180,7 +180,10 @@
     "acFrequency": "TẦN SỐ AC",
     "online": "TRỰC TUYẾN",
     "offline": "NGOẠI TUYẾN",
-    "alarm": "BÁO ĐỘNG"
+    "alarm": "BÁO ĐỘNG",
+    "approved": "Đã phê duyệt",
+    "pending": "Đang chờ",
+    "rejected": "Đã từ chối"
   },
   "messages": {
     "success": "Thao tác thành công",

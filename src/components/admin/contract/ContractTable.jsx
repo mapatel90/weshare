@@ -47,7 +47,7 @@ const Contract = ({ projectId, handleCloseForm }) => {
       setAllowAdd(true);
       return;
     }
-
+    
     // Find interested_investors that belong to this project
     const invIdsForProject = Array.isArray(investorList)
       ? investorList
@@ -63,12 +63,8 @@ const Contract = ({ projectId, handleCloseForm }) => {
         invIdsForProject.includes(Number(c.investorId))
     );
 
-    console.log("Investor conflict:", investorConflict);
-
     // New condition: if any contract (in entire table) has an offtakerId -> hide Add
     const offtakerConflict = contracts.some((c) => c.offtaker_id != null);
-
-    console.log("Offtaker conflict:", offtakerConflict);
 
     // Hide Add button only when BOTH investorConflict AND offtakerConflict are true
     setAllowAdd(!(investorConflict && offtakerConflict));
@@ -94,8 +90,8 @@ const Contract = ({ projectId, handleCloseForm }) => {
       if (res?.success) {
         const all = Array.isArray(res.data) ? res.data : [];
         const filtered = projectId
-          ? all.filter((item) => Number(item.projectId) === Number(projectId))
-          : all;
+        ? all.filter((item) => Number(item.project_id) === Number(projectId))
+        : all;
         setContracts(filtered);
       } else {
         setContracts([]);
@@ -125,7 +121,7 @@ const Contract = ({ projectId, handleCloseForm }) => {
       setPartyType("");
     } else {
       const contractsForProject = contracts.filter(
-        (c) => Number(c.projectId) === Number(projectId)
+        (c) => Number(c.project_id) === Number(projectId)
       );
       if (!contractsForProject.length) {
         setShowPartySelection(true);
@@ -160,26 +156,26 @@ const Contract = ({ projectId, handleCloseForm }) => {
   const openEdit = (row) => {
     setModalType("edit");
     setEditId(row.id);
-    setContractTitle(row.contractTitle || "");
-    setContractDescription(row.contractDescription || "");
-    setDocumentUpload(row.documentUpload || "");
+    setContractTitle(row.contract_title || "");
+    setContractDescription(row.contract_description || "");
+    setDocumentUpload(row.document_upload || "");
     setDocumentFile(null);
-    setDocumentPreviewUrl(row.documentUpload || "");
+    setDocumentPreviewUrl(row.document_upload || "");
     setContractDate(
-      row.contractDate
-        ? new Date(row.contractDate).toISOString().slice(0, 10)
+      row.contract_date
+        ? new Date(row.contract_date).toISOString().slice(0, 10)
         : ""
     );
     setStatus(row.status ?? 1);
     // If editing, set party type and selected party if available
-    if (row.investorId) {
+    if (row.investor_id || row.investorId) {
       setPartyType("investor");
-      setSelectedInvestor(row.investorId || "");
+      setSelectedInvestor(row.investor_id || "");
       setSelectedOfftaker("");
       setOfftakerDisabled(false);
     } else {
       setPartyType("offtaker");
-      setSelectedOfftaker(row.offtakerId || offtakerList?.id || "");
+      setSelectedOfftaker(row.offtaker_id || offtakerList?.id || "");
       setSelectedInvestor("");
       setOfftakerDisabled(true);
     }
@@ -309,7 +305,7 @@ const Contract = ({ projectId, handleCloseForm }) => {
 
   const columns = [
     {
-      accessorKey: "contractTitle",
+      accessorKey: "contract_title",
       header: () => lang("contract.title", "Title"),
       cell: (info) => {
         const v = info.getValue() || "-";
@@ -369,8 +365,8 @@ const Contract = ({ projectId, handleCloseForm }) => {
         }
         // Otherwise Offtaker
         else if (row.offtakerId || row.offtaker_id) {
-          const offtaker = row.offtaker; // assuming API returns row.offtaker object
-          name = offtaker?.fullName || "-";
+          const offtaker = row.users; // assuming API returns row.offtaker object
+          name = offtaker?.full_name || "-";
         }
 
         return (
@@ -389,7 +385,7 @@ const Contract = ({ projectId, handleCloseForm }) => {
       },
     },
     {
-      accessorKey: "documentUpload",
+      accessorKey: "document_upload",
       header: () => lang("contract.document", "Document"),
       cell: (info) => {
         const v = info.getValue();
@@ -403,7 +399,7 @@ const Contract = ({ projectId, handleCloseForm }) => {
       },
     },
     {
-      accessorKey: "contractDate",
+      accessorKey: "contract_date",
       header: () => lang("contract.date", "Date"),
       cell: (info) => {
         const v = info.getValue();

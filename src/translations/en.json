@@ -196,7 +196,10 @@
     "acFrequency": "AC FREQUENCY",
     "online": "ONLINE",
     "offline": "OFFLINE",
-    "alarm": "ALARM"
+    "alarm": "ALARM",
+    "approved": "Approved",
+    "pending": "Pending",
+    "rejected": "Rejected"
   },
   "messages": {
     "success": "Operation completed successfully",

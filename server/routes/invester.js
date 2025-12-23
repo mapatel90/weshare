@@ -37,8 +37,8 @@ router.get("/", async (req, res) => {
     const { projectId, userId, page = 1, limit = 25 } = req.query;
     const where = { is_deleted: 0 };
 
-    if (projectId) where.projectId = Number(projectId);
-    if (userId) where.userId = Number(userId);
+    if (projectId) where.project_id = Number(projectId);
+    if (userId) where.user_id = Number(userId);
 
     const take = Number(limit);
     const skip = (Number(page) - 1) * take;

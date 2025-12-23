@@ -123,12 +123,12 @@ const ContractModal = (props) => {
                     {Array.isArray(offtakerList)
                       ? offtakerList.map((o) => (
                           <MenuItem key={o.id} value={o.id}>
-                            {o.fullName || o.name || `#${o.id}`}
+                            {o.fullName || o.full_name || `#${o.id}`}
                           </MenuItem>
                         ))
                       : offtakerList && offtakerList.id ? (
                           <MenuItem key={offtakerList.id} value={offtakerList.id}>
-                            {offtakerList.full_name `#${offtakerList.id}`}
+                            {offtakerList.fullName || offtakerList.full_name || `#${offtakerList.id}`}
                           </MenuItem>
                         ) : null}
                   </TextField>
@@ -165,12 +165,12 @@ const ContractModal = (props) => {
                     {Array.isArray(offtakerList)
                       ? offtakerList.map((o) => (
                           <MenuItem key={o.id} value={o.id}>
-                            {o.fullName || o.name || `#${o.id}`}
+                            {o.fullName || o.full_name || `#${o.id}`}
                           </MenuItem>
                         ))
                       : offtakerList && offtakerList.id ? (
                           <MenuItem key={offtakerList.id} value={offtakerList.id}>
-                            {offtakerList.fullName || offtakerList.name || `#${offtakerList.id}`}
+                            {offtakerList.fullName || offtakerList.full_name || `#${offtakerList.id}`}
                           </MenuItem>
                         ) : null}
                   </TextField>
@@ -198,14 +198,16 @@ const ContractModal = (props) => {
               <TextField
                 select
                 label={lang("contract.offtaker", "Offtaker")}
-                value={offtakerList.id || ""}
+                value={offtakerList?.id || ""}
                 fullWidth
                 disabled
                 required
               >
-                <MenuItem key={offtakerList.id} value={offtakerList.id}>
-                  {offtakerList.fullName || offtakerList.name || ""}
-                </MenuItem>
+                {offtakerList && offtakerList.id ? (
+                  <MenuItem key={offtakerList.id} value={offtakerList.id}>
+                    {offtakerList.fullName || offtakerList.full_name || `#${offtakerList.id}`}
+                  </MenuItem>
+                ) : null}
               </TextField>
             )}
 
@@ -297,9 +299,9 @@ const ContractModal = (props) => {
               <MenuItem value={0}>
                 {lang("common.pending", "Pending")}
               </MenuItem>
-              <MenuItem value={1}>{lang("common.active", "Active")}</MenuItem>
+              <MenuItem value={1}>{lang("common.approved", "Approved")}</MenuItem>
               <MenuItem value={2}>
-                {lang("common.inactive", "Inactive")}
+                {lang("common.rejected", "Rejected")}
               </MenuItem>
             </TextField>
           </Box>
