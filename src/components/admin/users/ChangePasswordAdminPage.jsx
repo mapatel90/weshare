@@ -37,7 +37,7 @@ const ChangePasswordAdminPage = () => {
         try {
             // backend routes are mounted under /api, so include the prefix
             await apiPatch(`/api/users/${user.id}/password`, { currentPassword, newPassword })
-            showSuccessToast(lang('messages.success') || 'Password updated successfully')
+            showSuccessToast('Password updated successfully')
             // 🔒 Auto logout after successful password change
             setTimeout(() => {
                 logout();
