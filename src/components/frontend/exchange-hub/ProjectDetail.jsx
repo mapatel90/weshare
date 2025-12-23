@@ -35,6 +35,8 @@ const ProjectDetail = ({ projectId }) => {
   const [testimonials, setTestimonials] = useState([]);
 
   const { user } = useAuth();
+
+  console.log("Current User:", user);
   const router = useRouter();
 
   // Added missing states for invest modal & form

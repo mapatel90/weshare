@@ -105,7 +105,7 @@ const ProjectEditContent = ({ projectId }) => {
         setFormData(prev => ({
             ...prev,
             investorId: String(investor.id),
-            investorName: investor.fullName || ''
+            investorName: investor.full_name || ''
         }))
     }, [])
 
@@ -228,15 +228,14 @@ const ProjectEditContent = ({ projectId }) => {
                 const res = await apiGet(`/api/projects/${projectId}`)
                 if (res?.success && res.data) {
                     const p = res.data
-                    console.log('Loaded project data:', p)
                     setFormData({
                         id: p.id, // ← added so ProjectForm's `formData?.id` is truthy
                         project_name: p.project_name || '',
                         project_slug: p.project_slug || '',
                         project_type_id: p.project_type_id || p.projectType?.id || '',
                         offtaker: String(p.offtaker_id || ''),
-                        investorId: String(p.investor_id || p.investor?.id || ''),
-                        investorName: p.investor?.fullName || '',
+                        investorId: String(p.investor_id || p.interested_investors?.[0]?.id || ''),
+                        investorName: p.interested_investors?.full_name || p.interested_investors?.[0]?.full_name || '',
                         address_1: p.address_1 || '',
                         address_2: p.address_2 || '',
                         country_id: p.country_id || '',
@@ -455,7 +454,6 @@ const ProjectEditContent = ({ projectId }) => {
 
     const handleSaveAction = async (action) => {
         if (action === 'saveproject' || action === 'saveprojectNext') {
-            console.log('if');
             const success = await saveProject()
             if (success) {
                 if (action === 'saveproject') {

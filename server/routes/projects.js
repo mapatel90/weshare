@@ -250,6 +250,9 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
         offtaker: {
           select: { id: true, full_name: true, email: true },
         },
+        interested_investors: {
+          select: { id: true, full_name: true, email: true, phone_number: true },
+        },
       },
     });
 
@@ -572,10 +575,11 @@ router.get("/", async (req, res) => {
         { address_2: { contains: trimmedSearch, mode: "insensitive" } },
         { project_location: { contains: trimmedSearch, mode: "insensitive" } },
         { project_description: { contains: trimmedSearch, mode: "insensitive" } },
-        { offtaker: { fullName: { contains: trimmedSearch, mode: "insensitive" } } },
-        { city: { name: { contains: trimmedSearch, mode: "insensitive" } } },
-        { state: { name: { contains: trimmedSearch, mode: "insensitive" } } },
-        { country: { name: { contains: trimmedSearch, mode: "insensitive" } } },
+        // Correct nested relation field names to match schema
+        { offtaker: { full_name: { contains: trimmedSearch, mode: "insensitive" } } },
+        { cities: { name: { contains: trimmedSearch, mode: "insensitive" } } },
+        { states: { name: { contains: trimmedSearch, mode: "insensitive" } } },
+        { countries: { name: { contains: trimmedSearch, mode: "insensitive" } } },
       ];
     }
 
@@ -607,6 +611,8 @@ router.get("/", async (req, res) => {
           countries: true,
           project_types: true,
           project_images: true,
+          // Include primary investor relation (projects.investor_id)
+          interested_investors: { select: { id: true, full_name: true, email: true, phone_number: true } },
         },
         skip: fetchAll ? 0 : offset,
         take: fetchAll ? undefined : limitInt,
@@ -690,6 +696,7 @@ router.get("/:identifier", async (req, res) => {
         countries: true,
         project_types: true,
         project_images: true,
+        interested_investors: { select: { id: true, full_name: true, email: true, phone_number: true } },
       },
     });
 

@@ -15,11 +15,11 @@ router.post("/", async (req, res) => {
 
     const created = await prisma.interested_investors.create({
       data: {
-        projectId: projectId ?? null,
-        userId: userId ?? null,
-        fullName,
+        project_id: projectId ?? null,
+        user_id: userId ?? null,
+        full_name: fullName,
         email,
-        phoneNumber: phoneNumber ?? null,
+        phone_number: phoneNumber ?? null,
         notes: notes ?? null,
       },
     });
@@ -98,13 +98,13 @@ router.put("/:id", authenticateToken, async (req, res) => {
     const id = Number(req.params.id);
     const { projectId, fullName, email, phoneNumber, notes, status } = req.body;
 
-    const updated = await prisma.interestedInvestor.update({
+    const updated = await prisma.interested_investors.update({
       where: { id },
       data: {
-        projectId: Number(projectId) ?? undefined,
-        fullName: fullName ?? undefined,
+        project_id: Number(projectId) ?? undefined,
+        full_name: fullName ?? undefined,
         email: email ?? undefined,
-        phoneNumber: phoneNumber ?? undefined,
+        phone_number: phoneNumber ?? undefined,
         notes: notes ?? undefined,
         status: status ?? undefined,
       },
@@ -121,7 +121,7 @@ router.put("/:id", authenticateToken, async (req, res) => {
 router.delete("/:id", authenticateToken, async (req, res) => {
   try {
     const id = Number(req.params.id);
-    await prisma.interestedInvestor.update({
+    await prisma.interested_investors.update({
       where: { id },
       data: { is_deleted: 1 },
     });
@@ -143,7 +143,7 @@ router.post("/:id/mark-investor", authenticateToken, async (req, res) => {
     }
 
     // Verify investor exists and is not deleted
-    const investor = await prisma.interestedInvestor.findFirst({
+    const investor = await prisma.interested_investors.findFirst({
       where: { id: investorId, is_deleted: 0 },
     });
     if (!investor) {
@@ -151,7 +151,7 @@ router.post("/:id/mark-investor", authenticateToken, async (req, res) => {
     }
 
     // Verify project exists
-    const project = await prisma.project.findFirst({
+    const project = await prisma.projects.findFirst({
       where: { id: Number(projectId), is_deleted: 0 },
     });
     if (!project) {
@@ -159,7 +159,7 @@ router.post("/:id/mark-investor", authenticateToken, async (req, res) => {
     }
 
     // Update project with investor_id
-    const updated = await prisma.project.update({
+    const updated = await prisma.projects.update({
       where: { id: Number(projectId) },
       data: { investor_id: investorId },
     });

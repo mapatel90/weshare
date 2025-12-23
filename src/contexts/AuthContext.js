@@ -51,14 +51,13 @@ export default function AuthProvider({ children }) {
       // Transform user data to match frontend expectations
       const transformedUser = {
         id: data.data.id,
-        name: `${data.data.fullName}`,
+        name: `${data.data.full_name}`,
         email: data.data.email,
-        phone: data.data.phoneNumber,
+        phone: data.data.phone_number,
         role: data.data.role_id,
         status: data.data.status === 1 ? 'active' : 'inactive',
         avatar: data.data.user_image || null
       }
-      console.log("Auth check data:", transformedUser)
 
       setUser(transformedUser)
       // Cache user data to avoid API calls on subsequent navigations
@@ -103,7 +102,6 @@ export default function AuthProvider({ children }) {
   const login = async (username, password, rememberMe) => {
     try {
       // Use API helper for login (without auth token)
-      console.log('rememberMe:', rememberMe)
       const data = await apiPost(
         '/api/auth/login',
         { username, password, rememberMe },
@@ -113,7 +111,6 @@ export default function AuthProvider({ children }) {
       if (data.success) {
         // Backend returns user with fullName structure
         const userName = `${data.data.user.full_name}`
-        console.log('✅ Login successful for user:', userName)
 
         // Store token (backend returns 'token', not 'accessToken')
         localStorage.setItem('accessToken', data.data.token)
@@ -137,7 +134,6 @@ export default function AuthProvider({ children }) {
 
         return { success: true, message: data.message, user: transformedUser }
       } else {
-        console.log('❌ Login failed:', data.message)
         return { success: false, message: data.message }
       }
     } catch (error) {

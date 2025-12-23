@@ -47,7 +47,7 @@ const Investor = ({ projectId, onInvestorMarked, handleSaveAction }) => {
       if (res?.success) {
         const all = Array.isArray(res.data) ? res.data : [];
         // ensure only given projectId rows are shown (server may already filter, but keep client-side safeguard)
-        const filtered = projectId ? all.filter(item => Number(item.projectId) === Number(projectId)) : all;
+        const filtered = projectId ? all.filter(item => Number(item.project_id) === Number(projectId)) : all;
         setInvestors(filtered);
       } else {
         setInvestors([]);
@@ -72,9 +72,9 @@ const Investor = ({ projectId, onInvestorMarked, handleSaveAction }) => {
   const openEdit = (row) => {
     setModalType("edit");
     setEditId(row.id);
-    setFullName(row.fullName || "");
+    setFullName(row.full_name || "");
     setEmail(row.email || "");
-    setPhoneNumber(row.phoneNumber || "");
+    setPhoneNumber(row.phone_number || "");
     setNotes(row.notes || "");
     setStatus(row.status ?? 1);
     setShowModal(true);
@@ -167,7 +167,7 @@ const Investor = ({ projectId, onInvestorMarked, handleSaveAction }) => {
         showSuccessToast(lang("investor.markedSuccessfully", "Investor marked successfully"));
         // inform parent so edit form updates instantly without page refresh
         if (typeof onInvestorMarked === "function") {
-          onInvestorMarked({ id: row.id, fullName: row.fullName || "" });
+          onInvestorMarked({ id: row.id, full_name: row.full_name || "" });
         }
         fetchInvestors();
       } else {
@@ -180,7 +180,7 @@ const Investor = ({ projectId, onInvestorMarked, handleSaveAction }) => {
 
   const columns = [
     {
-      accessorKey: "fullName",
+      accessorKey: "full_name",
       header: () => lang("investor.fullName", "Full Name"),
       cell: (info) => info.getValue() || "-",
     },
@@ -190,7 +190,7 @@ const Investor = ({ projectId, onInvestorMarked, handleSaveAction }) => {
       cell: (info) => info.getValue() || "-",
     },
     {
-      accessorKey: "phoneNumber",
+      accessorKey: "phone_number",
       header: () => lang("investor.phone", "Phone"),
       cell: (info) => info.getValue() || "-",
     },
@@ -213,8 +213,8 @@ const Investor = ({ projectId, onInvestorMarked, handleSaveAction }) => {
       cell: (info) => {
         const row = info.row.original;
         const isCurrentInvestor =
-          (row?.project?.investor_id && Number(row.project.investor_id) === Number(row.id)) ||
-          (row?.project?.investorId && Number(row.project.investorId) === Number(row.id));
+          (row?.projects?.investor_id && Number(row.projects.investor_id) === Number(row.id)) ||
+          (row?.projects?.investorId && Number(row.projects.investorId) === Number(row.id));
         return (
           <div style={{ display: "flex", gap: "8px", alignItems: "center", flexWrap: "wrap" }}>
             {isCurrentInvestor ? (
