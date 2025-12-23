@@ -29,6 +29,7 @@ const SavingReports = () => {
   // Dropdown lists (populated from single API)
   const [projectList, setProjectList] = useState([]);
   const [inverterList, setInverterList] = useState([]);
+  console.log("inverterList", inverterList);
 
   // -----------------------------
   // Fetch Reports Function (always fetch latest 50)
@@ -79,19 +80,14 @@ const SavingReports = () => {
       }
 
       const res = await apiGet(`/api/inverter-data?${params.toString()}`);
-
       const items = Array.isArray(res?.data) ? res.data : [];
-
+console.log("items", items);
       const mappedData = items.map((item) => ({
         id: item.id,
-        projectId: item.projectId ?? item.project_id ?? null,
-        inverterId: item.inverterId ?? item.inverter_id ?? null,
-        projectName:
-          item.project?.project_name ||
-          `Project ${item.projectId ?? item.project_id ?? ""}`,
-        inverterName:
-          item.inverter?.inverterName ||
-          `Inverter ${item.inverterId ?? item.inverter_id ?? ""}`,
+        projectId: item.project_id ?? item.project_id ?? null,
+        inverterId: item.project_inverter_id ?? item.project_inverter_id ?? null,
+        projectName:item.projects?.project_name || `Project ${item.projectId ?? item.project_id ?? ""}`,
+        inverterName: item.project_inverters?.inverter_name,
         date: item.date,
         time: item.time ?? "",
         generatedKW:
@@ -188,11 +184,9 @@ const SavingReports = () => {
 
       const rows = items.map((item) => ({
         projectName:
-          item.project?.project_name ||
-          `Project ${item.projectId ?? item.project_id ?? ""}`,
-        inverterName:
-          item.inverter?.inverterName ||
-          `Inverter ${item.inverterId ?? item.inverter_id ?? ""}`,
+          item.projects?.project_name ||
+          `Project ${item.project_id ?? item.project_id ?? ""}`,
+        inverterName: item?.project_inverters?.inverter_name,
         date: item.date,
         time: item.time ?? "",
         generatedKW:
