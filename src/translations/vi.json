@@ -1342,5 +1342,24 @@
     "energyProduction": {
       "energy_production": "Tổng quan về sản xuất năng lượng"
     }
+  },
+  "projecttablelabel": {
+    "name": "Tên",
+    "code": "Mã",
+    "type": "loại",
+    "inverter": "Biến tần",
+    "projectID": "Mã dự án",
+    "offtaker": "Bên nhận hàng",
+    "location": "Vị trí",
+    "solisplantid": "Mã nhà máy",
+    "systemSize": "Dung lượng hệ thống (kWp)",
+    "capacity": "Công suất (kWp)",
+    "roi": "Tỷ suất lợi nhuận đầu tư (%)",
+    "leaseTerm": "Thời hạn thuê (năm)",
+    "status": "Trạng thái",
+    "actions": "Các hành động",
+    "viewDetails": "Xem chi tiết",
+    "investNow": "Đầu tư ngay",
+    "noProjects": "Hiện không có dự án nào"
   }
 }

@@ -106,7 +106,7 @@ const ProjectTable = () => {
 
       if (res?.success) {
         const projects = Array.isArray(res.data) ? res.data : [];
-        console.log("projects",projects);
+        console.log("projects", projects);
 
         // Fetch station details for projects with solis_plant_id
         const projectsWithDetails = await Promise.all(
@@ -195,50 +195,35 @@ const ProjectTable = () => {
   const columns = [
     {
       accessorKey: "project_name",
-      header: () => lang("projects.projectName", "Project Name"),
-      cell: (info) => info.getValue() || "-",
-    },
-    {
-      accessorKey: "meter_number",
-      header: () => lang("projects.meter_number", "Meter Number"),
-      cell: (info) => info.getValue() || "-",
-    },
-    {
-      accessorKey: "product_code",
-      header: () => lang("projects.productCode", "Product Code"),
-      cell: (info) => info.getValue() || "-",
-    },
-    {
-      accessorKey: "inverterCount",
-      header: () => "Inverters",
+      header: () => lang("projecttablelabel.name", "Name"),
       cell: (info) => info.getValue() || "-",
     },
     {
       accessorKey: "projectType.type_name",
-      header: () => lang("projects.projectType", "Project Type"),
+      header: () => lang("projecttablelabel.type", "Type"),
       cell: (info) => info.row.original.project_types?.type_name || "-",
     },
     {
-      accessorKey: "address",
-      header: () => lang("projects.addressInformation", "Address"),
+      accessorKey: "product_code",
+      header: () => lang("projecttablelabel.code", "Code"),
+      cell: (info) => info.getValue() || "-",
+    },
+    {
+      accessorKey: "inverterCount",
+      header: () => lang("projecttablelabel.inverter", "Inverters"),
+      cell: (info) => info.getValue() || "-",
+    },
+    {
+      accessorKey: "solis_plant_id",
+      header: () => lang("projecttablelabel.solisplantid", "Plant ID"),
       cell: ({ row }) => {
-        const { cities, states, countries, address_1, address_2 } = row.original;
-        const locationParts = [];
-
-        if (cities?.name) locationParts.push(cities.name);
-        if (states?.name) locationParts.push(states.name);
-        if (countries?.name) locationParts.push(countries.name);
+        const solis_plant_id = row.original.solis_plant_id;
+        if (!solis_plant_id) return "-";
 
         return (
-          <div>
-            {address_1 && (
-              <div>
-                {address_1} - {address_2}
-              </div>
-            )}
-            {locationParts.length > 0 && <div>{locationParts.join(", ")}</div>}
-            {!address_1 && !address_2 && locationParts.length === 0 && "-"}
-          </div>
+          <span className="d-inline-flex align-items-center gap-1">
+            {solis_plant_id}
+          </span>
         );
       },
     },
@@ -271,7 +256,7 @@ const ProjectTable = () => {
     },
     {
       accessorKey: "offtaker",
-      header: () => lang("projects.selectOfftaker", "Offtaker"),
+      header: () => lang("projecttablelabel.offtaker", "Offtaker"),
       cell: (info) => {
         const offtaker = info.getValue();
         if (!offtaker) return "-";
@@ -280,7 +265,7 @@ const ProjectTable = () => {
     },
     {
       accessorKey: "project_location",
-      header: () => lang("projects.projectLocation", "Project Location"),
+      header: () => lang("projecttablelabel.location", "Location"),
       cell: ({ row }) => {
         const location = row.original.project_location;
         if (!location) return "-";

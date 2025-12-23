@@ -693,12 +693,12 @@ router.put('/profile/:id', authenticateToken, uploadAvatar.single('user_image'),
   try {
     const { id } = req.params;
     const {
-      fullName,
+      full_name,
       email,
-      phoneNumber,
-      countryId,
-      stateId,
-      cityId
+      phone_number,
+      country_id,
+      state_id,
+      city_id
     } = req.body;
 
     // Check if user exists
