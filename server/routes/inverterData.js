@@ -671,7 +671,7 @@ router.post("/offtaker/summary/data", authenticateToken, async (req, res) => {
       const latest = await prisma.inverter_data.findFirst({
         where: {
           project_id: pi.project_id,
-          project_inverter_id: pi.inverter_id,
+          project_inverter_id: pi.id,
           projects: { is_deleted: 0 },
         },
         orderBy: { date: "desc" },
