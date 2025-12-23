@@ -129,17 +129,24 @@ router.post('/bulk', authenticateToken, async (req, res) => {
       const results = [];
       
       for (const [key, value] of Object.entries(settings)) {
-        const setting = await prisma.settings.upsert({
-          where: { key },
-          update: { 
-            value: String(value),
-            updated_at: new Date()
-          },
-          create: { 
-            key, 
-            value: String(value)
-          }
-        });
+        const existing = await prisma.settings.findFirst({ where: { key } });
+        let setting;
+        if (existing) {
+          setting = await prisma.settings.update({
+            where: { id: existing.id },
+            data: { 
+              value: String(value),
+              updated_at: new Date()
+            }
+          });
+        } else {
+          setting = await prisma.settings.create({
+            data: { 
+              key, 
+              value: String(value)
+            }
+          });
+        }
         results.push(setting);
       }
       
@@ -173,17 +180,24 @@ router.post('/', authenticateToken, async (req, res) => {
       });
     }
     
-    const setting = await prisma.settings.upsert({
-      where: { key },
-      update: { 
-        value: String(value),
-        updated_at: new Date()
-      },
-      create: { 
-        key, 
-        value: String(value)
-      }
-    });
+    const existing = await prisma.settings.findFirst({ where: { key } });
+    let setting;
+    if (existing) {
+      setting = await prisma.settings.update({
+        where: { id: existing.id },
+        data: { 
+          value: String(value),
+          updated_at: new Date()
+        }
+      });
+    } else {
+      setting = await prisma.settings.create({
+        data: { 
+          key, 
+          value: String(value)
+        }
+      });
+    }
     
     res.json({
       success: true,
@@ -264,11 +278,17 @@ router.post('/delete-logo', authenticateToken, async (req, res) => {
     deleteOldLogoIfSafe(path);
 
     // Clear site_image in DB
-    await prisma.settings.upsert({
-      where: { key: 'site_image' },
-      update: { value: '', updated_at: new Date() },
-      create: { key: 'site_image', value: '' }
-    });
+    const existing = await prisma.settings.findFirst({ where: { key: 'site_image' } });
+    if (existing) {
+      await prisma.settings.update({
+        where: { id: existing.id },
+        data: { value: '', updated_at: new Date() }
+      });
+    } else {
+      await prisma.settings.create({
+        data: { key: 'site_image', value: '' }
+      });
+    }
 
     return res.json({ success: true, message: 'Logo deleted and setting cleared' });
   } catch (error) {
@@ -307,11 +327,17 @@ router.post('/delete-favicon', authenticateToken, async (req, res) => {
     deleteOldLogoIfSafe(path);
 
     // Clear site_favicon in DB
-    await prisma.settings.upsert({
-      where: { key: 'site_favicon' },
-      update: { value: '', updated_at: new Date() },
-      create: { key: 'site_favicon', value: '' }
-    });
+    const existing = await prisma.settings.findFirst({ where: { key: 'site_favicon' } });
+    if (existing) {
+      await prisma.settings.update({
+        where: { id: existing.id },
+        data: { value: '', updated_at: new Date() }
+      });
+    } else {
+      await prisma.settings.create({
+        data: { key: 'site_favicon', value: '' }
+      });
+    }
 
     return res.json({ success: true, message: 'Favicon deleted and setting cleared' });
   } catch (error) {
@@ -350,11 +376,17 @@ router.post('/delete-qrcode', authenticateToken, async (req, res) => {
     deleteOldLogoIfSafe(path);
 
     // Clear finance_qr_code in DB
-    await prisma.settings.upsert({
-      where: { key: 'finance_qr_code' },
-      update: { value: '', updated_at: new Date() },
-      create: { key: 'finance_qr_code', value: '' }
-    });
+    const existing = await prisma.settings.findFirst({ where: { key: 'finance_qr_code' } });
+    if (existing) {
+      await prisma.settings.update({
+        where: { id: existing.id },
+        data: { value: '', updated_at: new Date() }
+      });
+    } else {
+      await prisma.settings.create({
+        data: { key: 'finance_qr_code', value: '' }
+      });
+    }
 
     return res.json({ success: true, message: 'QR code deleted and setting cleared' });
   } catch (error) {

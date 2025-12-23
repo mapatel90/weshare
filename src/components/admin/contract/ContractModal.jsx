@@ -128,7 +128,7 @@ const ContractModal = (props) => {
                         ))
                       : offtakerList && offtakerList.id ? (
                           <MenuItem key={offtakerList.id} value={offtakerList.id}>
-                            {offtakerList.fullName || offtakerList.name || `#${offtakerList.id}`}
+                            {offtakerList.full_name `#${offtakerList.id}`}
                           </MenuItem>
                         ) : null}
                   </TextField>
