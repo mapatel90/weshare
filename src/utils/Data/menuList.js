@@ -139,7 +139,7 @@ export const menuList = [
       {
         id: 1,
         name: "savingreports",
-        path: "/admin/reports/shaving",
+        path: "/admin/reports/saving",
         subdropdownMenu: false,
       },
       {

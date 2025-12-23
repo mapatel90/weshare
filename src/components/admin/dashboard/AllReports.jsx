@@ -47,7 +47,7 @@ const AllReports = ({ title = "All Reports" }) => {
           isExpanded ? "card-expand" : ""
         } ${refreshKey ? "card-loading" : ""}`}
       >
-        <CardHeader title={title} viewHref="/admin/reports/shaving" />
+        <CardHeader title={title} viewHref="/admin/reports/saving" />
         <div className="card-body custom-card-action p-0">
           {loading ? (
             <div className="p-4 text-center text-muted">Loading...</div>

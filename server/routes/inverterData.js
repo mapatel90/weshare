@@ -162,7 +162,7 @@ router.get("/", async (req, res) => {
     const inverterList = inverterRawList.map((i) => ({
       id: i.inverter_id,
       name:
-        (i.inverter && (i.inverter.inverterName || i.inverter.name)) ||
+        (i.inverter && (i.inverters.inverter_name)) ||
         `Inverter ${i.inverter_id}`,
       project_id: i.project_id,
     }));
