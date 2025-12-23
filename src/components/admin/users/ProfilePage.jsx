@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import { useTheme } from '@mui/material/styles';
 import {
     Card,
     CardContent,
@@ -20,9 +21,35 @@ import { useAuth } from '@/contexts/AuthContext'
 import useLocationData from '@/hooks/useLocationData'
 import { showErrorToast, showSuccessToast } from '@/utils/topTost'
 // import { toast } from 'react-toastify'
+// -------- DARK MODE HOOK ----------
+const useDarkMode = () => {
+    const [isDark, setIsDark] = useState(false);
 
+    useEffect(() => {
+        const checkDarkMode = () => {
+            setIsDark(document.documentElement.classList.contains("app-skin-dark"));
+        };
+
+        checkDarkMode();
+
+        const observer = new MutationObserver(checkDarkMode);
+        observer.observe(document.documentElement, {
+            attributes: true,
+            attributeFilter: ["class"],
+        });
+
+        return () => observer.disconnect();
+    }, []);
+
+    return isDark;
+};
 const ProfilePage = () => {
+
     const { user } = useAuth()
+    const theme = useTheme();
+    const isDarkMode = theme.palette.mode === 'dark' || document.documentElement.classList.contains('app-skin-dark');
+    const isDark = useDarkMode();
+
     const {
         countries,
         states,
@@ -38,12 +65,12 @@ const ProfilePage = () => {
 
     const [loading, setLoading] = useState(false)
     const [profileData, setProfileData] = useState({
-        fullName: '',
+        full_name: '',
         email: '',
-        phoneNumber: '',
-        countryId: '',
-        stateId: '',
-        cityId: '',
+        phone_number: '',
+        country_id: '',
+        state_id: '',
+        city_id: '',
         user_image: ''
     })
     const [imageFile, setImageFile] = useState(null)
@@ -61,12 +88,12 @@ const ProfilePage = () => {
                 if (response.success) {
                     const userData = response.data
                     setProfileData({
-                        fullName: userData.fullName || '',
+                        full_name: userData.full_name || '',
                         email: userData.email || '',
-                        phoneNumber: userData.phoneNumber || '',
-                        countryId: userData.countryId || '',
-                        stateId: userData.stateId || '',
-                        cityId: userData.cityId || '',
+                        phone_number: userData.phone_number || '',
+                        country_id: userData.country_id || '',
+                        state_id: userData.state_id || '',
+                        city_id: userData.city_id || '',
                         user_image: userData.user_image || ''
                     })
 
@@ -78,13 +105,13 @@ const ProfilePage = () => {
 
                     console.log("userData", userData)
                     // Load states if country is selected
-                    if (userData.countryId) {
-                        await fetchStates(userData.countryId)
+                    if (userData.country_id) {
+                        await fetchStates(userData.country_id)
                     }
 
                     // Load cities if state is selected
-                    if (userData.stateId) {
-                        await fetchCities(userData.stateId)
+                    if (userData.state_id) {
+                        await fetchCities(userData.state_id)
                     }
                 }
             } catch (error) {
@@ -107,35 +134,35 @@ const ProfilePage = () => {
     }
 
     const handleCountrySelect = (e) => {
-        const countryId = e.target.value
+        const country_id = e.target.value
         setProfileData(prev => ({
             ...prev,
-            countryId,
-            stateId: '',
-            cityId: ''
+            country_id,
+            state_id: '',
+            city_id: ''
         }))
-        if (countryId) {
-            handleCountryChange(countryId)
+        if (country_id) {
+            handleCountryChange(country_id)
         }
     }
 
     const handleStateSelect = (e) => {
-        const stateId = e.target.value
+        const state_id = e.target.value
         setProfileData(prev => ({
             ...prev,
-            stateId,
-            cityId: ''
+            state_id,
+            city_id: ''
         }))
-        if (stateId) {
-            handleStateChange(stateId)
+        if (state_id) {
+            handleStateChange(state_id)
         }
     }
 
     const handleCitySelect = (e) => {
-        const cityId = e.target.value
+        const city_id = e.target.value
         setProfileData(prev => ({
             ...prev,
-            cityId
+            city_id
         }))
     }
 
@@ -166,12 +193,12 @@ const ProfilePage = () => {
 
             // Create FormData for file upload
             const formData = new FormData()
-            formData.append('fullName', profileData.fullName)
+            formData.append('full_name', profileData.full_name)
             formData.append('email', profileData.email)
-            formData.append('phoneNumber', profileData.phoneNumber || '')
-            formData.append('countryId', profileData.countryId || '')
-            formData.append('stateId', profileData.stateId || '')
-            formData.append('cityId', profileData.cityId || '')
+            formData.append('phone_number', profileData.phone_number || '')
+            formData.append('country_id', profileData.country_id || '')
+            formData.append('state_id', profileData.state_id || '')
+            formData.append('city_id', profileData.city_id || '')
 
             // Add image file if selected
             if (imageFile) {
@@ -208,12 +235,35 @@ const ProfilePage = () => {
         )
     }
 
+    // Dark mode colors
+    const colors = {
+        bg: isDark ? "#0f172a" : "#f9fafb",
+        cardBg: isDark ? "#121a2d" : "#fff",
+        text: isDark ? "#ffffff" : "#111827",
+        textMuted: isDark ? "#b1b4c0" : "#6b7280",
+        border: isDark ? "#1b2436" : "#e5e7eb",
+        borderLight: isDark ? "#1b2436" : "#f3f4f6",
+        gradientBg: isDark
+            ? "linear-gradient(to bottom right, #1a1f2e, #0f172a, #1a1628)"
+            : "linear-gradient(to bottom right, #eff6ff, #ffffff, #faf5ff)",
+    };
+
     return (
         <Box sx={{ width: '100%' }}>
-            <Card>
+            <Card
+                sx={{
+                    backgroundColor: isDarkMode ? 'rgba(18,27,46,0.95)' : '#fff',
+                    color: isDarkMode ? '#fff' : 'inherit',
+                    boxShadow: isDarkMode ? '0 0 20px rgba(14,32,56,0.3)' : undefined
+                }}
+            >
                 <CardHeader
                     title="Edit Profile"
-                    sx={{ backgroundColor: '#f8f9fa', borderBottom: '1px solid #dee2e6' }}
+                    sx={{
+                        backgroundColor: isDarkMode ? 'rgba(18,27,46,0.95)' : '#f8f9fa',
+                        borderBottom: isDarkMode ? '1px solid #232a3b' : '1px solid #dee2e6',
+                        color: isDarkMode ? '#fff' : 'inherit'
+                    }}
                 />
                 <CardContent>
                     <form onSubmit={handleSubmit}>
@@ -228,7 +278,8 @@ const ProfilePage = () => {
                                             width: 150,
                                             height: 150,
                                             mb: 2,
-                                            border: '3px solid #dee2e6'
+                                            border: isDarkMode ? '3px solid #232a3b' : '3px solid #dee2e6',
+                                            backgroundColor: isDarkMode ? '#232a3b' : undefined
                                         }}
                                     />
                                     <Button
@@ -247,28 +298,28 @@ const ProfilePage = () => {
                                             hidden
                                         />
                                     </Button>
-                                    <Typography variant="caption" color="text.secondary" sx={{ mt: 1 }}>
+                                    <Typography variant="caption" color={isDarkMode ? '#b1b4c0' : 'text.secondary'} sx={{ mt: 1 }}>
                                         Allowed JPG, PNG or JPEG. Max size of 2MB
                                     </Typography>
                                 </Box>
                             </Grid>
                         </Grid>
                         <Grid container spacing={2}>
-
                             {/* Full Name */}
                             <Grid item xs={12} md={6}>
                                 <TextField
                                     fullWidth
                                     label="Full Name"
-                                    name="fullName"
-                                    value={profileData.fullName}
+                                    name="full_name"
+                                    value={profileData.full_name}
                                     onChange={handleInputChange}
                                     placeholder="Enter full name"
                                     required
                                     variant="outlined"
+                                    InputLabelProps={{ style: { color: isDarkMode ? '#fff' : undefined } }}
+                                    InputProps={{ style: { color: isDarkMode ? '#fff' : undefined } }}
                                 />
                             </Grid>
-
                             {/* Email */}
                             <Grid item xs={12} md={6}>
                                 <TextField
@@ -281,33 +332,37 @@ const ProfilePage = () => {
                                     placeholder="Enter email"
                                     required
                                     variant="outlined"
+                                    InputLabelProps={{ style: { color: isDarkMode ? '#fff' : undefined } }}
+                                    InputProps={{ style: { color: isDarkMode ? '#fff' : undefined } }}
                                 />
                             </Grid>
-
                             {/* Phone Number */}
                             <Grid item xs={12} md={6}>
                                 <TextField
                                     fullWidth
                                     label="Phone Number"
-                                    name="phoneNumber"
-                                    value={profileData.phoneNumber}
+                                    name="phone_number"
+                                    value={profileData.phone_number}
                                     onChange={handleInputChange}
                                     placeholder="Enter phone number"
                                     variant="outlined"
+                                    InputLabelProps={{ style: { color: isDarkMode ? '#fff' : undefined } }}
+                                    InputProps={{ style: { color: isDarkMode ? '#fff' : undefined } }}
                                 />
                             </Grid>
-
                             {/* Country */}
                             <Grid item xs={12} md={6}>
                                 <TextField
                                     fullWidth
                                     select
                                     label="Country"
-                                    name="countryId"
-                                    value={profileData.countryId}
+                                    name="country_id"
+                                    value={profileData.country_id}
                                     onChange={handleCountrySelect}
                                     disabled={loadingCountries}
                                     variant="outlined"
+                                    InputLabelProps={{ style: { color: isDarkMode ? '#fff' : undefined } }}
+                                    InputProps={{ style: { color: isDarkMode ? '#fff' : undefined } }}
                                 >
                                     <MenuItem value="">Select Country</MenuItem>
                                     {countries.map((country) => (
@@ -317,18 +372,19 @@ const ProfilePage = () => {
                                     ))}
                                 </TextField>
                             </Grid>
-
                             {/* State */}
                             <Grid item xs={12} md={6}>
                                 <TextField
                                     fullWidth
                                     select
                                     label="State"
-                                    name="stateId"
-                                    value={profileData.stateId}
+                                    name="state_id"
+                                    value={profileData.state_id}
                                     onChange={handleStateSelect}
-                                    disabled={!profileData.countryId || loadingStates}
+                                    disabled={!profileData.country_id || loadingStates}
                                     variant="outlined"
+                                    InputLabelProps={{ style: { color: isDarkMode ? '#fff' : undefined } }}
+                                    InputProps={{ style: { color: isDarkMode ? '#fff' : undefined } }}
                                 >
                                     <MenuItem value="">Select State</MenuItem>
                                     {states.map((state) => (
@@ -338,18 +394,19 @@ const ProfilePage = () => {
                                     ))}
                                 </TextField>
                             </Grid>
-
                             {/* City */}
                             <Grid item xs={12} md={6}>
                                 <TextField
                                     fullWidth
                                     select
                                     label="City"
-                                    name="cityId"
-                                    value={profileData.cityId}
+                                    name="city_id"
+                                    value={profileData.city_id}
                                     onChange={handleCitySelect}
-                                    disabled={!profileData.stateId || loadingCities}
+                                    disabled={!profileData.state_id || loadingCities}
                                     variant="outlined"
+                                    InputLabelProps={{ style: { color: isDarkMode ? '#fff' : undefined } }}
+                                    InputProps={{ style: { color: isDarkMode ? '#fff' : undefined } }}
                                 >
                                     <MenuItem value="">Select City</MenuItem>
                                     {cities.map((city) => (
@@ -359,7 +416,6 @@ const ProfilePage = () => {
                                     ))}
                                 </TextField>
                             </Grid>
-
                             {/* Submit Buttons */}
                             <Grid item xs={12}>
                                 <Box display="flex" justifyContent="flex-end" gap={2}>
@@ -367,6 +423,7 @@ const ProfilePage = () => {
                                         variant="outlined"
                                         color="secondary"
                                         onClick={() => window.history.back()}
+                                        sx={{ color: isDarkMode ? '#fff' : undefined, borderColor: isDarkMode ? '#fff' : undefined }}
                                     >
                                         Cancel
                                     </Button>
