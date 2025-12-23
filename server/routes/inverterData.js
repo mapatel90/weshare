@@ -159,7 +159,7 @@ router.get("/", async (req, res) => {
     });
     // Map inverter list to simple {id, name} shape
     const inverterList = inverterRawList.map((i) => ({
-      id: i.inverter_id,
+      id: i.id,
       name: i?.inverter_name || `Inverter ${i.inverter_id}`,
       project_id: i.project_id,
     }));
