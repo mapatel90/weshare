@@ -77,8 +77,6 @@ const InvoicePage = () => {
   const [modalOpen, setModalOpen] = useState(false);
 
   const handleModalSubmit = (data) => {
-    // Handle payment submission logic here
-    // Example: console.log(data);
     setModalOpen(false);
   };
 

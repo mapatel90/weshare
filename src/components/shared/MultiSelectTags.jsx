@@ -19,7 +19,6 @@ const MultiSelectTags = ({ options, defaultSelect, placeholder }) => {
             }}
             hideSelectedOptions={false}
             isSearchable={false}
-            // onChange={(e) => console.log(e)}
             formatOptionLabel={tags => (
                 <div className="user-option d-flex align-items-center gap-2">
                     <span style={{ marginTop: "1px", backgroundColor: `${tags.color}` }} className={`wd-7 ht-7 rounded-circle`}></span>

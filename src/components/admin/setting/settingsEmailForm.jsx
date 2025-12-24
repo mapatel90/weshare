@@ -136,7 +136,6 @@ const SettingsEmailForm = () => {
     const user = (formData.smtp_email_user || "").trim();
     const pass = (formData.smtp_email_password || "").trim();
     const portStr = (formData.smtp_email_port || "").trim();
-    console.log(email);
 
     if (protocol !== "SSL" && protocol !== "TSL") {
       showErrorToast(lang("smtp.messages.selectValidProtocol"));

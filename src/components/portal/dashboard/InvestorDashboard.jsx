@@ -39,13 +39,10 @@ function DashboardView() {
   );
 
   const normalizeInvestorProject = (entry) => {
-    const source = entry.project || entry;
+    const source = entry.projects || entry;
     const rawSize =
       source.project_size ??
       source.project_capacity ??
-      source.size_kw ??
-      source.capacity ??
-      source.project_size_kw ??
       null;
     const project_size =
       rawSize === null || rawSize === undefined || rawSize === ""
@@ -126,11 +123,11 @@ function DashboardView() {
         );
         if (res?.success && Array.isArray(res?.data)) {
           const normalized = res.data.map((item) => {
-            const inv = item.inverter || {};
+            const inv = item.inverters || {};
             return {
               id: item.id ?? inv.id,
-              inverterId: inv.id ?? item.inverter_id,
-              name: inv.inverterName ?? `Inverter #${inv.id ?? item.id}`,
+              inverterId: item.id,
+              name: item.inverter_name ?? `Inverter #${inv.id ?? item.id}`,
               serial: item.inverter_serial_number ?? inv.serial_number ?? "",
               kilowatt: item.kilowatt ?? "",
               raw: item,

@@ -142,7 +142,6 @@ function DashboardView() {
         const res = await apiGet(
           `/api/project-inverters?project_id=${selectedProject.id}`
         );
-        console.log("Fetched inverters for project:", res);
         if (res?.success && Array.isArray(res?.data)) {
           // normalize items: project_inverters include inverter object (see server)
           const normalized = res.data.map((item) => {
@@ -222,7 +221,6 @@ function DashboardView() {
           date: selectedDate || null,
         };
         const res = await apiPost("/api/projects/chart-data", payload);
-        console.log("Project chart data response:", res);
         setProjectChartData(res?.success ? res.data : null);
       } catch (err) {
         console.error("Failed to load project chart data", err);
@@ -468,7 +466,6 @@ function DashboardView() {
                     {invertersError}
                   </li>
                 ) : inverters.length ? (
-                  console.log("Inverters for dropdown:", inverters),
                   inverters.map((inv) => {
                     const isSelectedInv =
                       selectedInverter &&

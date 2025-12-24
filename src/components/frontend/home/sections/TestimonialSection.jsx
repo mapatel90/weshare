@@ -12,7 +12,6 @@ const TestimonialSection = () => {
   const [testimonials, setTestimonials] = useState([])
   // track which nav button is active after click: 'prev' | 'next' | null
   const [activeNav, setActiveNav] = useState(null)
-  console.log(testimonials)
   const [loading, setLoading] = useState(true)
   const { lang } = useLanguage()
 
@@ -24,8 +23,6 @@ const TestimonialSection = () => {
   const fetchTestimonials = async () => {
     try {
       const response = await apiGet(`/api/testimonials`)
-      console.log(response)
-      console.log("response",getFullImageUrl);
       if (response) {
         const data = await response
         // Transform API data to match component structure
@@ -36,11 +33,9 @@ const TestimonialSection = () => {
           text: item.description || '',
           rating: item.review_status || 5,
           image: item.offtaker?.user_image || item.image || '/images/avatar/user-img.png'
-        }))
-        console.log("transformedData",transformedData);
+          }))
         setTestimonials(transformedData.length > 0 ? transformedData : getDefaultTestimonials())
       } else {
-        console.log('test')
         // setTestimonials(getDefaultTestimonials())
       }
     } catch (error) {

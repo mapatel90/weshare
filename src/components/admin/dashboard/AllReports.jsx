@@ -21,7 +21,6 @@ const AllReports = ({ title = "All Reports" }) => {
         setLoading(true);
         setError(null);
         const res = await apiGet("/api/inverter-data?limit=6");
-        console.log(res?.data);
         const list = res?.data || [];
         setReports(list.slice(0, 6)); // Show first 6 reports
       } catch (err) {
@@ -60,7 +59,6 @@ const AllReports = ({ title = "All Reports" }) => {
               <table className="table table-hover mb-0">
                 <tbody>
                   {reports.map(({ id, projects, project_inverters, date, daily_yield, total_yield }) => {
-                    console.log("reports", reports);
                     return (
                       <tr key={id} className="align-middle" style={{ borderBottom: "1px solid #e5e7eb" }}>
                         <td>

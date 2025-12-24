@@ -103,7 +103,6 @@ const ProfilePage = () => {
                         setImagePreview(userData.user_image)
                     }
 
-                    console.log("userData", userData)
                     // Load states if country is selected
                     if (userData.country_id) {
                         await fetchStates(userData.country_id)

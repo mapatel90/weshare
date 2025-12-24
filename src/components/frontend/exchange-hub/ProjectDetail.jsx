@@ -36,7 +36,6 @@ const ProjectDetail = ({ projectId }) => {
 
   const { user } = useAuth();
 
-  console.log("Current User:", user);
   const router = useRouter();
 
   // Added missing states for invest modal & form
@@ -112,9 +111,6 @@ const ProjectDetail = ({ projectId }) => {
         showLoader: false,
         includeAuth: false,
       });
-
-      console.log("API Response:", response);
-      console.log("Project ID:", projectId);
 
       if (response && response.success && response.data) {
         setProject(response.data);
@@ -381,7 +377,6 @@ const ProjectDetail = ({ projectId }) => {
         phoneNumber: investPhone,
         notes: investNotes,
       };
-      console.log("Submitting invest payload:", payload);
 
       const res = await apiPost("/api/investors", payload);
 
@@ -395,7 +390,6 @@ const ProjectDetail = ({ projectId }) => {
       }
 
       setSubmittingInvest(false);
-      console.log("Investment intent submitted.");
     } catch (err) {
       console.error("Error submitting investment:", err);
       setSubmittingInvest(false);

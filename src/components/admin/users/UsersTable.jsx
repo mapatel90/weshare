@@ -66,7 +66,6 @@ const UsersTable = () => {
       const response = await apiGet(`/api/users?${params.toString()}`)
 
       if (response.success) {
-        console.log("All User::", response.data.users)
         setUsers(response.data.users)
         setPagination(response.data.pagination)
       }

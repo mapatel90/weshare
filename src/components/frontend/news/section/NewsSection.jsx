@@ -26,8 +26,6 @@ const NewsSection = () => {
       // ✅ apiGet already returns JSON
       const result = await apiGet("/api/news/");
 
-      console.log("Fetched news data:", result);
-
       if (result.success && Array.isArray(result.data)) {
         setNewsData(result.data);
       } else {

@@ -71,7 +71,6 @@ const InvestmentReports = () => {
 
     const handleEdit = (item) => {
         // placeholder - open edit modal or dispatch event if required
-        console.log('Edit item', item);
     };
 
     const handleDelete = (id) => {

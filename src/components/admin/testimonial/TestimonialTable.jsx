@@ -423,7 +423,6 @@ const TestimonialTable = () => {
                                 }}
                             >
                                 <MenuItem value="">{lang("testimonial.selectOfftaker") || "Select Offtaker"}</MenuItem>
-                                {console.log("offtakerOptions",offtakerOptions)}
                                 {offtakerOptions.map((option) => (
                                     <MenuItem key={option.value} value={option.value}>
                                         {option.label}

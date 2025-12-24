@@ -106,7 +106,6 @@ const ProjectTable = () => {
 
       if (res?.success) {
         const projects = Array.isArray(res.data) ? res.data : [];
-        console.log("projects", projects);
 
         // Fetch station details for projects with solis_plant_id
         const projectsWithDetails = await Promise.all(

@@ -70,7 +70,6 @@ const ExchangeHub = () => {
     try {
       setLoading(true)
       const response = await apiGet(`/api/projects?page=${pageNum}&limit=50&status=1`, { showLoader: false })
-      console.log('Projects Response:', response)
 
       if (response?.success) {
         // API now returns data in "data" (array) plus projectList/offtakerList helpers

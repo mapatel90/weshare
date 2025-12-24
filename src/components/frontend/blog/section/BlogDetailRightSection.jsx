@@ -36,13 +36,6 @@ const BlogDetailRightSection = ({ relatedBlogs, currentBlogSlug }) => {
       (blog) => blog.blog_slug !== currentBlogSlug
     ) || [];
     
-    // Debug logging
-    if (relatedBlogs) {
-      console.log('BlogDetailRightSection - relatedBlogs:', relatedBlogs.length);
-      console.log('BlogDetailRightSection - currentBlogSlug:', currentBlogSlug);
-      console.log('BlogDetailRightSection - filteredRelatedBlogs:', filtered.length);
-    }
-    
     return filtered;
   }, [relatedBlogs, currentBlogSlug]);
 
