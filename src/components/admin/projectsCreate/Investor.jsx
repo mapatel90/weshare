@@ -144,6 +144,10 @@ const Investor = ({ projectId, onInvestorMarked, handleSaveAction }) => {
       const res = await apiDelete(`/api/investors/${row.id}`);
       if (res?.success) {
         showSuccessToast(lang("investor.deleted", "Investor deleted"));
+        // Notify parent if this investor was marked for the project
+        if (typeof onInvestorMarked === "function") {
+          onInvestorMarked({ id: null, full_name: "" });
+        }
         fetchInvestors();
       } else {
         showErrorToast(res.message || lang("common.error", "Error"));

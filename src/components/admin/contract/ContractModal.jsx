@@ -143,7 +143,7 @@ const ContractModal = (props) => {
                   >
                     {investorList.map((item) => (
                       <MenuItem key={item.id} value={item.id}>
-                        {item.fullName || item.name || `#${item.id}`}
+                        {item.full_name || `#${item.id}`}
                       </MenuItem>
                     ))}
                   </TextField>
@@ -185,7 +185,7 @@ const ContractModal = (props) => {
                   >
                     {investorList.map((item) => (
                       <MenuItem key={item.id} value={item.id}>
-                        {item.fullName || item.name || `#${item.id}`}
+                        {item.full_name || `#${item.id}`}
                       </MenuItem>
                     ))}
                   </TextField>
@@ -222,7 +222,7 @@ const ContractModal = (props) => {
               >
                 {investorList.map((item) => (
                   <MenuItem key={item.id} value={item.id}>
-                    {item.fullName || item.name}
+                    {item.full_name || `#${item.id}`}
                   </MenuItem>
                 ))}
               </TextField>

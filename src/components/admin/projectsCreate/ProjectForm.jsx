@@ -92,7 +92,6 @@ const ProjectForm = ({
     },
     []
   );
-  {console.log("projectformData",formData)}
   return (
     <form id="project-form" onSubmit={handleSubmit}>
       <div className="card">

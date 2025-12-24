@@ -371,7 +371,7 @@ const ProjectTable = () => {
           },
         ];
         return (
-          <div className="hstack gap-2 justify-content-end">
+          <div className="hstack gap-2 justify-content-start">
             <a
               href={`/admin/projects/view/${id}`}
               className="avatar-text avatar-md"

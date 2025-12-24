@@ -11,7 +11,7 @@ export default function SolarEnergyFlow({ inverters = [], isDark = false }) {
 
   // Calculate active inverters from displayed 4
   const activeInverters = displayInverters.filter(
-    (inv) => inv?.inverter?.status === 1 || inv.status === "active"
+    (inv) => inv?.status === 1
   ).length;
   const totalInverters = displayInverters.length;
 

@@ -29,7 +29,6 @@ const SavingReports = () => {
   // Dropdown lists (populated from single API)
   const [projectList, setProjectList] = useState([]);
   const [inverterList, setInverterList] = useState([]);
-  console.log("inverterList", inverterList);
 
   // -----------------------------
   // Fetch Reports Function (always fetch latest 50)
@@ -81,7 +80,6 @@ const SavingReports = () => {
 
       const res = await apiGet(`/api/inverter-data?${params.toString()}`);
       const items = Array.isArray(res?.data) ? res.data : [];
-console.log("items", items);
       const mappedData = items.map((item) => ({
         id: item.id,
         projectId: item.project_id ?? item.project_id ?? null,

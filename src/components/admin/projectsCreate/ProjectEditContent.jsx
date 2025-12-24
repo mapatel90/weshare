@@ -101,6 +101,16 @@ const ProjectEditContent = ({ projectId }) => {
     }, [galleryImages, removedImageIds])
 
     const handleInvestorMarked = useCallback((investor) => {
+        // Handle deletion case: investor?.id is null
+        if (investor?.id === null) {
+            setFormData(prev => ({
+                ...prev,
+                investorId: '',
+                investorName: ''
+            }))
+            return
+        }
+        // Handle mark case
         if (!investor?.id) return
         setFormData(prev => ({
             ...prev,
@@ -223,19 +233,33 @@ const ProjectEditContent = ({ projectId }) => {
         const load = async () => {
             try {
                 setLoading(prev => ({ ...prev, init: true }))
+
                 const typesRes = await apiGet('/api/project-types')
                 if (typesRes?.success) setProjectTypes(typesRes.data)
+
                 const res = await apiGet(`/api/projects/${projectId}`)
                 if (res?.success && res.data) {
                     const p = res.data
+
+                    // Try to get investor name from matched investor in interested_investors array
+                    let investorName = '';
+                    if (p.investor_id) {
+                        if (Array.isArray(p.interested_investors)) {
+                            const matchedInvestor = p.interested_investors.find(
+                                inv => String(inv.id) === String(p.investor_id)
+                            );
+                            investorName = matchedInvestor ? matchedInvestor.full_name : '';
+                        }
+                    }
+
                     setFormData({
                         id: p.id, // ← added so ProjectForm's `formData?.id` is truthy
                         project_name: p.project_name || '',
                         project_slug: p.project_slug || '',
                         project_type_id: p.project_type_id || p.projectType?.id || '',
                         offtaker: String(p.offtaker_id || ''),
-                        investorId: String(p.investor_id || p.interested_investors?.[0]?.id || ''),
-                        investorName: p.interested_investors?.full_name || p.interested_investors?.[0]?.full_name || '',
+                        investorId: p.investor_id ? String(p.investor_id) : '',
+                        investorName: investorName || '',
                         address_1: p.address_1 || '',
                         address_2: p.address_2 || '',
                         country_id: p.country_id || '',

@@ -320,7 +320,6 @@ model projects {
   offtaker             users?                 @relation(fields: [offtaker_id], references: [id])
   project_types        project_types          @relation(fields: [project_type_id], references: [id])
   states               states?                @relation(fields: [state_id], references: [id])
-  interested_investors interested_investors?  @relation(fields: [investor_id], references: [id])`
   testimonials         testimonials[]
 }
 

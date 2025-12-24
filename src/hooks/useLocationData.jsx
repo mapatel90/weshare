@@ -32,17 +32,13 @@ const useLocationData = () => {
   // Fetch states by country ID
   const fetchStates = async (countryId) => {
     try {
-      // console.log('🏛️ Fetching states for country ID:', countryId)
       setLoadingStates(true)
       setError(null)
       const response = await apiGet(`/api/locations/countries/${countryId}/states`)
       
-      // console.log('🏛️ States API response:', response)
       if (response.success) {
-        // console.log('✅ States loaded:', response.data.length)
         setStates(response.data)
       } else {
-        // console.log('❌ States API failed:', response.message)
       }
     } catch (err) {
       console.error('❌ Error fetching states:', err)
@@ -56,17 +52,12 @@ const useLocationData = () => {
   // Fetch cities by state ID
   const fetchCities = async (stateId) => {
     try {
-      console.log('🏙️ Fetching cities for state ID:', stateId)
       setLoadingCities(true)
       setError(null)
       const response = await apiGet(`/api/locations/states/${stateId}/cities`)
       
-      console.log('🏙️ Cities API response:', response)
       if (response.success) {
-        console.log('✅ Cities loaded:', response.data.length)
         setCities(response.data)
-      } else {
-        console.log('❌ Cities API failed:', response.message)
       }
     } catch (err) {
       console.error('❌ Error fetching cities:', err)

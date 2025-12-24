@@ -121,6 +121,12 @@ router.put("/:id", authenticateToken, async (req, res) => {
 router.delete("/:id", authenticateToken, async (req, res) => {
   try {
     const id = Number(req.params.id);
+
+    await prisma.projects.updateMany({
+      where: { investor_id: id },
+      data: { investor_id: null },
+    })
+
     await prisma.interested_investors.update({
       where: { id },
       data: { is_deleted: 1 },

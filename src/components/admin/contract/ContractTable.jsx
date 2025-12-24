@@ -51,7 +51,7 @@ const Contract = ({ projectId, handleCloseForm }) => {
     // Find interested_investors that belong to this project
     const invIdsForProject = Array.isArray(investorList)
       ? investorList
-        .filter((inv) => Number(inv.projectId) === Number(projectId))
+        .filter((inv) => Number(inv.project_id) === Number(projectId))
         .map((inv) => Number(inv.id))
       : [];
 
@@ -356,12 +356,13 @@ const Contract = ({ projectId, handleCloseForm }) => {
       header: () => lang("contract.partyName", "Party Name"),
       cell: (info) => {
         const row = info.row?.original || {};
+        console.log("row", row);
         let name = "-";
         // Investor
         // If Investor exists
-        if (row.investorId || row.investor_id) {
-          const investor = row.investor; // assuming API returns row.investor object
-          name = investor?.fullName || "-";
+        if (row.investor_id) {
+          const investor = row.interested_investors; // assuming API returns row.investor object
+          name = investor?.full_name || "-";
         }
         // Otherwise Offtaker
         else if (row.offtakerId || row.offtaker_id) {
