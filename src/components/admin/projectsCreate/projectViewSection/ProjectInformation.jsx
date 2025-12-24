@@ -167,17 +167,17 @@ const ProjectInformation = ({ project = {}, isDark = false }) => {
                 <InfoCard icon={MapPin} label={lang('projectView.projectInformation.city', 'City')} value={project.cities?.name} color={getAutoRandomColor()} isDark={isDark} />
               </div>
               <div className="col-lg-4 col-md-4 col-sm-12">
-                <InfoCard icon={CloudSun} label={lang('projectView.projectInformation.weather', 'Weather')} value={`${project?.condTxtD ?? '-'} ~ ${project?.condTxtN ?? '-'}`} color={getAutoRandomColor()} isDark={isDark} />
+                <InfoCard icon={CloudSun} label={lang('projectView.projectInformation.weather', 'Weather')} value={`${project?.cond_txtd ?? '-'} ~ ${project?.cond_txtn ?? '-'}`} color={getAutoRandomColor()} isDark={isDark} />
               </div>
               <div className="col-lg-4 col-md-4 col-sm-12">
                 <InfoCard icon={SunriseIcon} label={lang('projectView.projectInformation.sunshine', 'Sunshine')} value={`${project?.sr ?? '-'} ~ ${project?.ss ?? '-'}`} color={getAutoRandomColor()} isDark={isDark} />
               </div>
               <div className="col-lg-4 col-md-4 col-sm-12">
                 <InfoCard icon={Thermometer} label={lang('projectView.projectInformation.temp', 'Temp')} value={
-                  project?.tmpMin != null && project?.tmpMax != null
-                    ? `${project.tmpMin} ℃ ~ ${project.tmpMax} ℃`
-                    : project?.tmpMin != null
-                      ? `${project.tmpMin} ℃`
+                  project?.tmp_min != null && project?.tmp_max != null
+                    ? `${project.tmp_min} ℃ ~ ${project.tmp_max} ℃`
+                    : project?.tmp_min != null
+                      ? `${project.tmp_min} ℃`
                       : '-'
                 } color={getAutoRandomColor()} isDark={isDark} />
               </div>
@@ -185,10 +185,10 @@ const ProjectInformation = ({ project = {}, isDark = false }) => {
                 <InfoCard icon={Droplets} label={lang('projectView.projectInformation.humidity', 'Humidity')} value={project?.hum ?? '-'} color={getAutoRandomColor()} isDark={isDark} />
               </div>
               <div className="col-lg-4 col-md-4 col-sm-12">
-                <InfoCard icon={Compass} label={lang('projectView.projectInformation.wind_direction', 'Wind Direction')} value={project.windDir ?? '-'} color={getAutoRandomColor()} isDark={isDark} />
+                <InfoCard icon={Compass} label={lang('projectView.projectInformation.wind_direction', 'Wind Direction')} value={project.wind_dir ?? '-'} color={getAutoRandomColor()} isDark={isDark} />
               </div>
               <div className="col-lg-4 col-md-4 col-sm-12">
-                <InfoCard icon={Wind} label={lang('projectView.projectInformation.wind_speed', 'Wind Speed')} value={project.windSpd ?? '-'} color={getAutoRandomColor()} isDark={isDark} />
+                <InfoCard icon={Wind} label={lang('projectView.projectInformation.wind_speed', 'Wind Speed')} value={project.wind_spd ?? '-'} color={getAutoRandomColor()} isDark={isDark} />
               </div>
             </div>
           </div>

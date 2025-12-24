@@ -504,6 +504,7 @@ const ProjectViewContent = ({ projectId = "" }) => {
 
       <SolarFlowCard
         projectId={projectId}
+        project={project}
         selectedInverterId={selectedInverterId}
         inverters={projectInverters}
         isDark={isDark}
