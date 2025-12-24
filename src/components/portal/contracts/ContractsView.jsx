@@ -99,7 +99,7 @@ const ContractsView = () => {
         const initials = getInitials(title);
 
         return (
-            <div className="bg-white rounded-2xl shadow border border-gray-100 flex flex-row items-center w-full max-w-md mx-auto p-6 min-h-[110px]">
+            <div className="bg-white rounded-2xl shadow border border-gray-100 flex flex-row items-center w-fullmax-w-md mx-auto p-6 min-h-[110px]">
                 <div className="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-lg mr-4">
                     {initials}
                 </div>
@@ -145,7 +145,7 @@ const ContractsView = () => {
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                                 <input
                                     type="text"
-                                    placeholder="Search by project / user / title..."
+                                    placeholder="Search"
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                     className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-slate-500 focus:border-transparent outline-none"
