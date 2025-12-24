@@ -1315,6 +1315,7 @@
     "editInvestor": "Edit Investor"
   },
   "contract": {
+    "contract_summary": "Contract Summary",
     "contract": "Contract",
     "no_contracts_found": "No contracts found",
     "uploadDocument": "Upload Document",

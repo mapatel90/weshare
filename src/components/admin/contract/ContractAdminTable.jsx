@@ -37,15 +37,15 @@ const ContractAdminTable = () => {
     fetchContracts();
   }, [projectFilter, statusFilter, offtakerFilter, investorFilter, searchTerm, startDate, endDate]);
 
-    const filteredData = useMemo(() => {
-      return contracts.filter((d) => {
-        if (projectFilter && String(d.projectId) !== projectFilter) return false;
-        if (statusFilter && String(d.status) !== statusFilter) return false;
-        if (offtakerFilter && String(d.offtakerId) !== offtakerFilter) return false;
-        if (investorFilter && String(d.investorId) !== investorFilter) return false;
-        return true;
-      });
-    }, [projectFilter, statusFilter, offtakerFilter, investorFilter, contracts]);
+  const filteredData = useMemo(() => {
+    return contracts.filter((d) => {
+      if (projectFilter && String(d.projectId) !== projectFilter) return false;
+      if (statusFilter && String(d.status) !== statusFilter) return false;
+      if (offtakerFilter && String(d.offtakerId) !== offtakerFilter) return false;
+      if (investorFilter && String(d.investorId) !== investorFilter) return false;
+      return true;
+    });
+  }, [projectFilter, statusFilter, offtakerFilter, investorFilter, contracts]);
 
 
   const fetchContracts = async () => {
@@ -118,7 +118,7 @@ const ContractAdminTable = () => {
         setProjectList(Array.isArray(res?.projectList) ? res.projectList : []);
         setOfftakerList(Array.isArray(res?.offtakerList) ? res.offtakerList : []);
         setInvestorList(Array.isArray(res?.investorList) ? res.investorList : []);
-        
+
         const apiTotal = res?.pagination?.total ?? (Array.isArray(res.data) ? res.data.length : 0);
         setPagination({
           page: 1,
@@ -142,7 +142,7 @@ const ContractAdminTable = () => {
 
   const columns = [
     {
-      accessorKey: "contractTitle",
+      accessorKey: "contract_title",
       header: () => lang("contract.title", "Title"),
       cell: (info) => {
         const v = info.getValue() || "-";
@@ -162,11 +162,11 @@ const ContractAdminTable = () => {
       },
     },
     {
-      accessorKey: "projectName",
+      accessorKey: "project_name",
       header: () => lang("contract.project", "Project"),
       cell: (info) => {
         const row = info.row?.original || {};
-        const projectName = row.projectName || row.project?.project_name || "-";
+        const projectName = row.projects?.project_name ? row.projects?.project_name : "-";
         return (
           <div
             title={projectName}
@@ -216,8 +216,8 @@ const ContractAdminTable = () => {
         const name =
           row.partyName ||
           (row.investorId || row.investor_id
-            ? row.investor?.fullName
-            : row.offtaker?.fullName) ||
+            ? row.users?.full_name
+            : row.users?.full_name) ||
           "-";
         return (
           <div
@@ -249,7 +249,7 @@ const ContractAdminTable = () => {
       },
     },
     {
-      accessorKey: "contractDate",
+      accessorKey: "contract_date",
       header: () => lang("contract.date", "Date"),
       cell: (info) => {
         const v = info.getValue();
@@ -321,7 +321,7 @@ const ContractAdminTable = () => {
                 key={p.id ?? p.project_id}
                 value={p.id ?? p.project_id}
               >
-                {p.project_name ?? `Project ${p.id ?? p.project_id}`}
+                {p.project_name}
               </option>
             ))}
           </select>
@@ -345,7 +345,7 @@ const ContractAdminTable = () => {
             <option value="">{lang("contract.allOfftakers", "All Offtakers")}</option>
             {offtakerList.map((o) => (
               <option key={o.id} value={o.id}>
-                {o.fullName || o.email || `Offtaker ${o.id}`}
+                {o.full_name}
               </option>
             ))}
           </select>
@@ -358,7 +358,7 @@ const ContractAdminTable = () => {
             <option value="">{lang("contract.allInvestors", "All Investors")}</option>
             {investorList.map((inv) => (
               <option key={inv.id} value={inv.id}>
-                {inv.fullName || inv.email || `Investor ${inv.id}`}
+                {inv.full_name}
               </option>
             ))}
           </select>
