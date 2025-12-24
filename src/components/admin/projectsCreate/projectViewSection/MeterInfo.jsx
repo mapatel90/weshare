@@ -415,15 +415,15 @@ const MeterInfo = ({
                       marginBottom: "6px",
                     }}
                   >
-                    {c.contractTitle || "Untitled"}
+                    {c.contract_title || "Untitled"}
                   </div>
 
                   <div style={{ fontSize: "12px", color: colors.textMuted }}>
-                    {c.offtaker?.fullName
-                      ? `Offtaker: ${c.offtaker.fullName}`
+                    {c.users?.role_id === 3
+                      ? `Offtaker: ${c.users.full_name}`
                       : ""}
-                    {c.investor?.fullName
-                      ? ` ${c.offtaker ? "·" : ""} Investor: ${c.investor.fullName
+                    {c.users?.role_id === 4
+                      ? ` ${c.users ? "·" : ""} Investor: ${c.users.full_name
                       }`
                       : ""}
                   </div>
@@ -436,7 +436,7 @@ const MeterInfo = ({
                     }}
                   >
                     {c.contractDate
-                      ? new Date(c.contractDate).toLocaleDateString()
+                      ? new Date(c.contract_date).toLocaleDateString()
                       : "-"}
                   </div>
                 </div>
