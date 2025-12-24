@@ -5,6 +5,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  relationMode = "prisma"
 }
 
 model blogs {
@@ -192,9 +193,6 @@ model password_reset_tokens {
   expires_at DateTime
   used       Boolean  @default(false)
   created_at DateTime @default(now())
-
-  @@index([email])
-  @@index([token])
 }
 
 model payments {
@@ -293,18 +291,24 @@ model projects {
   sim_number           String?                @db.VarChar(255)
   sim_start_date       DateTime?
   sim_expire_date      DateTime?
-  cityStr              String?                @db.VarChar(255)
-  windSpd              String?                @db.VarChar(255)
-  windDir              String?                @db.VarChar(255)
-  condTxtD             String?                @db.VarChar(255)
-  condTxtN             String?                @db.VarChar(255)
+  wind_spd             String?                @db.VarChar(255)
+  wind_dir             String?                @db.VarChar(255)
+  cond_txtd            String?                @db.VarChar(255)
+  cond_txtn            String?                @db.VarChar(255)
   hum                  String?                @db.VarChar(255)
-  tmpMax               String?                @db.VarChar(255)
-  tmpMin               String?                @db.VarChar(255)
-  tmpUnit              String?                @db.VarChar(255)
+  tmp_max              String?                @db.VarChar(255)
+  tmp_min              String?                @db.VarChar(255)
+  tmp_unit             String?                @db.VarChar(255)
   sr                   String?                @db.VarChar(255)
   ss                   String?                @db.VarChar(255)
   solis_plant_id       String?                @db.VarChar(255)
+  home_load_today_energy String?              @db.VarChar(255)
+  day_energy           String?                @db.VarChar(255)
+  day_in_come          String?                @db.VarChar(255)
+  p_sum                String?                @db.VarChar(255)
+  grid_purchased_day_energy String?           @db.VarChar(255)
+  family_load_power    String?                @db.VarChar(255)
+  power                String?                @db.VarChar(255)
   status               Int                    @default(0)
   is_deleted           Int                    @default(0)
   created_at           DateTime               @default(now())
