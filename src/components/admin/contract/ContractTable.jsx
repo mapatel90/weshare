@@ -356,7 +356,6 @@ const Contract = ({ projectId, handleCloseForm }) => {
       header: () => lang("contract.partyName", "Party Name"),
       cell: (info) => {
         const row = info.row?.original || {};
-        console.log("row", row);
         let name = "-";
         // Investor
         // If Investor exists

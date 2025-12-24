@@ -113,7 +113,6 @@ const ContactUsTable = () => {
         fetchContacts();
       }
     } catch (e) {
-      console.log(e);
     } finally {
       setSubmitting(false);
     }

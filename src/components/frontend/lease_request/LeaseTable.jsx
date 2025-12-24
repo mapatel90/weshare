@@ -43,7 +43,6 @@ const LeaseTable = () => {
     try {
       setLoading(true);
       const res = await apiGet(`/api/lease`);
-      console.log("Lease fetch response:", res);
       if (res?.success && Array.isArray(res?.data)) {
         setLeases(res.data);
       } else {

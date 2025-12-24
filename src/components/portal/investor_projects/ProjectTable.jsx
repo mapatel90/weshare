@@ -60,7 +60,7 @@ const normalizeApiProject = (project) => {
   };
 
   const statusString =
-    statusDictionary[project.project?.status] ?? project?.status ?? "Upcoming";
+    statusDictionary[project.projects?.status] ?? project?.status ?? "Upcoming";
   // map display status to numeric filter codes: Upcoming => 1, Under Installation => 0
   const statusCode =
     statusString === "Upcoming"
@@ -70,29 +70,29 @@ const normalizeApiProject = (project) => {
         : project?.status ?? null;
 
   const rawCoverImage =
-    getPrimaryProjectImage(project.project || project) || "";
+    getPrimaryProjectImage(project.projects || project) || "";
   const coverImage = rawCoverImage
     ? getFullImageUrl(rawCoverImage)
     : getFullImageUrl("/uploads/general/noimage.jpeg");
 
   return {
-    id: project.project?.id ? `#${project.project.id}` : project.project?.project_code ?? "—",
+    id: project.projects?.id ? `#${project.projects.id}` : project.projects?.project_code ?? "—",
     project_image: coverImage,
-    projectName: project.project?.project_name ?? "—",
+    projectName: project.projects?.project_name ?? "—",
     status: statusString,
     statusCode,
-    expectedROI: formatPercent(project.project?.expected_roi ?? project.project?.roi),
-    targetInvestment: formatCurrency(project.project?.asking_price ?? project.project?.asking_price),
-    paybackPeriod: project.project?.lease_term ? String(project.project.lease_term) : "—",
-    startDate: formatDateForDisplay(project.project?.createdAt),
-    endDate: formatDateForDisplay(project.project?.project_close_date),
-    startDateTs: tsOrZero(project.project?.createdAt),
-    endDateTs: tsOrZero(project.project?.project_close_date),
-    expectedGeneration: formatNumber(project.project?.project_size),
-    offtakerId: project.project?.offtaker_id ?? null,
-    product_code: project.project?.product_code ?? '-',
-    offtaker_name: project.project?.offtaker?.fullName ?? '-',
-    project_slug: project.project?.project_slug ?? '',
+    expectedROI: formatPercent(project.projects?.expected_roi ?? project.projects?.roi),
+    targetInvestment: formatCurrency(project.projects?.asking_price ?? project.projects?.asking_price),
+    paybackPeriod: project.projects?.lease_term ? String(project.projects.lease_term) : "—",
+    startDate: formatDateForDisplay(project.projects?.created_at),
+    endDate: formatDateForDisplay(project.projects?.project_close_date),
+    startDateTs: tsOrZero(project.projects?.created_at),
+    endDateTs: tsOrZero(project.projects?.project_close_date),
+    expectedGeneration: formatNumber(project.projects?.project_size),
+    offtakerId: project.projects?.offtaker_id ?? null,
+    product_code: project.projects?.product_code ?? '-',
+    offtaker_name: project.projects?.offtaker?.full_name ?? '-',
+    project_slug: project.projects?.project_slug ?? '',
   };
 };
 
@@ -606,7 +606,7 @@ const ProjectTable = () => {
                         {/* <button className="flex-1 px-4 py-2 bg-amber-500 text-white rounded-lg font-semibold hover:bg-amber-600 transition-colors text-sm">Invest Early</button> */}
                         <a
                           className="flex-1 px-4 py-2 border border-gray-300 text-slate-900 rounded-lg font-semibold hover:bg-gray-100 transition-colors text-sm flex items-center justify-center gap-1"
-                          href={`/exchange-hub/${project.project_slug}`}
+                          href={`/frontend/exchange-hub/${project.project_slug}`}
                           target="_blank"
                           rel="noopener noreferrer"
                         >

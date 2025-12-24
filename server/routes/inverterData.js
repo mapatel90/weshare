@@ -271,6 +271,7 @@ router.post("/investor/latest-record", authenticateToken, async (req, res) => {
 
     const project_id = projectId ? Number(projectId) : null;
     const inverter_id = projectInverterId ? Number(projectInverterId) : null;
+    console.log("Investor latest record request:", { project_id, inverter_id, userId });
 
     /* ----------------------------------------------------
        STEP 1: Find projects investor can access
@@ -281,8 +282,8 @@ router.post("/investor/latest-record", authenticateToken, async (req, res) => {
       select: { id: true },
     });
 
-    const interestedProjects = await prisma.interestedInvestor.findMany({
-      where: { is_deleted: 0, userId, project_id: { not: null } },
+    const interestedProjects = await prisma.interested_investors.findMany({
+      where: { is_deleted: 0, user_id: userId, project_id: { not: null } },
       select: { project_id: true },
     });
 
@@ -377,7 +378,7 @@ router.post("/investor/latest-record", authenticateToken, async (req, res) => {
       const latest = await prisma.inverter_data.findFirst({
         where: {
           project_id: pi.project_id,
-          project_inverter_id: pi.inverter_id,
+          project_inverter_id: pi.id,
           projects: { is_deleted: 0 },
         },
         orderBy: { date: "desc" },

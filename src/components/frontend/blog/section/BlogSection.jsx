@@ -27,8 +27,6 @@ const BlogSection = () => {
       // ✅ apiGet already returns JSON
       const result = await apiGet("/api/blog/");
 
-      console.log("Fetched blog data:", result);
-
       if (result.success && Array.isArray(result.data)) {
         setBlogData(result.data);
       } else {

@@ -110,7 +110,6 @@ const SettingGeneralForm = () => {
 
   // Debug: Log form data changes
   useEffect(() => {
-    console.log("Form data updated:", formData);
   }, [formData]);
 
   // Load settings into form when available (only once)
@@ -129,7 +128,6 @@ const SettingGeneralForm = () => {
         site_email: getSetting("site_email", "") || "",
       };
 
-      console.log("Loading settings into form:", newFormData);
       setFormData(newFormData);
 
       // Set uploaded image if exists
@@ -212,11 +210,6 @@ const SettingGeneralForm = () => {
     if (countryId) {
       handleCountryChange(countryId);
     }
-
-    // Log after a short delay to see if states loaded
-    setTimeout(() => {
-      console.log("🔄 States after selection:", states.length);
-    }, 2000);
   };
 
   // Handle state selection

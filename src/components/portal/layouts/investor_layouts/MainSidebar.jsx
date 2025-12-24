@@ -11,7 +11,6 @@ import HomeWorkOutlinedIcon from '@mui/icons-material/HomeWorkOutlined';
 
 // function MainSidebar() {
 function MainSidebar({ activeMenu, setActiveMenu }) {
-    console.log("setActiveMenu in MainSidebar:", activeMenu);
     return (
         <div className="icon-sidebar" id="iconSidebar">
             <div className='icon-size'>

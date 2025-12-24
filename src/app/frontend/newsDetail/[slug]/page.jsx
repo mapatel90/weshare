@@ -15,12 +15,6 @@ const NewsDetailPage = () => {
   const params = useParams();
   const slug = params?.slug;
 
-  // Debug: Log params to console
-//   useEffect(() => {
-//     console.log('NewsDetailPage - params:', params);
-//     console.log('NewsDetailPage - slug:', slug);
-//   }, [params, slug]);
-
   if (!slug) {
     return (
       <>

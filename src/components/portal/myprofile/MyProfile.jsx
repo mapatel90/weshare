@@ -46,7 +46,6 @@ const MyProfile = () => {
         cityId: '',
         user_image: ''
     })
-    console.log("profileData", profileData)
     const [imageFile, setImageFile] = useState(null)
     const [imagePreview, setImagePreview] = useState(null)
 
@@ -61,7 +60,6 @@ const MyProfile = () => {
 
                 if (response.success) {
                     const userData = response.data
-                    console.log(userData)
                     setProfileData({
                         fullName: userData.fullName || '',
                         email: userData.email || '',
@@ -78,7 +76,6 @@ const MyProfile = () => {
                         setImagePreview(userData.user_image)
                     }
 
-                    console.log("userData", userData)
                     // Load states if country is selected
                     if (userData.countryId) {
                         await fetchStates(userData.countryId)

@@ -227,7 +227,6 @@ const UsersViewDetails = () => {
 
               {/* Address Information */}
               {(user.address_1 || user.city || user.state || user.country) && (
-                console.log("test", user),
                 <div className="col-lg-12">
                   <div className="border rounded p-3 bg-white shadow-sm">
                     <h6 className="fw-bold mb-3 d-flex align-items-center">

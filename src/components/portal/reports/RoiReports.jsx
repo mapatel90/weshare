@@ -3,39 +3,44 @@ import React, { useEffect, useMemo, useState } from "react";
 import { apiGet } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
+import Table from "@/components/shared/table/Table";
 
-const SavingReports = () => {
+const RoiReports = () => {
   const { user } = useAuth();
   const { lang } = useLanguage();
 
-  const [items, setItems] = useState([]);
+  const PAGE_SIZE = 50;
+
+  const [reportsData, setReportsData] = useState([]);
   const [allowedIds, setAllowedIds] = useState(null);
-  const [search, setSearch] = useState("");
   const [projectFilter, setProjectFilter] = useState("");
   const [inverterFilter, setInverterFilter] = useState("");
-  const [page, setPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
+  const [error, setError] = useState(null);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: PAGE_SIZE,
+    total: 0,
+    pages: 0,
+  });
+  const [projectList, setProjectList] = useState([]);
+  const [inverterList, setInverterList] = useState([]);
 
-  const pageSize = 20;
-
-  // --------------------------------------------
   // 1) Load allowed project IDs (Investor Logic)
-  // --------------------------------------------
   useEffect(() => {
     if (!user?.id) return setAllowedIds(null);
 
-    let apiUrl = `/api/investors?page=1&limit=50&userId=${user.id}`;
-
-    apiGet(apiUrl)
+    apiGet(`/api/investors?page=1&limit=50&userId=${user.id}`)
       .then((res) => {
         if (!res?.success) return setAllowedIds([]);
 
         const normalized = res.data
           .map((item) =>
             Number(
-              item?.project?.id ||
-                item?.project_id ||
-                item?.projectId ||
-                item?.project?.project_id
+              item?.project_id ||
+              item?.project?.id
             )
           )
           .filter(Boolean);
@@ -45,278 +50,278 @@ const SavingReports = () => {
       .catch(() => setAllowedIds([]));
   }, [user?.id]);
 
-  // --------------------------------------------
-  // 2) Fetch inverter data (Auto refresh 2 min)
-  // --------------------------------------------
-  const fetchInverterData = () => {
-    apiGet("/api/inverter-data")
-      .then((res) => setItems(res?.data || []))
-      .catch(() => setItems([]));
+  // 2) Fetch reports with server-side filters (like SavingReports)
+  const fetchReports = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const params = new URLSearchParams({
+        page: "1",
+        downloadAll: "1",
+      });
+
+      if (projectFilter) params.append("projectId", projectFilter);
+      if (inverterFilter) params.append("inverterId", inverterFilter);
+      if (searchTerm) params.append("search", searchTerm);
+
+      const res = await apiGet(`/api/inverter-data?${params.toString()}`);
+      const items = Array.isArray(res?.data) ? res.data : [];
+
+      // Restrict to investor-allowed projects
+      const allowed = Array.isArray(allowedIds) ? allowedIds : null;
+      const filteredItems = items.filter((item) => {
+        if (!allowed) return true;
+        const pid = Number(item.project_id ?? item.projectId ?? item?.project?.id);
+        return allowed.includes(pid);
+      });
+
+      const mappedData = filteredItems.map((item, idx) => ({
+        id: item.id ?? idx,
+        projectId: item.project_id ?? item.projectId ?? item?.project?.id ?? null,
+        inverterId: item.project_inverter_id ?? null,
+        projectName: item.projects?.project_name || item?.project?.project_name || `Project ${item.project_id ?? ""}`,
+        inverterName: item.project_inverters?.inverter_name || "-",
+        date: item.date,
+        time: item.time ?? "",
+        generatedKW:
+          item.generate_kw !== undefined && item.generate_kw !== null
+            ? (Number(item.generate_kw) / 1000).toFixed(2) + " kwh"
+            : "",
+        Acfrequency: item.ac_frequency ?? "",
+        DailyYield:
+          item.daily_yield !== undefined && item.daily_yield !== null
+            ? item.daily_yield + " kwh"
+            : "",
+        AnnualYield:
+          item.annual_yield !== undefined && item.annual_yield !== null
+            ? item.annual_yield + " kwh"
+            : "",
+        TotalYield:
+          item.total_yield !== undefined && item.total_yield !== null
+            ? item.total_yield + " kwh"
+            : "",
+      }));
+
+      setReportsData(mappedData);
+
+      // Dropdown lists: restrict to investor-allowed
+      const resProjects = Array.isArray(res?.projectList) ? res.projectList : [];
+      const resInverters = Array.isArray(res?.inverterList) ? res.inverterList : [];
+
+      const allowedProjectSet = new Set((allowed ?? []).map(String));
+      const investorProjects = resProjects.filter((p) => allowedProjectSet.has(String(p.id ?? p.project_id)));
+      setProjectList(investorProjects);
+
+      const investorInverters = resInverters.filter((inv) => allowedProjectSet.has(String(inv.project_id)));
+      setInverterList(investorInverters);
+
+      const total = mappedData.length;
+      setPagination({
+        page: 1,
+        limit: PAGE_SIZE,
+        total,
+        pages: Math.max(1, Math.ceil(total / PAGE_SIZE)),
+      });
+    } catch (err) {
+      setError(err?.message || "Failed to load reports");
+    } finally {
+      setLoading(false);
+      setHasLoadedOnce(true);
+    }
   };
 
   useEffect(() => {
-    fetchInverterData(); // First load
+    fetchReports();
 
     const interval = setInterval(() => {
-      fetchInverterData(); // Auto refresh every 2 min
+      fetchReports();
     }, 120000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [projectFilter, inverterFilter, searchTerm, allowedIds]);
 
-  // --------------------------------------------
-  // Normalize
-  // --------------------------------------------
-  const normalize = (item, idx) => {
-    const pid =
-      Number(
-        item?.project?.id ||
-          item?.project_id ||
-          item?.projectId ||
-          item?.project?.project_id
-      ) || null;
-
-    return {
-      id: item.id ?? idx,
-      projectId: pid,
-      projectName:
-        item?.project?.name ||
-        item?.project?.project_name ||
-        item?.projectName ||
-        `Project ${pid}`,
-      inverterName:
-        item?.inverter?.name ||
-        item?.inverter?.inverterName ||
-        `Inverter ${item?.inverter_id || ""}`,
-      date: item.date || item.created_at || "",
-      startTime: item.time || item.startTime || "",
-      endTime: item.end_time || item.endTime || "",
-      generatedKW: item.generate_kw
-        ? (Number(item.generate_kw) / 1000).toFixed(3)
-        : item.generatedKW || "",
-      Acfrequency: item.ac_frequency || "",
-      DailyYield: item.daily_yield || "",
-      AnnualYield: item.annual_yield || "",
-      TotalYield: item.total_yield || "",
-    };
-  };
-
-  // --------------------------------------------
-  // Apply investor allowed project filtering
-  // --------------------------------------------
-  const cleaned = useMemo(() => {
-    return items.map(normalize).filter((row) => {
-      if (Array.isArray(allowedIds)) {
-        if (allowedIds.length === 0) return false;
-        if (!allowedIds.includes(row.projectId)) return false;
-      }
+  // 3) Filtered data (client-side on fetched set)
+  const filteredData = useMemo(() => {
+    return reportsData.filter((d) => {
+      if (projectFilter && String(d.projectId) !== projectFilter) return false;
+      if (inverterFilter && String(d.inverterId) !== inverterFilter) return false;
       return true;
     });
-  }, [items, allowedIds]);
+  }, [projectFilter, inverterFilter, reportsData]);
 
-  // --------------------------------------------
-  // Filters + Search
-  // --------------------------------------------
-  const filtered = useMemo(() => {
-    const q = search.toLowerCase();
-
-    return cleaned.filter((r) => {
-      if (projectFilter && r.projectName !== projectFilter) return false;
-      if (inverterFilter && r.inverterName !== inverterFilter) return false;
-
-      if (!q) return true;
-
-      return (
-        r.projectName.toLowerCase().includes(q) ||
-        r.inverterName.toLowerCase().includes(q) ||
-        String(r.date).toLowerCase().includes(q)
-      );
-    });
-  }, [cleaned, search, projectFilter, inverterFilter]);
-
-  // --------------------------------------------
-  // Pagination
-  // --------------------------------------------
-  const total = filtered.length;
-  const totalPages = Math.max(1, Math.ceil(total / pageSize));
-  const paginated = filtered.slice((page - 1) * pageSize, page * pageSize);
-
-  // Keep page within range if data changes
+  // Reset inverter filter when project changes
   useEffect(() => {
-    if (page > totalPages) setPage(totalPages);
-  }, [totalPages]);
+    if (!inverterFilter) return;
+    const available = new Set((inverterList || []).map((i) => String(i.id)));
+    if (!available.has(inverterFilter)) setInverterFilter("");
+  }, [projectFilter, inverterList, inverterFilter]);
 
-  // --------------------------------------------
-  // CSV Export
-  // --------------------------------------------
-  const downloadCSV = () => {
-    const csv =
-      "Project,Inverter,Date,Start,End,GeneratedKW,AcFrequency,DailyYield,AnnualYield,TotalYield\n" +
-      filtered
-        .map((r) =>
-          [
-            r.projectName,
-            r.inverterName,
-            r.date,
-            r.startTime,
-            r.endTime,
-            r.generatedKW,
-            r.Acfrequency,
-            r.DailyYield,
-            r.AnnualYield,
-            r.TotalYield
-          ].join(",")
-        )
-        .join("\n");
+  const total = filteredData.length;
 
-    const link = document.createElement("a");
-    link.href = "data:text/csv;charset=utf-8," + encodeURI(csv);
-    link.download = "saving_reports.csv";
-    link.click();
+  // Format date helper
+  const formatDateDDMMYYYY = (raw) => {
+    if (!raw) return "";
+    const datePart = String(raw).trim().split(/[ T]/)[0];
+    const [y, m, d] = datePart.split("-");
+    if (y && m && d) return `${d}/${m}/${y}`;
+    return "";
   };
 
-  const projects = [...new Set(cleaned.map((r) => r.projectName))];
+  // CSV Download
+  const handleDownloadCSV = async () => {
+    try {
+      const rows = filteredData.map((r) => ({
+        projectName: r.projectName,
+        inverterName: r.inverterName,
+        date: r.date,
+        time: r.time,
+        generatedKW: r.generatedKW,
+        Acfrequency: r.Acfrequency,
+        DailyYield: r.DailyYield,
+        AnnualYield: r.AnnualYield,
+        TotalYield: r.TotalYield,
+      }));
 
-  const inverters = useMemo(() => {
-    const list = projectFilter
-      ? cleaned.filter((r) => r.projectName === projectFilter).map((r) => r.inverterName)
-      : cleaned.map((r) => r.inverterName);
-    return [...new Set(list)];
-  }, [cleaned, projectFilter]);
+      const header = [
+        lang("projects.projectName"),
+        lang("inverter.inverterName"),
+        lang("common.date"),
+        lang("common.time"),
+        lang("common.generatedKW"),
+        lang("common.acFrequency"),
+        lang("reports.dailyYield"),
+        lang("reports.annualYield"),
+        lang("reports.totalYield"),
+      ];
 
-  useEffect(() => {
-    setInverterFilter("");
-  }, [projectFilter]);
+      const csvRows = rows.map((row) => [
+        row.projectName,
+        row.inverterName,
+        formatDateDDMMYYYY(row.date),
+        row.time ?? "",
+        row.generatedKW ?? "",
+        row.Acfrequency ?? "",
+        row.DailyYield ?? "",
+        row.AnnualYield ?? "",
+        row.TotalYield ?? "",
+      ]);
+
+      const csvContent =
+        "data:text/csv;charset=utf-8," +
+        [header, ...csvRows].map((e) => e.join(",")).join("\n");
+
+      const link = document.createElement("a");
+      link.setAttribute("href", encodeURI(csvContent));
+      link.setAttribute("download", "roi_reports.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (err) {
+      console.error("CSV download failed", err);
+    }
+  };
+
+  // Columns definition
+  const columns = useMemo(
+    () => [
+      {
+        accessorKey: "projectName",
+        header: () => lang("projects.projectName"),
+      },
+      {
+        accessorKey: "inverterName",
+        header: () => lang("inverter.inverterName"),
+      },
+      {
+        accessorKey: "date",
+        header: () => lang("common.date"),
+        cell: ({ row }) => formatDateDDMMYYYY(row.original.date),
+      },
+      { accessorKey: "time", header: () => lang("common.time") },
+      { accessorKey: "generatedKW", header: () => lang("common.generatedKW") },
+      { accessorKey: "Acfrequency", header: () => lang("common.acFrequency") },
+      { accessorKey: "DailyYield", header: () => lang("reports.dailyYield") },
+      { accessorKey: "AnnualYield", header: () => lang("reports.annualYield") },
+      { accessorKey: "TotalYield", header: () => lang("reports.totalYield"), meta: { disableSort: true } },
+    ],
+    [lang]
+  );
 
   return (
-    <div className="p-6 bg-white rounded-xl shadow-md">
+    <div className="p-6 bg-white rounded-3xl shadow-md">
+      {/* Filter Section */}
+      <div className="d-flex items-center justify-content-between gap-2 mb-4 mt-4 w-full flex-wrap">
+        <div className="filter-button flex flex-wrap gap-2">
+          <select
+            value={projectFilter}
+            onChange={(e) => setProjectFilter(e.target.value)}
+            className="theme-btn-blue-color border rounded-md px-3 py-2 text-sm"
+          >
+            <option value="">{lang("reports.allprojects")}</option>
+            {projectList.map((p) => (
+              <option key={p.id ?? p.project_id} value={p.id ?? p.project_id}>
+                {p.project_name || `Project ${p.id}`}
+              </option>
+            ))}
+          </select>
 
-      {/* Filters */}
-      <div className="flex gap-2 mb-4">
-        <input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="border px-3 py-2 text-sm"
-          placeholder="Search..."
-        />
+          <select
+            value={inverterFilter}
+            onChange={(e) => setInverterFilter(e.target.value)}
+            className="theme-btn-blue-color border rounded-md px-3 py-2 text-sm"
+          >
+            <option value="">{lang("reports.allinverters")}</option>
+            {inverterList.map((i) => (
+              <option key={i.id} value={i.id}>
+                {i.name}
+              </option>
+            ))}
+          </select>
+        </div>
 
-        <select
-          value={projectFilter}
-          onChange={(e) => setProjectFilter(e.target.value)}
-          className="border px-3 py-2 text-sm"
+        <button
+          onClick={handleDownloadCSV}
+          className="common-grey-color border rounded-3 btn"
         >
-          <option value="">All Projects</option>
-          {projects.map((p) => (
-            <option key={p}>{p}</option>
-          ))}
-        </select>
-
-        <select
-          value={inverterFilter}
-          onChange={(e) => setInverterFilter(e.target.value)}
-          className="border px-3 py-2 text-sm"
-        >
-          <option value="">All Inverters</option>
-          {inverters.map((i) => (
-            <option key={i}>{i}</option>
-          ))}
-        </select>
-
-        <button onClick={downloadCSV} className="border px-3 py-2 text-sm">
-          Download CSV
+          {lang("reports.downloadcsv")}
         </button>
       </div>
 
-      {/* Table */}
-      <table className="min-w-full text-sm shadow-sm border">
-        <thead className="bg-gray-50">
-          <tr>
-            <th className="px-4 py-3">{lang("projects.projectName")}</th>
-            <th className="px-4 py-3">{lang("inverter.inverterName")}</th>
-            <th className="px-4 py-3">{lang("common.date")}</th>
-            <th className="px-4 py-3">{lang("common.time")}</th>
-            <th className="px-4 py-3">{lang("common.generatedKW")}</th>
-            <th className="px-4 py-3">{lang("common.acFrequency")}</th>
-            <th className="px-4 py-3">{lang("reports.dailyYield")}</th>
-            <th className="px-4 py-3">{lang("reports.annualYield")}</th>
-            <th className="px-4 py-3">{lang("reports.totalYield")}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {paginated.map((r, idx) => (
-            <tr key={idx} className={idx % 2 ? "bg-white" : "bg-gray-50"}>
-              <td className="px-4 py-2">{r.projectName}</td>
-              <td className="px-4 py-2">{r.inverterName}</td>
-              <td className="px-4 py-2">
-                {new Date(r.date).toLocaleDateString()}
-              </td>
-              <td className="px-4 py-2">{r.startTime}</td>
-              <td className="px-4 py-2">{r.generatedKW}</td>
-              <td className="px-4 py-2">{r.Acfrequency}</td>
-              <td className="px-4 py-2">{r.DailyYield}</td>
-              <td className="px-4 py-2">{r.AnnualYield}</td>
-              <td className="px-4 py-2">{r.TotalYield}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      {/* Table Section */}
+      <div className="overflow-x-auto relative">
+        {!hasLoadedOnce && loading && (
+          <div className="text-center py-6 text-gray-600">Loading...</div>
+        )}
 
-      {/* Pagination */}
-      <div className="flex justify-between mt-4 items-center">
-        <span>{total} entries</span>
+        {error && <div className="text-red-600">Error: {error}</div>}
 
-        <div className="flex items-center gap-1">
-          <button
-            disabled={page === 1}
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-            className={`px-3 py-1 rounded ${
-              page === 1
-                ? "bg-gray-200 text-gray-400"
-                : "bg-gray-100 hover:bg-gray-200"
-            }`}
-          >
-            Prev
-          </button>
+        {hasLoadedOnce && filteredData.length === 0 && !error && !loading && (
+          <div className="text-center py-6 text-gray-600">
+            {lang("common.noData")}
+          </div>
+        )}
 
-          {(() => {
-            const windowSize = 3;
-            const windowIndex = Math.floor((page - 1) / windowSize);
-            const start = windowIndex * windowSize + 1;
-            const end = Math.min(totalPages, start + windowSize - 1);
-
-            const list = [];
-            for (let i = start; i <= end; i++) list.push(i);
-
-            return list.map((i) => (
-              <button
-                key={i}
-                onClick={() => setPage(i)}
-                className={`w-8 h-8 rounded ${
-                  page === i
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-100 hover:bg-gray-200"
-                }`}
-              >
-                {i}
-              </button>
-            ));
-          })()}
-
-          <button
-            disabled={page === totalPages}
-            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-            className={`px-3 py-1 rounded ${
-              page === totalPages
-                ? "bg-gray-200 text-gray-400"
-                : "bg-gray-100 hover:bg-gray-200"
-            }`}
-          >
-            Next
-          </button>
-        </div>
+        {hasLoadedOnce && (
+          <>
+            <Table
+              data={filteredData}
+              columns={columns}
+              disablePagination={false}
+              onSearchChange={setSearchTerm}
+              serverSideTotal={pagination.total}
+              initialPageSize={PAGE_SIZE}
+            />
+            {loading && (
+              <div className="absolute inset-0 bg-white/70 flex items-center justify-center text-gray-600">
+                Refreshing...
+              </div>
+            )}
+          </>
+        )}
       </div>
     </div>
   );
 };
 
-export default SavingReports;
+export default RoiReports;

@@ -229,8 +229,6 @@ export default function AddModal({ open, onClose }) {
         status: Number(status),
       };
 
-      console.log("Submitting add project payload:", payload);
-
       const res = await apiPost("/api/projects/AddProject", payload);
 
       if (!res || !res.success) {

@@ -62,8 +62,6 @@ const RegisterForm = ({loginPath}) => {
             const data = await apiGet(`/api/auth/check-username?${qs}`, {
                 showLoader: false // Don't show global loader for this background check
             })
-            
-            console.log('Username check response:', data)
 
             if (data.success && !data.available) {
                 setUsernameError(lang('validation.usernameAlreadyExists'))

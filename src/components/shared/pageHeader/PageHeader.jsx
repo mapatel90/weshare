@@ -27,7 +27,6 @@ const PageHeader = ({ children }) => {
             fileName = pathParts[2] ? lang(`menu.${pathParts[2]}`, pathParts[2]) : ""
         }
     }
-    console.log(folderName, fileName)
     return (
         <div className="page-header">
             <div className="page-header-left d-flex align-items-center">
