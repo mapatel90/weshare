@@ -77,21 +77,20 @@ const ContractsDetails = ({ contractId }) => {
     if (!contract) {
         return <div className="p-8 text-center text-red-500">Contract not found.</div>;
     }
-
     return (
         <div className="min-h-full bg-gradient-to-br from-slate-50 to-slate-100 p-6 flex flex-col items-center">
             <div className="w-full">
                 <div className="bg-white rounded-xl p-8 mb-8">
-                    <h1 className="text-3xl font-bold mb-4 text-gray-900 border-b pb-2">{contract.contractTitle}</h1>
+                    <h1 className="text-3xl font-bold mb-4 text-gray-900 border-b pb-2">{contract.contract_title}</h1>
                     <div className="mb-6">
                         <h2 className="text-lg font-semibold mb-2 text-gray-800">Contract Summary</h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 mt-4 gap-6">
                             <div>
-                                <Field label={lang('psrojects.projectName', 'Contract Name')} value={contract.project.project_name} />
-                                <Field label={lang('prsojects.projectType', 'Contract Description')} value={contract.contractDescription} />
+                                <Field label={lang('psrojects.projectName', 'Contract Name')} value={contract.projects?.project_name} />
+                                <Field label={lang('prsojects.projectType', 'Contract Description')} value={contract.contract_description} />
                             </div>
                             <div>
-                                <Field label={lang('prosjects.selectOfftaker', 'Contract Date')} value={`${contract.contractDate ? new Date(contract.contractDate).toLocaleDateString('en-GB') : '-'}`.trim()} />
+                                <Field label={lang('prosjects.selectOfftaker', 'Contract Date')} value={`${contract.contract_date ? new Date(contract.contract_date).toLocaleDateString('en-GB') : '-'}`.trim()} />
                                 <Field label={lang('prosjects.selectOfftaker', 'Contract Document')} value={
                                     contract.documentUpload ? (
                                         <a
@@ -115,25 +114,24 @@ const ContractsDetails = ({ contractId }) => {
                         {/* <h2 className="text-xl font-semibold mb-2 text-blue-700">{contract.project.project_name}</h2> */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <Field label={lang('projects.projectName', 'Project Name')} value={contract.project.project_name} />
-                                <Field label={lang('projects.projectType', 'Project Type')} value={contract.project.project_type} />
-                                <Field label={lang('meter.meterName', 'Meter Name')} value={contract.project.meter_name} />
-                                <Field label={lang('projects.sim_number', 'SIM Number')} value={contract.project.sim_number} />
+                                <Field label={lang('projects.projectName', 'Project Name')} value={contract.projects?.project_name} />
+                                <Field label={lang('projects.projectType', 'Project Type')} value={contract.projects?.project_type} />
+                                <Field label={lang('meter.meterUrl', 'Meter Url')} value={contract.projects?.meter_url ? contract.projects?.meter_url : '-'} />
+                                <Field label={lang('projects.sim_number', 'SIM Number')} value={contract.projects?.sim_number ? contract.projects?.sim_number : '-'} />
                             </div>
                             <div>
-                                <Field label={lang('projects.status', 'Status')} value={contract.project.status === 1 ? lang('projects.active', 'Active') : lang('projects.inactive', 'Inactive')} />
-                                <Field label={lang('projects.weshareprofite', 'Weshare profite')} value={contract.project.weshare_profit} />
-                                <Field label={lang('meter.meterNumber', 'Meter Number')} value={contract.project.meter_number} />
+                                <Field label={lang('projects.status', 'Status')} value={contract.projects?.status === 1 ? lang('projects.active', 'Active') : lang('projects.inactive', 'Inactive')} />
+                                <Field label={lang('projects.weshareprofite', 'Weshare profite')} value={contract.projects?.weshare_profit} />
                             </div>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-6">
-                            <Field label={lang('projects.country', 'Country')} value={contract.project.country?.name} />
-                            <Field label={lang('projects.state', 'State')} value={contract.project.state?.name} />
-                            <Field label={lang('projects.city', 'City')} value={contract.project.city?.name} />
-                            <Field label={lang('projects.zipcode', 'Zip Code')} value={contract.project.zipcode} />
+                            <Field label={lang('projects.country', 'Country')} value={contract.projects?.countries?.name} />
+                            <Field label={lang('projects.state', 'State')} value={contract.projects?.states?.name} />
+                            <Field label={lang('projects.city', 'City')} value={contract.projects?.cities?.name} />
+                            <Field label={lang('projects.zipcode', 'Zip Code')} value={contract.projects?.zipcode} />
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                            <Field label={lang('projects.addressLine1', 'Address Line 1')} value={contract.project.address_1} />
+                            <Field label={lang('projects.addressLine1', 'Address Line 1')} value={contract.projects?.address_1} />
                             {/* <Field label={lang('projects.addressLine2', 'Address Line 2')} value={contract.project.address_2} /> */}
                         </div>
                         {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">

@@ -93,9 +93,9 @@ const ContractsView = () => {
 
 
     const ContractCard = ({ contract }) => {
-        const title = contract.contractTitle || 'No Title';
-        const description = contract.contractDescription || '';
-        const date = contract.contractDate ? new Date(contract.contractDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+        const title = contract.contract_title ? contract.contract_title : '-';
+        const description = contract.contract_description ? contract.contract_description : '-';
+        const date = contract.contract_date ? new Date(contract.contract_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
         const initials = getInitials(title);
 
         return (

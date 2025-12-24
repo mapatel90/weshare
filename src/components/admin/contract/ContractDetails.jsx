@@ -36,28 +36,27 @@ const ContractDetails = () => {
     fetchData();
   }, [contractId, lang]);
 
-  const contractName = data?.contractTitle || "-";
-  const contractStatus = 
-    data?.status === 0 ? "Pending" : 
-    data?.status === 1 ? "Active" : 
-    data?.status === 2 ? "Inactive" : "-";
-  const contractDate = data?.contractDate
-    ? new Date(data.contractDate).toLocaleDateString("en-GB")
+  const contractName = data?.contract_title || "-";
+  const contractStatus =
+    data?.status === 0 ? "Pending" :
+      data?.status === 1 ? "Active" :
+        data?.status === 2 ? "Inactive" : "-";
+  const contractDate = data?.contract_date
+    ? new Date(data.contract_date).toLocaleDateString("en-GB")
     : "-";
-  const contractDescription = data?.contractDescription || "-";
-  const documentUrl = data?.documentUpload;
+  const contractDescription = data?.contract_description || "-";
+  const documentUrl = data?.document_upload || "-";
 
-  const project = data?.project || {};
+  const project = data?.projects || {};
   const projectName = project?.project_name || "-";
   const projectStatus = project?.status === 1 ? "Active" : project?.status === 0 ? "Inactive" : "-";
-  const projectType = project?.projectType?.name || "-";
+  const projectType = project?.project_type?.name || "-";
   const weshareProfile = project?.weshare_profit || "-";
-  const meterName = project?.meter_name || "-";
-  const meterNumber = project?.meter_number || "-";
+  const meterUrl = project?.meter_url || "-";
   const simNumber = project?.sim_number || "-";
-  const country = project?.country?.name || project?.country_name || "-";
-  const state = project?.state?.name || project?.state_name || "-";
-  const city = project?.city?.name || project?.city_name || "-";
+  const country = project?.countries?.name || "-";
+  const state = project?.states?.name || "-";
+  const city = project?.cities?.name || "-";
   const zipcode = project?.zipcode || "-";
   const addressLine1 = project?.address_1 || project?.address_line1 || "-";
 
@@ -80,14 +79,13 @@ const ContractDetails = () => {
         <>
           <div className="d-flex justify-content-between align-items-center mb-4">
             <h3 className="fw-bold mb-0">{contractName}</h3>
-            <span 
-              className={`badge px-3 py-2 shadow-sm ${
-                data?.status === 0 
-                  ? 'bg-warning text-white' 
-                  : data?.status === 1 
-                  ? 'bg-success text-white' 
-                  : 'bg-danger text-white'
-              }`} 
+            <span
+              className={`badge px-3 py-2 shadow-sm ${data?.status === 0
+                  ? 'bg-warning text-white'
+                  : data?.status === 1
+                    ? 'bg-success text-white'
+                    : 'bg-danger text-white'
+                }`}
               style={{ fontSize: "0.9rem" }}
             >
               {contractStatus}
@@ -97,22 +95,22 @@ const ContractDetails = () => {
           {/* Contract Summary Section */}
           <div className="card shadow-sm mb-4">
             <div className="card-body">
-              <h5 className="fw-bold mb-4">Contract Summary</h5>
+              <h5 className="fw-bold mb-4">{lang('contract.contract_summary', 'Contract Summary')}</h5>
               <div className="row g-4">
                 <div className="col-md-6">
-                  <div className="mb-1 text-muted">Contract Name</div>
+                  <div className="mb-1 text-muted">{lang('contract.title', 'Contract Name')}</div>
                   <div style={{ color: "#8B4513" }}>{contractName}</div>
                 </div>
                 <div className="col-md-6">
-                  <div className="mb-1 text-muted">Contract Date</div>
+                  <div className="mb-1 text-muted">{lang('contract.date', 'Contract Date')}</div>
                   <div>{contractDate}</div>
                 </div>
                 <div className="col-md-6">
-                  <div className="mb-1 text-muted">Contract Description</div>
+                  <div className="mb-1 text-muted">{lang('contract.description', 'Contract Description')}</div>
                   <div>{contractDescription}</div>
                 </div>
                 <div className="col-md-6">
-                  <div className="mb-1 text-muted">Contract Document</div>
+                  <div className="mb-1 text-muted">{lang('contract.document', 'Contract Document')}</div>
                   {documentUrl ? (
                     <a
                       href={documentUrl}
@@ -134,55 +132,50 @@ const ContractDetails = () => {
           {/* Project Information Section */}
           <div className="card shadow-sm mb-4">
             <div className="card-body">
-              <h5 className="fw-bold mb-4">Project Information</h5>
+              <h5 className="fw-bold mb-4">{lang('projectView.projectInformation.project_Information', 'Project Information')}</h5>
               <div className="row g-4">
                 <div className="col-md-6">
-                  <div className="mb-1 text-muted">Project Name</div>
+                  <div className="mb-1 text-muted">{lang('projects.projectName', 'Project Name')}</div>
                   <div style={{ color: "#8B4513" }}>{projectName}</div>
                 </div>
                 <div className="col-md-6">
-                  <div className="mb-1 text-muted">Status</div>
+                  <div className="mb-1 text-muted">{lang('projects.status', 'Status')}</div>
                   <div>{projectStatus}</div>
                 </div>
                 <div className="col-md-6">
-                  <div className="mb-1 text-muted">Project Type</div>
+                  <div className="mb-1 text-muted">{lang('projects.projectType', 'Project Type')}</div>
                   <div>{projectType}</div>
                 </div>
                 <div className="col-md-6">
-                  <div className="mb-1 text-muted">Weshare profile</div>
+                  <div className="mb-1 text-muted">{lang('projects.weshareprofite', 'Weshare profite')}</div>
                   <div>{weshareProfile}</div>
                 </div>
                 <div className="col-md-6">
-                  <div className="mb-1 text-muted">Meter Name</div>
-                  <div>{meterName}</div>
+                  <div className="mb-1 text-muted">{lang('meter.meterUrl', 'Meter Url')}</div>
+                  <div>{meterUrl}</div>
                 </div>
                 <div className="col-md-6">
-                  <div className="mb-1 text-muted">Meter Number</div>
-                  <div>{meterNumber}</div>
-                </div>
-                <div className="col-md-6">
-                  <div className="mb-1 text-muted">SIM Number</div>
+                  <div className="mb-1 text-muted">{lang('projects.sim_number', 'SIM Number')}</div>
                   <div>{simNumber}</div>
                 </div>
-                <div className="col-md-6"></div>
                 <div className="col-md-3">
-                  <div className="mb-1 text-muted">Country</div>
+                  <div className="mb-1 text-muted">{lang('projects.country', 'Country')}</div>
                   <div>{country}</div>
                 </div>
                 <div className="col-md-3">
-                  <div className="mb-1 text-muted">State</div>
+                  <div className="mb-1 text-muted">{lang('projects.state', 'State')}</div>
                   <div>{state}</div>
                 </div>
                 <div className="col-md-3">
-                  <div className="mb-1 text-muted">City</div>
+                  <div className="mb-1 text-muted">{lang('projects.city', 'City')}</div>
                   <div>{city}</div>
                 </div>
                 <div className="col-md-3">
-                  <div className="mb-1 text-muted">Zipcode</div>
+                  <div className="mb-1 text-muted">{lang('projects.zipcode', 'Zip Code')}</div>
                   <div>{zipcode}</div>
                 </div>
                 <div className="col-md-12">
-                  <div className="mb-1 text-muted">Address Line 1</div>
+                  <div className="mb-1 text-muted">{lang('projects.addressLine1', 'Address Line 1')}</div>
                   <div>{addressLine1}</div>
                 </div>
               </div>

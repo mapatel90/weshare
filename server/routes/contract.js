@@ -151,7 +151,7 @@ router.get("/", async (req, res) => {
         : null;
 
       const orFilters = [
-        { contractTitle: { contains: trimmedSearch, mode: "insensitive" } },
+        { contract_title: { contains: trimmedSearch, mode: "insensitive" } },
         { projects: { project_name: { contains: trimmedSearch, mode: "insensitive" } } },
         { users: { full_name: { contains: trimmedSearch, mode: "insensitive" } } },
         { interested_investors: { fullName: { contains: trimmedSearch, mode: "insensitive" } } },
@@ -172,8 +172,8 @@ router.get("/", async (req, res) => {
     // Fallback for single-day search with no results
     if (totalCount === 0 && hasStart && !hasEnd) {
       const fallbackDate = { gte: new Date(`${startDate}T00:00:00.000Z`) };
-      where = { ...where, contractDate: fallbackDate };
-      totalCount = await prisma.contract.count({ where });
+      where = { ...where, contract_date: fallbackDate };
+      totalCount = await prisma.contracts.count({ where });
     }
 
     const skip = (Number(page) - 1) * (limitNumber || 20);
