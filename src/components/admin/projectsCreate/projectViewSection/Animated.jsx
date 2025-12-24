@@ -159,7 +159,7 @@ export default function SolarEnergyFlow({ inverters = [], isDark = false, projec
                     color: colors.textMuted,
                   }}
                 >
-                  Today Yield : {project?.day_energy} ~ {project?.day_in_come}
+                  Today Yield : {project?.day_energy}Kwh ~ {project?.day_in_come}K VND
                 </div>
               </div>
               <div
@@ -182,7 +182,7 @@ export default function SolarEnergyFlow({ inverters = [], isDark = false, projec
                     color: "#FACC15",
                   }}
                 />
-                <div style={{ fontSize: 8 }}>{project?.power}</div>
+                <div style={{ fontSize: 12,color: "#666", fontWeight: "bold" }}>{project?.power} kw</div>
               </div>
             </div>
 
@@ -223,7 +223,7 @@ export default function SolarEnergyFlow({ inverters = [], isDark = false, projec
                     color: "#F87171",
                   }}
                 />
-                <div style={{ fontSize: 8 }}>{project?.p_sum}</div>
+                <div style={{ fontSize: 12,color: "#666", fontWeight: "bold" }}>{project?.p_sum} kw</div>
               </div>
               <div style={{ width: 4, height: 50, background: "#EF4444" }} />
               <div style={{ flex: 1, minWidth: 0 }}>
@@ -242,7 +242,7 @@ export default function SolarEnergyFlow({ inverters = [], isDark = false, projec
                     color: colors.textMuted,
                   }}
                 >
-                  Today Imported : {project?.grid_purchased_day_energy}
+                  Today Imported : {project?.grid_purchased_day_energy} kwh
                 </div>
                 <div
                   style={{
@@ -352,7 +352,7 @@ export default function SolarEnergyFlow({ inverters = [], isDark = false, projec
                     color: "#FB923C",
                   }}
                 />
-                <div style={{ fontSize: 8 }}>{project?.family_load_power}</div>
+                <div style={{ fontSize: 12, color: "#666", fontWeight: "bold" }}>{project?.family_load_power} kw</div>
               </div>
               <div style={{ width: 4, height: 35, background: "#FB923C" }} />
               <div style={{ flex: 1, minWidth: 0 }}>
@@ -371,7 +371,7 @@ export default function SolarEnergyFlow({ inverters = [], isDark = false, projec
                     color: colors.textMuted,
                   }}
                 >
-                  Today Consumed : {project?.home_load_today_energy}
+                  Today Consumed : {project?.home_load_today_energy} Kwh
                 </div>
               </div>
             </div>
