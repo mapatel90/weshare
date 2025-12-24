@@ -422,9 +422,8 @@ const MeterInfo = ({
                     {c.users?.role_id === 3
                       ? `Offtaker: ${c.users.full_name}`
                       : ""}
-                    {c.users?.role_id === 4
-                      ? ` ${c.users ? "·" : ""} Investor: ${c.users.full_name
-                      }`
+                    {c.interested_investors
+                      ? `Investor: ${c.interested_investors.full_name}`
                       : ""}
                   </div>
 
