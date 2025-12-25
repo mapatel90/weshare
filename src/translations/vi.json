@@ -1361,5 +1361,14 @@
     "viewDetails": "Xem chi tiết",
     "investNow": "Đầu tư ngay",
     "noProjects": "Hiện không có dự án nào"
+  },
+  "animated": {
+    "powerflow": "Dòng điện",
+    "dataReportingTime": "Thời gian báo cáo dữ liệu",
+    "todayYield": "Sản lượng hôm nay",
+    "todayImported": "Hôm nay nhập khẩu",
+    "todayExported": "Hôm nay đã xuất khẩu",
+    "consumed": "Tiêu thụ",
+    "grid": "Lưới điện"
   }
 }

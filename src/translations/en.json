@@ -1411,5 +1411,14 @@
     "viewDetails": "View Details",
     "investNow": "Invest Now",
     "noProjects": "No projects available"
+  },
+  "animated": {
+    "powerflow": "Power Flow",
+    "dataReportingTime": "Data Reporting Time",
+    "todayYield": "Today Yield",
+    "todayImported": "Today Imported",
+    "todayExported": "Today Exported",
+    "consumed": "Consumed",
+    "grid": "Grid"
   }
 }

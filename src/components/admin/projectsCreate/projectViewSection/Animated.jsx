@@ -104,7 +104,7 @@ export default function SolarEnergyFlow({
           marginBottom: 12,
         }}
       >
-        {lang("powerflow.title", "Power Flow")}
+        {lang("animated.powerflow", "Power Flow")}
       </div>
 
       <div
@@ -134,7 +134,7 @@ export default function SolarEnergyFlow({
               strokeWidth="2"
               fill="none"
             />
-            <Arrow path="#pvPath" color="#FACC15" />
+            {project?.power > 0 && <Arrow path="#pvPath" color="#FACC15" />}
           </g>
 
           <g transform="translate(-335, -54)">
@@ -146,7 +146,7 @@ export default function SolarEnergyFlow({
               strokeWidth="2"
               fill="none"
             />
-            <Arrow path="#gridPath" color="#EF4444" />
+            {Math.abs(project?.p_sum) > 0 && <Arrow path="#gridPath" color="#EF4444" />}
           </g>
 
           <g transform="translate(-335, -82)">
@@ -157,7 +157,7 @@ export default function SolarEnergyFlow({
               strokeWidth="2"
               fill="none"
             />
-            <Arrow path="#consumePath" color="#FB923C" />
+            {project?.family_load_power > 0 && <Arrow path="#consumePath" color="#FB923C" />}
           </g>
         </svg>
 
@@ -382,23 +382,34 @@ export default function SolarEnergyFlow({
         >
           {/* Header */}
           <div
-            style={{ fontSize: 13, color: colors.textMuted, marginBottom: 20 }}
+            style={{ fontSize: 17, fontWeight: "bold", color: colors.text, marginBottom: 20 }}
           >
-            Data Reporting Time : 18/12/2025 12:36:18 (UTC+07:00) 3Min Ago
+            {lang("animated.dataReportingTime", "Data Reporting Time")} :
           </div>
+
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              width: "100%",
+            }}
+          >
 
           <div
             style={{
               width: "100%",
               height: isSmallScreen ? 350 : 410,
               position: "relative",
+              maxWidth: 1100,
+              margin: "0 auto",
             }}
           >
             {/* ================= PV ================= */}
             <div
               style={{
                 position: "absolute",
-                left: isSmallScreen ? 35 : 5,
+                left: isSmallScreen ? 35 : 40,
                 top: isSmallScreen ? 10 : 45,
                 width: isSmallScreen ? 220 : 400,
                 padding: isSmallScreen ? 12 : 15,
@@ -429,7 +440,7 @@ export default function SolarEnergyFlow({
                     color: colors.textMuted,
                   }}
                 >
-                  Today Yield : {project?.day_energy}Kwh ~{" "}
+                  {lang("animated.todayYield", "Today Yield")} : {project?.day_energy}Kwh ~{" "}
                   {project?.day_in_come}K VND
                 </div>
               </div>
@@ -480,7 +491,7 @@ export default function SolarEnergyFlow({
                 display: "flex",
                 alignItems: "center",
                 gap: isSmallScreen ? 8 : 12,
-                left: isSmallScreen ? 431 : 577,
+                left: isSmallScreen ? 431 : 615,
                 right: isSmallScreen ? "auto" : "auto",
               }}
             >
@@ -523,7 +534,7 @@ export default function SolarEnergyFlow({
                     color: colors.text,
                   }}
                 >
-                  Grid
+                  {lang("animated.grid", "Grid")}
                 </div>
                 <div
                   style={{
@@ -531,7 +542,7 @@ export default function SolarEnergyFlow({
                     color: colors.textMuted,
                   }}
                 >
-                  Today Imported : {project?.grid_purchased_day_energy} kwh
+                  {lang("animated.todayImported", "Today Imported")} : {project?.grid_purchased_day_energy} kwh
                 </div>
                 <div
                   style={{
@@ -540,7 +551,7 @@ export default function SolarEnergyFlow({
                     display: isSmallScreen ? "none" : "block",
                   }}
                 >
-                  Today Exported : 0kWh
+                  {lang("animated.todayExported", "Today Exported")} : 0kWh
                 </div>
               </div>
             </div>
@@ -553,8 +564,8 @@ export default function SolarEnergyFlow({
                   screenSize === "tablet"
                     ? 345
                     : screenSize === "laptop" || screenSize === "pc"
-                    ? 496
-                    : 496,
+                    ? 530
+                    : 530,
                 top:
                   screenSize === "tablet"
                     ? 125
@@ -598,8 +609,8 @@ export default function SolarEnergyFlow({
                   screenSize === "tablet"
                     ? 432
                     : screenSize === "laptop" || screenSize === "pc"
-                    ? 577
-                    : 577,
+                    ? 615
+                    : 615,
                 top:
                   screenSize === "tablet"
                     ? 238
@@ -662,7 +673,7 @@ export default function SolarEnergyFlow({
                     color: colors.text,
                   }}
                 >
-                  Consumed
+                  {lang("animated.consumed", "Consumed")}
                 </div>
                 <div
                   style={{
@@ -670,7 +681,7 @@ export default function SolarEnergyFlow({
                     color: colors.textMuted,
                   }}
                 >
-                  Today Consumed : {project?.home_load_today_energy} Kwh
+                  {lang("animated.consumed", "Consumed")} : {project?.home_load_today_energy} Kwh
                 </div>
               </div>
             </div>
@@ -690,7 +701,7 @@ export default function SolarEnergyFlow({
                 transform={
                   screenSize === "tablet"
                     ? "translate(-140, -55)"
-                    : "translate(8, 0)"
+                    : "translate(42, 0)"
                 }
               >
                 <path
@@ -700,29 +711,29 @@ export default function SolarEnergyFlow({
                   strokeWidth="2"
                   fill="none"
                 />
-                <Arrow path="#pvPath" color="#FACC15" />
+                {project?.power > 0 && <Arrow path="#pvPath" color="#FACC15" />}
               </g>
 
               <g
                 transform={
-                  screenSize === "tablet" ? "translate(-148, -54)" : ""
+                  screenSize === "tablet" ? "translate(-148, -54)" : "translate(40, 0)"
                 }
               >
                 <path
                   id="gridPath"
-                  d="M 593 105 L 525 105 Q 505 105 505 125 L 505 182"
+                  d={ screenSize === "tablet" ? "M 593 105 L 525 105 Q 505 105 505 125 L 505 183" : "M 593 105 L 525 105 Q 505 105 505 125 L 505 185"}
                   stroke="#EF4444"
                   strokeWidth="2"
                   fill="none"
                 />
-                <Arrow path="#gridPath" color="#EF4444" />
+                {Math.abs(project?.p_sum) > 0 && <Arrow path="#gridPath" color="#EF4444" />}
               </g>
 
               <g
                 transform={
                   screenSize === "tablet"
                     ? "translate(-148, -98)"
-                    : "translate(0, -10)"
+                    : "translate(40, -10)"
                 }
               >
                 <path
@@ -732,9 +743,10 @@ export default function SolarEnergyFlow({
                   strokeWidth="2"
                   fill="none"
                 />
-                <Arrow path="#consumePath" color="#FB923C" />
+                {project?.family_load_power > 0 && <Arrow path="#consumePath" color="#FB923C" />}
               </g>
             </svg>
+          </div>
           </div>
         </div>
       )}
