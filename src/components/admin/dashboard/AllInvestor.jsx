@@ -5,8 +5,9 @@ import CardHeader from "@/components/shared/CardHeader";
 import useCardTitleActions from "@/hooks/useCardTitleActions";
 import CardLoader from "@/components/shared/CardLoader";
 import { apiGet } from "@/lib/api";
+import { useLanguage } from "@/contexts/LanguageContext";
 
-const AllInvestor = ({ title = "All Investors" }) => {
+const AllInvestor = ({ title }) => {
   const {
     refreshKey,
     isRemoved,
@@ -16,6 +17,8 @@ const AllInvestor = ({ title = "All Investors" }) => {
     handleDelete,
   } = useCardTitleActions();
   const [investors, setInvestors] = useState([]);
+  const { lang } = useLanguage();
+  const cardTitle = title || lang('reports.allinvestors', 'All Investors');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -50,7 +53,7 @@ const AllInvestor = ({ title = "All Investors" }) => {
           isExpanded ? "card-expand" : ""
         } ${refreshKey ? "card-loading" : ""}`}
       >
-        <CardHeader title={title} />
+        <CardHeader title={cardTitle} />
         <div className="card-body custom-card-action p-0">
           {loading ? (
             <div className="p-4 text-center text-muted">Loading...</div>

@@ -6,8 +6,11 @@ import useCardTitleActions from "@/hooks/useCardTitleActions";
 import CardLoader from "@/components/shared/CardLoader";
 import HorizontalProgress from "@/components/shared/HorizontalProgress";
 import { apiGet } from "@/lib/api";
+import { useLanguage } from "@/contexts/LanguageContext";
 
-const AllProjects = ({ title = "All Projects" }) => {
+const AllProjects = ({ title }) => {
+  const { lang } = useLanguage();
+  const cardTitle = title || lang('reports.allprojects', 'All Projects');
   const {
     refreshKey,
     isRemoved,
@@ -47,11 +50,9 @@ const AllProjects = ({ title = "All Projects" }) => {
   return (
     <div className="col-xxl-4">
       <div
-        className={`card stretch stretch-full ${
-          isExpanded ? "card-expand" : ""
-        } ${refreshKey ? "card-loading" : ""}`}
+        className={`card stretch stretch-full ${isExpanded ? "card-expand" : ""} ${refreshKey ? "card-loading" : ""}`}
       >
-        <CardHeader title={title} viewHref="/admin/projects/list" />
+        <CardHeader title={cardTitle} viewHref="/admin/projects/list" />
         <div className="card-body custom-card-action p-0">
           {loading ? (
             <div className="p-4 text-center text-muted">Loading...</div>

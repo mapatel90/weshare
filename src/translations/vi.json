@@ -12,7 +12,9 @@
     "darkMode": "Chế độ tối",
     "lightMode": "Chế độ sáng",
     "fullScreen": "Toàn màn hình",
-    "changepassword": "Đổi mật khẩu"
+    "changepassword": "Đổi mật khẩu",
+    "statsOverview": "Tổng quan thống kê",
+    "statsDescription": "Tổng quan về Thống kê"
   },
   "navigation": {
     "navigation": "Điều hướng",
@@ -1307,8 +1309,13 @@
   },
   "reports": {
     "reports": "Báo cáo",
+    "allreports": "Tất cả báo cáo",
     "allprojects": "Tất cả dự án",
+    "all_lease_requests": "Tất cả yêu cầu thuê",
+    "allusers": "Tất cả người dùng",
+    "allcontracts": "Tất cả hợp đồng",
     "allinverters": "Tất cả bộ biến tần",
+    "allinvestors": "Tất cả nhà đầu tư",
     "downloadcsv": "Tải xuống CSV",
     "dailyYield": "Sản lượng hàng ngày",
     "annualYield": "Sản lượng hàng năm",

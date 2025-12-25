@@ -5,8 +5,9 @@ import CardHeader from "@/components/shared/CardHeader";
 import useCardTitleActions from "@/hooks/useCardTitleActions";
 import CardLoader from "@/components/shared/CardLoader";
 import { apiGet } from "@/lib/api";
+import { useLanguage } from "@/contexts/LanguageContext";
 
-const AllUsers = ({ title = "All Users" }) => {
+const AllUsers = ({ title }) => {
   const {
     refreshKey,
     isRemoved,
@@ -16,6 +17,8 @@ const AllUsers = ({ title = "All Users" }) => {
     handleDelete,
   } = useCardTitleActions();
   const [users, setUsers] = useState([]);
+  const { lang } = useLanguage();
+  const cardTitle = title || lang('reports.allusers', 'All Users');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -41,11 +44,10 @@ const AllUsers = ({ title = "All Users" }) => {
   return (
     <div className="col-xxl-4">
       <div
-        className={`card stretch stretch-full ${
-          isExpanded ? "card-expand" : ""
-        } ${refreshKey ? "card-loading" : ""}`}
+        className={`card stretch stretch-full ${isExpanded ? "card-expand" : ""
+          } ${refreshKey ? "card-loading" : ""}`}
       >
-        <CardHeader title={title} viewHref="/admin/users/list" />
+        <CardHeader title={cardTitle} viewHref="/admin/users/list" />
         <div className="card-body custom-card-action p-0">
           {loading ? (
             <div className="p-4 text-center text-muted">Loading...</div>

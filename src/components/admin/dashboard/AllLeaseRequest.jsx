@@ -5,8 +5,9 @@ import CardHeader from "@/components/shared/CardHeader";
 import useCardTitleActions from "@/hooks/useCardTitleActions";
 import CardLoader from "@/components/shared/CardLoader";
 import { apiGet } from "@/lib/api";
+import { useLanguage } from "@/contexts/LanguageContext";
 
-const AllLeaseRequest = ({ title = "All Lease Requests" }) => {
+const AllLeaseRequest = ({ title }) => {
   const {
     refreshKey,
     isRemoved,
@@ -16,6 +17,8 @@ const AllLeaseRequest = ({ title = "All Lease Requests" }) => {
     handleDelete,
   } = useCardTitleActions();
   const [leaseRequests, setLeaseRequests] = useState([]);
+  const { lang } = useLanguage();
+  const cardTitle = title || lang('reports.all_lease_requests', 'All Lease Requests');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -41,11 +44,10 @@ const AllLeaseRequest = ({ title = "All Lease Requests" }) => {
   return (
     <div className="col-xxl-4">
       <div
-        className={`card stretch stretch-full ${
-          isExpanded ? "card-expand" : ""
-        } ${refreshKey ? "card-loading" : ""}`}
+        className={`card stretch stretch-full ${isExpanded ? "card-expand" : ""
+          } ${refreshKey ? "card-loading" : ""}`}
       >
-        <CardHeader title={title} viewHref="/admin/lease-request/list" />
+        <CardHeader title={cardTitle} viewHref="/admin/lease-request/list" />
         <div className="card-body custom-card-action p-0">
           {loading ? (
             <div className="p-4 text-center text-muted">Loading...</div>
