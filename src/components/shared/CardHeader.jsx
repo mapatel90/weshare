@@ -1,9 +1,11 @@
 "use client";
+import { useLanguage } from "@/contexts/LanguageContext";
 import Link from "next/link";
 import React, { useState } from "react";
 
 const CardHeader = ({ title, viewHref }) => {
   const [hover, setHover] = useState(false);
+  const { lang } = useLanguage();
 
   return (
     <div className="card-header d-flex align-items-center justify-content-between mb-0">
@@ -27,7 +29,7 @@ const CardHeader = ({ title, viewHref }) => {
               transition: "all 0.2s ease",
             }}
           >
-            View All
+            {lang('common.viewAll', 'View All')}
           </div>
         </Link>
       )}

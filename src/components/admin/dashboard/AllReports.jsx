@@ -4,14 +4,17 @@ import CardHeader from "@/components/shared/CardHeader";
 import useCardTitleActions from "@/hooks/useCardTitleActions";
 import CardLoader from "@/components/shared/CardLoader";
 import { apiGet } from "@/lib/api";
+import { useLanguage } from "@/contexts/LanguageContext";
 
-const AllReports = ({ title = "All Reports" }) => {
+const AllReports = ({ title }) => {
   const {
     refreshKey,
     isRemoved,
     isExpanded,
   } = useCardTitleActions();
   const [reports, setReports] = useState([]);
+  const { lang } = useLanguage();
+  const cardTitle = title || lang('reports.allreports', 'All Reports');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -46,7 +49,7 @@ const AllReports = ({ title = "All Reports" }) => {
           isExpanded ? "card-expand" : ""
         } ${refreshKey ? "card-loading" : ""}`}
       >
-        <CardHeader title={title} viewHref="/admin/reports/saving" />
+        <CardHeader title={cardTitle} viewHref="/admin/reports/saving" />
         <div className="card-body custom-card-action p-0">
           {loading ? (
             <div className="p-4 text-center text-muted">Loading...</div>

@@ -12,7 +12,9 @@
     "darkMode": "Dark Mode",
     "lightMode": "Light Mode",
     "fullScreen": "Full Screen",
-    "changepassword": "Change Password"
+    "changepassword": "Change Password",
+    "statsOverview": "Stats Overview",
+    "statsDescription": "Overview of Stats"
   },
   "navigation": {
     "navigation": "Navigation",
@@ -336,7 +338,7 @@
     "timesheetsreport": "Timesheets Report",
     "blog": "Blog",
     "contact us": "Contact Us",
-    "lease request": "Lease Request",
+    "lease_request": "Lease Request",
     "savingreports": "Saving Reports",
     "conjunctionreports": "Conjunction Reports",
     "roireports": "ROI Reports",
@@ -1357,8 +1359,13 @@
   },
   "reports": {
     "reports": "Reports",
+    "allreports": "All Reports",
     "allprojects": "All Projects",
+    "all_lease_requests": "All Lease Requests",
+    "allusers": "All Users",
+    "allcontracts": "All Contracts",
     "allinverters": "All Inverters",
+    "allinvestors": "All Investors",
     "downloadcsv": "Download CSV",
     "dailyYield": "Daily Yield",
     "annualYield": "Annual Yield",
