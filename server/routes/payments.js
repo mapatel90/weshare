@@ -7,10 +7,10 @@ const router = express.Router();
 // List payments (exclude soft-deleted)
 router.get('/', authenticateToken, async (req, res) => {
   try {
-    const items = await prisma.payment.findMany({
+    const items = await prisma.payments.findMany({
       where: { is_deleted: 0 },
       orderBy: { id: 'desc' },
-      include: { offtaker: true }
+      include: { users: true }
     });
     res.json({ success: true, data: items });
   } catch (error) {
@@ -22,10 +22,10 @@ router.get('/', authenticateToken, async (req, res) => {
 router.post('/', authenticateToken, async (req, res) => {
   try {
     const { invoice_id, offtaker_id, amount, status } = req.body;
-    if (!offtaker_id || !amount) {
-      return res.status(400).json({ success: false, message: 'offtaker_id and amount are required' });
+    if (!offtaker_id) {
+      return res.status(400).json({ success: false, message: 'offtaker_id is required' });
     }
-    const created = await prisma.payment.create({
+    const created = await prisma.payments.create({
       data: {
         invoice_id: parseInt(invoice_id ?? 0),
         offtaker_id: parseInt(offtaker_id),
@@ -44,7 +44,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
     const { invoice_id, offtaker_id, amount, status } = req.body;
-    const updated = await prisma.payment.update({
+    const updated = await prisma.payments.update({
       where: { id: parseInt(id) },
       data: {
         ...(invoice_id !== undefined && { invoice_id: parseInt(invoice_id) }),
@@ -63,7 +63,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
 router.patch('/:id/soft-delete', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
-    await prisma.payment.update({
+    await prisma.payments.update({
       where: { id: parseInt(id) },
       data: { is_deleted: 1 }
     });
