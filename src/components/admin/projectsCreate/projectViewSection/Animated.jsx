@@ -3,7 +3,11 @@ import React, { useState, useEffect } from "react";
 import { FiSun, FiZap, FiActivity, FiHome } from "react-icons/fi";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-export default function SolarEnergyFlow({ inverters = [], isDark = false, project = {} }) {
+export default function SolarEnergyFlow({
+  inverters = [],
+  isDark = false,
+  project = {},
+}) {
   // Get first 4 inverters (regardless of status)
   const displayInverters = inverters.slice(0, 4);
 
@@ -78,6 +82,265 @@ export default function SolarEnergyFlow({ inverters = [], isDark = false, projec
     </path>
   );
 
+  // Mobile-only simple power-flow view (keeps desktop/tablet UI unchanged)
+  const MobilePowerFlow = () => (
+    <div
+      style={{
+        backgroundColor: colors.cardBg,
+        borderRadius: 12,
+        border: `1px solid ${colors.borderLight}`,
+        padding: 16,
+        boxShadow: isDark
+          ? "0 0 20px rgba(14, 32, 56, 0.3)"
+          : "0 1px 3px rgba(0,0,0,0.1)",
+        marginBottom: 12,
+      }}
+    >
+      <div
+        style={{
+          fontSize: 16,
+          fontWeight: 700,
+          color: colors.text,
+          marginBottom: 12,
+        }}
+      >
+        {lang("powerflow.title", "Power Flow")}
+      </div>
+
+      <div
+        style={{
+          position: "relative",
+          height: 400,
+          maxWidth: 360,
+          margin: "0 auto",
+        }}
+      >
+        <svg
+          viewBox="0 0 360 320"
+          width="360"
+          height="320"
+          style={{
+            position: "absolute",
+            inset: 0,
+            pointerEvents: "none",
+          }}
+        >
+          <g transform="translate(-325, -55)">
+            <path
+              id="pvPath"
+              // d="M 431 105 L 450 105 Q 470 105 470 125 L 470 186"
+              d="M 381 105 L 450 105 Q 470 105 470 125 L 470 188"
+              stroke="#FACC15"
+              strokeWidth="2"
+              fill="none"
+            />
+            <Arrow path="#pvPath" color="#FACC15" />
+          </g>
+
+          <g transform="translate(-335, -54)">
+            <path
+              id="gridPath"
+              // d="M 543 105 L 525 105 Q 505 105 505 125 L 505 182"
+              d="M 593 105 L 525 105 Q 505 105 505 125 L 505 188"
+              stroke="#EF4444"
+              strokeWidth="2"
+              fill="none"
+            />
+            <Arrow path="#gridPath" color="#EF4444" />
+          </g>
+
+          <g transform="translate(-335, -82)">
+            <path
+              id="consumePath"
+              d="M 505 274 L 505 350 Q 505 380 535 380 L 594 380"
+              stroke="#FB923C"
+              strokeWidth="2"
+              fill="none"
+            />
+            <Arrow path="#consumePath" color="#FB923C" />
+          </g>
+        </svg>
+
+        <div
+          style={{
+            position: "absolute",
+            top: 12,
+            left: 0,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 6,
+          }}
+        >
+          <div
+            style={{
+              height: 85,
+              width: 85,
+              borderRadius: "50%",
+              border: "2px solid #FACC15",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              background: colors.cardBg,
+              flexShrink: 0,
+            }}
+          >
+            <FiSun
+              style={{
+                fontSize: 25,
+                color: "#FACC15",
+              }}
+            />
+            <div style={{ fontSize: 10, color: "#666", fontWeight: "bold" }}>
+              {project?.power} kw
+            </div>
+          </div>
+
+          <div
+            style={{
+              padding: "4px 10px",
+              borderRadius: 8,
+              background: isDark ? "#1f2937" : "#f3f4f6",
+              color: colors.text,
+              fontSize: 12,
+              fontWeight: 600,
+            }}
+          >
+            PV
+          </div>
+        </div>
+
+        <div
+          style={{
+            position: "absolute",
+            top: 12,
+            // left: 220,
+            right: 0,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 6,
+          }}
+        >
+          <div
+            style={{
+              height: 85,
+              width: 85,
+              borderRadius: "50%",
+              border: "2px solid #F87171",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              background: colors.cardBg,
+              flexShrink: 0,
+            }}
+          >
+            <FiZap
+              style={{
+                fontSize: 25,
+                color: "#F87171",
+              }}
+            />
+            <div style={{ fontSize: 10, color: "#666", fontWeight: "bold" }}>
+              {Math.abs(project?.p_sum || 0)} kw
+            </div>
+          </div>
+
+          <div
+            style={{
+              padding: "4px 10px",
+              borderRadius: 8,
+              background: isDark ? "#1f2937" : "#f3f4f6",
+              color: colors.text,
+              fontSize: 12,
+              fontWeight: 600,
+            }}
+          >
+            Grid
+          </div>
+        </div>
+
+        <div
+          style={{
+            position: "absolute",
+            left: 155,
+            top: 130,
+            transform: "translate(-50%)",
+            height: 85,
+            width: 85,
+            borderRadius: "50%",
+            border: "2px solid #FB923C",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            background: colors.cardBg,
+          }}
+        >
+          <FiActivity
+            style={{
+              fontSize: 25,
+              color: "#FB923C",
+            }}
+          />
+        </div>
+
+        <div
+          style={{
+            position: "absolute",
+            bottom: 12,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 6,
+            top: 250,
+            // left: 220,
+            right: 0,
+          }}
+        >
+          <div
+            style={{
+              height: 85,
+              width: 85,
+              borderRadius: "50%",
+              border: "2px solid #FB923C",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              background: colors.cardBg,
+              flexShrink: 0,
+            }}
+          >
+            <FiHome
+              style={{
+                fontSize: 25,
+                color: "#FB923C",
+              }}
+            />
+            <div style={{ fontSize: 10, color: "#666", fontWeight: "bold" }}>
+              {project?.family_load_power} kw
+            </div>
+          </div>
+
+          <div
+            style={{
+              padding: "4px 10px",
+              borderRadius: 8,
+              background: isDark ? "#1f2937" : "#f3f4f6",
+              color: colors.text,
+              fontSize: 12,
+              fontWeight: 600,
+            }}
+          >
+            Load
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <div
       style={{
@@ -86,20 +349,23 @@ export default function SolarEnergyFlow({ inverters = [], isDark = false, projec
           screenSize === "pc"
             ? "1100px 1fr"
             : screenSize === "laptop"
-              ? "1fr"
-              : screenSize === "tablet"
-                ? "1fr"
-                : screenSize === "mobile"
-                  ? "repeat(auto-fit, minmax(300px, 1fr))"
-                  : "1fr",
+            ? "1fr"
+            : screenSize === "tablet"
+            ? "1fr"
+            : screenSize === "mobile"
+            ? "repeat(auto-fit, minmax(300px, 1fr))"
+            : "1fr",
         gap: "24px",
         marginBottom: "24px",
         width: "100%",
         margin: "0 auto 24px auto",
+        height: "auto",
       }}
     >
       {/* Animated Section - Hide on Mobile */}
-      {screenSize !== "mobile" && (
+      {screenSize === "mobile" ? (
+        <MobilePowerFlow />
+      ) : (
         <div
           style={{
             width: "100%",
@@ -115,7 +381,9 @@ export default function SolarEnergyFlow({ inverters = [], isDark = false, projec
           }}
         >
           {/* Header */}
-          <div style={{ fontSize: 13, color: colors.textMuted, marginBottom: 20 }}>
+          <div
+            style={{ fontSize: 13, color: colors.textMuted, marginBottom: 20 }}
+          >
             Data Reporting Time : 18/12/2025 12:36:18 (UTC+07:00) 3Min Ago
           </div>
 
@@ -136,7 +404,9 @@ export default function SolarEnergyFlow({ inverters = [], isDark = false, projec
                 padding: isSmallScreen ? 12 : 15,
                 borderRadius: 50,
                 background: isDark ? "rgba(254, 243, 199, 0.1)" : "#FFFBEB",
-                border: `1px solid ${isDark ? "rgba(250, 204, 21, 0.3)" : "#FDE68A"}`,
+                border: `1px solid ${
+                  isDark ? "rgba(250, 204, 21, 0.3)" : "#FDE68A"
+                }`,
                 display: "flex",
                 alignItems: "center",
                 gap: isSmallScreen ? 8 : 12,
@@ -159,7 +429,8 @@ export default function SolarEnergyFlow({ inverters = [], isDark = false, projec
                     color: colors.textMuted,
                   }}
                 >
-                  Today Yield : {project?.day_energy}Kwh ~ {project?.day_in_come}K VND
+                  Today Yield : {project?.day_energy}Kwh ~{" "}
+                  {project?.day_in_come}K VND
                 </div>
               </div>
               <div
@@ -182,7 +453,15 @@ export default function SolarEnergyFlow({ inverters = [], isDark = false, projec
                     color: "#FACC15",
                   }}
                 />
-                <div style={{ fontSize: 12,color: "#666", fontWeight: "bold" }}>{project?.power} kw</div>
+                <div
+                  style={{
+                    fontSize: isSmallScreen ? 8 : 12,
+                    color: "#666",
+                    fontWeight: "bold",
+                  }}
+                >
+                  {project?.power} kw
+                </div>
               </div>
             </div>
 
@@ -195,7 +474,9 @@ export default function SolarEnergyFlow({ inverters = [], isDark = false, projec
                 padding: isSmallScreen ? 12 : 15,
                 borderRadius: 50,
                 background: isDark ? "rgba(254, 202, 202, 0.1)" : "#FEF2F2",
-                border: `1px solid ${isDark ? "rgba(248, 113, 113, 0.3)" : "#FECACA"}`,
+                border: `1px solid ${
+                  isDark ? "rgba(248, 113, 113, 0.3)" : "#FECACA"
+                }`,
                 display: "flex",
                 alignItems: "center",
                 gap: isSmallScreen ? 8 : 12,
@@ -223,7 +504,15 @@ export default function SolarEnergyFlow({ inverters = [], isDark = false, projec
                     color: "#F87171",
                   }}
                 />
-                <div style={{ fontSize: 12,color: "#666", fontWeight: "bold" }}>{project?.p_sum} kw</div>
+                <div
+                  style={{
+                    fontSize: isSmallScreen ? 8 : 12,
+                    color: "#666",
+                    fontWeight: "bold",
+                  }}
+                >
+                  {Math.abs(project?.p_sum || 0)} kw
+                </div>
               </div>
               <div style={{ width: 4, height: 50, background: "#EF4444" }} />
               <div style={{ flex: 1, minWidth: 0 }}>
@@ -264,27 +553,27 @@ export default function SolarEnergyFlow({ inverters = [], isDark = false, projec
                   screenSize === "tablet"
                     ? 345
                     : screenSize === "laptop" || screenSize === "pc"
-                      ? 496
-                      : 496,
+                    ? 496
+                    : 496,
                 top:
                   screenSize === "tablet"
                     ? 125
                     : screenSize === "laptop" || screenSize === "pc"
-                      ? 181
-                      : 181,
+                    ? 181
+                    : 181,
                 transform: "translate(-50%)",
                 height:
                   screenSize === "tablet"
                     ? 55
                     : screenSize === "laptop" || screenSize === "pc"
-                      ? 85
-                      : 85,
+                    ? 85
+                    : 85,
                 width:
                   screenSize === "tablet"
                     ? 55
                     : screenSize === "laptop" || screenSize === "pc"
-                      ? 85
-                      : 85,
+                    ? 85
+                    : 85,
                 borderRadius: "50%",
                 border: "2px solid #FB923C",
                 display: "flex",
@@ -309,24 +598,26 @@ export default function SolarEnergyFlow({ inverters = [], isDark = false, projec
                   screenSize === "tablet"
                     ? 432
                     : screenSize === "laptop" || screenSize === "pc"
-                      ? 577
-                      : 577,
+                    ? 577
+                    : 577,
                 top:
                   screenSize === "tablet"
                     ? 238
                     : screenSize === "laptop" || screenSize === "pc"
-                      ? 303
-                      : 303,
+                    ? 303
+                    : 303,
                 width:
                   screenSize === "tablet"
                     ? 220
                     : screenSize === "laptop" || screenSize === "pc"
-                      ? 400
-                      : 400,
+                    ? 400
+                    : 400,
                 padding: screenSize === "tablet" ? "12px" : 15,
                 borderRadius: 50,
                 background: isDark ? "rgba(254, 215, 170, 0.1)" : "#FFF7ED",
-                border: `1px solid ${isDark ? "rgba(251, 146, 60, 0.3)" : "#FED7AA"}`,
+                border: `1px solid ${
+                  isDark ? "rgba(251, 146, 60, 0.3)" : "#FED7AA"
+                }`,
                 display: "flex",
                 alignItems: "center",
                 gap: screenSize === "tablet" ? 8 : 12,
@@ -352,7 +643,15 @@ export default function SolarEnergyFlow({ inverters = [], isDark = false, projec
                     color: "#FB923C",
                   }}
                 />
-                <div style={{ fontSize: 12, color: "#666", fontWeight: "bold" }}>{project?.family_load_power} kw</div>
+                <div
+                  style={{
+                    fontSize: isSmallScreen ? 8 : 12,
+                    color: "#666",
+                    fontWeight: "bold",
+                  }}
+                >
+                  {project?.family_load_power} kw
+                </div>
               </div>
               <div style={{ width: 4, height: 35, background: "#FB923C" }} />
               <div style={{ flex: 1, minWidth: 0 }}>
@@ -387,7 +686,13 @@ export default function SolarEnergyFlow({ inverters = [], isDark = false, projec
                 pointerEvents: "none",
               }}
             >
-              <g transform={screenSize === "tablet" ? "translate(-140, -55)" : "translate(8, 0)"}>
+              <g
+                transform={
+                  screenSize === "tablet"
+                    ? "translate(-140, -55)"
+                    : "translate(8, 0)"
+                }
+              >
                 <path
                   id="pvPath"
                   d="M 381 105 L 450 105 Q 470 105 470 125 L 470 186"
@@ -398,7 +703,11 @@ export default function SolarEnergyFlow({ inverters = [], isDark = false, projec
                 <Arrow path="#pvPath" color="#FACC15" />
               </g>
 
-              <g transform={screenSize === "tablet" ? "translate(-148, -54)" : ""}>
+              <g
+                transform={
+                  screenSize === "tablet" ? "translate(-148, -54)" : ""
+                }
+              >
                 <path
                   id="gridPath"
                   d="M 593 105 L 525 105 Q 505 105 505 125 L 505 182"
@@ -409,7 +718,13 @@ export default function SolarEnergyFlow({ inverters = [], isDark = false, projec
                 <Arrow path="#gridPath" color="#EF4444" />
               </g>
 
-              <g transform={screenSize === "tablet" ? "translate(-148, -98)" : "translate(0, -10)"}>
+              <g
+                transform={
+                  screenSize === "tablet"
+                    ? "translate(-148, -98)"
+                    : "translate(0, -10)"
+                }
+              >
                 <path
                   id="consumePath"
                   d="M 505 274 L 505 350 Q 505 380 535 380 L 594 380"
@@ -438,10 +753,10 @@ export default function SolarEnergyFlow({ inverters = [], isDark = false, projec
             screenSize === "pc"
               ? "500px"
               : screenSize === "laptop"
-                ? "auto"
-                : screenSize === "tablet"
-                  ? "auto"
-                  : "auto",
+              ? "auto"
+              : screenSize === "tablet"
+              ? "auto"
+              : "auto",
           display: "flex",
           flexDirection: "column",
           minWidth: screenSize === "pc" ? "380px" : "auto",
@@ -493,10 +808,10 @@ export default function SolarEnergyFlow({ inverters = [], isDark = false, projec
               screenSize === "tablet"
                 ? "1fr 1fr"
                 : screenSize === "pc"
-                  ? "1fr"
-                  : screenSize === "mobile"
-                    ? "repeat(auto-fit, minmax(250px, 1fr))"
-                    : "1fr",
+                ? "1fr"
+                : screenSize === "mobile"
+                ? "repeat(auto-fit, minmax(250px, 1fr))"
+                : "1fr",
             gap: "12px",
           }}
         >
@@ -547,7 +862,7 @@ export default function SolarEnergyFlow({ inverters = [], isDark = false, projec
                 >
                   <div
                     style={{
-                      fontSize: screenSize === "tablet" ? "12px" : "14px",
+                      fontSize: screenSize === "tablet" ? "11px" : "14px",
                       fontWeight: "600",
                       color: colors.text,
                       whiteSpace: "nowrap",
@@ -564,12 +879,12 @@ export default function SolarEnergyFlow({ inverters = [], isDark = false, projec
                       borderRadius: "9999px",
                       backgroundColor:
                         inverter?.inverter?.status === 1 ||
-                          inverter.status === 1
+                        inverter.status === 1
                           ? "#dcfce7"
                           : "#fee2e2",
                       color:
                         inverter?.inverter?.status === 1 ||
-                          inverter.status === 1
+                        inverter.status === 1
                           ? "#166534"
                           : "#991b1b",
                       fontWeight: 600,
@@ -578,8 +893,7 @@ export default function SolarEnergyFlow({ inverters = [], isDark = false, projec
                       marginLeft: "8px",
                     }}
                   >
-                    {inverter?.inverter?.status === 1 ||
-                      inverter.status === 1
+                    {inverter?.inverter?.status === 1 || inverter.status === 1
                       ? lang("common.online", "Online")
                       : lang("common.offline", "Offline")}
                   </span>
