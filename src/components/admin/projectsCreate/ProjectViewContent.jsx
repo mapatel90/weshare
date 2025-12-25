@@ -47,6 +47,7 @@ const ProjectViewContent = ({ projectId = "" }) => {
   const [loading, setLoading] = useState(true);
   const [project, setProject] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
+  const [isTablet, setIsTablet] = useState(false);
 
   // Contracts
   const [contracts, setContracts] = useState([]);
@@ -76,7 +77,9 @@ const ProjectViewContent = ({ projectId = "" }) => {
   // ------------------- Detect Mobile Screen -------------------
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
+      const width = window.innerWidth;
+      setIsMobile(width < 768);
+      setIsTablet(width >= 768 && width < 1024);
     };
     checkMobile();
     window.addEventListener("resize", checkMobile);
@@ -349,25 +352,21 @@ const ProjectViewContent = ({ projectId = "" }) => {
       <div style={{ margin: "0 auto" }}>
         {/* HEADER */}
         <div style={{ marginBottom: "24px" }}>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
+          {isTablet ? (
+            // Tablet Layout: Two rows
             <div>
+              {/* First Row: Name left, Active badge right */}
               <div
                 style={{
                   display: "flex",
                   alignItems: "center",
-                  gap: "12px",
-                  marginBottom: "8px",
+                  justifyContent: "space-between",
+                  marginBottom: "12px",
                 }}
               >
                 <h1
                   style={{
-                    fontSize: "30px",
+                    fontSize: "28px",
                     fontWeight: "bold",
                     color: colors.text,
                     margin: 0,
@@ -419,74 +418,195 @@ const ProjectViewContent = ({ projectId = "" }) => {
                     : lang("projectView.projectInformation.inactive")}
                 </p>
               </div>
-            </div>
-            {/* PROJECT STATUS */}
-            <div>
-              {projectInvertersLoading ? (
-                <div style={{ color: colors.textMuted, fontSize: "14px" }}>
-                  Loading inverters...
-                </div>
-              ) : (
-                <select
-                  value={selectedInverterId}
-                  onChange={(e) => setSelectedInverterId(e.target.value)}
-                  style={{
-                    padding: "8px 12px",
-                    borderRadius: "8px",
-                    border: `1px solid ${colors.border}`,
-                    background: isDark ? "#121a2d" : "#fff",
-                    color: colors.text,
-                    fontSize: "14px",
-                    minWidth: isMobile ? "100%" : "220px",
-                    width: isMobile ? "100%" : "auto",
-                  }}
-                >
-                  <option
-                    value=""
+              {/* Second Row: Dropdown at the end */}
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "flex-end",
+                }}
+              >
+                {projectInvertersLoading ? (
+                  <div style={{ color: colors.textMuted, fontSize: "14px" }}>
+                    Loading inverters...
+                  </div>
+                ) : (
+                  <select
+                    value={selectedInverterId}
+                    onChange={(e) => setSelectedInverterId(e.target.value)}
                     style={{
+                      padding: "8px 12px",
+                      borderRadius: "8px",
+                      border: `1px solid ${colors.border}`,
                       background: isDark ? "#121a2d" : "#fff",
                       color: colors.text,
+                      fontSize: "14px",
+                      minWidth: "220px",
+                      width: "auto",
                     }}
                   >
-                    {lang("inverter.selectInverter", "Select Inverter")}
-                  </option>
-                  {projectInverters.map((pi) => {
-                    const inv = pi.inverter || {};
-                    const label = pi.inverter_name
-                      ? `${pi.inverter_name} (Serial: ${
-                          pi.inverter_serial_number || "N/A"
-                        })`
-                      : `Inverter ID: ${pi.id}`;
-                    return (
-                      <option
-                        key={pi.id}
-                        value={pi.id}
-                        style={{
-                          background: isDark ? "#121a2d" : "#fff",
-                          color: colors.text,
-                        }}
-                      >
-                        {label}
-                      </option>
-                    );
-                  })}
-                </select>
-              )}
-            </div>
-
-            {/* PROJECT STATUS - Desktop/Tablet */}
-            {/* {!isMobile && (
-              <div style={{
-                padding: '8px 16px',
-                borderRadius: '9999px',
-                backgroundColor: project.status === 1 ? '#dcfce7' : '#fee2e2',
-                color: project.status === 1 ? '#166534' : '#991b1b',
-                fontWeight: '600'
-              }}>
-                {project.status === 1 ? '● Active' : '● Inactive'}
+                    <option
+                      value=""
+                      style={{
+                        background: isDark ? "#121a2d" : "#fff",
+                        color: colors.text,
+                      }}
+                    >
+                      {lang("inverter.selectInverter", "Select Inverter")}
+                    </option>
+                    {projectInverters.map((pi) => {
+                      const inv = pi.inverter || {};
+                      const label = pi.inverter_name
+                        ? `${pi.inverter_name} (Serial: ${
+                            pi.inverter_serial_number || "N/A"
+                          })`
+                        : `Inverter ID: ${pi.id}`;
+                      return (
+                        <option
+                          key={pi.id}
+                          value={pi.id}
+                          style={{
+                            background: isDark ? "#121a2d" : "#fff",
+                            color: colors.text,
+                          }}
+                        >
+                          {label}
+                        </option>
+                      );
+                    })}
+                  </select>
+                )}
               </div>
-            )} */}
-          </div>
+            </div>
+          ) : (
+            // Desktop and Mobile Layout
+            <div
+              style={{
+                display: "flex",
+                flexDirection: isMobile ? "column" : "row",
+                alignItems: isMobile ? "stretch" : "center",
+                justifyContent: "space-between",
+                gap: isMobile ? "12px" : "0",
+              }}
+            >
+              {/* Project Name and Status Badge */}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "12px",
+                  flexWrap: "wrap",
+                }}
+              >
+                <h1
+                  style={{
+                    fontSize: isMobile ? "24px" : "30px",
+                    fontWeight: "bold",
+                    color: colors.text,
+                    margin: 0,
+                    display: "flex",
+                    alignItems: "center",
+                  }}
+                >
+                  {project.project_name}
+                  <FiEdit3
+                    style={{
+                      cursor: "pointer",
+                      marginLeft: "8px",
+                      color: "#3b82f6",
+                      fontSize: "20px",
+                    }}
+                    onClick={() =>
+                      (window.location.href = `/admin/projects/edit/${project.id}`)
+                    }
+                  />
+                </h1>
+                <p
+                  style={{
+                    padding: "8px 16px",
+                    borderRadius: "9999px",
+                    backgroundColor:
+                      project.status === 1
+                        ? isDark
+                          ? "rgba(34, 197, 94, 0.2)"
+                          : "#dcfce7"
+                        : isDark
+                        ? "rgba(239, 68, 68, 0.2)"
+                        : "#fee2e2",
+                    color:
+                      project.status === 1
+                        ? isDark
+                          ? "#22c55e"
+                          : "#166534"
+                        : isDark
+                        ? "#ef4444"
+                        : "#991b1b",
+                    fontWeight: "600",
+                    margin: 0,
+                    fontSize: "14px",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {project.status === 1
+                    ? lang("projectView.projectInformation.active")
+                    : lang("projectView.projectInformation.inactive")}
+                </p>
+              </div>
+
+              {/* Inverter Dropdown */}
+              <div style={{ width: isMobile ? "100%" : "auto" }}>
+                {projectInvertersLoading ? (
+                  <div style={{ color: colors.textMuted, fontSize: "14px" }}>
+                    Loading inverters...
+                  </div>
+                ) : (
+                  <select
+                    value={selectedInverterId}
+                    onChange={(e) => setSelectedInverterId(e.target.value)}
+                    style={{
+                      padding: "8px 12px",
+                      borderRadius: "8px",
+                      border: `1px solid ${colors.border}`,
+                      background: isDark ? "#121a2d" : "#fff",
+                      color: colors.text,
+                      fontSize: "14px",
+                      minWidth: isMobile ? "100%" : "220px",
+                      width: isMobile ? "100%" : "auto",
+                    }}
+                  >
+                    <option
+                      value=""
+                      style={{
+                        background: isDark ? "#121a2d" : "#fff",
+                        color: colors.text,
+                      }}
+                    >
+                      {lang("inverter.selectInverter", "Select Inverter")}
+                    </option>
+                    {projectInverters.map((pi) => {
+                      const inv = pi.inverter || {};
+                      const label = pi.inverter_name
+                        ? `${pi.inverter_name} (Serial: ${
+                            pi.inverter_serial_number || "N/A"
+                          })`
+                        : `Inverter ID: ${pi.id}`;
+                      return (
+                        <option
+                          key={pi.id}
+                          value={pi.id}
+                          style={{
+                            background: isDark ? "#121a2d" : "#fff",
+                            color: colors.text,
+                          }}
+                        >
+                          {label}
+                        </option>
+                      );
+                    })}
+                  </select>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
