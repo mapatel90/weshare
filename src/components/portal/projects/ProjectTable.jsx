@@ -89,7 +89,7 @@ const normalizeApiProject = (project) => {
     expectedGeneration: formatNumber(project?.project_size),
     offtakerId: project?.offtaker_id ?? null,
     product_code: project?.product_code ?? "-",
-    offtaker_name: project?.offtaker?.fullName ?? "-",
+    offtaker_name: project?.offtaker?.full_name ?? "-",
     project_slug: project?.project_slug ?? "",
   };
 };
@@ -605,7 +605,7 @@ const SolarProjectTable = () => {
                           project.project_image ||
                           getFullImageUrl("/uploads/general/noimage.jpeg")
                         }
-                        alt={project.projectName}
+                        alt={project.project_name}
                         className="object-cover w-full h-full"
                       />
                       <span
