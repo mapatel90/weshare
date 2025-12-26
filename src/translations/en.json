@@ -14,7 +14,8 @@
     "fullScreen": "Full Screen",
     "changepassword": "Change Password",
     "statsOverview": "Stats Overview",
-    "statsDescription": "Overview of Stats"
+    "statsDescription": "Overview of Stats",
+    "plantoverview": "Solar Plant Overview"
   },
   "navigation": {
     "navigation": "Navigation",
