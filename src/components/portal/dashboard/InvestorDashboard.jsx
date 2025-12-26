@@ -6,6 +6,9 @@ import OverViewCards from "./sections/OverViewCards";
 import PayoutCard from "./sections/PayoutCard";
 import ProjectOverviewChart from "../../admin/projectsCreate/projectViewSection/ProjectOverviewChart";
 import PowerConsumptionDashboard from "../../admin/projectsCreate/projectViewSection/inverterChart";
+import AllProjects from "./sections/AllProjectsInvestor";
+import AllReports from "./sections/AllReportsInvestor";
+import AllContracts from "./sections/AllContractsInvestor";
 import { apiGet, apiPost } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -760,6 +763,12 @@ function DashboardView() {
             </div>
           </div>
         </div>
+      </div>
+
+<div className="row">
+      <AllProjects />
+      <AllReports />
+      <AllContracts />
       </div>
 
       <ProjectsTable />
