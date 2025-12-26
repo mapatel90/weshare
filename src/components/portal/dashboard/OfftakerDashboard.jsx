@@ -7,6 +7,10 @@ import BillingCard from "./sections/BillingCard";
 import DocumentsCard from "./sections/DocumentsCard";
 import ProjectOverviewChart from "@/components/admin/projectsCreate/projectViewSection/ProjectOverviewChart";
 import PowerConsumptionDashboard from "@/components/admin/projectsCreate/projectViewSection/inverterChart";
+import AllProjects from "./sections/AllProjects";
+import AllReports from "./sections/AllReports";
+import AllContracts from "./sections/AllContracts";
+import StatsCardOverview from "./sections/StateDashboard";
 import { useAuth } from "@/contexts/AuthContext";
 import { apiGet, apiPost } from "@/lib/api";
 
@@ -298,6 +302,7 @@ function DashboardView() {
 
   return (
     <div>
+      {/* <StatsCardOverview /> */}
       <div
         className="d-flex justify-content-end gap-2 mb-3"
         style={{ position: "relative" }}
@@ -775,6 +780,14 @@ function DashboardView() {
           </div>
         </div>
       </div>
+
+<div className="row"> 
+      <AllProjects />
+
+      <AllReports />
+
+      <AllContracts />
+</div>
 
       {/* Projects Table */}
       <ProjectsTable />
