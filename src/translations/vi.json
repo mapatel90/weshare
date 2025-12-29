@@ -1376,7 +1376,9 @@
     "todayYield": "Sản lượng hôm nay",
     "todayImported": "Hôm nay nhập khẩu",
     "todayExported": "Hôm nay đã xuất khẩu",
-    "consumed": "Tiêu thụ",
-    "grid": "Lưới điện"
+    "consumed": "Đã tiêu thụ hôm nay",
+    "grid": "Lưới điện",
+    "battery": "Ắc quy",
+    "grid_load": "Tải lưới"
   }
 }
