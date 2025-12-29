@@ -1331,7 +1331,8 @@
     "document": "Document",
     "date": "Date",
     "addContract": "Add Contract",
-    "editContract": "Edit Contract"
+    "editContract": "Edit Contract",
+    "viewcontract": "View Contract"
   },
   "meter": {
     "meter": "Meter",

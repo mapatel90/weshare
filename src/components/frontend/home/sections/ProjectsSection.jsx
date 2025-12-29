@@ -28,8 +28,8 @@ const ProjectsSection = () => {
       const response = await apiGet("/api/projects?limit=3&status=1", {
         showLoader: false,
       });
-      if (response.success && response.data?.projects) {
-        setProjects(response.data.projects);
+      if (response.success && response.data) {
+        setProjects(response.data);
       }
     } catch (error) {
       console.error("Error fetching projects:", error);
@@ -87,8 +87,8 @@ const ProjectsSection = () => {
           ) : (
             <div className="row">
               {projects.map((project, index) => {
-                const cityName = project.city?.name || "";
-                const stateName = project.state?.code || "";
+                const cityName = project.cities?.name || "";
+                const stateName = project.states?.code || "";
                 const location =
                   [cityName, stateName].filter(Boolean).join(", ") ||
                   "Location Not Available";

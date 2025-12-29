@@ -1280,7 +1280,8 @@
     "document": "Tài liệu",
     "date": "Ngày",
     "addContract": "Thêm hợp đồng",
-    "editContract": "Sửa hợp đồng"
+    "editContract": "Sửa hợp đồng",
+    "viewcontract": "Xem hợp đồng"
   },
   "meter": {
     "meter": "Công tơ",

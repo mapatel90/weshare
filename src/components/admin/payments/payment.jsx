@@ -123,7 +123,6 @@ const PaymentsPage = () => {
                 amount: Number(form.amount),
                 status: Number(form.status)
             };
-console.log("modalType",modalType);
             let res;
             if (modalType === 'add') {
                 res = await apiPost('/api/payments', payload);

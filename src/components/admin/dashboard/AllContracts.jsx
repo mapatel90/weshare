@@ -74,7 +74,7 @@ const AllContracts = ({ title }) => {
           isExpanded ? "card-expand" : ""
         } ${refreshKey ? "card-loading" : ""}`}
       >
-        <CardHeader title={cardTitle} viewHref="/admin/contracts/list" />
+        <CardHeader title={cardTitle} viewHref="/admin/contract/list" />
         <div className="card-body custom-card-action p-0">
           {loading ? (
             <div className="p-4 text-center text-muted">Loading...</div>
@@ -86,20 +86,20 @@ const AllContracts = ({ title }) => {
             <div className="table-responsive">
               <table className="table table-hover mb-0">
                 <tbody>
-                  {contracts.map(({ id, contractTitle, project, status, contractDate }) => {
+                  {contracts.map(({ id, contract_title, projects, status, contract_date }) => {
                     const badge = getStatusBadge(status);
-                    const formattedDate = contractDate
-                      ? new Date(contractDate).toLocaleDateString()
+                    const formattedDate = contract_date
+                      ? new Date(contract_date).toLocaleDateString()
                       : "N/A";
 
                     return (
                       <tr key={id} className="align-middle" style={{ borderBottom: "1px solid #e5e7eb" }}>
                         <td>
-                          <div className="fw-semibold text-decoration-none" title={contractTitle || "Unnamed"}>
-                            {truncateText(contractTitle || "Unnamed", 20)}
+                          <div className="fw-semibold text-decoration-none" title={contract_title || "Unnamed"}>
+                            {truncateText(contract_title || "Unnamed", 20)}
                           </div>
-                          <div className="fs-12 text-muted" title={project?.project_name || "N/A"}>
-                            Project: {truncateText(project?.project_name, 20)}
+                          <div className="fs-12 text-muted" title={projects?.project_name || "N/A"}>
+                            Project: {truncateText(projects?.project_name, 20)}
                           </div>
                           <div className="fs-12 text-muted">
                             Date: {formattedDate}

@@ -69,7 +69,6 @@ const InvoiceTable = () => {
   const fetchProjects = async () => {
     try {
       const res = await apiGet("/api/projects?status=1&limit=1000");
-      console.log("Fetch Projects::", res);
       const items = Array.isArray(res?.projectList) ? res.projectList : [];
       const active = items.filter((p) => String(p?.status) === "1");
       const mapped = active.map((p) => ({ label: p.project_name, value: String(p.id) }));

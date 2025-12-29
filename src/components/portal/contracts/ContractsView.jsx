@@ -23,16 +23,13 @@ const ContractsView = () => {
             let contractsData = [];
             if (parts[0] === "investor") {
                 const investorRes = await apiGet("/api/investors/?userId=" + user.id);
-                console.log("investorRes", investorRes);
                 if (investorRes?.success && Array.isArray(investorRes.data) && investorRes.data.length) {
                     // Get all investor ids
                     const investorIds = investorRes.data.map(inv => inv.id);
-                    console.log("investorIds", investorIds);
                     // Fetch contracts for each investorId and combine results
                     let allContracts = [];
                     for (const investorId of investorIds) {
                         const contractsRes = await apiGet("/api/contracts?investorId=" + investorId);
-                        console.log(`contracts for investorId ${investorId}`, contractsRes);
                         if (contractsRes?.success && Array.isArray(contractsRes.data)) {
                             allContracts = allContracts.concat(contractsRes.data);
                         }
@@ -43,7 +40,6 @@ const ContractsView = () => {
                 const res = await apiGet("/api/contracts?offtakerId=" + user.id);
                 if (res?.success) {
                     contractsData = Array.isArray(res.data) ? res.data : [];
-                    console.log("fetched contracts", contractsData);
                 }
             }
             setContracts(contractsData);
