@@ -696,6 +696,7 @@ router.get("/:identifier", async (req, res) => {
         countries: true,
         project_types: true,
         project_images: true,
+        project_data: true,
         interested_investors: { select: { id: true, full_name: true, email: true, phone_number: true } },
       },
     });
@@ -985,7 +986,7 @@ router.post("/chart-data", async (req, res) => {
       };
     }
 
-    const allData = await prisma.project_data.findMany({
+    const allData = await prisma.project_energy_data.findMany({
       where,
       orderBy: { date: "asc" },
     });
