@@ -8,6 +8,8 @@ export default function SolarEnergyFlow({
   isDark = false,
   project = {},
 }) {
+  console.log("Rendering SolarEnergyFlow with project:", project);
+  console.log("Inverters:", inverters);
   // Get first 4 inverters (regardless of status)
   const displayInverters = inverters.slice(0, 4);
 
@@ -993,7 +995,7 @@ export default function SolarEnergyFlow({
                       color: colors.textMuted,
                     }}
                   >
-                    {lang("animated.consumed", "Consumed")} :{" "}
+                    {lang("animated.todayconsumed", "Today Consumed")} :{" "}
                     {project?.home_load_today_energy} Kwh
                   </div>
                 </div>
@@ -1142,7 +1144,7 @@ export default function SolarEnergyFlow({
           padding: screenSize === "tablet" ? "16px" : "24px",
           height:
             screenSize === "pc"
-              ? "500px"
+              ? "600px"
               : screenSize === "laptop"
               ? "auto"
               : screenSize === "tablet"
@@ -1262,7 +1264,7 @@ export default function SolarEnergyFlow({
                       flex: 1,
                     }}
                   >
-                    {inverter?.inverter_name || "Untitled"}
+                    {inverter?.inverter_name || inverter?.name || "Untitled"}
                   </div>
                   <span
                     style={{
@@ -1304,7 +1306,7 @@ export default function SolarEnergyFlow({
                       marginLeft: "4px",
                     }}
                   >
-                    {inverter.inverter_serial_number || "N/A"}
+                    {inverter.inverter_serial_number || inverter.serial || "N/A"}
                   </span>
                 </div>
               </div>

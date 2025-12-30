@@ -1427,7 +1427,8 @@
     "todayYield": "Today Yield",
     "todayImported": "Today Imported",
     "todayExported": "Today Exported",
-    "consumed": "Today Consumed",
+    "todayconsumed": "Today Consumed",
+    "consumed": "Consumed",
     "grid": "Grid",
     "battery": "Battery",
     "grid_load": "Grid Load"
