@@ -230,6 +230,9 @@ model project_data {
   battary_charge_energy String?               @db.VarChar(255)
   battary_discharge_energy String?            @db.VarChar(255)
   total_grid_battery  String?            @db.VarChar(255) 
+  battery_power       String?                 @db.VarChar(255)
+  battery_percent     String?                 @db.VarChar(255)
+  epm_type            Int                     @default(0)
   created_at DateTime @default(now())
 
   projects      projects @relation(fields: [project_id], references: [id])
