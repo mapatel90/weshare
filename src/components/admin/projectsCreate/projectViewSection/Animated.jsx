@@ -1,6 +1,13 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { FiSun, FiZap, FiActivity, FiHome, FiBattery, FiPower } from "react-icons/fi";
+import {
+  FiSun,
+  FiZap,
+  FiActivity,
+  FiHome,
+  FiBattery,
+  FiPower,
+} from "react-icons/fi";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function SolarEnergyFlow({
@@ -35,7 +42,7 @@ export default function SolarEnergyFlow({
       } else {
         setScreenSize("pc");
       }
-      
+
       // Check for very small mobile screens
       setIsVerySmallScreen(width < 390);
     };
@@ -79,8 +86,18 @@ export default function SolarEnergyFlow({
   );
 
   const Arrow = ({ path, color, scale = 1 }) => (
-    <path d={`M${-4 * scale},${-8 * scale} L${4 * scale},0 L${-4 * scale},${8 * scale} Z`} fill={color}>
-      <animateMotion dur="3s" repeatCount="indefinite" rotate="auto" repeatDelay="2s">
+    <path
+      d={`M${-4 * scale},${-8 * scale} L${4 * scale},0 L${-4 * scale},${
+        8 * scale
+      } Z`}
+      fill={color}
+    >
+      <animateMotion
+        dur="3s"
+        repeatCount="indefinite"
+        rotate="auto"
+        repeatDelay="2s"
+      >
         <mpath href={path} />
       </animateMotion>
     </path>
@@ -120,143 +137,128 @@ export default function SolarEnergyFlow({
             margin: "0 auto",
           }}
         >
-        <svg
-          viewBox="0 0 360 400"
-          width="360"
-          height="400"
-          style={{
-            position: "absolute",
-            inset: 0,
-            pointerEvents: "none",
-          }}
-        >
-          <g transform={ isVerySmallScreen ? "translate(-360, -55)" : "translate(-325, -55)"}>
-            <path
-              id="pvPath"
-              // d="M 431 105 L 450 105 Q 470 105 470 125 L 470 186"
-              d={isVerySmallScreen ? "M 381 105 L 450 105 Q 470 105 470 125 L 470 205" : "M 381 105 L 450 105 Q 470 105 470 125 L 470 198"}
-              stroke="#FACC15"
-              strokeWidth="2"
-              fill="none"
-            />
-            {project?.project_data?.[0]?.power > 0 && <Arrow path="#pvPath" color="#FACC15" />}
-          </g>
-
-          <g transform={ isVerySmallScreen ? "translate(-370, -54)" : "translate(-335, -54)"}>
-            <path
-              id="gridPath"
-              // d="M 543 105 L 525 105 Q 505 105 505 125 L 505 182"
-              d="M 593 105 L 525 105 Q 505 105 505 125 L 505 200"
-              stroke="#EF4444"
-              strokeWidth="2"
-              fill="none"
-            />
-            {Math.abs(project?.project_data?.[0]?.p_sum) > 0 && (
-              <Arrow path="#gridPath" color="#EF4444" />
-            )}
-          </g>
-
-          <g transform={ isVerySmallScreen ? "translate(-370, -52)" : "translate(-335, -52)"}>
-            <path
-              id="consumePath"
-              d="M 505 274 L 505 350 Q 505 380 535 380 L 594 380"
-              stroke="#FB923C"
-              strokeWidth="2"
-              fill="none"
-            />
-            {project?.project_data?.[0]?.family_load_power > 0 && (
-              <Arrow path="#consumePath" color="#FB923C" />
-            )}
-          </g>
-
-          {project?.project_data?.[0]?.epm_type !== 1 && (
-            <g transform={ isVerySmallScreen ? "translate(-350, -82)" : "translate(-315, -83)"}>
+          <svg
+            viewBox="0 0 360 400"
+            width="360"
+            height="400"
+            style={{
+              position: "absolute",
+              inset: 0,
+              pointerEvents: "none",
+            }}
+          >
+            <g
+              transform={
+                isVerySmallScreen
+                  ? "translate(-360, -55)"
+                  : "translate(-325, -55)"
+              }
+            >
               <path
-                id="inverterToGridLoadPath"
-                d="M 485 228 L 555 228 Q 575 228 575 248 L 575 254"
-                stroke="#8da094ff"
+                id="pvPath"
+                // d="M 431 105 L 450 105 Q 470 105 470 125 L 470 186"
+                d={
+                  isVerySmallScreen
+                    ? "M 381 105 L 450 105 Q 470 105 470 125 L 470 205"
+                    : "M 381 105 L 450 105 Q 470 105 470 125 L 470 198"
+                }
+                stroke="#FACC15"
                 strokeWidth="2"
                 fill="none"
               />
-              {project?.project_data?.[0]?.p_sum && Math.abs(project?.project_data?.[0]?.p_sum) > 0 && (
-                <Arrow path="#inverterToGridLoadPath" color="#8da094ff" />
+              {project?.project_data?.[0]?.power > 0 && (
+                <Arrow path="#pvPath" color="#FACC15" />
               )}
             </g>
-          )}
 
-          {project?.project_data?.[0]?.epm_type !== 1 && (
-            <g transform={isVerySmallScreen ? "translate(-394, -52)" : "translate(-360, -52)"}>
+            <g
+              transform={
+                isVerySmallScreen
+                  ? "translate(-370, -54)"
+                  : "translate(-335, -54)"
+              }
+            >
               <path
-                id="batteryPath"
-                d= "M 505 272 L 505 350 Q 505 380 475 380 L 416 380"
-                stroke="#1372dfff"
+                id="gridPath"
+                // d="M 543 105 L 525 105 Q 505 105 505 125 L 505 182"
+                d="M 593 105 L 525 105 Q 505 105 505 125 L 505 200"
+                stroke="#EF4444"
+                strokeWidth="2"
+                fill="none"
+              />
+              {Math.abs(project?.project_data?.[0]?.p_sum) > 0 && (
+                <Arrow path="#gridPath" color="#EF4444" />
+              )}
+            </g>
+
+            <g
+              transform={
+                isVerySmallScreen
+                  ? "translate(-370, -52)"
+                  : "translate(-335, -52)"
+              }
+            >
+              <path
+                id="consumePath"
+                d="M 505 274 L 505 350 Q 505 380 535 380 L 594 380"
+                stroke="#FB923C"
                 strokeWidth="2"
                 fill="none"
               />
               {project?.project_data?.[0]?.family_load_power > 0 && (
-                <Arrow path="#batteryPath" color="#1372dfff" />
+                <Arrow path="#consumePath" color="#FB923C" />
               )}
             </g>
-          )}
-        </svg>
 
-        {/* PV */}
-        <div
-          style={{
-            position: "absolute",
-            top: 12,
-            left: 0,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: 6,
-          }}
-        >
-          <div
-            style={{
-              height: 85,
-              width: 85,
-              borderRadius: "50%",
-              border: "2px solid #FACC15",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              background: colors.cardBg,
-              flexShrink: 0,
-            }}
-          >
-            <FiSun
-              style={{
-                fontSize: 25,
-                color: "#FACC15",
-              }}
-            />
-            <div style={{ fontSize: 10, color: "#666", fontWeight: "bold" }}>
-              {project?.project_data?.[0]?.power} kw
-            </div>
-          </div>
+            {project?.project_data?.[0]?.epm_type !== 1 && (
+              <g
+                transform={
+                  isVerySmallScreen
+                    ? "translate(-350, -82)"
+                    : "translate(-315, -83)"
+                }
+              >
+                <path
+                  id="inverterToGridLoadPath"
+                  d="M 485 228 L 555 228 Q 575 228 575 248 L 575 254"
+                  stroke="#8da094ff"
+                  strokeWidth="2"
+                  fill="none"
+                />
+                {project?.project_data?.[0]?.p_sum &&
+                  Math.abs(project?.project_data?.[0]?.p_sum) > 0 && (
+                    <Arrow path="#inverterToGridLoadPath" color="#8da094ff" />
+                  )}
+              </g>
+            )}
 
-          <div
-            style={{
-              padding: "4px 10px",
-              borderRadius: 8,
-              background: isDark ? "#1f2937" : "#f3f4f6",
-              color: colors.text,
-              fontSize: 12,
-              fontWeight: 600,
-            }}
-          >
-            PV
-          </div>
-        </div>
+            {project?.project_data?.[0]?.epm_type !== 1 && (
+              <g
+                transform={
+                  isVerySmallScreen
+                    ? "translate(-394, -52)"
+                    : "translate(-360, -52)"
+                }
+              >
+                <path
+                  id="batteryPath"
+                  d="M 505 272 L 505 350 Q 505 380 475 380 L 416 380"
+                  stroke="#1372dfff"
+                  strokeWidth="2"
+                  fill="none"
+                />
+                {project?.project_data?.[0]?.family_load_power > 0 && (
+                  <Arrow path="#batteryPath" color="#1372dfff" />
+                )}
+              </g>
+            )}
+          </svg>
 
-        {/* Battery */}
-        {project?.project_data?.[0]?.epm_type !== 1 && (
+          {/* PV */}
           <div
             style={{
               position: "absolute",
-              top: isVerySmallScreen ? 273 : 280,
+              top: 12,
               left: 0,
               display: "flex",
               flexDirection: "column",
@@ -269,7 +271,7 @@ export default function SolarEnergyFlow({
                 height: 85,
                 width: 85,
                 borderRadius: "50%",
-                border: "2px solid #1372dfff",
+                border: "2px solid #FACC15",
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
@@ -278,14 +280,14 @@ export default function SolarEnergyFlow({
                 flexShrink: 0,
               }}
             >
-              <FiBattery
+              <FiSun
                 style={{
                   fontSize: 25,
-                  color: "#1372dfff",
+                  color: "#FACC15",
                 }}
               />
               <div style={{ fontSize: 10, color: "#666", fontWeight: "bold" }}>
-                {project?.project_data?.[0]?.battery_power} kw
+                {project?.project_data?.[0]?.power} kw
               </div>
             </div>
 
@@ -299,75 +301,75 @@ export default function SolarEnergyFlow({
                 fontWeight: 600,
               }}
             >
-              {lang("animated.battery", "Battery")}
+              PV
             </div>
           </div>
-        )}
 
-        {/* Grid */}
-        <div
-          style={{
-            position: "absolute",
-            top: isVerySmallScreen ? 8 : 12,
-            // left: 220,
-            right: isVerySmallScreen ? 0 : 0,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: 6,
-          }}
-        >
-          <div
-            style={{
-              height: 85,
-              width: 85,
-              borderRadius: "50%",
-              border: "2px solid #F87171",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              background: colors.cardBg,
-              flexShrink: 0,
-            }}
-          >
-            <FiZap
+          {/* Battery */}
+          {project?.project_data?.[0]?.epm_type !== 1 && (
+            <div
               style={{
-                fontSize: 25,
-                color: "#F87171",
+                position: "absolute",
+                top: isVerySmallScreen ? 273 : 280,
+                left: 0,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 6,
               }}
-            />
-            <div style={{ fontSize: 10, color: "#666", fontWeight: "bold" }}>
-              {Math.abs(project?.project_data?.[0]?.p_sum || 0)} kw
+            >
+              <div
+                style={{
+                  height: 85,
+                  width: 85,
+                  borderRadius: "50%",
+                  border: "2px solid #1372dfff",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  background: colors.cardBg,
+                  flexShrink: 0,
+                }}
+              >
+                <FiBattery
+                  style={{
+                    fontSize: 25,
+                    color: "#1372dfff",
+                  }}
+                />
+                <div
+                  style={{ fontSize: 10, color: "#666", fontWeight: "bold" }}
+                >
+                  {project?.project_data?.[0]?.battery_power} kw
+                </div>
+              </div>
+
+              <div
+                style={{
+                  padding: "4px 10px",
+                  borderRadius: 8,
+                  background: isDark ? "#1f2937" : "#f3f4f6",
+                  color: colors.text,
+                  fontSize: 12,
+                  fontWeight: 600,
+                }}
+              >
+                {lang("animated.battery", "Battery")}
+              </div>
             </div>
-          </div>
+          )}
 
-          <div
-            style={{
-              padding: "4px 10px",
-              borderRadius: 8,
-              background: isDark ? "#1f2937" : "#f3f4f6",
-              color: colors.text,
-              fontSize: 12,
-              fontWeight: 600,
-            }}
-          >
-            Grid
-          </div>
-        </div>
-
-        {/* Grid Load */}
-        {project?.project_data?.[0]?.epm_type !== 1 && (
+          {/* Grid */}
           <div
             style={{
               position: "absolute",
-              top: isVerySmallScreen ? 138 : 145,
+              top: isVerySmallScreen ? 8 : 12,
               // left: 220,
               right: isVerySmallScreen ? 0 : 0,
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
-
               gap: 6,
             }}
           >
@@ -376,7 +378,7 @@ export default function SolarEnergyFlow({
                 height: 85,
                 width: 85,
                 borderRadius: "50%",
-                border: "2px solid #8da094ff",
+                border: "2px solid #F87171",
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
@@ -385,10 +387,10 @@ export default function SolarEnergyFlow({
                 flexShrink: 0,
               }}
             >
-              <FiPower
+              <FiZap
                 style={{
                   fontSize: 25,
-                  color: "#8da094ff",
+                  color: "#F87171",
                 }}
               />
               <div style={{ fontSize: 10, color: "#666", fontWeight: "bold" }}>
@@ -406,89 +408,145 @@ export default function SolarEnergyFlow({
                 fontWeight: 600,
               }}
             >
-              {lang("animated.grid_load", "Grid Load")}
+              Grid
             </div>
           </div>
-        )}
-        
-        {/* Inverter */}
-        <div
-          style={{
-            position: "absolute",
-            left: isVerySmallScreen ? 120 : 155,
-            top: 142,
-            transform: "translate(-50%)",
-            height: 85,
-            width: 85,
-            borderRadius: "50%",
-            border: "2px solid #FB923C",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            background: colors.cardBg,
-          }}
-        >
-          <FiActivity
-            style={{
-              fontSize: 25,
-              color: "#FB923C",
-            }}
-          />
-        </div>
 
-        <div
-          style={{
-            position: "absolute",
-            bottom: 12,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: 6,
-            top: isVerySmallScreen ? 273 : 280,
-            // left: 220,
-            right: isVerySmallScreen ? 0 : 0,
-          }}
-        >
+          {/* Grid Load */}
+          {project?.project_data?.[0]?.epm_type !== 1 && (
+            <div
+              style={{
+                position: "absolute",
+                top: isVerySmallScreen ? 138 : 145,
+                // left: 220,
+                right: isVerySmallScreen ? 0 : 0,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+
+                gap: 6,
+              }}
+            >
+              <div
+                style={{
+                  height: 85,
+                  width: 85,
+                  borderRadius: "50%",
+                  border: "2px solid #8da094ff",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  background: colors.cardBg,
+                  flexShrink: 0,
+                }}
+              >
+                <FiPower
+                  style={{
+                    fontSize: 25,
+                    color: "#8da094ff",
+                  }}
+                />
+                <div
+                  style={{ fontSize: 10, color: "#666", fontWeight: "bold" }}
+                >
+                  {Math.abs(project?.project_data?.[0]?.p_sum || 0)} kw
+                </div>
+              </div>
+
+              <div
+                style={{
+                  padding: "4px 10px",
+                  borderRadius: 8,
+                  background: isDark ? "#1f2937" : "#f3f4f6",
+                  color: colors.text,
+                  fontSize: 12,
+                  fontWeight: 600,
+                }}
+              >
+                {lang("animated.grid_load", "Grid Load")}
+              </div>
+            </div>
+          )}
+
+          {/* Inverter */}
           <div
             style={{
+              position: "absolute",
+              left: isVerySmallScreen ? 120 : 155,
+              top: 142,
+              transform: "translate(-50%)",
               height: 85,
               width: 85,
               borderRadius: "50%",
               border: "2px solid #FB923C",
               display: "flex",
-              flexDirection: "column",
               alignItems: "center",
               justifyContent: "center",
               background: colors.cardBg,
-              flexShrink: 0,
             }}
           >
-            <FiHome
+            <FiActivity
               style={{
                 fontSize: 25,
                 color: "#FB923C",
               }}
             />
-            <div style={{ fontSize: 10, color: "#666", fontWeight: "bold" }}>
-              {project?.project_data?.[0]?.family_load_power} kw
-            </div>
           </div>
 
           <div
             style={{
-              padding: "4px 10px",
-              borderRadius: 8,
-              background: isDark ? "#1f2937" : "#f3f4f6",
-              color: colors.text,
-              fontSize: 12,
-              fontWeight: 600,
+              position: "absolute",
+              bottom: 12,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 6,
+              top: isVerySmallScreen ? 273 : 280,
+              // left: 220,
+              right: isVerySmallScreen ? 0 : 0,
             }}
           >
-            Load
+            <div
+              style={{
+                height: 85,
+                width: 85,
+                borderRadius: "50%",
+                border: "2px solid #FB923C",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                background: colors.cardBg,
+                flexShrink: 0,
+              }}
+            >
+              <FiHome
+                style={{
+                  fontSize: 25,
+                  color: "#FB923C",
+                }}
+              />
+              <div style={{ fontSize: 10, color: "#666", fontWeight: "bold" }}>
+                {project?.project_data?.[0]?.family_load_power} kw
+              </div>
+            </div>
+
+            <div
+              style={{
+                padding: "4px 10px",
+                borderRadius: 8,
+                background: isDark ? "#1f2937" : "#f3f4f6",
+                color: colors.text,
+                fontSize: 12,
+                fontWeight: 600,
+              }}
+            >
+              Load
+            </div>
           </div>
         </div>
       </div>
-    </div>
     );
   };
 
@@ -596,7 +654,8 @@ export default function SolarEnergyFlow({
                     }}
                   >
                     {lang("animated.todayYield", "Today Yield")} :{" "}
-                    {project?.project_data?.[0]?.day_energy}Kwh ~ {project?.project_data?.[0]?.day_in_come}K VND
+                    {project?.project_data?.[0]?.day_energy}Kwh ~{" "}
+                    {project?.project_data?.[0]?.day_in_come}K VND
                   </div>
                 </div>
                 <div
@@ -652,70 +711,74 @@ export default function SolarEnergyFlow({
                     gap: isSmallScreen ? 8 : 12,
                   }}
                 >
-                <div
-                  style={{ width: 4, height: isSmallScreen ? 40 : 55, background: "#1372dfff" }}
-                />
-                <div style={{ flex: 1 }}>
                   <div
                     style={{
-                      fontWeight: 600,
-                      fontSize: screenSize === "tablet" ? 10 : 14,
-                      color: colors.text,
-                    }}
-                  >
-                    {lang("animated.battery", "Battery")}
-                  </div>
-                  <div
-                    style={{
-                      fontSize: screenSize === "tablet" ? 9 : 12,
-                      color: colors.textMuted,
-                    }}
-                  >
-                    {lang("animated.daily_charge", "Daily Charge")} :{" "}
-                    {project?.project_data?.[0]?.battery_charge_energy}Kwh
-                  </div>
-                  <div
-                    style={{
-                      fontSize: screenSize === "tablet" ? 9 : 12,
-                      color: colors.textMuted,
-                    }}
-                  >
-                    {lang("animated.today_discharged", "Today Discharged")} :{" "}
-                    {project?.project_data?.[0]?.battery_discharge_energy}Kwh
-                  </div>
-                </div>
-                <div
-                  style={{
-                    height: isSmallScreen ? 55 : 85,
-                    width: isSmallScreen ? 55 : 85,
-                    borderRadius: "50%",
-                    border: "2px solid #1372dfff",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    background: colors.cardBg,
-                    flexShrink: 0,
-                  }}
-                >
-                  <FiBattery
-                    style={{
-                      fontSize: isSmallScreen ? 18 : 28,
-                      // color: "#8da094ff",
-                      color: "#1372dfff",
+                      width: 4,
+                      height: isSmallScreen ? 40 : 55,
+                      background: "#1372dfff",
                     }}
                   />
+                  <div style={{ flex: 1 }}>
+                    <div
+                      style={{
+                        fontWeight: 600,
+                        fontSize: screenSize === "tablet" ? 10 : 14,
+                        color: colors.text,
+                      }}
+                    >
+                      {lang("animated.battery", "Battery")}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: screenSize === "tablet" ? 9 : 12,
+                        color: colors.textMuted,
+                      }}
+                    >
+                      {lang("animated.daily_charge", "Daily Charge")} :{" "}
+                      {project?.project_data?.[0]?.battery_charge_energy}Kwh
+                    </div>
+                    <div
+                      style={{
+                        fontSize: screenSize === "tablet" ? 9 : 12,
+                        color: colors.textMuted,
+                      }}
+                    >
+                      {lang("animated.today_discharged", "Today Discharged")} :{" "}
+                      {project?.project_data?.[0]?.battery_discharge_energy}Kwh
+                    </div>
+                  </div>
                   <div
                     style={{
-                      fontSize: isSmallScreen ? 8 : 12,
-                      color: "#666",
-                      fontWeight: "bold",
+                      height: isSmallScreen ? 55 : 85,
+                      width: isSmallScreen ? 55 : 85,
+                      borderRadius: "50%",
+                      border: "2px solid #1372dfff",
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      background: colors.cardBg,
+                      flexShrink: 0,
                     }}
                   >
-                    {project?.project_data?.[0]?.battery_power} kw
+                    <FiBattery
+                      style={{
+                        fontSize: isSmallScreen ? 18 : 28,
+                        // color: "#8da094ff",
+                        color: "#1372dfff",
+                      }}
+                    />
+                    <div
+                      style={{
+                        fontSize: isSmallScreen ? 8 : 12,
+                        color: "#666",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      {project?.project_data?.[0]?.battery_power} kw
+                    </div>
                   </div>
                 </div>
-              </div>
               )}
 
               {/* ================= GRID ================= */}
@@ -878,60 +941,60 @@ export default function SolarEnergyFlow({
                     gap: screenSize === "tablet" ? 8 : 12,
                   }}
                 >
-                <div
-                  style={{
-                    height: screenSize === "tablet" ? 55 : 85,
-                    width: screenSize === "tablet" ? 55 : 85,
-                    borderRadius: "50%",
-                    border: "2px solid #8da094ff",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    background: colors.cardBg,
-                    flexShrink: 0,
-                  }}
-                >
-                  <FiPower
+                  <div
                     style={{
-                      fontSize: screenSize === "tablet" ? 16 : 24,
-                      color: "#8da094ff",
+                      height: screenSize === "tablet" ? 55 : 85,
+                      width: screenSize === "tablet" ? 55 : 85,
+                      borderRadius: "50%",
+                      border: "2px solid #8da094ff",
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      background: colors.cardBg,
+                      flexShrink: 0,
                     }}
+                  >
+                    <FiPower
+                      style={{
+                        fontSize: screenSize === "tablet" ? 16 : 24,
+                        color: "#8da094ff",
+                      }}
+                    />
+                    <div
+                      style={{
+                        fontSize: isSmallScreen ? 8 : 12,
+                        color: "#666",
+                        fontWeight: "bold",
+                      }}
+                    >
+                     {project?.project_data?.[0]?.family_load_power} kw
+                    </div>
+                  </div>
+                  <div
+                    style={{ width: 4, height: 35, background: "#8da094ff" }}
                   />
-                  <div
-                    style={{
-                      fontSize: isSmallScreen ? 8 : 12,
-                      color: "#666",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    {project?.project_data?.[0]?.family_load_power} kw
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div
+                      style={{
+                        fontWeight: 600,
+                        fontSize: screenSize === "tablet" ? 10 : 14,
+                        color: colors.text,
+                      }}
+                    >
+                      {lang("animated.grid_load", "Grid Load")}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: screenSize === "tablet" ? 8 : 12,
+                        color: colors.textMuted,
+                      }}
+                    >
+                      {lang("animated.todayconsumed", "Today Consumed")} :{" "}
+                      {project?.project_data?.[0]?.home_load_today_energy} Kwh
+                    </div>
                   </div>
                 </div>
-                <div
-                  style={{ width: 4, height: 35, background: "#8da094ff" }}
-                />
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div
-                    style={{
-                      fontWeight: 600,
-                      fontSize: screenSize === "tablet" ? 10 : 14,
-                      color: colors.text,
-                    }}
-                  >
-                    {lang("animated.grid_load", "Grid Load")}
-                  </div>
-                  <div
-                    style={{
-                      fontSize: screenSize === "tablet" ? 8 : 12,
-                      color: colors.textMuted,
-                    }}
-                  >
-                    {lang("animated.todayconsumed", "Today Consumed")} :{" "}
-                    {project?.project_data?.[0]?.home_load_today_energy} Kwh
-                  </div>
-                </div>
-              </div>
               )}
 
               {/* ================= CONSUMED ================= */}
@@ -994,7 +1057,7 @@ export default function SolarEnergyFlow({
                       fontWeight: "bold",
                     }}
                   >
-                    {project?.project_data?.[0]?.family_load_power} kw
+                    {project?.project_data?.[0]?.epm_type !== 1 ? 0 : project?.project_data?.[0]?.family_load_power} kw
                   </div>
                 </div>
                 <div style={{ width: 4, height: 35, background: "#FB923C" }} />
@@ -1006,7 +1069,7 @@ export default function SolarEnergyFlow({
                       color: colors.text,
                     }}
                   >
-                    {lang("animated.consumed", "Consumed")}
+                   {project?.project_data?.[0]?.epm_type !== 1 ? lang("animated.backupload") : lang("animated.consumed", "Consumed")}
                   </div>
                   <div
                     style={{
@@ -1015,7 +1078,7 @@ export default function SolarEnergyFlow({
                     }}
                   >
                     {lang("animated.todayconsumed", "Today Consumed")} :{" "}
-                    {project?.project_data?.[0]?.home_load_today_energy} Kwh
+                   {project?.project_data?.[0]?.epm_type !== 1 ? 0 : project?.project_data?.[0]?.home_load_today_energy} Kwh
                   </div>
                 </div>
               </div>
@@ -1050,7 +1113,11 @@ export default function SolarEnergyFlow({
                     fill="none"
                   />
                   {project?.project_data?.[0]?.power > 0 && (
-                    <Arrow path="#pvPath" color="#FACC15" scale={screenSize === "tablet" ? 0.85 : 1} />
+                    <Arrow
+                      path="#pvPath"
+                      color="#FACC15"
+                      scale={screenSize === "tablet" ? 0.85 : 1}
+                    />
                   )}
                 </g>
 
@@ -1073,7 +1140,11 @@ export default function SolarEnergyFlow({
                     fill="none"
                   />
                   {Math.abs(project?.project_data?.[0]?.p_sum) > 0 && (
-                    <Arrow path="#gridPath" color="#EF4444" scale={screenSize === "tablet" ? 0.85 : 1} />
+                    <Arrow
+                      path="#gridPath"
+                      color="#EF4444"
+                      scale={screenSize === "tablet" ? 0.85 : 1}
+                    />
                   )}
                 </g>
 
@@ -1096,7 +1167,11 @@ export default function SolarEnergyFlow({
                     fill="none"
                   />
                   {project?.project_data?.[0]?.family_load_power > 0 && (
-                    <Arrow path="#consumePath" color="#FB923C" scale={screenSize === "tablet" ? 0.85 : 1} />
+                    <Arrow
+                      path="#consumePath"
+                      color="#FB923C"
+                      scale={screenSize === "tablet" ? 0.85 : 1}
+                    />
                   )}
                 </g>
 
@@ -1120,7 +1195,11 @@ export default function SolarEnergyFlow({
                       fill="none"
                     />
                     {project?.project_data?.[0]?.family_load_power > 0 && (
-                      <Arrow path="#batteryPath" color="#1372dfff" scale={screenSize === "tablet" ? 0.85 : 1} />
+                      <Arrow
+                        path="#batteryPath"
+                        color="#1372dfff"
+                        scale={screenSize === "tablet" ? 0.85 : 1}
+                      />
                     )}
                   </g>
                 )}
@@ -1144,9 +1223,15 @@ export default function SolarEnergyFlow({
                       strokeWidth="2"
                       fill="none"
                     />
-                    {project?.project_data?.[0]?.family_load_power && Math.abs(project?.project_data?.[0]?.family_load_power) > 0 && (
-                      <Arrow path="#inverterToGridLoadPath" color="#8da094ff" scale={screenSize === "tablet" ? 0.85 : 1} />
-                    )}
+                    {project?.project_data?.[0]?.family_load_power &&
+                      Math.abs(project?.project_data?.[0]?.family_load_power) >
+                        0 && (
+                        <Arrow
+                          path="#inverterToGridLoadPath"
+                          color="#8da094ff"
+                          scale={screenSize === "tablet" ? 0.85 : 1}
+                        />
+                      )}
                   </g>
                 )}
               </svg>
@@ -1329,7 +1414,9 @@ export default function SolarEnergyFlow({
                       marginLeft: "4px",
                     }}
                   >
-                    {inverter.inverter_serial_number || inverter.serial || "N/A"}
+                    {inverter.inverter_serial_number ||
+                      inverter.serial ||
+                      "N/A"}
                   </span>
                 </div>
               </div>
