@@ -6,72 +6,83 @@ import useCardTitleActions from "@/hooks/useCardTitleActions";
 import CardLoader from "@/components/shared/CardLoader";
 import { apiGet } from "@/lib/api";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
 
-const AllLeaseRequest = ({ title }) => {
+const AllProjects = ({ title }) => {
+  const { lang } = useLanguage();
+  const { user } = useAuth();
+  const cardTitle = title || lang('reports.allprojects', 'All Projects');
   const {
     refreshKey,
     isRemoved,
     isExpanded,
-    handleRefresh,
-    handleExpand,
-    handleDelete,
   } = useCardTitleActions();
-  const [leaseRequests, setLeaseRequests] = useState([]);
-  const { lang } = useLanguage();
-  const cardTitle = title || lang('reports.all_lease_requests', 'All Lease Requests');
+  const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchLeaseRequests = async () => {
+    const fetchProjects = async () => {
       try {
         setLoading(true);
         setError(null);
-        const res = await apiGet("/api/lease");
-        const list = res?.data || [];
-        setLeaseRequests(list.slice(0, 6)); // Show first 6 lease requests
+        // Only show projects belonging to the current offtaker (user)
+        if (!user?.id) {
+          setProjects([]);
+          return;
+        }
+        const res = await apiGet(`/api/projects?limit=6&page=1&offtaker_id=${user.id}`);
+        const list = Array.isArray(res?.data) ? res.data : [];
+        setProjects(list.slice(0, 6)); // Show first 6 projects
       } catch (err) {
-        setError("Failed to load lease requests");
+        setError("Failed to load projects");
       } finally {
         setLoading(false);
       }
     };
-    fetchLeaseRequests();
-  }, [refreshKey]);
+    fetchProjects();
+  }, [refreshKey, user?.id]);
 
   if (isRemoved) return null;
+
+  const truncateText = (text, maxLength = 20) => {
+    if (!text) return "N/A";
+    return text.length > maxLength ? text.substring(0, maxLength) + "..." : text;
+  };
 
   return (
     <div className="col-xxl-4">
       <div
-        className={`card stretch stretch-full ${isExpanded ? "card-expand" : ""
-          } ${refreshKey ? "card-loading" : ""}`}
+        className={`card stretch shadow stretch-full ${isExpanded ? "card-expand" : ""} ${refreshKey ? "card-loading" : ""}`}
       >
-        <CardHeader title={cardTitle} viewHref="/admin/lease-request/list" />
+        <CardHeader title={cardTitle} viewHref="/offtaker/projects" />
         <div className="card-body custom-card-action p-0">
           {loading ? (
             <div className="p-4 text-center text-muted">Loading...</div>
           ) : error ? (
             <div className="p-4 text-center text-danger">{error}</div>
-          ) : leaseRequests.length === 0 ? (
-            <div className="p-4 text-center text-muted">No lease requests found</div>
+          ) : projects.length === 0 ? (
+            <div className="p-4 text-center text-muted">No projects found</div>
           ) : (
             <div className="table-responsive">
               <table className="table table-hover mb-0">
                 <tbody>
-                  {leaseRequests.map(({ id, fullName, email, phoneNumber, subject, status }) => {
-                    const isActive = status === 1;
-                    return (
+                  {projects.map(
+                    ({ id, project_name, status, product_code, lease_term }) => (
                       <tr key={id} className="align-middle" style={{ borderBottom: "1px solid #e5e7eb" }}>
                         <td>
-                          <div className="fw-semibold text-decoration-none">
-                            {fullName || "Unnamed"}
+                          <Link
+                            href={`/admin/projects/view/${id}`}
+                            className="fw-semibold text-decoration-none"
+                            title={project_name || "Untitled"}
+                          >
+                            {truncateText(project_name || "Untitled", 20)}
+                          </Link>
+                          <div className="fs-12 text-muted">
+                            Code: {product_code || "N/A"}
                           </div>
                           <div className="fs-12 text-muted">
-                            Email: {email || "N/A"}
-                          </div>
-                          <div className="fs-12 text-muted">
-                            Subject: {subject || "N/A"}
+                            Lease Term: {lease_term || "N/A"}
                           </div>
                         </td>
                         <td className="text-end">
@@ -80,20 +91,20 @@ const AllLeaseRequest = ({ title }) => {
                             style={{
                               fontSize: "12px",
                               border:
-                                isActive
+                                status === 1
                                   ? "1px solid #16a34a30"
                                   : "1px solid #dc262630",
                               backgroundColor:
-                                isActive ? "#16a34a15" : "#dc262615",
-                              color: isActive ? "#15803d" : "#b91c1c",
+                                status === 1 ? "#16a34a15" : "#dc262615",
+                              color: status === 1 ? "#15803d" : "#b91c1c",
                             }}
                           >
-                            {isActive ? "Active" : "Inactive"}
+                            {status === 1 ? "Active" : "Inactive"}
                           </span>
                         </td>
                       </tr>
-                    );
-                  })}
+                    )
+                  )}
                 </tbody>
               </table>
             </div>
@@ -105,4 +116,4 @@ const AllLeaseRequest = ({ title }) => {
   );
 };
 
-export default AllLeaseRequest;
+export default AllProjects;

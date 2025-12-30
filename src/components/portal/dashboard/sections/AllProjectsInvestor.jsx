@@ -4,20 +4,18 @@ import Link from "next/link";
 import CardHeader from "@/components/shared/CardHeader";
 import useCardTitleActions from "@/hooks/useCardTitleActions";
 import CardLoader from "@/components/shared/CardLoader";
-import HorizontalProgress from "@/components/shared/HorizontalProgress";
 import { apiGet } from "@/lib/api";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
 
 const AllProjects = ({ title }) => {
   const { lang } = useLanguage();
+  const { user } = useAuth();
   const cardTitle = title || lang('reports.allprojects', 'All Projects');
   const {
     refreshKey,
     isRemoved,
     isExpanded,
-    handleRefresh,
-    handleExpand,
-    handleDelete,
   } = useCardTitleActions();
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -28,9 +26,22 @@ const AllProjects = ({ title }) => {
       try {
         setLoading(true);
         setError(null);
-        const res = await apiGet("/api/projects?limit=6&page=1");
+        // Show all projects for the logged-in investor
+        if (!user?.id) {
+          setProjects([]);
+          return;
+        }
+        const res = await apiGet(`/api/investors?page=1&limit=6&userId=${user.id}`);
         const list = Array.isArray(res?.data) ? res.data : [];
-        setProjects(list.slice(0, 6)); // Show first 6 projects
+        // Normalize API shape to match table expectations
+        const normalized = list.map((item) => ({
+          id: item?.projects?.id ?? item?.project_id ?? item?.id,
+          project_name: item?.projects?.project_name ?? "Untitled",
+          status: item?.projects?.status ?? item?.status ?? 0,
+          product_code: item?.projects?.product_code ?? "-",
+          lease_term: item?.projects?.lease_term ?? "N/A",
+        }));
+        setProjects(normalized.slice(0, 6)); // Show first 6 projects
       } catch (err) {
         setError("Failed to load projects");
       } finally {
@@ -38,7 +49,7 @@ const AllProjects = ({ title }) => {
       }
     };
     fetchProjects();
-  }, [refreshKey]);
+  }, [refreshKey, user?.id]);
 
   if (isRemoved) return null;
 
@@ -50,9 +61,9 @@ const AllProjects = ({ title }) => {
   return (
     <div className="col-xxl-4">
       <div
-        className={`card stretch stretch-full ${isExpanded ? "card-expand" : ""} ${refreshKey ? "card-loading" : ""}`}
+        className={`card stretch shadow stretch-full ${isExpanded ? "card-expand" : ""} ${refreshKey ? "card-loading" : ""}`}
       >
-        <CardHeader title={cardTitle} viewHref="/admin/projects/list" />
+        <CardHeader title={cardTitle} viewHref="/investor/projects" />
         <div className="card-body custom-card-action p-0">
           {loading ? (
             <div className="p-4 text-center text-muted">Loading...</div>

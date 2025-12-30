@@ -12,7 +12,10 @@
     "darkMode": "Dark Mode",
     "lightMode": "Light Mode",
     "fullScreen": "Full Screen",
-    "changepassword": "Change Password"
+    "changepassword": "Change Password",
+    "statsOverview": "Stats Overview",
+    "statsDescription": "Overview of Stats",
+    "plantoverview": "Solar Plant Overview"
   },
   "navigation": {
     "navigation": "Navigation",
@@ -336,7 +339,7 @@
     "timesheetsreport": "Timesheets Report",
     "blog": "Blog",
     "contact us": "Contact Us",
-    "lease request": "Lease Request",
+    "lease_request": "Lease Request",
     "savingreports": "Saving Reports",
     "conjunctionreports": "Conjunction Reports",
     "roireports": "ROI Reports",
@@ -1328,7 +1331,8 @@
     "document": "Document",
     "date": "Date",
     "addContract": "Add Contract",
-    "editContract": "Edit Contract"
+    "editContract": "Edit Contract",
+    "viewcontract": "View Contract"
   },
   "meter": {
     "meter": "Meter",
@@ -1357,8 +1361,13 @@
   },
   "reports": {
     "reports": "Reports",
+    "allreports": "All Reports",
     "allprojects": "All Projects",
+    "all_lease_requests": "All Lease Requests",
+    "allusers": "All Users",
+    "allcontracts": "All Contracts",
     "allinverters": "All Inverters",
+    "allinvestors": "All Investors",
     "downloadcsv": "Download CSV",
     "dailyYield": "Daily Yield",
     "annualYield": "Annual Yield",
@@ -1411,5 +1420,17 @@
     "viewDetails": "View Details",
     "investNow": "Invest Now",
     "noProjects": "No projects available"
+  },
+  "animated": {
+    "powerflow": "Power Flow",
+    "dataReportingTime": "Data Reporting Time",
+    "todayYield": "Today Yield",
+    "todayImported": "Today Imported",
+    "todayExported": "Today Exported",
+    "todayconsumed": "Today Consumed",
+    "consumed": "Consumed",
+    "grid": "Grid",
+    "battery": "Battery",
+    "grid_load": "Grid Load"
   }
 }

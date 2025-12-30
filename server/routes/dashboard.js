@@ -5,7 +5,7 @@ import { authenticateToken } from '../middleware/auth.js';
 const router = express.Router();
 
 // GET /api/dashboard/statscount
-router.get('/statscount',authenticateToken, async (req, res) => {
+router.get('/statscount', authenticateToken, async (req, res) => {
     try {
         const [projects, users, inverters, contracts, lease_request, interested_investors] = await Promise.all([
             prisma.projects.count({ where: { is_deleted: 0 } }),
@@ -24,6 +24,25 @@ router.get('/statscount',authenticateToken, async (req, res) => {
                 contracts,
                 lease_request,
                 interested_investors,
+            },
+        });
+    } catch (error) {
+        console.error('Error fetching stats count:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+});
+
+router.get('/plantdetails', authenticateToken, async (req, res) => {
+    try {
+        const projects = await prisma.projects.findMany({
+            where: {
+                is_deleted: 0,
+            },
+        });
+        res.json({
+            success: true,
+            data: {
+                projects,
             },
         });
     } catch (error) {

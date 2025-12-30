@@ -68,9 +68,9 @@ const ContractsView = () => {
         // Filter and sort contracts
         const filteredContracts = contracts
             .filter(contract => {
-                const title = contract.contractTitle || '';
-                const userName = contract.userName || '';
-                const projectName = contract.projectName || '';
+                const title = contract.contract_title || '';
+                const userName = contract.user_name || '';
+                const projectName = contract.project_name || '';
                 const search = searchTerm.toLowerCase();
                 return (
                     title.toLowerCase().includes(search) ||

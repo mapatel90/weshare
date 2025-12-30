@@ -15,6 +15,7 @@ import SocialMediaStatisticsChart from '@/components/widgetsCharts/SocialMediaSt
 import MarketingChart from '@/components/widgetsCharts/MarketingChart'
 import Footer from '@/components/shared/Footer'
 import StatsCardOverview from '@/components/admin/dashboard/StatsCardOverview'
+import SolarPlantOverviewCard from '@/components/admin/dashboard/SolarPlantOverviewCard'
 
 
 const page = () => {
@@ -25,6 +26,7 @@ const page = () => {
             </PageHeader>
             <div className='main-content'>
                 <div className='row'>
+                    <SolarPlantOverviewCard />
                     <StatsCardOverview />
                     <VisitorsOverviewChart />
                     {/* <Browser /> */}

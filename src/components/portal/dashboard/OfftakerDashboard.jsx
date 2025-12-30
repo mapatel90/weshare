@@ -7,8 +7,13 @@ import BillingCard from "./sections/BillingCard";
 import DocumentsCard from "./sections/DocumentsCard";
 import ProjectOverviewChart from "@/components/admin/projectsCreate/projectViewSection/ProjectOverviewChart";
 import PowerConsumptionDashboard from "@/components/admin/projectsCreate/projectViewSection/inverterChart";
+import AllProjects from "./sections/AllProjects";
+import AllReports from "./sections/AllReports";
+import AllContracts from "./sections/AllContracts";
+import StatsCardOverview from "./sections/StateDashboard";
 import { useAuth } from "@/contexts/AuthContext";
 import { apiGet, apiPost } from "@/lib/api";
+import SolarEnergyFlow from "@/components/admin/projectsCreate/projectViewSection/Animated";
 
 function DashboardView() {
   const { user } = useAuth();
@@ -65,6 +70,13 @@ function DashboardView() {
                 p.project_kw ??
                 p.capacity ??
                 p.project_size_kw ??
+                p.day_energy ??
+                p.day_in_come ??
+                p.power ??
+                p.p_sum ??
+                p.grid_purchased_day_energy ??
+                p.family_load_power ??
+                p.home_load_today_energy ??
                 null;
               const project_size =
                 rawSize === null || rawSize === undefined || rawSize === ""
@@ -75,6 +87,13 @@ function DashboardView() {
                 name: p.project_name ?? p.project_code ?? "Untitled Project",
                 slug: p.project_slug ?? "",
                 project_size,
+                day_energy: p.day_energy ?? null,
+                day_in_come: p.day_in_come ?? null,
+                power: p.power ?? null,
+                p_sum: p.p_sum ?? null,
+                grid_purchased_day_energy: p.grid_purchased_day_energy ?? null,
+                family_load_power: p.family_load_power ?? null,
+                home_load_today_energy: p.home_load_today_energy ?? null,
               };
             });
             setProjects(normalized);
@@ -149,9 +168,10 @@ function DashboardView() {
             return {
               id: item.id ?? inv.id,
               inverterId: item.id ?? inv.project_inverter_id,
-              name: item.inverter_name ?? '-',
+              name: item.inverter_name ?? "-",
               serial: item.inverter_serial_number ?? inv.serial_number ?? "",
               kilowatt: item.kilowatt ?? "",
+              status: item.status ?? 0,
               raw: item,
             };
           });
@@ -298,306 +318,311 @@ function DashboardView() {
 
   return (
     <div>
-      <div
-        className="d-flex justify-content-end gap-2 mb-3"
-        style={{ position: "relative" }}
-      >
-        <div
-          style={{
-            position: "relative",
-            display: "inline-block",
-            zIndex: showProjectsDropdown ? 30 : undefined,
-          }}
-        >
-          <button
-            type="button"
-            className="btn bg-black text-white"
-            id="projects-dropdown-btn"
-            aria-expanded={showProjectsDropdown}
-            onClick={() => {
-              setShowProjectsDropdown((prev) => !prev);
-              setShowInverterDropdown(false);
-            }}
-            style={{ minWidth: "110px" }}
+      {/* <StatsCardOverview /> */}
+      {projects.length > 0 && (
+        <>
+          <div
+            className="d-flex justify-content-end gap-2 mb-3"
+            style={{ position: "relative" }}
           >
-            {selectedProject ? selectedProject.name : "All Projects ▼"}
-          </button>
-          {showProjectsDropdown && (
             <div
-              id="projects-dropdown-menu"
               style={{
-                position: "absolute",
-                right: 0,
-                top: "100%",
-                zIndex: 40,
-                background: "#fff",
-                border: "1px solid #e5e7eb",
-                borderRadius: "6px",
-                boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-                minWidth: "220px",
+                position: "relative",
+                display: "inline-block",
+                zIndex: showProjectsDropdown ? 30 : undefined,
               }}
             >
-              <ul
-                style={{
-                  listStyle: "none",
-                  margin: 0,
-                  padding: "8px 0",
-                  maxHeight: "320px",
-                  overflowY: "auto",
+              <button
+                type="button"
+                className="btn bg-black text-white"
+                id="projects-dropdown-btn"
+                aria-expanded={showProjectsDropdown}
+                onClick={() => {
+                  setShowProjectsDropdown((prev) => !prev);
+                  setShowInverterDropdown(false);
                 }}
+                style={{ minWidth: "110px" }}
               >
-                <li style={{ padding: "4px 0" }}>
-                  <hr
+                {selectedProject ? selectedProject.name : "All Projects ▼"}
+              </button>
+              {showProjectsDropdown && (
+                <div
+                  id="projects-dropdown-menu"
+                  style={{
+                    position: "absolute",
+                    right: 0,
+                    top: "100%",
+                    zIndex: 40,
+                    background: "#fff",
+                    border: "1px solid #e5e7eb",
+                    borderRadius: "6px",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+                    minWidth: "220px",
+                  }}
+                >
+                  <ul
                     style={{
+                      listStyle: "none",
                       margin: 0,
-                      border: "none",
-                      borderTop: "1px solid #eef2ff",
+                      padding: "8px 0",
+                      maxHeight: "320px",
+                      overflowY: "auto",
                     }}
-                  />
-                </li>
-                {projectsLoading ? (
-                  <li style={{ padding: "8px 16px", color: "#6b7280" }}>
-                    Loading...
-                  </li>
-                ) : projectsError ? (
-                  <li style={{ padding: "8px 16px", color: "#b45309" }}>
-                    {projectsError}
-                  </li>
-                ) : projects.length ? (
-                  projects.map((proj) => {
-                    const isSelected =
-                      selectedProject &&
-                      (selectedProject.id === proj.id ||
-                        selectedProject.slug === proj.slug);
-                    return (
-                      <li
-                        key={proj.id ?? proj.slug}
-                        role="button"
-                        tabIndex={0}
+                  >
+                    <li style={{ padding: "4px 0" }}>
+                      <hr
                         style={{
-                          padding: "8px 16px",
-                          cursor: "pointer",
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "center",
-                          background: isSelected ? "#eef2ff" : undefined,
-                          fontWeight: isSelected ? 600 : 400,
-                          color: "#111827",
+                          margin: 0,
+                          border: "none",
+                          borderTop: "1px solid #eef2ff",
                         }}
-                        onClick={() => {
-                          setSelectedProject(proj);
-                          setShowProjectsDropdown(false);
-                          // clear any previously selected inverter when project changes
-                          setSelectedInverter(null);
-                        }}
-                      >
-                        <span>{proj.name}</span>
+                      />
+                    </li>
+                    {projectsLoading ? (
+                      <li style={{ padding: "8px 16px", color: "#6b7280" }}>
+                        Loading...
                       </li>
-                    );
-                  })
-                ) : (
-                  <li style={{ padding: "8px 16px", color: "#6b7280" }}>
-                    No projects available.
-                  </li>
-                )}
-              </ul>
+                    ) : projectsError ? (
+                      <li style={{ padding: "8px 16px", color: "#b45309" }}>
+                        {projectsError}
+                      </li>
+                    ) : projects.length ? (
+                      projects.map((proj) => {
+                        const isSelected =
+                          selectedProject &&
+                          (selectedProject.id === proj.id ||
+                            selectedProject.slug === proj.slug);
+                        return (
+                          <li
+                            key={proj.id ?? proj.slug}
+                            role="button"
+                            tabIndex={0}
+                            style={{
+                              padding: "8px 16px",
+                              cursor: "pointer",
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                              background: isSelected ? "#eef2ff" : undefined,
+                              fontWeight: isSelected ? 600 : 400,
+                              color: "#111827",
+                            }}
+                            onClick={() => {
+                              setSelectedProject(proj);
+                              setShowProjectsDropdown(false);
+                              // clear any previously selected inverter when project changes
+                              setSelectedInverter(null);
+                            }}
+                          >
+                            <span>{proj.name}</span>
+                          </li>
+                        );
+                      })
+                    ) : (
+                      <li style={{ padding: "8px 16px", color: "#6b7280" }}>
+                        No projects available.
+                      </li>
+                    )}
+                  </ul>
+                </div>
+              )}
             </div>
-          )}
-        </div>
 
-        {/* Inverter dropdown: disabled until a project is selected */}
-        <div
-          style={{
-            position: "relative",
-            display: "inline-block",
-            zIndex: showInverterDropdown ? 30 : undefined,
-          }}
-        >
-          <button
-            type="button"
-            className="btn bg-black text-white"
-            id="inverter-dropdown-btn"
-            aria-expanded={showInverterDropdown}
-            onClick={() => {
-              // only allow opening inverter dropdown when a project is selected
-              if (!selectedProject) return;
-              setShowInverterDropdown((prev) => !prev);
-              setShowProjectsDropdown(false);
-            }}
-            style={{
-              minWidth: "110px",
-              opacity: selectedProject ? 1 : 0.6,
-              cursor: selectedProject ? "pointer" : "not-allowed",
-            }}
-            disabled={!selectedProject}
-          >
-            {selectedInverter ? selectedInverter.name : "Inverter ▼"}
-          </button>
-          {showInverterDropdown && selectedProject && (
+            {/* Inverter dropdown: disabled until a project is selected */}
             <div
-              id="inverter-dropdown-menu"
               style={{
-                position: "absolute",
-                right: 0,
-                top: "100%",
-                zIndex: 40,
-                background: "#fff",
-                border: "1px solid #e5e7eb",
-                borderRadius: "6px",
-                boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-                minWidth: "220px",
+                position: "relative",
+                display: "inline-block",
+                zIndex: showInverterDropdown ? 30 : undefined,
               }}
             >
-              <ul
-                style={{
-                  listStyle: "none",
-                  margin: 0,
-                  padding: "8px 0",
-                  maxHeight: "320px",
-                  overflowY: "auto",
+              <button
+                type="button"
+                className="btn bg-black text-white"
+                id="inverter-dropdown-btn"
+                aria-expanded={showInverterDropdown}
+                onClick={() => {
+                  // only allow opening inverter dropdown when a project is selected
+                  if (!selectedProject) return;
+                  setShowInverterDropdown((prev) => !prev);
+                  setShowProjectsDropdown(false);
                 }}
+                style={{
+                  minWidth: "110px",
+                  opacity: selectedProject ? 1 : 0.6,
+                  cursor: selectedProject ? "pointer" : "not-allowed",
+                }}
+                disabled={!selectedProject}
               >
-                {invertersLoading ? (
-                  <li style={{ padding: "8px 16px", color: "#6b7280" }}>
-                    Loading...
-                  </li>
-                ) : invertersError ? (
-                  <li style={{ padding: "8px 16px", color: "#b45309" }}>
-                    {invertersError}
-                  </li>
-                ) : inverters.length ? (
-                  inverters.map((inv) => {
-                    const isSelectedInv =
-                      selectedInverter &&
-                      (selectedInverter.id === inv.id ||
-                        selectedInverter.inverterId === inv.inverterId);
-                    return (
-                      <li
-                        key={inv.id ?? inv.inverterId}
-                        role="button"
-                        tabIndex={0}
-                        style={{
-                          padding: "8px 16px",
-                          cursor: "pointer",
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "center",
-                          background: isSelectedInv ? "#eef2ff" : undefined,
-                          fontWeight: isSelectedInv ? 600 : 400,
-                          color: "#111827",
-                        }}
-                        onClick={() => {
-                          setSelectedInverter(inv);
-                          setShowInverterDropdown(false);
-                        }}
-                      >
-                        <span>{inv.name}</span>
+                {selectedInverter ? selectedInverter.name : "Inverter ▼"}
+              </button>
+              {showInverterDropdown && selectedProject && (
+                <div
+                  id="inverter-dropdown-menu"
+                  style={{
+                    position: "absolute",
+                    right: 0,
+                    top: "100%",
+                    zIndex: 40,
+                    background: "#fff",
+                    border: "1px solid #e5e7eb",
+                    borderRadius: "6px",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+                    minWidth: "220px",
+                  }}
+                >
+                  <ul
+                    style={{
+                      listStyle: "none",
+                      margin: 0,
+                      padding: "8px 0",
+                      maxHeight: "320px",
+                      overflowY: "auto",
+                    }}
+                  >
+                    {invertersLoading ? (
+                      <li style={{ padding: "8px 16px", color: "#6b7280" }}>
+                        Loading...
                       </li>
-                    );
-                  })
-                ) : (
-                  <li style={{ padding: "8px 16px", color: "#6b7280" }}>
-                    No inverters for this project.
-                  </li>
-                )}
-              </ul>
+                    ) : invertersError ? (
+                      <li style={{ padding: "8px 16px", color: "#b45309" }}>
+                        {invertersError}
+                      </li>
+                    ) : inverters.length ? (
+                      inverters.map((inv) => {
+                        const isSelectedInv =
+                          selectedInverter &&
+                          (selectedInverter.id === inv.id ||
+                            selectedInverter.inverterId === inv.inverterId);
+                        return (
+                          <li
+                            key={inv.id ?? inv.inverterId}
+                            role="button"
+                            tabIndex={0}
+                            style={{
+                              padding: "8px 16px",
+                              cursor: "pointer",
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                              background: isSelectedInv ? "#eef2ff" : undefined,
+                              fontWeight: isSelectedInv ? 600 : 400,
+                              color: "#111827",
+                            }}
+                            onClick={() => {
+                              setSelectedInverter(inv);
+                              setShowInverterDropdown(false);
+                            }}
+                          >
+                            <span>{inv.name}</span>
+                          </li>
+                        );
+                      })
+                    ) : (
+                      <li style={{ padding: "8px 16px", color: "#6b7280" }}>
+                        No inverters for this project.
+                      </li>
+                    )}
+                  </ul>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* show selected project (optional) */}
+          {selectedProject && (
+            <div style={{ marginBottom: "12px", color: "#374151" }}>
+              Selected project: <strong>{selectedProject.name}</strong>
+              {selectedInverter && (
+                <span style={{ marginLeft: 12 }}>
+                  {" "}
+                  • Inverter: <strong>{selectedInverter.name}</strong>
+                </span>
+              )}
             </div>
           )}
-        </div>
-      </div>
-
-      {/* show selected project (optional) */}
-      {selectedProject && (
-        <div style={{ marginBottom: "12px", color: "#374151" }}>
-          Selected project: <strong>{selectedProject.name}</strong>
-          {selectedInverter && (
-            <span style={{ marginLeft: 12 }}>
-              {" "}
-              • Inverter: <strong>{selectedInverter.name}</strong>
-            </span>
-          )}
-        </div>
+        </>
       )}
 
-      <OverViewCards
-        inverterLatest={inverterLatest}
-        inverterLatestLoading={inverterLatestLoading}
-        selectedProject={selectedProject}
-        selectedInverter={selectedInverter}
-        totalProjectSize={totalProjectSize}
-      />
+      {selectedProject && (
+        <>
+          <OverViewCards
+            inverterLatest={inverterLatest}
+            inverterLatestLoading={inverterLatestLoading}
+            selectedProject={selectedProject}
+            selectedInverter={selectedInverter}
+            totalProjectSize={totalProjectSize}
+          />
 
-      {/* CHART SECTION */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(500px, 1fr))",
-          gap: "24px",
-          marginBottom: "24px",
-        }}
-      >
-        {/* PRODUCTION CHART */}
-        <div
-          style={{
-            backgroundColor: "#fff",
-            borderRadius: "12px",
-            boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-            border: "1px solid #f3f4f6",
-            padding: "24px",
-          }}
-        >
+          <SolarEnergyFlow
+            project={selectedProject}
+            projectId={selectedProject?.id}
+            inverters={inverters}
+            selectedInverterId={selectedInverter?.inverterId}
+          />
+
+          {/* CHART SECTION */}
           <div
             style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              marginBottom: "16px",
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(500px, 1fr))",
+              gap: "24px",
+              marginBottom: "24px",
             }}
           >
-            <h3
+            {/* PRODUCTION CHART */}
+            <div
               style={{
-                fontSize: "18px",
-                fontWeight: "bold",
-                color: "#111827",
+                backgroundColor: "#fff",
+                borderRadius: "12px",
+                boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+                border: "1px solid #f3f4f6",
+                padding: "24px",
               }}
             >
-              Energy Production Overview
-            </h3>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  marginBottom: "16px",
+                }}
+              >
+                <h3
+                  style={{
+                    fontSize: "18px",
+                    fontWeight: "bold",
+                    color: "#111827",
+                  }}
+                >
+                  Energy Production Overview
+                </h3>
+              </div>
+              {selectedInverter ? (
+                <PowerConsumptionDashboard
+                  projectId={selectedProject.id}
+                  readings={inverterChartData || []}
+                  loading={inverterChartLoading}
+                  selectedInverterId={selectedInverter.inverterId}
+                  projectInverters={inverters}
+                  selectedDate={selectedDate}
+                  onDateChange={setSelectedDate}
+                  setSelectedDate={setSelectedDate}
+                />
+              ) : (
+                <ProjectOverviewChart
+                  projectId={selectedProject.id}
+                  readings={projectChartData || []}
+                  loading={projectChartLoading}
+                  selectedDate={selectedDate}
+                  onDateChange={setSelectedDate}
+                  setSelectedDate={setSelectedDate}
+                />
+              )}
+            </div>
           </div>
-          {selectedProject ? (
-            selectedInverter ? (
-              <PowerConsumptionDashboard
-                projectId={selectedProject.id}
-                readings={inverterChartData || []}
-                loading={inverterChartLoading}
-                selectedInverterId={selectedInverter.inverterId}
-                projectInverters={inverters}
-                selectedDate={selectedDate}
-                onDateChange={setSelectedDate}
-                setSelectedDate={setSelectedDate}
-              />
-            ) : (
-              <ProjectOverviewChart
-                projectId={selectedProject.id}
-                readings={projectChartData || []}
-                loading={projectChartLoading}
-                selectedDate={selectedDate}
-                onDateChange={setSelectedDate}
-                setSelectedDate={setSelectedDate}
-              />
-            )
-          ) : (
-            <ProjectOverviewChart
-              projectId={null}
-              readings={[]}
-              loading={false}
-              selectedDate={selectedDate}
-              onDateChange={setSelectedDate}
-              setSelectedDate={setSelectedDate}
-            />
-          )}
-        </div>
-      </div>
+        </>
+      )}
 
       {/* Dashboard */}
       <div className="dashboard-row">
@@ -774,6 +799,14 @@ function DashboardView() {
             </div>
           </div>
         </div>
+      </div>
+
+      <div className="row">
+        <AllProjects />
+
+        <AllReports />
+
+        <AllContracts />
       </div>
 
       {/* Projects Table */}

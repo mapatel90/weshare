@@ -1,23 +1,21 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import Link from "next/link";
 import CardHeader from "@/components/shared/CardHeader";
 import useCardTitleActions from "@/hooks/useCardTitleActions";
 import CardLoader from "@/components/shared/CardLoader";
 import { apiGet } from "@/lib/api";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
 
 const AllContracts = ({ title }) => {
   const {
     refreshKey,
     isRemoved,
     isExpanded,
-    handleRefresh,
-    handleExpand,
-    handleDelete,
   } = useCardTitleActions();
   const [contracts, setContracts] = useState([]);
   const { lang } = useLanguage();
+  const { user } = useAuth();
   const cardTitle = title || lang('reports.allcontracts', 'All Contracts');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -27,7 +25,15 @@ const AllContracts = ({ title }) => {
       try {
         setLoading(true);
         setError(null);
-        const res = await apiGet("/api/contracts?limit=6");
+        
+        if (!user?.id) {
+          setContracts([]);
+          setLoading(false);
+          return;
+        }
+        
+        // Filter contracts by offtaker_id matching ContractsView logic
+        const res = await apiGet(`/api/contracts?offtakerId=${user.id}&limit=6`);
         const list = res?.data || [];
         setContracts(list.slice(0, 6)); // Show first 6 contracts
       } catch (err) {
@@ -37,7 +43,7 @@ const AllContracts = ({ title }) => {
       }
     };
     fetchContracts();
-  }, [refreshKey]);
+  }, [refreshKey, user?.id]);
 
   if (isRemoved) return null;
 
@@ -70,11 +76,11 @@ const AllContracts = ({ title }) => {
   return (
     <div className="col-xxl-4">
       <div
-        className={`card stretch stretch-full ${
+        className={`card stretch shadow stretch-full ${
           isExpanded ? "card-expand" : ""
         } ${refreshKey ? "card-loading" : ""}`}
       >
-        <CardHeader title={cardTitle} viewHref="/admin/contract/list" />
+        <CardHeader title={cardTitle} viewHref="/offtaker/contracts" />
         <div className="card-body custom-card-action p-0">
           {loading ? (
             <div className="p-4 text-center text-muted">Loading...</div>

@@ -42,16 +42,16 @@ const InvoiceTable = () => {
   const [statusError, setStatusError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-//   const formatTime = (val) => {
-//     if (!val) return "";
-//     const d = new Date(val);
-//     if (isNaN(d.getTime())) return "";
-//     return d.toLocaleTimeString("en-GB", {
-//       hour: "2-digit",
-//       minute: "2-digit",
-//       hour12: false,
-//     });
-//   };
+  //   const formatTime = (val) => {
+  //     if (!val) return "";
+  //     const d = new Date(val);
+  //     if (isNaN(d.getTime())) return "";
+  //     return d.toLocaleTimeString("en-GB", {
+  //       hour: "2-digit",
+  //       minute: "2-digit",
+  //       hour12: false,
+  //     });
+  //   };
 
   const fetchInvoices = async () => {
     try {
@@ -69,7 +69,7 @@ const InvoiceTable = () => {
   const fetchProjects = async () => {
     try {
       const res = await apiGet("/api/projects?status=1&limit=1000");
-      const items = Array.isArray(res?.data?.projects) ? res.data.projects : [];
+      const items = Array.isArray(res?.projectList) ? res.projectList : [];
       const active = items.filter((p) => String(p?.status) === "1");
       const mapped = active.map((p) => ({ label: p.project_name, value: String(p.id) }));
       setProjectOptions([{ label: lang("invoice.selectProject"), value: "" }, ...mapped]);
@@ -84,7 +84,7 @@ const InvoiceTable = () => {
       const proj = res?.data;
       const ot = proj?.offtaker;
       if (ot?.id) {
-        const option = { label: (ot.fullName || ot.email || ""), value: String(ot.id) };
+        const option = { label: (ot.full_name || ot.email || ""), value: String(ot.id) };
         setOfftakerOptions([option]);
         setSelectedOfftaker(option);
         if (errors.offtaker) setErrors((prev) => ({ ...prev, offtaker: "" }));
@@ -131,9 +131,9 @@ const InvoiceTable = () => {
       setEditingId(item.id || null);
       // projects are preloaded on mount
       // Ensure offtaker options align with selected project's offtaker
-      setSelectedProject(item.project ? { label: item.project.project_name, value: String(item.project.id) } : null);
-      const ofLabel = item.offtaker ? ([item.offtaker.fullName].filter(Boolean).join(" ") || item.offtaker.email) : "";
-      const editOfftaker = item.offtaker ? { label: ofLabel, value: String(item.offtaker.id) } : null;
+      setSelectedProject(item.projects ? { label: item.projects.project_name, value: String(item.projects.id) } : null);
+      const ofLabel = item.users ? ([item.users.full_name].filter(Boolean).join(" ") || item.users.email) : "";
+      const editOfftaker = item.users ? { label: ofLabel, value: String(item.users.id) } : null;
       setSelectedOfftaker(editOfftaker);
       setOfftakerOptions(editOfftaker ? [editOfftaker] : []);
       setAmount(String(item.amount ?? ""));
@@ -214,15 +214,15 @@ const InvoiceTable = () => {
     {
       accessorKey: "project.project_name",
       header: () => lang("invoice.project"),
-      cell: ({ row }) => row?.original?.project?.project_name || "-",
+      cell: ({ row }) => row?.original?.projects?.project_name || "-",
     },
     {
       accessorKey: "offtaker",
       header: () => lang("invoice.offtaker"),
       cell: ({ row }) => {
-        const u = row?.original?.offtaker;
+        const u = row?.original?.users;
         if (!u) return "-";
-        return u.fullName || u.email || "-";
+        return u.full_name || "-";
       },
     },
     { accessorKey: "amount", header: () => lang("invoice.amount") },

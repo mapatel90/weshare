@@ -5,6 +5,7 @@ import useCardTitleActions from "@/hooks/useCardTitleActions";
 import CardLoader from "@/components/shared/CardLoader";
 import { apiGet } from "@/lib/api";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
 
 const AllReports = ({ title }) => {
   const {
@@ -14,18 +15,52 @@ const AllReports = ({ title }) => {
   } = useCardTitleActions();
   const [reports, setReports] = useState([]);
   const { lang } = useLanguage();
+  const { user } = useAuth();
   const cardTitle = title || lang('reports.allreports', 'All Reports');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [allowedIds, setAllowedIds] = useState(null);
 
+  // Load allowed project IDs for the logged-in investor
+  useEffect(() => {
+    if (!user?.id) return setAllowedIds([]);
+
+    apiGet(`/api/investors?page=1&limit=50&userId=${user.id}`)
+      .then((res) => {
+        const ids = Array.isArray(res?.data)
+          ? res.data
+              .map((item) => Number(item?.project_id ?? item?.projects?.id))
+              .filter(Boolean)
+          : [];
+        setAllowedIds(ids);
+      })
+      .catch(() => setAllowedIds([]));
+  }, [user?.id]);
+
+  // Fetch inverter reports and restrict to investor-allowed projects
   useEffect(() => {
     const fetchReports = async () => {
       try {
         setLoading(true);
         setError(null);
-        const res = await apiGet("/api/inverter-data?limit=6");
-        const list = res?.data || [];
-        setReports(list.slice(0, 6)); // Show first 6 reports
+
+        if (!user?.id) {
+          setReports([]);
+          setLoading(false);
+          return;
+        }
+
+        const res = await apiGet("/api/inverter-data?limit=50");
+        const items = Array.isArray(res?.data) ? res.data : [];
+
+        const allowed = Array.isArray(allowedIds) ? allowedIds : null;
+        const filteredReports = items.filter((item) => {
+          if (!allowed) return true; // if not loaded yet, show all
+          const pid = Number(item.project_id ?? item.projects?.id);
+          return allowed.includes(pid);
+        });
+
+        setReports(filteredReports.slice(0, 6));
       } catch (err) {
         setError("Failed to load reports");
       } finally {
@@ -33,7 +68,7 @@ const AllReports = ({ title }) => {
       }
     };
     fetchReports();
-  }, [refreshKey]);
+  }, [refreshKey, user?.id, allowedIds]);
 
   if (isRemoved) return null;
 
@@ -45,11 +80,11 @@ const AllReports = ({ title }) => {
   return (
     <div className="col-xxl-4">
       <div
-        className={`card stretch stretch-full ${
+        className={`card stretch shadow stretch-full ${
           isExpanded ? "card-expand" : ""
         } ${refreshKey ? "card-loading" : ""}`}
       >
-        <CardHeader title={cardTitle} viewHref="/admin/reports/saving" />
+        <CardHeader title={cardTitle} viewHref="/investor/reports/roi-reports" />
         <div className="card-body custom-card-action p-0">
           {loading ? (
             <div className="p-4 text-center text-muted">Loading...</div>

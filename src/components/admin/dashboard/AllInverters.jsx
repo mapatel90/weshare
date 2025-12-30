@@ -6,8 +6,9 @@ import useCardTitleActions from "@/hooks/useCardTitleActions";
 import CardLoader from "@/components/shared/CardLoader";
 import { apiGet } from "@/lib/api";
 import { clippingParents } from "@popperjs/core";
+import { useLanguage } from "@/contexts/LanguageContext";
 
-const AllInverters = ({ title = "All Inverters" }) => {
+const AllInverters = ({ title }) => {
   const {
     refreshKey,
     isRemoved,
@@ -17,6 +18,8 @@ const AllInverters = ({ title = "All Inverters" }) => {
     handleDelete,
   } = useCardTitleActions();
   const [inverters, setInverters] = useState([]);
+  const { lang } = useLanguage();
+  const cardTitle = title || lang('reports.allinverters', 'All Inverters');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -46,7 +49,7 @@ const AllInverters = ({ title = "All Inverters" }) => {
           isExpanded ? "card-expand" : ""
         } ${refreshKey ? "card-loading" : ""}`}
       >
-        <CardHeader title={title} viewHref="/admin/inverter/list" />
+        <CardHeader title={cardTitle} viewHref="/admin/inverter/list" />
         <div className="card-body custom-card-action p-0">
           {loading ? (
             <div className="p-4 text-center text-muted">Loading...</div>

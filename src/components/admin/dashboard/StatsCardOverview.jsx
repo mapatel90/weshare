@@ -9,17 +9,17 @@ import { apiGet } from '@/lib/api';
 import { FiUsers, FiCpu } from "react-icons/fi";
 import { MdSolarPower, MdDocumentScanner, MdVerifiedUser, MdTrendingUp } from "react-icons/md";
 
-const statsConfig = [
-    { key: 'projects', title: 'Projects', icon: <MdSolarPower size={26} /> },
-    { key: 'users', title: 'Users', icon: <FiUsers size={26} /> },
-    { key: 'inverters', title: 'Inverters', icon: <FiCpu size={26} /> },
-    { key: 'contracts', title: 'Contracts', icon: <MdDocumentScanner size={26} /> },
-    { key: 'lease_request', title: 'Lease Requests', icon: <MdVerifiedUser size={26} /> },
-    { key: 'interested_investors', title: 'Interested Investors', icon: <MdTrendingUp size={26} /> },
-];
 
 const StatsCardOverview = () => {
     const { lang } = useLanguage();
+    const statsConfig = [
+        { key: 'projects', title: lang('navigation.projects', 'Projects'), icon: <MdSolarPower size={26} /> },
+        { key: 'users', title: lang('navigation.users', 'Users'), icon: <FiUsers size={26} /> },
+        { key: 'inverters', title: lang('inverter.inverter', 'inverters'), icon: <FiCpu size={26} /> },
+        { key: 'contracts', title: lang('offtaker_login.sidebar.contracts', 'Contracts'), icon: <MdDocumentScanner size={26} /> },
+        { key: 'lease_request', title: lang('leaseRequest.title', 'Lease Requests'), icon: <MdVerifiedUser size={26} /> },
+        { key: 'interested_investors', title: lang('home.exchangeHub.investor'), icon: <MdTrendingUp size={26} /> },
+    ];
     const [stats, setStats] = useState({
         projects: 0,
         users: 0,
@@ -55,10 +55,10 @@ const StatsCardOverview = () => {
                     <div className="hstack justify-content-between mb-4">
                         <div>
                             <h5 className="mb-1">
-                                {lang('dashboard.statsOverview', 'Stats Overview')}
+                                {lang('header.statsOverview', 'Stats Overview')}
                             </h5>
                             <span className="fs-12 text-muted">
-                                {lang('dashboard.statsDescription', 'Overview of stats')}
+                                {lang('header.statsDescription', 'Overview of stats')}
                             </span>
                         </div>
                     </div>

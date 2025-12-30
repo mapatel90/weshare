@@ -45,34 +45,34 @@ router.get("/", authenticateToken, async (req, res) => {
         {
           project: { project_name: { contains: search, mode: "insensitive" } },
         },
-        { offtaker: { username: { contains: search, mode: "insensitive" } } },
+        { users: { username: { contains: search, mode: "insensitive" } } },
       ];
     }
 
     // Fetch data with relations
     const [invoices, total] = await Promise.all([
-      prisma.invoice.findMany({
+      prisma.invoices.findMany({
         where,
         skip: parseInt(offset),
         take: parseInt(limit),
         orderBy: { id: "asc" },
         include: {
-          project: {
+          projects: {
             select: {
               id: true,
               project_name: true,
             },
           },
-          offtaker: {
+          users: {
             select: {
               id: true,
-              fullName: true,
+              full_name: true,
               email: true,
             },
           },
         },
       }),
-      prisma.invoice.count({ where }),
+      prisma.invoices.count({ where }),
     ]);
 
     // Send success response
@@ -113,7 +113,7 @@ router.post("/", authenticateToken, async (req, res) => {
         .json({ success: false, message: "Missing required fields" });
     }
 
-    const newInvoice = await prisma.invoice.create({
+    const newInvoice = await prisma.invoices.create({
       data: {
         project_id,
         offtaker_id,
@@ -152,7 +152,7 @@ router.put("/:id", authenticateToken, async (req, res) => {
         .json({ success: false, message: "Missing required fields" });
     }
 
-    const updated = await prisma.invoice.update({
+    const updated = await prisma.invoices.update({
       where: { id: parseInt(id) },
       data: {
         project_id: parseInt(project_id),
@@ -180,7 +180,7 @@ router.put("/:id", authenticateToken, async (req, res) => {
 router.delete("/:id", authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
-    await prisma.invoice.update({
+    await prisma.invoices.update({
       where: { id: parseInt(id) },
       data: { is_deleted: 1 },
     });
