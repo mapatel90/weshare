@@ -8,8 +8,6 @@ export default function SolarEnergyFlow({
   isDark = false,
   project = {},
 }) {
-  console.log("Rendering SolarEnergyFlow with project:", project);
-  console.log("Inverters:", inverters);
   // Get first 4 inverters (regardless of status)
   const displayInverters = inverters.slice(0, 4);
 
@@ -646,7 +644,7 @@ export default function SolarEnergyFlow({
                 }}
               >
                 <div
-                  style={{ width: 4, height: 35, background: "#1372dfff" }}
+                  style={{ width: 4, height: isSmallScreen ? 40 : 55, background: "#1372dfff" }}
                 />
                 <div style={{ flex: 1 }}>
                   <div
@@ -664,8 +662,17 @@ export default function SolarEnergyFlow({
                       color: colors.textMuted,
                     }}
                   >
-                    {lang("animated.todayYield", "Today Yield")} :{" "}
-                    {project?.day_energy}Kwh ~ {project?.day_in_come}K VND
+                    {lang("animated.daily_charge", "Daily Charge")} :{" "}
+                    {project?.battery_charge_energy}Kwh
+                  </div>
+                  <div
+                    style={{
+                      fontSize: screenSize === "tablet" ? 9 : 12,
+                      color: colors.textMuted,
+                    }}
+                  >
+                    {lang("animated.today_discharged", "Today Discharged")} :{" "}
+                    {project?.battery_discharge_energy}Kwh
                   </div>
                 </div>
                 <div
@@ -909,7 +916,7 @@ export default function SolarEnergyFlow({
                       color: colors.textMuted,
                     }}
                   >
-                    {lang("animated.consumed", "Today Consumed")} :{" "}
+                    {lang("animated.todayconsumed", "Today Consumed")} :{" "}
                     {project?.home_load_today_energy} Kwh
                   </div>
                 </div>
@@ -1122,7 +1129,7 @@ export default function SolarEnergyFlow({
                     strokeWidth="2"
                     fill="none"
                   />
-                  {project?.p_sum && Math.abs(project?.p_sum) > 0 && (
+                  {project?.family_load_power && Math.abs(project?.family_load_power) > 0 && (
                     <Arrow path="#inverterToGridLoadPath" color="#8da094ff" scale={screenSize === "tablet" ? 0.85 : 1} />
                   )}
                 </g>

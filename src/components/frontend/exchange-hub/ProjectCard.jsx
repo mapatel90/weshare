@@ -109,7 +109,7 @@ const ProjectCard = ({ project, activeTab }) => {
 
                         {/* Offtaker */}
                         <p className="offtaker-image">
-                            {lang('home.exchangeHub.offtaker') || 'Offtaker'}: {project?.offtaker?.fullName || project?.offtaker?.company_name || 'Greenfield Academy'}
+                            {lang('home.exchangeHub.offtaker') || 'Offtaker'}: {project?.offtaker?.full_name || project?.offtaker?.company_name || 'Greenfield Academy'}
                         </p>
 
                         {/* Stats - 3 Columns */}
@@ -219,7 +219,7 @@ const ProjectCard = ({ project, activeTab }) => {
 
                 {/* Offtaker */}
                 <p className="offtaker">
-                    {lang('home.exchangeHub.offtaker') || 'Offtaker'}: {project?.offtaker?.fullName || project?.offtaker?.company_name || 'Greenfield Academy'}
+                    {lang('home.exchangeHub.offtaker') || 'Offtaker'}: {project?.offtaker?.full_name || project?.offtaker?.company_name || 'Greenfield Academy'}
                 </p>
 
                 {/* Stats - 3 Columns */}

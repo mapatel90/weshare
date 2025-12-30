@@ -1431,6 +1431,8 @@
     "consumed": "Consumed",
     "grid": "Grid",
     "battery": "Battery",
-    "grid_load": "Grid Load"
+    "grid_load": "Grid Load",
+    "daily_charge": "Daily Charge",
+    "today_discharged": "Today Discharged"
   }
 }

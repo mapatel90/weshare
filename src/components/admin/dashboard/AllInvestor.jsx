@@ -65,7 +65,7 @@ const AllInvestor = ({ title }) => {
             <div className="table-responsive">
               <table className="table table-hover mb-0">
                 <tbody>
-                  {investors.map(({ id, full_name, email, phone_number, project, status }) => {
+                  {investors.map(({ id, full_name, email, phone_number, projects, status }) => {
                     const isActive = status === 1;
                     return (
                       <tr key={id} className="align-middle" style={{ borderBottom: "1px solid #e5e7eb" }}>
@@ -76,8 +76,8 @@ const AllInvestor = ({ title }) => {
                           <div className="fs-12 text-muted" title={email || "N/A"}>
                             Email: {truncateText(email, 25)}
                           </div>
-                          <div className="fs-12 text-muted" title={project?.project_name || "N/A"}>
-                            Project: {truncateText(project?.project_name, 20)}
+                          <div className="fs-12 text-muted" title={projects?.project_name || "N/A"}>
+                            Project: {truncateText(projects?.project_name, 20)}
                           </div>
                         </td>
                         <td className="text-end">

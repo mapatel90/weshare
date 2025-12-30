@@ -1380,6 +1380,8 @@
     "consumed": "Đã tiêu thụ",
     "grid": "Lưới điện",
     "battery": "Ắc quy",
-    "grid_load": "Tải lưới"
+    "grid_load": "Tải lưới",
+    "daily_charge": "Sạc hàng ngày",
+    "today_discharge": "hôm nay xả hàng"
   }
 }
