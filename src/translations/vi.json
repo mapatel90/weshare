@@ -1345,7 +1345,10 @@
       "wind_speed": "Tốc độ gió",
       "capacity": "Dung lượng",
       "active": "● tích cực",
-      "inactive": "● không hoạt động"
+      "inactive": "● không hoạt động",
+      "co2avoided": "CO2 tránh được",
+      "clean_energy": "Năng lượng sạch được tạo ra",
+      "tree_planted": "Cây trồng"
     },
     "energyProduction": {
       "energy_production": "Tổng quan về sản xuất năng lượng"

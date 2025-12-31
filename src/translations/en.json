@@ -1396,7 +1396,10 @@
       "wind_speed": "Wind Speed",
       "capacity": "Capacity",
       "active": "● Active",
-      "inactive": "● Inactive"
+      "inactive": "● Inactive",
+      "co2avoided": "CO2 Avoided",
+      "clean_energy": "Clean Energy Generated",
+      "tree_planted": "Equivalent Trees Planted"
     },
     "energyProduction": {
       "energy_production": "Energy Production Overview"

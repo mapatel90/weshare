@@ -19,6 +19,11 @@ export default function SolarEnergyFlow({
   const displayInverters = inverters.slice(0, 6);
 
   const { lang } = useLanguage();
+  const batteryPercentRaw = project?.project_data?.[0]?.battery_percent ?? 0;
+  const batteryPercent = Math.max(0, Math.min(100, Number(batteryPercentRaw) || 0));
+  const batteryFill = "#1372dfff";
+  const batteryEmpty = isDark ? "#1f2937" : "#e5e7eb";
+  const batteryBorder = `conic-gradient(${batteryFill} 0% ${batteryPercent}%, ${batteryEmpty} ${batteryPercent}% 100%)`;
 
   // Calculate active inverters from displayed 6
   const activeInverters = displayInverters.filter(
@@ -322,45 +327,57 @@ export default function SolarEnergyFlow({
                   height: 85,
                   width: 85,
                   borderRadius: "50%",
-                  border: "2px solid #1372dfff",
+                  background: batteryBorder,
+                  padding: 3,
                   display: "flex",
-                  flexDirection: "column",
                   alignItems: "center",
                   justifyContent: "center",
-                  background: colors.cardBg,
                   flexShrink: 0,
                 }}
               >
                 <div
                   style={{
-                    position: "relative",
+                    height: "100%",
+                    width: "100%",
+                    borderRadius: "50%",
+                    background: colors.cardBg,
                     display: "flex",
+                    flexDirection: "column",
                     alignItems: "center",
                     justifyContent: "center",
                   }}
                 >
-                  <FiBattery
+                  <div
                     style={{
-                      fontSize: 32,
-                      color: "#1372dfff",
-                    }}
-                  />
-                  <span
-                    style={{
-                      position: "absolute",
-                      fontSize: 10,
-                      fontWeight: 700,
-                      color: "#1372dfff",
-                      marginRight: 4,
+                      position: "relative",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
                     }}
                   >
-                    {project?.project_data?.[0]?.battery_percent || 0}%
-                  </span>
-                </div>
-                <div
-                  style={{ fontSize: 10, color: "#666", fontWeight: "bold" }}
-                >
-                  {(project?.project_data?.[0]?.battery_power) || 0} kw
+                    <FiBattery
+                      style={{
+                        fontSize: 32,
+                        color: batteryFill,
+                      }}
+                    />
+                    <span
+                      style={{
+                        position: "absolute",
+                        fontSize: 10,
+                        fontWeight: 700,
+                        color: batteryFill,
+                        marginRight: 4,
+                      }}
+                    >
+                      {batteryPercent}%
+                    </span>
+                  </div>
+                  <div
+                    style={{ fontSize: 10, color: "#666", fontWeight: "bold" }}
+                  >
+                    {(project?.project_data?.[0]?.battery_power) || 0} kw
+                  </div>
                 </div>
               </div>
 
@@ -547,7 +564,7 @@ export default function SolarEnergyFlow({
                 }}
               />
               <div style={{ fontSize: 10, color: "#666", fontWeight: "bold" }}>
-                {(project?.project_data?.[0]?.family_load_power) || 0} kw
+                {project?.project_data?.[0]?.epm_type !== 1 ? (project?.project_data?.[0]?.generator_power || 0) : (project?.project_data?.[0]?.family_load_power) || 0} kw
               </div>
             </div>
 
@@ -771,50 +788,61 @@ export default function SolarEnergyFlow({
                       height: isSmallScreen ? 55 : 85,
                       width: isSmallScreen ? 55 : 85,
                       borderRadius: "50%",
-                      border: "2px solid #1372dfff",
+                      background: batteryBorder,
+                      padding: 3,
                       display: "flex",
-                      flexDirection: "column",
                       alignItems: "center",
                       justifyContent: "center",
-                      background: colors.cardBg,
                       flexShrink: 0,
                     }}
                   >
                     <div
-                  style={{
-                    position: "relative",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                    <FiBattery
                       style={{
-                        fontSize: isSmallScreen ? 24 : 38,
-                        // color: "#8da094ff",
-                        color: "#1372dfff",
-                      }}
-                    />
-                    <span
-                    style={{
-                      position: "absolute",
-                      fontSize: isSmallScreen ? 6 : 10,
-                      fontWeight: 700,
-                      color: "#1372dfff",
-                      marginRight: 4,
-                    }}
-                  >
-                    {project?.project_data?.[0]?.battery_percent || 0}%
-                  </span>
-                    </div>
-                    <div
-                      style={{
-                        fontSize: isSmallScreen ? 8 : 12,
-                        color: "#666",
-                        fontWeight: "bold",
+                        height: "100%",
+                        width: "100%",
+                        borderRadius: "50%",
+                        background: colors.cardBg,
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        justifyContent: "center",
                       }}
                     >
-                      {(project?.project_data?.[0]?.battery_power) || 0} kw
+                      <div
+                        style={{
+                          position: "relative",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
+                        <FiBattery
+                          style={{
+                            fontSize: isSmallScreen ? 24 : 38,
+                            color: batteryFill,
+                          }}
+                        />
+                        <span
+                          style={{
+                            position: "absolute",
+                            fontSize: isSmallScreen ? 6 : 10,
+                            fontWeight: 700,
+                            color: batteryFill,
+                            marginRight: 4,
+                          }}
+                        >
+                          {batteryPercent}%
+                        </span>
+                      </div>
+                      <div
+                        style={{
+                          fontSize: isSmallScreen ? 8 : 12,
+                          color: "#666",
+                          fontWeight: "bold",
+                        }}
+                      >
+                        {(project?.project_data?.[0]?.battery_power) || 0} kw
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1096,7 +1124,7 @@ export default function SolarEnergyFlow({
                       fontWeight: "bold",
                     }}
                   >
-                    {project?.project_data?.[0]?.epm_type !== 1 ? 0 : (project?.project_data?.[0]?.family_load_power) || 0} kw
+                    {project?.project_data?.[0]?.epm_type !== 1 ? (project?.project_data?.[0]?.generator_power || 0) : (project?.project_data?.[0]?.family_load_power) || 0} kw
                   </div>
                 </div>
                 <div style={{ width: 4, height: 35, background: "#FB923C" }} />
@@ -1117,7 +1145,7 @@ export default function SolarEnergyFlow({
                     }}
                   >
                     {lang("animated.todayconsumed", "Today Consumed")} :{" "}
-                   {project?.project_data?.[0]?.epm_type !== 1 ? 0 : (project?.project_data?.[0]?.home_load_today_energy) || 0} Kwh
+                   {project?.project_data?.[0]?.epm_type !== 1 ? (project?.project_data?.[0]?.generator_today_energy || 0) : (project?.project_data?.[0]?.home_load_today_energy) || 0} Kwh
                   </div>
                 </div>
               </div>

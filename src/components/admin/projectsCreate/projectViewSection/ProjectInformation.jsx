@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sun, Users, Activity, DollarSign, TrendingUp, MapPin, CloudSun, SunriseIcon, Thermometer, Droplets, Compass, Wind } from 'lucide-react';
+import { Sun, Users, Activity, DollarSign, TrendingUp, MapPin, CloudSun, SunriseIcon, Thermometer, Droplets, Compass, Wind, Cloud, Leaf, Trees, } from 'lucide-react';
 import { getPrimaryProjectImage } from '@/utils/projectUtils';
 import { getFullImageUrl } from '@/utils/common';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -189,6 +189,15 @@ const ProjectInformation = ({ project = {}, isDark = false }) => {
               </div>
               <div className="col-lg-4 col-md-4 col-sm-12">
                 <InfoCard icon={Wind} label={lang('projectView.projectInformation.wind_speed', 'Wind Speed')} value={project?.project_data?.[0]?.wind_spd ?? '-'} color={getAutoRandomColor()} isDark={isDark} />
+              </div>
+              <div className="col-lg-4 col-md-4 col-sm-12">
+                <InfoCard icon={Cloud} label={lang('projectView.projectInformation.co2avoided', 'CO2 Avoided ')} value={project?.project_data?.[0]?.power_station_avoided_co2 ?? '-'} color={getAutoRandomColor()} isDark={isDark} />
+              </div>
+              <div className="col-lg-4 col-md-4 col-sm-12">
+                <InfoCard icon={Leaf} label={lang('projectView.projectInformation.clean_energy', 'Clean Energy')} value={project?.project_data?.[0]?.power_station_avoided_tce + 'kwh' ?? '-'} color={getAutoRandomColor()} isDark={isDark} />
+              </div>
+              <div className="col-lg-4 col-md-4 col-sm-12">
+                <InfoCard icon={Trees} label={lang('projectView.projectInformation.tree_planted', 'Tree Planted')} value={project?.project_data?.[0]?.power_station_num_tree + ' trees' ?? '-'} color={getAutoRandomColor()} isDark={isDark} />
               </div>
             </div>
           </div>

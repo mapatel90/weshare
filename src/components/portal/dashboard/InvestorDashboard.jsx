@@ -767,17 +767,23 @@ function DashboardView() {
             <div className="impact-grid">
               <div className="impact-card">
                 <div style={{ fontSize: "35px" }}>🍃</div>
-                <div className="impact-value">4.2 tons</div>
+                <div className="impact-value">{selectedProject?.project_data?.[0]?.power_station_avoided_co2 
+                    ? `${selectedProject.project_data[0].power_station_avoided_co2} kg`
+                    : '-'}</div>
                 <div className="impact-label">CO₂ Avoided This Year</div>
               </div>
               <div className="impact-card">
                 <div style={{ fontSize: "35px" }}>💡</div>
-                <div className="impact-value">12.8K kWh</div>
+                <div className="impact-value">{selectedProject?.project_data?.[0]?.power_station_avoided_tce 
+                    ? `${selectedProject.project_data[0].power_station_avoided_tce} kWh`
+                    : '-'}</div>
                 <div className="impact-label">Clean Energy Consumed</div>
               </div>
               <div className="impact-card" style={{ gridColumn: "1 / -1" }}>
                 <div style={{ fontSize: "35px" }}>🌳</div>
-                <div className="impact-value">18 trees</div>
+                <div className="impact-value">{selectedProject?.project_data?.[0]?.power_station_num_tree 
+                    ? `${selectedProject.project_data[0].power_station_num_tree} trees`
+                    : '-'}</div>
                 <div className="impact-label">Equivalent planted</div>
               </div>
             </div>
