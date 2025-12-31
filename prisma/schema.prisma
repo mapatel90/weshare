@@ -232,13 +232,32 @@ model project_data {
   total_grid_battery  String?            @db.VarChar(255) 
   battery_power       String?                 @db.VarChar(255)
   battery_percent     String?                 @db.VarChar(255)
+  battery_direction   Int                     @default(0)
   epm_type            Int                     @default(0)
+  generator_power     Float                   @default(0)
+  generator_today_energy Float                @default(0)
+  power_station_num_tree Float                @default(0)
+  power_station_avoided_co2 Float             @default(0)
+  power_station_avoided_tce Float             @default(0)
   created_at DateTime @default(now())
 
   projects      projects @relation(fields: [project_id], references: [id])
 }
 
 model project_energy_data {
+  id         Int      @id @default(autoincrement())
+  project_id Int
+  date       DateTime
+  time       String
+  pv         Float
+  grid       Float
+  load       Float
+  created_at DateTime @default(now())
+
+  projects      projects @relation(fields: [project_id], references: [id])
+}
+
+model project_energy_monthly_data {
   id         Int      @id @default(autoincrement())
   project_id Int
   date       DateTime
@@ -344,6 +363,7 @@ model projects {
   testimonials         testimonials[]
   project_data         project_data[]
   project_energy_data  project_energy_data[]
+  project_energy_monthly_data project_energy_monthly_data[]
 }
 
 model roles {
