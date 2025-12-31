@@ -96,7 +96,6 @@ export default function SolarEnergyFlow({
         dur="3s"
         repeatCount="indefinite"
         rotate="auto"
-        repeatDelay="2s"
       >
         <mpath href={path} />
       </animateMotion>

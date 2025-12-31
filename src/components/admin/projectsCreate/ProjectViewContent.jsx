@@ -699,7 +699,7 @@ const ProjectViewContent = ({ projectId = "" }) => {
               ></div>
             </div>
           </div>
-          {selectedInverterId ? (
+          {/* {selectedInverterId ? (
             <PowerConsumptionDashboard
               projectId={projectId}
               readings={inverterChartData || []}
@@ -721,7 +721,7 @@ const ProjectViewContent = ({ projectId = "" }) => {
               setSelectedDate={setSelectedDate}
               isDark={isDark}
             />
-          )}
+          )} */}
         </div>
 
         {/* MONTHLY CHART */}
