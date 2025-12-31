@@ -20,10 +20,18 @@ export default function SolarEnergyFlow({
 
   const { lang } = useLanguage();
   const batteryPercentRaw = project?.project_data?.[0]?.battery_percent ?? 0;
-  const batteryPercent = Math.max(0, Math.min(100, Number(batteryPercentRaw) || 0));
+  const batteryPercent = Math.max(
+    0,
+    Math.min(100, Number(batteryPercentRaw) || 0)
+  );
   const batteryFill = "#1372dfff";
   const batteryEmpty = isDark ? "#1f2937" : "#e5e7eb";
   const batteryBorder = `conic-gradient(${batteryFill} 0% ${batteryPercent}%, ${batteryEmpty} ${batteryPercent}% 100%)`;
+  const batteryDirection = project?.project_data?.[0]?.battery_direction;
+  const hasBatteryFlow = batteryDirection === 2 || batteryDirection === 4;
+  const batteryFlowPower = Math.abs(
+    project?.project_data?.[0]?.battery_power || 0
+  );
 
   // Calculate active inverters from displayed 6
   const activeInverters = displayInverters.filter(
@@ -97,11 +105,7 @@ export default function SolarEnergyFlow({
       } Z`}
       fill={color}
     >
-      <animateMotion
-        dur="3s"
-        repeatCount="indefinite"
-        rotate="auto"
-      >
+      <animateMotion dur="3s" repeatCount="indefinite" rotate="auto">
         <mpath href={path} />
       </animateMotion>
     </path>
@@ -209,7 +213,9 @@ export default function SolarEnergyFlow({
                 strokeWidth="2"
                 fill="none"
               />
-              {project?.project_data?.[0]?.family_load_power > 0 && (
+              {(project?.project_data?.[0]?.epm_type !== 1
+                ? project?.project_data?.[0]?.generator_power > 0
+                : project?.project_data?.[0]?.family_load_power > 0) && (
                 <Arrow path="#consumePath" color="#FB923C" />
               )}
             </g>
@@ -229,8 +235,9 @@ export default function SolarEnergyFlow({
                   strokeWidth="2"
                   fill="none"
                 />
-                {project?.project_data?.[0]?.p_sum &&
-                  Math.abs(project?.project_data?.[0]?.p_sum) > 0 && (
+                {project?.project_data?.[0]?.family_load_power &&
+                  Math.abs(project?.project_data?.[0]?.family_load_power) >
+                    0 && (
                     <Arrow path="#inverterToGridLoadPath" color="#8da094ff" />
                   )}
               </g>
@@ -245,14 +252,18 @@ export default function SolarEnergyFlow({
                 }
               >
                 <path
-                  id="batteryPath"
-                  d="M 505 272 L 505 350 Q 505 380 475 380 L 416 380"
+                  id="batteryPathMobile"
+                  d={
+                    batteryDirection === 2
+                      ? "M 416 380 L 475 380 Q 505 380 505 350 L 505 272"
+                      : "M 505 272 L 505 350 Q 505 380 475 380 L 416 380"
+                  }
                   stroke="#1372dfff"
                   strokeWidth="2"
                   fill="none"
                 />
-                {project?.project_data?.[0]?.family_load_power > 0 && (
-                  <Arrow path="#batteryPath" color="#1372dfff" />
+                {hasBatteryFlow && batteryFlowPower > 0 && (
+                  <Arrow path="#batteryPathMobile" color="#1372dfff" />
                 )}
               </g>
             )}
@@ -291,7 +302,7 @@ export default function SolarEnergyFlow({
                 }}
               />
               <div style={{ fontSize: 10, color: "#666", fontWeight: "bold" }}>
-                {(project?.project_data?.[0]?.power) || 0} kw
+                {project?.project_data?.[0]?.power || 0} kw
               </div>
             </div>
 
@@ -376,7 +387,7 @@ export default function SolarEnergyFlow({
                   <div
                     style={{ fontSize: 10, color: "#666", fontWeight: "bold" }}
                   >
-                    {(project?.project_data?.[0]?.battery_power) || 0} kw
+                    {project?.project_data?.[0]?.battery_power || 0} kw
                   </div>
                 </div>
               </div>
@@ -564,7 +575,10 @@ export default function SolarEnergyFlow({
                 }}
               />
               <div style={{ fontSize: 10, color: "#666", fontWeight: "bold" }}>
-                {project?.project_data?.[0]?.epm_type !== 1 ? (project?.project_data?.[0]?.generator_power || 0) : (project?.project_data?.[0]?.family_load_power) || 0} kw
+                {project?.project_data?.[0]?.epm_type !== 1
+                  ? project?.project_data?.[0]?.generator_power || 0
+                  : project?.project_data?.[0]?.family_load_power || 0}{" "}
+                kw
               </div>
             </div>
 
@@ -690,8 +704,8 @@ export default function SolarEnergyFlow({
                     }}
                   >
                     {lang("animated.todayYield", "Today Yield")} :{" "}
-                    {(project?.project_data?.[0]?.day_energy) || 0}Kwh ~{" "}
-                    {(project?.project_data?.[0]?.day_in_come) || 0}K VND
+                    {project?.project_data?.[0]?.day_energy || 0}Kwh ~{" "}
+                    {project?.project_data?.[0]?.day_in_come || 0}K VND
                   </div>
                 </div>
                 <div
@@ -721,7 +735,7 @@ export default function SolarEnergyFlow({
                       fontWeight: "bold",
                     }}
                   >
-                    {(project?.project_data?.[0]?.power) || 0} kw
+                    {project?.project_data?.[0]?.power || 0} kw
                   </div>
                 </div>
               </div>
@@ -771,7 +785,8 @@ export default function SolarEnergyFlow({
                       }}
                     >
                       {lang("animated.daily_charge", "Daily Charge")} :{" "}
-                      {(project?.project_data?.[0]?.battery_charge_energy) || 0}Kwh
+                      {project?.project_data?.[0]?.battery_charge_energy || 0}
+                      Kwh
                     </div>
                     <div
                       style={{
@@ -780,7 +795,9 @@ export default function SolarEnergyFlow({
                       }}
                     >
                       {lang("animated.today_discharged", "Today Discharged")} :{" "}
-                      {(project?.project_data?.[0]?.battery_discharge_energy) || 0}Kwh
+                      {project?.project_data?.[0]?.battery_discharge_energy ||
+                        0}
+                      Kwh
                     </div>
                   </div>
                   <div
@@ -841,7 +858,7 @@ export default function SolarEnergyFlow({
                           fontWeight: "bold",
                         }}
                       >
-                        {(project?.project_data?.[0]?.battery_power) || 0} kw
+                        {project?.project_data?.[0]?.battery_power || 0} kw
                       </div>
                     </div>
                   </div>
@@ -915,7 +932,8 @@ export default function SolarEnergyFlow({
                     }}
                   >
                     {lang("animated.todayImported", "Today Imported")} :{" "}
-                    {(project?.project_data?.[0]?.grid_purchased_day_energy) || 0} kwh
+                    {project?.project_data?.[0]?.grid_purchased_day_energy || 0}{" "}
+                    kwh
                   </div>
                   <div
                     style={{
@@ -1035,7 +1053,7 @@ export default function SolarEnergyFlow({
                         fontWeight: "bold",
                       }}
                     >
-                     {(project?.project_data?.[0]?.family_load_power) || 0} kw
+                      {project?.project_data?.[0]?.family_load_power || 0} kw
                     </div>
                   </div>
                   <div
@@ -1058,7 +1076,8 @@ export default function SolarEnergyFlow({
                       }}
                     >
                       {lang("animated.todayconsumed", "Today Consumed")} :{" "}
-                      {(project?.project_data?.[0]?.home_load_today_energy) || 0} Kwh
+                      {project?.project_data?.[0]?.home_load_today_energy || 0}{" "}
+                      Kwh
                     </div>
                   </div>
                 </div>
@@ -1124,7 +1143,10 @@ export default function SolarEnergyFlow({
                       fontWeight: "bold",
                     }}
                   >
-                    {project?.project_data?.[0]?.epm_type !== 1 ? (project?.project_data?.[0]?.generator_power || 0) : (project?.project_data?.[0]?.family_load_power) || 0} kw
+                    {project?.project_data?.[0]?.epm_type !== 1
+                      ? project?.project_data?.[0]?.generator_power || 0
+                      : project?.project_data?.[0]?.family_load_power || 0}{" "}
+                    kw
                   </div>
                 </div>
                 <div style={{ width: 4, height: 35, background: "#FB923C" }} />
@@ -1136,7 +1158,9 @@ export default function SolarEnergyFlow({
                       color: colors.text,
                     }}
                   >
-                   {project?.project_data?.[0]?.epm_type !== 1 ? lang("animated.backupload") : lang("animated.consumed", "Consumed")}
+                    {project?.project_data?.[0]?.epm_type !== 1
+                      ? lang("animated.backupload")
+                      : lang("animated.consumed", "Consumed")}
                   </div>
                   <div
                     style={{
@@ -1145,7 +1169,11 @@ export default function SolarEnergyFlow({
                     }}
                   >
                     {lang("animated.todayconsumed", "Today Consumed")} :{" "}
-                   {project?.project_data?.[0]?.epm_type !== 1 ? (project?.project_data?.[0]?.generator_today_energy || 0) : (project?.project_data?.[0]?.home_load_today_energy) || 0} Kwh
+                    {project?.project_data?.[0]?.epm_type !== 1
+                      ? project?.project_data?.[0]?.generator_today_energy || 0
+                      : project?.project_data?.[0]?.home_load_today_energy ||
+                        0}{" "}
+                    Kwh
                   </div>
                 </div>
               </div>
@@ -1233,7 +1261,9 @@ export default function SolarEnergyFlow({
                     strokeWidth="2"
                     fill="none"
                   />
-                  {project?.project_data?.[0]?.family_load_power > 0 && (
+                  {(project?.project_data?.[0]?.epm_type !== 1
+                    ? project?.project_data?.[0]?.generator_power > 0
+                    : project?.project_data?.[0]?.family_load_power > 0) && (
                     <Arrow
                       path="#consumePath"
                       color="#FB923C"
@@ -1253,7 +1283,11 @@ export default function SolarEnergyFlow({
                     <path
                       id="batteryPath"
                       d={
-                        screenSize === "tablet"
+                        batteryDirection === 2
+                          ? screenSize === "tablet"
+                            ? "M 416 380 L 475 380 Q 505 380 505 350 L 505 272"
+                            : "M 416 380 L 475 380 Q 505 380 505 350 L 505 236"
+                          : screenSize === "tablet"
                           ? "M 505 272 L 505 350 Q 505 380 475 380 L 416 380"
                           : "M 505 236 L 505 350 Q 505 380 475 380 L 416 380"
                       }
@@ -1261,7 +1295,7 @@ export default function SolarEnergyFlow({
                       strokeWidth="2"
                       fill="none"
                     />
-                    {project?.project_data?.[0]?.family_load_power > 0 && (
+                    {hasBatteryFlow && batteryFlowPower > 0 && (
                       <Arrow
                         path="#batteryPath"
                         color="#1372dfff"
