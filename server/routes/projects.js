@@ -611,6 +611,7 @@ router.get("/", async (req, res) => {
           countries: true,
           project_types: true,
           project_images: true,
+          project_data: true,
           // Include primary investor relation (projects.investor_id)
           interested_investors: { select: { id: true, full_name: true, email: true, phone_number: true } },
         },

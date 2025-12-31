@@ -1382,6 +1382,8 @@
     "battery": "Ắc quy",
     "grid_load": "Tải lưới",
     "daily_charge": "Sạc hàng ngày",
-    "today_discharge": "hôm nay xả hàng"
+    "today_discharge": "hôm nay xả hàng",
+    "backupload": "Tải dự phòng",
+    "perkwh": "mỗi kWh"
   }
 }

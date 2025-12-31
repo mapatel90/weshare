@@ -38,6 +38,9 @@ router.get('/plantdetails', authenticateToken, async (req, res) => {
             where: {
                 is_deleted: 0,
             },
+            include: {
+                project_data: true,
+            },
         });
         res.json({
             success: true,

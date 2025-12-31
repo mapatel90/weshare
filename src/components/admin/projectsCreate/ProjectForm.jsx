@@ -298,7 +298,7 @@ const ProjectForm = ({
                 name="price_kwh"
                 InputProps={{
                   endAdornment: (
-                    <InputAdornment position="end">kWh</InputAdornment>
+                    <InputAdornment position="end">{lang("projects.perKwh", "Per kWh")}</InputAdornment>
                   ),
                 }}
                 value={formData.price_kwh || ""}

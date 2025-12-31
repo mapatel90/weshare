@@ -77,18 +77,20 @@ export default function SolarPlantOverviewCard() {
   }
 
   // ---------------- Utils ----------------
-  const sumField = (data, field, limit) =>
+  const sumNestedField = (data, field, limit) =>
     data
-      .slice(0, limit)
-      .reduce((sum, item) => sum + Number(item?.[field] ?? 0), 0);
+      .slice(0, limit ?? data.length)
+      .reduce((sum, item) => {
+        const value = Number(item?.project_data?.[0]?.[field] ?? 0);
+        return sum + value;
+      }, 0);
 
   // ---------------- Calculations ----------------
-  const total_power = sumField(projects, 'power', 2);
-  const total_capacity = sumField(projects, 'project_size');
-  const daily_energy = sumField(projects, 'day_energy');
-  const monthly_energy = sumField(projects, 'month_energy');
-  const total_energy = sumField(projects, 'total_energy', 6);
-
+  const total_power = sumNestedField(projects, 'power', 2);
+  const total_capacity = sumNestedField(projects, 'project_size');
+  const daily_energy = sumNestedField(projects, 'day_energy');
+  const monthly_energy = sumNestedField(projects, 'month_energy');
+  const total_energy = sumNestedField(projects, 'total_energy', 6);
   if (loading) return null;
 
   return (

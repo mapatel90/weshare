@@ -181,8 +181,8 @@ const StatCardsGrid = ({
       <StatCard
         icon={Sun}
         title={lang('projectView.projectInformation.capacity', 'Capacity')}
-        value={(project?.project_size !== undefined ? formatNumber(project.project_size) : '-') + ' kWh'}
-        subtitle={lang('reports.capacityperKWh', 'Capacity price per kWh')}
+        value={(project?.project_size !== undefined ? formatNumber(project?.project_size) : '-') + ' kWh'}
+        subtitle={project?.price_kwh !== undefined ? ` • ${lang('reports.capacityPrice', 'Capacity Price')}: ${currency} ${formatNumber(project?.price_kwh)} ${lang('animated.perkwh', 'Per kWh')} `  : lang('reports.capacityperKWh', 'Capacity price per kWh')}
         color="linear-gradient(to bottom right, #fbbf24, #f97316)"
         trend={null}
         isDark={isDark}

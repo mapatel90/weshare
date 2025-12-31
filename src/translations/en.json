@@ -1433,6 +1433,8 @@
     "battery": "Battery",
     "grid_load": "Grid Load",
     "daily_charge": "Daily Charge",
-    "today_discharged": "Today Discharged"
+    "today_discharged": "Today Discharged",
+    "backupload": "Back-Up Load",
+    "perkwh": "Per kWh"
   }
 }
