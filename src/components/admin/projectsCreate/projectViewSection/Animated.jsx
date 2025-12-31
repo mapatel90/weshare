@@ -287,7 +287,7 @@ export default function SolarEnergyFlow({
                 }}
               />
               <div style={{ fontSize: 10, color: "#666", fontWeight: "bold" }}>
-                {project?.project_data?.[0]?.power} kw
+                {(project?.project_data?.[0]?.power) || 0} kw
               </div>
             </div>
 
@@ -332,16 +332,36 @@ export default function SolarEnergyFlow({
                   flexShrink: 0,
                 }}
               >
-                <FiBattery
+                <div
                   style={{
-                    fontSize: 25,
-                    color: "#1372dfff",
+                    position: "relative",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
                   }}
-                />
+                >
+                  <FiBattery
+                    style={{
+                      fontSize: 32,
+                      color: "#1372dfff",
+                    }}
+                  />
+                  <span
+                    style={{
+                      position: "absolute",
+                      fontSize: 10,
+                      fontWeight: 700,
+                      color: "#1372dfff",
+                      marginRight: 4,
+                    }}
+                  >
+                    {project?.project_data?.[0]?.battery_percent || 0}%
+                  </span>
+                </div>
                 <div
                   style={{ fontSize: 10, color: "#666", fontWeight: "bold" }}
                 >
-                  {project?.project_data?.[0]?.battery_power} kw
+                  {(project?.project_data?.[0]?.battery_power) || 0} kw
                 </div>
               </div>
 
@@ -528,7 +548,7 @@ export default function SolarEnergyFlow({
                 }}
               />
               <div style={{ fontSize: 10, color: "#666", fontWeight: "bold" }}>
-                {project?.project_data?.[0]?.family_load_power} kw
+                {(project?.project_data?.[0]?.family_load_power) || 0} kw
               </div>
             </div>
 
@@ -654,8 +674,8 @@ export default function SolarEnergyFlow({
                     }}
                   >
                     {lang("animated.todayYield", "Today Yield")} :{" "}
-                    {project?.project_data?.[0]?.day_energy}Kwh ~{" "}
-                    {project?.project_data?.[0]?.day_in_come}K VND
+                    {(project?.project_data?.[0]?.day_energy) || 0}Kwh ~{" "}
+                    {(project?.project_data?.[0]?.day_in_come) || 0}K VND
                   </div>
                 </div>
                 <div
@@ -685,7 +705,7 @@ export default function SolarEnergyFlow({
                       fontWeight: "bold",
                     }}
                   >
-                    {project?.project_data?.[0]?.power} kw
+                    {(project?.project_data?.[0]?.power) || 0} kw
                   </div>
                 </div>
               </div>
@@ -735,7 +755,7 @@ export default function SolarEnergyFlow({
                       }}
                     >
                       {lang("animated.daily_charge", "Daily Charge")} :{" "}
-                      {project?.project_data?.[0]?.battery_charge_energy}Kwh
+                      {(project?.project_data?.[0]?.battery_charge_energy) || 0}Kwh
                     </div>
                     <div
                       style={{
@@ -744,7 +764,7 @@ export default function SolarEnergyFlow({
                       }}
                     >
                       {lang("animated.today_discharged", "Today Discharged")} :{" "}
-                      {project?.project_data?.[0]?.battery_discharge_energy}Kwh
+                      {(project?.project_data?.[0]?.battery_discharge_energy) || 0}Kwh
                     </div>
                   </div>
                   <div
@@ -761,13 +781,33 @@ export default function SolarEnergyFlow({
                       flexShrink: 0,
                     }}
                   >
+                    <div
+                  style={{
+                    position: "relative",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
                     <FiBattery
                       style={{
-                        fontSize: isSmallScreen ? 18 : 28,
+                        fontSize: isSmallScreen ? 24 : 38,
                         // color: "#8da094ff",
                         color: "#1372dfff",
                       }}
                     />
+                    <span
+                    style={{
+                      position: "absolute",
+                      fontSize: isSmallScreen ? 6 : 10,
+                      fontWeight: 700,
+                      color: "#1372dfff",
+                      marginRight: 4,
+                    }}
+                  >
+                    {project?.project_data?.[0]?.battery_percent || 0}%
+                  </span>
+                    </div>
                     <div
                       style={{
                         fontSize: isSmallScreen ? 8 : 12,
@@ -775,7 +815,7 @@ export default function SolarEnergyFlow({
                         fontWeight: "bold",
                       }}
                     >
-                      {project?.project_data?.[0]?.battery_power} kw
+                      {(project?.project_data?.[0]?.battery_power) || 0} kw
                     </div>
                   </div>
                 </div>
@@ -848,7 +888,7 @@ export default function SolarEnergyFlow({
                     }}
                   >
                     {lang("animated.todayImported", "Today Imported")} :{" "}
-                    {project?.project_data?.[0]?.grid_purchased_day_energy} kwh
+                    {(project?.project_data?.[0]?.grid_purchased_day_energy) || 0} kwh
                   </div>
                   <div
                     style={{
@@ -968,7 +1008,7 @@ export default function SolarEnergyFlow({
                         fontWeight: "bold",
                       }}
                     >
-                     {project?.project_data?.[0]?.family_load_power} kw
+                     {(project?.project_data?.[0]?.family_load_power) || 0} kw
                     </div>
                   </div>
                   <div
@@ -991,7 +1031,7 @@ export default function SolarEnergyFlow({
                       }}
                     >
                       {lang("animated.todayconsumed", "Today Consumed")} :{" "}
-                      {project?.project_data?.[0]?.home_load_today_energy} Kwh
+                      {(project?.project_data?.[0]?.home_load_today_energy) || 0} Kwh
                     </div>
                   </div>
                 </div>
@@ -1057,7 +1097,7 @@ export default function SolarEnergyFlow({
                       fontWeight: "bold",
                     }}
                   >
-                    {project?.project_data?.[0]?.epm_type !== 1 ? 0 : project?.project_data?.[0]?.family_load_power} kw
+                    {project?.project_data?.[0]?.epm_type !== 1 ? 0 : (project?.project_data?.[0]?.family_load_power) || 0} kw
                   </div>
                 </div>
                 <div style={{ width: 4, height: 35, background: "#FB923C" }} />
@@ -1078,7 +1118,7 @@ export default function SolarEnergyFlow({
                     }}
                   >
                     {lang("animated.todayconsumed", "Today Consumed")} :{" "}
-                   {project?.project_data?.[0]?.epm_type !== 1 ? 0 : project?.project_data?.[0]?.home_load_today_energy} Kwh
+                   {project?.project_data?.[0]?.epm_type !== 1 ? 0 : (project?.project_data?.[0]?.home_load_today_energy) || 0} Kwh
                   </div>
                 </div>
               </div>
