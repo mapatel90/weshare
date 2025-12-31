@@ -233,6 +233,11 @@ model project_data {
   battery_power       String?                 @db.VarChar(255)
   battery_percent     String?                 @db.VarChar(255)
   epm_type            Int                     @default(0)
+  generator_power     Float                   @default(0)
+  generator_today_energy Float                @default(0)
+  power_station_num_tree Float                @default(0)
+  power_station_avoided_co2 Float             @default(0)
+  power_station_avoided_tce Float             @default(0)
   created_at DateTime @default(now())
 
   projects      projects @relation(fields: [project_id], references: [id])
