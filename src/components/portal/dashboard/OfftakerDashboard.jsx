@@ -77,6 +77,7 @@ function DashboardView() {
                 p.grid_purchased_day_energy ??
                 p.family_load_power ??
                 p.home_load_today_energy ??
+                p.project_data ??
                 null;
               const project_size =
                 rawSize === null || rawSize === undefined || rawSize === ""
@@ -94,6 +95,7 @@ function DashboardView() {
                 grid_purchased_day_energy: p.grid_purchased_day_energy ?? null,
                 family_load_power: p.family_load_power ?? null,
                 home_load_today_energy: p.home_load_today_energy ?? null,
+                project_data: p.project_data ?? null,
               };
             });
             setProjects(normalized);

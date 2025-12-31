@@ -56,6 +56,7 @@ router.get("/", async (req, res) => {
                 select: { full_name: true, email: true },
               },
               project_images: true,
+              project_data: true,
             },
           },
           users: true,

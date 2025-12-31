@@ -6,7 +6,7 @@ import {
   FiActivity,
   FiHome,
   FiBattery,
-  FiPower,
+  FiTrendingUp,
 } from "react-icons/fi";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -441,7 +441,7 @@ export default function SolarEnergyFlow({
                   flexShrink: 0,
                 }}
               >
-                <FiPower
+                <FiTrendingUp
                   style={{
                     fontSize: 25,
                     color: "#8da094ff",
@@ -955,7 +955,7 @@ export default function SolarEnergyFlow({
                       flexShrink: 0,
                     }}
                   >
-                    <FiPower
+                    <FiTrendingUp
                       style={{
                         fontSize: screenSize === "tablet" ? 16 : 24,
                         color: "#8da094ff",

@@ -65,6 +65,7 @@ function DashboardView() {
       grid_purchased_day_energy: source.grid_purchased_day_energy ?? null,
       family_load_power: source.family_load_power ?? null,
       home_load_today_energy: source.home_load_today_energy ?? null,
+      project_data: source.project_data ?? null,
     };
   };
 
