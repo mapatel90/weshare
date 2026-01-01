@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { apiGet, apiPost } from "@/lib/api";
 import { showSuccessToast } from "@/utils/topTost";
+import ProjectOverviewChart from "../../admin/projectsCreate/projectViewSection/ProjectOverviewChart";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import "./styles/exchange-hub-custom.css";
@@ -50,6 +51,13 @@ const ProjectDetail = ({ projectId }) => {
   const [hasExpressedInterest, setHasExpressedInterest] = useState(false);
   const [checkingInterest, setCheckingInterest] = useState(false);
 
+  // Chart data states
+  const [projectChartData, setProjectChartData] = useState(null);
+  const [chartDataLoading, setChartDataLoading] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(
+    new Date().toISOString().split("T")[0]
+  );
+
   const checkInterest = async () => {
     if (!user || !project) {
       setHasExpressedInterest(false);
@@ -80,6 +88,32 @@ const ProjectDetail = ({ projectId }) => {
   useEffect(() => {
     checkInterest();
   }, [user, project]);
+
+  // Fetch chart data for project
+  const fetchChartData = useCallback(async () => {
+    if (!project) return;
+    try {
+      setChartDataLoading(true);
+      const payload = {
+        projectId: project.id,
+        date: selectedDate ?? null,
+      };
+      const res = await apiPost(`/api/projects/chart-data`, payload, {
+        showLoader: false,
+        includeAuth: false,
+      });
+      setProjectChartData(res?.success ? res.data : []);
+    } catch (e) {
+      console.error("Error fetching chart data:", e);
+      setProjectChartData([]);
+    } finally {
+      setChartDataLoading(false);
+    }
+  }, [project, selectedDate]);
+
+  useEffect(() => {
+    fetchChartData();
+  }, [fetchChartData]);
 
   // Populate form when modal opens or when user changes
   useEffect(() => {
@@ -265,30 +299,41 @@ const ProjectDetail = ({ projectId }) => {
       },
       colors: ["#FFA726"],
     }),
-    [project]
+    []
   );
 
   const kwhRevenueChartSeries = useMemo(() => {
-    const baseGeneration = parseFloat(project?.project_size || 100) * 125; // Monthly average
+    if (!projectChartData || !Array.isArray(projectChartData)) {
+      return [
+        {
+          name: "KWh Generated",
+          data: Array(11).fill(0),
+        },
+      ];
+    }
+
+    // Group data by month
+    const monthlyMap = new Map();
+    projectChartData.forEach((item) => {
+      const month = item.month || 0;
+      if (!monthlyMap.has(month)) {
+        monthlyMap.set(month, 0);
+      }
+      monthlyMap.set(month, (monthlyMap.get(month) || 0) + (item.total_kw || 0));
+    });
+
+    // Create array for all 11 months (0-10 for the chart)
+    const data = Array(11)
+      .fill(0)
+      .map((_, i) => monthlyMap.get(i) || 0);
+
     return [
       {
         name: "KWh Generated",
-        data: [
-          Math.round(baseGeneration * 1.1),
-          Math.round(baseGeneration * 1.08),
-          Math.round(baseGeneration * 0.4),
-          Math.round(baseGeneration * 0.85),
-          Math.round(baseGeneration * 0.9),
-          Math.round(baseGeneration * 0.6),
-          Math.round(baseGeneration * 1.0),
-          Math.round(baseGeneration * 0.2),
-          Math.round(baseGeneration * 0.7),
-          Math.round(baseGeneration * 0.65),
-          Math.round(baseGeneration * 0.6),
-        ],
+        data,
       },
     ];
-  }, [project]);
+  }, [projectChartData]);
 
   // ROI Trend Chart Data
   const roiTrendChartOptions = useMemo(
@@ -335,7 +380,7 @@ const ProjectDetail = ({ projectId }) => {
         },
       },
     }),
-    [project]
+    []
   );
 
   const roiTrendChartSeries = useMemo(() => {
@@ -613,6 +658,15 @@ const ProjectDetail = ({ projectId }) => {
                     />
                   )}
                 </div>
+
+                <ProjectOverviewChart
+                  projectId={project.id}
+                  readings={projectChartData || []}
+                  loading={chartDataLoading}
+                  selectedDate={selectedDate}
+                  onDateChange={setSelectedDate}
+                />
+
               </div>
               <hr />
 
