@@ -100,6 +100,7 @@
     "react-select": "^5.9.0",
     "react-tooltip": "^5.28.0",
     "recharts": "^3.5.1",
+    "redis": "^5.10.0",
     "swagger-ui-react": "^5.30.3",
     "sweetalert2": "^11.14.1",
     "sweetalert2-react-content": "^5.0.7",
