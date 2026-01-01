@@ -7,6 +7,7 @@ import PowerConsumptionDashboard from "./projectViewSection/inverterChart";
 import ProjectInformation from "./projectViewSection/ProjectInformation";
 import ProjectOverviewChart from "./projectViewSection/ProjectOverviewChart";
 import MeterInfo from "./projectViewSection/MeterInfo";
+import EnergyChart from "./projectViewSection/MonthChart";
 import { FiEdit3 } from "react-icons/fi";
 import SolarFlowCard from "./projectViewSection/Animated";
 
@@ -699,7 +700,7 @@ const ProjectViewContent = ({ projectId = "" }) => {
               ></div>
             </div>
           </div>
-          {/* {selectedInverterId ? (
+          {selectedInverterId ? (
             <PowerConsumptionDashboard
               projectId={projectId}
               readings={inverterChartData || []}
@@ -721,7 +722,7 @@ const ProjectViewContent = ({ projectId = "" }) => {
               setSelectedDate={setSelectedDate}
               isDark={isDark}
             />
-          )} */}
+          )}
         </div>
 
         {/* MONTHLY CHART */}
@@ -734,6 +735,7 @@ const ProjectViewContent = ({ projectId = "" }) => {
         /> */}
       </div>
 
+
       {/* PROJECT DETAILS */}
       <ProjectInformation project={project} isDark={isDark} />
 
@@ -745,6 +747,32 @@ const ProjectViewContent = ({ projectId = "" }) => {
         inverters={projectInverters}
         isDark={isDark}
       />
+
+      <div 
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+          gap: "24px",
+        }}
+      >
+
+        {/* PRODUCTION CHART */}
+        <div
+          style={{
+            backgroundColor: colors.cardBg,
+            borderRadius: "12px",
+            boxShadow: isDark
+              ? "0 0 20px rgba(14, 32, 56, 0.3)"
+              : "0 1px 3px rgba(0,0,0,0.1)",
+            border: `1px solid ${colors.borderLight}`,
+            padding: "24px",
+            marginBottom: "24px",
+            overflowX: "auto",
+          }}
+        >
+         <EnergyChart />
+        </div>
+      </div>
     </div>
   );
 };
