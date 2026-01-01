@@ -221,7 +221,14 @@ model project_data {
   sr                   String?                @db.VarChar(255)
   ss                   String?                @db.VarChar(255)
   home_load_today_energy String?              @db.VarChar(255)
-  day_energy           String?                @db.VarChar(255)
+  day_energy           Float?                 @default(0)
+  day_energy_str       String?                @db.VarChar(255)
+  month_energy         Float?                 @default(0)
+  month_energy_str     String?                @db.VarChar(255)
+  year_energy          Float?                 @default(0)
+  year_energy_str      String?                @db.VarChar(255) 
+  total_energy         Float?                 @default(0)
+  total_energy_str     String?                @db.VarChar(255)
   day_in_come          String?                @db.VarChar(255)
   p_sum                String?                @db.VarChar(255)
   grid_purchased_day_energy String?           @db.VarChar(255)
@@ -229,7 +236,7 @@ model project_data {
   power                String?                @db.VarChar(255)
   battery_charge_energy String?               @db.VarChar(255)
   battery_discharge_energy String?            @db.VarChar(255)
-  total_grid_battery  String?            @db.VarChar(255) 
+  total_grid_battery  String?                 @db.VarChar(255) 
   battery_power       String?                 @db.VarChar(255)
   battery_percent     String?                 @db.VarChar(255)
   battery_direction   Int                     @default(0)
@@ -240,6 +247,7 @@ model project_data {
   power_station_avoided_co2 Float             @default(0)
   power_station_avoided_tce Float             @default(0)
   created_at DateTime @default(now())
+  
 
   projects      projects @relation(fields: [project_id], references: [id])
 }

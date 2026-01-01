@@ -81,16 +81,21 @@ export default function SolarPlantOverviewCard() {
     data
       .slice(0, limit ?? data.length)
       .reduce((sum, item) => {
-        const value = Number(item?.project_data?.[0]?.[field] ?? 0);
-        return sum + value;
+        if(item?.project_data.length > 0){
+          console.log("field", field);
+          console.log("item", item?.project_data?.[0]?.[field]);
+          
+          const value = Number(item?.project_data?.[0]?.[field] ?? 0);
+          return sum + value;
+        }
       }, 0);
-
+  
   // ---------------- Calculations ----------------
-  const total_power = sumNestedField(projects, 'power', 2);
+  const total_power = sumNestedField(projects, 'power');
   const total_capacity = sumNestedField(projects, 'project_size');
   const daily_energy = sumNestedField(projects, 'day_energy');
   const monthly_energy = sumNestedField(projects, 'month_energy');
-  const total_energy = sumNestedField(projects, 'total_energy', 6);
+  const total_energy = sumNestedField(projects, 'total_energy');
   if (loading) return null;
 
   return (
@@ -98,7 +103,7 @@ export default function SolarPlantOverviewCard() {
       <div className="card stretch stretch-full">
         <div className="card-body">
           {/* Header */}
-          <div className="hstack justify-content-between mb-4">
+          <div className="mb-4 hstack justify-content-between">
             <div>
               <h5 className="mb-1">
                 {lang('header.plantoverview', 'Stats Overview')}
@@ -139,7 +144,7 @@ export default function SolarPlantOverviewCard() {
             <StatCard
               icon={Activity}
               title={lang('reports.totalYield', 'Total Yield')}
-              value={(total_energy ? (total_energy / 1000).toFixed(3) : '0') + ' MWh'}
+              value={(total_energy ? (total_energy).toFixed(3) : '0') + ' MWh'}
               subtitle={'Total Earning: ' + ('0') + ' VND'}
               color="linear-gradient(to bottom right, #06b6d4, #0891b2)"
               trend={null}
