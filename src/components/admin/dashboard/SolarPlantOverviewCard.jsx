@@ -1,24 +1,11 @@
 "use client";
 
-<<<<<<< HEAD
-import React, { useEffect, useState } from "react";
-import { Activity, Battery, Power, Zap, batteryPlus } from "lucide-react";
-import { apiGet } from "@/lib/api";
-import { useLanguage } from "@/contexts/LanguageContext";
-import { sumNestedField } from "@/utils/common";
-import {
-  Battery0BarOutlined,
-  Battery90Rounded,
-  Battery90TwoTone,
-} from "@mui/icons-material";
-=======
 import React, { useEffect, useState } from 'react';
 import { Activity, Battery, Power, Zap, batteryPlus } from 'lucide-react';
 import { apiGet } from '@/lib/api';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Battery0BarOutlined, Battery90Rounded, Battery90TwoTone } from '@mui/icons-material';
 import { sumFieldFromObject, formatShort } from '@/utils/common';
->>>>>>> a66a9bf0080224699f35953170f531a5cbf5a707
 
 export default function SolarPlantOverviewCard() {
   const { lang } = useLanguage();
@@ -209,44 +196,26 @@ export default function SolarPlantOverviewCard() {
             />
             <StatCard
               icon={Zap}
-<<<<<<< HEAD
-              title={lang("reports.dailyYield", "Daily Yield")}
-              value={(daily_energy ? daily_energy?.toFixed(2) : "0") + " kWh"}
-              subtitle={"Today Earnings: " + "0" + " VND"}
-=======
               title={lang('reports.dailyYield', 'Daily Yield')}
               value={(daily_energy ? daily_energy?.toFixed(2) : '0') + ' kWh'}
               subtitle={'Today Earnings: ' + (formatShort(daily_revenue, 3)) + ' VND'}
->>>>>>> a66a9bf0080224699f35953170f531a5cbf5a707
               color="linear-gradient(to bottom right, #3b82f6, #2563eb)"
               isDark={isDark}
             />
             <StatCard
               icon={Activity}
-<<<<<<< HEAD
-              title={lang("reports.monthlyYield", "Monthly Yield")}
-              value={(monthly_energy ? monthly_energy : "0") + " MWh"}
-              subtitle={"Monthly Earning: " + "0" + " VND"}
-=======
               title={lang('reports.monthlyYield', 'Monthly Yield')}
               value={(monthly_energy ? (monthly_energy) : '0') + ' MWh'}
               subtitle={'Monthly Earning: ' + (formatShort(monthly_revenue, 3)) + ' VND'}
->>>>>>> a66a9bf0080224699f35953170f531a5cbf5a707
               color="linear-gradient(to bottom right, #a855f7, #ec4899)"
               trend={projects?.revenue_trend ?? null}
               isDark={isDark}
             />
             <StatCard
               icon={Activity}
-<<<<<<< HEAD
-              title={lang("reports.totalYield", "Total Yield")}
-              value={(total_energy ? total_energy.toFixed(3) : "0") + " MWh"}
-              subtitle={"Total Earning: " + "0" + " VND"}
-=======
               title={lang('reports.totalYield', 'Total Yield')}
               value={(total_energy ? (total_energy).toFixed(3) : '0') + ' MWh'}
               subtitle={'Total Earning: ' + (formatShort(total_revenue, 3)) + ' VND'}
->>>>>>> a66a9bf0080224699f35953170f531a5cbf5a707
               color="linear-gradient(to bottom right, #06b6d4, #0891b2)"
               trend={null}
               isDark={isDark}
