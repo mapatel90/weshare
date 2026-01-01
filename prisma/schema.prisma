@@ -265,14 +265,19 @@ model project_energy_data {
   projects      projects @relation(fields: [project_id], references: [id])
 }
 
-model project_energy_monthly_data {
+model project_energy_days_data {
   id         Int      @id @default(autoincrement())
   project_id Int
-  date       DateTime
-  time       String
-  pv         Float
-  grid       Float
-  load       Float
+  date       DateTime @db.Date 
+  energy     Float
+  grid_purchased_energy Float
+  consume_energy  Float
+  full_hour Float
+  money     Float
+  battery_charge_energy Float
+  battery_discharge_energy Float
+  home_grid_energy Float
+  back_up_energy Float
   created_at DateTime @default(now())
 
   projects      projects @relation(fields: [project_id], references: [id])
@@ -371,7 +376,7 @@ model projects {
   testimonials         testimonials[]
   project_data         project_data[]
   project_energy_data  project_energy_data[]
-  project_energy_monthly_data project_energy_monthly_data[]
+  project_energy_days_data project_energy_days_data[]
 }
 
 model roles {
