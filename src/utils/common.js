@@ -81,3 +81,23 @@ export function getDateTimeInTZ(timeZone) {
   // When retrieved and formatted with the same timezone, it will show the correct time
   return new Date(isoString);
 }
+
+export function sumFieldFromObject(data, field) {
+  return data
+    .reduce((sum, item) => {
+      if (item?.project_data?.length > 0) {
+        const value = Number(item.project_data[0]?.[field] ?? 0);
+        return sum + value;
+      }
+      return sum;
+    }, 0);
+}
+
+
+export function formatShort(value, decimals = 4) {
+  return new Intl.NumberFormat('en-US', {
+    notation: 'compact',
+    compactDisplay: 'short',
+    maximumFractionDigits: decimals,
+  }).format(value);
+}

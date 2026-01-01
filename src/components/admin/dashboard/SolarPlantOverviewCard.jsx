@@ -5,6 +5,7 @@ import { Activity, Battery, Power, Zap, batteryPlus } from 'lucide-react';
 import { apiGet } from '@/lib/api';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Battery0BarOutlined, Battery90Rounded, Battery90TwoTone } from '@mui/icons-material';
+import { sumFieldFromObject, formatShort } from '@/utils/common';
 
 export default function SolarPlantOverviewCard() {
   const { lang } = useLanguage();
@@ -77,27 +78,48 @@ export default function SolarPlantOverviewCard() {
   }
 
   // ---------------- Utils ----------------
-  const sumNestedField = (data, field, limit) =>
-    data
-      .slice(0, limit ?? data.length)
-      .reduce((sum, item) => {
-        if(item?.project_data.length > 0){
-          console.log("field", field);
-          console.log("item", item?.project_data?.[0]?.[field]);
-          
-          const value = Number(item?.project_data?.[0]?.[field] ?? 0);
-          return sum + value;
-        }
-      }, 0);
+  
   
   // ---------------- Calculations ----------------
-  const total_power = sumNestedField(projects, 'power');
-  const total_capacity = sumNestedField(projects, 'project_size');
-  const daily_energy = sumNestedField(projects, 'day_energy');
-  const monthly_energy = sumNestedField(projects, 'month_energy');
-  const total_energy = sumNestedField(projects, 'total_energy');
+  const total_power = sumFieldFromObject(projects, 'power');
+  const total_capacity = sumFieldFromObject(projects, 'project_size');
+  const daily_energy = sumFieldFromObject(projects, 'day_energy');
+  const monthly_energy = sumFieldFromObject(projects, 'month_energy');
+  const total_energy = sumFieldFromObject(projects, 'total_energy');
   if (loading) return null;
 
+  //This is to calculate daily revenue
+  let daily_revenue = 0;
+  let monthly_revenue = 0;
+  let total_revenue = 0;
+  const projectsDailyRevenue = projects.map(project => {
+    const pricePerKwh = project.price_kwh || 0;
+
+    const totalDayEnergy = project.project_data.reduce(
+      (sum, pd) => sum + (pd.day_energy || 0),
+      0
+    );
+
+    const totalMonthEnergy = project.project_data.reduce(
+      (sum, pd) => sum + (pd.month_energy || 0),
+      0
+    );
+
+    const totalEnergy = project.project_data.reduce(
+      (sum, pd) => sum + (pd.total_energy || 0),
+      0
+    );
+    const cal_day_revenue = (pricePerKwh * totalDayEnergy).toFixed(4);
+    const cal_month_revenue = (pricePerKwh * totalMonthEnergy).toFixed(4);
+    const cal_total_revenue = (pricePerKwh * totalEnergy).toFixed(4);
+    daily_revenue += Number(cal_day_revenue);
+    monthly_revenue += Number(cal_month_revenue);
+    total_revenue += Number(cal_total_revenue);
+  });
+
+  console.log('daily_revenue', formatShort(daily_revenue));
+  console.log('monthly_revenue', formatShort(monthly_revenue));
+  
   return (
     <div className="col-12">
       <div className="card stretch stretch-full">
@@ -128,7 +150,7 @@ export default function SolarPlantOverviewCard() {
               icon={Zap}
               title={lang('reports.dailyYield', 'Daily Yield')}
               value={(daily_energy ? daily_energy?.toFixed(2) : '0') + ' kWh'}
-              subtitle={'Today Earnings: ' + ('0') + ' VND'}
+              subtitle={'Today Earnings: ' + (formatShort(daily_revenue, 3)) + ' VND'}
               color="linear-gradient(to bottom right, #3b82f6, #2563eb)"
               isDark={isDark}
             />
@@ -136,7 +158,7 @@ export default function SolarPlantOverviewCard() {
               icon={Activity}
               title={lang('reports.monthlyYield', 'Monthly Yield')}
               value={(monthly_energy ? (monthly_energy) : '0') + ' MWh'}
-              subtitle={'Monthly Earning: ' + ('0') + ' VND'}
+              subtitle={'Monthly Earning: ' + (formatShort(monthly_revenue, 3)) + ' VND'}
               color="linear-gradient(to bottom right, #a855f7, #ec4899)"
               trend={projects?.revenue_trend ?? null}
               isDark={isDark}
@@ -145,7 +167,7 @@ export default function SolarPlantOverviewCard() {
               icon={Activity}
               title={lang('reports.totalYield', 'Total Yield')}
               value={(total_energy ? (total_energy).toFixed(3) : '0') + ' MWh'}
-              subtitle={'Total Earning: ' + ('0') + ' VND'}
+              subtitle={'Total Earning: ' + (formatShort(total_revenue, 3)) + ' VND'}
               color="linear-gradient(to bottom right, #06b6d4, #0891b2)"
               trend={null}
               isDark={isDark}
