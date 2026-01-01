@@ -136,11 +136,11 @@ const StatCardsGrid = ({
       monetaryValue = dailyYieldMetric * projectPriceKwh
     }
     dailyYieldSubtitle = (monetaryValue !== null ? ` • ${lang('reports.dailyRevenue')}: ${currency} ${formatNumber(monetaryValue)}` : '')
-  } else if (!isInverterSelected && project?.daily_yield !== undefined && project?.daily_yield !== null) {
-    dailyYieldValue = `${formatNumber(project.daily_yield)} kWh`
+  } else if (!isInverterSelected && project?.project_data?.[0]?.day_energy !== undefined && project?.project_data?.[0]?.day_energy !== null) {
+    dailyYieldValue = `${formatNumber(project.project_data[0].day_energy)} kWh`
     let monetaryValue = null
-    if (projectPriceKwh !== undefined && projectPriceKwh !== null && project.daily_yield !== null) {
-      monetaryValue = project.daily_yield * projectPriceKwh
+    if (projectPriceKwh !== undefined && projectPriceKwh !== null && project.project_data[0].day_energy !== null) {
+      monetaryValue = project.project_data[0].day_energy * projectPriceKwh
     }
     dailyYieldSubtitle = (monetaryValue !== null ? ` • ${lang('reports.dailyRevenue')}: ${currency} ${formatNumber(monetaryValue)}` : '')
   } else {
@@ -162,11 +162,11 @@ const StatCardsGrid = ({
       totalMonetaryValue = totalYieldMetric * projectPriceKwh
     }
     totalYieldSubtitle = (totalMonetaryValue !== null ? ` • ${lang('reports.totalRevenue')}: ${currency} ${formatNumber(totalMonetaryValue)}` : '')
-  } else if (!isInverterSelected && project?.total_yield !== undefined && project?.total_yield !== null) {
-    totalYieldValue = `${formatNumber(project.total_yield)} kWh`
+  } else if (!isInverterSelected && project?.project_data?.[0]?.total_energy !== undefined && project?.project_data?.[0]?.total_energy !== null) {
+    totalYieldValue = `${formatNumber(project.project_data[0].total_energy)} kWh`
     let totalMonetaryValue = null
-    if (projectPriceKwh !== undefined && projectPriceKwh !== null && project.total_yield !== null) {
-      totalMonetaryValue = project.total_yield * projectPriceKwh
+    if (projectPriceKwh !== undefined && projectPriceKwh !== null && project.project_data[0].total_energy !== null) {
+      totalMonetaryValue = project.project_data[0].total_energy * projectPriceKwh
     }
     totalYieldSubtitle = (totalMonetaryValue !== null ? ` • ${lang('reports.totalRevenue')}: ${currency} ${formatNumber(totalMonetaryValue)}` : '')
   } else {
