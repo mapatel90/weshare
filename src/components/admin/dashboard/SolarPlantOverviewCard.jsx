@@ -1,11 +1,15 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
-import { Activity, Battery, Power, Zap, batteryPlus } from 'lucide-react';
-import { apiGet } from '@/lib/api';
-import { useLanguage } from '@/contexts/LanguageContext';
-import { Battery0BarOutlined, Battery90Rounded, Battery90TwoTone } from '@mui/icons-material';
-import { sumFieldFromObject, formatShort } from '@/utils/common';
+import React, { useEffect, useState } from "react";
+import { Activity, Battery, Power, Zap, batteryPlus } from "lucide-react";
+import { apiGet } from "@/lib/api";
+import { useLanguage } from "@/contexts/LanguageContext";
+import {
+  Battery0BarOutlined,
+  Battery90Rounded,
+  Battery90TwoTone,
+} from "@mui/icons-material";
+import { sumFieldFromObject, formatShort } from "@/utils/common";
 
 export default function SolarPlantOverviewCard() {
   const { lang } = useLanguage();
@@ -23,6 +27,7 @@ export default function SolarPlantOverviewCard() {
     fetchData();
   }, []);
   let isDark = false;
+
   const StatCard = ({
     icon: Icon,
     title,
@@ -117,18 +122,25 @@ export default function SolarPlantOverviewCard() {
   };
 
   // ---------------- Calculations ----------------
-  const total_power = sumFieldFromObject(projects, 'power');
-  const total_capacity = sumFieldFromObject(projects, 'project_size');
-  const daily_energy = sumFieldFromObject(projects, 'day_energy');
-  const monthly_energy = sumFieldFromObject(projects, 'month_energy');
-  const total_energy = sumFieldFromObject(projects, 'total_energy');
+  const total_power = sumFieldFromObject(projects, "power");
+  const total_capacity = sumFieldFromObject(projects, "project_size");
+  const daily_energy = sumFieldFromObject(projects, "day_energy");
+  const monthly_energy = sumFieldFromObject(projects, "month_energy");
+  const total_energy = sumFieldFromObject(projects, "total_energy");
+
+  const formatPower = (value) => {
+    const numeric = Number(value);
+    if (!Number.isFinite(numeric) || numeric === 0) return "0 W";
+    return numeric >= 1 ? `${numeric?.toFixed(2)} kWh` : `${numeric * 1000} W`;
+  };
+
   if (loading) return null;
 
   //This is to calculate daily revenue
   let daily_revenue = 0;
   let monthly_revenue = 0;
   let total_revenue = 0;
-  const projectsDailyRevenue = projects.map(project => {
+  const projectsDailyRevenue = projects.map((project) => {
     const pricePerKwh = project.price_kwh || 0;
 
     const totalDayEnergy = project.project_data.reduce(
@@ -153,9 +165,9 @@ export default function SolarPlantOverviewCard() {
     total_revenue += Number(cal_total_revenue);
   });
 
-  console.log('daily_revenue', formatShort(daily_revenue));
-  console.log('monthly_revenue', formatShort(monthly_revenue));
-  
+  console.log("daily_revenue", formatShort(daily_revenue));
+  console.log("monthly_revenue", formatShort(monthly_revenue));
+
   return (
     <div className="col-12">
       <div className="card stretch stretch-full">
@@ -196,26 +208,32 @@ export default function SolarPlantOverviewCard() {
             />
             <StatCard
               icon={Zap}
-              title={lang('reports.dailyYield', 'Daily Yield')}
-              value={(daily_energy ? daily_energy?.toFixed(2) : '0') + ' kWh'}
-              subtitle={'Today Earnings: ' + (formatShort(daily_revenue, 3)) + ' VND'}
+              title={lang("reports.dailyYield", "Daily Yield")}
+              value={(daily_energy ? daily_energy?.toFixed(2) : "0") + " kWh"}
+              subtitle={
+                "Today Earnings: " + formatShort(daily_revenue, 3) + " VND"
+              }
               color="linear-gradient(to bottom right, #3b82f6, #2563eb)"
               isDark={isDark}
             />
             <StatCard
               icon={Activity}
-              title={lang('reports.monthlyYield', 'Monthly Yield')}
-              value={(monthly_energy ? (monthly_energy) : '0') + ' MWh'}
-              subtitle={'Monthly Earning: ' + (formatShort(monthly_revenue, 3)) + ' VND'}
+              title={lang("reports.monthlyYield", "Monthly Yield")}
+              value={(monthly_energy ? monthly_energy : "0") + " MWh"}
+              subtitle={
+                "Monthly Earning: " + formatShort(monthly_revenue, 3) + " VND"
+              }
               color="linear-gradient(to bottom right, #a855f7, #ec4899)"
               trend={projects?.revenue_trend ?? null}
               isDark={isDark}
             />
             <StatCard
               icon={Activity}
-              title={lang('reports.totalYield', 'Total Yield')}
-              value={(total_energy ? (total_energy).toFixed(3) : '0') + ' MWh'}
-              subtitle={'Total Earning: ' + (formatShort(total_revenue, 3)) + ' VND'}
+              title={lang("reports.totalYield", "Total Yield")}
+              value={(total_energy ? total_energy.toFixed(3) : "0") + " MWh"}
+              subtitle={
+                "Total Earning: " + formatShort(total_revenue, 3) + " VND"
+              }
               color="linear-gradient(to bottom right, #06b6d4, #0891b2)"
               trend={null}
               isDark={isDark}

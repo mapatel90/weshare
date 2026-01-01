@@ -96,7 +96,7 @@ export function sumFieldFromObject(data, field) {
   return data
     .reduce((sum, item) => {
       if (item?.project_data?.length > 0) {
-        const value = Number(item.project_data[0]?.[field] ?? 0);
+        const value = Number(item.project_data[0]?.[field] || item?.[field] || 0);
         return sum + value;
       }
       return sum;
