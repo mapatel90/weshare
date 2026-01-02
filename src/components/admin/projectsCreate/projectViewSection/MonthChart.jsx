@@ -1,12 +1,13 @@
 'use client';
 import { useLanguage } from '@/contexts/LanguageContext';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import DatePicker from 'react-datepicker';
 import { ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import dayjs from "dayjs";
+import 'react-datepicker/dist/react-datepicker.css';
 
-const buildChartData = (chartMonthData) => {
-  const monthYear = '2026-01';
+const buildChartData = (chartMonthData, selectedDate) => {
+  const monthYear = selectedDate ? dayjs(selectedDate).format('YYYY-MM') : dayjs().format('YYYY-MM');
   const daysInMonth = dayjs(monthYear).daysInMonth();
 
   // Create empty map for quick lookup
@@ -36,33 +37,79 @@ const buildChartData = (chartMonthData) => {
 
 
 
-const EnergyChart = ({ chartMonthData }) => {
+const EnergyChart = ({ chartMonthData, selectedMonthYear, onMonthYearChange, isDark = false }) => {
   const { lang } = useLanguage();
-  const data = buildChartData(chartMonthData || []);
+  const [selectedDate, setSelectedDate] = useState(
+    selectedMonthYear ? dayjs(selectedMonthYear, 'YYYY-MM').toDate() : new Date()
+  );
+
+  useEffect(() => {
+    if (selectedMonthYear) {
+      setSelectedDate(dayjs(selectedMonthYear, 'YYYY-MM').toDate());
+    }
+  }, [selectedMonthYear]);
+
+  const handleDateChange = (date) => {
+    setSelectedDate(date);
+    if (date && onMonthYearChange) {
+      const monthYear = dayjs(date).format('YYYY-MM');
+      onMonthYearChange(monthYear);
+    }
+  };
+
+  const data = buildChartData(chartMonthData || [], selectedDate);
+
   return (
     <>
       <style jsx>{`
         .container {
           width: 100%;
           height: 100vh;
-          background-color: #ffffff;
+          background-color: ${isDark ? '#121a2d' : '#ffffff'};
           padding: 32px;
           box-sizing: border-box;
         }
         .chart-wrapper {
           width: 100%;
           height: 100%;
-          border: 1px solid #d1d5db;
+          border: 1px solid ${isDark ? '#1b2436' : '#d1d5db'};
           border-radius: 8px;
           box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
           padding: 24px;
           box-sizing: border-box;
+          background-color: ${isDark ? '#121a2d' : '#ffffff'};
+        }
+        .date-picker-wrapper {
+          margin-bottom: 16px;
+        }
+        .date-picker-wrapper :global(.react-datepicker-wrapper) {
+          width: 100%;
+        }
+        .date-picker-wrapper :global(.react-datepicker__input-container input) {
+          width: 100%;
+          padding: 8px 12px;
+          border-radius: 8px;
+          border: 1px solid ${isDark ? '#1b2436' : '#d1d5db'};
+          background: ${isDark ? '#121a2d' : '#fff'};
+          color: ${isDark ? '#ffffff' : '#111827'};
+          font-size: 14px;
+        }
+        .date-picker-wrapper :global(.react-datepicker__input-container input:focus) {
+          outline: none;
+          border-color: #3b82f6;
         }
       `}</style>
 
       <div className="container">
-        <div className='mb-2'>
-          <DatePicker dateFormat="MMMM yyyy" showMonthYearPicker views={['month', 'year']} />
+        <div className='date-picker-wrapper'>
+          <DatePicker
+            selected={selectedDate}
+            onChange={handleDateChange}
+            dateFormat="MM yyyy"
+            showMonthYearPicker
+            views={['month', 'year']}
+            placeholderText="Select month and year"
+          />
         </div>
         <div className="chart-wrapper">
           <ResponsiveContainer width="100%" height="100%">
