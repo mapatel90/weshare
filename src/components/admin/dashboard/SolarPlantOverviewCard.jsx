@@ -5,7 +5,7 @@ import { Activity, Battery, Power, Zap, batteryPlus } from 'lucide-react';
 import { apiGet } from '@/lib/api';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Battery0BarOutlined, Battery90Rounded, Battery90TwoTone } from '@mui/icons-material';
-import { sumFieldFromObject, formatShort, convertEnergyToKwh } from '@/utils/common';
+import { sumFieldFromObject, formatShort, convertEnergyToKwh, formatEnergyUnit } from '@/utils/common';
 
 export default function SolarPlantOverviewCard() {
   const { lang } = useLanguage();
@@ -124,11 +124,11 @@ export default function SolarPlantOverviewCard() {
   const monthly_energy = sumFieldFromObject(projects, "month_energy");
   const total_energy = sumFieldFromObject(projects, "total_energy");
 
-  const formatPower = (value) => {
-    const numeric = Number(value);
-    if (!Number.isFinite(numeric) || numeric === 0) return "0 W";
-    return numeric >= 1 ? `${numeric?.toFixed(2)} kWh` : `${numeric * 1000} W`;
-  };
+  // const formatPower = (value) => {
+  //   const numeric = Number(value);
+  //   if (!Number.isFinite(numeric) || numeric === 0) return "0 W";
+  //   return numeric >= 1 ? `${numeric?.toFixed(2)} kWh` : `${numeric * 1000} W`;
+  // };
 
   if (loading) return null;
 
@@ -192,7 +192,7 @@ export default function SolarPlantOverviewCard() {
             <StatCard
               icon={Power}
               title={lang("projectView.projectInformation.capacitsy", "Power")}
-              value={formatPower(total_power)}
+              value={formatEnergyUnit(total_power)}
               subtitle={
                 lang("reports.capacityperKWhs", "Capacity") +
                 ": " +
@@ -206,7 +206,7 @@ export default function SolarPlantOverviewCard() {
             <StatCard
               icon={Zap}
               title={lang("reports.dailyYield", "Daily Yield")}
-              value={(daily_energy ? daily_energy?.toFixed(2) : "0") + " kWh"}
+              value={formatEnergyUnit(daily_energy)}
               subtitle={
                 "Today Earnings: " + formatShort(daily_revenue, 3) + " VND"
               }
@@ -216,7 +216,7 @@ export default function SolarPlantOverviewCard() {
             <StatCard
               icon={Activity}
               title={lang("reports.monthlyYield", "Monthly Yield")}
-              value={(monthly_energy ? monthly_energy : "0") + " MWh"}
+              value={formatEnergyUnit(monthly_energy)}
               subtitle={
                 "Monthly Earning: " + formatShort(monthly_revenue, 3) + " VND"
               }
@@ -227,7 +227,7 @@ export default function SolarPlantOverviewCard() {
             <StatCard
               icon={Activity}
               title={lang("reports.totalYield", "Total Yield")}
-              value={(total_energy ? total_energy.toFixed(3) : "0") + " MWh"}
+              value={formatEnergyUnit(total_energy)}
               subtitle={
                 "Total Earning: " + formatShort(total_revenue, 3) + " VND"
               }
