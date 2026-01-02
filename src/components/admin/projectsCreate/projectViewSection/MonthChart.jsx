@@ -7,12 +7,13 @@ import dayjs from "dayjs";
 import 'react-datepicker/dist/react-datepicker.css';
 
 const buildChartData = (chartMonthData = [], selectedDate) => {
+  const month_data = Array.isArray(chartMonthData) ? chartMonthData : [];
   const monthYear = selectedDate ? dayjs(selectedDate).format('YYYY-MM') : dayjs().format('YYYY-MM');
   const daysInMonth = dayjs(monthYear).daysInMonth();
 
   // Create empty map for quick lookup
   const dataMap = {};
-  chartMonthData.forEach(item => {
+  month_data.forEach(item => {
     const day = dayjs(item.date).format("DD");
     dataMap[day] = item;
   });
