@@ -6,6 +6,7 @@ import { fileURLToPath } from "url";
 import { dirname } from "path";
 import prisma from "../utils/prisma.js";
 import { authenticateToken } from "../middleware/auth.js";
+import dayjs from "dayjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -996,6 +997,53 @@ router.post("/chart-data", async (req, res) => {
       count: allData.length,
       data: allData,
     });
+
+  } catch (error) {
+    console.error("Error fetching latest inverter data:", error);
+    return res.status(500).json({ error: "Server error" });
+  }
+});
+
+router.post("/chart_month_data", async (req, res) => {
+  try {
+    const { projectId } = req.body;
+
+    if (!projectId) {
+      return res.status(400).json({ error: "Project Id required parameters" });
+    }
+
+    const month = '01';
+    const year = '2026';
+
+    const month_year = `${year}-${month}`;
+
+    const startDate = dayjs(`${month_year}-01`)
+      .startOf("month")
+      .toDate();
+
+    const endDate = dayjs(`${month_year}-01`)
+      .endOf("month")
+      .toDate();
+
+    const data = await prisma.project_energy_days_data.findMany({
+      where: {
+        project_id: Number(projectId),
+        date: {
+          gte: startDate,
+          lte: endDate,
+        },
+      },
+      orderBy: {
+        date: "asc",
+      },
+    });
+
+    return res.json({
+      success: true,
+      count: data.length,
+      data: data,
+    });
+
 
   } catch (error) {
     console.error("Error fetching latest inverter data:", error);

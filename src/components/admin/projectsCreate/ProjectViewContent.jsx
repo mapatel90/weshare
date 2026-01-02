@@ -10,6 +10,8 @@ import MeterInfo from "./projectViewSection/MeterInfo";
 import EnergyChart from "./projectViewSection/MonthChart";
 import { FiEdit3 } from "react-icons/fi";
 import SolarFlowCard from "./projectViewSection/Animated";
+import { use } from "react";
+
 
 // -------- DARK MODE HOOK ----------
 const useDarkMode = () => {
@@ -74,6 +76,7 @@ const ProjectViewContent = ({ projectId = "" }) => {
   const [selectedDate, setSelectedDate] = useState(
     new Date().toISOString().split("T")[0]
   ); // New: track selected date
+  const [chartMonthData, setChartMonthData] = useState(null);
 
   // ------------------- Detect Mobile Screen -------------------
   useEffect(() => {
@@ -209,79 +212,23 @@ const ProjectViewContent = ({ projectId = "" }) => {
     loadMonthlyChartData();
   }, [selectedInverterId, projectId]);
 
-  // Transform monthly chart data from backend - always show all 12 months
-  const monthNames = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
-  ];
+  // Load Energy Day Wise Data 
+  useEffect(() => {
+    const loadEnergyDayWiseData = async () => {
+      const payload = {
+        projectId: projectId ?? null
+      };
 
-  // Always show all 12 months, fill with 0 if no data
-  const monthlyChartMonths = useMemo(() => {
-    return monthNames; // Always return all 12 months
-  }, []);
-
-  const monthlyChartRevenue = useMemo(() => {
-    // Create a map of month index to value from backend data
-    const dataMap = new Map();
-    if (monthlyChartData && Array.isArray(monthlyChartData)) {
-      monthlyChartData.forEach((item) => {
-        dataMap.set(item.month, item.totalGenerateKw || 0);
-      });
-    }
-
-    // Return array with all 12 months, filling 0 for months without data
-    return monthNames.map((_, index) => dataMap.get(index) || 0);
-  }, [monthlyChartData]);
-
-  // Map month index to inverter details for tooltip
-  const monthlyChartInverters = useMemo(() => {
-    const inverterMap = new Map();
-    if (monthlyChartData && Array.isArray(monthlyChartData)) {
-      monthlyChartData.forEach((item) => {
-        inverterMap.set(item.month, item.inverters || []);
-      });
-    }
-
-    // Return array with all 12 months, filling empty array for months without data
-    return monthNames.map((_, index) => inverterMap.get(index) || []);
-  }, [monthlyChartData]);
-
-  const revenueSummaryCards = [
-    {
-      label: "Reach",
-      value: "5,486",
-      bgColor: "#dbeafe",
-      valueColor: "#111827",
-    },
-    {
-      label: "Opened",
-      value: "42.75%",
-      bgColor: "#dcfce7",
-      valueColor: "#059669",
-    },
-    {
-      label: "Clicked",
-      value: "38.68%",
-      bgColor: "#fed7aa",
-      valueColor: "#ea580c",
-    },
-    {
-      label: "Conversion",
-      value: "16.68%",
-      bgColor: "#f3e8ff",
-      valueColor: "#9333ea",
-    },
-  ];
+      try {
+        setMonthlyChartDataLoading(true);
+        const res = await apiPost(`/api/projects/chart_month_data`, payload);
+        setChartMonthData(res?.success ? res.data : null);
+      } finally {
+        setMonthlyChartDataLoading(false);
+      }
+    };
+    loadEnergyDayWiseData();
+  }, [])
 
   // ------------------- Determine which data to show -------------------
   const displayData = selectedInverterId
@@ -398,16 +345,16 @@ const ProjectViewContent = ({ projectId = "" }) => {
                           ? "rgba(34, 197, 94, 0.2)"
                           : "#dcfce7"
                         : isDark
-                        ? "rgba(239, 68, 68, 0.2)"
-                        : "#fee2e2",
+                          ? "rgba(239, 68, 68, 0.2)"
+                          : "#fee2e2",
                     color:
                       project.status === 1
                         ? isDark
                           ? "#22c55e"
                           : "#166534"
                         : isDark
-                        ? "#ef4444"
-                        : "#991b1b",
+                          ? "#ef4444"
+                          : "#991b1b",
                     fontWeight: "600",
                     margin: 0,
                     fontSize: "14px",
@@ -457,9 +404,8 @@ const ProjectViewContent = ({ projectId = "" }) => {
                     {projectInverters.map((pi) => {
                       const inv = pi.inverter || {};
                       const label = pi.inverter_name
-                        ? `${pi.inverter_name} (Serial: ${
-                            pi.inverter_serial_number || "N/A"
-                          })`
+                        ? `${pi.inverter_name} (Serial: ${pi.inverter_serial_number || "N/A"
+                        })`
                         : `Inverter ID: ${pi.id}`;
                       return (
                         <option
@@ -531,16 +477,16 @@ const ProjectViewContent = ({ projectId = "" }) => {
                           ? "rgba(34, 197, 94, 0.2)"
                           : "#dcfce7"
                         : isDark
-                        ? "rgba(239, 68, 68, 0.2)"
-                        : "#fee2e2",
+                          ? "rgba(239, 68, 68, 0.2)"
+                          : "#fee2e2",
                     color:
                       project.status === 1
                         ? isDark
                           ? "#22c55e"
                           : "#166534"
                         : isDark
-                        ? "#ef4444"
-                        : "#991b1b",
+                          ? "#ef4444"
+                          : "#991b1b",
                     fontWeight: "600",
                     margin: 0,
                     fontSize: "14px",
@@ -586,9 +532,8 @@ const ProjectViewContent = ({ projectId = "" }) => {
                     {projectInverters.map((pi) => {
                       const inv = pi.inverter || {};
                       const label = pi.inverter_name
-                        ? `${pi.inverter_name} (Serial: ${
-                            pi.inverter_serial_number || "N/A"
-                          })`
+                        ? `${pi.inverter_name} (Serial: ${pi.inverter_serial_number || "N/A"
+                        })`
                         : `Inverter ID: ${pi.id}`;
                       return (
                         <option
@@ -724,15 +669,6 @@ const ProjectViewContent = ({ projectId = "" }) => {
             />
           )}
         </div>
-
-        {/* MONTHLY CHART */}
-        {/* <MonthlyChart
-          revenue={monthlyChartRevenue}
-          months={monthlyChartMonths}
-          inverters={monthlyChartInverters}
-          summaryCards={revenueSummaryCards}
-          loading={monthlyChartDataLoading}
-        /> */}
       </div>
 
 
@@ -748,7 +684,7 @@ const ProjectViewContent = ({ projectId = "" }) => {
         isDark={isDark}
       />
 
-      <div 
+      <div
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
@@ -770,7 +706,7 @@ const ProjectViewContent = ({ projectId = "" }) => {
             overflowX: "auto",
           }}
         >
-         <EnergyChart />
+          <EnergyChart chartMonthData={chartMonthData} />
         </div>
       </div>
     </div>
