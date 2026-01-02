@@ -5,7 +5,7 @@ import { Activity, Battery, Power, Zap, batteryPlus } from 'lucide-react';
 import { apiGet } from '@/lib/api';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Battery0BarOutlined, Battery90Rounded, Battery90TwoTone } from '@mui/icons-material';
-import { sumFieldFromObject, formatShort } from '@/utils/common';
+import { sumFieldFromObject, formatShort, convertEnergyToKwh } from '@/utils/common';
 
 export default function SolarPlantOverviewCard() {
   const { lang } = useLanguage();
@@ -96,19 +96,23 @@ export default function SolarPlantOverviewCard() {
     const pricePerKwh = project.price_kwh || 0;
 
     const totalDayEnergy = project.project_data.reduce(
-      (sum, pd) => sum + (pd.day_energy || 0),
+      (sum, pd) => sum + (convertEnergyToKwh(pd.day_energy, pd.day_energy_str) || 0),
       0
     );
 
     const totalMonthEnergy = project.project_data.reduce(
-      (sum, pd) => sum + (pd.month_energy || 0),
+      (sum, pd) => sum + (convertEnergyToKwh(pd.month_energy, pd.month_energy_str) || 0),
       0
     );
 
-    const totalEnergy = project.project_data.reduce(
-      (sum, pd) => sum + (pd.total_energy || 0),
-      0
-    );
+    const totalEnergy = project.project_data.reduce((sum, pd, index) => {
+      const energyKwh = convertEnergyToKwh(
+        pd.total_energy,
+        pd.total_energy_str
+      );
+      return sum + (energyKwh || 0);
+    }, 0);
+    
     const cal_day_revenue = (pricePerKwh * totalDayEnergy).toFixed(4);
     const cal_month_revenue = (pricePerKwh * totalMonthEnergy).toFixed(4);
     const cal_total_revenue = (pricePerKwh * totalEnergy).toFixed(4);
@@ -116,9 +120,6 @@ export default function SolarPlantOverviewCard() {
     monthly_revenue += Number(cal_month_revenue);
     total_revenue += Number(cal_total_revenue);
   });
-
-  console.log('daily_revenue', formatShort(daily_revenue));
-  console.log('monthly_revenue', formatShort(monthly_revenue));
   
   return (
     <div className="col-12">
