@@ -22,7 +22,7 @@ const buildChartData = (chartMonthData = [], selectedDate) => {
   return Array.from({ length: daysInMonth }, (_, i) => {
     const day = String(i + 1).padStart(2, "0");
     const row = dataMap[day];
-    const money = row?.money ? row.money / 1000 : 0; // Convert to K VND
+    const money = row?.money ? row.money / 1000 : null; // Convert to K VND
 
     return {
       day,
@@ -30,8 +30,8 @@ const buildChartData = (chartMonthData = [], selectedDate) => {
       exporting: row?.home_grid_energy ?? 0,
       importing: row?.grid_purchased_energy ?? 0,
       consumed: row?.consume_energy ?? 0,
-      fullLoadHours: row?.full_hour ?? 0,
-      earning: money ?? 0
+      fullLoadHours: row?.full_hour ?? null,
+      earning: money ?? null
     };
   });
 };
@@ -49,6 +49,14 @@ const getMaxMoney = (data = []) =>
 
 const getMaxHours = (data = []) =>
   Math.max(...data.map(d => d.fullLoadHours), 0);
+
+const generateTicks = (max, step) => {
+  const ticks = [];
+  for (let i = 0; i <= max; i += step) {
+    ticks.push(i);
+  }
+  return ticks;
+};
 
 
 const EnergyChart = ({ chartMonthData, selectedMonthYear, onMonthYearChange, isDark = false }) => {
@@ -79,7 +87,7 @@ const EnergyChart = ({ chartMonthData, selectedMonthYear, onMonthYearChange, isD
     [chartMonthData, selectedDate]
   );
 
-  const maxKwh = Math.ceil(getMaxKwh(data) / 100) * 100 || 100;
+  const maxKwh = Math.ceil(getMaxKwh(data) / 100) * 100 || 10;
   const maxMoney = Math.ceil(getMaxMoney(data) / 50) * 50 || 50;
   const maxHours = Math.ceil(getMaxHours(data) * 2) / 2 || 1;
 
@@ -100,7 +108,7 @@ const EnergyChart = ({ chartMonthData, selectedMonthYear, onMonthYearChange, isD
           border: 1px solid ${isDark ? '#1b2436' : '#d1d5db'};
           border-radius: 8px;
           box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-          padding: 24px;
+          padding: 20px;
           box-sizing: border-box;
           background-color: ${isDark ? '#121a2d' : '#ffffff'};
         }
@@ -140,41 +148,42 @@ const EnergyChart = ({ chartMonthData, selectedMonthYear, onMonthYearChange, isD
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart
               data={data}
-              margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+              margin={{ top: 10, right: 30, left: 20, bottom: 20 }}
             >
               <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
 
               {/* Middle Y-axis for kWh */}
               <YAxis
-                yAxisId="middle"
+                yAxisId="kwh"
                 orientation="left"
-                width={50}
+                width={70}
                 label={{
                   value: 'kWh',
                   position: 'top',
                   dx: 20,
                 }}
                 domain={[0, maxKwh]}
+                ticks={generateTicks(maxKwh, 100)}
                 stroke="#666"
               />
 
               <YAxis
-                yAxisId="left"
+                yAxisId="money"
                 orientation="left"
                 width={70}
                 label={{
                   value: 'K VND',
                   position: 'top',
-                  dx: -30,
+                  dx: 30,
                 }}
                 domain={[0, maxMoney]}
-                // ticks={[0, 85, 170, 255, 340, 425]}
+                ticks={generateTicks(maxMoney, 50)}
                 stroke="#666"
               />
 
               {/* Right Y-axis for h */}
               <YAxis
-                yAxisId="right"
+                yAxisId="hours"
                 orientation="right"
                 label={{ value: 'h', angle: 0, position: 'top', offset: 10, dx: -30 }}
                 domain={[0, maxHours]}
@@ -207,28 +216,28 @@ const EnergyChart = ({ chartMonthData, selectedMonthYear, onMonthYearChange, isD
 
               {/* Bars */}
               <Bar
-                yAxisId="middle"
+                yAxisId="kwh"
                 dataKey="yield"
                 name="Yield"
                 fill="#FDB515"
                 barSize={12}
               />
               <Bar
-                yAxisId="middle"
+                yAxisId="kwh"
                 dataKey="exporting"
                 name="Exporting"
                 fill="#4A90E2"
                 barSize={12}
               />
               <Bar
-                yAxisId="middle"
+                yAxisId="kwh"
                 dataKey="importing"
                 name="Importing"
                 fill="#E84855"
                 barSize={12}
               />
               <Bar
-                yAxisId="middle"
+                yAxisId="kwh"
                 dataKey="consumed"
                 name="Consumed"
                 fill="#FF8C42"
@@ -237,8 +246,8 @@ const EnergyChart = ({ chartMonthData, selectedMonthYear, onMonthYearChange, isD
 
               {/* Lines */}
               <Line
-                yAxisId="right"
-                type="monotone"
+                yAxisId="hours"
+                type="linear"
                 dataKey="fullLoadHours"
                 name="Full Load Hours"
                 stroke="#4A90E2"
@@ -246,8 +255,8 @@ const EnergyChart = ({ chartMonthData, selectedMonthYear, onMonthYearChange, isD
                 dot={false}
               />
               <Line
-                yAxisId="left"
-                type="monotone"
+                yAxisId="money"
+                type="linear"
                 dataKey="earning"
                 name="Earning"
                 stroke="#FF8C42"
