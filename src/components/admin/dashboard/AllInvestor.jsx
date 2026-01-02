@@ -47,7 +47,7 @@ const AllInvestor = ({ title }) => {
   };
 
   return (
-    <div className="col-xxl-4">
+    <div className="col-xxl-6">
       <div
         className={`card stretch stretch-full ${
           isExpanded ? "card-expand" : ""

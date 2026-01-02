@@ -10,11 +10,11 @@ datasource db {
 
 model blogs {
   id               Int      @id @default(autoincrement())
-  blog_title       String   @db.VarChar(255)
-  blog_date        DateTime @default(now())
-  blog_image       String?  @db.VarChar(255)
-  blog_description String?
-  blog_slug        String   @db.VarChar(255)
+  title       String?   @db.VarChar(255)
+  date        DateTime @default(now())
+  image       String?  @db.VarChar(255)
+  description String?
+  slug        String?   @db.VarChar(255)
   is_deleted       Int      @default(0)
   created_at       DateTime @default(now())
   updated_at       DateTime @default(now())
@@ -176,11 +176,11 @@ model lease_requests {
 
 model news {
   id               Int      @id @default(autoincrement())
-  news_title       String   @db.VarChar(255)
-  news_date        DateTime @default(now())
-  news_image       String?  @db.VarChar(255)
-  news_description String?
-  news_slug        String   @db.VarChar(255)
+  title       String?   @db.VarChar(255)
+  date        DateTime @default(now())
+  image       String?  @db.VarChar(255)
+  description String?
+  slug        String?   @db.VarChar(255)
   is_deleted       Int      @default(0)
   created_at       DateTime @default(now())
   updated_at       DateTime @default(now())

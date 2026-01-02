@@ -29,7 +29,7 @@ const AllUsers = ({ title }) => {
         setError(null);
         const res = await apiGet("/api/users");
         const list = res?.data?.users || [];
-        setUsers(list.slice(0, 6)); // Show first 6 users
+        setUsers(list.slice(0, 5)); // Show first 5 users
       } catch (err) {
         setError("Failed to load users");
       } finally {
@@ -42,7 +42,7 @@ const AllUsers = ({ title }) => {
   if (isRemoved) return null;
 
   return (
-    <div className="col-xxl-4">
+    <div className="col-xxl-6">
       <div
         className={`card stretch stretch-full ${isExpanded ? "card-expand" : ""
           } ${refreshKey ? "card-loading" : ""}`}

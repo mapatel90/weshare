@@ -56,22 +56,22 @@ const BlogSection = () => {
               >
                 <div className="card h-100 border-0 shadow-0">
                   <img
-                    src={getFullImageUrl(blog?.blog_image)}
+                    src={getFullImageUrl(blog?.image)}
                     className="card-img-top"
                     alt={blog.title || "Blog Image"}
                   />
                   <div className="card-body news-info">
                     <span className="date d-block mb-3">
                       <FontAwesomeIcon icon={faCalendar} className="me-1" />
-                      {new Date(blog.blog_date).toLocaleDateString("en-US", {
+                      {new Date(blog.date).toLocaleDateString("en-US", {
                         year: "numeric",
                         month: "short",
                         day: "numeric",
                       })}
                     </span>
-                    <h5 className="card-title news-title mb-3">{blog.blog_title}</h5>
+                    <h5 className="card-title news-title mb-3">{blog.title}</h5>
                     <Link
-                      href={`/frontend/blogDetail/${blog.blog_slug}`}
+                      href={`/frontend/blogDetail/${blog.slug}`}
                       className="btn btn-outline-dark readMore px-4 py-2 fw-semibold"
                     >
                       {lang("news.readMore")}{" "}

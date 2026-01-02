@@ -32,7 +32,7 @@ const NewsDetailRightSection = ({ relatedNews, currentNewsSlug }) => {
 
   // Filter out current news from related posts
   const filteredRelatedNews = relatedNews?.filter(
-    (news) => news.news_slug !== currentNewsSlug
+    (news) => news.slug !== currentNewsSlug
   ) || [];
 
   return (
@@ -43,7 +43,7 @@ const NewsDetailRightSection = ({ relatedNews, currentNewsSlug }) => {
         filteredRelatedNews.slice(0, 4).map((news, index) => (
           <Link
             key={news.id || index}
-            href={`/newsDetail/${news.news_slug}`}
+            href={`/frontend/newsDetail/${news.slug}`}
             className="text-decoration-none"
           >
             <div
@@ -52,10 +52,10 @@ const NewsDetailRightSection = ({ relatedNews, currentNewsSlug }) => {
               data-aos-duration="1000"
               data-aos-delay={index * 100}
             >
-              {news?.news_image && (
+              {news?.image && (
                 <Image
-                  src={getFullImageUrl(news?.news_image)}
-                  alt={news.news_title || 'Related News'}
+                  src={getFullImageUrl(news?.image)}
+                  alt={news.title || 'Related News'}
                   className="rounded me-3"
                   width={80}
                   height={80}
@@ -63,10 +63,13 @@ const NewsDetailRightSection = ({ relatedNews, currentNewsSlug }) => {
                 />
               )}
               <div>
-                <h4 className="fw-semibold mb-1 title">{news.news_title}</h4>
-                <p className="post-date">
+                <h4 className="fw-semibold mb-1 title">{news.title}</h4>
+                <p className="post-date mb-0">
                   <FontAwesomeIcon icon={faCalendar} className="me-1" />
-                  {formatDate(news.news_date)}
+                  {formatDate(news.date)}
+                </p>
+                <p className="post-title text-muted mb-0 mt-2">
+                  {news.title}
                 </p>
               </div>
             </div>

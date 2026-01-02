@@ -994,7 +994,8 @@
     "warrantyExpireDate": "Warranty Expire Date",
     "noinverterfound": "No inverters found",
     "serial": "Serial",
-    "apiUrlNamePlaceholder": "API URL"
+    "apiUrlNamePlaceholder": "API URL",
+    "project_inverter": "Projects Inverter"
   },
   "projectType": {
     "title": "Project Types",

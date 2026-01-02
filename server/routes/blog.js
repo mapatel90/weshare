@@ -51,11 +51,11 @@ router.post("/", authenticateToken, upload.single('blog_image'), async (req, res
 
     const blog = await prisma.blogs.create({
       data: {
-        blog_title,
-        blog_date: formattedDate,
-        blog_image: uploadedPath,
-        blog_description,
-        blog_slug,
+        title: blog_title,
+        date: formattedDate,
+        image: uploadedPath,
+        description: blog_description,
+        slug: blog_slug,
       },
     });
 
@@ -70,7 +70,7 @@ router.get("/", async (req, res) => {
   try {
     const blogList = await prisma.blogs.findMany({
       where: { is_deleted: 0 },
-      orderBy: { blog_date: 'asc' },
+      orderBy: { date: 'asc' },
     });
     return res.status(200).json({ success: true, data: blogList });
   } catch (error) {
@@ -90,7 +90,7 @@ router.get("/check-slug", async (req, res) => {
     const parsedExcludeId = excludeId ? parseInt(excludeId) : null;
     const existing = await prisma.blogs.findFirst({
       where: {
-        blog_slug: slug,
+        slug: slug,
         is_deleted: 0,
         ...(parsedExcludeId ? { NOT: { id: parsedExcludeId } } : {}),
       },
@@ -118,7 +118,7 @@ router.get("/:identifier", async (req, res) => {
     } else {
       blog = await prisma.blogs.findFirst({
         where: { 
-          blog_slug: identifier,
+          slug: identifier,
           is_deleted: 0
         },
       });
@@ -138,7 +138,24 @@ router.get("/:identifier", async (req, res) => {
 router.delete("/:id", authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
-    await prisma.blogs.update({ where: { id: parseInt(id) }, data: { is_deleted: 1 } });
+    const parsedId = parseInt(id);
+    const existing = await prisma.blogs.findFirst({ where: { id: parsedId } });
+
+    if (!existing) {
+      return res.status(404).json({ success: false, message: "Blog not found." });
+    }
+
+    // Best-effort file cleanup on delete
+    const oldPath = existing.image ? path.join(PUBLIC_DIR, existing.image.replace(/^\//, '')) : null;
+    if (oldPath && fs.existsSync(oldPath)) {
+      try {
+        fs.unlinkSync(oldPath);
+      } catch (cleanupErr) {
+        console.warn("Failed to remove blog image during delete:", cleanupErr);
+      }
+    }
+
+    await prisma.blogs.update({ where: { id: parsedId }, data: { is_deleted: 1 } });
     return res.status(200).json({ success: true, message: "Blog deleted successfully." });
   } catch (error) {
     console.error("Error deleting blog:", error);
@@ -166,8 +183,8 @@ router.put("/:id", authenticateToken, upload.single('blog_image'), async (req, r
     if (newImagePath) {
       try {
         const existing = await prisma.blogs.findFirst({ where: { id: parseInt(id) } });
-        const oldPath = existing?.blog_image
-          ? path.join(PUBLIC_DIR, existing.blog_image.replace(/^\//, ''))
+        const oldPath = existing?.image
+          ? path.join(PUBLIC_DIR, existing.image.replace(/^\//, ''))
           : null;
         if (oldPath && fs.existsSync(oldPath)) {
           fs.unlinkSync(oldPath);
@@ -180,11 +197,11 @@ router.put("/:id", authenticateToken, upload.single('blog_image'), async (req, r
     const updatedBlog = await prisma.blogs.update({
       where: { id: parseInt(id) },
       data: {
-        blog_title,
-        blog_date: formattedDate,
-        ...(newImagePath ? { blog_image: newImagePath } : {}),
-        blog_description,
-        blog_slug,
+        title: blog_title,
+        date: formattedDate,
+        ...(newImagePath ? { image: newImagePath } : {}),
+        description: blog_description,
+        slug: blog_slug,
       },
     });
 

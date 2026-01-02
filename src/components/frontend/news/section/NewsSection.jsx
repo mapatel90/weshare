@@ -55,22 +55,22 @@ const NewsSection = () => {
               >
                 <div className="card h-100 border-0 shadow-0">
                   <img
-                    src={news.news_image || "https://via.placeholder.com/400x250"}
+                    src={news.image || "https://via.placeholder.com/400x250"}
                     className="card-img-top"
                     alt={news.title || "News Image"}
                   />
                   <div className="card-body news-info">
                     <span className="date d-block mb-3">
                       <FontAwesomeIcon icon={faCalendar} className="me-1" />
-                      {new Date(news.news_date).toLocaleDateString("en-US", {
+                      {new Date(news.date).toLocaleDateString("en-US", {
                         year: "numeric",
                         month: "short",
                         day: "numeric",
                       })}
                     </span>
-                    <h5 className="card-title news-title mb-3">{news.news_title}</h5>
+                    <h5 className="card-title news-title mb-3">{news.title}</h5>
                     <Link
-                      href={`/frontend/newsDetail/${news.news_slug}`}
+                      href={`/frontend/newsDetail/${news.slug}`}
                       className="btn btn-outline-dark readMore px-4 py-2 fw-semibold"
                     >
                       {lang("news.readMore")}{" "}
