@@ -42,6 +42,16 @@ export const getFullImageUrl = (imagePath) => {
   return `${base}${normalizedPath}`;
 };
 
+// Sum a nested numeric field from project_data with optional slicing
+export const sumNestedField = (data = [], field, limit) =>
+  data
+    .slice(0, limit ?? data.length)
+    .reduce((sum, item) => {
+      const raw = item?.project_data?.[0]?.[field] || item?.[field];
+      const value = Number(raw);
+      return sum + (Number.isFinite(value) ? value : 0);
+    }, 0);
+
 /**
  * Get current date and time in the specified timezone
  * @param {string} timeZone - IANA timezone name (e.g., 'Asia/Kolkata', 'America/New_York', 'Asia/Ho_Chi_Minh')
@@ -86,7 +96,7 @@ export function sumFieldFromObject(data, field) {
   return data
     .reduce((sum, item) => {
       if (item?.project_data?.length > 0) {
-        const value = Number(item.project_data[0]?.[field] ?? 0);
+        const value = Number(item.project_data[0]?.[field] || item?.[field] || 0);
         return sum + value;
       }
       return sum;
