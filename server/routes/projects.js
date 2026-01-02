@@ -1006,16 +1006,17 @@ router.post("/chart-data", async (req, res) => {
 
 router.post("/chart_month_data", async (req, res) => {
   try {
-    const { projectId } = req.body;
+    const { projectId, year, month } = req.body;
 
     if (!projectId) {
       return res.status(400).json({ error: "Project Id required parameters" });
     }
 
-    const month = '01';
-    const year = '2026';
+    // Use provided year/month or default to current month
+    const selectedYear = year || dayjs().format('YYYY');
+    const selectedMonth = month || dayjs().format('MM');
 
-    const month_year = `${year}-${month}`;
+    const month_year = `${selectedYear}-${selectedMonth}`;
 
     const startDate = dayjs(`${month_year}-01`)
       .startOf("month")

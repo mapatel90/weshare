@@ -77,6 +77,9 @@ const ProjectViewContent = ({ projectId = "" }) => {
     new Date().toISOString().split("T")[0]
   ); // New: track selected date
   const [chartMonthData, setChartMonthData] = useState(null);
+  const [selectedMonthYear, setSelectedMonthYear] = useState(
+    new Date().toISOString().slice(0, 7) // Format: YYYY-MM
+  );
 
   // ------------------- Detect Mobile Screen -------------------
   useEffect(() => {
@@ -215,8 +218,11 @@ const ProjectViewContent = ({ projectId = "" }) => {
   // Load Energy Day Wise Data 
   useEffect(() => {
     const loadEnergyDayWiseData = async () => {
+      const [year, month] = selectedMonthYear.split('-');
       const payload = {
-        projectId: projectId ?? null
+        projectId: projectId ?? null,
+        year: year ?? null,
+        month: month ?? null
       };
 
       try {
@@ -227,8 +233,10 @@ const ProjectViewContent = ({ projectId = "" }) => {
         setMonthlyChartDataLoading(false);
       }
     };
-    loadEnergyDayWiseData();
-  }, [])
+    if (projectId && selectedMonthYear) {
+      loadEnergyDayWiseData();
+    }
+  }, [projectId, selectedMonthYear])
 
   // ------------------- Determine which data to show -------------------
   const displayData = selectedInverterId
@@ -706,7 +714,12 @@ const ProjectViewContent = ({ projectId = "" }) => {
             overflowX: "auto",
           }}
         >
-          <EnergyChart chartMonthData={chartMonthData} />
+          <EnergyChart 
+            chartMonthData={chartMonthData} 
+            selectedMonthYear={selectedMonthYear}
+            onMonthYearChange={setSelectedMonthYear}
+            isDark={isDark}
+          />
         </div>
       </div>
     </div>
