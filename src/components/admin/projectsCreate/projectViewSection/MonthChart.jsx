@@ -119,42 +119,33 @@ const EnergyChart = ({ chartMonthData, selectedMonthYear, onMonthYearChange, isD
             >
               <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
 
-              {/* Left Y-axis for K VND */}
-              {/* <YAxis
-                yAxisId="left"
-                orientation="left"
-                label={{ value: 'K VND', angle: 0, position: 'top', offset: 10, dx: -30 }}
-                domain={[0, 425]}
-                ticks={[0, 85, 170, 255, 340, 425]}
-                stroke="#666"
-              /> */}
-
-              {/* Middle Y-axis for kWh */}
+              {/* Middle Y-axis for K VND */}
               <YAxis
                 yAxisId="middle"
-                orientation="left"
-                width={50}
-                label={{
-                  value: 'kWh',
-                  position: 'top',
-                  dx: 20,
-                }}
-                domain={[0, 940]}
-                ticks={[0, 188, 376, 564, 752, 940]}
-                stroke="#666"
-              />
-
-              <YAxis
-                yAxisId="left"
                 orientation="left"
                 width={70}
                 label={{
                   value: 'K VND',
                   position: 'top',
-                  dx: -30,
+                  dx: 20,
                 }}
-                domain={[0, 425]}
+                domain={[0, 460]}
                 ticks={[0, 85, 170, 255, 340, 425]}
+                stroke="#666"
+              />
+
+              {/* Middle Y-axis for kWh */}
+              <YAxis
+                yAxisId="left"
+                orientation="left"
+                width={70}
+                label={{
+                  value: 'kWh',
+                  position: 'top',
+                  dx: 40,
+                }}
+                domain={[0, 980]}
+                ticks={[0, 188, 376, 564, 752, 940]}
                 stroke="#666"
               />
 
