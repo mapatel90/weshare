@@ -128,7 +128,7 @@ export function convertEnergyToKwh(value, unit = 'kWh') {
   return numeric;
 }
 
-export const formatEnergyUnit = (value, decimals = 2) => {
+export const formatEnergyUnit = (value, decimals = 3) => {
   const numeric = Number(value);
 
   if (!Number.isFinite(numeric) || numeric <= 0) return "0 W";
