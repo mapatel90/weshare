@@ -55,11 +55,11 @@ router.post("/", authenticateToken, upload.single('news_image'), async (req, res
 
     const news = await prisma.news.create({
       data: {
-        news_title,
-        news_date: formattedDate,
-        news_image: uploadedPath,
-        news_description,
-        news_slug,
+        title: news_title,
+        date: formattedDate,
+        image: uploadedPath,
+        description: news_description,
+        slug: news_slug,
       },
     });
 
@@ -80,7 +80,7 @@ router.get("/", async (req, res) => {
   try {
     const newsList = await prisma.news.findMany({
       where: { is_deleted: 0 }, 
-      orderBy: { news_date: 'asc' },
+      orderBy: { date: 'asc' },
     });
 
     return res.status(200).json({
@@ -104,12 +104,10 @@ router.get("/check-slug", async (req, res) => {
       return res.status(400).json({ success: false, message: 'slug is required' });
     }
 
-    console.log('Checking slug:', slug, 'Exclude ID:', excludeId);
-
     const parsedExcludeId = excludeId ? parseInt(excludeId) : null;
     const existing = await prisma.news.findFirst({
       where: {
-        news_slug: slug,
+        slug: slug,
         is_deleted: 0,
         ...(parsedExcludeId ? { NOT: { id: parsedExcludeId } } : {}),
       },
@@ -147,7 +145,7 @@ router.get("/:identifier", async (req, res) => {
       // Try to find by slug
       news = await prisma.news.findFirst({
         where: { 
-          news_slug: identifier,
+          slug: identifier,
           is_deleted: 0 
         },
       });
@@ -176,9 +174,29 @@ router.get("/:identifier", async (req, res) => {
 router.delete("/:id", authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
+    const parsedId = parseInt(id);
+
+    const existing = await prisma.news.findFirst({ where: { id: parsedId } });
+
+    if (!existing) {
+      return res.status(404).json({
+        success: false,
+        message: "News not found.",
+      });
+    }
+
+    // Best-effort file cleanup on delete
+    const oldPath = existing.image ? path.join(PUBLIC_DIR, existing.image.replace(/^\//, '')) : null;
+    if (oldPath && fs.existsSync(oldPath)) {
+      try {
+        fs.unlinkSync(oldPath);
+      } catch (cleanupErr) {
+        console.warn("Failed to remove news image during delete:", cleanupErr);
+      }
+    }
 
     await prisma.news.update({
-      where: { id: parseInt(id) },
+      where: { id: parsedId },
       data: { is_deleted: 1 },
     });
 
@@ -218,8 +236,8 @@ router.put("/:id", authenticateToken, upload.single('news_image'), async (req, r
     if (newImagePath) {
       try {
         const existing = await prisma.news.findFirst({ where: { id: parseInt(id) } });
-        const oldPath = existing?.news_image
-          ? path.join(PUBLIC_DIR, existing.news_image.replace(/^\//, ''))
+        const oldPath = existing?.image
+          ? path.join(PUBLIC_DIR, existing.image.replace(/^\//, ''))
           : null;
         if (oldPath && fs.existsSync(oldPath)) {
           fs.unlinkSync(oldPath);
@@ -232,11 +250,11 @@ router.put("/:id", authenticateToken, upload.single('news_image'), async (req, r
     const updatedNews = await prisma.news.update({
       where: { id: parseInt(id) },
       data: {
-        news_title,
-        news_date: formattedDate,
-        ...(newImagePath ? { news_image: newImagePath } : {}),
-        news_description,
-        news_slug,
+        title: news_title,
+        date: formattedDate,
+        ...(newImagePath ? { image: newImagePath } : {}),
+        description: news_description,
+        slug: news_slug,
       },
     });
 

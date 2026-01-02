@@ -60,7 +60,7 @@ const BlogDetail = ({ blogSlug }) => {
   }, [fetchBlogDetail, fetchAllBlogs]);
 
   // Find previous and next blog
-  const currentIndex = allBlogs.findIndex((n) => n.blog_slug === blogSlug);
+  const currentIndex = allBlogs.findIndex((n) => n.slug === blogSlug);
   const previousBlog = currentIndex > 0 ? allBlogs[currentIndex - 1] : null;
   const nextBlog =
     currentIndex >= 0 && currentIndex < allBlogs.length - 1

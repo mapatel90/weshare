@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useEffect, useState } from 'react';
-import Link from 'next/link';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { apiGet } from '@/lib/api';
 
@@ -15,7 +14,7 @@ const StatsCardOverview = () => {
     const statsConfig = [
         { key: 'projects', title: lang('navigation.projects', 'Projects'), icon: <MdSolarPower size={26} /> },
         { key: 'users', title: lang('navigation.users', 'Users'), icon: <FiUsers size={26} /> },
-        { key: 'inverters', title: lang('inverter.inverter', 'inverters'), icon: <FiCpu size={26} /> },
+        { key: 'project_inverters', title: lang('inverter.project_inverter', 'Project Inverters'), icon: <FiCpu size={26} /> },
         { key: 'contracts', title: lang('offtaker_login.sidebar.contracts', 'Contracts'), icon: <MdDocumentScanner size={26} /> },
         { key: 'lease_request', title: lang('leaseRequest.title', 'Lease Requests'), icon: <MdVerifiedUser size={26} /> },
         { key: 'interested_investors', title: lang('home.exchangeHub.investor'), icon: <MdTrendingUp size={26} /> },
@@ -23,7 +22,7 @@ const StatsCardOverview = () => {
     const [stats, setStats] = useState({
         projects: 0,
         users: 0,
-        inverters: 0,
+        project_inverters: 0,
         contracts: 0,
         lease_request: 0,
         interested_investors: 0
@@ -35,6 +34,7 @@ const StatsCardOverview = () => {
         const fetchStats = async () => {
             try {
                 const res = await apiGet('/api/dashboard/statscount');
+                console.log('StatsCardOverview - fetched stats:', res);
                 if (res.data) setStats(res.data);
                 else setError('Failed to fetch stats');
             } catch (err) {

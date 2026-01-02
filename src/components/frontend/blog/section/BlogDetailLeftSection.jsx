@@ -36,16 +36,16 @@ const BlogDetailLeftSection = ({ blog, previousBlog, nextBlog }) => {
 
   return (
     <div className="col-md-8">
-      <h2 className="article-title mb-3">{blog.blog_title}</h2>
+      <h2 className="article-title mb-3">{blog.title}</h2>
       <span className="date post-date d-block mb-3">
         <FontAwesomeIcon icon={faCalendar} className="me-2" />
-        {formatDate(blog.blog_date)}
+        {formatDate(blog.date)}
       </span>
 
-      {blog.blog_image && (
+      {blog.image && (
         <Image
-          src={getFullImageUrl(blog?.blog_image)}
-          alt={blog.blog_title || 'Blog Image'}
+          src={getFullImageUrl(blog?.image)}
+          alt={blog.title || 'Blog Image'}
           className="img-fluid rounded mb-4 article-feature-img"
           width={800}
           height={400}
@@ -54,13 +54,13 @@ const BlogDetailLeftSection = ({ blog, previousBlog, nextBlog }) => {
       )}
 
       <div className="article-section">
-        <div dangerouslySetInnerHTML={createMarkup(blog.blog_description)} />
+        <div dangerouslySetInnerHTML={createMarkup(blog.description)} />
       </div>
 
       <div className="d-flex justify-content-between align-items-center mt-4">
         {previousBlog ? (
           <Link
-            href={`/blogDetail/${previousBlog.blog_slug}`}
+            href={`/frontend/blogDetail/${previousBlog.slug}`}
             className="text-decoration-none text-dark next-pre-btn"
           >
             <FontAwesomeIcon icon={faAnglesLeft} className="me-2" />
@@ -74,7 +74,7 @@ const BlogDetailLeftSection = ({ blog, previousBlog, nextBlog }) => {
         )}
         {nextBlog ? (
           <Link
-            href={`/blogDetail/${nextBlog.blog_slug}`}
+            href={`/frontend/blogDetail/${nextBlog.slug}`}
             className="text-decoration-none text-dark next-pre-btn"
           >
             {lang("news.next")}

@@ -23,9 +23,9 @@ const AllReports = ({ title }) => {
       try {
         setLoading(true);
         setError(null);
-        const res = await apiGet("/api/inverter-data?limit=6");
+        const res = await apiGet("/api/inverter-data?limit=5");
         const list = res?.data || [];
-        setReports(list.slice(0, 6)); // Show first 6 reports
+        setReports(list.slice(0, 5)); // Show first 5 reports
       } catch (err) {
         setError("Failed to load reports");
       } finally {
@@ -43,7 +43,7 @@ const AllReports = ({ title }) => {
   };
 
   return (
-    <div className="col-xxl-4">
+    <div className="col-xxl-6">
       <div
         className={`card stretch stretch-full ${
           isExpanded ? "card-expand" : ""

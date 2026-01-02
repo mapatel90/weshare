@@ -7,13 +7,14 @@ const router = express.Router();
 // GET /api/dashboard/statscount
 router.get('/statscount', authenticateToken, async (req, res) => {
     try {
-        const [projects, users, inverters, contracts, lease_request, interested_investors] = await Promise.all([
+        const [projects, users, inverters, contracts, lease_request, interested_investors, project_inverters] = await Promise.all([
             prisma.projects.count({ where: { is_deleted: 0 } }),
             prisma.users.count({ where: { is_deleted: 0 } }),
             prisma.inverters.count({ where: { is_deleted: 0 } }),
             prisma.contracts.count({ where: { is_deleted: 0 } }),
             prisma.lease_requests.count({ where: { is_deleted: 0 } }),
             prisma.interested_investors.count({ where: { is_deleted: 0 } }),
+            prisma.project_inverters.count({ where: { is_deleted: 0 } }),
         ]);
         res.json({
             success: true,
@@ -24,6 +25,7 @@ router.get('/statscount', authenticateToken, async (req, res) => {
                 contracts,
                 lease_request,
                 interested_investors,
+                project_inverters,
             },
         });
     } catch (error) {

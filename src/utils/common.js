@@ -111,3 +111,43 @@ export function formatShort(value, decimals = 4) {
     maximumFractionDigits: decimals,
   }).format(value);
 }
+
+
+export function convertEnergyToKwh(value, unit = 'kWh') {
+  if (value == null) return 0;
+
+  const numeric = Number(value);
+  if (isNaN(numeric)) return 0;
+
+  const normalizedUnit = String(unit).toLowerCase().trim();
+
+  if (normalizedUnit === 'mwh') return numeric * 1000; // 1 MWh = 1000 kWh
+  if (normalizedUnit === 'kwh') return numeric;
+
+  // Unknown unit → assume kWh
+  return numeric;
+}
+
+export const formatEnergyUnit = (value, decimals = 3) => {
+  const numeric = Number(value);
+
+  if (!Number.isFinite(numeric) || numeric <= 0) return "0 W";
+
+  // Below 1 → Watts
+  if (numeric < 1) {
+    return `${(numeric * 1000).toFixed(0)} W`;
+  }
+
+  // 1 to 1000 → kWh
+  if (numeric >= 1 && numeric < 1000) {
+    return `${numeric.toFixed(decimals)} kWh`;
+  }
+
+  // 1000 to 1,000,000 → MWh
+  if (numeric >= 1000 && numeric < 1_000_000) {
+    return `${(numeric / 1000).toFixed(decimals)} MWh`;
+  }
+
+  // Above 1,000,000 → GWh
+  return `${(numeric / 1_000_000).toFixed(decimals)} GWh`;
+};
