@@ -75,8 +75,8 @@ const NewsSection = () => {
             ? newsData.slice(0, 3) // show only 3 dynamic items
             : staticNews
           ).map((item, index) => {
-            const isDynamic = !!item.news_title;
-            const key = isDynamic ? item.id || item.news_slug || index : index;
+            const isDynamic = !!item.title;
+            const key = isDynamic ? item.id || item.slug || index : index;
             return (
               <div
                 key={key}
@@ -90,8 +90,8 @@ const NewsSection = () => {
                       // use normal img for external/dynamic urls to avoid next/image domain config issues
                       // adjust className if needed
                       <img
-                        src={getFullImageUrl(item?.news_image)}
-                        alt={item.news_title || "news"}
+                        src={getFullImageUrl(item?.image)}
+                        alt={item.title || "news"}
                         className="img-thubnail"
                         width={400}
                         height={250}
@@ -116,8 +116,8 @@ const NewsSection = () => {
                         height={16}
                       />
                       {isDynamic
-                        ? item.news_date
-                          ? new Date(item.news_date).toLocaleDateString(
+                        ? item.date
+                          ? new Date(item.date).toLocaleDateString(
                             "en-US",
                             {
                               year: "numeric",
@@ -138,11 +138,11 @@ const NewsSection = () => {
                         minHeight: '25px',
                         lineHeight: '1.4'
                       }}>
-                      {isDynamic ? item.news_title : item.title}
+                      {isDynamic ? item.title : item.title}
                     </h4>
                     {isDynamic ? (
                       <Link
-                        href={`/frontend/newsDetail/${item.news_slug || ""}`}
+                        href={`/frontend/newsDetail/${item.slug || ""}`}
                         className="readMore"
                       >
                         {lang("home.news.readMore")} →
