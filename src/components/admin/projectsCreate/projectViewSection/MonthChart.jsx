@@ -1,12 +1,12 @@
 'use client';
 import { useLanguage } from '@/contexts/LanguageContext';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import DatePicker from 'react-datepicker';
 import { ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import dayjs from "dayjs";
 import 'react-datepicker/dist/react-datepicker.css';
 
-const buildChartData = (chartMonthData, selectedDate) => {
+const buildChartData = (chartMonthData = [], selectedDate) => {
   const monthYear = selectedDate ? dayjs(selectedDate).format('YYYY-MM') : dayjs().format('YYYY-MM');
   const daysInMonth = dayjs(monthYear).daysInMonth();
 
@@ -35,10 +35,24 @@ const buildChartData = (chartMonthData, selectedDate) => {
   });
 };
 
+const getMaxKwh = (data = []) =>
+  Math.max(
+    ...data.map(d =>
+      Math.max(d.yield, d.exporting, d.importing, d.consumed)
+    ),
+    0
+  );
+
+const getMaxMoney = (data = []) =>
+  Math.max(...data.map(d => d.earning), 0);
+
+const getMaxHours = (data = []) =>
+  Math.max(...data.map(d => d.fullLoadHours), 0);
 
 
 const EnergyChart = ({ chartMonthData, selectedMonthYear, onMonthYearChange, isDark = false }) => {
   const { lang } = useLanguage();
+
   const [selectedDate, setSelectedDate] = useState(
     selectedMonthYear ? dayjs(selectedMonthYear, 'YYYY-MM').toDate() : new Date()
   );
@@ -57,7 +71,17 @@ const EnergyChart = ({ chartMonthData, selectedMonthYear, onMonthYearChange, isD
     }
   };
 
-  const data = buildChartData(chartMonthData || [], selectedDate);
+  // const data = buildChartData(chartMonthData || [], selectedDate);
+
+  const data = useMemo(
+    () => buildChartData(chartMonthData, selectedDate),
+    [chartMonthData, selectedDate]
+  );
+
+  const maxKwh = Math.ceil(getMaxKwh(data) / 100) * 100 || 100;
+  const maxMoney = Math.ceil(getMaxMoney(data) / 50) * 50 || 50;
+  const maxHours = Math.ceil(getMaxHours(data) * 2) / 2 || 1;
+
 
   return (
     <>
@@ -119,16 +143,6 @@ const EnergyChart = ({ chartMonthData, selectedMonthYear, onMonthYearChange, isD
             >
               <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
 
-              {/* Left Y-axis for K VND */}
-              {/* <YAxis
-                yAxisId="left"
-                orientation="left"
-                label={{ value: 'K VND', angle: 0, position: 'top', offset: 10, dx: -30 }}
-                domain={[0, 425]}
-                ticks={[0, 85, 170, 255, 340, 425]}
-                stroke="#666"
-              /> */}
-
               {/* Middle Y-axis for kWh */}
               <YAxis
                 yAxisId="middle"
@@ -139,8 +153,7 @@ const EnergyChart = ({ chartMonthData, selectedMonthYear, onMonthYearChange, isD
                   position: 'top',
                   dx: 20,
                 }}
-                domain={[0, 940]}
-                ticks={[0, 188, 376, 564, 752, 940]}
+                domain={[0, maxKwh]}
                 stroke="#666"
               />
 
@@ -153,8 +166,8 @@ const EnergyChart = ({ chartMonthData, selectedMonthYear, onMonthYearChange, isD
                   position: 'top',
                   dx: -30,
                 }}
-                domain={[0, 425]}
-                ticks={[0, 85, 170, 255, 340, 425]}
+                domain={[0, maxMoney]}
+                // ticks={[0, 85, 170, 255, 340, 425]}
                 stroke="#666"
               />
 
@@ -163,8 +176,8 @@ const EnergyChart = ({ chartMonthData, selectedMonthYear, onMonthYearChange, isD
                 yAxisId="right"
                 orientation="right"
                 label={{ value: 'h', angle: 0, position: 'top', offset: 10, dx: -30 }}
-                domain={[0, 4]}
-                ticks={[0, 0.8, 1.6, 2.4, 3.2, 4]}
+                domain={[0, maxHours]}
+                // ticks={[0, 0.8, 1.6, 2.4, 3.2, 4]}
                 stroke="#666"
               />
 
