@@ -78,26 +78,6 @@ export default function SolarEnergyFlow({
 
   /* ================= HELPERS ================= */
 
-  const Circle = ({ icon, color, value }) => (
-    <div
-      style={{
-        height: 85,
-        width: 85,
-        borderRadius: "50%",
-        border: `2px solid ${color}`,
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        background: "#fff",
-        color,
-      }}
-    >
-      {icon}
-      <div style={{ fontSize: 11 }}>{value}</div>
-    </div>
-  );
-
   const Arrow = ({ path, color, scale = 1 }) => (
     <path
       d={`M${-4 * scale},${-8 * scale} L${4 * scale},0 L${-4 * scale},${
