@@ -15,12 +15,29 @@ export default function SolarPlantOverviewCard() {
 
   // ---------------- Fetch data ----------------
   useEffect(() => {
+    let active = true;
+
     const fetchData = async () => {
-      const res = await apiGet("/api/dashboard/plantdetails");
-      setProjects(res?.data?.projects || []);
-      setLoading(false);
+      try {
+        const res = await apiGet("/api/dashboard/plantdetails");
+        if (!active) return;
+        setProjects(res?.data?.projects || []);
+        setError(null);
+      } catch (err) {
+        if (!active) return;
+        setError(err);
+      } finally {
+        if (active) setLoading(false);
+      }
     };
+
     fetchData();
+    const intervalId = setInterval(fetchData, 120000);
+
+    return () => {
+      active = false;
+      clearInterval(intervalId);
+    };
   }, []);
   let isDark = false;
 

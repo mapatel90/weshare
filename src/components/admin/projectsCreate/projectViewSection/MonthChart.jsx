@@ -181,21 +181,6 @@ const EnergyChart = ({ chartMonthData, selectedMonthYear, onMonthYearChange, isD
                 stroke="#666"
               />
 
-              {/* Middle Y-axis for kWh */}
-              <YAxis
-                yAxisId="left"
-                orientation="left"
-                width={70}
-                label={{
-                  value: 'kWh',
-                  position: 'top',
-                  dx: 40,
-                }}
-                domain={[0, 980]}
-                ticks={[0, 188, 376, 564, 752, 940]}
-                stroke="#666"
-              />
-
               {/* Right Y-axis for h */}
               <YAxis
                 yAxisId="hours"
