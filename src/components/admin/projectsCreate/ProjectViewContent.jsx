@@ -718,6 +718,7 @@ const ProjectViewContent = ({ projectId = "" }) => {
             chartMonthData={chartMonthData} 
             selectedMonthYear={selectedMonthYear}
             onMonthYearChange={setSelectedMonthYear}
+            monthlyChartDataLoading={monthlyChartDataLoading}
             isDark={isDark}
           />
         </div>
