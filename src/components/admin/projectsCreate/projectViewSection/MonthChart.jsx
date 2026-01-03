@@ -59,7 +59,7 @@ const generateTicks = (max, step) => {
 };
 
 
-const EnergyChart = ({ chartMonthData, selectedMonthYear, onMonthYearChange, isDark = false }) => {
+const EnergyChart = ({ chartMonthData, selectedMonthYear, onMonthYearChange, isDark = false, monthlyChartDataLoading }) => {
   const { lang } = useLanguage();
 
   const [selectedDate, setSelectedDate] = useState(
@@ -108,7 +108,7 @@ const EnergyChart = ({ chartMonthData, selectedMonthYear, onMonthYearChange, isD
           border: 1px solid ${isDark ? '#1b2436' : '#d1d5db'};
           border-radius: 8px;
           box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-          padding: 20px;
+          padding: 28px;
           box-sizing: border-box;
           background-color: ${isDark ? '#121a2d' : '#ffffff'};
         }
@@ -116,7 +116,7 @@ const EnergyChart = ({ chartMonthData, selectedMonthYear, onMonthYearChange, isD
           margin-bottom: 16px;
         }
         .date-picker-wrapper :global(.react-datepicker-wrapper) {
-          width: 100%;
+          width: 10%;
         }
         .date-picker-wrapper :global(.react-datepicker__input-container input) {
           width: 100%;
@@ -144,128 +144,135 @@ const EnergyChart = ({ chartMonthData, selectedMonthYear, onMonthYearChange, isD
             placeholderText="Select month and year"
           />
         </div>
-        <div className="chart-wrapper">
-          <ResponsiveContainer width="100%" height="100%">
-            <ComposedChart
-              data={data}
-              margin={{ top: 10, right: 30, left: 20, bottom: 20 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
+        {/* <div className="chart-wrapper"> */}
 
-              {/* Middle Y-axis for kWh */}
-              <YAxis
-                yAxisId="kwh"
-                orientation="left"
-                width={70}
-                label={{
-                  value: 'kWh',
-                  position: 'top',
-                  dx: 20,
-                }}
-                domain={[0, maxKwh]}
-                ticks={generateTicks(maxKwh, 100)}
-                stroke="#666"
-              />
+        <ResponsiveContainer width="100%" height="100%">
+          <ComposedChart
+            data={data}
+            margin={{ top: 40, right: 50, left: 100, bottom: 20 }}
+          >
+            <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
 
-              <YAxis
-                yAxisId="money"
-                orientation="left"
-                width={70}
-                label={{
-                  value: 'K VND',
-                  position: 'top',
-                  dx: 30,
-                }}
-                domain={[0, maxMoney]}
-                ticks={generateTicks(maxMoney, 50)}
-                stroke="#666"
-              />
+            {/* Middle Y-axis for kWh */}
+            <YAxis
+              yAxisId="kwh"
+              orientation="left"
+              width={70}
+              x={60}
+              label={{
+                value: 'kWh',
+                position: 'top',
+                dx: 20,
+                dy: -10
+              }}
+              domain={[0, maxKwh]}
+              ticks={generateTicks(maxKwh, 100)}
+              stroke="#666"
+            />
 
-              {/* Right Y-axis for h */}
-              <YAxis
-                yAxisId="hours"
-                orientation="right"
-                label={{ value: 'h', angle: 0, position: 'top', offset: 10, dx: -30 }}
-                domain={[0, maxHours]}
-                // ticks={[0, 0.8, 1.6, 2.4, 3.2, 4]}
-                stroke="#666"
-              />
+            <YAxis
+              yAxisId="money"
+              orientation="left"
+              width={70}
+              x={0}
+              label={{
+                value: 'K VND',
+                position: 'top',
+                dx: 30,
+                dy: -10
+              }}
+              domain={[0, maxMoney]}
+              ticks={generateTicks(maxMoney, 50)}
+              stroke="#666"
+            />
 
-              <XAxis
-                dataKey="day"
-                stroke="#666"
-                interval={0}
-                tick={{ fontSize: 11 }}
-              />
+            {/* Right Y-axis for h */}
+            <YAxis
+              yAxisId="hours"
+              orientation="right"
+              width={70}
+              x={0}
+              label={{ value: 'h', angle: 0, position: 'top', dx: -30, dy: -10 }}
+              domain={[0, maxHours]}
+              ticks={generateTicks(maxHours, 0.5)}
+              stroke="#666"
+            />
 
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                  border: '1px solid #ccc',
-                  borderRadius: '4px'
-                }}
-                formatter={(value) => typeof value === 'number' ? value.toFixed(2) : value}
-              />
+            <XAxis
+              dataKey="day"
+              stroke="#666"
+              interval={0}
+              tick={{ fontSize: 11 }}
+            />
 
-              <Legend
-                verticalAlign="bottom"
-                height={36}
-                iconType="rect"
-                wrapperStyle={{ paddingTop: '20px' }}
-              />
+            <Tooltip
+              contentStyle={{
+                backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                border: '1px solid #ccc',
+                borderRadius: '4px'
+              }}
+              formatter={(value) => typeof value === 'number' ? value.toFixed(2) : value}
+            />
 
-              {/* Bars */}
-              <Bar
-                yAxisId="kwh"
-                dataKey="yield"
-                name="Yield"
-                fill="#FDB515"
-                barSize={12}
-              />
-              <Bar
-                yAxisId="kwh"
-                dataKey="exporting"
-                name="Exporting"
-                fill="#4A90E2"
-                barSize={12}
-              />
-              <Bar
-                yAxisId="kwh"
-                dataKey="importing"
-                name="Importing"
-                fill="#E84855"
-                barSize={12}
-              />
-              <Bar
-                yAxisId="kwh"
-                dataKey="consumed"
-                name="Consumed"
-                fill="#FF8C42"
-                barSize={12}
-              />
+            <Legend
+              verticalAlign="bottom"
+              height={36}
+              iconType="rect"
+              wrapperStyle={{ paddingTop: '20px' }}
+            />
 
-              {/* Lines */}
-              <Line
-                yAxisId="hours"
-                type="linear"
-                dataKey="fullLoadHours"
-                name="Full Load Hours"
-                stroke="#4A90E2"
-                strokeWidth={2}
-                dot={false}
-              />
-              <Line
-                yAxisId="money"
-                type="linear"
-                dataKey="earning"
-                name="Earning"
-                stroke="#FF8C42"
-                strokeWidth={2}
-                dot={false}
-              />
-            </ComposedChart>
-          </ResponsiveContainer>
-        </div>
+            {/* Bars */}
+            <Bar
+              yAxisId="kwh"
+              dataKey="yield"
+              name="Yield"
+              fill="#FDB515"
+              barSize={12}
+            />
+            <Bar
+              yAxisId="kwh"
+              dataKey="exporting"
+              name="Exporting"
+              fill="#4A90E2"
+              barSize={12}
+            />
+            <Bar
+              yAxisId="kwh"
+              dataKey="importing"
+              name="Importing"
+              fill="#E84855"
+              barSize={12}
+            />
+            <Bar
+              yAxisId="kwh"
+              dataKey="consumed"
+              name="Consumed"
+              fill="#FF8C42"
+              barSize={12}
+            />
+
+            {/* Lines */}
+            <Line
+              yAxisId="hours"
+              type="linear"
+              dataKey="fullLoadHours"
+              name="Full Load Hours"
+              stroke="#4A90E2"
+              strokeWidth={2}
+              dot={false}
+            />
+            <Line
+              yAxisId="money"
+              type="linear"
+              dataKey="earning"
+              name="Earning"
+              stroke="#FF8C42"
+              strokeWidth={2}
+              dot={false}
+            />
+          </ComposedChart>
+        </ResponsiveContainer>
+        {/* </div> */}
       </div>
     </>
   );
