@@ -1052,4 +1052,50 @@ router.post("/chart_month_data", async (req, res) => {
   }
 });
 
+router.post("/chart_year_data", async (req, res) => {
+  try {
+    const { projectId, year } = req.body;
+
+    if (!projectId) {
+      return res.status(400).json({ error: "Project Id required parameters" });
+    }
+
+    const selectedYear = year || dayjs().format("YYYY");
+
+    // ✅ FULL YEAR RANGE
+    const startDate = dayjs(`${selectedYear}-01-01`)
+      .startOf("day")
+      .toDate();
+
+    const endDate = dayjs(`${selectedYear}-12-31`)
+      .endOf("day")
+      .toDate();
+
+    const data = await prisma.project_energy_days_data.findMany({
+      where: {
+        project_id: Number(projectId),
+        date: {
+          gte: startDate,
+          lte: endDate,
+        },
+      },
+      orderBy: {
+        date: "asc",
+      },
+    });
+
+    return res.json({
+      success: true,
+      year: selectedYear,
+      count: data.length,
+      data,
+    });
+
+  } catch (error) {
+    console.error("Error fetching year chart data:", error);
+    return res.status(500).json({ error: "Server error" });
+  }
+});
+
+
 export default router;
