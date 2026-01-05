@@ -2,10 +2,8 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import PageHeaderSetting from '@/components/shared/pageHeader/PageHeaderSetting'
 import Footer from '@/components/shared/Footer'
-import SelectDropdown from '@/components/shared/SelectDropdown'
 import { FiCalendar, FiCamera, FiX } from 'react-icons/fi'
 import PerfectScrollbar from 'react-perfect-scrollbar'
-import TextAreaTopLabel from '@/components/shared/TextAreaTopLabel'
 import useSettings from '@/hooks/useSettings'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { TextField, InputAdornment, FormControl, InputLabel, Select, MenuItem, Box, Avatar, IconButton } from '@mui/material'
@@ -63,30 +61,13 @@ const SettingsFinanceForm = () => {
     finance_decimal_separator: "dot",
     finance_thousand_separator: "clone",
     finance_default_tax: "no-tax",
-    finance_show_tax_per_item: "yes",
-    finance_remove_tax_name_from_item: "no",
-    finance_exclude_currency_symbol: "yes",
-    finance_remove_zero_decimals: "no",
-    finance_output_amount_to_words: "yes",
-    finance_number_words_lowercase: "no",
     finance_qr_code: "",
     // Invoice Settings
     invoice_number_prefix: "",
+    next_invoice_number: "",
     invoice_due_after_days: "",
-    invoice_allow_staff_view_assigned: "yes",
-    invoice_require_client_login: "no",
-    invoice_delete_only_last: "yes",
-    invoice_decrement_on_delete: "no",
-    invoice_exclude_draft_from_customer: "yes",
-    invoice_show_sale_agent: "no",
-    invoice_show_project_name: "yes",
-    invoice_show_total_paid: "no",
-    invoice_show_credits_applied: "yes",
-    invoice_show_amount_due: "no",
-    invoice_attach_pdf_on_receipt: "yes",
     invoice_predefined_client_note: "",
     invoice_predefined_terms_conditions: "",
-    invoice_proposal_info_format: ""
   })
 
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -104,29 +85,12 @@ const SettingsFinanceForm = () => {
         finance_decimal_separator: getSetting("finance_decimal_separator", "dot"),
         finance_thousand_separator: getSetting("finance_thousand_separator", "clone"),
         finance_default_tax: getSetting("finance_default_tax", "no-tax"),
-        finance_show_tax_per_item: getSetting("finance_show_tax_per_item", "yes"),
-        finance_remove_tax_name_from_item: getSetting("finance_remove_tax_name_from_item", "no"),
-        finance_exclude_currency_symbol: getSetting("finance_exclude_currency_symbol", "yes"),
-        finance_remove_zero_decimals: getSetting("finance_remove_zero_decimals", "no"),
-        finance_output_amount_to_words: getSetting("finance_output_amount_to_words", "yes"),
-        finance_number_words_lowercase: getSetting("finance_number_words_lowercase", "no"),
         finance_qr_code: getSetting("finance_qr_code", ""),
         invoice_number_prefix: getSetting("invoice_number_prefix", ""),
+        next_invoice_number: getSetting("next_invoice_number", ""),
         invoice_due_after_days: getSetting("invoice_due_after_days", ""),
-        invoice_allow_staff_view_assigned: getSetting("invoice_allow_staff_view_assigned", "yes"),
-        invoice_require_client_login: getSetting("invoice_require_client_login", "no"),
-        invoice_delete_only_last: getSetting("invoice_delete_only_last", "yes"),
-        invoice_decrement_on_delete: getSetting("invoice_decrement_on_delete", "no"),
-        invoice_exclude_draft_from_customer: getSetting("invoice_exclude_draft_from_customer", "yes"),
-        invoice_show_sale_agent: getSetting("invoice_show_sale_agent", "no"),
-        invoice_show_project_name: getSetting("invoice_show_project_name", "yes"),
-        invoice_show_total_paid: getSetting("invoice_show_total_paid", "no"),
-        invoice_show_credits_applied: getSetting("invoice_show_credits_applied", "yes"),
-        invoice_show_amount_due: getSetting("invoice_show_amount_due", "no"),
-        invoice_attach_pdf_on_receipt: getSetting("invoice_attach_pdf_on_receipt", "yes"),
         invoice_predefined_client_note: getSetting("invoice_predefined_client_note", ""),
-        invoice_predefined_terms_conditions: getSetting("invoice_predefined_terms_conditions", ""),
-        invoice_proposal_info_format: getSetting("invoice_proposal_info_format", "")
+        invoice_predefined_terms_conditions: getSetting("invoice_predefined_terms_conditions", "")
       }
       setFormData(loaded)
 
@@ -146,8 +110,8 @@ const SettingsFinanceForm = () => {
       Object.keys(loaded).forEach(key => {
         if (key.startsWith('finance_') || key.startsWith('invoice_')) {
           if (['finance_decimal_separator', 'finance_thousand_separator', 'finance_default_tax', 'finance_qr_code',
-            'invoice_number_prefix', 'invoice_due_after_days', 'invoice_predefined_client_note',
-            'invoice_predefined_terms_conditions', 'invoice_proposal_info_format'].includes(key)) {
+            'invoice_number_prefix', 'next_invoice_number', 'invoice_due_after_days', 'invoice_predefined_client_note',
+            'invoice_predefined_terms_conditions'].includes(key)) {
             return // Skip these as they have custom options
           }
           const yesNoOpt = yesNoOptions.find(o => o.value === loaded[key]) || yesNoOptions[0]
@@ -185,7 +149,7 @@ const SettingsFinanceForm = () => {
       Object.keys(formData).forEach(key => {
         if (key.startsWith('finance_') || key.startsWith('invoice_')) {
           if (['finance_decimal_separator', 'finance_thousand_separator', 'finance_default_tax', 'finance_qr_code',
-            'invoice_number_prefix', 'invoice_due_after_days', 'invoice_predefined_client_note',
+            'invoice_number_prefix', 'next_invoice_number', 'invoice_due_after_days', 'invoice_predefined_client_note',
             'invoice_predefined_terms_conditions', 'invoice_proposal_info_format'].includes(key)) {
             return // Skip these as they have custom options
           }
@@ -376,108 +340,6 @@ const SettingsFinanceForm = () => {
                 </FormControl>
                 <small className="form-text text-muted">{lang("finance.defaultTaxInfo")}</small>
               </div>
-              <div className="mb-5">
-                {/* <label className="form-label">{lang("finance.showTaxPerItem")}</label> */}
-                <FormControl fullWidth>
-                  <InputLabel id="finance-show-tax-label">{lang("finance.showTaxPerItem")}</InputLabel>
-                  <Select
-                    labelId="finance-show-tax-label"
-                    value={formData.finance_show_tax_per_item}
-                    label={lang("finance.showTaxPerItem")}
-                    onChange={(e) => handleDropdownChange('finance_show_tax_per_item', { value: e.target.value })}
-                  >
-                    {yesNoOptions.map(opt => (
-                      <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                <small className="form-text text-muted">{lang("finance.showTaxPerItemInfo")}</small>
-              </div>
-              <div className="mb-5">
-                {/* <label className="form-label">{lang("finance.removeTaxNameFromItem")}</label> */}
-                <FormControl fullWidth>
-                  <InputLabel id="finance-remove-tax-name-label">{lang("finance.removeTaxNameFromItem")}</InputLabel>
-                  <Select
-                    labelId="finance-remove-tax-name-label"
-                    value={formData.finance_remove_tax_name_from_item}
-                    label={lang("finance.removeTaxNameFromItem")}
-                    onChange={(e) => handleDropdownChange('finance_remove_tax_name_from_item', { value: e.target.value })}
-                  >
-                    {yesNoOptions.map(opt => (
-                      <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                <small className="form-text text-muted">{lang("finance.removeTaxNameFromItemInfo")}</small>
-              </div>
-              <div className="mb-5">
-                {/* <label className="form-label">{lang("finance.excludeCurrencySymbol")}</label> */}
-                <FormControl fullWidth>
-                  <InputLabel id="finance-exclude-currency-label">{lang("finance.excludeCurrencySymbol")}</InputLabel>
-                  <Select
-                    labelId="finance-exclude-currency-label"
-                    value={formData.finance_exclude_currency_symbol}
-                    label={lang("finance.excludeCurrencySymbol")}
-                    onChange={(e) => handleDropdownChange('finance_exclude_currency_symbol', { value: e.target.value })}
-                  >
-                    {yesNoOptions.map(opt => (
-                      <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                <small className="form-text text-muted">{lang("finance.excludeCurrencySymbolInfo")}</small>
-              </div>
-              <div className="mb-5">
-                {/* <label className="form-label">{lang("finance.removeZeroDecimals")}</label> */}
-                <FormControl fullWidth>
-                  <InputLabel id="finance-remove-zero-label">{lang("finance.removeZeroDecimals")}</InputLabel>
-                  <Select
-                    labelId="finance-remove-zero-label"
-                    value={formData.finance_remove_zero_decimals}
-                    label={lang("finance.removeZeroDecimals")}
-                    onChange={(e) => handleDropdownChange('finance_remove_zero_decimals', { value: e.target.value })}
-                  >
-                    {yesNoOptions.map(opt => (
-                      <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                <small className="form-text text-muted">{lang("finance.removeZeroDecimalsInfo")}</small>
-              </div>
-              <div className="mb-5">
-                {/* <label className="form-label">{lang("finance.outputAmountToWords")}</label> */}
-                <FormControl fullWidth>
-                  <InputLabel id="finance-amount-words-label">{lang("finance.outputAmountToWords")}</InputLabel>
-                  <Select
-                    labelId="finance-amount-words-label"
-                    value={formData.finance_output_amount_to_words}
-                    label={lang("finance.outputAmountToWords")}
-                    onChange={(e) => handleDropdownChange('finance_output_amount_to_words', { value: e.target.value })}
-                  >
-                    {yesNoOptions.map(opt => (
-                      <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                <small className="form-text text-muted">{lang("finance.outputAmountToWordsInfo")}</small>
-              </div>
-              <div className="mb-5">
-                {/* <label className="form-label">{lang("finance.numberWordsLowercase")}</label> */}
-                <FormControl fullWidth>
-                  <InputLabel id="finance-words-lowercase-label">{lang("finance.numberWordsLowercase")}</InputLabel>
-                  <Select
-                    labelId="finance-words-lowercase-label"
-                    value={formData.finance_number_words_lowercase}
-                    label={lang("finance.numberWordsLowercase")}
-                    onChange={(e) => handleDropdownChange('finance_number_words_lowercase', { value: e.target.value })}
-                  >
-                    {yesNoOptions.map(opt => (
-                      <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                <small className="form-text text-muted">{lang("finance.numberWordsLowercaseInfo")}</small>
-              </div>
 
               {/* QR Code Upload */}
               <div className="mb-5">
@@ -591,6 +453,18 @@ const SettingsFinanceForm = () => {
                 <small className="form-text text-muted">{lang("finance.invoiceNumberPrefixInfo")}</small>
               </div>
               <div className="mb-5">
+                <FormControl fullWidth>
+                  <TextField
+                    label={lang("finance.next_invoice_number")}
+                    fullWidth
+                    placeholder={lang("finance.next_invoice_number")}
+                    value={formData.next_invoice_number}
+                    onChange={(e) => handleInputChange('next_invoice_number', e.target.value)}
+                  />
+                </FormControl>
+                <small className="form-text text-muted">{lang("finance.currencyInfo")}</small>
+              </div>
+              <div className="mb-5">
                 {/* <label className="form-label">{lang("finance.invoiceDueAfterDays")}</label> */}
                 <TextField
                   label={lang("finance.invoiceDueAfterDays")}
@@ -602,193 +476,6 @@ const SettingsFinanceForm = () => {
                   InputProps={{ startAdornment: <InputAdornment position="start"><FiCalendar size={16} /></InputAdornment> }}
                 />
                 <small className="form-text text-muted">{lang("finance.invoiceDueAfterDaysInfo")}</small>
-              </div>
-              <div className="mb-5">
-                {/* <label className="form-label">{lang("finance.allowStaffViewAssigned")}</label> */}
-                <FormControl fullWidth>
-                  <InputLabel id="invoice-allow-staff-label">{lang("finance.allowStaffViewAssigned")}</InputLabel>
-                  <Select
-                    labelId="invoice-allow-staff-label"
-                    value={formData.invoice_allow_staff_view_assigned}
-                    label={lang("finance.allowStaffViewAssigned")}
-                    onChange={(e) => handleDropdownChange('invoice_allow_staff_view_assigned', { value: e.target.value })}
-                  >
-                    {yesNoOptions.map(opt => (
-                      <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                <small className="form-text text-muted">{lang("finance.allowStaffViewAssignedInfo")}</small>
-              </div>
-              <div className="mb-5">
-                {/* <label className="form-label">{lang("finance.requireClientLogin")}</label> */}
-                <FormControl fullWidth>
-                  <InputLabel id="invoice-require-login-label">{lang("finance.requireClientLogin")}</InputLabel>
-                  <Select
-                    labelId="invoice-require-login-label"
-                    value={formData.invoice_require_client_login}
-                    label={lang("finance.requireClientLogin")}
-                    onChange={(e) => handleDropdownChange('invoice_require_client_login', { value: e.target.value })}
-                  >
-                    {yesNoOptions.map(opt => (
-                      <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                <small className="form-text text-muted">{lang("finance.requireClientLoginInfo")}</small>
-              </div>
-              <div className="mb-5">
-                {/* <label className="form-label">{lang("finance.deleteOnlyLast")}</label> */}
-                <FormControl fullWidth>
-                  <InputLabel id="invoice-delete-only-last-label">{lang("finance.deleteOnlyLast")}</InputLabel>
-                  <Select
-                    labelId="invoice-delete-only-last-label"
-                    value={formData.invoice_delete_only_last}
-                    label={lang("finance.deleteOnlyLast")}
-                    onChange={(e) => handleDropdownChange('invoice_delete_only_last', { value: e.target.value })}
-                  >
-                    {yesNoOptions.map(opt => (
-                      <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                <small className="form-text text-muted">{lang("finance.deleteOnlyLastInfo")}</small>
-              </div>
-              <div className="mb-5">
-                {/* <label className="form-label">{lang("finance.decrementOnDelete")}</label> */}
-                <FormControl fullWidth>
-                  <InputLabel id="invoice-decrement-delete-label">{lang("finance.decrementOnDelete")}</InputLabel>
-                  <Select
-                    labelId="invoice-decrement-delete-label"
-                    value={formData.invoice_decrement_on_delete}
-                    label={lang("finance.decrementOnDelete")}
-                    onChange={(e) => handleDropdownChange('invoice_decrement_on_delete', { value: e.target.value })}
-                  >
-                    {yesNoOptions.map(opt => (
-                      <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                <small className="form-text text-muted">{lang("finance.decrementOnDeleteInfo")}</small>
-              </div>
-              <div className="mb-5">
-                {/* <label className="form-label">{lang("finance.excludeDraftFromCustomer")}</label> */}
-                <FormControl fullWidth>
-                  <InputLabel id="invoice-exclude-draft-label">{lang("finance.excludeDraftFromCustomer")}</InputLabel>
-                  <Select
-                    labelId="invoice-exclude-draft-label"
-                    value={formData.invoice_exclude_draft_from_customer}
-                    label={lang("finance.excludeDraftFromCustomer")}
-                    onChange={(e) => handleDropdownChange('invoice_exclude_draft_from_customer', { value: e.target.value })}
-                  >
-                    {yesNoOptions.map(opt => (
-                      <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                <small className="form-text text-muted">{lang("finance.excludeDraftFromCustomerInfo")}</small>
-              </div>
-              <div className="mb-5">
-                {/* <label className="form-label">{lang("finance.showSaleAgent")}</label> */}
-                <FormControl fullWidth>
-                  <InputLabel id="invoice-show-agent-label">{lang("finance.showSaleAgent")}</InputLabel>
-                  <Select
-                    labelId="invoice-show-agent-label"
-                    value={formData.invoice_show_sale_agent}
-                    label={lang("finance.showSaleAgent")}
-                    onChange={(e) => handleDropdownChange('invoice_show_sale_agent', { value: e.target.value })}
-                  >
-                    {yesNoOptions.map(opt => (
-                      <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                <small className="form-text text-muted">{lang("finance.showSaleAgentInfo")}</small>
-              </div>
-              <div className="mb-5">
-                {/* <label className="form-label">{lang("finance.showProjectName")}</label> */}
-                <FormControl fullWidth>
-                  <InputLabel id="invoice-show-project-label">{lang("finance.showProjectName")}</InputLabel>
-                  <Select
-                    labelId="invoice-show-project-label"
-                    value={formData.invoice_show_project_name}
-                    label={lang("finance.showProjectName")}
-                    onChange={(e) => handleDropdownChange('invoice_show_project_name', { value: e.target.value })}
-                  >
-                    {yesNoOptions.map(opt => (
-                      <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                <small className="form-text text-muted">{lang("finance.showProjectNameInfo")}</small>
-              </div>
-              <div className="mb-5">
-                {/* <label className="form-label">{lang("finance.showTotalPaid")}</label> */}
-                <FormControl fullWidth>
-                  <InputLabel id="invoice-show-total-paid-label">{lang("finance.showTotalPaid")}</InputLabel>
-                  <Select
-                    labelId="invoice-show-total-paid-label"
-                    value={formData.invoice_show_total_paid}
-                    label={lang("finance.showTotalPaid")}
-                    onChange={(e) => handleDropdownChange('invoice_show_total_paid', { value: e.target.value })}
-                  >
-                    {yesNoOptions.map(opt => (
-                      <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                <small className="form-text text-muted">{lang("finance.showTotalPaidInfo")}</small>
-              </div>
-              <div className="mb-5">
-                {/* <label className="form-label">{lang("finance.showCreditsApplied")}</label> */}
-                <FormControl fullWidth>
-                  <InputLabel id="invoice-show-credits-label">{lang("finance.showCreditsApplied")}</InputLabel>
-                  <Select
-                    labelId="invoice-show-credits-label"
-                    value={formData.invoice_show_credits_applied}
-                    label={lang("finance.showCreditsApplied")}
-                    onChange={(e) => handleDropdownChange('invoice_show_credits_applied', { value: e.target.value })}
-                  >
-                    {yesNoOptions.map(opt => (
-                      <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                <small className="form-text text-muted">{lang("finance.showCreditsAppliedInfo")}</small>
-              </div>
-              <div className="mb-5">
-                {/* <label className="form-label">{lang("finance.showAmountDue")}</label> */}
-                <FormControl fullWidth>
-                  <InputLabel id="invoice-show-amount-due-label">{lang("finance.showAmountDue")}</InputLabel>
-                  <Select
-                    labelId="invoice-show-amount-due-label"
-                    value={formData.invoice_show_amount_due}
-                    label={lang("finance.showAmountDue")}
-                    onChange={(e) => handleDropdownChange('invoice_show_amount_due', { value: e.target.value })}
-                  >
-                    {yesNoOptions.map(opt => (
-                      <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                <small className="form-text text-muted">{lang("finance.showAmountDueInfo")}</small>
-              </div>
-              <div className="mb-5">
-                {/* <label className="form-label">{lang("finance.attachPdfOnReceipt")}</label> */}
-                <FormControl fullWidth>
-                  <InputLabel id="invoice-attach-pdf-label">{lang("finance.attachPdfOnReceipt")}</InputLabel>
-                  <Select
-                    labelId="invoice-attach-pdf-label"
-                    value={formData.invoice_attach_pdf_on_receipt}
-                    label={lang("finance.attachPdfOnReceipt")}
-                    onChange={(e) => handleDropdownChange('invoice_attach_pdf_on_receipt', { value: e.target.value })}
-                  >
-                    {yesNoOptions.map(opt => (
-                      <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                <small className="form-text text-muted">{lang("finance.attachPdfOnReceiptInfo")}</small>
               </div>
               <div className="mb-5">
                 {/* <label className="form-label">{lang("finance.predefinedClientNote")}</label> */}
@@ -815,19 +502,6 @@ const SettingsFinanceForm = () => {
                   onChange={(e) => handleTextareaChange('invoice_predefined_terms_conditions')({ target: { value: e.target.value } })}
                 />
                 <small className="form-text text-muted">{lang("finance.predefinedTermsConditionsInfo")}</small>
-              </div>
-              <div className="mb-5">
-                {/* <label className="form-label">{lang("finance.proposalInfoFormat")}</label> */}
-                <TextField
-                  label={lang("finance.proposalInfoFormat")}
-                  fullWidth
-                  multiline
-                  rows={6}
-                  placeholder={`{proposal_to}\n{address}\n{city} {state}\n{country_code} {zip_code}\n{phone}\n{email}`}
-                  value={formData.invoice_proposal_info_format}
-                  onChange={(e) => handleTextareaChange('invoice_proposal_info_format')({ target: { value: e.target.value } })}
-                />
-                <small className="form-text text-muted">{lang("finance.proposalInfoFormatInfo")}</small>
               </div>
             </div>
           </div>

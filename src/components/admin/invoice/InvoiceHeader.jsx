@@ -22,7 +22,7 @@ const InvoiceHeader = () => {
       <Button
         variant="contained"
         className="common-orange-color"
-        onClick={openAddModal}
+        href="/admin/finance/invoice/create"
         startIcon={<FiPlus size={17} />}
       >
         {lang("invoice.addInvoice")}

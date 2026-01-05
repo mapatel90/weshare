@@ -1,46 +1,22 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import Table from "@/components/shared/table/Table";
-import { apiGet, apiPost, apiPut, apiDelete } from "@/lib/api";
+import { apiGet, apiDelete } from "@/lib/api";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { FiEdit3, FiTrash2 } from "react-icons/fi";
 import { showSuccessToast } from "@/utils/topTost";
 import Swal from "sweetalert2";
+import { useRouter } from "next/navigation";
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  FormHelperText,
-  Button,
   Chip,
-  Box,
   IconButton,
-  Typography,
   Stack,
 } from "@mui/material";
-import { Close as CloseIcon } from "@mui/icons-material";
 
 const InvoiceTable = () => {
   const { lang } = useLanguage();
+  const router = useRouter();
   const [invoicesData, setInvoicesData] = useState([]);
-  const [modalMode, setModalMode] = useState(null);
-  const [editingId, setEditingId] = useState(null);
-  const [projectOptions, setProjectOptions] = useState([]);
-  const [offtakerOptions, setOfftakerOptions] = useState([]);
-  const [selectedProject, setSelectedProject] = useState(null);
-  const [selectedOfftaker, setSelectedOfftaker] = useState(null);
-  const [amount, setAmount] = useState("");
-  const [totalUnit, setTotalUnit] = useState("");
-  const [status, setStatus] = useState("");
-  const [errors, setErrors] = useState({});
-  const [statusError, setStatusError] = useState("");
-  const [submitting, setSubmitting] = useState(false);
 
   //   const formatTime = (val) => {
   //     if (!val) return "";
@@ -100,93 +76,10 @@ const InvoiceTable = () => {
 
   useEffect(() => {
     fetchInvoices();
-    fetchProjects();
     const onSaved = () => fetchInvoices();
     window.addEventListener("invoice:saved", onSaved);
     return () => window.removeEventListener("invoice:saved", onSaved);
   }, []);
-
-  const resetForm = () => {
-    setSelectedProject(null);
-    setSelectedOfftaker(null);
-    setAmount("");
-    setTotalUnit("");
-    setStatus("");
-    setErrors({});
-    setStatusError("");
-    setEditingId(null);
-  };
-
-  useEffect(() => {
-    const openEdit = (e) => {
-      const item = e?.detail?.item;
-      if (!item) {
-        setModalMode("add");
-        resetForm();
-        // projects are preloaded on mount
-        // offtaker will be loaded based on project selection
-        return;
-      }
-      setModalMode("edit");
-      setEditingId(item.id || null);
-      // projects are preloaded on mount
-      // Ensure offtaker options align with selected project's offtaker
-      setSelectedProject(item.projects ? { label: item.projects.project_name, value: String(item.projects.id) } : null);
-      const ofLabel = item.users ? ([item.users.full_name].filter(Boolean).join(" ") || item.users.email) : "";
-      const editOfftaker = item.users ? { label: ofLabel, value: String(item.users.id) } : null;
-      setSelectedOfftaker(editOfftaker);
-      setOfftakerOptions(editOfftaker ? [editOfftaker] : []);
-      setAmount(String(item.amount ?? ""));
-      setTotalUnit(String(item.total_unit ?? ""));
-      setStatus(item.status !== undefined && item.status !== null ? String(item.status) : "");
-      setErrors({});
-    };
-    window.addEventListener("invoice:open-edit", openEdit);
-    return () => window.removeEventListener("invoice:open-edit", openEdit);
-  }, []);
-
-  const handleSave = async () => {
-    const newErrors = {
-      project: !selectedProject?.value ? "Project is required" : "",
-      offtaker: !selectedOfftaker?.value ? "Offtaker is required" : "",
-      amount: !amount ? "Amount is required" : isNaN(Number(amount)) ? "Amount must be a number" : "",
-      totalUnit: !totalUnit ? "Total unit is required" : isNaN(Number(totalUnit)) ? "Total unit must be a number" : "",
-    };
-    const newStatusError = !status && status !== 0 ? "Status is required" : "";
-    setErrors(newErrors);
-    setStatusError(newStatusError);
-    if (Object.values(newErrors).some(Boolean) || newStatusError) return;
-
-    try {
-      setSubmitting(true);
-      const payload = {
-        project_id: parseInt(selectedProject.value),
-        offtaker_id: parseInt(selectedOfftaker.value),
-        amount: parseFloat(amount),
-        total_unit: parseFloat(totalUnit),
-        status: parseInt(status),
-      };
-      const res = editingId
-        ? await apiPut(`/api/invoice/${editingId}`, payload)
-        : await apiPost("/api/invoice/", payload);
-
-      if (res.success) {
-        if (editingId) {
-          showSuccessToast(lang("invoice.invoiceUpdatedSuccessfully"));
-        } else {
-          showSuccessToast(lang("invoice.invoiceCreatedSuccessfully"));
-        }
-        if (typeof window !== "undefined") {
-          window.dispatchEvent(new CustomEvent("invoice:saved"));
-        }
-        handleCloseModal();
-      }
-    } catch (_) {
-      // noop
-    } finally {
-      setSubmitting(false);
-    }
-  };
 
   const handleDelete = async (id) => {
     const result = await Swal.fire({
@@ -226,7 +119,7 @@ const InvoiceTable = () => {
       },
     },
     { accessorKey: "amount", header: () => lang("invoice.amount") },
-    { accessorKey: "total_unit", header: () => lang("invoice.totalUnit") },
+    { accessorKey: "total_amount", header: () => lang("invoice.totalUnit") },
     // {
     //   accessorKey: "start_time",
     //   header: () => "Start Time",
@@ -271,8 +164,7 @@ const InvoiceTable = () => {
           <IconButton
             size="small"
             onClick={() => {
-              const item = row.original;
-              window.dispatchEvent(new CustomEvent("invoice:open-edit", { detail: { item } }));
+              router.push(`/admin/finance/invoice/edit/${row.original.id}`);
             }}
             sx={{
               color: "#1976d2",
@@ -307,161 +199,8 @@ const InvoiceTable = () => {
     },
   ];
 
-  const handleCloseModal = () => {
-    setModalMode(null);
-    resetForm();
-  };
-
   return (
-    <>
-      <Table data={invoicesData} columns={columns} />
-      <Dialog
-        open={!!modalMode}
-        onClose={handleCloseModal}
-        maxWidth="sm"
-        fullWidth
-        PaperProps={{
-          sx: {
-            borderRadius: 2,
-          },
-        }}
-      >
-        <DialogTitle
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            pb: 1,
-          }}
-        >
-          <Typography variant="h6" component="span">
-            {modalMode === "edit" ? lang("invoice.updateInvoice") : lang("invoice.addInvoice")}
-          </Typography>
-          <IconButton
-            aria-label="close"
-            onClick={handleCloseModal}
-            sx={{
-              color: (theme) => theme.palette.grey[500],
-            }}
-          >
-            <CloseIcon />
-          </IconButton>
-        </DialogTitle>
-        <DialogContent>
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 3, pt: 2 }}>
-            <FormControl fullWidth error={!!errors.project}>
-              <InputLabel id="project-select-label">{lang("invoice.project")}</InputLabel>
-              <Select
-                labelId="project-select-label"
-                value={selectedProject?.value || ""}
-                label={lang("invoice.project")}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  const option = projectOptions.find((opt) => opt.value === value) || null;
-                  setSelectedProject(option);
-                  if (errors.project) setErrors((prev) => ({ ...prev, project: "" }));
-                  if (option?.value) {
-                    fetchProjectOfftaker(option.value);
-                  } else {
-                    setOfftakerOptions([]);
-                    setSelectedOfftaker(null);
-                  }
-                }}
-              >
-                <MenuItem value="">{lang("invoice.selectProject")}</MenuItem>
-                {projectOptions
-                  .filter((opt) => opt.value !== "")
-                  .map((option) => (
-                    <MenuItem key={option.value} value={option.value}>
-                      {option.label}
-                    </MenuItem>
-                  ))}
-              </Select>
-              {errors.project && <FormHelperText>{errors.project}</FormHelperText>}
-            </FormControl>
-
-            <FormControl fullWidth error={!!errors.offtaker}>
-              <InputLabel id="offtaker-select-label">{lang("invoice.offtaker")}</InputLabel>
-              <Select
-                labelId="offtaker-select-label"
-                value={selectedOfftaker?.value || ""}
-                label={lang("invoice.offtaker")}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  const option = offtakerOptions.find((opt) => opt.value === value) || null;
-                  setSelectedOfftaker(option);
-                  if (errors.offtaker) setErrors((prev) => ({ ...prev, offtaker: "" }));
-                }}
-              >
-                <MenuItem value="">{lang("invoice.selectOfftaker")}</MenuItem>
-                {offtakerOptions.map((option) => (
-                  <MenuItem key={option.value} value={option.value}>
-                    {option.label}
-                  </MenuItem>
-                ))}
-              </Select>
-              {errors.offtaker && <FormHelperText>{errors.offtaker}</FormHelperText>}
-            </FormControl>
-
-            <TextField
-              label={lang("invoice.amount")}
-              type="number"
-              inputMode="decimal"
-              value={amount}
-              onChange={(e) => {
-                setAmount(e.target.value);
-                if (errors.amount) setErrors((prev) => ({ ...prev, amount: "" }));
-              }}
-              error={!!errors.amount}
-              helperText={errors.amount}
-              placeholder="Amount"
-              fullWidth
-            />
-
-            <TextField
-              label={lang("invoice.totalUnit")}
-              type="number"
-              inputMode="decimal"
-              value={totalUnit}
-              onChange={(e) => {
-                setTotalUnit(e.target.value);
-                if (errors.totalUnit) setErrors((prev) => ({ ...prev, totalUnit: "" }));
-              }}
-              error={!!errors.totalUnit}
-              helperText={errors.totalUnit}
-              placeholder="Total Unit"
-              fullWidth
-            />
-
-            <FormControl fullWidth error={!!statusError}>
-              <InputLabel id="status-select-label">{lang("invoice.status")}</InputLabel>
-              <Select
-                labelId="status-select-label"
-                value={status}
-                label={lang("invoice.status")}
-                onChange={(e) => {
-                  setStatus(e.target.value);
-                  if (statusError) setStatusError("");
-                }}
-              >
-                <MenuItem value="">{lang("invoice.selectStatus")}</MenuItem>
-                <MenuItem value="1">{lang("invoice.paid")}</MenuItem>
-                <MenuItem value="0">{lang("invoice.unpaid")}</MenuItem>
-              </Select>
-              {statusError && <FormHelperText>{statusError}</FormHelperText>}
-            </FormControl>
-          </Box>
-        </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 2.5 }}>
-          <Button onClick={handleCloseModal} color="error" variant="outlined" className="custom-orange-outline">
-            {lang("common.cancel")}
-          </Button>
-          <Button onClick={handleSave} variant="contained" disabled={submitting} className="common-grey-color">
-            {submitting ? lang("common.loading") : lang("common.save")}
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </>
+    <Table data={invoicesData} columns={columns} />
   );
 };
 

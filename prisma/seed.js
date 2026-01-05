@@ -187,6 +187,31 @@ async function main() {
     }
   }
 
+  // -----------------------------
+  // 💰 Create Taxes
+  // -----------------------------
+  console.log("💰 Creating taxes...");
+
+  const taxes = [
+    { name: "VAT", value: 8 },
+    { name: "VAT", value: 10 },
+  ];
+
+  for (const tax of taxes) {
+    const existingTax = await prisma.taxes.findFirst({
+      where: { value: tax.value },
+    });
+
+    if (!existingTax) {
+      await prisma.taxes.create({
+        data: tax,
+      });
+      console.log(`✅ Tax added: ${tax.name}`);
+    } else {
+      console.log(`ℹ️ Tax ${tax.name} already exists, skipping...`);
+    }
+  }
+
   console.log("🎉 Database seeding completed successfully!");
 }
 

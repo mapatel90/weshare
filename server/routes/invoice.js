@@ -97,36 +97,195 @@ router.get("/", authenticateToken, async (req, res) => {
   }
 });
 
-router.post("/", authenticateToken, async (req, res) => {
+// Get single invoice by ID
+router.get("/:id", authenticateToken, async (req, res) => {
   try {
-    const { project_id, offtaker_id, amount, total_unit, status } = req.body;
+    const { id } = req.params;
 
-    if (
-      !project_id ||
-      !offtaker_id ||
-      !amount ||
-      !total_unit ||
-      status === undefined
-    ) {
+    const invoice = await prisma.invoices.findUnique({
+      where: { id: parseInt(id) },
+      include: {
+        projects: {
+          select: {
+            id: true,
+            project_name: true,
+          },
+        },
+        users: {
+          select: {
+            id: true,
+            full_name: true,
+            email: true,
+            address_1: true,
+            address_2: true,
+            country_id: true,
+            state_id: true,
+            city_id: true,
+            zipcode: true,
+            countries: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+            states: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+            cities: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
+        invoice_items: {
+          select: {
+            id: true,
+            item: true,
+            description: true,
+            unit: true,
+            price: true,
+            item_total: true,
+          },
+          orderBy: { id: "asc" },
+        },
+      },
+    });
+
+    if (!invoice) {
+      return res.status(404).json({
+        success: false,
+        message: "Invoice not found",
+      });
+    }
+
+    return res.json({
+      success: true,
+      data: invoice,
+    });
+  } catch (error) {
+    console.error("Error fetching invoice:", error);
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+router.post("/", authenticateToken, async (req, res) => {
+  console.log("Creating invoice with data:", req.body);
+  try {
+    const {
+      project_id,
+      offtaker_id,
+      amount,
+      total_unit,
+      status,
+      invoice_number,
+      invoice_prefix,
+      invoice_date,
+      due_date,
+      currency,
+      billing_adress_1,
+      billing_adress_2,
+      billing_city_id,
+      billing_state_id,
+      billing_country_id,
+      billing_zipcode,
+      items = [],
+    } = req.body;
+
+    if (!project_id || !offtaker_id || status === undefined) {
       return res
         .status(400)
         .json({ success: false, message: "Missing required fields" });
     }
 
-    const newInvoice = await prisma.invoices.create({
-      data: {
-        project_id,
-        offtaker_id,
-        amount,
-        total_unit,
-        status,
-      },
+    const incrementInvoiceNumber = (invNo) => {
+      const length = invNo.length; // "001" → 3
+      const next = parseInt(invNo, 10) + 1; // 1 → 2
+      return next.toString().padStart(length, "0");
+    };
+
+    const parsedItems = Array.isArray(items)
+      ? items
+          .map((it) => ({
+            item: it?.item || "",
+            description: it?.description || "",
+            unit: Number(it?.unit) || 0,
+            price: Number(it?.price) || 0,
+          }))
+          .filter((it) => it.item)
+      : [];
+
+    const itemsTotal = parsedItems.reduce(
+      (sum, it) => sum + it.unit * it.price,
+      0
+    );
+
+    const invoiceAmount = amount !== undefined ? parseFloat(amount) : itemsTotal;
+    const invoiceTotal = total_unit !== undefined
+      ? parseFloat(total_unit)
+      : itemsTotal;
+
+    const created = await prisma.$transaction(async (tx) => {
+      const newInvoice = await tx.invoices.create({
+        data: {
+          project_id: parseInt(project_id),
+          offtaker_id: parseInt(offtaker_id),
+          amount: Number.isFinite(invoiceAmount) ? invoiceAmount : 0,
+          total_amount: Number.isFinite(invoiceTotal) ? invoiceTotal : 0,
+          status: parseInt(status),
+          invoice_number: invoice_number || "",
+          invoice_prefix: invoice_prefix || "",
+          invoice_date: invoice_date ? new Date(invoice_date) : null,
+          due_date: due_date ? new Date(due_date) : null,
+          currency: currency || "VND",
+          billing_adress_1: billing_adress_1 || "",
+          billing_adress_2: billing_adress_2 || "",
+          billing_city_id: billing_city_id ? parseInt(billing_city_id) : null,
+          billing_state_id: billing_state_id ? parseInt(billing_state_id) : null,
+          billing_country_id: billing_country_id
+            ? parseInt(billing_country_id)
+            : null,
+          billing_zipcode: billing_zipcode ? parseInt(billing_zipcode) : null,
+        },
+      });
+
+      if (parsedItems.length) {
+        await tx.invoice_items.createMany({
+          data: parsedItems.map((it) => ({
+            invoice_id: newInvoice.id,
+            item: it.item,
+            description: it.description,
+            unit: it.unit,
+            price: it.price,
+            item_total: it.unit * it.price,
+          })),
+        });
+      }
+
+      return newInvoice;
     });
+
+    const nextInvoiceNumber = incrementInvoiceNumber(created.invoice_number);
+
+    const setting = await prisma.settings.findFirst({
+      where: { key: "next_invoice_number" },
+    });
+
+    if (setting) {
+      await prisma.settings.update({
+        where: { id: setting.id },
+        data: { value: nextInvoiceNumber },
+      });
+    }
 
     return res.status(201).json({
       success: true,
       message: "Invoice created successfully",
-      data: newInvoice,
+      data: created,
     });
   } catch (error) {
     console.error("Error creating invoice:", error);
@@ -138,38 +297,103 @@ router.post("/", authenticateToken, async (req, res) => {
 router.put("/:id", authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
-    const { project_id, offtaker_id, amount, total_unit, status } = req.body;
+    const {
+      project_id,
+      offtaker_id,
+      amount,
+      total_unit,
+      status,
+      invoice_number,
+      invoice_prefix,
+      invoice_date,
+      due_date,
+      currency,
+      billing_adress_1,
+      billing_adress_2,
+      billing_city_id,
+      billing_state_id,
+      billing_country_id,
+      billing_zipcode,
+      items = [],
+    } = req.body;
 
-    if (
-      !project_id ||
-      !offtaker_id ||
-      !amount ||
-      !total_unit ||
-      status === undefined
-    ) {
+    if (!project_id || !offtaker_id || status === undefined) {
       return res
         .status(400)
         .json({ success: false, message: "Missing required fields" });
     }
 
-    const updated = await prisma.invoices.update({
-      where: { id: parseInt(id) },
-      data: {
-        project_id: parseInt(project_id),
-        offtaker_id: parseInt(offtaker_id),
-        amount: parseFloat(amount),
-        total_unit: parseFloat(total_unit),
-        status: parseInt(status),
-      },
+    const parsedItems = Array.isArray(items)
+      ? items
+          .map((it) => ({
+            item: it?.item || "",
+            description: it?.description || "",
+            unit: Number(it?.unit) || 0,
+            price: Number(it?.price) || 0,
+            id: it?.id,
+          }))
+          .filter((it) => it.item)
+      : [];
+
+    const itemsTotal = parsedItems.reduce(
+      (sum, it) => sum + it.unit * it.price,
+      0
+    );
+
+    const invoiceAmount = amount !== undefined ? parseFloat(amount) : itemsTotal;
+    const invoiceTotal = total_unit !== undefined
+      ? parseFloat(total_unit)
+      : itemsTotal;
+
+    const updated = await prisma.$transaction(async (tx) => {
+      const inv = await tx.invoices.update({
+        where: { id: parseInt(id) },
+        data: {
+          project_id: parseInt(project_id),
+          offtaker_id: parseInt(offtaker_id),
+          amount: Number.isFinite(invoiceAmount) ? invoiceAmount : 0,
+          total_amount: Number.isFinite(invoiceTotal) ? invoiceTotal : 0,
+          status: parseInt(status),
+          invoice_number: invoice_number || "",
+          invoice_prefix: invoice_prefix || "",
+          invoice_date: invoice_date ? new Date(invoice_date) : null,
+          due_date: due_date ? new Date(due_date) : null,
+          currency: currency || "VND",
+          billing_adress_1: billing_adress_1 || "",
+          billing_adress_2: billing_adress_2 || "",
+          billing_city_id: billing_city_id ? parseInt(billing_city_id) : null,
+          billing_state_id: billing_state_id ? parseInt(billing_state_id) : null,
+          billing_country_id: billing_country_id
+            ? parseInt(billing_country_id)
+            : null,
+          billing_zipcode: billing_zipcode ? parseInt(billing_zipcode) : null,
+        },
+      });
+
+      // Replace all items for this invoice
+      await tx.invoice_items.deleteMany({ where: { invoice_id: inv.id } });
+
+      if (parsedItems.length) {
+        await tx.invoice_items.createMany({
+          data: parsedItems.map((it) => ({
+            invoice_id: inv.id,
+            item: it.item,
+            description: it.description,
+            unit: it.unit,
+            price: it.price,
+            item_total: it.unit * it.price,
+          })),
+        });
+      }
+
+      return inv;
     });
 
-    return res
-      .status(200)
-      .json({
-        success: true,
-        message: "Invoice updated successfully",
-        data: updated,
-      });
+    return res.status(200).json({
+      success: true,
+      message: "Invoice updated successfully",
+      data: updated,
+    });
   } catch (error) {
     console.error("Error updating invoice:", error);
     return res.status(500).json({ success: false, message: "Server error" });
