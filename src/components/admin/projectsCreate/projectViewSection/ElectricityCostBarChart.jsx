@@ -1,0 +1,144 @@
+'use client';
+
+import React, { useMemo } from 'react';
+import {
+    BarChart,
+    Bar,
+    XAxis,
+    YAxis,
+    Tooltip,
+    Legend,
+    ResponsiveContainer,
+} from 'recharts';
+import { useLanguage } from '@/contexts/LanguageContext';
+import DatePicker from 'react-datepicker';
+import dayjs from 'dayjs';
+
+const ElectricityCostBarChart = ({
+    electricityMonthCostData,
+    electricityMonthCostDataLoading,
+    selectedYear,
+    onYearChange,
+    isDark,
+}) => {
+    const { lang } = useLanguage();
+
+    const handleYearChange = (date) => {
+        if (!date) return;
+        const year = dayjs(date).format('YYYY');
+        onYearChange?.(year);
+    };
+
+    const data = electricityMonthCostData ?? [];
+
+    const { roundedMax, ticks } = useMemo(() => {
+        const maxValue = Math.max(
+            ...data.map((d) => Math.max(d.evn || 0, d.weshare || 0)),
+            0
+        );
+
+        // choose step size
+        const step =
+            maxValue <= 20000 ? 500 :
+                maxValue <= 100000 ? 10000 :
+                    50000;
+
+        const roundedMax = Math.ceil(maxValue / step) * step;
+
+        const ticks = Array.from(
+            { length: roundedMax / step + 1 },
+            (_, i) => i * step
+        );
+
+        return { roundedMax, ticks };
+    }, [data]);
+
+    return (
+        <>
+            <style jsx>{`
+        .container {
+          width: 100%;
+          height: 100%;
+          padding: 24px;
+          background: ${isDark ? "#121a2d" : "#fff"};
+        }
+        .picker-wrapper {
+          margin-bottom: 16px;
+          width: 520px;
+        }
+        .picker-wrapper :global(.react-datepicker-wrapper) {
+          width: 20%;
+        }
+        .picker-wrapper :global(.react-datepicker__input-container input) {
+          width: 100%;
+          border-radius: 8px;
+          border: 1px solid ${isDark ? '#1b2436' : '#d1d5db'};
+          background: ${isDark ? '#121a2d' : '#fff'};
+          color: ${isDark ? '#ffffff' : '#111827'};
+          font-size: 14px;
+        }
+      `}</style>
+            <div style={{ width: '100%', height: 500 }}>
+                <div className="picker-wrapper">
+                    <DatePicker
+                        selected={selectedYear ? dayjs(selectedYear, 'YYYY').toDate() : null}
+                        onChange={handleYearChange}
+                        showYearPicker
+                        dateFormat="yyyy"
+                    />
+                </div>
+
+                <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                        data={data}
+                        layout="vertical"
+                        margin={{ top: 20, right: 40, left: 40, bottom: 20 }}
+                    >
+                        {/* Month labels */}
+                        <YAxis
+                            type="category"
+                            dataKey="month"
+                            width={60}
+                            tick={{ fontSize: 14 }}
+                        />
+
+                        {/* Cost scale */}
+                        <XAxis
+                            type="number"
+                            domain={[0, roundedMax]}
+                            ticks={ticks}
+                            allowDecimals={false}
+                            tick={{ fill: isDark ? '#e5e7eb' : '#111827' }}
+                            tickFormatter={(v) => `${v.toLocaleString()} VND`}
+                        />
+
+                        <Tooltip
+                            formatter={(value) => `${value.toLocaleString()} VND`}
+
+                        />
+
+                        <Legend />
+
+                        {/* EVN bar */}
+                        <Bar
+                            dataKey="evn"
+                            name="EVN"
+                            fill={isDark ? '#ffffff' : '#1f2937'}
+                            barSize={12}
+                        />
+
+                        {/* WeShare bar */}
+                        <Bar
+                            dataKey="weshare"
+                            name="WeShare"
+                            fill={isDark ? '#ffffff' : '#6b7280'}
+                            barSize={12}
+                        />
+                    </BarChart>
+                </ResponsiveContainer>
+            </div>
+        </>
+    );
+};
+
+export default ElectricityCostBarChart;
