@@ -174,6 +174,44 @@ router.post('/station/month-data', async (req, res) => {
     }
 });
 
+router.post('/station/year-data', async (req, res) => {
+    try {
+        const { id, money, year, timeZone, nmiCode } = req.body;
+        // Fix: check raw body before destructuring
+        if (!req.body) {
+            return res.status(400).json({ error: "Empty body received" });
+        }
+        if (!id && !nmiCode) {
+            return res.status(400).json({ error: "id or nmiCode required" });
+        }
+        if (!money) {
+            return res.status(400).json({ error: "money is required" });
+        }
+        if (!year) {
+            return res.status(400).json({ error: "year is required" });
+        }
+        const payload = {
+            id: id || null,
+            money,
+            year,
+            timeZone,
+            nmiCode: nmiCode || null
+        };
+        const result = await solisRequest("/v1/api/stationYear", payload);
+
+        res.json({
+            message: "Station Year Data Fetched",
+            solisData: result
+        });
+    } catch (err) {
+        console.error("StationYear Error:", err);
+        res.status(500).json({
+            error: "Failed to fetch station year data",
+            details: err.message
+        });
+    }
+});
+
 // Inverter List Endpoint
 router.post("/inverter/list", async (req, res) => {
     try {

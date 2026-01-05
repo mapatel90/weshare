@@ -1,0 +1,264 @@
+'use client';
+
+import React, { useMemo } from 'react';
+import {
+    LineChart,
+    Line,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip,
+    Legend,
+    ResponsiveContainer,
+} from 'recharts';
+import { useLanguage } from '@/contexts/LanguageContext';
+import DatePicker from 'react-datepicker';
+import dayjs from 'dayjs';
+import 'react-datepicker/dist/react-datepicker.css';
+
+const formatDataForChart = (apiData, viewMode) => {
+    console.log("apiData", apiData);
+    if (!apiData || !Array.isArray(apiData)) return [];
+
+    return apiData.map((item) => {
+        let label;
+        if (viewMode === 'day') {
+            // label is in format YYYY-MM-DD, extract day
+            const date = dayjs(item.label);
+            label = date.format('DD');
+        } else if (viewMode === 'month') {
+            // label is in format YYYY-MM, extract month abbreviation
+            const date = dayjs(item.label + '-01');
+            label = date.format('MMM');
+        } else {
+            // label is in format YYYY
+            label = item.label;
+        }
+
+        return {
+            label,
+            evn: item.evn || 0,
+            weshare: item.weshare || 0,
+        };
+    });
+};
+
+const ElectricityCostOverviewChart = ({
+    data,
+    loading = false,
+    viewMode = "day",
+    onViewModeChange,
+    selectedDate,
+    onDateChange,
+    isDark = false,
+}) => {
+    const { lang } = useLanguage();
+
+    const chartData = useMemo(() => formatDataForChart(data, viewMode), [data, viewMode]);
+
+    const handleDateChange = (date) => {
+        if (!date) return;
+        if (viewMode === 'day') {
+            const monthYear = dayjs(date).format('YYYY-MM');
+            onDateChange?.(monthYear);
+        } else if (viewMode === 'month') {
+            const year = dayjs(date).format('YYYY');
+            onDateChange?.(year + '-01'); // Store as YYYY-MM for consistency
+        }
+    };
+
+    const getSelectedDateForPicker = () => {
+        if (!selectedDate) return new Date();
+        if (viewMode === 'day') {
+            return dayjs(selectedDate, 'YYYY-MM').toDate();
+        } else if (viewMode === 'month') {
+            return dayjs(selectedDate.slice(0, 4), 'YYYY').toDate();
+        }
+        return new Date();
+    };
+
+    const xAxisDataKey = 'label';
+    const xAxisLabel = viewMode === 'day' ? 'Day' : viewMode === 'month' ? 'Month' : 'Year';
+
+    return (
+        <div
+            style={{
+                width: '100%',
+                height: 420,
+                padding: 24,
+                borderRadius: 12,
+                background: isDark ? '#0f172a' : '#ffffff',
+            }}
+        >
+            <style jsx>{`
+                .date-picker-wrapper {
+                    margin-bottom: 16px;
+                    width: 200px;
+                }
+                .date-picker-wrapper :global(.react-datepicker-wrapper) {
+                    width: 100%;
+                }
+                .date-picker-wrapper :global(.react-datepicker__input-container input) {
+                    width: 100%;
+                    padding: 8px 12px;
+                    border-radius: 8px;
+                    border: 1px solid ${isDark ? '#1b2436' : '#d1d5db'};
+                    background: ${isDark ? '#121a2d' : '#fff'};
+                    color: ${isDark ? '#ffffff' : '#111827'};
+                    font-size: 14px;
+                }
+                .date-picker-wrapper :global(.react-datepicker__input-container input:focus) {
+                    outline: none;
+                    border-color: #3b82f6;
+                }
+            `}</style>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                <div style={{ display: "flex", gap: "8px" }}>
+                    {["day", "month", "year"].map((mode) => (
+                        <button
+                            key={mode}
+                            onClick={() => onViewModeChange?.(mode)}
+                            style={{
+                                padding: "6px 14px",
+                                fontSize: "14px",
+                                borderRadius: "6px",
+                                border:
+                                    viewMode === mode
+                                        ? "1px solid #f97316"
+                                        : `1px solid ${isDark ? '#1b2436' : '#d1d5db'}`,
+                                backgroundColor:
+                                    viewMode === mode
+                                        ? "#f97316"
+                                        : isDark
+                                        ? "#121a2d"
+                                        : "#ffffff",
+                                color:
+                                    viewMode === mode
+                                        ? "#ffffff"
+                                        : isDark
+                                        ? "#ffffff"
+                                        : "#374151",
+                                cursor: "pointer",
+                                fontWeight: viewMode === mode ? 600 : 400,
+                                transition: "all 0.2s ease",
+                            }}
+                        >
+                            {mode.charAt(0).toUpperCase() + mode.slice(1)}
+                        </button>
+                    ))}
+                </div>
+
+                {/* Date Picker - only show for day and month modes */}
+                {(viewMode === 'day' || viewMode === 'month') && (
+                    <div className="date-picker-wrapper">
+                        {/* <DatePicker
+                            selected={getSelectedDateForPicker()}
+                            onChange={handleDateChange}
+                            showMonthYearPicker={viewMode === 'day'}
+                            showYearPicker={viewMode === 'month'}
+                            dateFormat={viewMode === 'day' ? 'MM / yyyy' : 'yyyy'}
+                            placeholderText={
+                                viewMode === 'day' ? 'Select month' : 'Select year'
+                            }
+                        /> */}
+                    </div>
+                )}
+            </div>
+
+            {loading ? (
+                <div
+                    style={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        height: 300,
+                        color: isDark ? '#cbd5f5' : '#374151',
+                    }}
+                >
+                    Loading...
+                </div>
+            ) : chartData.length === 0 ? (
+                <div
+                    style={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        height: 300,
+                        color: isDark ? '#cbd5f5' : '#374151',
+                    }}
+                >
+                    No data available
+                </div>
+            ) : (
+                <ResponsiveContainer width="100%" height={400}>
+                    <LineChart
+                        data={chartData}
+                        margin={{ top: 10, right: 30, left: 10, bottom: 10 }}
+                    >
+                        <CartesianGrid strokeDasharray="3 3" opacity={0.3} stroke={isDark ? '#1b2436' : '#e5e7eb'} />
+
+                        <XAxis
+                            dataKey={xAxisDataKey}
+                            tick={{ fill: isDark ? '#cbd5f5' : '#374151' }}
+                            label={{
+                                value: xAxisLabel,
+                                position: 'insideBottom',
+                                offset: -5,
+                                style: { fill: isDark ? '#cbd5f5' : '#374151' },
+                            }}
+                        />
+
+                        <YAxis
+                            tickFormatter={(v) => `${(v).toFixed(1)}M`}
+                            tick={{ fill: isDark ? '#cbd5f5' : '#374151' }}
+                            label={{
+                                value: 'Cost (VND)',
+                                angle: -90,
+                                dx: -20,
+                                position: 'insideLeft',
+                                style: { fill: isDark ? '#cbd5f5' : '#374151' },
+                            }}
+                        />
+
+                        <Tooltip
+                            contentStyle={{
+                                backgroundColor: isDark ? '#121a2d' : '#ffffff',
+                                border: `1px solid ${isDark ? '#1b2436' : '#d1d5db'}`,
+                                borderRadius: '8px',
+                                color: isDark ? '#ffffff' : '#111827',
+                            }}
+                            formatter={(value) => `${value.toLocaleString()} VND`}
+                        />
+
+                        <Legend  />
+
+                        {/* EVN Line */}
+                        <Line
+                            type="monotone"
+                            dataKey="evn"
+                            name="EVN Cost"
+                            stroke="#2563eb"
+                            strokeWidth={3}
+                            dot={{ r: 4, fill: '#2563eb' }}
+                            activeDot={{ r: 6 }}
+                        />
+
+                        {/* WeShare Line */}
+                        <Line
+                            type="monotone"
+                            dataKey="weshare"
+                            name="WeShare Cost"
+                            stroke="#f97316"
+                            strokeWidth={3}
+                            dot={{ r: 4, fill: '#f97316' }}
+                            activeDot={{ r: 6 }}
+                        />
+                    </LineChart>
+                </ResponsiveContainer>
+            )}
+        </div>
+    );
+};
+
+export default ElectricityCostOverviewChart;

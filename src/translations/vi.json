@@ -838,7 +838,11 @@
     "uploadImage": "Tải lên hình ảnh",
     "imageUploaded": "Tải lên hình ảnh thành công",
     "imageUploadFailed": "Không thể tải lên hình ảnh",
-    "selectInvestor": "Chọn nhà đầu tư"
+    "selectInvestor": "Chọn nhà đầu tư",
+    "evn_price_kwh": "Giá EVN mỗi kWh",
+    "evn_price_kwh_placeholder": "Nhập giá EVN",
+    "weshare_price_kwh": "Giá WeShare mỗi kWh",
+    "weshare_price_kwh_placeholder": "Nhập giá WeShare"
   },
   "placeholders": {
     "your_company_name": "Tên công ty của bạn [Ví dụ: Theme Ocean]",

@@ -190,7 +190,8 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
       project_close_date,
       project_location,
       start_date,
-      price_kwh,
+      evn_price_kwh,
+      weshare_price_kwh,
       status = 1,
     } = req.body;
     console.log("req.body", req.body);
@@ -240,7 +241,8 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
           : null,
         project_start_date: start_date ? new Date(start_date) : null,
         project_location: project_location || "",
-        price_kwh: parseFloat(price_kwh) || null,
+        weshare_price_kwh: parseFloat(weshare_price_kwh) || null,
+        evn_price_kwh: parseFloat(evn_price_kwh) || null,
         status: parseInt(status),
         updated_at: new Date()
       },
@@ -747,7 +749,8 @@ router.put("/:id", authenticateToken, async (req, res) => {
       project_size,
       project_close_date,
       project_location,
-      price_kwh,
+      weshare_price_kwh,
+      evn_price_kwh,
       status,
       solis_plant_id,
     } = req.body;
@@ -802,7 +805,8 @@ router.put("/:id", authenticateToken, async (req, res) => {
         project_location: project_location || "",
       }),
       ...(status !== undefined && { status: parseInt(status) }),
-      ...(price_kwh !== undefined && { price_kwh: parseFloat(price_kwh) || null }),
+      ...(weshare_price_kwh !== undefined && { weshare_price_kwh: parseFloat(weshare_price_kwh) || null }),
+      ...(evn_price_kwh !== undefined && { evn_price_kwh: parseFloat(evn_price_kwh) || null }),
     };
 
     if (project_slug !== undefined) {
@@ -1051,5 +1055,228 @@ router.post("/chart_month_data", async (req, res) => {
     return res.status(500).json({ error: "Server error" });
   }
 });
+
+router.post("/chart_year_data", async (req, res) => {
+  try {
+    const { projectId, year } = req.body;
+
+    if (!projectId) {
+      return res.status(400).json({ error: "Project Id required parameters" });
+    }
+
+    const selectedYear = year || dayjs().format("YYYY");
+
+    // ✅ FULL YEAR RANGE
+    const startDate = dayjs(`${selectedYear}-01-01`)
+      .startOf("day")
+      .toDate();
+
+    const endDate = dayjs(`${selectedYear}-12-31`)
+      .endOf("day")
+      .toDate();
+
+    const data = await prisma.project_energy_days_data.findMany({
+      where: {
+        project_id: Number(projectId),
+        date: {
+          gte: startDate,
+          lte: endDate,
+        },
+      },
+      orderBy: {
+        date: "asc",
+      },
+    });
+
+    return res.json({
+      success: true,
+      year: selectedYear,
+      count: data.length,
+      data,
+    });
+
+  } catch (error) {
+    console.error("Error fetching year chart data:", error);
+    return res.status(500).json({ error: "Server error" });
+  }
+});
+
+
+router.post("/electricity/monthly-cost-chart", async (req, res) => {
+  try {
+    const { projectId, year } = req.body;
+
+    if (!projectId) {
+      return res.status(400).json({ error: "Project Id required parameters" });
+    }
+    const selectedYear = year || dayjs().format('YYYY');
+
+    // const projectIdInt = Number(projectId);
+
+    const project = await prisma.projects.findFirst({
+      where: { id: Number(projectId) },
+      select: {
+        evn_price_kwh: true,
+        weshare_price_kwh: true,
+      },
+    });
+
+    if (!project) {
+      return res.status(404).json({ error: "Project not found" });
+    }
+
+    const energyData = await prisma.project_energy_days_data.findMany({
+      where: {
+        project_id: Number(projectId),
+        date: {
+          gte: new Date(`${year}-01-01`),
+          lte: new Date(`${year}-12-31`),
+        },
+      },
+      select: {
+        date: true,
+        energy: true,
+      },
+    });
+
+    const monthlyMap = {};
+
+    energyData.forEach(row => {
+      const month = new Date(row.date).getMonth(); // 0–11
+
+      if (!monthlyMap[month]) {
+        monthlyMap[month] = 0;
+      }
+
+      monthlyMap[month] += row.energy || 0;
+    });
+
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+    const chartData = monthNames.map((name, index) => {
+      const totalKwh = monthlyMap[index] || 0;
+
+      return {
+        month: name,
+        evn: totalKwh * project.evn_price_kwh,
+        weshare: totalKwh * project.weshare_price_kwh,
+      };
+    });
+    return res.json({
+      success: true,
+      year: selectedYear,
+      data: chartData,
+    });
+
+  }
+  catch (error) {
+    console.error("Error fetching monthly electricity cost data:", error);
+    return res.status(500).json({ error: "Server error" });
+  }
+});
+
+
+router.post('/electricity/overview-chart', async (req, res) => {
+  try {
+    const { projectId, type, date } = req.body;
+
+    if (!projectId || !type) {
+      return res.status(400).json({ message: 'Missing parameters' });
+    }
+
+    const project = await prisma.projects.findFirst({
+      where: { id: Number(projectId) },
+      select: {
+        evn_price_kwh: true,
+        weshare_price_kwh: true,
+      },
+    });
+
+    if (!project) {
+      return res.status(404).json({ message: 'Project not found' });
+    }
+
+    let startDate, endDate, groupBy;
+
+    // ================= DAY (1 month → daily)
+    if (type === 'day') {
+      startDate = new Date(`${date}-01`);
+      endDate = new Date(startDate);
+      endDate.setMonth(endDate.getMonth() + 1);
+      groupBy = 'day';
+    }
+
+    // ================= MONTH (1 year → monthly)
+    if (type === 'month') {
+      startDate = new Date(`${date}-01-01`);
+      endDate = new Date(`${date}-12-31`);
+      groupBy = 'month';
+    }
+
+    // ================= YEAR (all years → yearly)
+    if (type === 'year') {
+      startDate = new Date('2000-01-01');
+      endDate = new Date();
+      groupBy = 'year';
+    }
+
+    const rows = await prisma.project_energy_days_data.findMany({
+      where: {
+        project_id: Number(projectId),
+        date: {
+          gte: startDate,
+          lt: endDate,
+        },
+      },
+      select: {
+        date: true,
+        consume_energy: true,
+      },
+      orderBy: { date: 'asc' },
+    });
+
+    const resultMap = {};
+
+    rows.forEach((row) => {
+      let key;
+
+      if (groupBy === 'day') {
+        key = row.date.toISOString().slice(0, 10);
+      }
+      if (groupBy === 'month') {
+        key = row.date.toISOString().slice(0, 7);
+      }
+      if (groupBy === 'year') {
+        key = row.date.getFullYear().toString();
+      }
+
+      if (!resultMap[key]) {
+        resultMap[key] = { evn: 0, weshare: 0 };
+      }
+
+      resultMap[key].evn +=
+        row.consume_energy * project.evn_price_kwh;
+
+      resultMap[key].weshare +=
+        row.consume_energy * project.weshare_price_kwh;
+    });
+
+    const data = Object.keys(resultMap).map((key) => ({
+      label: key,
+      evn: Math.round(resultMap[key].evn),
+      weshare: Math.round(resultMap[key].weshare),
+    }));
+
+    return res.json({
+      success: true,
+      data: data,
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
 
 export default router;

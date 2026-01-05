@@ -11,6 +11,9 @@ import EnergyChart from "./projectViewSection/MonthChart";
 import { FiEdit3 } from "react-icons/fi";
 import SolarFlowCard from "./projectViewSection/Animated";
 import { use } from "react";
+import EnergyYearChart from "./projectViewSection/YearChart";
+import ElectricityCostBarChart from "./projectViewSection/ElectricityCostBarChart";
+import ElectricityCostOverviewChart from "./projectViewSection/ElectricityCostOverviewChart";
 
 
 // -------- DARK MODE HOOK ----------
@@ -72,14 +75,22 @@ const ProjectViewContent = ({ projectId = "" }) => {
   const [inverterChartData, setInverterChartData] = useState(null);
   const [inverterLatestLoading, setInverterLatestLoading] = useState(true);
   const [monthlyChartData, setMonthlyChartData] = useState(null);
-  const [monthlyChartDataLoading, setMonthlyChartDataLoading] = useState(true);
-  const [selectedDate, setSelectedDate] = useState(
-    new Date().toISOString().split("T")[0]
-  ); // New: track selected date
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split("T")[0]); // New: track selected date
   const [chartMonthData, setChartMonthData] = useState(null);
-  const [selectedMonthYear, setSelectedMonthYear] = useState(
-    new Date().toISOString().slice(0, 7) // Format: YYYY-MM
-  );
+  const [selectedMonthYear, setSelectedMonthYear] = useState(new Date().toISOString().slice(0, 7));
+  const [monthlyChartDataLoading, setMonthlyChartDataLoading] = useState(true);
+  const [ChartViewMode, setChartViewMode] = useState("year"); // day | month | year
+  const [ChartYearData, setChartYearData] = useState([]);
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear().toString());
+  const [yearChartDataLoading, setYearChartDataLoading] = useState(true);
+  const [electricityMonthCostData, setElectricityMonthCostData] = useState(null);
+  const [electricityMonthCostDataLoading, setElectricityMonthCostDataLoading] = useState(true);
+  const [electricitySelectedYear, setElectricitySelectedYear] = useState(new Date().getFullYear().toString());
+  const [electricityOverviewData, setElectricityOverviewData] = useState(null);
+  const [electricityOverviewDataLoading, setElectricityOverviewDataLoading] = useState(true);
+  const [electricityOverviewViewMode, setElectricityOverviewViewMode] = useState("day"); // day | month | year
+  const [electricityOverviewDate, setElectricityOverviewDate] = useState(new Date().toISOString().slice(0, 7)); // YYYY-MM for day, YYYY for month
+
 
   // ------------------- Detect Mobile Screen -------------------
   useEffect(() => {
@@ -237,6 +248,83 @@ const ProjectViewContent = ({ projectId = "" }) => {
       loadEnergyDayWiseData();
     }
   }, [projectId, selectedMonthYear])
+
+
+  // STATIC TEST DATA (simulate API response)
+  useEffect(() => {
+    const loadEnergyYearWiseData = async () => {
+      // const year = "2026";
+      const payload = {
+        projectId: projectId ?? null,
+        year: selectedYear ?? null
+      };
+
+      try {
+        setYearChartDataLoading(true);
+        const res = await apiPost(`/api/projects/chart_year_data`, payload);
+        setChartYearData(res?.success ? res.data : null);
+      } finally {
+        setYearChartDataLoading(false);
+      }
+    };
+    loadEnergyYearWiseData();
+  }, [projectId, selectedYear]);
+
+
+  // Electricity Month Cost Data
+  useEffect(() => {
+    const loadElectricityMonthCostData = async () => {
+      const payload = {
+        projectId: projectId ?? null,
+        year: electricitySelectedYear ?? null
+      };
+
+      try {
+        setElectricityMonthCostDataLoading(true);
+        const res = await apiPost(`/api/projects/electricity/monthly-cost-chart`, payload);
+        setElectricityMonthCostData(res?.success ? res.data : null);
+      } finally {
+        setElectricityMonthCostDataLoading(false);
+      }
+    };
+    loadElectricityMonthCostData();
+  }, [projectId, electricitySelectedYear]);
+
+
+  // electricity overview chart data
+  useEffect(() => {
+    const loadElectricityOverviewData = async () => {
+      if (!projectId) return;
+
+      let dateValue;
+      if (electricityOverviewViewMode === "day") {
+        dateValue = electricityOverviewDate; // YYYY-MM format
+      } else if (electricityOverviewViewMode === "month") {
+        dateValue = electricityOverviewDate.slice(0, 4); // YYYY format
+      } else {
+        dateValue = new Date().getFullYear().toString(); // YYYY format (not used by API but required)
+      }
+
+      const payload = {
+        projectId: projectId ?? null,
+        type: electricityOverviewViewMode,
+        date: dateValue,
+      };
+
+      try {
+        setElectricityOverviewDataLoading(true);
+        const res = await apiPost(`/api/projects/electricity/overview-chart`, payload);
+        setElectricityOverviewData(res?.success ? res.data : null);
+      } catch (error) {
+        console.error("Error loading electricity overview data:", error);
+        setElectricityOverviewData(null);
+      } finally {
+        setElectricityOverviewDataLoading(false);
+      }
+    };
+    loadElectricityOverviewData();
+  }, [projectId, electricityOverviewViewMode, electricityOverviewDate]);
+
 
   // ------------------- Determine which data to show -------------------
   const displayData = selectedInverterId
@@ -584,6 +672,89 @@ const ProjectViewContent = ({ projectId = "" }) => {
         isDark={isDark}
       />
 
+
+      {/* ElectricityCostOverviewChart & Bar Chart*/}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+          gap: "24px",
+          marginBottom: "24px",
+          height: "18%",
+        }}
+      >
+        {/* BAR CHART SECTION */}
+        <div
+          style={{
+            backgroundColor: colors.cardBg,
+            borderRadius: "12px",
+            boxShadow: isDark
+              ? "0 0 20px rgba(14, 32, 56, 0.3)"
+              : "0 1px 3px rgba(0,0,0,0.1)",
+            border: `1px solid ${colors.borderLight}`,
+            padding: "24px",
+            marginBottom: "24px",
+            overflowX: "auto",
+          }}>
+          <h3
+            style={{
+              fontSize: "18px",
+              fontWeight: "bold",
+              color: colors.text,
+              marginBottom: "16px",
+            }}
+          >
+            {lang(
+              "projectView.energyProduction.monthly_energy_production",
+              "Electricity Cost Production Overview"
+            )}
+          </h3>
+          <ElectricityCostOverviewChart
+            data={electricityOverviewData}
+            loading={electricityOverviewDataLoading}
+            viewMode={electricityOverviewViewMode}
+            onViewModeChange={setElectricityOverviewViewMode}
+            selectedDate={electricityOverviewDate}
+            onDateChange={setElectricityOverviewDate}
+            isDark={isDark}
+          />
+        </div>
+        {/* LINE CHART SECTION */}
+        <div
+          style={{
+            backgroundColor: colors.cardBg,
+            borderRadius: "12px",
+            boxShadow: isDark
+              ? "0 0 20px rgba(14, 32, 56, 0.3)"
+              : "0 1px 3px rgba(0,0,0,0.1)",
+            border: `1px solid ${colors.borderLight}`,
+            padding: "24px",
+            marginBottom: "24px",
+            overflowX: "auto",
+          }}>
+          <h3
+            style={{
+              fontSize: "18px",
+              fontWeight: "bold",
+              color: colors.text,
+              marginBottom: "16px",
+            }}
+          >
+            {lang(
+              "projectView.energyProduction.yearly_energy_production",
+              "Electricity Monthly Cost (VND)"
+            )}
+          </h3>
+          <ElectricityCostBarChart
+            electricityMonthCostDataLoading={electricityMonthCostDataLoading}
+            electricityMonthCostData={electricityMonthCostData}
+            selectedYear={electricitySelectedYear}
+            onYearChange={setElectricitySelectedYear}
+            isDark={isDark}
+          />
+        </div>
+      </div>
+
       {/* CHART SECTION */}
       <div
         style={{
@@ -627,58 +798,79 @@ const ProjectViewContent = ({ projectId = "" }) => {
               )}
             </h3>
             <div style={{ display: "flex", gap: "8px" }}>
-              <div
-                style={{
-                  width: "12px",
-                  height: "12px",
-                  borderRadius: "50%",
-                  backgroundColor: "#ef4444",
-                }}
-              ></div>
-              <div
-                style={{
-                  width: "12px",
-                  height: "12px",
-                  borderRadius: "50%",
-                  backgroundColor: "#fbbf24",
-                }}
-              ></div>
-              <div
-                style={{
-                  width: "12px",
-                  height: "12px",
-                  borderRadius: "50%",
-                  backgroundColor: "#22c55e",
-                }}
-              ></div>
+              {["day", "month", "year"].map((mode) => (
+                <button
+                  key={mode}
+                  onClick={() => setChartViewMode(mode)}
+                  style={{
+                    padding: "6px 14px",
+                    fontSize: "14px",
+                    borderRadius: "6px",
+                    border:
+                      ChartViewMode === mode
+                        ? "1px solid #f97316"
+                        : "1px solid #d1d5db",
+                    backgroundColor:
+                      ChartViewMode === mode ? "#f97316" : "#ffffff",
+                    color: ChartViewMode === mode ? "#ffffff" : "#374151",
+                    cursor: "pointer",
+                    fontWeight: ChartViewMode === mode ? 600 : 400,
+                    transition: "all 0.2s ease",
+                  }}
+                >
+                  {mode.charAt(0).toUpperCase() + mode.slice(1)}
+                </button>
+              ))}
             </div>
           </div>
-          {selectedInverterId ? (
-            <PowerConsumptionDashboard
-              projectId={projectId}
-              readings={inverterChartData || []}
-              loading={inverterLatestLoading}
-              selectedInverterId={selectedInverterId}
-              projectInverters={projectInverters}
-              selectedDate={selectedDate}
-              onDateChange={setSelectedDate}
-              setSelectedDate={setSelectedDate}
-              isDark={isDark}
-            />
-          ) : (
-            <ProjectOverviewChart
-              projectId={projectId}
-              readings={projectChartData || []}
-              loading={projectLatestLoading}
-              selectedDate={selectedDate}
-              onDateChange={setSelectedDate}
-              setSelectedDate={setSelectedDate}
+          {ChartViewMode === "month" && (
+            <EnergyChart
+              chartMonthData={chartMonthData}
+              selectedMonthYear={selectedMonthYear}
+              onMonthYearChange={setSelectedMonthYear}
+              monthlyChartDataLoading={monthlyChartDataLoading}
               isDark={isDark}
             />
           )}
+
+          {ChartViewMode === "year" && (
+            <EnergyYearChart
+              ChartYearData={ChartYearData}
+              selectedYear={selectedYear}
+              onYearChange={setSelectedYear}
+              isDark={isDark}
+            />
+          )}
+
+          {ChartViewMode === "day" && (
+            selectedInverterId ? (
+              <PowerConsumptionDashboard
+                projectId={projectId}
+                readings={inverterChartData || []}
+                loading={inverterLatestLoading}
+                selectedInverterId={selectedInverterId}
+                projectInverters={projectInverters}
+                selectedDate={selectedDate}
+                onDateChange={setSelectedDate}
+                setSelectedDate={setSelectedDate}
+                isDark={isDark}
+              />
+            ) : (
+              <ProjectOverviewChart
+                projectId={projectId}
+                readings={projectChartData || []}
+                loading={projectLatestLoading}
+                selectedDate={selectedDate}
+                onDateChange={setSelectedDate}
+                setSelectedDate={setSelectedDate}
+                isDark={isDark}
+              />
+            )
+          )}
+
+
         </div>
       </div>
-
 
       {/* PROJECT DETAILS */}
       <ProjectInformation project={project} isDark={isDark} />
@@ -691,38 +883,6 @@ const ProjectViewContent = ({ projectId = "" }) => {
         inverters={projectInverters}
         isDark={isDark}
       />
-
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-          gap: "24px",
-        }}
-      >
-
-        {/* PRODUCTION CHART */}
-        <div
-          style={{
-            backgroundColor: colors.cardBg,
-            borderRadius: "12px",
-            boxShadow: isDark
-              ? "0 0 20px rgba(14, 32, 56, 0.3)"
-              : "0 1px 3px rgba(0,0,0,0.1)",
-            border: `1px solid ${colors.borderLight}`,
-            padding: "24px",
-            marginBottom: "24px",
-            overflowX: "auto",
-          }}
-        >
-          <EnergyChart 
-            chartMonthData={chartMonthData} 
-            selectedMonthYear={selectedMonthYear}
-            onMonthYearChange={setSelectedMonthYear}
-            monthlyChartDataLoading={monthlyChartDataLoading}
-            isDark={isDark}
-          />
-        </div>
-      </div>
     </div>
   );
 };

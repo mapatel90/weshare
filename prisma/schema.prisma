@@ -366,7 +366,8 @@ model projects {
   project_start_date   DateTime?
   project_close_date   DateTime?
   project_location     String?                @db.VarChar(500)
-  price_kwh            Float?
+  weshare_price_kwh    Float?
+  evn_price_kwh        Float?
   solis_plant_id       String?                @db.VarChar(255)
   address_1            String?                @db.VarChar(255)
   address_2            String?                @db.VarChar(255)

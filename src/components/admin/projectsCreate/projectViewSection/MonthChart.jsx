@@ -138,7 +138,7 @@ const EnergyChart = ({ chartMonthData, selectedMonthYear, onMonthYearChange, isD
           <DatePicker
             selected={selectedDate}
             onChange={handleDateChange}
-            dateFormat="MM yyyy"
+            dateFormat="MM / yyyy"
             showMonthYearPicker
             views={['month', 'year']}
             placeholderText="Select month and year"
@@ -146,7 +146,7 @@ const EnergyChart = ({ chartMonthData, selectedMonthYear, onMonthYearChange, isD
         </div>
         {/* <div className="chart-wrapper"> */}
 
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer width="100%" height="100%" minWidth={600}>
           <ComposedChart
             data={data}
             margin={{ top: 40, right: 50, left: 100, bottom: 20 }}
@@ -272,7 +272,6 @@ const EnergyChart = ({ chartMonthData, selectedMonthYear, onMonthYearChange, isD
             />
           </ComposedChart>
         </ResponsiveContainer>
-        {/* </div> */}
       </div>
     </>
   );
