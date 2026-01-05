@@ -28,18 +28,18 @@ const page = () => {
                 <div className='row'>
                     <SolarPlantOverviewCard />
                     <StatsCardOverview />
-                    <VisitorsOverviewChart />
+                    {/* <VisitorsOverviewChart /> */}
                     {/* <Browser /> */}
                     <AllProjects />
                     <AllUsers />
-                    <AllInverters />
-                    <AllContracts />
-                    <AllLeaseRequest />
+                    {/* <AllInverters /> */}
+                    {/* <AllContracts /> */}
+                    {/* <AllLeaseRequest /> */}
                     <AllInvestor />
                     <AllReports />
                     {/* <SiteOverviewChart /> */}
-                    <GoalMiscellaneous />
-                    <MarketingChart />
+                    {/* <GoalMiscellaneous /> */}
+                    {/* <MarketingChart /> */}
                     {/* <Remainders title={"Project Remainders"} /> */}
                     {/* <SocialMediaStatisticsChart /> */}
                 </div>

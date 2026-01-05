@@ -33,7 +33,7 @@ const BlogDetailRightSection = ({ relatedBlogs, currentBlogSlug }) => {
   // Filter out current blog from related posts
   const filteredRelatedBlogs = React.useMemo(() => {
     const filtered = relatedBlogs?.filter(
-      (blog) => blog.blog_slug !== currentBlogSlug
+      (blog) => blog.slug !== currentBlogSlug
     ) || [];
     
     return filtered;
@@ -47,7 +47,7 @@ const BlogDetailRightSection = ({ relatedBlogs, currentBlogSlug }) => {
         filteredRelatedBlogs.slice(0, 4).map((blog, index) => (
           <Link
             key={blog.id || index}
-            href={`/blogDetail/${blog.blog_slug}`}
+            href={`/frontend/blogDetail/${blog.slug}`}
             className="text-decoration-none"
           >
             <div
@@ -56,10 +56,10 @@ const BlogDetailRightSection = ({ relatedBlogs, currentBlogSlug }) => {
               data-aos-duration="1000"
               data-aos-delay={index * 100}
             >
-              {blog?.blog_image && (
+              {blog?.image && (
                 <Image
-                  src={getFullImageUrl(blog?.blog_image)}
-                  alt={blog.blog_title || 'Related Blog'}
+                  src={getFullImageUrl(blog?.image)}
+                  alt={blog.title || 'Related Blog'}
                   className="rounded me-3"
                   width={80}
                   height={80}
@@ -67,10 +67,13 @@ const BlogDetailRightSection = ({ relatedBlogs, currentBlogSlug }) => {
                 />
               )}
               <div>
-                <h4 className="fw-semibold mb-1 title">{blog.blog_title}</h4>
-                <p className="post-date">
+                <h4 className="fw-semibold mb-1 title">{blog.title}</h4>
+                <p className="post-date mb-0"> 
                   <FontAwesomeIcon icon={faCalendar} className="me-1" />
-                  {formatDate(blog.blog_date)}
+                  {formatDate(blog.date)}
+                </p>
+                <p className="post-excerpt text-muted mb-0 mt-2">
+                  {blog.title}
                 </p>
               </div>
             </div>

@@ -156,13 +156,13 @@ const NewsTable = () => {
       }
       setModalMode("edit");
       setEditingId(item?.id ?? null);
-      setNewsTitle(item?.news_title || "");
-      setNewsDate(toDateInput(item?.news_date));
-      setNewsImage(item?.news_image || "");
+      setNewsTitle(item?.title || "");
+      setNewsDate(toDateInput(item?.date));
+      setNewsImage(item?.image || "");
       setNewsImageFile(null);
-      setImagePreviewUrl(getFullImageUrl(item?.news_image) || "");
-      setNewsDescription(item?.news_description || "");
-      setNewsSlug(item?.news_slug || "");
+      setImagePreviewUrl(getFullImageUrl(item?.image) || "");
+      setNewsDescription(item?.description || "");
+      setNewsSlug(item?.slug || "");
       setErrors({});
     };
     if (typeof window !== "undefined") {
@@ -267,24 +267,24 @@ const NewsTable = () => {
   const columns = useMemo(
     () => [
       {
-        accessorKey: "news_title",
+        accessorKey: "title",
         header: () => lang("news.title") || "Title",
       },
       {
-        accessorKey: "news_date",
+        accessorKey: "date",
         header: () => lang("news.enddate") || "Date",
         cell: ({ row }) => {
-          const d = row.original.news_date
-            ? new Date(row.original.news_date)
+          const d = row.original.date
+            ? new Date(row.original.date)
             : null;
           return d ? d.toLocaleDateString() : "";
         },
       },
       {
-        accessorKey: "news_image",
+        accessorKey: "image",
         header: () => lang("news.image") || "Image",
         cell: ({ row }) => {
-          const src = row.original.news_image;
+          const src = row.original.image;
           if (!src) return "";
           return (
             <img

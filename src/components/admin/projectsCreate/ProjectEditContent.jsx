@@ -58,7 +58,8 @@ const ProjectEditContent = ({ projectId }) => {
         project_size: '',
         project_close_date: '',
         project_location: '',
-        price_kwh: '',
+        evn_price_kwh: '',
+        weshare_price_kwh: '',
         status: ''
     })
     const [projectTypes, setProjectTypes] = useState([])
@@ -276,7 +277,8 @@ const ProjectEditContent = ({ projectId }) => {
                         project_size: p.project_size || '',
                         project_close_date: p.project_close_date ? new Date(p.project_close_date).toISOString().split('T')[0] : '',
                         project_location: p.project_location || '',
-                        price_kwh: p.price_kwh !== undefined && p.price_kwh !== null ? String(p.price_kwh) : '',
+                        evn_price_kwh: p.evn_price_kwh !== undefined && p.evn_price_kwh !== null ? String(p.evn_price_kwh) : '',
+                        weshare_price_kwh: p.weshare_price_kwh !== undefined && p.weshare_price_kwh !== null ? String(p.weshare_price_kwh) : '',
                         solis_plant_id: p.solis_plant_id || '', // ← add Solis Plant ID into form
                         status: p.status === 1 ? 'active' : 'inactive'
                     })
@@ -448,7 +450,8 @@ const ProjectEditContent = ({ projectId }) => {
                 project_size: formData.project_size || '',
                 project_close_date: formData.project_close_date || null,
                 project_location: formData.project_location || '',
-                price_kwh: formData.price_kwh && formData.price_kwh !== '' ? parseFloat(formData.price_kwh) : null,
+                evn_price_kwh: formData.evn_price_kwh && formData.evn_price_kwh !== '' ? parseFloat(formData.evn_price_kwh) : null,
+                weshare_price_kwh: formData.weshare_price_kwh && formData.weshare_price_kwh !== '' ? parseFloat(formData.weshare_price_kwh) : null,
                 solis_plant_id: formData.solis_plant_id || '', // ← include when updating
                 status: formData.status === 'active' ? 1 : 0
             }

@@ -1,20 +1,96 @@
-import React from 'react';
+'use client';
+import { useLanguage } from '@/contexts/LanguageContext';
+import React, { useState, useEffect, useMemo } from 'react';
+import DatePicker from 'react-datepicker';
 import { ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import dayjs from "dayjs";
+import 'react-datepicker/dist/react-datepicker.css';
 
-const EnergyChart = () => {
-  // Generate data for 31 days
-  const data = Array.from({ length: 31 }, (_, i) => {
-    const day = (i + 1).toString().padStart(2, '0');
+const buildChartData = (chartMonthData = [], selectedDate) => {
+  const month_data = Array.isArray(chartMonthData) ? chartMonthData : [];
+  const monthYear = selectedDate ? dayjs(selectedDate).format('YYYY-MM') : dayjs().format('YYYY-MM');
+  const daysInMonth = dayjs(monthYear).daysInMonth();
+
+  // Create empty map for quick lookup
+  const dataMap = {};
+  month_data.forEach(item => {
+    const day = dayjs(item.date).format("DD");
+    dataMap[day] = item;
+  });
+
+  // Generate all days of month
+  return Array.from({ length: daysInMonth }, (_, i) => {
+    const day = String(i + 1).padStart(2, "0");
+    const row = dataMap[day];
+    const money = row?.money ? row.money / 1000 : null; // Convert to K VND
+
     return {
       day,
-      yield: Math.random() * 100 + 50,
-      exporting: Math.random() * 200 + 100,
-      importing: Math.random() * 250 + 150,
-      consumed: Math.random() * 350 + 200,
-      fullLoadHours: Math.random() * 2 + 1.5,
-      earning: Math.random() * 2 + 1.5
+      yield: row?.energy ?? 0,
+      exporting: row?.home_grid_energy ?? 0,
+      importing: row?.grid_purchased_energy ?? 0,
+      consumed: row?.consume_energy ?? 0,
+      fullLoadHours: row?.full_hour ?? null,
+      earning: money ?? null
     };
   });
+};
+
+const getMaxKwh = (data = []) =>
+  Math.max(
+    ...data.map(d =>
+      Math.max(d.yield, d.exporting, d.importing, d.consumed)
+    ),
+    0
+  );
+
+const getMaxMoney = (data = []) =>
+  Math.max(...data.map(d => d.earning), 0);
+
+const getMaxHours = (data = []) =>
+  Math.max(...data.map(d => d.fullLoadHours), 0);
+
+const generateTicks = (max, step) => {
+  const ticks = [];
+  for (let i = 0; i <= max; i += step) {
+    ticks.push(i);
+  }
+  return ticks;
+};
+
+
+const EnergyChart = ({ chartMonthData, selectedMonthYear, onMonthYearChange, isDark = false, monthlyChartDataLoading }) => {
+  const { lang } = useLanguage();
+
+  const [selectedDate, setSelectedDate] = useState(
+    selectedMonthYear ? dayjs(selectedMonthYear, 'YYYY-MM').toDate() : new Date()
+  );
+
+  useEffect(() => {
+    if (selectedMonthYear) {
+      setSelectedDate(dayjs(selectedMonthYear, 'YYYY-MM').toDate());
+    }
+  }, [selectedMonthYear]);
+
+  const handleDateChange = (date) => {
+    setSelectedDate(date);
+    if (date && onMonthYearChange) {
+      const monthYear = dayjs(date).format('YYYY-MM');
+      onMonthYearChange(monthYear);
+    }
+  };
+
+  // const data = buildChartData(chartMonthData || [], selectedDate);
+
+  const data = useMemo(
+    () => buildChartData(chartMonthData, selectedDate),
+    [chartMonthData, selectedDate]
+  );
+
+  const maxKwh = Math.ceil(getMaxKwh(data) / 100) * 100 || 10;
+  const maxMoney = Math.ceil(getMaxMoney(data) / 50) * 50 || 50;
+  const maxHours = Math.ceil(getMaxHours(data) * 2) / 2 || 1;
+
 
   return (
     <>
@@ -22,136 +98,180 @@ const EnergyChart = () => {
         .container {
           width: 100%;
           height: 100vh;
-          background-color: #ffffff;
+          background-color: ${isDark ? '#121a2d' : '#ffffff'};
           padding: 32px;
           box-sizing: border-box;
         }
         .chart-wrapper {
           width: 100%;
           height: 100%;
-          border: 1px solid #d1d5db;
+          border: 1px solid ${isDark ? '#1b2436' : '#d1d5db'};
           border-radius: 8px;
           box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-          padding: 24px;
+          padding: 28px;
           box-sizing: border-box;
+          background-color: ${isDark ? '#121a2d' : '#ffffff'};
+        }
+        .date-picker-wrapper {
+          margin-bottom: 16px;
+        }
+        .date-picker-wrapper :global(.react-datepicker-wrapper) {
+          width: 10%;
+        }
+        .date-picker-wrapper :global(.react-datepicker__input-container input) {
+          width: 100%;
+          padding: 8px 12px;
+          border-radius: 8px;
+          border: 1px solid ${isDark ? '#1b2436' : '#d1d5db'};
+          background: ${isDark ? '#121a2d' : '#fff'};
+          color: ${isDark ? '#ffffff' : '#111827'};
+          font-size: 14px;
+        }
+        .date-picker-wrapper :global(.react-datepicker__input-container input:focus) {
+          outline: none;
+          border-color: #3b82f6;
         }
       `}</style>
-      
+
       <div className="container">
-        <div className="chart-wrapper">
-          <ResponsiveContainer width="100%" height="100%">
-            <ComposedChart
-              data={data}
-              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
-              
-              {/* Left Y-axis for K VND */}
-              <YAxis 
-                yAxisId="left"
-                orientation="left"
-                label={{ value: 'K VND', angle: 0, position: 'top', offset: 10, dx: -30 }}
-                domain={[0, 425]}
-                ticks={[0, 85, 170, 255, 340, 425]}
-                stroke="#666"
-              />
-              
-              {/* Middle Y-axis for kWh */}
-              <YAxis 
-                yAxisId="middle"
-                orientation="left"
-                label={{ value: 'kWh', angle: 0, position: 'top', offset: 10, dx: 90 }}
-                domain={[0, 940]}
-                ticks={[0, 188, 376, 564, 752, 940]}
-                stroke="#666"
-                dx={-40}
-              />
-              
-              {/* Right Y-axis for h */}
-              <YAxis 
-                yAxisId="right"
-                orientation="right"
-                label={{ value: 'h', angle: 0, position: 'top', offset: 10, dx: -30 }}
-                domain={[0, 4]}
-                ticks={[0, 0.8, 1.6, 2.4, 3.2, 4]}
-                stroke="#666"
-              />
-              
-              <XAxis 
-                dataKey="day"
-                stroke="#666"
-                interval={0}
-                tick={{ fontSize: 11 }}
-              />
-              
-              <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: 'rgba(255, 255, 255, 0.95)', 
-                  border: '1px solid #ccc',
-                  borderRadius: '4px'
-                }}
-                formatter={(value) => typeof value === 'number' ? value.toFixed(2) : value}
-              />
-              
-              <Legend 
-                verticalAlign="bottom"
-                height={36}
-                iconType="rect"
-                wrapperStyle={{ paddingTop: '20px' }}
-              />
-              
-              {/* Bars */}
-              <Bar 
-                yAxisId="middle"
-                dataKey="yield" 
-                name="Yield"
-                fill="#FDB515"
-                barSize={12}
-              />
-              <Bar 
-                yAxisId="middle"
-                dataKey="exporting" 
-                name="Exporting"
-                fill="#4A90E2"
-                barSize={12}
-              />
-              <Bar 
-                yAxisId="middle"
-                dataKey="importing" 
-                name="Importing"
-                fill="#E84855"
-                barSize={12}
-              />
-              <Bar 
-                yAxisId="middle"
-                dataKey="consumed" 
-                name="Consumed"
-                fill="#FF8C42"
-                barSize={12}
-              />
-              
-              {/* Lines */}
-              <Line 
-                yAxisId="right"
-                type="monotone"
-                dataKey="fullLoadHours"
-                name="Full Load Hours"
-                stroke="#4A90E2"
-                strokeWidth={2}
-                dot={false}
-              />
-              <Line 
-                yAxisId="right"
-                type="monotone"
-                dataKey="earning"
-                name="Earning"
-                stroke="#FF8C42"
-                strokeWidth={2}
-                dot={false}
-              />
-            </ComposedChart>
-          </ResponsiveContainer>
+        <div className='date-picker-wrapper'>
+          <DatePicker
+            selected={selectedDate}
+            onChange={handleDateChange}
+            dateFormat="MM / yyyy"
+            showMonthYearPicker
+            views={['month', 'year']}
+            placeholderText="Select month and year"
+          />
         </div>
+        {/* <div className="chart-wrapper"> */}
+
+        <ResponsiveContainer width="100%" height="100%" minWidth={600}>
+          <ComposedChart
+            data={data}
+            margin={{ top: 40, right: 50, left: 100, bottom: 20 }}
+          >
+            <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
+
+            {/* Middle Y-axis for kWh */}
+            <YAxis
+              yAxisId="kwh"
+              orientation="left"
+              width={70}
+              x={60}
+              label={{
+                value: 'kWh',
+                position: 'top',
+                dx: 20,
+                dy: -10
+              }}
+              domain={[0, maxKwh]}
+              ticks={generateTicks(maxKwh, 100)}
+              stroke="#666"
+            />
+
+            <YAxis
+              yAxisId="money"
+              orientation="left"
+              width={70}
+              x={0}
+              label={{
+                value: 'K VND',
+                position: 'top',
+                dx: 30,
+                dy: -10
+              }}
+              domain={[0, maxMoney]}
+              ticks={generateTicks(maxMoney, 50)}
+              stroke="#666"
+            />
+
+            {/* Right Y-axis for h */}
+            <YAxis
+              yAxisId="hours"
+              orientation="right"
+              width={70}
+              x={0}
+              label={{ value: 'h', angle: 0, position: 'top', dx: -30, dy: -10 }}
+              domain={[0, maxHours]}
+              ticks={generateTicks(maxHours, 0.5)}
+              stroke="#666"
+            />
+
+            <XAxis
+              dataKey="day"
+              stroke="#666"
+              interval={0}
+              tick={{ fontSize: 11 }}
+            />
+
+            <Tooltip
+              contentStyle={{
+                backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                border: '1px solid #ccc',
+                borderRadius: '4px'
+              }}
+              formatter={(value) => typeof value === 'number' ? value.toFixed(2) : value}
+            />
+
+            <Legend
+              verticalAlign="bottom"
+              height={36}
+              iconType="rect"
+              wrapperStyle={{ paddingTop: '20px' }}
+            />
+
+            {/* Bars */}
+            <Bar
+              yAxisId="kwh"
+              dataKey="yield"
+              name="Yield"
+              fill="#FDB515"
+              barSize={12}
+            />
+            <Bar
+              yAxisId="kwh"
+              dataKey="exporting"
+              name="Exporting"
+              fill="#4A90E2"
+              barSize={12}
+            />
+            <Bar
+              yAxisId="kwh"
+              dataKey="importing"
+              name="Importing"
+              fill="#E84855"
+              barSize={12}
+            />
+            <Bar
+              yAxisId="kwh"
+              dataKey="consumed"
+              name="Consumed"
+              fill="#FF8C42"
+              barSize={12}
+            />
+
+            {/* Lines */}
+            <Line
+              yAxisId="hours"
+              type="linear"
+              dataKey="fullLoadHours"
+              name="Full Load Hours"
+              stroke="#4A90E2"
+              strokeWidth={2}
+              dot={false}
+            />
+            <Line
+              yAxisId="money"
+              type="linear"
+              dataKey="earning"
+              name="Earning"
+              stroke="#FF8C42"
+              strokeWidth={2}
+              dot={false}
+            />
+          </ComposedChart>
+        </ResponsiveContainer>
       </div>
     </>
   );

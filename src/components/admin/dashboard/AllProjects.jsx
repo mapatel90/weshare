@@ -28,9 +28,9 @@ const AllProjects = ({ title }) => {
       try {
         setLoading(true);
         setError(null);
-        const res = await apiGet("/api/projects?limit=6&page=1");
+        const res = await apiGet("/api/projects?limit=5&page=1");
         const list = Array.isArray(res?.data) ? res.data : [];
-        setProjects(list.slice(0, 6)); // Show first 6 projects
+        setProjects(list.slice(0, 5)); // Show first 5 projects
       } catch (err) {
         setError("Failed to load projects");
       } finally {
@@ -48,7 +48,7 @@ const AllProjects = ({ title }) => {
   };
 
   return (
-    <div className="col-xxl-4">
+    <div className="col-xxl-6">
       <div
         className={`card stretch stretch-full ${isExpanded ? "card-expand" : ""} ${refreshKey ? "card-loading" : ""}`}
       >

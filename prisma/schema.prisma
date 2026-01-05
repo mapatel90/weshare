@@ -10,11 +10,11 @@ datasource db {
 
 model blogs {
   id               Int      @id @default(autoincrement())
-  blog_title       String   @db.VarChar(255)
-  blog_date        DateTime @default(now())
-  blog_image       String?  @db.VarChar(255)
-  blog_description String?
-  blog_slug        String   @db.VarChar(255)
+  title       String?   @db.VarChar(255)
+  date        DateTime @default(now())
+  image       String?  @db.VarChar(255)
+  description String?
+  slug        String?   @db.VarChar(255)
   is_deleted       Int      @default(0)
   created_at       DateTime @default(now())
   updated_at       DateTime @default(now())
@@ -146,6 +146,13 @@ model invoices {
   invoice_prefix        String    @db.VarChar(255)
   invoice_date          DateTime  @db.Date
   due_date              DateTime? @db.Date
+  currency              String    @db.VarChar(255)
+  billing_adress_1      String    @db.VarChar(255)
+  billing_adress_2      String    @db.VarChar(255)
+  billing_city_id       Int?
+  billing_state_id      Int?
+  billing_country_id    Int?
+  billing_zipcode       Int?
   amount                Float     @default(0)
   tax                   Float     @default(0)
   tax_amount            Float     @default(0)
@@ -158,6 +165,19 @@ model invoices {
   users       users    @relation(fields: [offtaker_id], references: [id])
   projects    projects @relation(fields: [project_id], references: [id])
   invoice_items invoice_items[]
+}
+
+model invoice_items {
+  id          Int      @id @default(autoincrement())
+  invoice_id  Int
+  item        String    @db.VarChar(255)
+  description String    @db.VarChar(255)
+  unit        Float
+  price       Float
+  item_total  Float
+  created_at  DateTime @default(now())
+  
+  invoices    invoices    @relation(fields: [invoice_id], references: [id])
 }
 
 model lease_requests {
@@ -182,11 +202,11 @@ model lease_requests {
 
 model news {
   id               Int      @id @default(autoincrement())
-  news_title       String   @db.VarChar(255)
-  news_date        DateTime @default(now())
-  news_image       String?  @db.VarChar(255)
-  news_description String?
-  news_slug        String   @db.VarChar(255)
+  title       String?   @db.VarChar(255)
+  date        DateTime @default(now())
+  image       String?  @db.VarChar(255)
+  description String?
+  slug        String?   @db.VarChar(255)
   is_deleted       Int      @default(0)
   created_at       DateTime @default(now())
   updated_at       DateTime @default(now())
@@ -346,7 +366,8 @@ model projects {
   project_start_date   DateTime?
   project_close_date   DateTime?
   project_location     String?                @db.VarChar(500)
-  price_kwh            Float?
+  weshare_price_kwh    Float?
+  evn_price_kwh        Float?
   solis_plant_id       String?                @db.VarChar(255)
   address_1            String?                @db.VarChar(255)
   address_2            String?                @db.VarChar(255)
@@ -458,4 +479,13 @@ model users {
   cities               cities?                @relation(fields: [city_id], references: [id])
   countries            countries?             @relation(fields: [country_id], references: [id])
   states               states?                @relation(fields: [state_id], references: [id])
+}
+
+model taxes {
+  id                   Int                    @id @default(autoincrement())
+  name                 String                 @db.VarChar(255)
+  value                Float                  @default(0)
+  is_deleted           Int                    @default(0)
+  created_at           DateTime               @default(now())
+  updated_at           DateTime               @default(now())
 }

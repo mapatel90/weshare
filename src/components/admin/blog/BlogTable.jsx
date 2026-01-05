@@ -154,13 +154,13 @@ const BlogTable = () => {
       }
       setModalMode("edit");
       setEditingId(item?.id ?? null);
-      setBlogTitle(item?.blog_title || "");
-      setBlogDate(toDateInput(item?.blog_date));
-      setBlogImage(item?.blog_image || "");
+      setBlogTitle(item?.title || "");
+      setBlogDate(toDateInput(item?.date));
+      setBlogImage(item?.image || "");
       setBlogImageFile(null);
-      setImagePreviewUrl(getFullImageUrl(item?.blog_image) || "");
-      setBlogDescription(item?.blog_description || "");
-      setBlogSlug(item?.blog_slug || "");
+      setImagePreviewUrl(getFullImageUrl(item?.image) || "");
+      setBlogDescription(item?.description || "");
+      setBlogSlug(item?.slug || "");
       setErrors({});
     };
     if (typeof window !== "undefined") {
@@ -247,20 +247,20 @@ const BlogTable = () => {
 
   const columns = useMemo(
     () => [
-      { accessorKey: "blog_title", header: () => lang("blog.title") || "Title" },
+      { accessorKey: "title", header: () => lang("blog.title") || "Title" },
       {
-        accessorKey: "blog_date",
+        accessorKey: "date",
         header: () => lang("blog.enddate") || "Date",
         cell: ({ row }) => {
-          const d = row.original.blog_date ? new Date(row.original.blog_date) : null;
+          const d = row.original.date ? new Date(row.original.date) : null;
           return d ? d.toLocaleDateString() : "";
         },
       },
       {
-        accessorKey: "blog_image",
+        accessorKey: "image",
         header: () => lang("blog.image") || "Image",
         cell: ({ row }) => {
-          const src = row.original.blog_image;
+          const src = row.original.image;
           if (!src) return "";
           return (
             <img

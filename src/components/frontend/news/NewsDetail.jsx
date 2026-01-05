@@ -60,7 +60,7 @@ const NewsDetail = ({ newsSlug }) => {
   }, [fetchNewsDetail, fetchAllNews]);
 
   // Find previous and next news
-  const currentIndex = allNews.findIndex((n) => n.news_slug === newsSlug);
+  const currentIndex = allNews.findIndex((n) => n.slug === newsSlug);
   const previousNews = currentIndex > 0 ? allNews[currentIndex - 1] : null;
   const nextNews =
     currentIndex >= 0 && currentIndex < allNews.length - 1

@@ -865,7 +865,11 @@
     "uploadImage": "Upload Image",
     "imageUploaded": "Image uploaded successfully",
     "imageUploadFailed": "Failed to upload image",
-    "selectInvestor": "Select Investors"
+    "selectInvestor": "Select Investors",
+    "evn_price_kwh": "EVN Price",
+    "evn_price_kwh_placeholder": "Enter EVN price",
+    "weshare_price_kwh": "WeShare Price",
+    "weshare_price_kwh_placeholder": "Enter WeShare price"
   },
   "settings": {
     "title": "Settings",
@@ -994,7 +998,8 @@
     "warrantyExpireDate": "Warranty Expire Date",
     "noinverterfound": "No inverters found",
     "serial": "Serial",
-    "apiUrlNamePlaceholder": "API URL"
+    "apiUrlNamePlaceholder": "API URL",
+    "project_inverter": "Projects Inverter"
   },
   "projectType": {
     "title": "Project Types",
@@ -1096,7 +1101,12 @@
     "unpaid": "Unpaid",
     "selectProject": "Select Project",
     "selectOfftaker": "Select Offtaker",
-    "selectStatus": "Select Status"
+    "selectStatus": "Select Status",
+    "currency": "Currency",
+    "offtakerAddress": "Offtaker Address",
+    "editOfftakerAddress": "Edit Offtaker Address",
+    "items": "Items",
+    "addItem": "Add Item"
   },
   "finance": {
     "title": "Finance General",
@@ -1167,7 +1177,8 @@
       "tax15": "15% + $2",
       "tax20": "20% + $2",
       "tax25": "25% + $2"
-    }
+    },
+    "next_invoice_number": "Next Invoice Number"
   },
   "news": {
     "addNews": "Add News",

@@ -838,7 +838,11 @@
     "uploadImage": "Tải lên hình ảnh",
     "imageUploaded": "Tải lên hình ảnh thành công",
     "imageUploadFailed": "Không thể tải lên hình ảnh",
-    "selectInvestor": "Chọn nhà đầu tư"
+    "selectInvestor": "Chọn nhà đầu tư",
+    "evn_price_kwh": "Giá EVN mỗi kWh",
+    "evn_price_kwh_placeholder": "Nhập giá EVN",
+    "weshare_price_kwh": "Giá WeShare mỗi kWh",
+    "weshare_price_kwh_placeholder": "Nhập giá WeShare"
   },
   "placeholders": {
     "your_company_name": "Tên công ty của bạn [Ví dụ: Theme Ocean]",
@@ -1050,7 +1054,12 @@
     "unpaid": "Chưa thanh toán",
     "selectProject": "Chọn dự án",
     "selectOfftaker": "Chọn Offtaker",
-    "selectStatus": "Chọn trạng thái"
+    "selectStatus": "Chọn trạng thái",
+    "currency": "Tiền tệ",
+    "offtakerAddress": "Địa chỉ Offtaker",
+    "editOfftakerAddress": "Chỉnh sửa địa chỉ Offtaker",
+    "items": "Mục",
+    "addItem": "Thêm mục"
   },
   "finance": {
     "title": "Tài chính chung",
@@ -1119,7 +1128,8 @@
       "tax15": "15% + $2",
       "tax20": "20% + $2",
       "tax25": "25% + $2"
-    }
+    },
+    "next_invoice_number": "Số hóa đơn tiếp theo sẽ là"
   },
   "news": {
     "title": "Quản lý tin tức",
