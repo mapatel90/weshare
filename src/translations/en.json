@@ -865,7 +865,11 @@
     "uploadImage": "Upload Image",
     "imageUploaded": "Image uploaded successfully",
     "imageUploadFailed": "Failed to upload image",
-    "selectInvestor": "Select Investors"
+    "selectInvestor": "Select Investors",
+    "evn_price_kwh": "EVN Price",
+    "evn_price_kwh_placeholder": "Enter EVN price",
+    "weshare_price_kwh": "WeShare Price",
+    "weshare_price_kwh_placeholder": "Enter WeShare price"
   },
   "settings": {
     "title": "Settings",

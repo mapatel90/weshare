@@ -190,7 +190,8 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
       project_close_date,
       project_location,
       start_date,
-      price_kwh,
+      evn_price_kwh,
+      weshare_price_kwh,
       status = 1,
     } = req.body;
     console.log("req.body", req.body);
@@ -240,7 +241,8 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
           : null,
         project_start_date: start_date ? new Date(start_date) : null,
         project_location: project_location || "",
-        price_kwh: parseFloat(price_kwh) || null,
+        weshare_price_kwh: parseFloat(weshare_price_kwh) || null,
+        evn_price_kwh: parseFloat(evn_price_kwh) || null,
         status: parseInt(status),
         updated_at: new Date()
       },
@@ -747,7 +749,8 @@ router.put("/:id", authenticateToken, async (req, res) => {
       project_size,
       project_close_date,
       project_location,
-      price_kwh,
+      weshare_price_kwh,
+      evn_price_kwh,
       status,
       solis_plant_id,
     } = req.body;
@@ -802,7 +805,8 @@ router.put("/:id", authenticateToken, async (req, res) => {
         project_location: project_location || "",
       }),
       ...(status !== undefined && { status: parseInt(status) }),
-      ...(price_kwh !== undefined && { price_kwh: parseFloat(price_kwh) || null }),
+      ...(weshare_price_kwh !== undefined && { weshare_price_kwh: parseFloat(weshare_price_kwh) || null }),
+      ...(evn_price_kwh !== undefined && { evn_price_kwh: parseFloat(evn_price_kwh) || null }),
     };
 
     if (project_slug !== undefined) {

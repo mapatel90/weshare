@@ -24,7 +24,8 @@ const ProjectCreateContent = () => {
         project_size: '',
         project_close_date: '',
         project_location: '',
-        price_kwh: '',
+        evn_price_kwh: '',
+        weshare_price_kwh: '',
         status: 'active'
     });
 

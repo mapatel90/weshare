@@ -29,7 +29,7 @@ const ProjectForm = ({
   loadingCountries = false,
   loadingStates = false,
   loadingCities = false,
-  
+
   // handlers (provided by parent)
   handleInputChange,
   handleProjectNameBlur,
@@ -47,7 +47,7 @@ const ProjectForm = ({
   onSetDefaultImage, // <-- NEW prop: (id, 'existing'|'queued') => void
   maxProjectImages = 10,
   isImageSyncing = false,
-  
+
   // i18n helper
   lang = (k, fallback) => fallback,
 }) => {
@@ -57,7 +57,7 @@ const ProjectForm = ({
   const isTemporarilyDisabled = loading.form || isImageSyncing;
   const dropDisabled = isGalleryFull || isTemporarilyDisabled;
 
-  
+
   const handleDrop = useCallback(
     (accepted, rejected) => {
       if (typeof onDropImages === "function") {
@@ -103,7 +103,7 @@ const ProjectForm = ({
         <div className="card-body">
           <div className="row">
             <div className="col-md-6 mb-3">
-               <TextField
+              <TextField
                 fullWidth
                 label={`${lang("projects.projectName", "Project Name")} *`}
                 name="project_name"
@@ -226,9 +226,9 @@ const ProjectForm = ({
             </div>
           </div>
 
-          {/* Row: asking_price, lease_term, product_code */}
+          {/* Row: asking_price, project_size, project_close_date,  */}
           <div className="row mb-3">
-            <div className="col-md-4">
+            <div className="col-md-3 mb-3">
               <TextField
                 fullWidth
                 label={lang("projects.askingPrice", "Asking Price")}
@@ -240,36 +240,6 @@ const ProjectForm = ({
                 helperText={error.asking_price}
               />
             </div>
-            <div className="col-md-4">
-              <TextField
-                fullWidth
-                label={`${lang("projects.leaseTerm", "Lease Term")} ${lang(
-                  "projects.year",
-                  "year"
-                )}`}
-                name="lease_term"
-                value={formData.lease_term || ""}
-                onChange={handleInputChange}
-                inputMode="numeric"
-                error={!!error.lease_term}
-                helperText={error.lease_term}
-              />
-            </div>
-            <div className="col-md-4">
-              <TextField
-                fullWidth
-                label={lang("projects.productCode", "Product Code")}
-                name="product_code"
-                value={formData.product_code || ""}
-                onChange={handleInputChange}
-                error={!!error.product_code}
-                helperText={error.product_code}
-              />
-            </div>
-          </div>
-
-          {/* row: project_size, project_close_date, project_location */}
-          <div className="row">
             <div className="col-md-3 mb-3">
               <TextField
                 fullWidth
@@ -294,19 +264,67 @@ const ProjectForm = ({
             <div className="col-md-3 mb-3">
               <TextField
                 fullWidth
-                label={lang("projects.priceKwh", "Price (kWh)")}
-                name="price_kwh"
+                label={lang("projects.evn_price_kwh", "Even price (kWh)")}
+                name="evn_price_kwh"
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position="end">{lang("projects.perKwh", "Per kWh")}</InputAdornment>
                   ),
                 }}
-                value={formData.price_kwh || ""}
+                value={formData.evn_price_kwh || ""}
                 onChange={handleInputChange}
                 inputMode="decimal"
-                placeholder={lang("projects.priceKwhPlaceholder", "Enter price per kWh")}
-                error={!!error.price_kwh}
-                helperText={error.price_kwh}
+                placeholder={lang("projects.evn_price_kwh_placeholder", "Enter EVN price")}
+                error={!!error.evn_price_kwh}
+                helperText={error.evn_price_kwh}
+              />
+            </div>
+            <div className="col-md-3 mb-3">
+              <TextField
+                fullWidth
+                label={lang("projects.weshare_price_kwh", "WeShare Price (kWh)")}
+                name="weshare_price_kwh"
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">{lang("projects.perKwh", "Per kWh")}</InputAdornment>
+                  ),
+                }}
+                value={formData.weshare_price_kwh || ""}
+                onChange={handleInputChange}
+                inputMode="decimal"
+                placeholder={lang("projects.weshare_price_kwh_placeholder", "Enter WeShare price")}
+                error={!!error.weshare_price_kwh}
+                helperText={error.weshare_price_kwh}
+              />
+            </div>
+          </div>
+
+          {/* row:lease_term, product_code,project_location */}
+          <div className="row">
+            <div className="col-md-3 mb-3">
+              <TextField
+                fullWidth
+                label={`${lang("projects.leaseTerm", "Lease Term")} ${lang(
+                  "projects.year",
+                  "year"
+                )}`}
+                name="lease_term"
+                value={formData.lease_term || ""}
+                onChange={handleInputChange}
+                inputMode="numeric"
+                error={!!error.lease_term}
+                helperText={error.lease_term}
+              />
+            </div>
+            <div className="col-md-3 mb-3">
+              <TextField
+                fullWidth
+                label={lang("projects.productCode", "Product Code")}
+                name="product_code"
+                value={formData.product_code || ""}
+                onChange={handleInputChange}
+                error={!!error.product_code}
+                helperText={error.product_code}
               />
             </div>
             <div className="col-md-3 mb-3">
