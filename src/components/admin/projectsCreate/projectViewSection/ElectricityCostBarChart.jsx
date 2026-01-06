@@ -64,7 +64,7 @@ const ElectricityCostBarChart = ({
         }
         .picker-wrapper {
           margin-bottom: 16px;
-          width: 520px;
+          width: 432px;
         }
         .picker-wrapper :global(.react-datepicker-wrapper) {
           width: 20%;
@@ -88,7 +88,7 @@ const ElectricityCostBarChart = ({
                     />
                 </div>
 
-                <ResponsiveContainer width="100%" height="100%">
+                <ResponsiveContainer width="94%" height="86%">
                     <BarChart
                         data={data}
                         layout="vertical"

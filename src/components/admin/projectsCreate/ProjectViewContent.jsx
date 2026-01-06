@@ -677,7 +677,7 @@ const ProjectViewContent = ({ projectId = "" }) => {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+          gridTemplateColumns: "1.5fr 1fr",
           gap: "24px",
           marginBottom: "24px",
           height: "18%",
