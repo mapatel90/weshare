@@ -220,7 +220,7 @@ const ElectricityCostOverviewChart = ({
                 <ResponsiveContainer width="100%" height={400}>
                     <LineChart
                         data={chartData}
-                        margin={{ top: 10, right: 30, left: 20, bottom: 10 }}
+                        margin={{ top: 10, right: 30, left: 40, bottom: 10 }}
                     >
                         <CartesianGrid strokeDasharray="3 3" opacity={0.3} stroke={isDark ? '#1b2436' : '#e5e7eb'} />
 
