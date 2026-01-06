@@ -719,7 +719,6 @@ const ProjectViewContent = ({ projectId = "" }) => {
             isDark={isDark}
           />
         </div>
-        {/* LINE CHART SECTION */}
         <div
           style={{
             backgroundColor: colors.cardBg,
