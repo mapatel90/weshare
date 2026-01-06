@@ -677,7 +677,7 @@ const ProjectViewContent = ({ projectId = "" }) => {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "1.5fr 1fr",
+          gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1.5fr))",
           gap: "24px",
           marginBottom: "24px",
           height: "18%",
@@ -719,7 +719,6 @@ const ProjectViewContent = ({ projectId = "" }) => {
             isDark={isDark}
           />
         </div>
-        {/* LINE CHART SECTION */}
         <div
           style={{
             backgroundColor: colors.cardBg,

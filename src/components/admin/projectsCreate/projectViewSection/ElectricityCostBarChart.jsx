@@ -123,7 +123,7 @@ const ElectricityCostBarChart = ({
                         <Bar
                             dataKey="evn"
                             name="EVN"
-                            fill={isDark ? '#ffffff' : '#1f2937'}
+                            fill={isDark ? '#2563eb' : '#2563eb'}
                             barSize={12}
                         />
 
@@ -131,7 +131,7 @@ const ElectricityCostBarChart = ({
                         <Bar
                             dataKey="weshare"
                             name="WeShare"
-                            fill={isDark ? '#ffffff' : '#6b7280'}
+                            fill={isDark ? '#f97316' : '#f97316'}
                             barSize={12}
                         />
                     </BarChart>
