@@ -430,6 +430,9 @@ const InvoiceCreateForm = ({ invoiceId = null }) => {
         // Set currency
         setCurrency(item.currency ? String(item.currency) : "VND");
 
+        // Set tax selection
+        setSelectedTax(item.tax ? String(item.tax) : "");
+
         // Set invoice items
         const mappedItems = Array.isArray(item.invoice_items)
           ? item.invoice_items.map((row) => ({
@@ -507,13 +510,14 @@ const InvoiceCreateForm = ({ invoiceId = null }) => {
       invoiceDate: !invoiceDate ? "Invoice date is required" : "",
       dueDate: !dueDate ? "Due date is required" : "",
     };
-    const newStatusError = !status && status !== 0 ? "Status is required" : "";
+    const newStatusError = ""; // Default to unpaid when not provided
     setErrors(newErrors);
     setStatusError(newStatusError);
     if (Object.values(newErrors).some(Boolean) || newStatusError) return;
 
     try {
       setSubmitting(true);
+      const statusValue = status === "" || status === null || status === undefined ? 0 : parseInt(status, 10);
       const trimmedPrefix = (invoicePrefix || "").trim();
       const trimmedSetting = (settingInvoiceNumberPrefix || "").trim();
       const fullInvoiceNumber = `${trimmedPrefix}${trimmedSetting}${invoiceNumberSuffix}`;
@@ -550,7 +554,7 @@ const InvoiceCreateForm = ({ invoiceId = null }) => {
         due_date: dueDate,
         amount: Number.isFinite(amountValue) ? amountValue : 0,
         total_unit: finalTotal ? finalTotal : 0,
-        status: parseInt(status),
+        status: statusValue,
         currency,
         tax: selectedTax || "",
         tax_amount: taxAmount,
