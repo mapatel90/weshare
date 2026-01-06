@@ -42,21 +42,45 @@ const formatDataForChart = (apiData, viewMode, selectedDate) => {
         });
     }
 
-    // ================= MONTH VIEW =================
     if (viewMode === "month") {
-        return apiData.map(item => ({
-            label: dayjs(item.label + "-01").format("MMM"),
-            evn: item.evn || 0,
-            weshare: item.weshare || 0,
+        const months = Array.from({ length: 12 }, (_, i) =>
+            dayjs().month(i).format("MMM")
+        );
+
+        // Map API data by month index (0–11)
+        const map = {};
+        apiData.forEach(item => {
+            const monthIndex = dayjs(item.label + "-01").month(); // 0–11
+            map[monthIndex] = item;
+        });
+
+        return months.map((monthLabel, index) => ({
+            label: monthLabel,
+            evn: map[index]?.evn > 0 ? map[index].evn : null,
+            weshare: map[index]?.weshare > 0 ? map[index].weshare : null,
         }));
     }
 
     // ================= YEAR VIEW =================
-    return apiData.map(item => ({
-        label: item.label,
-        evn: item.evn > 0 ? item.evn : null,
-        weshare: item.weshare > 0 ? item.weshare : null,
-    }));
+    if (viewMode === "year") {
+        const currentYear = dayjs().year();
+
+        // Build last 5 years (past 4 + current)
+        const years = Array.from({ length: 5 }, (_, i) => currentYear - 4 + i);
+
+        // Map API data by year
+        const map = {};
+        apiData.forEach(item => {
+            map[item.label] = item;
+        });
+
+        return years.map(year => ({
+            label: String(year),
+            evn: map[year]?.evn > 0 ? map[year].evn : null,
+            weshare: map[year]?.weshare > 0 ? map[year].weshare : null,
+        }));
+    }
+
 };
 
 
