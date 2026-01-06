@@ -110,7 +110,7 @@ const ElectricityCostOverviewChart = ({
         <div
             style={{
                 width: '100%',
-                height: 420,
+                height: '50vh',
                 padding: 24,
                 borderRadius: 12,
                 background: isDark ? '#0f172a' : '#ffffff',
@@ -139,7 +139,7 @@ const ElectricityCostOverviewChart = ({
                 }
             `}</style>
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 45 }}>
                 <div style={{ display: "flex", gap: "8px" }}>
                     {["day", "month", "year"].map((mode) => (
                         <button
@@ -217,7 +217,7 @@ const ElectricityCostOverviewChart = ({
                     No data available
                 </div>
             ) : (
-                <ResponsiveContainer width="100%" height={400}>
+                <ResponsiveContainer width="100%" height={400} minWidth={650} style={{ marginTop: 30 }}>
                     <LineChart
                         data={chartData}
                         margin={{ top: 10, right: 30, left: 40, bottom: 10 }}
@@ -236,7 +236,7 @@ const ElectricityCostOverviewChart = ({
                             label={{
                                 value: xAxisLabel,
                                 position: 'insideBottom',
-                                offset: -5,
+                                offset: -1,
                                 style: { fill: isDark ? '#cbd5f5' : '#374151' },
                             }}
                         />

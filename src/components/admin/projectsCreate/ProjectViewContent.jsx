@@ -677,10 +677,10 @@ const ProjectViewContent = ({ projectId = "" }) => {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "1.5fr 1fr",
+          gridTemplateColumns: isTablet || isMobile ? "1fr" : "1.5fr 1fr",
           gap: "24px",
           marginBottom: "24px",
-          height: "18%",
+          height: isTablet || isMobile ? "auto" : "18%",
         }}
       >
         {/* BAR CHART SECTION */}
@@ -867,8 +867,6 @@ const ProjectViewContent = ({ projectId = "" }) => {
               />
             )
           )}
-
-
         </div>
       </div>
 

@@ -88,7 +88,7 @@ const ElectricityCostBarChart = ({
                     />
                 </div>
 
-                <ResponsiveContainer width="94%" height="86%">
+                <ResponsiveContainer width="94%" height="86%" minWidth={400}>
                     <BarChart
                         data={data}
                         layout="vertical"
