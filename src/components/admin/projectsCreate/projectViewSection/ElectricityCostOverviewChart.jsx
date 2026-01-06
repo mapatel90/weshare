@@ -16,32 +16,49 @@ import DatePicker from 'react-datepicker';
 import dayjs from 'dayjs';
 import 'react-datepicker/dist/react-datepicker.css';
 
-const formatDataForChart = (apiData, viewMode) => {
-    console.log("apiData", apiData);
+const formatDataForChart = (apiData, viewMode, selectedDate) => {
     if (!apiData || !Array.isArray(apiData)) return [];
 
-    return apiData.map((item) => {
-        let label;
-        if (viewMode === 'day') {
-            // label is in format YYYY-MM-DD, extract day
-            const date = dayjs(item.label);
-            label = date.format('DD');
-        } else if (viewMode === 'month') {
-            // label is in format YYYY-MM, extract month abbreviation
-            const date = dayjs(item.label + '-01');
-            label = date.format('MMM');
-        } else {
-            // label is in format YYYY
-            label = item.label;
-        }
+    // ================= DAY VIEW =================
+    if (viewMode === "day") {
+        const daysInMonth = dayjs(selectedDate + "-01").daysInMonth();
 
-        return {
-            label,
+        // Map API data by day number
+        const map = {};
+        apiData.forEach(item => {
+            const day = dayjs(item.label).date();
+            map[day] = item;
+        });
+
+        // Build FULL 1 → 31 array
+        return Array.from({ length: daysInMonth }, (_, i) => {
+            const day = i + 1;
+            return {
+                day,
+                evn: map[day]?.evn > 0 ? map[day].evn : null,
+                weshare: map[day]?.weshare > 0 ? map[day].weshare : null,
+
+            };
+        });
+    }
+
+    // ================= MONTH VIEW =================
+    if (viewMode === "month") {
+        return apiData.map(item => ({
+            label: dayjs(item.label + "-01").format("MMM"),
             evn: item.evn || 0,
             weshare: item.weshare || 0,
-        };
-    });
+        }));
+    }
+
+    // ================= YEAR VIEW =================
+    return apiData.map(item => ({
+        label: item.label,
+        evn: item.evn > 0 ? item.evn : null,
+        weshare: item.weshare > 0 ? item.weshare : null,
+    }));
 };
+
 
 const ElectricityCostOverviewChart = ({
     data,
@@ -54,7 +71,7 @@ const ElectricityCostOverviewChart = ({
 }) => {
     const { lang } = useLanguage();
 
-    const chartData = useMemo(() => formatDataForChart(data, viewMode), [data, viewMode]);
+    const chartData = useMemo(() => formatDataForChart(data, viewMode, selectedDate), [data, viewMode, selectedDate]);
 
     const handleDateChange = (date) => {
         if (!date) return;
@@ -79,6 +96,15 @@ const ElectricityCostOverviewChart = ({
 
     const xAxisDataKey = 'label';
     const xAxisLabel = viewMode === 'day' ? 'Day' : viewMode === 'month' ? 'Month' : 'Year';
+
+    // Generate ticks for day view to show all days properly
+    const dayTicks = useMemo(() => {
+        if (viewMode === 'day' && chartData.length > 0) {
+            const maxDay = Math.max(...chartData.map(d => d.day));
+            return Array.from({ length: maxDay }, (_, i) => i + 1);
+        }
+        return undefined;
+    }, [viewMode, chartData]);
 
     return (
         <div
@@ -131,14 +157,14 @@ const ElectricityCostOverviewChart = ({
                                     viewMode === mode
                                         ? "#f97316"
                                         : isDark
-                                        ? "#121a2d"
-                                        : "#ffffff",
+                                            ? "#121a2d"
+                                            : "#ffffff",
                                 color:
                                     viewMode === mode
                                         ? "#ffffff"
                                         : isDark
-                                        ? "#ffffff"
-                                        : "#374151",
+                                            ? "#ffffff"
+                                            : "#374151",
                                 cursor: "pointer",
                                 fontWeight: viewMode === mode ? 600 : 400,
                                 transition: "all 0.2s ease",
@@ -194,13 +220,19 @@ const ElectricityCostOverviewChart = ({
                 <ResponsiveContainer width="100%" height={400}>
                     <LineChart
                         data={chartData}
-                        margin={{ top: 10, right: 30, left: 10, bottom: 10 }}
+                        margin={{ top: 10, right: 30, left: 40, bottom: 10 }}
                     >
                         <CartesianGrid strokeDasharray="3 3" opacity={0.3} stroke={isDark ? '#1b2436' : '#e5e7eb'} />
 
                         <XAxis
-                            dataKey={xAxisDataKey}
-                            tick={{ fill: isDark ? '#cbd5f5' : '#374151' }}
+                            dataKey={viewMode === "day" ? "day" : "label"}
+                            type={viewMode === "day" ? "number" : "category"}
+                            domain={viewMode === "day" ? [1, 'dataMax'] : undefined}
+                            ticks={viewMode === "day" ? dayTicks : undefined}
+                            allowDecimals={false}
+                            interval={viewMode === "day" ? 0 : 0}
+                            tick={{ fill: isDark ? '#cbd5f5' : '#374151', fontSize: 12 }}
+                            tickFormatter={(v) => viewMode === "day" ? String(Math.round(v)) : v}
                             label={{
                                 value: xAxisLabel,
                                 position: 'insideBottom',
@@ -215,7 +247,7 @@ const ElectricityCostOverviewChart = ({
                             label={{
                                 value: 'Cost (VND)',
                                 angle: -90,
-                                dx: -20,
+                                dx: -30,
                                 position: 'insideLeft',
                                 style: { fill: isDark ? '#cbd5f5' : '#374151' },
                             }}
@@ -231,7 +263,7 @@ const ElectricityCostOverviewChart = ({
                             formatter={(value) => `${value.toLocaleString()} VND`}
                         />
 
-                        <Legend  />
+                        <Legend />
 
                         {/* EVN Line */}
                         <Line
@@ -241,7 +273,8 @@ const ElectricityCostOverviewChart = ({
                             stroke="#2563eb"
                             strokeWidth={3}
                             dot={{ r: 4, fill: '#2563eb' }}
-                            activeDot={{ r: 6 }}
+                            // activeDot={{ r: 6 }}
+                            connectNulls={false}
                         />
 
                         {/* WeShare Line */}
@@ -252,7 +285,8 @@ const ElectricityCostOverviewChart = ({
                             stroke="#f97316"
                             strokeWidth={3}
                             dot={{ r: 4, fill: '#f97316' }}
-                            activeDot={{ r: 6 }}
+                            // activeDot={{ r: 6 }}
+                            connectNulls={false}
                         />
                     </LineChart>
                 </ResponsiveContainer>

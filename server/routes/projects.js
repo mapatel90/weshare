@@ -1230,7 +1230,7 @@ router.post('/electricity/overview-chart', async (req, res) => {
       },
       select: {
         date: true,
-        consume_energy: true,
+        energy: true,
       },
       orderBy: { date: 'asc' },
     });
@@ -1255,16 +1255,16 @@ router.post('/electricity/overview-chart', async (req, res) => {
       }
 
       resultMap[key].evn +=
-        row.consume_energy * project.evn_price_kwh;
+        row.energy * project.evn_price_kwh;
 
       resultMap[key].weshare +=
-        row.consume_energy * project.weshare_price_kwh;
+        row.energy * project.weshare_price_kwh;
     });
 
     const data = Object.keys(resultMap).map((key) => ({
       label: key,
-      evn: Math.round(resultMap[key].evn),
-      weshare: Math.round(resultMap[key].weshare),
+      evn: resultMap[key].evn,
+      weshare: resultMap[key].weshare,
     }));
 
     return res.json({

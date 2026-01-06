@@ -79,7 +79,7 @@ const ProjectViewContent = ({ projectId = "" }) => {
   const [chartMonthData, setChartMonthData] = useState(null);
   const [selectedMonthYear, setSelectedMonthYear] = useState(new Date().toISOString().slice(0, 7));
   const [monthlyChartDataLoading, setMonthlyChartDataLoading] = useState(true);
-  const [ChartViewMode, setChartViewMode] = useState("year"); // day | month | year
+  const [ChartViewMode, setChartViewMode] = useState("day"); // day | month | year
   const [ChartYearData, setChartYearData] = useState([]);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear().toString());
   const [yearChartDataLoading, setYearChartDataLoading] = useState(true);
@@ -677,7 +677,7 @@ const ProjectViewContent = ({ projectId = "" }) => {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+          gridTemplateColumns: "1.5fr 1fr",
           gap: "24px",
           marginBottom: "24px",
           height: "18%",

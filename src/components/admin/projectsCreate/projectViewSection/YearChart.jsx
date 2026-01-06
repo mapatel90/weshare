@@ -109,27 +109,24 @@ const EnergyYearChart = ({ ChartYearData, selectedYear, isDark }) => {
     return (
         <>
             <style jsx>{`
-        .container {
-          width: 100%;
-          height: 100%;
-          padding: 24px;
-          background: ${isDark ? "#121a2d" : "#fff"};
-        }
-        .picker-wrapper {
-          margin-bottom: 16px;
-          width: 520px;
-        }
-        .picker-wrapper :global(.react-datepicker-wrapper) {
-          width: 20%;
-        }
-        .picker-wrapper :global(.react-datepicker__input-container input) {
-          width: 100%;
-          border-radius: 8px;
-          border: 1px solid ${isDark ? '#1b2436' : '#d1d5db'};
-          background: ${isDark ? '#121a2d' : '#fff'};
-          color: ${isDark ? '#ffffff' : '#111827'};
-          font-size: 14px;
-        }
+                .container {
+                background: ${isDark ? "#121a2d" : "#fff"};
+                }
+                .picker-wrapper {
+                margin-bottom: 16px;
+                width: 520px;
+                }
+                .picker-wrapper :global(.react-datepicker-wrapper) {
+                width: 20%;
+                }
+                .picker-wrapper :global(.react-datepicker__input-container input) {
+                width: 100%;
+                border-radius: 8px;
+                border: 1px solid ${isDark ? '#1b2436' : '#d1d5db'};
+                background: ${isDark ? '#121a2d' : '#fff'};
+                color: ${isDark ? '#ffffff' : '#111827'};
+                font-size: 14px;
+                }
       `}</style>
 
             <div className="container">
@@ -142,10 +139,10 @@ const EnergyYearChart = ({ ChartYearData, selectedYear, isDark }) => {
                     />
                 </div>
 
-                <ResponsiveContainer width="100%" height={420}>
+                <ResponsiveContainer width="100%" height={380} minWidth={1000}>
                     <ComposedChart
                         data={data}
-                        margin={{ top: 40, right: 60, left: 140, bottom: 40 }}
+                        margin={{ top: 40, right: 60, left: 80, bottom: 0 }}
                     >
                         <CartesianGrid strokeDasharray="3 3" />
 
