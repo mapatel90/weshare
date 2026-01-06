@@ -247,7 +247,7 @@ const ElectricityCostOverviewChart = ({
                             label={{
                                 value: 'Cost (VND)',
                                 angle: -90,
-                                dx: -20,
+                                dx: -30,
                                 position: 'insideLeft',
                                 style: { fill: isDark ? '#cbd5f5' : '#374151' },
                             }}
