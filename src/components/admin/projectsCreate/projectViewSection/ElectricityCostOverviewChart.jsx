@@ -107,15 +107,16 @@ const ElectricityCostOverviewChart = ({
     }, [viewMode, chartData]);
 
     return (
-        <div
-            style={{
-                width: '100%',
-                height: '50vh',
-                padding: 24,
-                borderRadius: 12,
-                background: isDark ? '#0f172a' : '#ffffff',
-            }}
-        >
+        // <div
+        //     style={{
+        //         width: '100%',
+        //         height: '80vh',
+        //         padding: 24,
+        //         borderRadius: 12,
+        //         background: isDark ? '#0f172a' : '#ffffff',
+        //     }}
+        // >
+        <>
             <style jsx>{`
                 .date-picker-wrapper {
                     margin-bottom: 16px;
@@ -217,7 +218,7 @@ const ElectricityCostOverviewChart = ({
                     No data available
                 </div>
             ) : (
-                <ResponsiveContainer width="100%" height={400} minWidth={650} style={{ marginTop: 30 }}>
+                <ResponsiveContainer width="100%" height={400} minWidth={630} style={{ marginTop: 30 }}>
                     <LineChart
                         data={chartData}
                         margin={{ top: 10, right: 30, left: 40, bottom: 0 }}
@@ -291,7 +292,8 @@ const ElectricityCostOverviewChart = ({
                     </LineChart>
                 </ResponsiveContainer>
             )}
-        </div>
+            </>
+        // </div>
     );
 };
 

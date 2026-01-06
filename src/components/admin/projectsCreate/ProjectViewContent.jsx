@@ -680,10 +680,10 @@ const ProjectViewContent = ({ projectId = "" }) => {
           gridTemplateColumns: isTablet || isMobile ? "1fr" : "1.5fr 1fr",
           gap: "24px",
           marginBottom: "24px",
-          height: isTablet || isMobile ? "auto" : "18%",
+          height: isTablet || isMobile ? "auto" : "",
         }}
       >
-        {/* BAR CHART SECTION */}
+        {/* overview CHART SECTION */}
         <div
           style={{
             backgroundColor: colors.cardBg,
@@ -693,8 +693,7 @@ const ProjectViewContent = ({ projectId = "" }) => {
               : "0 1px 3px rgba(0,0,0,0.1)",
             border: `1px solid ${colors.borderLight}`,
             padding: "24px",
-            marginBottom: "24px",
-            overflowX: "auto",
+            overflowX: isTablet || isMobile ? "auto" : '',
           }}>
           <h3
             style={{
@@ -728,7 +727,6 @@ const ProjectViewContent = ({ projectId = "" }) => {
               : "0 1px 3px rgba(0,0,0,0.1)",
             border: `1px solid ${colors.borderLight}`,
             padding: "24px",
-            marginBottom: "24px",
             overflowX: "auto",
           }}>
           <h3
