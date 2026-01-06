@@ -716,6 +716,7 @@ const ProjectViewContent = ({ projectId = "" }) => {
             selectedDate={electricityOverviewDate}
             onDateChange={setElectricityOverviewDate}
             isDark={isDark}
+            selectedInverterId={selectedInverterId}
           />
         </div>
         <div
