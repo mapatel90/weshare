@@ -68,6 +68,7 @@ const ElectricityCostOverviewChart = ({
     selectedDate,
     onDateChange,
     isDark = false,
+    selectedInverterId
 }) => {
     const { lang } = useLanguage();
 
@@ -107,15 +108,16 @@ const ElectricityCostOverviewChart = ({
     }, [viewMode, chartData]);
 
     return (
-        <div
-            style={{
-                width: '100%',
-                height: '50vh',
-                padding: 24,
-                borderRadius: 12,
-                background: isDark ? '#0f172a' : '#ffffff',
-            }}
-        >
+        // <div
+        //     style={{
+        //         width: '100%',
+        //         height: '80vh',
+        //         padding: 24,
+        //         borderRadius: 12,
+        //         background: isDark ? '#0f172a' : '#ffffff',
+        //     }}
+        // >
+        <>
             <style jsx>{`
                 .date-picker-wrapper {
                     margin-bottom: 16px;
@@ -140,40 +142,51 @@ const ElectricityCostOverviewChart = ({
             `}</style>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 45 }}>
-                <div style={{ display: "flex", gap: "8px" }}>
-                    {["day", "month", "year"].map((mode) => (
-                        <button
-                            key={mode}
-                            onClick={() => onViewModeChange?.(mode)}
-                            style={{
-                                padding: "6px 14px",
-                                fontSize: "14px",
-                                borderRadius: "6px",
-                                border:
-                                    viewMode === mode
-                                        ? "1px solid #f97316"
-                                        : `1px solid ${isDark ? '#1b2436' : '#d1d5db'}`,
-                                backgroundColor:
-                                    viewMode === mode
-                                        ? "#f97316"
-                                        : isDark
-                                            ? "#121a2d"
-                                            : "#ffffff",
-                                color:
-                                    viewMode === mode
-                                        ? "#ffffff"
-                                        : isDark
+                {!selectedInverterId && (
+                    <div
+                        style={{
+                            display: "flex",
+                            gap: "8px",
+                            flexWrap: "wrap",        // ✅ mobile safe
+                        }}
+                    >
+                        {["day", "month", "year"].map((mode) => {
+                            const isActive = viewMode === mode;
+
+                            return (
+                                <button
+                                    key={mode}
+                                    onClick={() => onViewModeChange?.(mode)}
+                                    style={{
+                                        padding: "6px 14px",
+                                        fontSize: "14px",
+                                        borderRadius: "6px",
+                                        border: isActive
+                                            ? "1px solid #f97316"
+                                            : `1px solid ${isDark ? "#1b2436" : "#d1d5db"}`,
+                                        backgroundColor: isActive
+                                            ? "#f97316"
+                                            : isDark
+                                                ? "#121a2d"
+                                                : "#ffffff",
+                                        color: isActive
                                             ? "#ffffff"
-                                            : "#374151",
-                                cursor: "pointer",
-                                fontWeight: viewMode === mode ? 600 : 400,
-                                transition: "all 0.2s ease",
-                            }}
-                        >
-                            {mode.charAt(0).toUpperCase() + mode.slice(1)}
-                        </button>
-                    ))}
-                </div>
+                                            : isDark
+                                                ? "#ffffff"
+                                                : "#374151",
+                                        cursor: "pointer",
+                                        fontWeight: isActive ? 600 : 400,
+                                        transition: "all 0.2s ease",
+                                        minWidth: "72px",   // ✅ equal width
+                                        textAlign: "center",
+                                    }}
+                                >
+                                    {mode.charAt(0).toUpperCase() + mode.slice(1)}
+                                </button>
+                            );
+                        })}
+                    </div>
+                )}
 
                 {/* Date Picker - only show for day and month modes */}
                 {(viewMode === 'day' || viewMode === 'month') && (
@@ -217,7 +230,7 @@ const ElectricityCostOverviewChart = ({
                     No data available
                 </div>
             ) : (
-                <ResponsiveContainer width="100%" height={400} minWidth={650} style={{ marginTop: 30 }}>
+                <ResponsiveContainer width="100%" height={400} minWidth={630} style={{ marginTop: 30 }}>
                     <LineChart
                         data={chartData}
                         margin={{ top: 10, right: 30, left: 40, bottom: 0 }}
@@ -291,7 +304,8 @@ const ElectricityCostOverviewChart = ({
                     </LineChart>
                 </ResponsiveContainer>
             )}
-        </div>
+        </>
+        // </div>
     );
 };
 
