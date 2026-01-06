@@ -8,12 +8,13 @@ import useSettings from '@/hooks/useSettings'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { TextField, InputAdornment, FormControl, InputLabel, Select, MenuItem, Box, Avatar, IconButton } from '@mui/material'
 import useImageUpload from '@/hooks/useImageUpload'
-import { apiPost } from '@/lib/api'
+import { apiPost, apiGet } from '@/lib/api'
 
 const SettingsFinanceForm = () => {
   const { lang, currentLanguage } = useLanguage()
   const { settings, loading: settingsLoading, updateSettings, getSetting } = useSettings()
   const { handleImageUpload, uploadedImage, setUploadedImage } = useImageUpload()
+  const [taxes, setTaxes] = useState([])
 
   // Yes/No options with translations - memoized to update when language changes
   const yesNoOptions = useMemo(() => [
@@ -45,14 +46,20 @@ const SettingsFinanceForm = () => {
     { value: "space", label: lang("finance.options.space") },
   ], [lang, currentLanguage])
 
-  const taxOptions = useMemo(() => [
-    { value: "no-tax", label: lang("finance.options.noTax"), color: "#283c50" },
-    { value: "5-percent", label: lang("finance.options.tax5"), color: "#3454d1" },
-    { value: "10-percent", label: lang("finance.options.tax10"), color: "#17c666" },
-    { value: "15-percent", label: lang("finance.options.tax15"), color: "#6610f2" },
-    { value: "20-percent", label: lang("finance.options.tax20"), color: "#ffa21d" },
-    { value: "25-percent", label: lang("finance.options.tax25"), color: "#ea4d4d" }
-  ], [lang, currentLanguage])
+  const taxOptions = useMemo(() => {
+    const options = [
+      { value: "", label: lang("finance.options.noTax") || "No Tax", color: "#283c50" }
+    ];
+    taxes.forEach(tax => {
+      options.push({
+        value: tax?.value,
+        label: tax?.name,
+        id: tax?.id,
+        color: "#3454d1"
+      });
+    });
+    return options;
+  }, [taxes, lang, currentLanguage])
 
   // Form state - Finance General
   const [formData, setFormData] = useState({
@@ -77,16 +84,35 @@ const SettingsFinanceForm = () => {
   // Selected options for dropdowns (for proper display)
   const [selectedOptions, setSelectedOptions] = useState({})
 
+  // Fetch taxes on component mount
+  useEffect(() => {
+    const fetchTaxes = async () => {
+      try {
+        const response = await apiGet('/api/settings/taxes')
+        if (response?.success && Array.isArray(response.data)) {
+          setTaxes(response.data)
+        }
+      } catch (error) {
+        console.error('Error fetching taxes:', error)
+      }
+    }
+    fetchTaxes()
+  }, [])
+
   // Initialize form from settings
   useEffect(() => {
     if (settings && !isFormInitialized && Object.keys(settings).length > 0) {
+      const invoicePrefix = getSetting("invoice_number_prefix", "")
+      // Remove INV- prefix if it exists when loading from settings
+      const cleanedInvoicePrefix = invoicePrefix.startsWith("INV-") ? invoicePrefix.substring(4) : invoicePrefix
+      
       const loaded = {
         finance_currency: getSetting("finance_currency", ""),
         finance_decimal_separator: getSetting("finance_decimal_separator", "dot"),
         finance_thousand_separator: getSetting("finance_thousand_separator", "clone"),
         finance_default_tax: getSetting("finance_default_tax", "no-tax"),
         finance_qr_code: getSetting("finance_qr_code", ""),
-        invoice_number_prefix: getSetting("invoice_number_prefix", ""),
+        invoice_number_prefix: cleanedInvoicePrefix,
         next_invoice_number: getSetting("next_invoice_number", ""),
         invoice_due_after_days: getSetting("invoice_due_after_days", ""),
         invoice_predefined_client_note: getSetting("invoice_predefined_client_note", ""),
@@ -239,10 +265,12 @@ const SettingsFinanceForm = () => {
       }
 
       // Include uploaded QR code path in form data
+      // Prepend INV- to invoice_number_prefix when sending to API
       const settingsToUpdate = {
         ...formData,
         finance_qr_code: newQRCodePath,
         finance_currency: formData.finance_currency || '',
+        invoice_number_prefix: formData.invoice_number_prefix ? `INV-${formData.invoice_number_prefix}` : '',
       }
 
       await updateSettings(settingsToUpdate)
@@ -334,7 +362,7 @@ const SettingsFinanceForm = () => {
                     onChange={(e) => handleDropdownChange('finance_default_tax', { value: e.target.value })}
                   >
                     {taxOptions.map(opt => (
-                      <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
+                      <MenuItem key={opt.id} value={opt.id}>{opt.value ? `${opt.label} - ${opt.value}%` : opt.label}</MenuItem>
                     ))}
                   </Select>
                 </FormControl>

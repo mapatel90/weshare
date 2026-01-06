@@ -33,7 +33,7 @@ const InvoiceItem = ({ index, item, onChange, onRemove }) => {
 			}}
 		>
 			<TextField
-				placeholder="Description"
+				placeholder="Item"
 				value={item.item}
 				onChange={handleField("item")}
 				multiline
