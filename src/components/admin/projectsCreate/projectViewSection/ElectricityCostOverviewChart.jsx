@@ -26,7 +26,7 @@ const formatDataForChart = (apiData, viewMode, selectedDate) => {
         // Map API data by day number
         const map = {};
         apiData.forEach(item => {
-            const day = dayjs(item.label).date(); 
+            const day = dayjs(item.label).date();
             map[day] = item;
         });
 
@@ -34,7 +34,7 @@ const formatDataForChart = (apiData, viewMode, selectedDate) => {
         return Array.from({ length: daysInMonth }, (_, i) => {
             const day = i + 1;
             return {
-                day,                      
+                day,
                 evn: map[day]?.evn > 0 ? map[day].evn : null,
                 weshare: map[day]?.weshare > 0 ? map[day].weshare : null,
 
@@ -220,7 +220,7 @@ const ElectricityCostOverviewChart = ({
                 <ResponsiveContainer width="100%" height={400}>
                     <LineChart
                         data={chartData}
-                        margin={{ top: 10, right: 30, left: 10, bottom: 10 }}
+                        margin={{ top: 10, right: 30, left: 20, bottom: 10 }}
                     >
                         <CartesianGrid strokeDasharray="3 3" opacity={0.3} stroke={isDark ? '#1b2436' : '#e5e7eb'} />
 
