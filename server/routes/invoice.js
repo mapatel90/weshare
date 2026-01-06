@@ -187,6 +187,8 @@ router.post("/", authenticateToken, async (req, res) => {
       invoice_date,
       due_date,
       currency,
+      tax,
+      tax_amount,
       billing_adress_1,
       billing_adress_2,
       billing_city_id,
@@ -242,6 +244,10 @@ router.post("/", authenticateToken, async (req, res) => {
           invoice_date: invoice_date ? new Date(invoice_date) : null,
           due_date: due_date ? new Date(due_date) : null,
           currency: currency || "VND",
+          tax: tax || "",
+          tax_amount: Number.isFinite(parseFloat(tax_amount))
+            ? parseFloat(tax_amount)
+            : 0,
           billing_adress_1: billing_adress_1 || "",
           billing_adress_2: billing_adress_2 || "",
           billing_city_id: billing_city_id ? parseInt(billing_city_id) : null,
@@ -308,6 +314,8 @@ router.put("/:id", authenticateToken, async (req, res) => {
       invoice_date,
       due_date,
       currency,
+      tax,
+      tax_amount,
       billing_adress_1,
       billing_adress_2,
       billing_city_id,
@@ -359,6 +367,10 @@ router.put("/:id", authenticateToken, async (req, res) => {
           invoice_date: invoice_date ? new Date(invoice_date) : null,
           due_date: due_date ? new Date(due_date) : null,
           currency: currency || "VND",
+          tax: Number(tax) || "",
+          tax_amount: Number.isFinite(parseFloat(tax_amount))
+            ? parseFloat(tax_amount)
+            : 0,
           billing_adress_1: billing_adress_1 || "",
           billing_adress_2: billing_adress_2 || "",
           billing_city_id: billing_city_id ? parseInt(billing_city_id) : null,

@@ -7,6 +7,7 @@ import { showSuccessToast } from "@/utils/topTost";
 import { useRouter } from "next/navigation";
 import useLocationData from "@/hooks/useLocationData";
 import InvoiceItem from "./InvoiceItem";
+
 import {
   Box,
   TextField,
@@ -23,6 +24,7 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  InputAdornment
 } from "@mui/material";
 
 const InvoiceCreateForm = ({ invoiceId = null }) => {
@@ -41,6 +43,7 @@ const InvoiceCreateForm = ({ invoiceId = null }) => {
 
   const [projectOptions, setProjectOptions] = useState([]);
   const [offtakerOptions, setOfftakerOptions] = useState([]);
+  const [loadingOfftakers, setLoadingOfftakers] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
   const [selectedOfftaker, setSelectedOfftaker] = useState(null);
   const [invoicePrefix, setInvoicePrefix] = useState("");
@@ -71,6 +74,9 @@ const InvoiceCreateForm = ({ invoiceId = null }) => {
     { item: "", description: "", unit: 1, price: 0, tax: "no-tax" },
   ]);
   const [itemsError, setItemsError] = useState("");
+  const [taxes, setTaxes] = useState([]);
+  const [selectedTax, setSelectedTax] = useState("");
+  const [defaultTax, setDefaultTax] = useState("");
 
   const invoicePrefixLabel = useMemo(() => {
     const trimmedPrefix = (invoicePrefix || "").trim();
@@ -91,6 +97,17 @@ const InvoiceCreateForm = ({ invoiceId = null }) => {
     }, 0);
   }, [invoiceItems]);
 
+  const taxAmount = useMemo(() => {
+    if (!selectedTax || !itemsTotal) return 0;
+    const tax = taxes.find((t) => String(t.id) === String(selectedTax));
+    if (!tax) return 0;
+    return (itemsTotal * Number(tax.value)) / 100;
+  }, [itemsTotal, selectedTax, taxes]);
+
+  const finalTotal = useMemo(() => {
+    return itemsTotal + taxAmount;
+  }, [itemsTotal, taxAmount]);
+
   const fetchProjects = async () => {
     try {
       const res = await apiGet("/api/projects?status=1&limit=1000");
@@ -109,16 +126,49 @@ const InvoiceCreateForm = ({ invoiceId = null }) => {
     }
   };
 
+  const fetchOfftakers = async () => {
+    try {
+      setLoadingOfftakers(true);
+      const res = await apiGet("/api/users?role=offtaker&status=1&limit=1000");
+      const list = Array.isArray(res?.data?.users) ? res.data.users : [];
+      const mapped = list.map((u) => ({
+        label: u.full_name || "",
+        value: String(u.id),
+      }));
+      setOfftakerOptions([
+        { label: lang("invoice.selectOfftaker"), value: "" },
+        ...mapped,
+      ]);
+    } catch (_) {
+      setOfftakerOptions([{ label: lang("invoice.selectOfftaker"), value: "" }]);
+    } finally {
+      setLoadingOfftakers(false);
+    }
+  };
+
   const fetchSettingData = async () => {
     try {
       const res = await apiGet("/api/settings");
       const prefixRaw = res?.data?.invoice_number_prefix ?? "";
       const numberPrefix = res?.data?.next_invoice_number || "";
+      const defaultTaxSetting = res?.data?.finance_default_tax || "";
       setInvoicePrefix(typeof prefixRaw === "string" ? prefixRaw : "");
       setSettingInvoiceNumberPrefix(typeof numberPrefix === "string" ? numberPrefix : "");
+      setDefaultTax(defaultTaxSetting);
+      setSelectedTax(defaultTaxSetting);
     } catch (_) {
       setInvoicePrefix("");
       return "";
+    }
+  };
+
+  const fetchTaxes = async () => {
+    try {
+      const res = await apiGet("/api/settings/taxes");
+      const taxList = Array.isArray(res?.data) ? res.data : [];
+      setTaxes(taxList);
+    } catch (_) {
+      setTaxes([]);
     }
   };
 
@@ -196,17 +246,21 @@ const InvoiceCreateForm = ({ invoiceId = null }) => {
           label: ot.full_name || "",
           value: String(ot.id),
         };
-        setOfftakerOptions([option]);
         setSelectedOfftaker(option);
+        setOfftakerOptions((prev) => {
+          const base = prev?.length
+            ? prev
+            : [{ label: lang("invoice.selectOfftaker"), value: "" }];
+          const exists = base.some((opt) => opt.value === option.value);
+          return exists ? base : [...base, option];
+        });
         fetchOfftakerAddress(ot.id);
         if (errors.offtaker) setErrors((prev) => ({ ...prev, offtaker: "" }));
       } else {
-        setOfftakerOptions([]);
         setSelectedOfftaker(null);
         setOfftakerAddress("");
       }
     } catch (_) {
-      setOfftakerOptions([]);
       setSelectedOfftaker(null);
       setOfftakerAddress("");
     }
@@ -303,7 +357,19 @@ const InvoiceCreateForm = ({ invoiceId = null }) => {
           ? { label: ofLabel, value: String(item.users.id) }
           : null;
         setSelectedOfftaker(editOfftaker);
-        setOfftakerOptions(editOfftaker ? [editOfftaker] : []);
+        if (editOfftaker) {
+          setOfftakerOptions((prev) => {
+            const base = prev?.length
+              ? prev
+              : [{ label: lang("invoice.selectOfftaker"), value: "" }];
+            const exists = base.some((opt) => opt.value === editOfftaker.value);
+            const filled = {
+              label: editOfftaker.label || "",
+              value: editOfftaker.value,
+            };
+            return exists ? base : [...base, filled];
+          });
+        }
         
         // Set offtaker address
         if (editOfftaker?.value) {
@@ -390,6 +456,8 @@ const InvoiceCreateForm = ({ invoiceId = null }) => {
   useEffect(() => {
     const init = async () => {
       fetchProjects();
+      fetchOfftakers();
+      fetchTaxes();
       await fetchSettingData();
       if (invoiceId) {
         await fetchInvoiceData(invoiceId);
@@ -416,10 +484,10 @@ const InvoiceCreateForm = ({ invoiceId = null }) => {
   // Auto-sync totals from items when items exist
   useEffect(() => {
     if (invoiceItems.length) {
-      setAmount(String(itemsTotal));
-      setTotalUnit(String(itemsTotal));
+      setAmount(String(finalTotal));
+      setTotalUnit(String(finalTotal));
     }
-  }, [invoiceItems, itemsTotal]);
+  }, [invoiceItems, itemsTotal, finalTotal]);
 
   const handleSave = async () => {
     const newErrors = {
@@ -481,9 +549,11 @@ const InvoiceCreateForm = ({ invoiceId = null }) => {
         invoice_date: invoiceDate,
         due_date: dueDate,
         amount: Number.isFinite(amountValue) ? amountValue : 0,
-        total_unit: Number.isFinite(totalUnitValue) ? totalUnitValue : 0,
+        total_unit: finalTotal ? finalTotal : 0,
         status: parseInt(status),
         currency,
+        tax: selectedTax || "",
+        tax_amount: taxAmount,
         billing_adress_1: addressForm.address_1 || "",
         billing_adress_2: addressForm.address_2 || "",
         billing_city_id: addressForm.city_id ? parseInt(addressForm.city_id) : null,
@@ -550,8 +620,8 @@ const InvoiceCreateForm = ({ invoiceId = null }) => {
                     if (option?.value) {
                       fetchProjectOfftaker(option.value);
                     } else {
-                      setOfftakerOptions([]);
                       setSelectedOfftaker(null);
+                      setOfftakerAddress("");
                     }
                   }}
                 >
@@ -573,7 +643,7 @@ const InvoiceCreateForm = ({ invoiceId = null }) => {
             </Grid>
 
             <Grid item xs={12} md={4}>
-              <FormControl fullWidth error={!!errors.offtaker}>
+              <FormControl fullWidth error={!!errors.offtaker} disabled={loadingOfftakers}>
                 <InputLabel id="offtaker-select-label">
                   {lang("invoice.offtaker")}
                 </InputLabel>
@@ -596,9 +666,6 @@ const InvoiceCreateForm = ({ invoiceId = null }) => {
                     }
                   }}
                 >
-                  <MenuItem value="">
-                    {lang("invoice.selectOfftaker")}
-                  </MenuItem>
                   {offtakerOptions.map((option) => (
                     <MenuItem key={option.value} value={option.value}>
                       {option.label}
@@ -647,12 +714,21 @@ const InvoiceCreateForm = ({ invoiceId = null }) => {
             <Grid item xs={12} md={4}>
               <TextField
                 label={lang("invoice.invoiceNumber") || "Invoice Number"}
-                value={invoicePrefixLabel}
+                value={settingInvoiceNumberPrefix}
+                onChange={(e) => {
+                  setSettingInvoiceNumberPrefix(e.target.value);
+                  if (errors.invoiceNumber)
+                    setErrors((prev) => ({ ...prev, invoiceNumber: "" }));
+                }}
                 error={!!errors.invoiceNumber}
                 helperText={errors.invoiceNumber}
                 placeholder="Invoice Number"
                 fullWidth
-                disabled
+                 InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">{invoicePrefix}</InputAdornment>
+                  ),
+                }}
               />
             </Grid>
 
@@ -746,10 +822,40 @@ const InvoiceCreateForm = ({ invoiceId = null }) => {
                   justifyContent: "flex-end",
                   mt: 1,
                   fontWeight: 700,
+                  gap: 3,
                 }}
               >
-                <Box sx={{ minWidth: 160, textAlign: "right" }}>
-                  {(lang("invoice.total") || "Total") + ": "}{itemsTotal.toFixed(2)}
+                <Box sx={{ minWidth: 200 }}>
+                  <FormControl fullWidth size="small">
+                    <InputLabel id="tax-select-label">{lang("invoice.tax") || "Tax"}</InputLabel>
+                    <Select
+                      labelId="tax-select-label"
+                      value={selectedTax}
+                      label={lang("invoice.tax") || "Tax"}
+                      onChange={(e) => setSelectedTax(e.target.value)}
+                    >
+                      <MenuItem value="">{lang("finance.noTax") || "No Tax"}</MenuItem>
+                      {taxes.map((tax) => (
+                        <MenuItem key={tax.id} value={tax.id}>
+                          {tax.name} - {tax.value}%
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Box>
+                
+                <Box sx={{ minWidth: 200, textAlign: "right" }}>
+                  <Box sx={{ mb: 1, pb: 1, borderBottom: "1px solid #e0e0e0" }}>
+                    {(lang("invoice.subtotal") || "Subtotal") + ": "}{itemsTotal.toFixed(2)}
+                  </Box>
+                  {taxAmount > 0 && (
+                    <Box sx={{ fontSize: "0.9rem", color: "#666", mb: 1 }}>
+                      {(lang("invoice.tax") || "Tax") + ": "}{taxAmount.toFixed(2)}
+                    </Box>
+                  )}
+                  <Box sx={{ fontSize: "1.1rem", fontWeight: 800, pt: 1, borderTop: "2px solid #333" }}>
+                    {(lang("invoice.total") || "Total") + ": "}{finalTotal.toFixed(2)}
+                  </Box>
                 </Box>
               </Box>
 
