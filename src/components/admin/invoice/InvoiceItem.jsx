@@ -7,10 +7,12 @@ import {
 	FormControl,
 	InputLabel,
 	IconButton,
+	useTheme,
 } from "@mui/material";
 import { FiTrash2 } from "react-icons/fi";
 
-const InvoiceItem = ({ index, item, onChange, onRemove }) => {
+const InvoiceItem = ({ index, item, onChange, onRemove, isDark = false }) => {
+	
 	const amount = useMemo(() => {
 		const qty = Number(item.unit) || 0;
 		const rate = Number(item.price) || 0;
@@ -29,9 +31,9 @@ const InvoiceItem = ({ index, item, onChange, onRemove }) => {
 				gap: 1,
 				alignItems: "stretch",
 				p: 2,
-				borderBottom: "1px solid #e2e8f0",
-				backgroundColor: "#fff",
-				"&:hover": { backgroundColor: "#f8fafc" },
+				borderBottom: isDark ? "1px solid #374151" : "1px solid #e2e8f0",
+				backgroundColor: isDark ? "#1f2937" : "#fff",
+				"&:hover": { backgroundColor: isDark ? "#374151" : "#f8fafc" },
 				transition: "background-color 0.2s ease"
 			}}
 		>
@@ -44,12 +46,17 @@ const InvoiceItem = ({ index, item, onChange, onRemove }) => {
 				size="small"
 				sx={{
 					"& .MuiOutlinedInput-root": {
-						backgroundColor: "#fff",
+						backgroundColor: isDark ? "#374151" : "#fff",
+						color: isDark ? "#1f2937" : "inherit",
 						borderRadius: "6px",
 						fontSize: "14px",
-						"& fieldset": { borderColor: "#e2e8f0" },
-						"&:hover fieldset": { borderColor: "#cbd5e1" },
+						"& fieldset": { borderColor: isDark ? "#4b5563" : "#e2e8f0" },
+						"&:hover fieldset": { borderColor: isDark ? "#6b7280" : "#cbd5e1" },
 						"&.Mui-focused fieldset": { borderColor: "#2563eb" }
+					},
+					"& .MuiInputBase-input::placeholder": {
+						color: isDark ? "#9ca3af" : "inherit",
+						opacity: 1
 					}
 				}}
 			/>
@@ -63,12 +70,17 @@ const InvoiceItem = ({ index, item, onChange, onRemove }) => {
 				size="small"
 				sx={{
 					"& .MuiOutlinedInput-root": {
-						backgroundColor: "#fff",
+						backgroundColor: isDark ? "#374151" : "#fff",
+						color: isDark ? "#1f2937" : "inherit",
 						borderRadius: "6px",
 						fontSize: "14px",
-						"& fieldset": { borderColor: "#e2e8f0" },
-						"&:hover fieldset": { borderColor: "#cbd5e1" },
+						"& fieldset": { borderColor: isDark ? "#4b5563" : "#e2e8f0" },
+						"&:hover fieldset": { borderColor: isDark ? "#6b7280" : "#cbd5e1" },
 						"&.Mui-focused fieldset": { borderColor: "#2563eb" }
+					},
+					"& .MuiInputBase-input::placeholder": {
+						color: isDark ? "#9ca3af" : "inherit",
+						opacity: 1
 					}
 				}}
 			/>
@@ -81,11 +93,12 @@ const InvoiceItem = ({ index, item, onChange, onRemove }) => {
 				size="small"
 				sx={{
 					"& .MuiOutlinedInput-root": {
-						backgroundColor: "#fff",
+						backgroundColor: isDark ? "#374151" : "#fff",
+						color: isDark ? "#1f2937" : "inherit",
 						borderRadius: "6px",
 						fontSize: "14px",
-						"& fieldset": { borderColor: "#e2e8f0" },
-						"&:hover fieldset": { borderColor: "#cbd5e1" },
+						"& fieldset": { borderColor: isDark ? "#4b5563" : "#e2e8f0" },
+						"&:hover fieldset": { borderColor: isDark ? "#6b7280" : "#cbd5e1" },
 						"&.Mui-focused fieldset": { borderColor: "#2563eb" }
 					}
 				}}
@@ -100,12 +113,17 @@ const InvoiceItem = ({ index, item, onChange, onRemove }) => {
 				size="small"
 				sx={{
 					"& .MuiOutlinedInput-root": {
-						backgroundColor: "#fff",
+						backgroundColor: isDark ? "#374151" : "#fff",
+						color: isDark ? "#1f2937" : "inherit",
 						borderRadius: "6px",
 						fontSize: "14px",
-						"& fieldset": { borderColor: "#e2e8f0" },
-						"&:hover fieldset": { borderColor: "#cbd5e1" },
+						"& fieldset": { borderColor: isDark ? "#4b5563" : "#e2e8f0" },
+						"&:hover fieldset": { borderColor: isDark ? "#6b7280" : "#cbd5e1" },
 						"&.Mui-focused fieldset": { borderColor: "#2563eb" }
+					},
+					"& .MuiInputBase-input::placeholder": {
+						color: isDark ? "#9ca3af" : "inherit",
+						opacity: 1
 					}
 				}}
 			/>
@@ -116,11 +134,11 @@ const InvoiceItem = ({ index, item, onChange, onRemove }) => {
 					alignItems: "center",
 					fontWeight: "700",
 					px: 2,
-					backgroundColor: "#f0f9ff",
+					backgroundColor: isDark ? "#1e3a5f" : "#f0f9ff",
 					borderRadius: "6px",
-					color: "#2563eb",
+					color: isDark ? "#93c5fd" : "#2563eb",
 					fontSize: "14px",
-					border: "1px solid #bfdbfe"
+					border: isDark ? "1px solid #1e40af" : "1px solid #bfdbfe"
 				}}
 			>
 				{amount.toFixed(2)}
@@ -133,7 +151,7 @@ const InvoiceItem = ({ index, item, onChange, onRemove }) => {
 					size="small"
 					sx={{
 						color: "#ef4444",
-						"&:hover": { backgroundColor: "#fee2e2" }
+						"&:hover": { backgroundColor: isDark ? "#7f1d1d" : "#fee2e2" }
 					}}
 				>
 					<FiTrash2 size={18} />

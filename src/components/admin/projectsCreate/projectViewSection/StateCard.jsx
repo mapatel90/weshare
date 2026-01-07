@@ -4,6 +4,7 @@ import { Sun, Zap, TrendingUp, Activity } from 'lucide-react'
 import { getSettingValue } from '@/utils/settingsHelper';
 import getSetting from "@/hooks/useSettings";
 import { useLanguage } from '@/contexts/LanguageContext';
+import { formatShort } from '@/utils/common';
 
 const formatNumber = (v, suffix = '') => {
   if (v === null || v === undefined || v === '') return '-'
@@ -135,14 +136,14 @@ const StatCardsGrid = ({
     if (projectPriceKwh !== undefined && projectPriceKwh !== null && dailyYieldMetric !== null) {
       monetaryValue = dailyYieldMetric * projectPriceKwh
     }
-    dailyYieldSubtitle = (monetaryValue !== null ? ` • ${lang('reports.dailyRevenue')}: ${currency} ${formatNumber(monetaryValue)}` : '')
+    dailyYieldSubtitle = (monetaryValue !== null ? ` • ${lang('reports.dailyRevenue')}: ${currency} ${formatShort(monetaryValue)}` : '')
   } else if (!isInverterSelected && project?.project_data?.[0]?.day_energy !== undefined && project?.project_data?.[0]?.day_energy !== null) {
     dailyYieldValue = `${formatNumber(project.project_data[0].day_energy)} kWh`
     let monetaryValue = null
     if (projectPriceKwh !== undefined && projectPriceKwh !== null && project.project_data[0].day_energy !== null) {
       monetaryValue = project.project_data[0].day_energy * projectPriceKwh
     }
-    dailyYieldSubtitle = (monetaryValue !== null ? ` • ${lang('reports.dailyRevenue')}: ${currency} ${formatNumber(monetaryValue)}` : '')
+    dailyYieldSubtitle = (monetaryValue !== null ? ` • ${lang('reports.dailyRevenue')}: ${currency} ${formatShort(monetaryValue)}` : '')
   } else {
     dailyYieldValue = '-'
     dailyYieldSubtitle = isInverterSelected
@@ -161,14 +162,14 @@ const StatCardsGrid = ({
     if (projectPriceKwh !== undefined && projectPriceKwh !== null && totalYieldMetric !== null) {
       totalMonetaryValue = totalYieldMetric * projectPriceKwh
     }
-    totalYieldSubtitle = (totalMonetaryValue !== null ? ` • ${lang('reports.totalRevenue')}: ${currency} ${formatNumber(totalMonetaryValue)}` : '')
+    totalYieldSubtitle = (totalMonetaryValue !== null ? ` • ${lang('reports.totalRevenue')}: ${currency} ${formatShort(totalMonetaryValue)}` : '')
   } else if (!isInverterSelected && project?.project_data?.[0]?.total_energy !== undefined && project?.project_data?.[0]?.total_energy !== null) {
     totalYieldValue = `${formatNumber(project.project_data[0].total_energy)} kWh`
     let totalMonetaryValue = null
     if (projectPriceKwh !== undefined && projectPriceKwh !== null && project.project_data[0].total_energy !== null) {
       totalMonetaryValue = project.project_data[0].total_energy * projectPriceKwh
     }
-    totalYieldSubtitle = (totalMonetaryValue !== null ? ` • ${lang('reports.totalRevenue')}: ${currency} ${formatNumber(totalMonetaryValue)}` : '')
+    totalYieldSubtitle = (totalMonetaryValue !== null ? ` • ${lang('reports.totalRevenue')}: ${currency} ${formatShort(totalMonetaryValue)}` : '')
   } else {
     totalYieldValue = '-'
     totalYieldSubtitle = isInverterSelected
@@ -182,7 +183,7 @@ const StatCardsGrid = ({
         icon={Sun}
         title={lang('projectView.projectInformation.capacity', 'Capacity')}
         value={(project?.project_size !== undefined ? formatNumber(project?.project_size) : '-') + ' kWh'}
-        subtitle={project?.weshare_price_kwh !== undefined ? ` • ${lang('reports.capacityPrice', 'Capacity Price')}: ${currency} ${formatNumber(project?.weshare_price_kwh)} ${lang('animated.perkwh', 'Per kWh')} `  : lang('reports.capacityperKWh', 'Capacity price per kWh')}
+        subtitle={project?.weshare_price_kwh !== undefined ? ` • ${lang('reports.capacityPrice', 'Capacity Price')}: ${currency} ${formatShort(project?.weshare_price_kwh)} ${lang('animated.perkwh', 'Per kWh')} `  : lang('reports.capacityperKWh', 'Capacity price per kWh')}
         color="linear-gradient(to bottom right, #fbbf24, #f97316)"
         trend={null}
         isDark={isDark}
@@ -198,15 +199,6 @@ const StatCardsGrid = ({
       />
       <StatCard
         icon={Activity}
-        title={lang('reports.totalYield', 'Total Yield')}
-        value={totalYieldValue}
-        subtitle={totalYieldSubtitle}
-        color="linear-gradient(to bottom right, #06b6d4, #0891b2)"
-        trend={null}
-        isDark={isDark}
-      />
-      <StatCard
-        icon={Activity}
         title="Revenue"
         value={
           project?.monthly_revenue
@@ -218,6 +210,15 @@ const StatCardsGrid = ({
         subtitle="Total revenue generated"
         color="linear-gradient(to bottom right, #a855f7, #ec4899)"
         trend={project?.revenue_trend ?? null}
+        isDark={isDark}
+      />
+      <StatCard
+        icon={Activity}
+        title={lang('reports.totalYield', 'Total Yield')}
+        value={totalYieldValue}
+        subtitle={totalYieldSubtitle}
+        color="linear-gradient(to bottom right, #06b6d4, #0891b2)"
+        trend={null}
         isDark={isDark}
       />
     </div>

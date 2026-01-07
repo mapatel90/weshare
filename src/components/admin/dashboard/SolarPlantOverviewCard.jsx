@@ -5,10 +5,11 @@ import { Activity, Battery, Power, Zap, batteryPlus } from 'lucide-react';
 import { apiGet } from '@/lib/api';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Battery0BarOutlined, Battery90Rounded, Battery90TwoTone } from '@mui/icons-material';
-import { sumFieldFromObject, formatShort, convertEnergyToKwh, formatEnergyUnit } from '@/utils/common';
+import { sumFieldFromObject, formatShort, convertEnergyToKwh, formatEnergyUnit, useDarkMode } from '@/utils/common';
 
 export default function SolarPlantOverviewCard() {
   const { lang } = useLanguage();
+  const isDark = useDarkMode();
   const [projects, setProjects] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -39,7 +40,6 @@ export default function SolarPlantOverviewCard() {
       clearInterval(intervalId);
     };
   }, []);
-  let isDark = false;
 
   const StatCard = ({
     icon: Icon,
