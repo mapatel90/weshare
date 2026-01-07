@@ -154,7 +154,7 @@ export default function SolarPlantOverviewCard() {
   let monthly_revenue = 0;
   let total_revenue = 0;
   const projectsDailyRevenue = projects.map((project) => {
-    const pricePerKwh = project.price_kwh || 0;
+    const pricePerKwh = project.weshare_price_kwh || 0;
 
     const totalDayEnergy = project.project_data.reduce(
       (sum, pd) => sum + (convertEnergyToKwh(pd.day_energy, pd.day_energy_str) || 0),
