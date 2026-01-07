@@ -104,7 +104,7 @@ export function sumFieldFromObject(data, field) {
 }
 
 
-export function formatShort(value, decimals = 4) {
+export function formatShort(value, decimals = 3) {
   return new Intl.NumberFormat('en-US', {
     notation: 'compact',
     compactDisplay: 'short',
@@ -150,4 +150,52 @@ export const formatEnergyUnit = (value, decimals = 3) => {
 
   // Above 1,000,000 → GWh
   return `${(numeric / 1_000_000).toFixed(decimals)} GWh`;
+};
+
+// -------- DARK MODE UTILITIES ----------
+/**
+ * Get dark mode color scheme based on isDark boolean
+ * @param {boolean} isDark - Whether dark mode is enabled
+ * @returns {object} Color scheme object with all theme colors
+ */
+export const getDarkModeColors = (isDark) => {
+  return {
+    bg: isDark ? "#0f172a" : "#f9fafb",
+    cardBg: isDark ? "#121a2d" : "#fff",
+    text: isDark ? "#ffffff" : "#111827",
+    textMuted: isDark ? "#b1b4c0" : "#6b7280",
+    border: isDark ? "#1b2436" : "#e5e7eb",
+    borderLight: isDark ? "#1b2436" : "#f3f4f6",
+    gradientBg: isDark
+      ? "linear-gradient(to bottom right, #1a1f2e, #0f172a, #1a1628)"
+      : "linear-gradient(to bottom right, #eff6ff, #ffffff, #faf5ff)",
+  };
+};
+
+/**
+ * React hook to detect dark mode globally
+ * Monitors document root for 'app-skin-dark' class
+ * @returns {boolean} True if dark mode is enabled
+ */
+export const useDarkMode = () => {
+  const { useState, useEffect } = require("react");
+  const [isDark, setIsDark] = useState(false);
+
+  useEffect(() => {
+    const checkDarkMode = () => {
+      setIsDark(document.documentElement.classList.contains("app-skin-dark"));
+    };
+
+    checkDarkMode();
+
+    const observer = new MutationObserver(checkDarkMode);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
+  return isDark;
 };
