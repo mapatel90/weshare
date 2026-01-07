@@ -15,6 +15,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import DatePicker from 'react-datepicker';
 import dayjs from 'dayjs';
 import 'react-datepicker/dist/react-datepicker.css';
+import { formatShort } from '@/utils/common';
 
 const formatDataForChart = (apiData, viewMode, selectedDate) => {
     if (!apiData || !Array.isArray(apiData)) return [];
@@ -279,7 +280,7 @@ const ElectricityCostOverviewChart = ({
                         />
 
                         <YAxis
-                            tickFormatter={(v) => `${(v).toFixed(1)}M`}
+                            tickFormatter={(v) => `${formatShort(v)}`}
                             tick={{ fill: isDark ? '#cbd5f5' : '#374151' }}
                             label={{
                                 value: 'Cost (VND)',
@@ -291,14 +292,26 @@ const ElectricityCostOverviewChart = ({
                         />
 
                         <Tooltip
+                            labelFormatter={(label) => {
+                                if (viewMode === "day") {
+                                    return dayjs(`${selectedDate}-${label}`).format("DD MMM YYYY");
+                                }
+
+                                if (viewMode === "year") {
+                                    return label;
+                                }
+
+                                return label;
+                            }}
+                            formatter={(value) => `${formatShort(value).toLocaleString()}`}
                             contentStyle={{
                                 backgroundColor: isDark ? '#121a2d' : '#ffffff',
                                 border: `1px solid ${isDark ? '#1b2436' : '#d1d5db'}`,
                                 borderRadius: '8px',
                                 color: isDark ? '#ffffff' : '#111827',
                             }}
-                            formatter={(value) => `${value.toLocaleString()} VND`}
                         />
+
 
                         <Legend />
 
