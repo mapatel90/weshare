@@ -25,6 +25,19 @@ const PageHeaderTitle = () => {
             { name: lang("menu.contracts", "Contract"), href: "/offtaker/contracts" },
             { name: lang("menu.details", "Details"), href: null }
         ];
+    }
+    // Special case for /offtaker/billings/invoice/:id
+    else if (
+        parts.length >= 4 &&
+        parts[0] === "offtaker" &&
+        parts[1] === "billings" &&
+        parts[2] === "invoice"
+    ) {
+        title = "Invoice Details";
+        breadcrumb = [
+            { name: lang("menu.billings", "Billings"), href: "/offtaker/billings" },
+            { name: lang("menu.invoice", "Invoice"), href: null }
+        ];
     } else {
         const pageKey = parts[parts.length - 1] || "dashboard";
         const pageName = lang(`menu.${pageKey}`, pageKey.replace(/-/g, " "));

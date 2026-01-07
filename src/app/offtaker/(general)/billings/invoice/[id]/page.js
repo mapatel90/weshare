@@ -2,13 +2,14 @@ import React from 'react'
 import DynamicTitle from '@/components/common/DynamicTitle'
 import InvoicePage from '@/components/portal/billings/InvoicePage'
 
+const page = ({ params }) => {
+    const invoiceId = params?.id || null;
 
-const page = () => {
     return (
         <>
-            <DynamicTitle titleKey="billings.billinglist" />
+            <DynamicTitle titleKey="billings.billings" />
             <div className='row'>
-                <InvoicePage />
+                <InvoicePage invoiceId={invoiceId} />
             </div>
         </>
     )

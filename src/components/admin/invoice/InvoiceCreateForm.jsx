@@ -77,6 +77,7 @@ const InvoiceCreateForm = ({ invoiceId = null }) => {
   const [taxes, setTaxes] = useState([]);
   const [selectedTax, setSelectedTax] = useState("");
   const [defaultTax, setDefaultTax] = useState("");
+  const [invoiceDueAfterDays, setInvoiceDueAfterDays] = useState(0);
 
   const invoicePrefixLabel = useMemo(() => {
     const trimmedPrefix = (invoicePrefix || "").trim();
@@ -152,10 +153,16 @@ const InvoiceCreateForm = ({ invoiceId = null }) => {
       const prefixRaw = res?.data?.invoice_number_prefix ?? "";
       const numberPrefix = res?.data?.next_invoice_number || "";
       const defaultTaxSetting = res?.data?.finance_default_tax || "";
+      const dueAfter = res?.data?.invoice_due_after_days;
       setInvoicePrefix(typeof prefixRaw === "string" ? prefixRaw : "");
       setSettingInvoiceNumberPrefix(typeof numberPrefix === "string" ? numberPrefix : "");
       setDefaultTax(defaultTaxSetting);
       setSelectedTax(defaultTaxSetting);
+      const parsedDueAfter =
+        dueAfter !== undefined && dueAfter !== null && dueAfter !== ""
+          ? parseInt(dueAfter, 10)
+          : 0;
+      setInvoiceDueAfterDays(Number.isFinite(parsedDueAfter) && parsedDueAfter >= 0 ? parsedDueAfter : 0);
     } catch (_) {
       setInvoicePrefix("");
       return "";
@@ -417,7 +424,7 @@ const InvoiceCreateForm = ({ invoiceId = null }) => {
         setDueDate(item.due_date ? String(item.due_date).slice(0, 10) : "");
         
         // Set amounts
-        setAmount(String(item.amount ?? ""));
+        setAmount(String(item.sub_amount ?? ""));
         setTotalUnit(String(item.total_amount ?? ""));
         
         // Set status
@@ -431,7 +438,7 @@ const InvoiceCreateForm = ({ invoiceId = null }) => {
         setCurrency(item.currency ? String(item.currency) : "VND");
 
         // Set tax selection
-        setSelectedTax(item.tax ? String(item.tax) : "");
+        setSelectedTax(item.tax_id ? String(item.tax_id) : "");
 
         // Set invoice items
         const mappedItems = Array.isArray(item.invoice_items)
@@ -590,23 +597,56 @@ const InvoiceCreateForm = ({ invoiceId = null }) => {
   };
 
   if (loading) {
-    return <Box sx={{ p: 3 }}>Loading...</Box>;
+    return (
+      <Box sx={{ p: 3, display: "flex", justifyContent: "center", alignItems: "center", minHeight: "400px" }}>
+        <Box sx={{ textAlign: "center" }}>
+          <Box sx={{ animation: "spin 1s linear infinite", display: "inline-block", mb: 2 }}>⏳</Box>
+          <p>{lang("common.loading") || "Loading..."}</p>
+        </Box>
+      </Box>
+    );
   }
 
   return (
-    <div className="col-12">
-          <Box sx={{ mb: 2 }}>
-            <h3 style={{ margin: 0, fontSize: "1.5rem", fontWeight: 600 }}>
-              {invoiceId ? lang("invoice.updateInvoice") : lang("invoice.createInvoice")}
-            </h3>
-          </Box>
-      <Card>
-        <CardContent sx={{ mt: 2 }}>
+    <div className="col-12" style={{ background: "#f8fafc", minHeight: "100vh", padding: "24px" }}>
+      {/* Header Section */}
+      <Box sx={{ mb: 4 }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 1 }}>
+          <Box 
+            sx={{ 
+              width: "4px", 
+              height: "32px", 
+              backgroundColor: "#2563eb", 
+              borderRadius: "2px" 
+            }} 
+          />
+          <h2 style={{ margin: 0, fontSize: "28px", fontWeight: "700", color: "#1e293b" }}>
+            {invoiceId ? lang("invoice.updateInvoice") : lang("invoice.createInvoice")}
+          </h2>
+        </Box>
+      </Box>
+
+      <Card sx={{ 
+        boxShadow: "0 1px 3px rgba(0,0,0,0.1)", 
+        borderRadius: "12px",
+        border: "1px solid #e2e8f0"
+      }}>
+        <CardContent sx={{ p: 4 }}>
 
           <Grid container spacing={3}>
-            <Grid item xs={12} md={4}>
+            {/* Section 1: Basic Info */}
+            <Grid item xs={12}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
+                <Box sx={{ width: "3px", height: "20px", backgroundColor: "#2563eb", borderRadius: "2px" }} />
+                <h4 style={{ margin: 0, fontSize: "16px", fontWeight: "600", color: "#1e293b" }}>
+                  {lang("invoice.basicInfo") || "Basic Information"}
+                </h4>
+              </Box>
+            </Grid>
+
+            <Grid item xs={12} sm={6} md={4}>
               <FormControl fullWidth error={!!errors.project}>
-                <InputLabel id="project-select-label">
+                <InputLabel id="project-select-label" sx={{ backgroundColor: "#fff", px: 1 }}>
                   {lang("invoice.project")}
                 </InputLabel>
                 <Select
@@ -628,6 +668,15 @@ const InvoiceCreateForm = ({ invoiceId = null }) => {
                       setOfftakerAddress("");
                     }
                   }}
+                  sx={{
+                    backgroundColor: "#fff",
+                    borderRadius: "8px",
+                    "& .MuiOutlinedInput-root": {
+                      "& fieldset": { borderColor: "#e2e8f0" },
+                      "&:hover fieldset": { borderColor: "#cbd5e1" },
+                      "&.Mui-focused fieldset": { borderColor: "#2563eb" }
+                    }
+                  }}
                 >
                   <MenuItem value="">
                     {lang("invoice.selectProject")}
@@ -641,14 +690,14 @@ const InvoiceCreateForm = ({ invoiceId = null }) => {
                     ))}
                 </Select>
                 {errors.project && (
-                  <FormHelperText>{errors.project}</FormHelperText>
+                  <FormHelperText sx={{ color: "#ef4444", mt: 0.5 }}>{errors.project}</FormHelperText>
                 )}
               </FormControl>
             </Grid>
 
-            <Grid item xs={12} md={4}>
+            <Grid item xs={12} sm={6} md={4}>
               <FormControl fullWidth error={!!errors.offtaker} disabled={loadingOfftakers}>
-                <InputLabel id="offtaker-select-label">
+                <InputLabel id="offtaker-select-label" sx={{ backgroundColor: "#fff", px: 1 }}>
                   {lang("invoice.offtaker")}
                 </InputLabel>
                 <Select
@@ -669,6 +718,15 @@ const InvoiceCreateForm = ({ invoiceId = null }) => {
                       setOfftakerAddress("");
                     }
                   }}
+                  sx={{
+                    backgroundColor: "#fff",
+                    borderRadius: "8px",
+                    "& .MuiOutlinedInput-root": {
+                      "& fieldset": { borderColor: "#e2e8f0" },
+                      "&:hover fieldset": { borderColor: "#cbd5e1" },
+                      "&.Mui-focused fieldset": { borderColor: "#2563eb" }
+                    }
+                  }}
                 >
                   {offtakerOptions.map((option) => (
                     <MenuItem key={option.value} value={option.value}>
@@ -677,45 +735,83 @@ const InvoiceCreateForm = ({ invoiceId = null }) => {
                   ))}
                 </Select>
                 {errors.offtaker && (
-                  <FormHelperText>{errors.offtaker}</FormHelperText>
+                  <FormHelperText sx={{ color: "#ef4444", mt: 0.5 }}>{errors.offtaker}</FormHelperText>
                 )}
               </FormControl>
             </Grid>
 
-            {offtakerAddress && (
-              <Grid item xs={12} md={4}>
-                <Box sx={{ p: 2, backgroundColor: "#f5f5f5", borderRadius: 1, display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                  <Box>
-                    <strong>{lang("invoice.offtakerAddress") || "Offtaker Address"}:</strong>
-                    <p style={{ margin: "8px 0 0 0" }}>{offtakerAddress}</p>
-                  </Box>
-                  <Button
-                    variant="outlined"
-                    size="small"
-                    onClick={handleOpenAddressModal}
-                    sx={{ ml: 2, whiteSpace: "nowrap" }}
-                  >
-                    <FiEdit3 style={{ marginRight: 4 }} />
-                  </Button>
-                </Box>
-              </Grid>
-            )}
-
-            <Grid item xs={12} md={4}>
+            <Grid item xs={12} sm={6} md={4}>
               <FormControl fullWidth>
-                <InputLabel id="currency-select-label">{lang("invoice.currency") || "Currency"}</InputLabel>
+                <InputLabel id="currency-select-label" sx={{ backgroundColor: "#fff", px: 1 }}>
+                  {lang("invoice.currency") || "Currency"}
+                </InputLabel>
                 <Select
                   labelId="currency-select-label"
                   value={currency}
                   label={lang("invoice.currency") || "Currency"}
                   onChange={(e) => setCurrency(e.target.value)}
+                  sx={{
+                    backgroundColor: "#fff",
+                    borderRadius: "8px",
+                    "& .MuiOutlinedInput-root": {
+                      "& fieldset": { borderColor: "#e2e8f0" },
+                      "&:hover fieldset": { borderColor: "#cbd5e1" },
+                      "&.Mui-focused fieldset": { borderColor: "#2563eb" }
+                    }
+                  }}
                 >
                   <MenuItem value="VND">Vietnamese Dong (VND)</MenuItem>
                 </Select>
               </FormControl>
             </Grid>
 
-            <Grid item xs={12} md={4}>
+            {offtakerAddress && (
+              <Grid item xs={12}>
+                <Box sx={{ 
+                  p: 3, 
+                  backgroundColor: "#f0f9ff", 
+                  border: "2px dashed #0ea5e9",
+                  borderRadius: "8px", 
+                  display: "flex", 
+                  justifyContent: "space-between", 
+                  alignItems: "flex-start" 
+                }}>
+                  <Box>
+                    <Box sx={{ fontSize: "13px", fontWeight: "600", color: "#0c4a6e", mb: 1 }}>
+                      {lang("invoice.offtakerAddress") || "Offtaker Address"}
+                    </Box>
+                    <p style={{ margin: 0, color: "#1e293b", fontSize: "14px", lineHeight: "1.5" }}>{offtakerAddress}</p>
+                  </Box>
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    onClick={handleOpenAddressModal}
+                    sx={{ 
+                      ml: 2, 
+                      whiteSpace: "nowrap",
+                      borderColor: "#0ea5e9",
+                      color: "#0ea5e9",
+                      "&:hover": { backgroundColor: "#f0f9ff", borderColor: "#0284c7" }
+                    }}
+                  >
+                    <FiEdit3 style={{ marginRight: 6, fontSize: "16px" }} />
+                    Edit
+                  </Button>
+                </Box>
+              </Grid>
+            )}
+
+            {/* Section 2: Invoice Details */}
+            <Grid item xs={12}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2, mt: 2 }}>
+                <Box sx={{ width: "3px", height: "20px", backgroundColor: "#2563eb", borderRadius: "2px" }} />
+                <h4 style={{ margin: 0, fontSize: "16px", fontWeight: "600", color: "#1e293b" }}>
+                  {lang("invoice.invoiceDetails") || "Invoice Details"}
+                </h4>
+              </Box>
+            </Grid>
+
+            <Grid item xs={12} sm={6} md={3}>
               <TextField
                 label={lang("invoice.invoiceNumber") || "Invoice Number"}
                 value={settingInvoiceNumberPrefix}
@@ -728,32 +824,71 @@ const InvoiceCreateForm = ({ invoiceId = null }) => {
                 helperText={errors.invoiceNumber}
                 placeholder="Invoice Number"
                 fullWidth
-                 InputProps={{
+                size="medium"
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    backgroundColor: "#fff",
+                    borderRadius: "8px",
+                    "& fieldset": { borderColor: "#e2e8f0" },
+                    "&:hover fieldset": { borderColor: "#cbd5e1" },
+                    "&.Mui-focused fieldset": { borderColor: "#2563eb" }
+                  }
+                }}
+                InputProps={{
                   startAdornment: (
-                    <InputAdornment position="start">{invoicePrefix}</InputAdornment>
+                    <InputAdornment position="start" sx={{ mr: 1, fontWeight: "600", color: "#64748b" }}>
+                      {invoicePrefix || "INV"}
+                    </InputAdornment>
                   ),
                 }}
               />
             </Grid>
 
-            <Grid item xs={12} md={4}>
+            <Grid item xs={12} sm={6} md={3}>
               <TextField
                 label={lang("invoice.invoiceDate") || "Invoice Date"}
                 type="date"
                 value={invoiceDate}
                 onChange={(e) => {
-                  setInvoiceDate(e.target.value);
+                  const value = e.target.value;
+                  setInvoiceDate(value);
                   if (errors.invoiceDate)
                     setErrors((prev) => ({ ...prev, invoiceDate: "" }));
+                  if (
+                    value &&
+                    invoiceDueAfterDays &&
+                    !Number.isNaN(Number(invoiceDueAfterDays)) &&
+                    Number(invoiceDueAfterDays) >= 0
+                  ) {
+                    const base = new Date(`${value}T00:00:00`);
+                    if (!isNaN(base.getTime())) {
+                      const d = new Date(base);
+                      d.setDate(d.getDate() + Number(invoiceDueAfterDays));
+                      const yyyy = d.getFullYear();
+                      const mm = String(d.getMonth() + 1).padStart(2, "0");
+                      const dd = String(d.getDate()).padStart(2, "0");
+                      setDueDate(`${yyyy}-${mm}-${dd}`);
+                    }
+                  }
                 }}
                 error={!!errors.invoiceDate}
                 helperText={errors.invoiceDate}
                 InputLabelProps={{ shrink: true }}
                 fullWidth
+                size="medium"
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    backgroundColor: "#fff",
+                    borderRadius: "8px",
+                    "& fieldset": { borderColor: "#e2e8f0" },
+                    "&:hover fieldset": { borderColor: "#cbd5e1" },
+                    "&.Mui-focused fieldset": { borderColor: "#2563eb" }
+                  }
+                }}
               />
             </Grid>
 
-            <Grid item xs={12} md={4}>
+            <Grid item xs={12} sm={6} md={3}>
               <TextField
                 label={lang("invoice.dueDate") || "Due Date"}
                 type="date"
@@ -767,13 +902,85 @@ const InvoiceCreateForm = ({ invoiceId = null }) => {
                 helperText={errors.dueDate}
                 InputLabelProps={{ shrink: true }}
                 fullWidth
+                size="medium"
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    backgroundColor: "#fff",
+                    borderRadius: "8px",
+                    "& fieldset": { borderColor: "#e2e8f0" },
+                    "&:hover fieldset": { borderColor: "#cbd5e1" },
+                    "&.Mui-focused fieldset": { borderColor: "#2563eb" }
+                  }
+                }}
               />
             </Grid>
 
-            <Grid item xs={12}>
+            <Grid item xs={12} sm={6} md={3}>
+              <FormControl fullWidth error={!!statusError}>
+                <InputLabel id="status-select-label" sx={{ backgroundColor: "#fff", px: 1 }}>
+                  {lang("invoice.status")}
+                </InputLabel>
+                <Select
+                  labelId="status-select-label"
+                  value={status}
+                  label={lang("invoice.status")}
+                  onChange={(e) => {
+                    setStatus(e.target.value);
+                    if (statusError) setStatusError("");
+                  }}
+                  renderValue={(value) => {
+                    if (value === "" || value === null || value === undefined) {
+                      return lang("invoice.selectStatus");
+                    }
+                    const isPaid = String(value) === "1";
+                    return (
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                        <Box sx={{ width: 8, height: 8, borderRadius: "50%", backgroundColor: isPaid ? "#10b981" : "#f59e0b" }} />
+                        {isPaid ? lang("invoice.paid") : lang("invoice.unpaid")}
+                      </Box>
+                    );
+                  }}
+                  sx={{
+                    backgroundColor: "#fff",
+                    borderRadius: "8px",
+                    "& .MuiOutlinedInput-root": {
+                      "& fieldset": { borderColor: "#e2e8f0" },
+                      "&:hover fieldset": { borderColor: "#cbd5e1" },
+                      "&.Mui-focused fieldset": { borderColor: "#2563eb" }
+                    }
+                  }}
+                >
+                  <MenuItem value="">{lang("invoice.selectStatus")}</MenuItem>
+                  <MenuItem value="1" sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    <Box sx={{ width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#10b981" }} />
+                    {lang("invoice.paid")}
+                  </MenuItem>
+                  <MenuItem value="0" sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    <Box sx={{ width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#f59e0b" }} />
+                    {lang("invoice.unpaid")}
+                  </MenuItem>
+                </Select>
+                {statusError && (
+                  <FormHelperText sx={{ color: "#ef4444", mt: 0.5 }}>{statusError}</FormHelperText>
+                )}
+              </FormControl>
+            </Grid>
+
+            {/* Section 3: Line Items */}
+            <Grid item xs={4}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 3, mt: 2 }}>
+                <Box sx={{ width: "3px", height: "20px", backgroundColor: "#2563eb", borderRadius: "2px" }} />
+                <h4 style={{ margin: 0, fontSize: "16px", fontWeight: "600", color: "#1e293b" }}>
+                  {lang("invoice.items") || "Line Items"}
+                </h4>
+              </Box>
+            </Grid>
+
+            <Grid item xs={8}>
               <Box
                 sx={{
-                  mb: 1.5,
+                  mb: 3,
+                  mt: 2,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "flex-end",
@@ -781,24 +988,43 @@ const InvoiceCreateForm = ({ invoiceId = null }) => {
               >
                 <Button
                   startIcon={<FiPlus />}
-                  variant="outlined"
+                  variant="contained"
                   size="small"
                   onClick={handleAddItem}
+                  sx={{
+                    backgroundColor: "#2563eb",
+                    color: "#fff",
+                    borderRadius: "8px",
+                    textTransform: "none",
+                    fontWeight: "600",
+                    fontSize: "14px",
+                    padding: "8px 16px",
+                    "&:hover": { backgroundColor: "#1d4ed8" }
+                  }}
                 >
                   {lang("invoice.addItem") || "Add Item"}
                 </Button>
               </Box>
+            </Grid>
 
-              <Box sx={{ border: "1px solid #eef0f2", borderRadius: 1, overflowX: "auto" }}>
+            <Grid item xs={12}>
+              <Box sx={{ 
+                border: "1px solid #e2e8f0", 
+                borderRadius: "12px", 
+                overflow: "hidden",
+                boxShadow: "0 1px 2px rgba(0,0,0,0.05)"
+              }}>
                 <Box
                   sx={{
                     display: "grid",
                     gridTemplateColumns: "1.2fr 1.2fr 0.5fr 0.6fr 0.4fr 0.3fr",
                     gap: 1,
-                    p: 1,
-                    backgroundColor: "#f9fafb",
-                    fontWeight: 700,
-                    fontSize: 14,
+                    p: 2,
+                    backgroundColor: "#f8fafc",
+                    fontWeight: "700",
+                    fontSize: "13px",
+                    color: "#475569",
+                    borderBottom: "1px solid #e2e8f0"
                   }}
                 >
                   <Box>Item</Box>
@@ -824,19 +1050,29 @@ const InvoiceCreateForm = ({ invoiceId = null }) => {
                 sx={{
                   display: "flex",
                   justifyContent: "flex-end",
-                  mt: 1,
-                  fontWeight: 700,
-                  gap: 3,
+                  mt: 3,
+                  gap: 4,
                 }}
               >
-                <Box sx={{ minWidth: 200 }}>
+                <Box sx={{ minWidth: 250 }}>
                   <FormControl fullWidth size="small">
-                    <InputLabel id="tax-select-label">{lang("invoice.tax") || "Tax"}</InputLabel>
+                    <InputLabel id="tax-select-label" sx={{ backgroundColor: "#fff", px: 1 }}>
+                      {lang("invoice.tax") || "Tax"}
+                    </InputLabel>
                     <Select
                       labelId="tax-select-label"
                       value={selectedTax}
                       label={lang("invoice.tax") || "Tax"}
                       onChange={(e) => setSelectedTax(e.target.value)}
+                      sx={{
+                        backgroundColor: "#fff",
+                        borderRadius: "8px",
+                        "& .MuiOutlinedInput-root": {
+                          "& fieldset": { borderColor: "#e2e8f0" },
+                          "&:hover fieldset": { borderColor: "#cbd5e1" },
+                          "&.Mui-focused fieldset": { borderColor: "#2563eb" }
+                        }
+                      }}
                     >
                       <MenuItem value="">{lang("finance.noTax") || "No Tax"}</MenuItem>
                       {taxes.map((tax) => (
@@ -848,96 +1084,106 @@ const InvoiceCreateForm = ({ invoiceId = null }) => {
                   </FormControl>
                 </Box>
                 
-                <Box sx={{ minWidth: 200, textAlign: "right" }}>
-                  <Box sx={{ mb: 1, pb: 1, borderBottom: "1px solid #e0e0e0" }}>
-                    {(lang("invoice.subtotal") || "Subtotal") + ": "}{itemsTotal.toFixed(2)}
+                <Box sx={{ minWidth: 280, textAlign: "right" }}>
+                  <Box sx={{ 
+                    mb: 2, 
+                    pb: 2, 
+                    borderBottom: "2px solid #e2e8f0",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center"
+                  }}>
+                    <span style={{ color: "#64748b", fontSize: "14px", fontWeight: "500" }}>
+                      {lang("invoice.subtotal") || "Subtotal"}
+                    </span>
+                    <span style={{ fontWeight: "700", color: "#1e293b", fontSize: "16px" }}>
+                      {itemsTotal.toFixed(2)}
+                    </span>
                   </Box>
                   {taxAmount > 0 && (
-                    <Box sx={{ fontSize: "0.9rem", color: "#666", mb: 1 }}>
-                      {(lang("invoice.tax") || "Tax") + ": "}{taxAmount.toFixed(2)}
+                    <Box sx={{ 
+                      mb: 2, 
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center"
+                    }}>
+                      <span style={{ color: "#64748b", fontSize: "13px" }}>
+                        {lang("invoice.tax") || "Tax"}
+                      </span>
+                      <span style={{ fontWeight: "600", color: "#475569", fontSize: "14px" }}>
+                        {taxAmount.toFixed(2)}
+                      </span>
                     </Box>
                   )}
-                  <Box sx={{ fontSize: "1.1rem", fontWeight: 800, pt: 1, borderTop: "2px solid #333" }}>
-                    {(lang("invoice.total") || "Total") + ": "}{finalTotal.toFixed(2)}
+                  <Box sx={{ 
+                    pt: 2, 
+                    borderTop: "3px solid #2563eb",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center"
+                  }}>
+                    <span style={{ fontSize: "15px", fontWeight: "600", color: "#1e293b" }}>
+                      {lang("invoice.total") || "Total"}
+                    </span>
+                    <span style={{ fontSize: "20px", fontWeight: "800", color: "#2563eb" }}>
+                      {finalTotal.toFixed(2)}
+                    </span>
                   </Box>
                 </Box>
               </Box>
 
               {itemsError && (
-                <FormHelperText error sx={{ mt: 0.5 }}>
+                <FormHelperText error sx={{ mt: 2, fontSize: "13px" }}>
                   {itemsError}
                 </FormHelperText>
               )}
             </Grid>
 
-            {/* <Grid item xs={12} md={4}>
-              <TextField
-                label={lang("invoice.amount")}
-                type="number"
-                inputMode="decimal"
-                value={amount}
-                onChange={(e) => {
-                  setAmount(e.target.value);
-                  if (errors.amount)
-                    setErrors((prev) => ({ ...prev, amount: "" }));
-                }}
-                error={!!errors.amount}
-                helperText={errors.amount}
-                placeholder="Amount"
-                fullWidth
-              />
-            </Grid> */}
-
-            {/* <Grid item xs={12} md={4}>
-              <TextField
-                label={lang("invoice.totalUnit")}
-                type="number"
-                inputMode="decimal"
-                value={totalUnit}
-                onChange={(e) => {
-                  setTotalUnit(e.target.value);
-                  if (errors.totalUnit)
-                    setErrors((prev) => ({ ...prev, totalUnit: "" }));
-                }}
-                error={!!errors.totalUnit}
-                helperText={errors.totalUnit}
-                placeholder="Total Unit"
-                fullWidth
-              />
-            </Grid> */}
-
-            <Grid item xs={12} md={4}>
-              <FormControl fullWidth error={!!statusError}>
-                <InputLabel id="status-select-label">
-                  {lang("invoice.status")}
-                </InputLabel>
-                <Select
-                  labelId="status-select-label"
-                  value={status}
-                  label={lang("invoice.status")}
-                  onChange={(e) => {
-                    setStatus(e.target.value);
-                    if (statusError) setStatusError("");
+            {/* Section 4: Actions */}
+            <Grid item xs={12}>
+              <Box sx={{ 
+                display: "flex", 
+                justifyContent: "flex-end", 
+                gap: 2, 
+                mt: 3,
+                pt: 3,
+                borderTop: "1px solid #e2e8f0"
+              }}>
+                <Button
+                  onClick={handleBack}
+                  variant="outlined"
+                  sx={{
+                    color: "#64748b",
+                    borderColor: "#cbd5e1",
+                    borderRadius: "8px",
+                    textTransform: "none",
+                    fontWeight: "600",
+                    fontSize: "14px",
+                    padding: "10px 24px",
+                    "&:hover": { 
+                      backgroundColor: "#f8fafc",
+                      borderColor: "#94a3b8"
+                    }
                   }}
                 >
-                  <MenuItem value="">{lang("invoice.selectStatus")}</MenuItem>
-                  <MenuItem value="1">{lang("invoice.paid")}</MenuItem>
-                  <MenuItem value="0">{lang("invoice.unpaid")}</MenuItem>
-                </Select>
-                {statusError && (
-                  <FormHelperText>{statusError}</FormHelperText>
-                )}
-              </FormControl>
-            </Grid>
-
-            <Grid item xs={12}>
-              <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
+                  {lang("common.cancel") || "Cancel"}
+                </Button>
                 <Button
                   onClick={handleSave}
                   variant="contained"
                   disabled={submitting}
-                  className="common-grey-color"
-                  sx={{ minWidth: 150 }}
+                  sx={{
+                    backgroundColor: "#2563eb",
+                    color: "#fff",
+                    borderRadius: "8px",
+                    textTransform: "none",
+                    fontWeight: "600",
+                    fontSize: "14px",
+                    padding: "10px 32px",
+                    minWidth: 140,
+                    "&:hover": { backgroundColor: "#1d4ed8" },
+                    "&:disabled": { backgroundColor: "#cbd5e1", color: "#94a3b8" }
+                  }}
                 >
                   {submitting ? lang("common.loading") : lang("common.save")}
                 </Button>
@@ -948,10 +1194,29 @@ const InvoiceCreateForm = ({ invoiceId = null }) => {
       </Card>
 
       {/* Address Edit Modal */}
-      <Dialog open={addressModalOpen} onClose={handleCloseAddressModal} maxWidth="sm" fullWidth>
-        <DialogTitle>{lang("invoice.editOfftakerAddress") || "Edit Offtaker Address"}</DialogTitle>
-        <DialogContent>
-          <Grid container spacing={2} sx={{ pt: 1 }}>
+      <Dialog 
+        open={addressModalOpen} 
+        onClose={handleCloseAddressModal} 
+        maxWidth="sm" 
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: "12px",
+            boxShadow: "0 20px 25px rgba(0,0,0,0.15)"
+          }
+        }}
+      >
+        <DialogTitle sx={{ 
+          fontSize: "18px", 
+          fontWeight: "700", 
+          color: "#1e293b",
+          borderBottom: "1px solid #e2e8f0",
+          pb: 2
+        }}>
+          {lang("invoice.editOfftakerAddress") || "Edit Offtaker Address"}
+        </DialogTitle>
+        <DialogContent sx={{ pt: 3}}>
+          <Grid container spacing={2} sx={{ mt: 2 }}>
             <Grid item xs={12}>
               <TextField
                 label={lang("projects.addressLine1") || "Address Line 1"}
@@ -959,6 +1224,16 @@ const InvoiceCreateForm = ({ invoiceId = null }) => {
                 value={addressForm.address_1}
                 onChange={handleAddressFormChange}
                 fullWidth
+                size="medium"
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    backgroundColor: "#fff",
+                    borderRadius: "8px",
+                    "& fieldset": { borderColor: "#e2e8f0" },
+                    "&:hover fieldset": { borderColor: "#cbd5e1" },
+                    "&.Mui-focused fieldset": { borderColor: "#2563eb" }
+                  }
+                }}
               />
             </Grid>
 
@@ -969,16 +1244,37 @@ const InvoiceCreateForm = ({ invoiceId = null }) => {
                 value={addressForm.address_2}
                 onChange={handleAddressFormChange}
                 fullWidth
+                size="medium"
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    backgroundColor: "#fff",
+                    borderRadius: "8px",
+                    "& fieldset": { borderColor: "#e2e8f0" },
+                    "&:hover fieldset": { borderColor: "#cbd5e1" },
+                    "&.Mui-focused fieldset": { borderColor: "#2563eb" }
+                  }
+                }}
               />
             </Grid>
 
             <Grid item xs={12} md={6}>
               <FormControl fullWidth>
-                <InputLabel>{lang("projects.country") || "Country"}</InputLabel>
+                <InputLabel sx={{ backgroundColor: "#fff", px: 1 }}>
+                  {lang("projects.country") || "Country"}
+                </InputLabel>
                 <Select
                   value={addressForm.country_id}
                   label={lang("projects.country") || "Country"}
                   onChange={(e) => handleLocationChange("country", e.target.value)}
+                  sx={{
+                    backgroundColor: "#fff",
+                    borderRadius: "8px",
+                    "& .MuiOutlinedInput-root": {
+                      "& fieldset": { borderColor: "#e2e8f0" },
+                      "&:hover fieldset": { borderColor: "#cbd5e1" },
+                      "&.Mui-focused fieldset": { borderColor: "#2563eb" }
+                    }
+                  }}
                 >
                   <MenuItem value="">
                     {lang("projects.selectCountry") || "Select Country"}
@@ -994,11 +1290,22 @@ const InvoiceCreateForm = ({ invoiceId = null }) => {
 
             <Grid item xs={12} md={6}>
               <FormControl fullWidth disabled={!addressForm.country_id || loadingStates}>
-                <InputLabel>{lang("projects.state") || "State"}</InputLabel>
+                <InputLabel sx={{ backgroundColor: "#fff", px: 1 }}>
+                  {lang("projects.state") || "State"}
+                </InputLabel>
                 <Select
                   value={addressForm.state_id}
                   label={lang("projects.state") || "State"}
                   onChange={(e) => handleLocationChange("state", e.target.value)}
+                  sx={{
+                    backgroundColor: "#fff",
+                    borderRadius: "8px",
+                    "& .MuiOutlinedInput-root": {
+                      "& fieldset": { borderColor: "#e2e8f0" },
+                      "&:hover fieldset": { borderColor: "#cbd5e1" },
+                      "&.Mui-focused fieldset": { borderColor: "#2563eb" }
+                    }
+                  }}
                 >
                   <MenuItem value="">
                     {lang("projects.selectState") || "Select State"}
@@ -1014,11 +1321,22 @@ const InvoiceCreateForm = ({ invoiceId = null }) => {
 
             <Grid item xs={12} md={6}>
               <FormControl fullWidth disabled={!addressForm.state_id || loadingCities}>
-                <InputLabel>{lang("projects.city") || "City"}</InputLabel>
+                <InputLabel sx={{ backgroundColor: "#fff", px: 1 }}>
+                  {lang("projects.city") || "City"}
+                </InputLabel>
                 <Select
                   value={addressForm.city_id}
                   label={lang("projects.city") || "City"}
                   onChange={(e) => handleLocationChange("city", e.target.value)}
+                  sx={{
+                    backgroundColor: "#fff",
+                    borderRadius: "8px",
+                    "& .MuiOutlinedInput-root": {
+                      "& fieldset": { borderColor: "#e2e8f0" },
+                      "&:hover fieldset": { borderColor: "#cbd5e1" },
+                      "&.Mui-focused fieldset": { borderColor: "#2563eb" }
+                    }
+                  }}
                 >
                   <MenuItem value="">
                     {lang("projects.selectCity") || "Select City"}
@@ -1039,15 +1357,50 @@ const InvoiceCreateForm = ({ invoiceId = null }) => {
                 value={addressForm.zipcode}
                 onChange={handleAddressFormChange}
                 fullWidth
+                size="medium"
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    backgroundColor: "#fff",
+                    borderRadius: "8px",
+                    "& fieldset": { borderColor: "#e2e8f0" },
+                    "&:hover fieldset": { borderColor: "#cbd5e1" },
+                    "&.Mui-focused fieldset": { borderColor: "#2563eb" }
+                  }
+                }}
               />
             </Grid>
           </Grid>
         </DialogContent>
-        <DialogActions sx={{ p: 2 }}>
-          <Button onClick={handleCloseAddressModal}>
+        <DialogActions sx={{ 
+          p: 2, 
+          borderTop: "1px solid #e2e8f0",
+          gap: 1 
+        }}>
+          <Button 
+            onClick={handleCloseAddressModal}
+            sx={{
+              color: "#64748b",
+              textTransform: "none",
+              fontWeight: "600",
+              fontSize: "14px",
+              "&:hover": { backgroundColor: "#f8fafc" }
+            }}
+          >
             {lang("common.cancel") || "Cancel"}
           </Button>
-          <Button onClick={handleSaveAddress} variant="contained">
+          <Button 
+            onClick={handleSaveAddress} 
+            variant="contained"
+            sx={{
+              backgroundColor: "#2563eb",
+              color: "#fff",
+              textTransform: "none",
+              fontWeight: "600",
+              fontSize: "14px",
+              borderRadius: "8px",
+              "&:hover": { backgroundColor: "#1d4ed8" }
+            }}
+          >
             {lang("common.save") || "Save"}
           </Button>
         </DialogActions>

@@ -1059,7 +1059,10 @@
     "offtakerAddress": "Địa chỉ Offtaker",
     "editOfftakerAddress": "Chỉnh sửa địa chỉ Offtaker",
     "items": "Mục",
-    "addItem": "Thêm mục"
+    "addItem": "Thêm mục",
+    "basicInfo": "Thông tin cơ bản",
+    "invoiceDetails": "Chi tiết hóa đơn",
+    "subamount": "Số tiền phụ"
   },
   "finance": {
     "title": "Tài chính chung",
@@ -1398,5 +1401,8 @@
     "today_discharge": "hôm nay xả hàng",
     "backupload": "Tải dự phòng",
     "perkwh": "mỗi kWh"
+  },
+  "billings": {
+    "billings": "Hóa đơn"
   }
 }

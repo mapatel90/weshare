@@ -1,9 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { apiGet } from "@/lib/api";
+import { useAuth } from "@/contexts/AuthContext";
 
-const invoices = [
+const fallbackInvoices = [
     { name: "DCL Solutions", number: 1, invoiceDate: "21 Jul 2022", dueDate: "07 Oct 2022", amount: "$31.80", status: "Unfunded", download: true },
     { name: "Google Cloud Hosting", number: 2, invoiceDate: "16 May 2023", dueDate: "25 Jan 2023", amount: "$5.69", status: "Unfunded", download: true },
     { name: "Anna Clarke - Employer", number: 3, invoiceDate: "10 Aug 2022", dueDate: "19 Apr 2023", amount: "$20.87", status: "Pending", download: true },
@@ -20,52 +22,212 @@ const statusColors = {
     Paid: "bg-green-100 text-green-700",
     Unfunded: "bg-orange-100 text-orange-700",
     Pending: "bg-gray-200 text-gray-700",
+    Draft: "bg-gray-200 text-gray-700",
+    Unpaid: "bg-orange-100 text-orange-700",
+    PaidNumeric: "bg-green-100 text-green-700",
 };
 
 const Billings = () => {
     const [search, setSearch] = useState("");
     const [dropdownOpen, setDropdownOpen] = useState(null);
     const [projectFilter, setProjectFilter] = useState("");
+    const [statusFilter, setStatusFilter] = useState("");
+    const [projects, setProjects] = useState([]);
+    const [projectsLoading, setProjectsLoading] = useState(false);
+    const [projectsError, setProjectsError] = useState("");
+    const [invoices, setInvoices] = useState([]);
+    const [invoicesLoading, setInvoicesLoading] = useState(false);
+    const [invoicesError, setInvoicesError] = useState("");
+    const { user } = useAuth();
     const router = useRouter();
+
+    const formatDate = (value) => {
+        if (!value) return "—";
+        const d = new Date(value);
+        if (Number.isNaN(d.getTime())) return "—";
+        return d.toLocaleDateString("en-GB");
+    };
+
+    const formatCurrency = (value) => {
+        const num = Number(value);
+        if (!Number.isFinite(num)) return value ?? "—";
+        return num.toLocaleString("en-US", { style: "currency", currency: "USD" });
+    };
+
+    const statusLabel = (value) => {
+        if (typeof value === "string") return value;
+        const map = {
+            0: "Unpaid",
+            1: "Paid",
+        };
+        return map[value] ?? "Pending";
+    };
+
+    useEffect(() => {
+        const fetchProjects = async () => {
+            if (!user?.id) {
+                setProjects([]);
+                return;
+            }
+
+            setProjectsLoading(true);
+            setProjectsError("");
+
+            try {
+                let apiUrl = "/api/projects?page=1&limit=100";
+                if (user.role === 3) {
+                    apiUrl += `&offtaker_id=${user.id}`;
+                }
+
+                const response = await apiGet(apiUrl, { includeAuth: true });
+
+                if (response?.success && Array.isArray(response?.data)) {
+                    const normalized = response.data
+                        .map((project) => ({
+                            id: project?.id ?? null,
+                            name: project?.project_name || "Untitled Project",
+                        }))
+                        .filter((p) => p.name);
+
+                    const uniqueByName = Array.from(
+                        new Map(normalized.map((p) => [p.name, p])).values()
+                    );
+                    setProjects(uniqueByName);
+                } else {
+                    setProjects([]);
+                }
+            } catch (error) {
+                console.error("Failed to fetch projects for billing dropdown", error);
+                setProjects([]);
+                setProjectsError("Unable to load projects.");
+            } finally {
+                setProjectsLoading(false);
+            }
+        };
+
+        fetchProjects();
+    }, [user?.id, user?.role]);
+
+    useEffect(() => {
+        const fetchInvoices = async () => {
+            if (!user?.id) {
+                setInvoices(fallbackInvoices);
+                return;
+            }
+
+            setInvoicesLoading(true);
+            setInvoicesError("");
+
+            try {
+                let apiUrl = "/api/invoice?page=1&limit=100";
+                if (user.role === 3) {
+                    apiUrl += `&offtaker_id=${user.id}`;
+                }
+
+                const response = await apiGet(apiUrl, { includeAuth: true });
+
+                const list = response?.data?.invoices;
+
+                if (response?.success && Array.isArray(list)) {
+                    const normalized = list.map((inv, idx) => {
+                        return {
+                            id: inv?.id ?? idx,
+                            projectName: inv?.projects?.project_name || "—",
+                            invoiceName: inv?.invoice_number
+                                ? `${inv?.invoice_prefix || ""}-${inv.invoice_number}`.trim()
+                                : "—",
+                            invoiceDate: formatDate(inv?.invoice_date),
+                            dueDate: formatDate(inv?.due_date),
+                            amount: formatCurrency(inv?.total_amount ?? inv?.amount),
+                            status: statusLabel(inv?.status),
+                            download: true,
+                        };
+                    });
+
+                    setInvoices(normalized);
+                } else {
+                    setInvoices(fallbackInvoices);
+                }
+            } catch (error) {
+                console.error("Failed to fetch invoices", error);
+                setInvoices(fallbackInvoices);
+                setInvoicesError("Unable to load invoices.");
+            } finally {
+                setInvoicesLoading(false);
+            }
+        };
+
+        fetchInvoices();
+    }, [user?.id, user?.role]);
+
+    const dropdownProjects = useMemo(() => {
+        if (projects.length) return projects;
+        const fallback = [...new Set(invoices.map((inv) => inv.name))];
+        return fallback.map((name) => ({ id: name, name }));
+    }, [projects]);
+
     const filteredInvoices = invoices.filter((inv) => {
-        const matchesSearch = inv.name.toLowerCase().includes(search.toLowerCase());
-        const matchesProject = projectFilter === "" || inv.name === projectFilter;
-        return matchesSearch && matchesProject;
+        const projectName = inv.projectName || "";
+        const matchesSearch = projectName.toLowerCase().includes(search.toLowerCase())
+            || (inv.invoiceName || "").toLowerCase().includes(search.toLowerCase());
+        const matchesProject = projectFilter === "" || projectName === projectFilter;
+        const matchesStatus = statusFilter === "" || inv.status === statusFilter;
+        return matchesSearch && matchesProject && matchesStatus;
     });
 
     const handleDownload = (number) => {
         // Example: window.open(`/api/invoice/download/${number}`);
         // router.push("/offtaker/billings/invoice");
     };
-    // No custom event listeners needed. Use backdrop for outside click.
-    const handleView = (number) => {
-        // View logic here
-        router.push("/offtaker/billings/invoice");
+
+    const handleView = (invoiceId) => {
+        router.push(`/offtaker/billings/invoice/${invoiceId}`);
     };
 
     return (
         <div className="p-6 bg-white rounded-xl shadow-md">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-2">
                 {/* Project Dropdown Filter */}
-                <select
-                    className="theme-btn-blue-color border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
-                    value={projectFilter}
-                    onChange={e => setProjectFilter(e.target.value)}
-                >
-                    <option value="">All Projects</option>
-                    {[...new Set(invoices.map(inv => inv.name))].map((name) => (
-                        <option key={name} value={name}>{name}</option>
-                    ))}
-                </select>
+                <div className="flex flex-col gap-1">
+                    <select
+                        className="theme-btn-blue-color border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
+                        value={projectFilter}
+                        onChange={e => setProjectFilter(e.target.value)}
+                        disabled={projectsLoading}
+                    >
+                        <option value="">All Projects</option>
+                        {dropdownProjects.map((project) => (
+                            <option key={project.id} value={project.name}>
+                                {project.name}
+                            </option>
+                        ))}
+                    </select>
+                    {projectsError && (
+                        <p className="text-xs text-red-600">{projectsError}</p>
+                    )}
+                </div>
+
+                <div className="relative">
+                    
+                </div>
+
                 <div className="flex items-center gap-2">
                     <input
                         type="text"
-                        placeholder="Search Name..."
+                        placeholder="Search project or invoice..."
                         value={search}
                         onChange={e => setSearch(e.target.value)}
                         className="border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
                     />
-                    <button className="theme-btn-blue-color px-4 py-2 rounded-md text-gray-700 border hover:bg-gray-200">Filter</button>
+                    <select
+                        className="theme-btn-blue-color border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
+                        value={statusFilter}
+                        onChange={e => setStatusFilter(e.target.value)}
+                    >
+                        <option value="">All Status</option>
+                        <option value="Paid">Paid</option>
+                        <option value="Unpaid">Unpaid</option>
+                    </select>
                 </div>
             </div>
 
@@ -84,9 +246,9 @@ const Billings = () => {
                     </thead>
                     <tbody>
                         {filteredInvoices.map((inv, idx) => (
-                            <tr key={inv.number} className={idx % 2 ? "bg-white" : "bg-gray-50"}>
-                                <td className="px-4 py-2 font-medium whitespace-nowrap">{inv.name}</td>
-                                <td className="px-4 py-2 whitespace-nowrap">INV - 2025{inv.number}</td>
+                            <tr key={inv.id} className={idx % 2 ? "bg-white" : "bg-gray-50"}>
+                                <td className="px-4 py-2 font-medium whitespace-nowrap">{inv.projectName}</td>
+                                <td className="px-4 py-2 whitespace-nowrap">{inv.invoiceName}</td>
                                 <td className="px-2 py-2 whitespace-nowrap">{inv.invoiceDate}</td>
                                 <td className="px-2 py-2 whitespace-nowrap">{inv.dueDate}</td>
                                 <td className="px-2 py-2 whitespace-nowrap">{inv.amount}</td>
@@ -119,7 +281,7 @@ const Billings = () => {
                                                         </button>
                                                         <button
                                                             className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
-                                                            onClick={() => { handleView(inv.number); setDropdownOpen(null); }}
+                                                            onClick={() => { handleView(inv.id); setDropdownOpen(null); }}
                                                         >
                                                             View
                                                         </button>

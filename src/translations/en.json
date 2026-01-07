@@ -1106,7 +1106,10 @@
     "offtakerAddress": "Offtaker Address",
     "editOfftakerAddress": "Edit Offtaker Address",
     "items": "Items",
-    "addItem": "Add Item"
+    "addItem": "Add Item",
+    "basicInfo": "Basic Info",
+    "invoiceDetails": "Invoice Details",
+    "subamount": "Sub Amount"
   },
   "finance": {
     "title": "Finance General",
@@ -1450,5 +1453,8 @@
     "today_discharged": "Today Discharged",
     "backupload": "Back-Up Load",
     "perkwh": "Per kWh"
+  },
+  "billings": {
+    "billings": "Billings"
   }
 }

@@ -236,7 +236,7 @@ router.post("/", authenticateToken, async (req, res) => {
         data: {
           project_id: parseInt(project_id),
           offtaker_id: parseInt(offtaker_id),
-          amount: Number.isFinite(invoiceAmount) ? invoiceAmount : 0,
+          sub_amount: Number.isFinite(invoiceAmount) ? invoiceAmount : 0,
           total_amount: Number.isFinite(invoiceTotal) ? invoiceTotal : 0,
           status: parseInt(status),
           invoice_number: invoice_number || "",
@@ -244,7 +244,7 @@ router.post("/", authenticateToken, async (req, res) => {
           invoice_date: invoice_date ? new Date(invoice_date) : null,
           due_date: due_date ? new Date(due_date) : null,
           currency: currency || "VND",
-          tax: tax || "",
+          tax_id: tax || "",
           tax_amount: Number.isFinite(parseFloat(tax_amount))
             ? parseFloat(tax_amount)
             : 0,
@@ -359,7 +359,7 @@ router.put("/:id", authenticateToken, async (req, res) => {
         data: {
           project_id: parseInt(project_id),
           offtaker_id: parseInt(offtaker_id),
-          amount: Number.isFinite(invoiceAmount) ? invoiceAmount : 0,
+          sub_amount: Number.isFinite(invoiceAmount) ? invoiceAmount : 0,
           total_amount: Number.isFinite(invoiceTotal) ? invoiceTotal : 0,
           status: parseInt(status),
           invoice_number: invoice_number || "",
@@ -367,7 +367,7 @@ router.put("/:id", authenticateToken, async (req, res) => {
           invoice_date: invoice_date ? new Date(invoice_date) : null,
           due_date: due_date ? new Date(due_date) : null,
           currency: currency || "VND",
-          tax: Number(tax) || "",
+          tax_id: Number(tax) || "",
           tax_amount: Number.isFinite(parseFloat(tax_amount))
             ? parseFloat(tax_amount)
             : 0,

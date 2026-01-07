@@ -118,7 +118,7 @@ const InvoiceTable = () => {
         return u.full_name || "-";
       },
     },
-    { accessorKey: "amount", header: () => lang("invoice.amount") },
+    { accessorKey: "sub_amount", header: () => lang("invoice.subamount") },
     { accessorKey: "total_amount", header: () => lang("invoice.totalUnit") },
     // {
     //   accessorKey: "start_time",

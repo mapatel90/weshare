@@ -1,80 +1,223 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { apiGet } from "@/lib/api";
 import PaymentModal from "./PaymentModal";
 
-const invoiceData = {
-  company: {
-    name: "WeShare",
-    address: "Sparksuite, Inc.",
-    street: "12345 Sunny Road",
-    city: "Sunnyville, CA 12345",
-  },
-  invoice: {
-    number: 123,
-    created: "June 23, 2021",
-    due: "July 23, 2021",
-  },
-  client: {
-    name: "John Doe",
-    email: "johndoe@example.com",
-    address: "260 W. Storm Street New York, NY 10025.",
-  },
-  items: [
-    {
-      id: 1,
-      title: "Solar Panel Installation",
-      desc: "Installation of 5kW solar panels for residential use.",
-      generation: "5kW",
-      price: "$40,000",
-      subtotal: "$2,00,000",
-    },
-    {
-      id: 2,
-      title: "Inverter Setup",
-      desc: "High-efficiency solar inverter for grid connection.",
-      generation: "5kW",
-      price: "$15,000",
-      subtotal: "$75,000",
-    },
-    {
-      id: 3,
-      title: "Battery Storage",
-      desc: "Lithium-ion battery pack for backup power.",
-      generation: "10kWh",
-      price: "$20,000",
-      subtotal: "$2,00,000",
-    },
-    {
-      id: 4,
-      title: "Mounting Structure",
-      desc: "Aluminum mounting structure for rooftop panels.",
-      generation: "5kW",
-      price: "$5,000",
-      subtotal: "$25,000",
-    },
-    {
-      id: 5,
-      title: "Wiring & Accessories",
-      desc: "Complete wiring and safety accessories for solar setup.",
-      generation: "5kW",
-      price: "$3,000",
-      subtotal: "$15,000",
-    },
-  ],
-  payment: {
-    method: "Visa ***** ***** 1234",
-  },
-  summary: {
-    summary: "$515000",
-    discount: "$20",
-    tax: "20%",
-    total: "$103000",
-  },
-};
-
-const InvoicePage = () => {
-  const { company, invoice, client, items, payment, summary } = invoiceData;
+const InvoicePage = ({ invoiceId }) => {
+  const [invoiceData, setInvoiceData] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
+  const [taxes, setTaxes] = useState([]);
+  const [companySettings, setCompanySettings] = useState({});
+  const [countries, setCountries] = useState([]);
+  const [states, setStates] = useState([]);
+  const [cities, setCities] = useState([]);
+
+  useEffect(() => {
+    const fetchTaxes = async () => {
+      try {
+        const response = await apiGet("/api/settings/taxes", { includeAuth: true });
+        if (response?.success && Array.isArray(response?.data)) {
+          setTaxes(response.data);
+        }
+      } catch (err) {
+        console.error("Error fetching taxes:", err);
+      }
+    };
+
+    const fetchCompanySettings = async () => {
+      try {
+        const response = await apiGet("/api/settings", { includeAuth: true });
+        if (response?.success && response?.data) {
+          setCompanySettings(response.data);
+        }
+      } catch (err) {
+        console.error("Error fetching company settings:", err);
+      }
+    };
+
+    const fetchLocations = async () => {
+      try {
+        // Fetch countries
+        const countriesRes = await apiGet("/api/locations/countries");
+        if (countriesRes?.success && Array.isArray(countriesRes?.data)) {
+          setCountries(countriesRes.data);
+        }
+      } catch (err) {
+        console.error("Error fetching countries:", err);
+      }
+    };
+
+    fetchTaxes();
+    fetchCompanySettings();
+    fetchLocations();
+  }, []);
+
+  // Fetch states when company settings with country_id is loaded
+  useEffect(() => {
+    if (companySettings?.site_country) {
+      const fetchStates = async () => {
+        try {
+          const statesRes = await apiGet(`/api/locations/countries/${companySettings.site_country}/states`);
+          if (statesRes?.success && Array.isArray(statesRes?.data)) {
+            setStates(statesRes.data);
+          }
+        } catch (err) {
+          console.error("Error fetching states:", err);
+        }
+      };
+      fetchStates();
+    }
+  }, [companySettings?.site_country]);
+
+  // Fetch cities when company settings with state_id is loaded
+  useEffect(() => {
+    if (companySettings?.site_state) {
+      const fetchCities = async () => {
+        try {
+          const citiesRes = await apiGet(`/api/locations/states/${companySettings.site_state}/cities`);
+          if (citiesRes?.success && Array.isArray(citiesRes?.data)) {
+            setCities(citiesRes.data);
+          }
+        } catch (err) {
+          console.error("Error fetching cities:", err);
+        }
+      };
+      fetchCities();
+    }
+  }, [companySettings?.site_state]);
+
+  useEffect(() => {
+    const fetchInvoice = async () => {
+      if (!invoiceId) {
+        setLoading(false);
+        return;
+      }
+
+      setLoading(true);
+      setError("");
+
+      try {
+        const response = await apiGet(`/api/invoice/${invoiceId}`, { includeAuth: true });
+
+        if (response?.success && response?.data) {
+          const apiInv = response.data;
+          const formatDate = (val) => {
+            if (!val) return "—";
+            const d = new Date(val);
+            return Number.isNaN(d.getTime()) ? "—" : d.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+          };
+
+          const formatCurrency = (val) => {
+            const num = Number(val);
+            return Number.isFinite(num) ? `$${num.toLocaleString("en-US", { maximumFractionDigits: 2 })}` : "—";
+          };
+
+          const getLocationName = (id, type) => {
+            if (!id) return "";
+            const numId = Number(id);
+            if (type === "country") {
+              const found = countries.find(c => Number(c.id) === numId);
+              return found?.name || "";
+            } else if (type === "state") {
+              const found = states.find(s => Number(s.id) === numId);
+              return found?.name || "";
+            } else if (type === "city") {
+              const found = cities.find(c => Number(c.id) === numId);
+              return found?.name || "";
+            }
+            return "";
+          };
+
+          const normalized = {
+            company: {
+              name: companySettings?.site_name || "WeShare",
+              address: companySettings?.site_address || "",
+              city: getLocationName(companySettings?.site_city, "city"),
+              state: getLocationName(companySettings?.site_state, "state"),
+              country: getLocationName(companySettings?.site_country, "country"),
+              zip: companySettings?.site_zip || "",
+            },
+            invoice: {
+              number: apiInv?.invoice_number || "—",
+              prefix: apiInv?.invoice_prefix || "",
+              created: formatDate(apiInv?.invoice_date),
+              due: formatDate(apiInv?.due_date),
+            },
+            client: {
+              name: apiInv?.users?.full_name || "—",
+              email: apiInv?.users?.email || "—",
+              address: [
+                apiInv?.users?.address_1,
+                apiInv?.users?.address_2,
+                apiInv?.users?.cities?.name,
+                apiInv?.users?.states?.name,
+                apiInv?.users?.zipcode,
+              ]
+                .filter(Boolean)
+                .join(", ") || "—",
+            },
+            items: (apiInv?.invoice_items || []).map((item) => ({
+              id: item?.id,
+              title: item?.item || "Item",
+              desc: item?.description || "",
+              unit: item?.unit || "0",
+              price: formatCurrency(item?.price),
+              subtotal: formatCurrency(item?.item_total),
+            })),
+            payment: {
+              method: "Visa ***** ***** 1234",
+            },
+            summary: {
+              summary: formatCurrency(apiInv?.sub_amount),
+              discount: "$0",
+              tax_id: apiInv?.tax_id || "0%",
+              tax_amount: formatCurrency(apiInv?.tax_amount),
+              total: formatCurrency(apiInv?.total_amount ?? apiInv?.sub_amount),
+            },
+          };
+
+          setInvoiceData(normalized);
+        } else {
+          setError("Failed to load invoice.");
+          setInvoiceData("");
+        }
+      } catch (err) {
+        console.error("Error fetching invoice:", err);
+        setError("Unable to fetch invoice data.");
+        setInvoiceData("");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchInvoice();
+  }, [invoiceId, companySettings, countries, states, cities]);
+
+  const { company, invoice, client, items, payment, summary } = invoiceData || {};
+
+  const getCompanyAddress = () => {
+    if (!company) return "";
+    const parts = [
+      company.address,
+      company.city,
+      company.state,
+      company.country,
+      company.zip
+    ].filter(Boolean);
+    return parts.join(", ");
+  };
+
+  const getTaxDisplay = () => {
+    if (!invoiceData?.summary?.tax_id || invoiceData.summary.tax_id === "0%") return "No Tax";
+    const taxValue = parseFloat(invoiceData.summary.tax_id);
+    const matchedTax = taxes.find((t) => Number(t.id) === taxValue);
+    if (matchedTax) {
+      return `(${matchedTax.name} - ${matchedTax.value}%)`;
+    }
+    return invoiceData.summary.tax_id;
+  };
 
   const handleModalSubmit = (data) => {
     setModalOpen(false);
@@ -87,10 +230,14 @@ const InvoicePage = () => {
         <div className="border rounded-lg p-6 mb-8">
           <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-4">
             <div>
-              <div className="text-2xl font-bold theme-org-color mb-1">{company.name}</div>
-              <div className="text-gray-500">{company.address}</div>
-              <div className="text-gray-500">{company.street}</div>
-              <div className="text-gray-500">{company.city}</div>
+              <div className="text-2xl font-bold theme-org-color mb-1">{company?.name || ""}</div>
+              <div className="text-gray-500 text-sm">
+                {company?.address && <div>{company.address}</div>}
+                {(company?.country || company?.state || company?.city) && (
+                  <div>{[company.country, company.state, company.city].filter(Boolean).join(", ")}</div>
+                )}
+                {company?.zip && <div>{company.zip}</div>}
+              </div>
             </div>
             <div className="flex items-center gap-2 mt-4 md:mt-0">
               <img src="/images/invoice_qr.jpg" alt="Company Logo" className="w-32 h-32 object-contain" />
@@ -101,15 +248,15 @@ const InvoicePage = () => {
         <div className="flex flex-col md:flex-row md:justify-between mb-4">
           <div>
             <div className="font-bold text-lg mb-2">INVOICE</div>
-            <div className="text-gray-700">Invoice #: <span className="font-semibold">{invoice.number}</span></div>
-            <div className="text-gray-700">Created: <span className="font-semibold">{invoice.created}</span></div>
-            <div className="text-gray-700">Due: <span className="font-semibold">{invoice.due}</span></div>
+            <div className="text-gray-700">Invoice : <span className="font-semibold">{invoice?.prefix || ""}-{invoice?.number || ""}</span></div>
+            <div className="text-gray-700">Created: <span className="font-semibold">{invoice?.created || ""}</span></div>
+            <div className="text-gray-700">Due: <span className="font-semibold">{invoice?.due || ""}</span></div>
           </div>
           <div className="text-right mt-4 md:mt-0">
             <div className="text-gray-500">Invoiced To:</div>
-            <div className="font-bold">{client.name}</div>
-            <div className="text-gray-500">{client.email}</div>
-            <div className="text-gray-500">{client.address}</div>
+            <div className="font-bold">{client?.name || ""}</div>
+            <div className="text-gray-500">{client?.email || ""}</div>
+            <div className="text-gray-500">{client?.address || ""}</div>
           </div>
         </div>
 
@@ -119,20 +266,20 @@ const InvoicePage = () => {
               <tr>
                 <th className="px-4 py-3 text-left font-semibold">#</th>
                 <th className="px-4 py-3 text-left font-semibold">DESCRIPTION</th>
-                <th className="px-4 py-3 text-left font-semibold">HRS</th>
+                <th className="px-4 py-3 text-left font-semibold">QTY</th>
                 <th className="px-4 py-3 text-left font-semibold">RATE</th>
                 <th className="px-4 py-3 text-left font-semibold">SUBTOTAL</th>
               </tr>
             </thead>
             <tbody>
-              {items.map((item, idx) => (
+              {(items || []).map((item, idx) => (
                 <tr key={item.id} className={idx % 2 ? "bg-white" : "bg-gray-50"}>
                   <td className="px-4 py-2 font-medium whitespace-nowrap">{item.id}</td>
                   <td className="px-4 py-2 whitespace-nowrap">
                     <div className="font-semibold">{item.title}</div>
                     <div className="text-gray-500 text-xs">{item.desc}</div>
                   </td>
-                  <td className="px-4 py-2 whitespace-nowrap">{item.generation}</td>
+                  <td className="px-4 py-2 whitespace-nowrap">{item.unit}</td>
                   <td className="px-4 py-2 whitespace-nowrap">{item.price}</td>
                   <td className="px-4 py-2 whitespace-nowrap font-bold">{item.subtotal}</td>
                 </tr>
@@ -147,11 +294,9 @@ const InvoicePage = () => {
             {/* <div className="text-gray-700">{payment.method}</div> */}
           </div>
           <div className="text-right mt-4 md:mt-0">
-            <div className="font-semibold">Total:</div>
-            <div className="text-gray-700">Summary : {summary.summary}</div>
-            <div className="text-gray-700">Discount : {summary.discount}</div>
-            <div className="text-gray-700">Tax : {summary.tax}</div>
-            <div className="text-blue-700 font-bold text-lg">Total: {summary.total}</div>
+            <div className="text-gray-700">Subtotal : {summary?.summary || ""}</div>
+            <div className="text-gray-700">Tax : {summary?.tax_amount || ""} {getTaxDisplay()}</div>
+            <div className="text-blue-700 font-bold text-lg">Total: {summary?.total || ""}</div>
           </div>
         </div>
         <div className="flex justify-end mt-4">
@@ -166,8 +311,8 @@ const InvoicePage = () => {
         <PaymentModal
           isOpen={modalOpen}
           onClose={() => setModalOpen(false)}
-          invoiceNumber={invoice.number}
-          totalAmount={summary.total}
+          invoiceNumber={invoice?.number || ""}
+          totalAmount={summary?.total || ""}
           onSubmit={handleModalSubmit}
         />
       </div>

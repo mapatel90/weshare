@@ -6,7 +6,7 @@ import Billings from '@/components/portal/billings/Billings'
 const page = () => {
     return (
         <>
-            <DynamicTitle titleKey="billings.billinglist" />
+            <DynamicTitle titleKey="billings.billings" />
             <div className='row'>
                 <Billings />
             </div>

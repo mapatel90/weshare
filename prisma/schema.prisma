@@ -153,8 +153,8 @@ model invoices {
   billing_state_id      Int?
   billing_country_id    Int?
   billing_zipcode       Int?
-  amount                Float     @default(0)
-  tax                   Float     @default(0)
+  sub_amount            Float     @default(0)
+  tax_id                Float     @default(0)
   tax_amount            Float     @default(0)
   total_amount          Float     @default(0)
   status                Int       @default(0)

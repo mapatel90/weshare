@@ -28,26 +28,49 @@ const InvoiceItem = ({ index, item, onChange, onRemove }) => {
 				gridTemplateColumns: "1.2fr 1.2fr 0.5fr 0.6fr 0.4fr 0.3fr",
 				gap: 1,
 				alignItems: "stretch",
-				p: 1,
-				borderBottom: "1px solid #eef0f2",
+				p: 2,
+				borderBottom: "1px solid #e2e8f0",
+				backgroundColor: "#fff",
+				"&:hover": { backgroundColor: "#f8fafc" },
+				transition: "background-color 0.2s ease"
 			}}
 		>
 			<TextField
-				placeholder="Item"
+				placeholder="Item name"
 				value={item.item}
 				onChange={handleField("item")}
 				multiline
 				minRows={2}
 				size="small"
+				sx={{
+					"& .MuiOutlinedInput-root": {
+						backgroundColor: "#fff",
+						borderRadius: "6px",
+						fontSize: "14px",
+						"& fieldset": { borderColor: "#e2e8f0" },
+						"&:hover fieldset": { borderColor: "#cbd5e1" },
+						"&.Mui-focused fieldset": { borderColor: "#2563eb" }
+					}
+				}}
 			/>
 
 			<TextField
-				placeholder="Long description"
+				placeholder="Item description"
 				value={item.description}
 				onChange={handleField("description")}
 				multiline
 				minRows={2}
 				size="small"
+				sx={{
+					"& .MuiOutlinedInput-root": {
+						backgroundColor: "#fff",
+						borderRadius: "6px",
+						fontSize: "14px",
+						"& fieldset": { borderColor: "#e2e8f0" },
+						"&:hover fieldset": { borderColor: "#cbd5e1" },
+						"&.Mui-focused fieldset": { borderColor: "#2563eb" }
+					}
+				}}
 			/>
 
 			<TextField
@@ -56,46 +79,64 @@ const InvoiceItem = ({ index, item, onChange, onRemove }) => {
 				value={item.unit}
 				onChange={handleField("unit")}
 				size="small"
+				sx={{
+					"& .MuiOutlinedInput-root": {
+						backgroundColor: "#fff",
+						borderRadius: "6px",
+						fontSize: "14px",
+						"& fieldset": { borderColor: "#e2e8f0" },
+						"&:hover fieldset": { borderColor: "#cbd5e1" },
+						"&.Mui-focused fieldset": { borderColor: "#2563eb" }
+					}
+				}}
 			/>
 
 			<TextField
-				placeholder="Rate"
+				placeholder="0"
 				type="number"
 				inputProps={{ min: 0, step: "any" }}
 				value={item.price}
 				onChange={handleField("price")}
 				size="small"
+				sx={{
+					"& .MuiOutlinedInput-root": {
+						backgroundColor: "#fff",
+						borderRadius: "6px",
+						fontSize: "14px",
+						"& fieldset": { borderColor: "#e2e8f0" },
+						"&:hover fieldset": { borderColor: "#cbd5e1" },
+						"&.Mui-focused fieldset": { borderColor: "#2563eb" }
+					}
+				}}
 			/>
-
-			{/* <FormControl size="small">
-				<InputLabel>Tax</InputLabel>
-				<Select
-					label="Tax"
-					value={item.tax || "no-tax"}
-					onChange={handleField("tax")}
-				>
-					<MenuItem value="no-tax">No Tax</MenuItem>
-					<MenuItem value="vat-5">VAT 5%</MenuItem>
-					<MenuItem value="vat-10">VAT 10%</MenuItem>
-				</Select>
-			</FormControl> */}
 
 			<Box
 				sx={{
 					display: "flex",
 					alignItems: "center",
-					fontWeight: 600,
-					px: 1,
-					backgroundColor: "#f9fafb",
-					borderRadius: 1,
+					fontWeight: "700",
+					px: 2,
+					backgroundColor: "#f0f9ff",
+					borderRadius: "6px",
+					color: "#2563eb",
+					fontSize: "14px",
+					border: "1px solid #bfdbfe"
 				}}
 			>
 				{amount.toFixed(2)}
 			</Box>
 
 			<Box sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-				<IconButton color="error" onClick={() => onRemove(index)} size="small">
-					<FiTrash2 />
+				<IconButton 
+					color="error" 
+					onClick={() => onRemove(index)} 
+					size="small"
+					sx={{
+						color: "#ef4444",
+						"&:hover": { backgroundColor: "#fee2e2" }
+					}}
+				>
+					<FiTrash2 size={18} />
 				</IconButton>
 			</Box>
 		</Box>
