@@ -36,6 +36,80 @@ const buildChartData = (chartMonthData = [], selectedDate) => {
   });
 };
 
+const containerStyle = {
+  width: '100%',
+  minWidth: '600px',
+  height: '60vh',
+  backgroundColor: '#ffffff',
+  padding: '24px',
+  display: 'flex',
+  flexDirection: 'column',
+};
+
+
+const getStyles = (isDark = false) => {
+  const colors = {
+    bg: isDark ? '#121a2d' : '#ffffff',
+    text: isDark ? '#ffffff' : '#111827',
+    textMuted: isDark ? '#b1b4c0' : '#6b7280',
+    border: isDark ? '#1b2436' : '#e5e7eb',
+    boxShadow: isDark ? '0 10px 25px rgba(0,0,0,0.5)' : '0 10px 25px rgba(0,0,0,0.08)',
+  }
+
+  return {
+    containerStyle: {
+      backgroundColor: colors.bg,
+      padding: '32px',
+      boxSizing: 'border-box',
+    },
+    datePickerWrapperStyle: {
+      marginBottom: '8px',
+    },
+    datePickerInputStyle: {
+      width: '100%',
+      padding: '8px 12px',
+      borderRadius: '8px',
+      border: `1px solid ${colors.border}`,
+      background: isDark ? colors.bg : '#fff',
+      color: colors.text,
+      fontSize: '14px',
+      outline: 'none',
+    },
+    datePickerWrapperWidth: {
+      width: '10%',
+    },
+    headerRowStyle: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginBottom: '32px',
+    },
+    stateMessageStyle: {
+      width: '100%',
+      height: '100%',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      color: colors.textMuted,
+      fontSize: '14px',
+    },
+    tooltipWrapStyle: {
+      backgroundColor: colors.bg,
+      border: `1px solid ${colors.border}`,
+      borderRadius: '10px',
+      padding: '10px 12px',
+      boxShadow: colors.boxShadow,
+    },
+    tooltipTitleStyle: {
+      fontSize: 13,
+      fontWeight: 600,
+      color: colors.textMuted,
+      marginBottom: 8,
+    },
+  }
+}
+
+
 const getMaxKwh = (data = []) =>
   Math.max(
     ...data.map(d =>
@@ -61,7 +135,7 @@ const generateTicks = (max, step) => {
 
 const EnergyChart = ({ chartMonthData, selectedMonthYear, onMonthYearChange, isDark = false, monthlyChartDataLoading }) => {
   const { lang } = useLanguage();
-
+  const styles = getStyles(isDark);
   const [selectedDate, setSelectedDate] = useState(
     selectedMonthYear ? dayjs(selectedMonthYear, 'YYYY-MM').toDate() : new Date()
   );
@@ -91,34 +165,13 @@ const EnergyChart = ({ chartMonthData, selectedMonthYear, onMonthYearChange, isD
   const maxMoney = Math.ceil(getMaxMoney(data) / 50) * 50 || 50;
   const maxHours = Math.ceil(getMaxHours(data) * 2) / 2 || 1;
 
-
   return (
     <>
-      <style jsx>{`
-        .container {
-          width: 100%;
-          height: 100vh;
-          background-color: ${isDark ? '#121a2d' : '#ffffff'};
-          padding: 32px;
-          box-sizing: border-box;
-        }
-        .chart-wrapper {
-          width: 100%;
-          height: 100%;
-          border: 1px solid ${isDark ? '#1b2436' : '#d1d5db'};
-          border-radius: 8px;
-          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-          padding: 28px;
-          box-sizing: border-box;
-          background-color: ${isDark ? '#121a2d' : '#ffffff'};
-        }
-        .date-picker-wrapper {
-          margin-bottom: 16px;
-        }
-        .date-picker-wrapper :global(.react-datepicker-wrapper) {
+      <style>{`
+        .date-picker-wrapper .react-datepicker-wrapper {
           width: 10%;
         }
-        .date-picker-wrapper :global(.react-datepicker__input-container input) {
+        .date-picker-wrapper .react-datepicker__input-container input {
           width: 100%;
           padding: 8px 12px;
           border-radius: 8px;
@@ -127,14 +180,14 @@ const EnergyChart = ({ chartMonthData, selectedMonthYear, onMonthYearChange, isD
           color: ${isDark ? '#ffffff' : '#111827'};
           font-size: 14px;
         }
-        .date-picker-wrapper :global(.react-datepicker__input-container input:focus) {
+        .date-picker-wrapper .react-datepicker__input-container input:focus {
           outline: none;
           border-color: #3b82f6;
         }
       `}</style>
 
-      <div className="container">
-        <div className='date-picker-wrapper'>
+      <div style={styles.containerStyle}>
+        <div className='date-picker-wrapper' style={styles.datePickerWrapperStyle}>
           <DatePicker
             selected={selectedDate}
             onChange={handleDateChange}
@@ -142,23 +195,39 @@ const EnergyChart = ({ chartMonthData, selectedMonthYear, onMonthYearChange, isD
             showMonthYearPicker
             views={['month', 'year']}
             placeholderText="Select month and year"
+            style={{ width: '100px' }}
           />
         </div>
-        {/* <div className="chart-wrapper"> */}
-
-        <ResponsiveContainer width="100%" height="100%" minWidth={600}>
+      </div>
+      <div style={{ width: '100%', height: 'calc(100vh - 120px)', minHeight: '420px' }}>
+        <ResponsiveContainer width="100%" height="100%" minWidth={850}>
           <ComposedChart
             data={data}
-            margin={{ top: 40, right: 50, left: 100, bottom: 20 }}
+            margin={{ top: 40, right: 60, left: 40, bottom: 20 }}
           >
             <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
+
+            {/* Left Y-axis for K VND */}
+            <YAxis
+              yAxisId="money"
+              orientation="left"
+              // width={60}
+              label={{
+                value: 'K VND',
+                position: 'top',
+                dx: 0,
+                dy: -10
+              }}
+              domain={[0, maxMoney]}
+              ticks={generateTicks(maxMoney, 50)}
+              stroke="#666"
+            />
 
             {/* Middle Y-axis for kWh */}
             <YAxis
               yAxisId="kwh"
               orientation="left"
-              width={70}
-              x={60}
+              // width={60}
               label={{
                 value: 'kWh',
                 position: 'top',
@@ -170,29 +239,18 @@ const EnergyChart = ({ chartMonthData, selectedMonthYear, onMonthYearChange, isD
               stroke="#666"
             />
 
-            <YAxis
-              yAxisId="money"
-              orientation="left"
-              width={70}
-              x={0}
-              label={{
-                value: 'K VND',
-                position: 'top',
-                dx: 30,
-                dy: -10
-              }}
-              domain={[0, maxMoney]}
-              ticks={generateTicks(maxMoney, 50)}
-              stroke="#666"
-            />
-
             {/* Right Y-axis for h */}
             <YAxis
               yAxisId="hours"
               orientation="right"
-              width={70}
-              x={0}
-              label={{ value: 'h', angle: 0, position: 'top', dx: -30, dy: -10 }}
+              width={60}
+              label={{
+                value: 'h',
+                angle: 0,
+                position: 'top',
+                dx: -30,
+                dy: -10
+              }}
               domain={[0, maxHours]}
               ticks={generateTicks(maxHours, 0.5)}
               stroke="#666"
@@ -227,28 +285,28 @@ const EnergyChart = ({ chartMonthData, selectedMonthYear, onMonthYearChange, isD
               dataKey="yield"
               name="Yield"
               fill="#FDB515"
-              barSize={12}
+              barSize={24}
             />
             <Bar
               yAxisId="kwh"
               dataKey="exporting"
               name="Exporting"
               fill="#4A90E2"
-              barSize={12}
+              barSize={24}
             />
             <Bar
               yAxisId="kwh"
               dataKey="importing"
               name="Importing"
               fill="#E84855"
-              barSize={12}
+              barSize={24}
             />
             <Bar
               yAxisId="kwh"
               dataKey="consumed"
               name="Consumed"
               fill="#FF8C42"
-              barSize={12}
+              barSize={24}
             />
 
             {/* Lines */}

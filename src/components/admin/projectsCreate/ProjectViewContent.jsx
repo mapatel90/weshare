@@ -79,7 +79,7 @@ const ProjectViewContent = ({ projectId = "" }) => {
   const [chartMonthData, setChartMonthData] = useState(null);
   const [selectedMonthYear, setSelectedMonthYear] = useState(new Date().toISOString().slice(0, 7));
   const [monthlyChartDataLoading, setMonthlyChartDataLoading] = useState(true);
-  const [ChartViewMode, setChartViewMode] = useState("year"); // day | month | year
+  const [ChartViewMode, setChartViewMode] = useState("day"); // day | month | year
   const [ChartYearData, setChartYearData] = useState([]);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear().toString());
   const [yearChartDataLoading, setYearChartDataLoading] = useState(true);
@@ -677,13 +677,13 @@ const ProjectViewContent = ({ projectId = "" }) => {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+          gridTemplateColumns: isTablet || isMobile ? "1fr" : "1.5fr 1fr",
           gap: "24px",
           marginBottom: "24px",
-          height: "18%",
+          height: isTablet || isMobile ? "auto" : "",
         }}
       >
-        {/* BAR CHART SECTION */}
+        {/* overview CHART SECTION */}
         <div
           style={{
             backgroundColor: colors.cardBg,
@@ -693,8 +693,7 @@ const ProjectViewContent = ({ projectId = "" }) => {
               : "0 1px 3px rgba(0,0,0,0.1)",
             border: `1px solid ${colors.borderLight}`,
             padding: "24px",
-            marginBottom: "24px",
-            overflowX: "auto",
+            overflowX: isTablet || isMobile ? "auto" : '',
           }}>
           <h3
             style={{
@@ -717,9 +716,9 @@ const ProjectViewContent = ({ projectId = "" }) => {
             selectedDate={electricityOverviewDate}
             onDateChange={setElectricityOverviewDate}
             isDark={isDark}
+            selectedInverterId={selectedInverterId}
           />
         </div>
-        {/* LINE CHART SECTION */}
         <div
           style={{
             backgroundColor: colors.cardBg,
@@ -729,7 +728,6 @@ const ProjectViewContent = ({ projectId = "" }) => {
               : "0 1px 3px rgba(0,0,0,0.1)",
             border: `1px solid ${colors.borderLight}`,
             padding: "24px",
-            marginBottom: "24px",
             overflowX: "auto",
           }}>
           <h3
@@ -867,8 +865,6 @@ const ProjectViewContent = ({ projectId = "" }) => {
               />
             )
           )}
-
-
         </div>
       </div>
 

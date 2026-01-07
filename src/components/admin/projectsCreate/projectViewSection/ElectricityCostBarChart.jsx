@@ -64,7 +64,7 @@ const ElectricityCostBarChart = ({
         }
         .picker-wrapper {
           margin-bottom: 16px;
-          width: 520px;
+          width: 432px;
         }
         .picker-wrapper :global(.react-datepicker-wrapper) {
           width: 20%;
@@ -88,7 +88,7 @@ const ElectricityCostBarChart = ({
                     />
                 </div>
 
-                <ResponsiveContainer width="100%" height="100%">
+                <ResponsiveContainer width="94%" height="86%" minWidth={400}>
                     <BarChart
                         data={data}
                         layout="vertical"
@@ -123,7 +123,7 @@ const ElectricityCostBarChart = ({
                         <Bar
                             dataKey="evn"
                             name="EVN"
-                            fill={isDark ? '#ffffff' : '#1f2937'}
+                            fill={isDark ? '#2563eb' : '#2563eb'}
                             barSize={12}
                         />
 
@@ -131,7 +131,7 @@ const ElectricityCostBarChart = ({
                         <Bar
                             dataKey="weshare"
                             name="WeShare"
-                            fill={isDark ? '#ffffff' : '#6b7280'}
+                            fill={isDark ? '#f97316' : '#f97316'}
                             barSize={12}
                         />
                     </BarChart>

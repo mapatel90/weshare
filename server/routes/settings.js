@@ -79,6 +79,21 @@ router.get('/', async (req, res) => {
   }
 });
 
+// get taxes data (must come before /:key route to avoid route collision)
+router.get('/taxes', authenticateToken, async (req, res) => {
+  try {
+    const taxes = await prisma.taxes.findMany({
+      where: { is_deleted: 0 },
+      orderBy: { value: 'desc' },
+    });
+
+    res.json({ success: true, data: taxes });
+  } catch (error) {
+    console.error('Error fetching taxes:', error);
+    res.status(500).json({ success: false, message: 'Error fetching taxes', error: error.message });
+  }
+});
+
 // Get single setting by key
 router.get('/:key', async (req, res) => {
   try {
