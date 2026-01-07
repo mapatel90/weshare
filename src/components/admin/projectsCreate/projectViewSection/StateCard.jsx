@@ -97,7 +97,7 @@ const StatCardsGrid = ({
   // If an inverter is selected, show its data; otherwise show project-level data
   const { lang } = useLanguage()
   const isInverterSelected = !!selectedInverterId;
-  const projectPriceKwh = project?.price_kwh;
+  const projectPriceKwh = project?.weshare_price_kwh;
   // Prefer statCardsData for yield metrics if available
   let dailyYieldMetric = null;
   let totalYieldMetric = null;
@@ -182,7 +182,7 @@ const StatCardsGrid = ({
         icon={Sun}
         title={lang('projectView.projectInformation.capacity', 'Capacity')}
         value={(project?.project_size !== undefined ? formatNumber(project?.project_size) : '-') + ' kWh'}
-        subtitle={project?.price_kwh !== undefined ? ` • ${lang('reports.capacityPrice', 'Capacity Price')}: ${currency} ${formatNumber(project?.price_kwh)} ${lang('animated.perkwh', 'Per kWh')} `  : lang('reports.capacityperKWh', 'Capacity price per kWh')}
+        subtitle={project?.weshare_price_kwh !== undefined ? ` • ${lang('reports.capacityPrice', 'Capacity Price')}: ${currency} ${formatNumber(project?.weshare_price_kwh)} ${lang('animated.perkwh', 'Per kWh')} `  : lang('reports.capacityperKWh', 'Capacity price per kWh')}
         color="linear-gradient(to bottom right, #fbbf24, #f97316)"
         trend={null}
         isDark={isDark}
