@@ -1022,20 +1022,20 @@ router.post("/chart_month_data", async (req, res) => {
 
     const month_year = `${selectedYear}-${selectedMonth}`;
 
-    const startDate = dayjs(`${month_year}-01`)
+    const startDate = dayjs(`${month_year}`)
       .startOf("month")
-      .toDate();
+      .format("YYYY-MM-DD");
 
     const endDate = dayjs(`${month_year}-01`)
       .endOf("month")
-      .toDate();
+      .format("YYYY-MM-DD");
 
     const data = await prisma.project_energy_days_data.findMany({
       where: {
         project_id: Number(projectId),
         date: {
-          gte: startDate,
-          lte: endDate,
+          gte:  new Date(startDate),
+          lte:  new Date(endDate),
         },
       },
       orderBy: {
@@ -1069,18 +1069,18 @@ router.post("/chart_year_data", async (req, res) => {
     // ✅ FULL YEAR RANGE
     const startDate = dayjs(`${selectedYear}-01-01`)
       .startOf("day")
-      .toDate();
+      .format("YYYY-MM-DD");
 
     const endDate = dayjs(`${selectedYear}-12-31`)
       .endOf("day")
-      .toDate();
+      .format("YYYY-MM-DD");
 
     const data = await prisma.project_energy_days_data.findMany({
       where: {
         project_id: Number(projectId),
         date: {
-          gte: startDate,
-          lte: endDate,
+          gte:  new Date(startDate),
+          lte:  new Date(endDate),
         },
       },
       orderBy: {

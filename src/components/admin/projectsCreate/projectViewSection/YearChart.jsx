@@ -14,9 +14,10 @@ import {
 } from 'recharts';
 import dayjs from 'dayjs';
 import DatePicker from 'react-datepicker';
+import { formatShort } from '@/utils/common';
 
 
-const buildYearChartData = (yearData, selectedYear) => {
+const buildYearChartData = (yearData, selectedEnergyYear) => {
     const months = Array.from({ length: 12 }, (_, i) =>
         String(i + 1).padStart(2, "0")
     );
@@ -74,28 +75,28 @@ const generateTicks = (max, step) =>
     );
 const generateHoursTicks = (max, step) =>
     Array.from(
-        { length: Math.ceil(max / step) + 1 },
+        { length: Math.ceil(max / step) + 2 },
         (_, i) => i * step
     );
 
 
-const EnergyYearChart = ({ ChartYearData, selectedYear, isDark }) => {
+const EnergyYearChart = ({ ChartYearData, selectedEnergyYear, onYearChange, isDark }) => {
     const { lang } = useLanguage();
-
     const selectedYearDate = useMemo(
-        () => dayjs(selectedYear, 'YYYY').toDate(),
-        [selectedYear]
+        () => dayjs(selectedEnergyYear, 'YYYY').toDate(),
+        [selectedEnergyYear]
     );
+
 
     const handleYearChange = (date) => {
         if (!date) return;
         const year = dayjs(date).format('YYYY');
-        onYearChange(year);
+        onYearChange?.(year);
     };
 
     const data = useMemo(
-        () => buildYearChartData(ChartYearData, selectedYear),
-        [ChartYearData, selectedYear]
+        () => buildYearChartData(ChartYearData, selectedYearDate),
+        [ChartYearData, selectedYearDate]
     );
 
     const maxKwh = getMax(data, ['yield', 'consumed', 'exporting', 'importing']);
@@ -105,7 +106,7 @@ const EnergyYearChart = ({ ChartYearData, selectedYear, isDark }) => {
     // Add padding to prevent cutting off dots/lines at the top
     const paddedMaxMoney = maxMoney > 0 ? maxMoney * 1.1 : 0;
     const paddedMaxKwh = maxKwh > 0 ? maxKwh * 1.1 : 0;
-    const paddedMaxHours = maxHours > 0 ? maxHours * 1.1 : 0;
+    const paddedMaxHours = maxHours > 0 ? maxHours * 1.04 : 0;
     return (
         <>
             <style jsx>{`
@@ -152,7 +153,7 @@ const EnergyYearChart = ({ ChartYearData, selectedYear, isDark }) => {
                             orientation="left"
                             label={{ value: "kWh", position: "top", dy: -10 }}
                             domain={[0, paddedMaxKwh]}
-                            ticks={generateTicks(maxKwh, 200)}
+                            ticks={generateTicks(maxKwh, 50)}
                         />
 
                         {/* Money */}
@@ -162,7 +163,7 @@ const EnergyYearChart = ({ ChartYearData, selectedYear, isDark }) => {
                             offset={60}
                             label={{ value: "M VND", position: "top", dy: -10 }}
                             domain={[0, paddedMaxMoney]}
-                            ticks={generateTicks(maxMoney, 200)}
+                            ticks={generateTicks(maxMoney, 50)}
                         />
 
                         {/* Hours */}
@@ -172,25 +173,47 @@ const EnergyYearChart = ({ ChartYearData, selectedYear, isDark }) => {
                             label={{ value: "h", position: "top", dy: -10 }}
                             domain={[0, paddedMaxHours]}
                             ticks={generateHoursTicks(maxHours, 0.5)}
-                            
+
                         />
 
                         <XAxis dataKey="month" />
 
-                        <Tooltip />
+                        <Tooltip
+                            labelFormatter={(day) =>
+                                dayjs(selectedYearDate)
+                                    .date(Number(day))
+                                    .format("YYYY-MM-DD")
+                            }
+                            formatter={(value, name) => {
+                                if (name === "Revenue") {
+                                    return [`${formatShort(value)} VND`, name];
+                                }
+                                if (name === "Full Load Hours") {
+                                    return [`${value} h`, name];
+                                }
+                                return [`${formatShort(value)} kWh`, name];
+                            }}
+                            contentStyle={{
+                                backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                                border: '1px solid #ccc',
+                                borderRadius: '8px',
+                                padding: '10px'
+                            }}
+                        />
                         <Legend verticalAlign="bottom" />
 
                         {/* Bars */}
-                        <Bar yAxisId="kwh" dataKey="yield" fill="#FDB515" />
-                        <Bar yAxisId="kwh" dataKey="exporting" fill="#4A90E2" />
+                        <Bar yAxisId="kwh" dataKey="yield" fill="#f0cf00" />
+                        <Bar yAxisId="kwh" dataKey="exporting" fill="#5f91cb" />
                         <Bar yAxisId="kwh" dataKey="importing" fill="#E84855" />
-                        <Bar yAxisId="kwh" dataKey="consumed" fill="#FF8C42" />
+                        <Bar yAxisId="kwh" dataKey="consumed" fill="#fda23a" />
 
                         <Line
                             yAxisId="hours"
                             dataKey="fullLoadHours"
-                            stroke="#2563eb"
+                            stroke="#4a7fbc"
                             name="Hours"
+                            yAxisOffset={10}
                             strokeWidth={2}
                             dot={{ r: 5, fill: "#2563eb" }}
                             activeDot={{ r: 6 }}
@@ -199,11 +222,11 @@ const EnergyYearChart = ({ ChartYearData, selectedYear, isDark }) => {
                         <Line
                             yAxisId="money"
                             dataKey="earning"
-                            stroke="#f97316"
-                            name="Earning"
+                            stroke="#f08519"
+                            name="Revenue"
                             yAxisOffset={10}
                             strokeWidth={2}
-                            dot={{ r: 5, fill: "#f97316" }}
+                            dot={{ r: 5, fill: "#f08519" }}
                             activeDot={{ r: 6 }}
                         />
                     </ComposedChart>

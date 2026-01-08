@@ -13,6 +13,7 @@ import {
 import { useLanguage } from '@/contexts/LanguageContext';
 import DatePicker from 'react-datepicker';
 import dayjs from 'dayjs';
+import { formatShort } from '@/utils/common';
 
 const ElectricityCostBarChart = ({
     electricityMonthCostData,
@@ -107,13 +108,19 @@ const ElectricityCostBarChart = ({
                             type="number"
                             domain={[0, roundedMax]}
                             ticks={ticks}
+                            label={{
+                                value:'Cost',
+                                position: 'insideBottom',
+                                offset: -1,
+                                style: { fill: isDark ? '#cbd5f5' : '#374151' },
+                            }}
                             allowDecimals={false}
                             tick={{ fill: isDark ? '#e5e7eb' : '#111827' }}
-                            tickFormatter={(v) => `${v.toLocaleString()} VND`}
+                            tickFormatter={(v) => `${formatShort(v).toLocaleString()} VND`}
                         />
 
                         <Tooltip
-                            formatter={(value) => `${value.toLocaleString()} VND`}
+                            formatter={(value) => `${formatShort(value).toLocaleString()} VND`}
 
                         />
 
