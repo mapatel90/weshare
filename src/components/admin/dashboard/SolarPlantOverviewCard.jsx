@@ -118,7 +118,7 @@ export default function SolarPlantOverviewCard() {
         </div>
         <h3
           style={{
-            fontSize: 24,
+            fontSize: 30,
             fontWeight: "bold",
             color: colors.text,
             marginBottom: 4,
@@ -133,7 +133,7 @@ export default function SolarPlantOverviewCard() {
               return (
                 <>
                   <span>{decimalMatch[1]}</span>
-                  <span style={{ fontSize: "0.8em" }}>{decimalMatch[2]}{decimalMatch[3]}</span>
+                  <span style={{ fontSize: "0.6em" }}>{decimalMatch[2]}{decimalMatch[3]}</span>
                 </>
               )
             }
