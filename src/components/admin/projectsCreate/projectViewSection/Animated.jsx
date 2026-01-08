@@ -477,7 +477,7 @@ export default function SolarEnergyFlow({
                 <div
                   style={{ fontSize: 10, color: "#666", fontWeight: "bold" }}
                 >
-                  {Math.abs(project?.project_data?.[0]?.p_sum || 0)} kw
+                  {project?.project_data?.[0]?.family_load_power || 0} kw
                 </div>
               </div>
 
@@ -572,7 +572,9 @@ export default function SolarEnergyFlow({
                 fontWeight: 600,
               }}
             >
-              Load
+                {project?.project_data?.[0]?.epm_type !== 1
+                  ? lang("animated.backupload")
+                  : lang("animated.consumed", "Consumed")}
             </div>
           </div>
         </div>
