@@ -80,7 +80,7 @@ const StatCard = ({ icon: Icon, title, value, subtitle, color, trend, isDark = f
           </span>
         )}
       </div>
-      <h3 style={{ fontSize: 24, fontWeight: 'bold', color: colors.text, marginBottom: 4, display: 'flex', alignItems: 'baseline' }}>
+      <h3 style={{ fontSize: 30, fontWeight: 'bold', color: colors.text, marginBottom: 4, display: 'flex', alignItems: 'baseline' }}>
         {(() => {
           const valueStr = String(value)
           const decimalMatch = valueStr.match(/^([^.]+)(\.[\d,]+)(.*)$/)
@@ -88,7 +88,7 @@ const StatCard = ({ icon: Icon, title, value, subtitle, color, trend, isDark = f
             return (
               <>
                 <span>{decimalMatch[1]}</span>
-                <span style={{ fontSize: '0.8em' }}>{decimalMatch[2]}{decimalMatch[3]}</span>
+                <span style={{ fontSize: '0.6em' }}>{decimalMatch[2]}{decimalMatch[3]}</span>
               </>
             )
           }
@@ -109,28 +109,37 @@ const StatCardsGrid = ({
   statCardsData = [],
   isDark = false
 }) => {
+  console.log('StatCardsGrid render:', project);
   // If an inverter is selected, show its data; otherwise show project-level data
   const { lang } = useLanguage()
   const isInverterSelected = !!selectedInverterId;
   const projectPriceKwh = project?.weshare_price_kwh;
   const projectStateData = project?.project_data || {};
+  const inverterStateData = project?.project_inverters || {};
   // Prefer statCardsData for yield metrics if available
   let dailyYieldMetric = null;
   let totalYieldMetric = null;
+  let monthlyYieldMetric = null;
   let hasAggregatedData = Array.isArray(statCardsData) && statCardsData.length > 0;
   if (!isInverterSelected && hasAggregatedData) {
+    console.log('Aggregating data from statCardsData for project-level view');
     // Sum all daily_yield and total_yield from statCardsData
     dailyYieldMetric = projectStateData.reduce((sum, item) => sum + (item.day_energy || 0), 0);
     totalYieldMetric = projectStateData.reduce((sum, item) => sum + (item.year_energy || 0), 0);
   } else if (isInverterSelected && hasAggregatedData) {
     // Find the selected inverter's values
-    const selected = statCardsData.find(item => String(item.inverter_id) === String(selectedInverterId));
-    dailyYieldMetric = selected?.daily_yield ?? null;
-    totalYieldMetric = selected?.total_yield ?? null;
+    console.log('Finding data for selected inverter ID:', selectedInverterId);
+    const selected = inverterStateData.find(item => String(item.id) === String(selectedInverterId));
+    dailyYieldMetric = selected?.day_energy ?? null;
+    monthlyYieldMetric = selected?.month_energy ?? null;
+    totalYieldMetric = selected?.total_energy ?? null;
   } else {
+    console.log('Using fallback metrics from statCardsData');
     // Fallback to inverterLatest
-    dailyYieldMetric = getAggregatedMetric(statCardsData, 'daily_yield');
-    totalYieldMetric = getAggregatedMetric(statCardsData, 'total_yield');
+    const selected = inverterStateData.find(item => String(item.id) === String(selectedInverterId));
+    dailyYieldMetric = selected?.day_energy ?? null;
+    monthlyYieldMetric = selected?.month_energy ?? null;
+    totalYieldMetric = selected?.total_energy ?? null;
   }
   const settings_data = getSetting();
   const currency = settings_data?.settings?.finance_currency;
@@ -171,6 +180,14 @@ const StatCardsGrid = ({
   if (inverterLatestLoading) {
     monthlyYieldValue = 'Loading...'
     monthlyYieldSubtitle = `Loading ${isInverterSelected ? 'inverter' : 'project'} data...`
+  } else if (monthlyYieldMetric !== null) {
+    monthlyYieldRawValue = monthlyYieldMetric
+    monthlyYieldValue = formatEnergyUnit(monthlyYieldRawValue)
+    let monthlyMonetaryValue = null
+    if (projectPriceKwh !== undefined && projectPriceKwh !== null && monthlyYieldRawValue !== null) {
+      monthlyMonetaryValue = monthlyYieldRawValue * projectPriceKwh
+    }
+    monthlyYieldSubtitle = (monthlyMonetaryValue !== null ? ` • ${lang('reports.monthlyRevenue')}: ${currency} ${formatShort(monthlyMonetaryValue)}` : '')
   } else if (!isInverterSelected && project?.project_data?.[0]?.month_energy !== undefined && project?.project_data?.[0]?.month_energy !== null) {
     monthlyYieldRawValue = project.project_data[0].month_energy
     monthlyYieldValue = formatEnergyUnit(monthlyYieldRawValue)
