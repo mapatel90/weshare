@@ -34,7 +34,6 @@ const StatsCardOverview = () => {
         const fetchStats = async () => {
             try {
                 const res = await apiGet('/api/dashboard/statscount');
-                console.log('StatsCardOverview - fetched stats:', res);
                 if (res.data) setStats(res.data);
                 else setError('Failed to fetch stats');
             } catch (err) {

@@ -617,6 +617,7 @@ router.get("/", async (req, res) => {
           project_data: true,
           // Include primary investor relation (projects.investor_id)
           interested_investors: { select: { id: true, full_name: true, email: true, phone_number: true } },
+          project_inverters: true,
         },
         skip: fetchAll ? 0 : offset,
         take: fetchAll ? undefined : limitInt,
