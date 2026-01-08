@@ -199,7 +199,7 @@ const EnergyChart = ({ chartMonthData, selectedMonthYear, onMonthYearChange, isD
           />
         </div>
       </div>
-      <div style={{ width: '100%', height: 'calc(100vh - 120px)', minHeight: '420px' }}>
+      <div style={{ width: '100%', height: 'calc(60vh - 120px)', minHeight: '420px' }}>
         <ResponsiveContainer width="100%" height="100%" minWidth={850}>
           <ComposedChart
             data={data}
@@ -275,7 +275,7 @@ const EnergyChart = ({ chartMonthData, selectedMonthYear, onMonthYearChange, isD
             <Legend
               verticalAlign="bottom"
               height={36}
-              iconType="rect"
+              // iconType="rect"
               wrapperStyle={{ paddingTop: '20px' }}
             />
 
@@ -324,7 +324,7 @@ const EnergyChart = ({ chartMonthData, selectedMonthYear, onMonthYearChange, isD
               type="linear"
               dataKey="earning"
               name="Earning"
-              stroke="#FF8C42"
+              stroke="#f08519"
               strokeWidth={2}
               dot={false}
             />
