@@ -68,7 +68,8 @@ const ElectricityCostBarChart = ({
           width: 432px;
         }
         .picker-wrapper :global(.react-datepicker-wrapper) {
-          width: 20%;
+          margin-left:8%;
+          width: 30%;
         }
         .picker-wrapper :global(.react-datepicker__input-container input) {
           width: 100%;
@@ -109,7 +110,7 @@ const ElectricityCostBarChart = ({
                             domain={[0, roundedMax]}
                             ticks={ticks}
                             label={{
-                                value:'Cost',
+                                value: 'Cost',
                                 position: 'insideBottom',
                                 offset: -1,
                                 style: { fill: isDark ? '#cbd5f5' : '#374151' },

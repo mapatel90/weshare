@@ -1,3 +1,5 @@
+import { useState, useEffect } from "react";
+
 /**
  * Get the full image URL by combining the backend URL with the relative image path
  * @param {string} imagePath - Relative image path (e.g., "/images/logo/logo_1763033583467_kzakpx.png")
@@ -178,7 +180,6 @@ export const getDarkModeColors = (isDark) => {
  * @returns {boolean} True if dark mode is enabled
  */
 export const useDarkMode = () => {
-  const { useState, useEffect } = require("react");
   const [isDark, setIsDark] = useState(false);
 
   useEffect(() => {
