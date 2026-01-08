@@ -702,6 +702,7 @@ router.get("/:identifier", async (req, res) => {
         project_images: true,
         project_data: true,
         interested_investors: { select: { id: true, full_name: true, email: true, phone_number: true } },
+        project_inverters: true,
       },
     });
 
