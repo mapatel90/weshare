@@ -1336,7 +1336,8 @@
     "totalYield": "Tổng sản lượng",
     "capacityperKWh": "Giá điện năng tiêu thụ trên mỗi kWh",
     "dailyRevenue": "Doanh thu hàng ngày",
-    "totalRevenue": "Tổng doanh thu"
+    "totalRevenue": "Tổng doanh thu",
+    "monthlyRevenue": "Doanh thu hàng tháng"
   },
   "projectView": {
     "projectInformation": {

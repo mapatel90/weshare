@@ -78,6 +78,7 @@ function DashboardView() {
                 p.family_load_power ??
                 p.home_load_today_energy ??
                 p.project_data ??
+                p.project_inverters ??
                 null;
               const project_size =
                 rawSize === null || rawSize === undefined || rawSize === ""
@@ -96,6 +97,7 @@ function DashboardView() {
                 family_load_power: p.family_load_power ?? null,
                 home_load_today_energy: p.home_load_today_energy ?? null,
                 project_data: p.project_data ?? null,
+                project_inverters: p.project_inverters ?? null,
               };
             });
             setProjects(normalized);
