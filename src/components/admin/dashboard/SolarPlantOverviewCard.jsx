@@ -6,10 +6,12 @@ import { apiGet } from '@/lib/api';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Battery0BarOutlined, Battery90Rounded, Battery90TwoTone } from '@mui/icons-material';
 import { sumFieldFromObject, formatShort, convertEnergyToKwh, formatEnergyUnit, useDarkMode } from '@/utils/common';
+import { useFormatPrice } from '@/hooks/useFormatPrice';
 
 export default function SolarPlantOverviewCard() {
   const { lang } = useLanguage();
   const isDark = useDarkMode();
+  const formatPrice = useFormatPrice();
   const [projects, setProjects] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -239,7 +241,7 @@ export default function SolarPlantOverviewCard() {
               title={lang("reports.dailyYield", "Daily Yield")}
               value={formatEnergyUnit(daily_energy)}
               subtitle={
-                "Today Earnings: " + formatShort(daily_revenue, 3) + " VND"
+                "Today Earnings: " + formatPrice(daily_revenue)
               }
               color="linear-gradient(to bottom right, #3b82f6, #2563eb)"
               isDark={isDark}
@@ -249,7 +251,7 @@ export default function SolarPlantOverviewCard() {
               title={lang("reports.monthlyYield", "Monthly Yield")}
               value={formatEnergyUnit(monthly_energy)}
               subtitle={
-                "Monthly Earning: " + formatShort(monthly_revenue, 3) + " VND"
+                "Monthly Earning: " + formatPrice(monthly_revenue)
               }
               color="linear-gradient(to bottom right, #a855f7, #ec4899)"
               trend={projects?.revenue_trend ?? null}
@@ -260,7 +262,7 @@ export default function SolarPlantOverviewCard() {
               title={lang("reports.totalYield", "Total Yield")}
               value={formatEnergyUnit(total_energy)}
               subtitle={
-                "Total Earning: " + formatShort(total_revenue, 3) + " VND"
+                "Total Earning: " + formatPrice(total_revenue)
               }
               color="linear-gradient(to bottom right, #06b6d4, #0891b2)"
               trend={null}
