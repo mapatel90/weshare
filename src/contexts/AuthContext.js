@@ -8,6 +8,7 @@
 import { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { apiGet, apiPost } from '@/lib/api'
+import { useSettings } from './SettingsContext'
 
 const AuthContext = createContext({})
 
@@ -21,6 +22,7 @@ export const useAuth = () => {
 
 export default function AuthProvider({ children }) {
   const pathname = usePathname();
+  const { refreshSettings, clearSettings } = useSettings();
 
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -62,6 +64,11 @@ export default function AuthProvider({ children }) {
       setUser(transformedUser)
       // Cache user data to avoid API calls on subsequent navigations
       localStorage.setItem('cachedUser', JSON.stringify(transformedUser))
+
+      // Fetch settings after user is authenticated
+      if (refreshSettings && !silent) {
+        await refreshSettings();
+      }
     } catch (error) {
       console.error('Auth check error:', error)
       // Token invalid, remove it
@@ -75,7 +82,7 @@ export default function AuthProvider({ children }) {
         setLoading(false)
       }
     }
-  }, [])
+  }, [refreshSettings])
 
   // Check if user is logged in on app start
   useEffect(() => {
@@ -132,6 +139,11 @@ export default function AuthProvider({ children }) {
         // Cache user data
         localStorage.setItem('cachedUser', JSON.stringify(transformedUser))
 
+        // Fetch settings after successful login
+        if (refreshSettings) {
+          await refreshSettings();
+        }
+
         return { success: true, message: data.message, user: transformedUser }
       } else {
         return { success: false, message: data.message }
@@ -154,6 +166,12 @@ export default function AuthProvider({ children }) {
     localStorage.removeItem('cachedUser');
     document.cookie = 'accessToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
     setUser(null);
+
+    // Clear settings on logout
+    if (clearSettings) {
+      clearSettings();
+    }
+
     router.push('/login');
   };
 

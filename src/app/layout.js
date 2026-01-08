@@ -7,6 +7,7 @@ import NavigationProvider from "@/contentApi/navigationProvider";
 import SettingSideBarProvider from "@/contentApi/settingSideBarProvider";
 import ThemeCustomizer from "@/components/shared/ThemeCustomizer";
 import AuthProvider from "@/contexts/AuthContext";
+import { SettingsProvider } from "@/contexts/SettingsContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import GlobalLoader from "@/components/shared/GlobalLoader";
 import DynamicFavicon from "@/components/common/DynamicFavicon";
@@ -27,16 +28,18 @@ export default function RootLayout({ children }) {
       </head>
       <body>
         <LanguageProvider>
-          <AuthProvider>
-            <SettingSideBarProvider>
-              <NavigationProvider>
-                {children}
-              </NavigationProvider>
-            </SettingSideBarProvider>
-            {/* <ThemeCustomizer /> */}
-            <GlobalLoader />
-            <DynamicFavicon />
-          </AuthProvider>
+          <SettingsProvider>
+            <AuthProvider>
+              <SettingSideBarProvider>
+                <NavigationProvider>
+                  {children}
+                </NavigationProvider>
+              </SettingSideBarProvider>
+              {/* <ThemeCustomizer /> */}
+              <GlobalLoader />
+              <DynamicFavicon />
+            </AuthProvider>
+          </SettingsProvider>
         </LanguageProvider>
         <Script
           src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
