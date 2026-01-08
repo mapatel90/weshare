@@ -125,7 +125,7 @@ const StatCard = ({
   )
 }
 
-const CircularProgress = ({ percentage = 0, size = 160, strokeWidth = 12 }) => {
+const CircularProgress = ({ percentage = 0, size = 160, strokeWidth = 12, isDark }) => {
   const radius = (size - strokeWidth) / 2
   const circumference = 2 * Math.PI * radius
   const offset = circumference - (percentage / 100) * circumference
@@ -158,7 +158,7 @@ const CircularProgress = ({ percentage = 0, size = 160, strokeWidth = 12 }) => {
         textAnchor="middle"
         dominantBaseline="middle"
         fontWeight="700"
-        fill="#111"
+        fill={isDark ? '#fff' : '#111'}
       >
         <tspan x="50%" dy="-10" fontSize="25">
           {percentage}%
@@ -293,7 +293,7 @@ const StatCardsGrid = ({
         style={{ display: 'flex', justifyContent: 'center' }}
         icon={Activity}
         // title="Capital Recovery"
-        value={<CircularProgress percentage={capitalRecoveredPercent} />}
+        value={<CircularProgress percentage={capitalRecoveredPercent} isDark={isDark} />}
         // subtitle={`${currency} ${formatShort(totalRevenue)} / ${formatShort(askingPrice)}`}
         isDark={isDark}
       />
