@@ -61,6 +61,7 @@ const ProjectViewContent = ({ projectId = "" }) => {
   const [ChartViewMode, setChartViewMode] = useState("day"); // day | month | year
   const [ChartYearData, setChartYearData] = useState([]);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear().toString());
+  const [selectedEnergyYear, setSelectedEnergyYear] = useState(new Date().getFullYear().toString());
   const [yearChartDataLoading, setYearChartDataLoading] = useState(true);
   const [electricityMonthCostData, setElectricityMonthCostData] = useState(null);
   const [electricityMonthCostDataLoading, setElectricityMonthCostDataLoading] = useState(true);
@@ -235,7 +236,7 @@ const ProjectViewContent = ({ projectId = "" }) => {
       // const year = "2026";
       const payload = {
         projectId: projectId ?? null,
-        year: selectedYear ?? null
+        year: selectedEnergyYear ?? null
       };
 
       try {
@@ -247,7 +248,7 @@ const ProjectViewContent = ({ projectId = "" }) => {
       }
     };
     loadEnergyYearWiseData();
-  }, [projectId, selectedYear]);
+  }, [projectId, selectedEnergyYear]);
 
 
   // Electricity Month Cost Data
@@ -793,6 +794,7 @@ const ProjectViewContent = ({ projectId = "" }) => {
               selectedMonthYear={selectedMonthYear}
               onMonthYearChange={setSelectedMonthYear}
               monthlyChartDataLoading={monthlyChartDataLoading}
+              isMobile={isMobile}
               isDark={isDark}
             />
           )}
@@ -800,8 +802,8 @@ const ProjectViewContent = ({ projectId = "" }) => {
           {ChartViewMode === "year" && (
             <EnergyYearChart
               ChartYearData={ChartYearData}
-              selectedYear={selectedYear}
-              onYearChange={setSelectedYear}
+              selectedEnergyYear={selectedEnergyYear}
+              onYearChange={setSelectedEnergyYear}
               isDark={isDark}
             />
           )}

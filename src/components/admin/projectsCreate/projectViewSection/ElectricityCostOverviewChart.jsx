@@ -172,7 +172,7 @@ const ElectricityCostOverviewChart = ({
                         style={{
                             display: "flex",
                             gap: "8px",
-                            flexWrap: "wrap",        // ✅ mobile safe
+                            // flexWrap: "wrap",        // ✅ mobile safe
                         }}
                     >
                         {["day", "month", "year"].map((mode) => {

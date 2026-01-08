@@ -5,6 +5,7 @@ import DatePicker from 'react-datepicker';
 import { ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import dayjs from "dayjs";
 import 'react-datepicker/dist/react-datepicker.css';
+import { formatShort } from '@/utils/common';
 
 const buildChartData = (chartMonthData = [], selectedDate) => {
   const month_data = Array.isArray(chartMonthData) ? chartMonthData : [];
@@ -133,7 +134,7 @@ const generateTicks = (max, step) => {
 };
 
 
-const EnergyChart = ({ chartMonthData, selectedMonthYear, onMonthYearChange, isDark = false, monthlyChartDataLoading }) => {
+const EnergyChart = ({ chartMonthData, selectedMonthYear, onMonthYearChange, isMobile, isDark = false, monthlyChartDataLoading }) => {
   const { lang } = useLanguage();
   const styles = getStyles(isDark);
   const [selectedDate, setSelectedDate] = useState(
@@ -168,9 +169,6 @@ const EnergyChart = ({ chartMonthData, selectedMonthYear, onMonthYearChange, isD
   return (
     <>
       <style>{`
-        .date-picker-wrapper .react-datepicker-wrapper {
-          width: 10%;
-        }
         .date-picker-wrapper .react-datepicker__input-container input {
           width: 100%;
           padding: 8px 12px;
@@ -187,7 +185,7 @@ const EnergyChart = ({ chartMonthData, selectedMonthYear, onMonthYearChange, isD
       `}</style>
 
       <div style={styles.containerStyle}>
-        <div className='date-picker-wrapper' style={styles.datePickerWrapperStyle}>
+        <div className='date-picker-wrapper' style={{ width: isMobile ? '40%' : '10%' }}>
           <DatePicker
             selected={selectedDate}
             onChange={handleDateChange}
@@ -235,7 +233,7 @@ const EnergyChart = ({ chartMonthData, selectedMonthYear, onMonthYearChange, isD
                 dy: -10
               }}
               domain={[0, maxKwh]}
-              ticks={generateTicks(maxKwh, 100)}
+              ticks={generateTicks(maxKwh, 20)}
               stroke="#666"
             />
 
@@ -264,13 +262,28 @@ const EnergyChart = ({ chartMonthData, selectedMonthYear, onMonthYearChange, isD
             />
 
             <Tooltip
+              labelFormatter={(day) =>
+                dayjs(selectedDate)
+                  .date(Number(day))
+                  .format("YYYY-MM-DD")
+              }
+              formatter={(value, name) => {
+                if (name === "Revenue") {
+                  return [`${formatShort(value)} VND`, name];
+                }
+                if (name === "Full Load Hours") {
+                  return [`${value} h`, name];
+                }
+                return [`${formatShort(value)} kWh`, name];
+              }}
               contentStyle={{
                 backgroundColor: 'rgba(255, 255, 255, 0.95)',
                 border: '1px solid #ccc',
-                borderRadius: '4px'
+                borderRadius: '8px',
+                padding: '10px'
               }}
-              formatter={(value) => typeof value === 'number' ? value.toFixed(2) : value}
             />
+
 
             <Legend
               verticalAlign="bottom"
@@ -284,14 +297,14 @@ const EnergyChart = ({ chartMonthData, selectedMonthYear, onMonthYearChange, isD
               yAxisId="kwh"
               dataKey="yield"
               name="Yield"
-              fill="#FDB515"
+              fill="#f0cf00"
               barSize={24}
             />
             <Bar
               yAxisId="kwh"
               dataKey="exporting"
               name="Exporting"
-              fill="#4A90E2"
+              fill="#5f91cb"
               barSize={24}
             />
             <Bar
@@ -305,7 +318,7 @@ const EnergyChart = ({ chartMonthData, selectedMonthYear, onMonthYearChange, isD
               yAxisId="kwh"
               dataKey="consumed"
               name="Consumed"
-              fill="#FF8C42"
+              fill="#fda23a"
               barSize={24}
             />
 
@@ -315,7 +328,7 @@ const EnergyChart = ({ chartMonthData, selectedMonthYear, onMonthYearChange, isD
               type="linear"
               dataKey="fullLoadHours"
               name="Full Load Hours"
-              stroke="#4A90E2"
+              stroke="#4a7fbc"
               strokeWidth={2}
               dot={false}
             />
@@ -323,7 +336,7 @@ const EnergyChart = ({ chartMonthData, selectedMonthYear, onMonthYearChange, isD
               yAxisId="money"
               type="linear"
               dataKey="earning"
-              name="Earning"
+              name="Revenue"
               stroke="#f08519"
               strokeWidth={2}
               dot={false}
