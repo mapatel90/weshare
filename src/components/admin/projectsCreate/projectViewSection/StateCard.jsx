@@ -51,44 +51,68 @@ const StatCard = ({
         border: `1px solid ${colors.border}`,
       }}
     >
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
+
+
+      {/* VALUE */}
+      {React.isValidElement(value) ? (
         <div
           style={{
-            padding: 12,
-            borderRadius: 8,
-            background: color,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            margin: '1px 0',
           }}
         >
-          <Icon size={24} color="#fff" />
+          {value}
         </div>
+      ) : (
+        <>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
+            <div
+              style={{
+                padding: 12,
+                borderRadius: 8,
+                background: color,
+              }}
+            >
+              <Icon size={24} color="#fff" />
+            </div>
+          </div>
+          <h3
+            style={{
+              fontSize: 28,
+              fontWeight: 700,
+              color: colors.text,
+              display: 'flex',
+              alignItems: 'baseline',
+            }}
+          >
+            {(() => {
+              const valueStr = String(value)
+              const match = valueStr.match(/^(\d[\d,]*)(\.[\d,]+)?(.*)$/)
+              if (match) {
+                const integerPart = match[1]
+                const fractionalPart = match[2] ?? ''
+                const unitPart = match[3] ?? ''
+                const unitWithSpace =
+                  unitPart && !unitPart.startsWith(' ') ? ` ${unitPart}` : unitPart
 
-        {trend !== null && (
-          <span style={{ fontSize: 12 }}>
-            {trend > 0 ? `+${trend}%` : `${trend}%`}
-          </span>
-        )}
-      </div>
+                return (
+                  <>
+                    <span>{integerPart}</span>
+                    <span style={{ fontSize: '0.6em', fontWeight: 'normal' }}>
+                      {fractionalPart}
+                      {unitWithSpace}
+                    </span>
+                  </>
+                )
+              }
+              return value
+            })()}
+          </h3>
+        </>
+      )}
 
-      <h3 style={{ fontSize: 28, fontWeight: 700, color: colors.text, display: 'flex', alignItems: 'baseline' }}>
-        {(() => {
-          const valueStr = String(value)
-          const match = valueStr.match(/^(\d[\d,]*)(\.[\d,]+)?(.*)$/)
-          if (match) {
-            const integerPart = match[1]
-            const fractionalPart = match[2] ?? ''
-            const unitPart = match[3] ?? ''
-            const unitWithSpace = unitPart && !unitPart.startsWith(' ') ? ` ${unitPart}` : unitPart
-            const fractionalAndUnit = `${fractionalPart}${unitWithSpace}`
-            return (
-              <>
-                <span>{integerPart}</span>
-                <span style={{ fontSize: '0.6em', fontWeight: 'normal' }}>{fractionalAndUnit}</span>
-              </>
-            )
-          }
-          return value
-        })()}
-      </h3>
 
       <p style={{ fontSize: 14, color: colors.muted }}>{title}</p>
 
@@ -101,7 +125,7 @@ const StatCard = ({
   )
 }
 
-const CircularProgress = ({ percentage = 0, size = 140, strokeWidth = 10 }) => {
+const CircularProgress = ({ percentage = 0, size = 160, strokeWidth = 12 }) => {
   const radius = (size - strokeWidth) / 2
   const circumference = 2 * Math.PI * radius
   const offset = circumference - (percentage / 100) * circumference
@@ -120,7 +144,7 @@ const CircularProgress = ({ percentage = 0, size = 140, strokeWidth = 10 }) => {
         cx={size / 2}
         cy={size / 2}
         r={radius}
-        stroke="#22c55e"
+        stroke="#f97316"
         strokeWidth={strokeWidth}
         fill="none"
         strokeDasharray={circumference}
@@ -130,13 +154,25 @@ const CircularProgress = ({ percentage = 0, size = 140, strokeWidth = 10 }) => {
       />
       <text
         x="50%"
-        y="55%"
+        y="45%"
         textAnchor="middle"
-        fontSize="26"
+        dominantBaseline="middle"
         fontWeight="700"
+        fill="#111"
       >
-        {percentage}%
+        <tspan x="50%" dy="-10" fontSize="25">
+          {percentage}%
+        </tspan>
+
+        <tspan x="50%" dy="25" fontSize="15" fontWeight="400">
+          Capital
+        </tspan>
+
+        <tspan x="50%" dy="15" fontSize="15" fontWeight="400">
+          Recovered
+        </tspan>
       </text>
+
     </svg>
   )
 }
@@ -202,13 +238,14 @@ const StatCardsGrid = ({
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
         gap: 16,
+        marginBottom: 24
       }}
     >
       <StatCard
         icon={Sun}
         title={lang('Capacity')}
         value={`${formatNumber(project?.project_size)} kWh`}
-        subtitle={`${currency} ${formatShort(pricePerKwh)} / kWh`}
+        subtitle={`${lang('reports.capacityPrice', 'Capacity Price')}: ${currency} ${formatShort(pricePerKwh)} / kWh`}
         color="linear-gradient(to bottom right, #fbbf24, #f97316)"
         isDark={isDark}
       />
@@ -219,7 +256,7 @@ const StatCardsGrid = ({
         value={`${formatNumber(dailyEnergy)} kWh`}
         subtitle={
           dailyRevenue
-            ? `${currency} ${formatShort(dailyRevenue)}`
+            ? `${lang('reports.dailyRevenue')}:${currency} ${formatShort(dailyRevenue)}`
             : null
         }
         color="linear-gradient(to bottom right, #3b82f6, #2563eb)"
@@ -232,7 +269,7 @@ const StatCardsGrid = ({
         value={formatEnergyUnit(monthlyEnergy)}
         subtitle={
           monthlyRevenue
-            ? `${currency} ${formatShort(monthlyRevenue)}`
+            ? `${lang('reports.monthlyRevenue')}:${currency} ${formatShort(monthlyRevenue)}`
             : null
         }
         color="linear-gradient(to bottom right, #a855f7, #ec4899)"
@@ -245,7 +282,7 @@ const StatCardsGrid = ({
         value={formatEnergyUnit(totalEnergy)}
         subtitle={
           totalRevenue
-            ? `${currency} ${formatShort(totalRevenue)}`
+            ? `${lang('reports.totalRevenue')}: ${currency} ${formatShort(totalRevenue)}`
             : null
         }
         color="linear-gradient(to bottom right, #06b6d4, #0891b2)"
@@ -253,10 +290,11 @@ const StatCardsGrid = ({
       />
 
       <StatCard
+        style={{ display: 'flex', justifyContent: 'center' }}
         icon={Activity}
-        title="Capital Recovery"
+        // title="Capital Recovery"
         value={<CircularProgress percentage={capitalRecoveredPercent} />}
-        subtitle={`${currency} ${formatShort(totalRevenue)} / ${formatShort(askingPrice)}`}
+        // subtitle={`${currency} ${formatShort(totalRevenue)} / ${formatShort(askingPrice)}`}
         isDark={isDark}
       />
     </div>
