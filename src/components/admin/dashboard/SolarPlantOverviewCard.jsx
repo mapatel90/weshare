@@ -128,12 +128,17 @@ export default function SolarPlantOverviewCard() {
         >
           {(() => {
             const valueStr = String(value)
-            const decimalMatch = valueStr.match(/^([^\.]+)(\.[\d,]+)(.*)$/)
-            if (decimalMatch) {
+            const match = valueStr.match(/^(\d[\d,]*)(\.[\d,]+)?(.*)$/)
+            if (match) {
+              const integerPart = match[1]
+              const fractionalPart = match[2] ?? ''
+              const unitPart = match[3] ?? ''
+              const unitWithSpace = unitPart && !unitPart.startsWith(' ') ? ` ${unitPart}` : unitPart
+              const fractionalAndUnit = `${fractionalPart}${unitWithSpace}`
               return (
                 <>
-                  <span>{decimalMatch[1]}</span>
-                  <span style={{ fontSize: "0.6em", fontWeight: 'normal' }}>{decimalMatch[2]}{decimalMatch[3]}</span>
+                  <span>{integerPart}</span>
+                  <span style={{ fontSize: '0.6em', fontWeight: 'normal' }}>{fractionalAndUnit}</span>
                 </>
               )
             }

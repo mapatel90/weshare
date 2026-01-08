@@ -69,8 +69,25 @@ const StatCard = ({
         )}
       </div>
 
-      <h3 style={{ fontSize: 22, fontWeight: 700, color: colors.text }}>
-        {value}
+      <h3 style={{ fontSize: 28, fontWeight: 700, color: colors.text, display: 'flex', alignItems: 'baseline' }}>
+        {(() => {
+          const valueStr = String(value)
+          const match = valueStr.match(/^(\d[\d,]*)(\.[\d,]+)?(.*)$/)
+          if (match) {
+            const integerPart = match[1]
+            const fractionalPart = match[2] ?? ''
+            const unitPart = match[3] ?? ''
+            const unitWithSpace = unitPart && !unitPart.startsWith(' ') ? ` ${unitPart}` : unitPart
+            const fractionalAndUnit = `${fractionalPart}${unitWithSpace}`
+            return (
+              <>
+                <span>{integerPart}</span>
+                <span style={{ fontSize: '0.6em', fontWeight: 'normal' }}>{fractionalAndUnit}</span>
+              </>
+            )
+          }
+          return value
+        })()}
       </h3>
 
       <p style={{ fontSize: 14, color: colors.muted }}>{title}</p>
@@ -140,11 +157,26 @@ const StatCardsGrid = ({
   const pricePerKwh = toNumberOrNull(project?.weshare_price_kwh)
   const askingPrice = toNumberOrNull(project?.asking_price)
 
-  /* -------- ENERGY VALUES -------- */
+  /* -------- INVERTER DATA -------- */
+  let selectedInverter = null
+  if (selectedInverterId && project?.project_inverters) {
+    selectedInverter = project.project_inverters.find(
+      (inv) => String(inv.id) === String(selectedInverterId)
+    )
+  }
 
-  const dailyEnergy = project?.project_data?.[0]?.day_energy ?? null
-  const monthlyEnergy = project?.project_data?.[0]?.month_energy ?? null
-  const totalEnergy = project?.project_data?.[0]?.total_energy ?? null
+  /* -------- ENERGY VALUES -------- */
+  const dailyEnergy = selectedInverter
+    ? selectedInverter.day_energy ?? null
+    : project?.project_data?.[0]?.day_energy ?? null
+
+  const monthlyEnergy = selectedInverter
+    ? selectedInverter.month_energy ?? null
+    : project?.project_data?.[0]?.month_energy ?? null
+
+  const totalEnergy = selectedInverter
+    ? selectedInverter.total_energy ?? null
+    : project?.project_data?.[0]?.total_energy ?? null
 
   /* -------- REVENUE -------- */
 
