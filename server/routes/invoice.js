@@ -244,7 +244,7 @@ router.post("/", authenticateToken, async (req, res) => {
           invoice_date: invoice_date ? new Date(invoice_date) : null,
           due_date: due_date ? new Date(due_date) : null,
           currency: currency || "VND",
-          tax_id: tax || "",
+          tax_id: tax ? parseFloat(tax) : null,
           tax_amount: Number.isFinite(parseFloat(tax_amount))
             ? parseFloat(tax_amount)
             : 0,
@@ -367,7 +367,7 @@ router.put("/:id", authenticateToken, async (req, res) => {
           invoice_date: invoice_date ? new Date(invoice_date) : null,
           due_date: due_date ? new Date(due_date) : null,
           currency: currency || "VND",
-          tax_id: Number(tax) || "",
+          tax_id: tax ? parseFloat(tax) : null,
           tax_amount: Number.isFinite(parseFloat(tax_amount))
             ? parseFloat(tax_amount)
             : 0,

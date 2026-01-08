@@ -5,6 +5,7 @@ import { Sun, Zap, Activity } from 'lucide-react'
 import getSetting from '@/hooks/useSettings'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { formatShort, formatEnergyUnit } from '@/utils/common'
+import { useFormatPrice } from '@/hooks/useFormatPrice'
 
 /* -------------------- HELPERS -------------------- */
 
@@ -188,6 +189,7 @@ const StatCardsGrid = ({
 }) => {
   const { lang } = useLanguage()
   const settings = getSetting()
+  const formatPrice = useFormatPrice();
   const currency = settings?.settings?.finance_currency ?? ''
 
   const pricePerKwh = toNumberOrNull(project?.weshare_price_kwh)
@@ -221,13 +223,16 @@ const StatCardsGrid = ({
   const totalRevenue = calculateRevenue(totalEnergy, pricePerKwh)
 
   /* -------- CAPITAL RECOVERY -------- */
+  const projectTotalEnergy = project?.project_data?.[0]?.total_energy ?? null
+  const project_total_revenue = calculateRevenue(projectTotalEnergy, pricePerKwh)
+
 
   let capitalRecoveredPercent = 0
 
-  if (askingPrice > 0 && totalRevenue > 0) {
+  if (askingPrice > 0 && project_total_revenue > 0) {
     capitalRecoveredPercent = Math.min(
       100,
-      Math.round((totalRevenue * 100) / askingPrice)
+      Math.round((project_total_revenue  * 100) / askingPrice)
     )
   }
   /* -------------------- RENDER -------------------- */
@@ -245,7 +250,7 @@ const StatCardsGrid = ({
         icon={Sun}
         title={lang('Capacity')}
         value={`${formatNumber(project?.project_size)} kWh`}
-        subtitle={`${lang('reports.capacityPrice', 'Capacity Price')}: ${currency} ${formatShort(pricePerKwh)} / kWh`}
+        subtitle={`${lang('reports.capacityPrice', 'Capacity Price')}:  ${formatPrice(pricePerKwh)} / kWh`}
         color="linear-gradient(to bottom right, #fbbf24, #f97316)"
         isDark={isDark}
       />
@@ -256,7 +261,7 @@ const StatCardsGrid = ({
         value={`${formatNumber(dailyEnergy)} kWh`}
         subtitle={
           dailyRevenue
-            ? `${lang('reports.dailyRevenue')}:${currency} ${formatShort(dailyRevenue)}`
+            ? `${lang('reports.dailyRevenue')}: ${formatPrice(dailyRevenue)}`
             : null
         }
         color="linear-gradient(to bottom right, #3b82f6, #2563eb)"
@@ -269,7 +274,7 @@ const StatCardsGrid = ({
         value={formatEnergyUnit(monthlyEnergy)}
         subtitle={
           monthlyRevenue
-            ? `${lang('reports.monthlyRevenue')}:${currency} ${formatShort(monthlyRevenue)}`
+            ? `${lang('reports.monthlyRevenue')}: ${formatPrice(monthlyRevenue)}`
             : null
         }
         color="linear-gradient(to bottom right, #a855f7, #ec4899)"
@@ -282,7 +287,7 @@ const StatCardsGrid = ({
         value={formatEnergyUnit(totalEnergy)}
         subtitle={
           totalRevenue
-            ? `${lang('reports.totalRevenue')}: ${currency} ${formatShort(totalRevenue)}`
+            ? `${lang('reports.totalRevenue')}:  ${formatPrice(totalRevenue)}`
             : null
         }
         color="linear-gradient(to bottom right, #06b6d4, #0891b2)"
@@ -294,7 +299,7 @@ const StatCardsGrid = ({
         icon={Activity}
         // title="Capital Recovery"
         value={<CircularProgress percentage={capitalRecoveredPercent} isDark={isDark} />}
-        // subtitle={`${currency} ${formatShort(totalRevenue)} / ${formatShort(askingPrice)}`}
+        // subtitle={` ${formatShort(totalRevenue)} / ${formatShort(askingPrice)}`}
         isDark={isDark}
       />
     </div>

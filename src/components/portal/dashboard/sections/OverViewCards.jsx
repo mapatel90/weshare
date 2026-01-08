@@ -23,26 +23,26 @@ const sumMetric = (source, key) => {
   return total === 0 ? null : total;
 };
 
-const renderValue = (value, unit = " kWh") => {
-  if (value === null || value === undefined || value === "-") return "-";
-  const valueStr = `${formatNumber(value)}${unit}`;
-  const match = valueStr.match(/^(\d[\d,]*)(\.[\d,]+)?(.*)$/);
-  if (!match) return valueStr;
+const renderEnergyDisplay = (value) => {
+  const formatted = formatEnergyUnit(value);
+  if (typeof formatted !== "string") return formatted;
+
+  const match = formatted.match(/^(\d[\d,]*)(\.[\d,]+)?\s*(.*)$/);
+  if (!match) return formatted;
+
   const integerPart = match[1];
   const fractionalPart = match[2] ?? "";
-  const unitPart = match[3] ?? "";
-  const fractionalAndUnit = fractionalPart
-    ? `${fractionalPart}${unitPart}`
-    : unitPart && !unitPart.startsWith(" ")
-      ? ` ${unitPart}`
-      : unitPart;
+  const unitPart = match[3] ? ` ${match[3]}` : "";
+  const suffix = `${fractionalPart}${unitPart}`;
 
   return (
     <>
-      <span>{integerPart}</span>
-      {fractionalAndUnit && (
-        <span style={{ fontSize: "0.6em", fontWeight: "normal" }}>
-          {fractionalAndUnit}
+      <span style={{ fontSize: "1.40em", fontWeight: 700 }}>{integerPart}</span>
+      {suffix && (
+        <span
+          style={{ fontSize: "0.8em", fontWeight: "normal", marginLeft: "2px" }}
+        >
+          {suffix}
         </span>
       )}
     </>
@@ -102,14 +102,9 @@ export default function OverViewCards({
     ? selectedProject.project_size ?? null
     : totalProjectSize ?? null;
 
-  const formatSize = (v) => {
-    if (v === null || v === undefined) return "-";
-    return renderValue(v, " kW");
-  };
-
   // Daily yield display
   let dailyYieldValue = "-";
-  let dailyYieldSubtitle = `Energy produced today (${contextLabel})`;
+  let dailyYieldSubtitle = `Energy produced today`;
 
   if (inverterLatestLoading) {
     dailyYieldValue = "Loading...";
@@ -122,7 +117,7 @@ export default function OverViewCards({
 
   // Monthly yield display
   let monthlyYieldValue = "-";
-  let monthlyYieldSubtitle = `Monthly energy produced (${contextLabel})`;
+  let monthlyYieldSubtitle = `Monthly energy produced`;
 
   if (inverterLatestLoading) {
     monthlyYieldValue = "Loading...";
@@ -135,7 +130,7 @@ export default function OverViewCards({
 
   // Total yield display
   let totalYieldValue = "-";
-  let totalYieldSubtitle = `Lifetime energy produced (${contextLabel})`;
+  let totalYieldSubtitle = `Lifetime energy produced`;
 
   if (inverterLatestLoading) {
     totalYieldValue = "Loading...";
@@ -157,14 +152,8 @@ export default function OverViewCards({
           />
           <span className="text-gray-800 font-medium">Scope</span>
         </div>
-        <div className="stat-value">{formatSize(projectSizeValue)}</div>
-        <div className="stat-label">
-          {isInverterSelected
-            ? selectedInverter?.name || "Selected inverter"
-            : isProjectSelected
-            ? selectedProject?.name || "Selected project"
-            : "All of your projects"}
-        </div>
+        <div className="stat-value">{renderEnergyDisplay(projectSizeValue)}</div>
+        <div className="stat-label">Capacity</div>
 
         {/* NEW: show project_size (selected or aggregated total) */}
       </div>
@@ -178,7 +167,7 @@ export default function OverViewCards({
           />
           <span className="text-gray-800 font-medium">Daily Yield</span>
         </div>
-        <div className="stat-value">{formatEnergyUnit(dailyYieldValue)}</div>
+        <div className="stat-value">{renderEnergyDisplay(dailyYieldValue)}</div>
         <div className="stat-label">{dailyYieldSubtitle}</div>
       </div>
 
@@ -191,7 +180,7 @@ export default function OverViewCards({
           />
           <span className="text-gray-800 font-medium">Monthly Yield</span>
         </div>
-        <div className="stat-value">{formatEnergyUnit(monthlyYieldValue)}</div>
+        <div className="stat-value">{renderEnergyDisplay(monthlyYieldValue)}</div>
         <div className="stat-label">{monthlyYieldSubtitle}</div>
       </div>
 
@@ -204,7 +193,7 @@ export default function OverViewCards({
           />
           <span className="text-gray-800 font-medium">Total Yield</span>
         </div>
-        <div className="stat-value">{formatEnergyUnit(totalYieldValue)}</div>
+        <div className="stat-value">{renderEnergyDisplay(totalYieldValue)}</div>
         <div className="stat-label">{totalYieldSubtitle}</div>
       </div>
     </div>
