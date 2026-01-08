@@ -1388,7 +1388,8 @@
     "totalYield": "Total Yield",
     "capacityperKWh": "Capacity price per kWh",
     "dailyRevenue": "Daily Revenue",
-    "totalRevenue": "Total Revenue"
+    "totalRevenue": "Total Revenue",
+    "monthlyRevenue": "Monthly Revenue"
   },
   "projectView": {
     "projectInformation": {

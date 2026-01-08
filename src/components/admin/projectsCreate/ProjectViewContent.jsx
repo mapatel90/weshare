@@ -464,7 +464,7 @@ const ProjectViewContent = ({ projectId = "" }) => {
                     >
                       {lang("inverter.selectInverter", "Select Inverter")}
                     </option>
-                    {projectInverters.map((pi) => {
+                    {projectInverters.map((pi, index) => {
                       const inv = pi.inverter || {};
                       const label = pi.inverter_name
                         ? `${pi.inverter_name} (Serial: ${pi.inverter_serial_number || "N/A"
@@ -472,7 +472,7 @@ const ProjectViewContent = ({ projectId = "" }) => {
                         : `Inverter ID: ${pi.id}`;
                       return (
                         <option
-                          key={pi.id}
+                          key={`inverter-tablet-${pi.id}-${index}`}
                           value={pi.id}
                           style={{
                             background: isDark ? "#121a2d" : "#fff",
@@ -592,7 +592,7 @@ const ProjectViewContent = ({ projectId = "" }) => {
                     >
                       {lang("inverter.selectInverter", "Select Inverter")}
                     </option>
-                    {projectInverters.map((pi) => {
+                    {projectInverters.map((pi, index) => {
                       const inv = pi.inverter || {};
                       const label = pi.inverter_name
                         ? `${pi.inverter_name} (Serial: ${pi.inverter_serial_number || "N/A"
@@ -600,7 +600,7 @@ const ProjectViewContent = ({ projectId = "" }) => {
                         : `Inverter ID: ${pi.id}`;
                       return (
                         <option
-                          key={pi.id}
+                          key={`inverter-desktop-${pi.id}-${index}`}
                           value={pi.id}
                           style={{
                             background: isDark ? "#121a2d" : "#fff",

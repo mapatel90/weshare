@@ -133,7 +133,7 @@ export default function SolarPlantOverviewCard() {
               return (
                 <>
                   <span>{decimalMatch[1]}</span>
-                  <span style={{ fontSize: "0.6em" }}>{decimalMatch[2]}{decimalMatch[3]}</span>
+                  <span style={{ fontSize: "0.6em", fontWeight: 'normal' }}>{decimalMatch[2]}{decimalMatch[3]}</span>
                 </>
               )
             }
