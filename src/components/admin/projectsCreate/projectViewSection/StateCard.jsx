@@ -4,7 +4,7 @@ import { Sun, Zap, TrendingUp, Activity } from 'lucide-react'
 import { getSettingValue } from '@/utils/settingsHelper';
 import getSetting from "@/hooks/useSettings";
 import { useLanguage } from '@/contexts/LanguageContext';
-import { formatShort } from '@/utils/common';
+import { formatShort, formatEnergyUnit } from '@/utils/common';
 
 const formatNumber = (v, suffix = '') => {
   if (v === null || v === undefined || v === '') return '-'
@@ -80,7 +80,21 @@ const StatCard = ({ icon: Icon, title, value, subtitle, color, trend, isDark = f
           </span>
         )}
       </div>
-      <h3 style={{ fontSize: 24, fontWeight: 'bold', color: colors.text, marginBottom: 4 }}>{value}</h3>
+      <h3 style={{ fontSize: 24, fontWeight: 'bold', color: colors.text, marginBottom: 4, display: 'flex', alignItems: 'baseline' }}>
+        {(() => {
+          const valueStr = String(value)
+          const decimalMatch = valueStr.match(/^([^.]+)(\.[\d,]+)(.*)$/)
+          if (decimalMatch) {
+            return (
+              <>
+                <span>{decimalMatch[1]}</span>
+                <span style={{ fontSize: '0.8em' }}>{decimalMatch[2]}{decimalMatch[3]}</span>
+              </>
+            )
+          }
+          return value
+        })()}
+      </h3>
       <p style={{ fontSize: 14, color: colors.textMuted }}>{title}</p>
       <p style={{ fontSize: 12, color: colors.textSubtitle, marginTop: 4 }}>{subtitle}</p>
     </div>
@@ -99,14 +113,15 @@ const StatCardsGrid = ({
   const { lang } = useLanguage()
   const isInverterSelected = !!selectedInverterId;
   const projectPriceKwh = project?.weshare_price_kwh;
+  const projectStateData = project?.project_data || {};
   // Prefer statCardsData for yield metrics if available
   let dailyYieldMetric = null;
   let totalYieldMetric = null;
   let hasAggregatedData = Array.isArray(statCardsData) && statCardsData.length > 0;
   if (!isInverterSelected && hasAggregatedData) {
     // Sum all daily_yield and total_yield from statCardsData
-    dailyYieldMetric = statCardsData.reduce((sum, item) => sum + (item.daily_yield || 0), 0);
-    totalYieldMetric = statCardsData.reduce((sum, item) => sum + (item.total_yield || 0), 0);
+    dailyYieldMetric = projectStateData.reduce((sum, item) => sum + (item.day_energy || 0), 0);
+    totalYieldMetric = projectStateData.reduce((sum, item) => sum + (item.year_energy || 0), 0);
   } else if (isInverterSelected && hasAggregatedData) {
     // Find the selected inverter's values
     const selected = statCardsData.find(item => String(item.inverter_id) === String(selectedInverterId));
@@ -151,13 +166,39 @@ const StatCardsGrid = ({
       : 'No revenue available'
   }
 
+  // Determine monthly yield
+  let monthlyYieldValue, monthlyYieldSubtitle, monthlyYieldRawValue = null
+  if (inverterLatestLoading) {
+    monthlyYieldValue = 'Loading...'
+    monthlyYieldSubtitle = `Loading ${isInverterSelected ? 'inverter' : 'project'} data...`
+  } else if (!isInverterSelected && project?.project_data?.[0]?.month_energy !== undefined && project?.project_data?.[0]?.month_energy !== null) {
+    monthlyYieldRawValue = project.project_data[0].month_energy
+    monthlyYieldValue = formatEnergyUnit(monthlyYieldRawValue)
+    let monthlyMonetaryValue = null
+    if (projectPriceKwh !== undefined && projectPriceKwh !== null && monthlyYieldRawValue !== null) {
+      monthlyMonetaryValue = monthlyYieldRawValue * projectPriceKwh
+    }
+    monthlyYieldSubtitle = (monthlyMonetaryValue !== null ? ` • ${lang('reports.monthlyRevenue')}: ${currency} ${formatShort(monthlyMonetaryValue)}` : '')
+  } else if (project?.monthly_revenue) {
+    monthlyYieldValue = `${currency ? currency + ' ' : ''}${formatNumber(project.monthly_revenue)}`
+    monthlyYieldSubtitle = lang('reports.monthlyRevenue', 'Monthly Revenue')
+  } else if (project?.revenue) {
+    monthlyYieldValue = `${currency ? currency + ' ' : ''}${formatNumber(project.revenue)}`
+    monthlyYieldSubtitle = lang('reports.monthlyRevenue', 'Monthly Revenue')
+  } else {
+    monthlyYieldValue = '-'
+    monthlyYieldSubtitle = isInverterSelected
+      ? 'No revenue available for selected inverter'
+      : 'No revenue available'
+  }
+
   // Determine total yield
   let totalYieldValue, totalYieldSubtitle
   if (inverterLatestLoading) {
     totalYieldValue = 'Loading...'
     totalYieldSubtitle = `Loading ${isInverterSelected ? 'inverter' : 'project'} data...`
   } else if (totalYieldMetric !== null) {
-    totalYieldValue = `${formatNumber(totalYieldMetric)} kWh`
+    totalYieldValue = `${formatEnergyUnit(totalYieldMetric)}`
     let totalMonetaryValue = null
     if (projectPriceKwh !== undefined && projectPriceKwh !== null && totalYieldMetric !== null) {
       totalMonetaryValue = totalYieldMetric * projectPriceKwh
@@ -199,15 +240,9 @@ const StatCardsGrid = ({
       />
       <StatCard
         icon={Activity}
-        title="Revenue"
-        value={
-          project?.monthly_revenue
-            ? `$${formatNumber(project.monthly_revenue)}`
-            : project?.revenue
-              ? `$${formatNumber(project.revenue)}`
-              : '-'
-        }
-        subtitle="Total revenue generated"
+        title={lang('reports.monthlyYield', 'Monthly Yield')}
+        value={monthlyYieldValue}
+        subtitle={monthlyYieldSubtitle}
         color="linear-gradient(to bottom right, #a855f7, #ec4899)"
         trend={project?.revenue_trend ?? null}
         isDark={isDark}

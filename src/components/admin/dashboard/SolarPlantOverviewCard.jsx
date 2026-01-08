@@ -122,9 +122,23 @@ export default function SolarPlantOverviewCard() {
             fontWeight: "bold",
             color: colors.text,
             marginBottom: 4,
+            display: "flex",
+            alignItems: "baseline",
           }}
         >
-          {value}
+          {(() => {
+            const valueStr = String(value)
+            const decimalMatch = valueStr.match(/^([^\.]+)(\.[\d,]+)(.*)$/)
+            if (decimalMatch) {
+              return (
+                <>
+                  <span>{decimalMatch[1]}</span>
+                  <span style={{ fontSize: "0.8em" }}>{decimalMatch[2]}{decimalMatch[3]}</span>
+                </>
+              )
+            }
+            return value
+          })()}
         </h3>
         <p style={{ fontSize: 14, color: colors.textMuted }}>{title}</p>
         <p style={{ fontSize: 12, color: colors.textSubtitle, marginTop: 4 }}>
