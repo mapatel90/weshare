@@ -63,16 +63,36 @@ const PaymentModal = ({ isOpen, onClose, invoiceNumber, onSubmit, totalAmount })
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-opacity-30 backdrop-blur-sm">
-            <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
-                <h2 className="text-xl font-bold mb-4">Make a Payment</h2>
+        <div 
+            style={{ 
+                position: 'fixed', 
+                top: 0, 
+                left: 0, 
+                right: 0, 
+                bottom: 0, 
+                backgroundColor: 'rgba(0, 0, 0, 0.5)', 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                zIndex: 1050,
+                backdropFilter: 'blur(4px)'
+            }}
+            onClick={onClose}
+        >
+            <div 
+                className="bg-white rounded shadow p-4" 
+                style={{ width: '100%', maxWidth: '500px' }}
+                onClick={(e) => e.stopPropagation()}
+            >
+                <h2 className="h4 fw-bold mb-3">Make a Payment</h2>
                 <form onSubmit={handleSubmit}>
-                    <div className="mb-4">
-                        <label className="block font-semibold mb-1">Invoice Number</label>
+                    <div className="mb-3">
+                        <label className="form-label fw-semibold">Invoice Number</label>
                         <select
                             value={invoiceNumber ? invoiceNumber : selectedInvoice}
                             onChange={e => setSelectedInvoice(e.target.value)}
-                            className="w-full border rounded px-3 py-2 bg-gray-100"
+                            className="form-select"
+                            style={{ backgroundColor: '#f3f4f6' }}
                             required
                             disabled={!!invoiceNumber}
                         >
@@ -82,52 +102,70 @@ const PaymentModal = ({ isOpen, onClose, invoiceNumber, onSubmit, totalAmount })
                             ))}
                         </select>
                     </div>
-                    <div className="mb-4">
-                        <label className="block font-semibold mb-1">Total Amount</label>
+                    <div className="mb-3">
+                        <label className="form-label fw-semibold">Total Amount</label>
                         <input
                             type="text"
                             value={totalAmount}
-                            onChange={(e) => setTransactionId(e.target.value)}
-                            className="w-full border rounded px-3 py-2"
+                            readOnly
+                            className="form-control"
                             required
                         />
                     </div>
-                    <div className="mb-4">
-                        <label className="block font-semibold mb-1">Upload Screenshot</label>
+                    <div className="mb-3">
+                        <label className="form-label fw-semibold">Upload Screenshot</label>
                         <div
-                            className={`w-full border-2 border-dashed rounded px-3 py-6 flex flex-col items-center justify-center cursor-pointer transition ${dragActive ? 'border-orange-500 bg-orange-50' : 'border-gray-300 bg-gray-100'}`}
+                            style={{
+                                width: '100%',
+                                border: dragActive ? '2px dashed #ff8c00' : '2px dashed #d1d5db',
+                                borderRadius: '4px',
+                                padding: '2rem 1rem',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                cursor: 'pointer',
+                                backgroundColor: dragActive ? '#fff5e6' : '#f3f4f6',
+                                transition: 'all 0.3s ease'
+                            }}
                             onDragOver={handleDragOver}
                             onDragLeave={handleDragLeave}
                             onDrop={handleDrop}
                             onClick={() => document.getElementById('file-upload-input').click()}
                         >
-                            <span className="text-gray-500">Drag &amp; Upload or Click to select</span>
+                            <span className="text-muted">Drag & Upload or Click to select</span>
                             <input
                                 id="file-upload-input"
                                 type="file"
                                 accept="image/*"
                                 onChange={handleFileInputChange}
-                                className="hidden"
+                                style={{ display: 'none' }}
                                 required
                             />
+                            {image && <small className="text-success mt-2">File selected: {image.name}</small>}
                         </div>
                         {imagePreview && (
                             <div className="mt-2">
-                                <img src={imagePreview} alt="Preview" className="max-h-40 rounded border" />
+                                <img 
+                                    src={imagePreview} 
+                                    alt="Preview" 
+                                    className="border rounded" 
+                                    style={{ maxHeight: '160px', display: 'block' }} 
+                                />
                             </div>
                         )}
                     </div>
-                    <div className="flex justify-end gap-2">
+                    <div className="d-flex justify-content-end gap-2">
                         <button
                             type="button"
-                            className="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400"
+                            className="btn btn-secondary px-4 py-2"
                             onClick={onClose}
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
-                            className="theme-btn-org-color px-4 py-2 rounded text-white font-bold"
+                            className="btn text-white fw-bold px-4 py-2 common-orange-color"
                         >
                             Submit Payment
                         </button>

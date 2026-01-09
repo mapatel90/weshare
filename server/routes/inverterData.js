@@ -12,16 +12,20 @@ router.get("/", async (req, res) => {
       search,
       downloadAll,
       limit,
+      page,
       startDate,
       endDate,
     } = req.query;
 
     const parsedLimit = Number(limit);
     const limitNumber =
-      !Number.isNaN(parsedLimit) && parsedLimit > 0 ? parsedLimit : null;
-    // Default: fetch all records unless an explicit limit is provided
-    const fetchAll =
-      downloadAll === "1" || downloadAll === "true" || !limitNumber;
+      !Number.isNaN(parsedLimit) && parsedLimit > 0 ? parsedLimit : 50; // default to 50 rows when not explicitly provided
+    const parsedPage = Number(page);
+    const pageNumber =
+      !Number.isNaN(parsedPage) && parsedPage > 0 ? parsedPage : 1;
+
+    // Only fetch all when explicitly requested (CSV export). Otherwise page through results.
+    const fetchAll = downloadAll === "1" || downloadAll === "true";
 
     // Build the base where clause based on filters
     let where = {
@@ -133,15 +137,15 @@ router.get("/", async (req, res) => {
         projects: true,
         project_inverters: true,
       },
-      skip: 0,
+      skip: fetchAll ? 0 : (pageNumber - 1) * limitNumber,
       take: fetchAll ? undefined : limitNumber,
     });
 
-    const effectiveLimit = limitNumber || totalCount;
+    const effectiveLimit = fetchAll ? totalCount : limitNumber;
     const returnedCount = fetchAll
       ? totalCount
-      : Math.min(totalCount, effectiveLimit);
-    const pageSize = 50; // frontend will show 50 per page
+      : Math.min(totalCount, pageNumber * effectiveLimit);
+    const pageSize = fetchAll ? effectiveLimit || limitNumber : limitNumber;
 
     // --- Fetch full project list (for dropdown) ---
     const projectList = await prisma.projects.findMany({
@@ -171,10 +175,12 @@ router.get("/", async (req, res) => {
       projectList,
       inverterList,
       pagination: {
-        page: 1,
+        page: pageNumber,
         limit: fetchAll ? totalCount : effectiveLimit,
-        total: returnedCount,
-        pages: Math.max(1, Math.ceil(returnedCount / pageSize)),
+        total: totalCount,
+          pages: fetchAll
+            ? 1
+            : Math.max(1, Math.ceil(totalCount / pageSize || 1)),
       },
     });
   } catch (error) {

@@ -1062,7 +1062,8 @@
     "addItem": "Thêm mục",
     "basicInfo": "Thông tin cơ bản",
     "invoiceDetails": "Chi tiết hóa đơn",
-    "subamount": "Số tiền phụ"
+    "subamount": "Số tiền phụ",
+    "viewinvoice": "Xem hóa đơn"
   },
   "finance": {
     "title": "Tài chính chung",
