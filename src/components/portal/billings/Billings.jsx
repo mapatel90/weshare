@@ -4,7 +4,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { apiGet } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
-import { usePriceWithCurrency } from "@/hooks/useFormatPrice";
+import { usePriceWithCurrency } from "@/hooks/usePriceWithCurrency";
 
 const fallbackInvoices = [
     { name: "DCL Solutions", number: 1, invoiceDate: "21 Jul 2022", dueDate: "07 Oct 2022", amount: "$31.80", status: "Unfunded", download: true },
@@ -187,12 +187,12 @@ const Billings = () => {
     };
 
     return (
-        <div className="p-6 bg-white rounded-xl shadow-md">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-2">
+        <div className="p-6 bg-white shadow-md rounded-xl">
+            <div className="flex flex-col gap-2 mb-4 md:flex-row md:items-center md:justify-between">
                 {/* Project Dropdown Filter */}
                 <div className="flex flex-col gap-1">
                     <select
-                        className="theme-btn-blue-color border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
+                        className="px-3 py-2 text-sm border rounded-md theme-btn-blue-color focus:outline-none focus:ring-2 focus:ring-blue-200"
                         value={projectFilter}
                         onChange={e => setProjectFilter(e.target.value)}
                         disabled={projectsLoading}
@@ -219,10 +219,10 @@ const Billings = () => {
                         placeholder="Search project or invoice..."
                         value={search}
                         onChange={e => setSearch(e.target.value)}
-                        className="border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
+                        className="px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-200"
                     />
                     <select
-                        className="theme-btn-blue-color border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
+                        className="px-3 py-2 text-sm border rounded-md theme-btn-blue-color focus:outline-none focus:ring-2 focus:ring-blue-200"
                         value={statusFilter}
                         onChange={e => setStatusFilter(e.target.value)}
                     >
@@ -237,13 +237,13 @@ const Billings = () => {
                 <table className="min-w-full text-sm">
                     <thead className="bg-gray-50">
                         <tr>
-                            <th className="px-4 py-3 text-left font-semibold">PROJECT NAME</th>
-                            <th className="px-4 py-3 text-left font-semibold">INVOICE NAME</th>
-                            <th className="px-2 py-3 text-left font-semibold">INVOICE DATE</th>
-                            <th className="px-2 py-3 text-left font-semibold">DUE DATE</th>
-                            <th className="px-2 py-3 text-left font-semibold">AMOUNT</th>
-                            <th className="px-2 py-3 text-left font-semibold">STATUS</th>
-                            <th className="px-2 py-3 text-left font-semibold">DOWNLOAD</th>
+                            <th className="px-4 py-3 font-semibold text-left">PROJECT NAME</th>
+                            <th className="px-4 py-3 font-semibold text-left">INVOICE NAME</th>
+                            <th className="px-2 py-3 font-semibold text-left">INVOICE DATE</th>
+                            <th className="px-2 py-3 font-semibold text-left">DUE DATE</th>
+                            <th className="px-2 py-3 font-semibold text-left">AMOUNT</th>
+                            <th className="px-2 py-3 font-semibold text-left">STATUS</th>
+                            <th className="px-2 py-3 font-semibold text-left">DOWNLOAD</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -261,7 +261,7 @@ const Billings = () => {
                                     {inv.download ? (
                                         <div className="relative inline-block text-left">
                                             <button
-                                                className="bg-transparent border-none cursor-pointer px-2 py-1 dropdown-action-btn"
+                                                className="px-2 py-1 bg-transparent border-none cursor-pointer dropdown-action-btn"
                                                 onClick={() => setDropdownOpen(idx)}
                                             >
                                                 <span className="text-2xl">&#8942;</span>
@@ -274,15 +274,15 @@ const Billings = () => {
                                                         style={{ background: 'transparent' }}
                                                         onClick={() => setDropdownOpen(null)}
                                                     />
-                                                    <div className="absolute right-0 mt-2 w-32 bg-white border rounded shadow-lg z-20 dropdown-action-menu">
+                                                    <div className="absolute right-0 z-20 w-32 mt-2 bg-white border rounded shadow-lg dropdown-action-menu">
                                                         <button
-                                                            className="block w-full text-left px-4 py-2 text-blue-600 hover:bg-gray-100"
+                                                            className="block w-full px-4 py-2 text-left text-blue-600 hover:bg-gray-100"
                                                             onClick={() => { handleDownload(inv.number); setDropdownOpen(null); }}
                                                         >
                                                             Download
                                                         </button>
                                                         <button
-                                                            className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
+                                                            className="block w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100"
                                                             onClick={() => { handleView(inv.id); setDropdownOpen(null); }}
                                                         >
                                                             View
@@ -305,11 +305,11 @@ const Billings = () => {
             <div className="flex items-center justify-between mt-4">
                 <div className="text-sm text-gray-500">1 - {filteredInvoices.length} of {invoices.length} entries</div>
                 <div className="flex gap-1">
-                    <button className="w-8 h-8 rounded bg-blue-600 text-white font-bold">1</button>
-                    <button className="w-8 h-8 rounded bg-gray-100 text-gray-700">2</button>
-                    <button className="w-8 h-8 rounded bg-gray-100 text-gray-700">3</button>
-                    <button className="w-8 h-8 rounded bg-gray-100 text-gray-700">4</button>
-                    <button className="w-8 h-8 rounded bg-gray-100 text-gray-700">5</button>
+                    <button className="w-8 h-8 font-bold text-white bg-blue-600 rounded">1</button>
+                    <button className="w-8 h-8 text-gray-700 bg-gray-100 rounded">2</button>
+                    <button className="w-8 h-8 text-gray-700 bg-gray-100 rounded">3</button>
+                    <button className="w-8 h-8 text-gray-700 bg-gray-100 rounded">4</button>
+                    <button className="w-8 h-8 text-gray-700 bg-gray-100 rounded">5</button>
                 </div>
             </div>
         </div>
