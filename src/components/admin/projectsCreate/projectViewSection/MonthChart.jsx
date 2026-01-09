@@ -111,13 +111,34 @@ const getStyles = (isDark = false) => {
 }
 
 
-const getMaxKwh = (data = []) =>
-  Math.max(
-    ...data.map(d =>
-      Math.max(d.yield, d.exporting, d.importing, d.consumed)
-    ),
+// const getMaxKwh = (data = []) =>
+//   Math.max(
+//     ...data.map(d =>
+//       Math.max(d.yield, d.exporting, d.importing, d.consumed)
+//     ),
+//     0
+//   );
+
+const getMaxKwh = (data = []) => {
+  const rawMax = Math.max(
+    ...data.flatMap(d => [
+      d.yield || 0,
+      d.exporting || 0,
+      d.importing || 0,
+      d.consumed || 0
+    ]),
     0
   );
+
+  let step = 10; // ✅ number, not string
+
+  if (rawMax > 100 && rawMax <= 500) step = 50;
+  else if (rawMax > 500) step = 100;
+
+  console.log("rawMax", rawMax, "step", step);
+
+  return Math.ceil(rawMax / step) * step;
+};
 
 const getMaxMoney = (data = []) =>
   Math.max(...data.map(d => d.earning), 0);
@@ -162,7 +183,8 @@ const EnergyChart = ({ chartMonthData, selectedMonthYear, onMonthYearChange, isM
     [chartMonthData, selectedDate]
   );
 
-  const maxKwh = Math.ceil(getMaxKwh(data) / 100) * 100 || 10;
+  // const maxKwh = Math.ceil(getMaxKwh(data) / 100) * 100 || 10;
+  const maxKwh = getMaxKwh(data);
   const maxMoney = Math.ceil(getMaxMoney(data) / 50) * 50 || 50;
   const maxHours = Math.ceil(getMaxHours(data) * 2) / 2 || 1;
 
@@ -233,7 +255,7 @@ const EnergyChart = ({ chartMonthData, selectedMonthYear, onMonthYearChange, isM
                 dy: -10
               }}
               domain={[0, maxKwh]}
-              ticks={generateTicks(maxKwh, 20)}
+              ticks={generateTicks(maxKwh, 10)}
               stroke="#666"
             />
 
