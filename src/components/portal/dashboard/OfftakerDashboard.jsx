@@ -458,7 +458,7 @@ function DashboardView() {
                 }}
                 disabled={!selectedProject}
               >
-                {selectedInverter ? selectedInverter.name : "Inverter ▼"}
+                {selectedInverter ? selectedInverter.name : "All Inverters ▼"}
               </button>
               {showInverterDropdown && selectedProject && (
                 <div
@@ -493,7 +493,38 @@ function DashboardView() {
                         {invertersError}
                       </li>
                     ) : inverters.length ? (
-                      inverters.map((inv) => {
+                      <>
+                        {/* All Inverters option */}
+                        <li
+                          role="button"
+                          tabIndex={0}
+                          style={{
+                            padding: "8px 16px",
+                            cursor: "pointer",
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            background: !selectedInverter ? "#eef2ff" : undefined,
+                            fontWeight: !selectedInverter ? 600 : 400,
+                            color: "#111827",
+                          }}
+                          onClick={() => {
+                            setSelectedInverter(null);
+                            setShowInverterDropdown(false);
+                          }}
+                        >
+                          <span>All Inverters</span>
+                        </li>
+                        <li style={{ padding: "4px 0" }}>
+                          <hr
+                            style={{
+                              margin: 0,
+                              border: "none",
+                              borderTop: "1px solid #eef2ff",
+                            }}
+                          />
+                        </li>
+                        {inverters.map((inv) => {
                         const isSelectedInv =
                           selectedInverter &&
                           (selectedInverter.id === inv.id ||
@@ -521,7 +552,8 @@ function DashboardView() {
                             <span>{inv.name}</span>
                           </li>
                         );
-                      })
+                      })}
+                      </>
                     ) : (
                       <li style={{ padding: "8px 16px", color: "#6b7280" }}>
                         No inverters for this project.

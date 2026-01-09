@@ -175,6 +175,8 @@ const InvoiceViewContant = ({ invoiceId }) => {
               tax_amount: priceWithCurrency(apiInv?.tax_amount),
               total: priceWithCurrency(apiInv?.total_amount ?? apiInv?.sub_amount),
             },
+            notes: apiInv?.notes || "",
+            terms_and_conditions: apiInv?.terms_and_conditions || "",
           };
 
           setInvoiceData(normalized);
@@ -276,19 +278,42 @@ const InvoiceViewContant = ({ invoiceId }) => {
         </div>
 
         <div className="mt-4">
-          <div className="border rounded-3 p-3 p-md-4 shadow-sm" style={{ background: '#f9fafb' }}>
-            <div className="d-flex flex-column gap-2">
-              <div className="d-flex justify-content-between align-items-center">
-                <span className="text-muted">Subtotal</span>
-                <span className="fw-semibold" style={{ color: '#111827' }}>{summary?.summary || ''}</span>
+          <div className="row g-3">
+            {/* Left Column - Notes and Terms */}
+            <div className="col-12 col-md-6">
+              <div className="border rounded-3 p-3 shadow-sm" style={{ background: '#f9fafb', height: '100%' }}>
+                <div className="mb-3">
+                  <div className="fw-bold mb-2" style={{ color: '#374151', fontSize: '14px' }}>Notes:</div>
+                  <div className="text-muted" style={{ fontSize: '13px', lineHeight: '1.6' }}>
+                    {invoiceData?.notes || 'No additional notes'}
+                  </div>
+                </div>
+                <div>
+                  <div className="fw-bold mb-2" style={{ color: '#374151', fontSize: '14px' }}>Terms & Conditions:</div>
+                  <div className="text-muted" style={{ fontSize: '13px', lineHeight: '1.6' }}>
+                    {invoiceData?.terms_and_conditions || 'No terms and conditions provided'}
+                  </div>
+                </div>
               </div>
-              <div className="d-flex justify-content-between align-items-center">
-                <span className="text-muted">Tax {getTaxDisplay()}</span>
-                <span className="fw-semibold" style={{ color: '#b91c1c' }}>{summary?.tax_amount || ''}</span>
-              </div>
-              <div className="border-top pt-3 mt-2 d-flex justify-content-between align-items-center">
-                <span className="fw-bold" style={{ color: '#111827' }}>Total Due</span>
-                <span className="fw-bold h5 mb-0" style={{ color: '#1d4ed8' }}>{summary?.total || ''}</span>
+            </div>
+
+            {/* Right Column - Totals */}
+            <div className="col-12 col-md-6">
+              <div className="border rounded-3 p-3 p-md-4 shadow-sm" style={{ background: '#f9fafb' }}>
+                <div className="d-flex flex-column gap-2">
+                  <div className="d-flex justify-content-between align-items-center">
+                    <span className="text-muted">Subtotal</span>
+                    <span className="fw-semibold" style={{ color: '#111827' }}>{summary?.summary || ''}</span>
+                  </div>
+                  <div className="d-flex justify-content-between align-items-center">
+                    <span className="text-muted">Tax {getTaxDisplay()}</span>
+                    <span className="fw-semibold" style={{ color: '#b91c1c' }}>{summary?.tax_amount || ''}</span>
+                  </div>
+                  <div className="border-top pt-3 mt-2 d-flex justify-content-between align-items-center">
+                    <span className="fw-bold" style={{ color: '#111827' }}>Total Due</span>
+                    <span className="fw-bold h5 mb-0" style={{ color: '#1d4ed8' }}>{summary?.total || ''}</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
