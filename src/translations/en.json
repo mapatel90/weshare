@@ -1110,7 +1110,13 @@
     "basicInfo": "Basic Info",
     "invoiceDetails": "Invoice Details",
     "subamount": "Sub Amount",
-    "viewinvoice": "View Invoice"
+    "viewinvoice": "View Invoice",
+    "additionalInfo": "Additional Information",
+    "note": "Note",
+    "notePlaceholder": "Enter any additional notes for this invoice...",
+    "termsAndConditions": "Terms & Conditions",
+    "termsPlaceholder": "Enter terms and conditions for this invoice...",
+    "taxAmount": "Tax Amount"
   },
   "finance": {
     "title": "Finance General",
@@ -1182,7 +1188,8 @@
       "tax20": "20% + $2",
       "tax25": "25% + $2"
     },
-    "next_invoice_number": "Next Invoice Number"
+    "next_invoice_number": "Next Invoice Number",
+    "noTax": "No Tax"
   },
   "news": {
     "addNews": "Add News",

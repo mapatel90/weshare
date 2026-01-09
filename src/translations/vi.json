@@ -1063,7 +1063,13 @@
     "basicInfo": "Thông tin cơ bản",
     "invoiceDetails": "Chi tiết hóa đơn",
     "subamount": "Số tiền phụ",
-    "viewinvoice": "Xem hóa đơn"
+    "viewinvoice": "Xem hóa đơn",
+    "additionalInfo": "Thông tin bổ sung",
+    "note": "Ghi chú",
+    "notePlaceholder": "Nhập ghi chú cho hóa đơn",
+    "termsAndConditions": "Điều khoản và điều kiện",
+    "termsPlaceholder": "Nhập điều khoản và điều kiện cho hóa đơn",
+    "taxAmount": "Số tiền thuế"
   },
   "finance": {
     "title": "Tài chính chung",
@@ -1133,7 +1139,8 @@
       "tax20": "20% + $2",
       "tax25": "25% + $2"
     },
-    "next_invoice_number": "Số hóa đơn tiếp theo sẽ là"
+    "next_invoice_number": "Số hóa đơn tiếp theo sẽ là",
+    "noTax": "Không thuế"
   },
   "news": {
     "title": "Quản lý tin tức",

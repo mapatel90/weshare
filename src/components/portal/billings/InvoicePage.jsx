@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { apiGet } from "@/lib/api";
 import PaymentModal from "./PaymentModal";
+import { usePriceWithCurrency } from "@/hooks/usePriceWithCurrency";
 
 const InvoicePage = ({ invoiceId }) => {
   const [invoiceData, setInvoiceData] = useState("");
@@ -13,6 +14,7 @@ const InvoicePage = ({ invoiceId }) => {
   const [countries, setCountries] = useState([]);
   const [states, setStates] = useState([]);
   const [cities, setCities] = useState([]);
+  const priceWithCurrency = usePriceWithCurrency();
 
   useEffect(() => {
     const fetchTaxes = async () => {
@@ -163,18 +165,18 @@ const InvoicePage = ({ invoiceId }) => {
               title: item?.item || "Item",
               desc: item?.description || "",
               unit: item?.unit || "0",
-              price: formatCurrency(item?.price),
-              subtotal: formatCurrency(item?.item_total),
+              price: priceWithCurrency(item?.price),
+              subtotal: priceWithCurrency(item?.item_total),
             })),
             payment: {
               method: "Visa ***** ***** 1234",
             },
             summary: {
-              summary: formatCurrency(apiInv?.sub_amount),
+              summary: priceWithCurrency(apiInv?.sub_amount),
               discount: "$0",
               tax_id: apiInv?.tax_id || "0%",
-              tax_amount: formatCurrency(apiInv?.tax_amount),
-              total: formatCurrency(apiInv?.total_amount ?? apiInv?.sub_amount),
+              tax_amount: priceWithCurrency(apiInv?.tax_amount),
+              total: priceWithCurrency(apiInv?.total_amount ?? apiInv?.sub_amount),
             },
           };
 
@@ -225,7 +227,6 @@ const InvoicePage = ({ invoiceId }) => {
   };
 
   return (
-    <div className="p-8 bg-gray-50 min-h-screen">
       <div className="w-full bg-white rounded-xl shadow-md p-8">
         <h2 className="text-xl font-semibold mb-6">Invoice</h2>
         <div className="border rounded-lg p-6 mb-8">
@@ -296,7 +297,7 @@ const InvoicePage = ({ invoiceId }) => {
           </div>
           <div className="text-right mt-4 md:mt-0">
             <div className="text-gray-700">Subtotal : {summary?.summary || ""}</div>
-            <div className="text-gray-700">Tax : {summary?.tax_amount || ""} {getTaxDisplay()}</div>
+            <div className="text-gray-700">Tax {getTaxDisplay()} : {summary?.tax_amount || ""}</div>
             <div className="text-blue-700 font-bold text-lg">Total: {summary?.total || ""}</div>
           </div>
         </div>
@@ -317,7 +318,6 @@ const InvoicePage = ({ invoiceId }) => {
           onSubmit={handleModalSubmit}
         />
       </div>
-    </div>
   );
 };
 

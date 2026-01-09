@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { apiGet } from "@/lib/api";
 import PaymentModal from "@/components/portal/billings/PaymentModal";
+import { usePriceWithCurrency } from "@/hooks/usePriceWithCurrency";
 
 const InvoiceViewContant = ({ invoiceId }) => {
   const [invoiceData, setInvoiceData] = useState("");
@@ -13,6 +14,7 @@ const InvoiceViewContant = ({ invoiceId }) => {
   const [countries, setCountries] = useState([]);
   const [states, setStates] = useState([]);
   const [cities, setCities] = useState([]);
+  const priceWithCurrency = usePriceWithCurrency();
 
   useEffect(() => {
     const fetchTaxes = async () => {
@@ -160,18 +162,18 @@ const InvoiceViewContant = ({ invoiceId }) => {
               title: item?.item || "Item",
               desc: item?.description || "",
               unit: item?.unit || "0",
-              price: formatCurrency(item?.price),
-              subtotal: formatCurrency(item?.item_total),
+              price: priceWithCurrency(item?.price),
+              subtotal: priceWithCurrency(item?.item_total),
             })),
             payment: {
               method: "Visa ***** ***** 1234",
             },
             summary: {
-              summary: formatCurrency(apiInv?.sub_amount),
+              summary: priceWithCurrency(apiInv?.sub_amount),
               discount: "$0",
               tax_id: apiInv?.tax_id || "0%",
-              tax_amount: formatCurrency(apiInv?.tax_amount),
-              total: formatCurrency(apiInv?.total_amount ?? apiInv?.sub_amount),
+              tax_amount: priceWithCurrency(apiInv?.tax_amount),
+              total: priceWithCurrency(apiInv?.total_amount ?? apiInv?.sub_amount),
             },
           };
 
@@ -264,7 +266,7 @@ const InvoiceViewContant = ({ invoiceId }) => {
                     <div className="fw-semibold">{item.title}</div>
                     <div className="text-muted" style={{ fontSize: '0.75rem' }}>{item.desc}</div>
                   </td>
-                  <td className="px-3 py-2 text-nowrap">{item.unit}</td>
+                  <td className="px-3 py-2 text-nowrap">{(item.unit).toFixed(2)}</td>
                   <td className="px-3 py-2 text-nowrap">{item.price}</td>
                   <td className="px-3 py-2 text-nowrap fw-bold">{item.subtotal}</td>
                 </tr>
@@ -273,12 +275,22 @@ const InvoiceViewContant = ({ invoiceId }) => {
           </table>
         </div>
 
-        <div className="d-flex flex-column flex-md-row justify-content-between align-items-center mb-3">
-          <div></div>
-          <div className="text-end mt-3 mt-md-0">
-            <div style={{ color: '#374151' }}>Subtotal : {summary?.summary || ""}</div>
-            <div style={{ color: '#374151' }}>Tax : {summary?.tax_amount || ""} {getTaxDisplay()}</div>
-            <div className="fw-bold h5" style={{ color: '#1d4ed8' }}>Total: {summary?.total || ""}</div>
+        <div className="mt-4">
+          <div className="border rounded-3 p-3 p-md-4 shadow-sm" style={{ background: '#f9fafb' }}>
+            <div className="d-flex flex-column gap-2">
+              <div className="d-flex justify-content-between align-items-center">
+                <span className="text-muted">Subtotal</span>
+                <span className="fw-semibold" style={{ color: '#111827' }}>{summary?.summary || ''}</span>
+              </div>
+              <div className="d-flex justify-content-between align-items-center">
+                <span className="text-muted">Tax {getTaxDisplay()}</span>
+                <span className="fw-semibold" style={{ color: '#b91c1c' }}>{summary?.tax_amount || ''}</span>
+              </div>
+              <div className="border-top pt-3 mt-2 d-flex justify-content-between align-items-center">
+                <span className="fw-bold" style={{ color: '#111827' }}>Total Due</span>
+                <span className="fw-bold h5 mb-0" style={{ color: '#1d4ed8' }}>{summary?.total || ''}</span>
+              </div>
+            </div>
           </div>
         </div>
         <div className="d-flex justify-content-end mt-3">
