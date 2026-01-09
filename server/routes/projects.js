@@ -1036,8 +1036,8 @@ router.post("/chart_month_data", async (req, res) => {
       where: {
         project_id: Number(projectId),
         date: {
-          gte:  new Date(startDate),
-          lte:  new Date(endDate),
+          gte: new Date(startDate),
+          lte: new Date(endDate),
         },
       },
       orderBy: {
@@ -1081,8 +1081,8 @@ router.post("/chart_year_data", async (req, res) => {
       where: {
         project_id: Number(projectId),
         date: {
-          gte:  new Date(startDate),
-          lte:  new Date(endDate),
+          gte: new Date(startDate),
+          lte: new Date(endDate),
         },
       },
       orderBy: {
@@ -1277,6 +1277,40 @@ router.post('/electricity/overview-chart', async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+
+router.get('/dropdown/project', authenticateToken, async (req, res) => {
+  console.log('Fetching projects dropdown...');
+
+  try {
+    const projects = await prisma.projects.findMany({
+      select: {
+        id: true,
+        project_name: true,
+      },
+      where: { is_deleted: 0 },
+      orderBy: {
+        project_name: 'asc'
+      }
+    });
+
+    // ✅ MUST SEND RESPONSE!
+    res.status(200).json({
+      success: true,
+      data: projects,
+      count: projects.length
+    });
+
+  } catch (error) {
+    console.error("Error fetching projects dropdown:", error);
+
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch projects',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 });
 
