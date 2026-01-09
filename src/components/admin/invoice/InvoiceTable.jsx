@@ -3,10 +3,11 @@ import React, { useEffect, useState } from "react";
 import Table from "@/components/shared/table/Table";
 import { apiGet, apiDelete } from "@/lib/api";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { FiEdit3, FiTrash2 } from "react-icons/fi";
+import { FiEdit3, FiTrash2, FiEye } from "react-icons/fi";
 import { showSuccessToast } from "@/utils/topTost";
 import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import {
   Chip,
   IconButton,
@@ -60,7 +61,7 @@ const InvoiceTable = () => {
       const proj = res?.data;
       const ot = proj?.offtaker;
       if (ot?.id) {
-        const option = { label: (ot.full_name || ot.email || ""), value: String(ot.id) };
+        const option = { label: (ot.full_name || ""), value: String(ot.id) };
         setOfftakerOptions([option]);
         setSelectedOfftaker(option);
         if (errors.offtaker) setErrors((prev) => ({ ...prev, offtaker: "" }));
@@ -161,22 +162,21 @@ const InvoiceTable = () => {
       header: () => lang("invoice.actions"),
       cell: ({ row }) => (
         <Stack direction="row" spacing={1} sx={{ flexWrap: "nowrap" }}>
-          <IconButton
-            size="small"
-            onClick={() => {
-              router.push(`/admin/finance/invoice/edit/${row.original.id}`);
-            }}
-            sx={{
-              color: "#1976d2",
-              transition: "transform 0.2s ease",
-              "&:hover": {
-                backgroundColor: "rgba(25, 118, 210, 0.08)",
-                transform: "scale(1.1)",
-              },
-            }}
-          >
-            <FiEdit3 size={18} />
-          </IconButton>
+          <Link href={`/admin/finance/invoice/edit/${row.original.id}`} target="_blank" rel="noopener noreferrer">
+            <IconButton
+              size="small"
+              sx={{
+                color: "#1976d2",
+                transition: "transform 0.2s ease",
+                "&:hover": {
+                  backgroundColor: "rgba(25, 118, 210, 0.08)",
+                  transform: "scale(1.1)",
+                },
+              }}
+            >
+              <FiEdit3 size={18} />
+            </IconButton>
+          </Link>
           <IconButton
             size="small"
             onClick={() => handleDelete(row.original.id)}
@@ -191,6 +191,13 @@ const InvoiceTable = () => {
           >
             <FiTrash2 size={18} />
           </IconButton>
+          <Link href={`/admin/finance/invoice/view/${row.original.id}`} target="_blank" rel="noopener noreferrer">
+            <IconButton
+              size="small"
+            >
+              <FiEye size={18} />
+            </IconButton>
+          </Link>
         </Stack>
       ),
       meta: {

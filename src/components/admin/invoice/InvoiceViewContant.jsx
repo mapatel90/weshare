@@ -1,9 +1,9 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { apiGet } from "@/lib/api";
-import PaymentModal from "./PaymentModal";
+import PaymentModal from "@/components/portal/billings/PaymentModal";
 
-const InvoicePage = ({ invoiceId }) => {
+const InvoiceViewContant = ({ invoiceId }) => {
   const [invoiceData, setInvoiceData] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -39,7 +39,6 @@ const InvoicePage = ({ invoiceId }) => {
 
     const fetchLocations = async () => {
       try {
-        // Fetch countries
         const countriesRes = await apiGet("/api/locations/countries");
         if (countriesRes?.success && Array.isArray(countriesRes?.data)) {
           setCountries(countriesRes.data);
@@ -54,7 +53,6 @@ const InvoicePage = ({ invoiceId }) => {
     fetchLocations();
   }, []);
 
-  // Fetch states when company settings with country_id is loaded
   useEffect(() => {
     if (companySettings?.site_country) {
       const fetchStates = async () => {
@@ -71,7 +69,6 @@ const InvoicePage = ({ invoiceId }) => {
     }
   }, [companySettings?.site_country]);
 
-  // Fetch cities when company settings with state_id is loaded
   useEffect(() => {
     if (companySettings?.site_state) {
       const fetchCities = async () => {
@@ -198,18 +195,6 @@ const InvoicePage = ({ invoiceId }) => {
   const { company, invoice, client, items, payment, summary } = invoiceData || {};
   const qrCodeSrc = companySettings?.finance_qr_code || "/images/invoice_qr.jpg";
 
-  const getCompanyAddress = () => {
-    if (!company) return "";
-    const parts = [
-      company.address,
-      company.city,
-      company.state,
-      company.country,
-      company.zip
-    ].filter(Boolean);
-    return parts.join(", ");
-  };
-
   const getTaxDisplay = () => {
     if (!invoiceData?.summary?.tax_id || invoiceData.summary.tax_id === "0%") return "No Tax";
     const taxValue = parseFloat(invoiceData.summary.tax_id);
@@ -225,14 +210,13 @@ const InvoicePage = ({ invoiceId }) => {
   };
 
   return (
-    <div className="p-8 bg-gray-50 min-h-screen">
-      <div className="w-full bg-white rounded-xl shadow-md p-8">
-        <h2 className="text-xl font-semibold mb-6">Invoice</h2>
-        <div className="border rounded-lg p-6 mb-8">
-          <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-4">
+      <div className="bg-white rounded shadow p-4">
+        <h2 className="h4 fw-semibold mb-4">Invoice</h2>
+        <div className="border rounded p-4 mb-4">
+          <div className="d-flex flex-column flex-md-row justify-content-between align-items-center mb-3">
             <div>
-              <div className="text-2xl font-bold theme-org-color mb-1">{company?.name || ""}</div>
-              <div className="text-gray-500 text-sm">
+              <div className="h3 fw-bold theme-org-color mb-2">{company?.name || ""}</div>
+              <div className="text-muted small">
                 {company?.address && <div>{company.address}</div>}
                 {(company?.country || company?.state || company?.city) && (
                   <div>{[company.country, company.state, company.city].filter(Boolean).join(", ")}</div>
@@ -240,69 +224,66 @@ const InvoicePage = ({ invoiceId }) => {
                 {company?.zip && <div>{company.zip}</div>}
               </div>
             </div>
-            <div className="flex items-center gap-2 mt-4 md:mt-0">
-              <img src={qrCodeSrc} alt="Finance QR Code" className="w-32 h-32 object-contain" />
+            <div className="d-flex align-items-center gap-2 mt-3 mt-md-0">
+              <img src={qrCodeSrc} alt="Finance QR Code" style={{ width: '128px', height: '128px', objectFit: 'contain' }} />
             </div>
           </div>
         </div>
 
-        <div className="flex flex-col md:flex-row md:justify-between mb-4">
+        <div className="d-flex flex-column flex-md-row justify-content-between mb-3">
           <div>
-            <div className="font-bold text-lg mb-2">INVOICE</div>
-            <div className="text-gray-700">Invoice : <span className="font-semibold">{invoice?.prefix || ""}-{invoice?.number || ""}</span></div>
-            <div className="text-gray-700">Created: <span className="font-semibold">{invoice?.created || ""}</span></div>
-            <div className="text-gray-700">Due: <span className="font-semibold">{invoice?.due || ""}</span></div>
+            <div className="fw-bold h5 mb-2">INVOICE</div>
+            <div style={{ color: '#374151' }}>Invoice : <span className="fw-semibold">{invoice?.prefix || ""}-{invoice?.number || ""}</span></div>
+            <div style={{ color: '#374151' }}>Created: <span className="fw-semibold">{invoice?.created || ""}</span></div>
+            <div style={{ color: '#374151' }}>Due: <span className="fw-semibold">{invoice?.due || ""}</span></div>
           </div>
-          <div className="text-right mt-4 md:mt-0">
-            <div className="text-gray-500">Invoiced To:</div>
-            <div className="font-bold">{client?.name || ""}</div>
-            <div className="text-gray-500">{client?.email || ""}</div>
-            <div className="text-gray-500">{client?.address || ""}</div>
+          <div className="text-end mt-3 mt-md-0">
+            <div className="text-muted">Invoiced To:</div>
+            <div className="fw-bold">{client?.name || ""}</div>
+            <div className="text-muted">{client?.email || ""}</div>
+            <div className="text-muted">{client?.address || ""}</div>
           </div>
         </div>
 
-        <div className="overflow-x-auto rounded-lg border mb-8">
-          <table className="min-w-full text-sm">
-            <thead className="bg-gray-100">
+        <div className="table-responsive border rounded mb-4">
+          <table className="table table-sm mb-0">
+            <thead style={{ backgroundColor: '#f3f4f6' }}>
               <tr>
-                <th className="px-4 py-3 text-left font-semibold">#</th>
-                <th className="px-4 py-3 text-left font-semibold">DESCRIPTION</th>
-                <th className="px-4 py-3 text-left font-semibold">QTY</th>
-                <th className="px-4 py-3 text-left font-semibold">RATE</th>
-                <th className="px-4 py-3 text-left font-semibold">SUBTOTAL</th>
+                <th className="px-3 py-2 text-start fw-semibold">#</th>
+                <th className="px-3 py-2 text-start fw-semibold">DESCRIPTION</th>
+                <th className="px-3 py-2 text-start fw-semibold">QTY</th>
+                <th className="px-3 py-2 text-start fw-semibold">RATE</th>
+                <th className="px-3 py-2 text-start fw-semibold">SUBTOTAL</th>
               </tr>
             </thead>
             <tbody>
               {(items || []).map((item, idx) => (
-                <tr key={item.id} className={idx % 2 ? "bg-white" : "bg-gray-50"}>
-                  <td className="px-4 py-2 font-medium whitespace-nowrap">{item.id}</td>
-                  <td className="px-4 py-2 whitespace-nowrap">
-                    <div className="font-semibold">{item.title}</div>
-                    <div className="text-gray-500 text-xs">{item.desc}</div>
+                <tr key={item.id} style={{ backgroundColor: idx % 2 ? '#ffffff' : '#f9fafb' }}>
+                  <td className="px-3 py-2 fw-medium text-nowrap">{item.id}</td>
+                  <td className="px-3 py-2 text-nowrap">
+                    <div className="fw-semibold">{item.title}</div>
+                    <div className="text-muted" style={{ fontSize: '0.75rem' }}>{item.desc}</div>
                   </td>
-                  <td className="px-4 py-2 whitespace-nowrap">{item.unit}</td>
-                  <td className="px-4 py-2 whitespace-nowrap">{item.price}</td>
-                  <td className="px-4 py-2 whitespace-nowrap font-bold">{item.subtotal}</td>
+                  <td className="px-3 py-2 text-nowrap">{item.unit}</td>
+                  <td className="px-3 py-2 text-nowrap">{item.price}</td>
+                  <td className="px-3 py-2 text-nowrap fw-bold">{item.subtotal}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
 
-        <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-4">
-          <div>
-            {/* <div className="font-semibold mb-1">Payment Method:</div> */}
-            {/* <div className="text-gray-700">{payment.method}</div> */}
-          </div>
-          <div className="text-right mt-4 md:mt-0">
-            <div className="text-gray-700">Subtotal : {summary?.summary || ""}</div>
-            <div className="text-gray-700">Tax : {summary?.tax_amount || ""} {getTaxDisplay()}</div>
-            <div className="text-blue-700 font-bold text-lg">Total: {summary?.total || ""}</div>
+        <div className="d-flex flex-column flex-md-row justify-content-between align-items-center mb-3">
+          <div></div>
+          <div className="text-end mt-3 mt-md-0">
+            <div style={{ color: '#374151' }}>Subtotal : {summary?.summary || ""}</div>
+            <div style={{ color: '#374151' }}>Tax : {summary?.tax_amount || ""} {getTaxDisplay()}</div>
+            <div className="fw-bold h5" style={{ color: '#1d4ed8' }}>Total: {summary?.total || ""}</div>
           </div>
         </div>
-        <div className="flex justify-end mt-4">
+        <div className="d-flex justify-content-end mt-3">
           <button
-            className="theme-btn-org-color text-white font-bold py-2 px-6 rounded shadow"
+            className="btn text-white fw-bold px-4 py-2 rounded shadow common-orange-color"
             type="button"
             onClick={() => setModalOpen(true)}
           >
@@ -317,8 +298,7 @@ const InvoicePage = ({ invoiceId }) => {
           onSubmit={handleModalSubmit}
         />
       </div>
-    </div>
   );
 };
 
-export default InvoicePage;
+export default InvoiceViewContant;

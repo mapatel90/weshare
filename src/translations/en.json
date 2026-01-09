@@ -1109,7 +1109,8 @@
     "addItem": "Add Item",
     "basicInfo": "Basic Info",
     "invoiceDetails": "Invoice Details",
-    "subamount": "Sub Amount"
+    "subamount": "Sub Amount",
+    "viewinvoice": "View Invoice"
   },
   "finance": {
     "title": "Finance General",
