@@ -138,8 +138,8 @@ export const menuList = [
     dropdownMenu: [
       {
         id: 1,
-        name: "savingreports",
-        path: "/admin/reports/saving",
+        name: "Inverter Evn Report",
+        path: "/admin/reports/inverter-evn",
         subdropdownMenu: false,
       },
       {

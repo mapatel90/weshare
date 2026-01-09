@@ -4,8 +4,9 @@ import React, { useMemo, useState, useEffect } from "react";
 import Table from "@/components/shared/table/Table";
 import { apiGet } from "@/lib/api";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { formatEnergyUnit } from "@/utils/common";
 
-const SavingReports = () => {
+const InverterEvnReport = () => {
   const PAGE_SIZE = 50; // show 50 rows per table page
 
   const [projectFilter, setProjectFilter] = useState(""); // store projectId (string)
@@ -88,22 +89,19 @@ const SavingReports = () => {
         inverterName: item.project_inverters?.inverter_name,
         date: item.date,
         time: item.time ?? "",
-        generatedKW:
-          item.generate_kw !== undefined && item.generate_kw !== null
-            ? (Number(item.generate_kw) / 1000).toFixed(2) + " kwh"
-            : "",
+        generatedKW: item.generate_kw != null ? formatEnergyUnit(Number(item.generate_kw)) : "",
         Acfrequency: item.ac_frequency ?? "",
         DailyYield:
           item.daily_yield !== undefined && item.daily_yield !== null
-            ? item.daily_yield + " kwh"
+            ? formatEnergyUnit(item.daily_yield)
             : "",
         AnnualYield:
           item.annual_yield !== undefined && item.annual_yield !== null
-            ? item.annual_yield + " kwh"
+            ? formatEnergyUnit(item.annual_yield)
             : "",
         TotalYield:
           item.total_yield !== undefined && item.total_yield !== null
-            ? item.total_yield + " kwh"
+            ? formatEnergyUnit(item.total_yield)
             : "",
       }));
       setReportsData(mappedData);
@@ -387,4 +385,4 @@ const SavingReports = () => {
   );
 };
 
-export default SavingReports;
+export default InverterEvnReport;
