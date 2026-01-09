@@ -142,6 +142,8 @@ model invoices {
   id                    Int      @id @default(autoincrement())
   offtaker_id           Int
   project_id            Int
+  billing_year          Int?      @default(0)
+  billing_month         Int?      @default(0)
   invoice_number        String    @db.VarChar(255)
   invoice_prefix        String    @db.VarChar(255)
   invoice_date          DateTime  @db.Date
