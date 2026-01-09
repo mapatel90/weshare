@@ -120,7 +120,16 @@ const InvoiceTable = () => {
         const prefix = row?.original?.invoice_prefix || "";
         const number = row?.original?.invoice_number || "";
         if (!prefix && !number) return "-";
-        return `${prefix}-${number}`;
+        return (
+          <Link
+            href={`/admin/finance/invoice/view/${row.original.id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: '#1976d2', textDecoration: 'none', fontWeight: 500 }}
+          >
+            {`${prefix}-${number}`}
+          </Link>
+        );
       },
     },
     {

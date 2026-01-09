@@ -2,6 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { apiGet } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePriceWithCurrency } from "@/hooks/useFormatPrice";
@@ -250,7 +251,16 @@ const Billings = () => {
                         {filteredInvoices.map((inv, idx) => (
                             <tr key={inv.id} className={idx % 2 ? "bg-white" : "bg-gray-50"}>
                                 <td className="px-4 py-2 font-medium whitespace-nowrap">{inv.projectName}</td>
-                                <td className="px-4 py-2 whitespace-nowrap">{inv.invoiceName}</td>
+                                <td className="px-4 py-2 whitespace-nowrap">
+                                    <Link
+                                        href={`/offtaker/billings/invoice/${inv.id}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        style={{ color: '#1976d2', textDecoration: 'none', fontWeight: 500 }}
+                                    >
+                                        {inv.invoiceName}
+                                    </Link>
+                                </td>
                                 <td className="px-2 py-2 whitespace-nowrap">{inv.invoiceDate}</td>
                                 <td className="px-2 py-2 whitespace-nowrap">{inv.dueDate}</td>
                                 <td className="px-2 py-2 whitespace-nowrap">{priceWithCurrency(inv.amount)}</td>
