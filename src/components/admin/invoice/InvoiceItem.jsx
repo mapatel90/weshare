@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import { FiTrash2 } from "react-icons/fi";
 
-const InvoiceItem = ({ index, item, onChange, onRemove, isDark = false }) => {
+const InvoiceItem = ({ index, item, onChange, onRemove, isDark = false, priceWithCurrency }) => {
 	
 	const amount = useMemo(() => {
 		const qty = Number(item.unit) || 0;
@@ -130,18 +130,21 @@ const InvoiceItem = ({ index, item, onChange, onRemove, isDark = false }) => {
 
 			<Box
 				sx={{
+					height: 40,                 // ✅ same as small TextField
 					display: "flex",
 					alignItems: "center",
-					fontWeight: "700",
-					px: 2,
-					backgroundColor: isDark ? "#1e3a5f" : "#f0f9ff",
+					justifyContent: "flex-end",
+					px: 1.5,
+					backgroundColor: isDark ? "#1e293b" : "#f8fafc",
 					borderRadius: "6px",
 					color: isDark ? "#93c5fd" : "#2563eb",
 					fontSize: "14px",
-					border: isDark ? "1px solid #1e40af" : "1px solid #bfdbfe"
+					fontWeight: "600",
+					border: isDark ? "1px solid #334155" : "1px solid #e2e8f0",
+					minWidth: 90              // ✅ prevents jump
 				}}
 			>
-				{amount.toFixed(2)}
+				{priceWithCurrency(amount.toFixed(2))}
 			</Box>
 
 			<Box sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}>

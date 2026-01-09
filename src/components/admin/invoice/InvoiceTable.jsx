@@ -8,19 +8,15 @@ import { showSuccessToast } from "@/utils/topTost";
 import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { usePriceWithCurrency } from '@/hooks/usePriceWithCurrency';
-import {
-  Chip,
-  IconButton,
-  Stack,
-} from "@mui/material";
+import { usePriceWithCurrency } from "@/hooks/usePriceWithCurrency";
+import { Chip, IconButton, Stack } from "@mui/material";
 
 const InvoiceTable = () => {
   const { lang } = useLanguage();
   const router = useRouter();
   const [invoicesData, setInvoicesData] = useState([]);
+  const [taxesData, setTaxesData] = useState([]);
   const priceWithCurrency = usePriceWithCurrency();
-
 
   const fetchInvoices = async () => {
     try {
@@ -35,13 +31,32 @@ const InvoiceTable = () => {
     }
   };
 
+  const fetchTaxes = async () => {
+    try {
+      const response = await apiGet("/api/settings/taxes");
+      if (response?.success && response?.data) {
+        setTaxesData(response.data);
+      } else {
+        setTaxesData([]);
+      }
+    } catch (e) {
+      setTaxesData([]);
+    }
+  };
+
   const fetchProjects = async () => {
     try {
       const res = await apiGet("/api/projects?status=1&limit=1000");
       const items = Array.isArray(res?.projectList) ? res.projectList : [];
       const active = items.filter((p) => String(p?.status) === "1");
-      const mapped = active.map((p) => ({ label: p.project_name, value: String(p.id) }));
-      setProjectOptions([{ label: lang("invoice.selectProject"), value: "" }, ...mapped]);
+      const mapped = active.map((p) => ({
+        label: p.project_name,
+        value: String(p.id),
+      }));
+      setProjectOptions([
+        { label: lang("invoice.selectProject"), value: "" },
+        ...mapped,
+      ]);
     } catch (_) {
       setProjectOptions([]);
     }
@@ -53,7 +68,7 @@ const InvoiceTable = () => {
       const proj = res?.data;
       const ot = proj?.offtaker;
       if (ot?.id) {
-        const option = { label: (ot.full_name || ""), value: String(ot.id) };
+        const option = { label: ot.full_name || "", value: String(ot.id) };
         setOfftakerOptions([option]);
         setSelectedOfftaker(option);
         if (errors.offtaker) setErrors((prev) => ({ ...prev, offtaker: "" }));
@@ -69,6 +84,7 @@ const InvoiceTable = () => {
 
   useEffect(() => {
     fetchInvoices();
+    fetchTaxes();
     const onSaved = () => fetchInvoices();
     window.addEventListener("invoice:saved", onSaved);
     return () => window.removeEventListener("invoice:saved", onSaved);
@@ -98,6 +114,16 @@ const InvoiceTable = () => {
 
   const columns = [
     {
+      accessorKey: "invoice_number",
+      header: () => lang("invoice.invoiceNumber") || "Invoice Number",
+      cell: ({ row }) => {
+        const prefix = row?.original?.invoice_prefix || "";
+        const number = row?.original?.invoice_number || "";
+        if (!prefix && !number) return "-";
+        return `${prefix}-${number}`;
+      },
+    },
+    {
       accessorKey: "project.project_name",
       header: () => lang("invoice.project"),
       cell: ({ row }) => row?.original?.projects?.project_name || "-",
@@ -111,16 +137,32 @@ const InvoiceTable = () => {
         return u.full_name || "-";
       },
     },
+    {
+      accessorKey: "tax",
+      header: () => lang("invoice.tax"),
+      cell: ({ row }) => {
+        const taxId = row?.original?.tax_id;
+        if (!taxId) return "-";
+        const tax = taxesData.find((t) => t.id === taxId);
+        if (!tax) return "-";
+        return `${tax.name || ""} (${tax.value || 0}%)`;
+      },
+    },
     // { accessorKey: "sub_amount", header: () => lang("invoice.subamount") },
     {
-      accessorKey: 'sub_amount',
-      header: () => lang('invoice.subamount'),
+      accessorKey: "sub_amount",
+      header: () => lang("invoice.subamount"),
+      cell: ({ getValue }) => priceWithCurrency(getValue()),
+    },
+    {
+      accessorKey: "tax_amount",
+      header: () => lang("invoice.taxAmount"),
       cell: ({ getValue }) => priceWithCurrency(getValue()),
     },
     // { accessorKey: "total_amount", header: () => lang("invoice.totalUnit") },
     {
-      accessorKey: 'total_amount',
-      header: () => lang('invoice.totalUnit'),
+      accessorKey: "total_amount",
+      header: () => lang("invoice.totalUnit"),
       cell: ({ getValue }) => priceWithCurrency(getValue()),
     },
     // {
@@ -164,7 +206,11 @@ const InvoiceTable = () => {
       header: () => lang("invoice.actions"),
       cell: ({ row }) => (
         <Stack direction="row" spacing={1} sx={{ flexWrap: "nowrap" }}>
-          <Link href={`/admin/finance/invoice/edit/${row.original.id}`} target="_blank" rel="noopener noreferrer">
+          <Link
+            href={`/admin/finance/invoice/edit/${row.original.id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             <IconButton
               size="small"
               sx={{
@@ -193,10 +239,12 @@ const InvoiceTable = () => {
           >
             <FiTrash2 size={18} />
           </IconButton>
-          <Link href={`/admin/finance/invoice/view/${row.original.id}`} target="_blank" rel="noopener noreferrer">
-            <IconButton
-              size="small"
-            >
+          <Link
+            href={`/admin/finance/invoice/view/${row.original.id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <IconButton size="small">
               <FiEye size={18} />
             </IconButton>
           </Link>
@@ -208,9 +256,7 @@ const InvoiceTable = () => {
     },
   ];
 
-  return (
-    <Table data={invoicesData} columns={columns} />
-  );
+  return <Table data={invoicesData} columns={columns} />;
 };
 
 export default InvoiceTable;

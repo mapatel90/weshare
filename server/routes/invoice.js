@@ -174,19 +174,16 @@ router.get("/:id", authenticateToken, async (req, res) => {
 });
 
 router.post("/", authenticateToken, async (req, res) => {
-  console.log("Creating invoice with data:", req.body);
   try {
     const {
       project_id,
       offtaker_id,
       amount,
       total_unit,
-      status,
       invoice_number,
       invoice_prefix,
       invoice_date,
       due_date,
-      currency,
       tax,
       tax_amount,
       billing_adress_1,
@@ -196,6 +193,8 @@ router.post("/", authenticateToken, async (req, res) => {
       billing_country_id,
       billing_zipcode,
       items = [],
+      note,
+      terms_and_conditions,
     } = req.body;
 
     if (!project_id || !offtaker_id || status === undefined) {
@@ -238,12 +237,12 @@ router.post("/", authenticateToken, async (req, res) => {
           offtaker_id: parseInt(offtaker_id),
           sub_amount: Number.isFinite(invoiceAmount) ? invoiceAmount : 0,
           total_amount: Number.isFinite(invoiceTotal) ? invoiceTotal : 0,
-          status: parseInt(status),
+          status: 0, // Default to draft
           invoice_number: invoice_number || "",
           invoice_prefix: invoice_prefix || "",
           invoice_date: invoice_date ? new Date(invoice_date) : null,
           due_date: due_date ? new Date(due_date) : null,
-          currency: currency || "VND",
+          currency: "VND",
           tax_id: tax ? parseFloat(tax) : null,
           tax_amount: Number.isFinite(parseFloat(tax_amount))
             ? parseFloat(tax_amount)
@@ -256,6 +255,8 @@ router.post("/", authenticateToken, async (req, res) => {
             ? parseInt(billing_country_id)
             : null,
           billing_zipcode: billing_zipcode ? parseInt(billing_zipcode) : null,
+          notes: note || "",
+          terms_and_conditions: terms_and_conditions || "",
         },
       });
 
@@ -323,6 +324,8 @@ router.put("/:id", authenticateToken, async (req, res) => {
       billing_country_id,
       billing_zipcode,
       items = [],
+      note,
+      terms_and_conditions,
     } = req.body;
 
     if (!project_id || !offtaker_id || status === undefined) {
@@ -379,6 +382,8 @@ router.put("/:id", authenticateToken, async (req, res) => {
             ? parseInt(billing_country_id)
             : null,
           billing_zipcode: billing_zipcode ? parseInt(billing_zipcode) : null,
+          notes: note || "",
+          terms_and_conditions: terms_and_conditions || "",
         },
       });
 
