@@ -8,6 +8,7 @@ import { showSuccessToast } from "@/utils/topTost";
 import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { usePriceWithCurrency } from '@/hooks/usePriceWithCurrency';
 import {
   Chip,
   IconButton,
@@ -18,17 +19,8 @@ const InvoiceTable = () => {
   const { lang } = useLanguage();
   const router = useRouter();
   const [invoicesData, setInvoicesData] = useState([]);
+  const priceWithCurrency = usePriceWithCurrency();
 
-  //   const formatTime = (val) => {
-  //     if (!val) return "";
-  //     const d = new Date(val);
-  //     if (isNaN(d.getTime())) return "";
-  //     return d.toLocaleTimeString("en-GB", {
-  //       hour: "2-digit",
-  //       minute: "2-digit",
-  //       hour12: false,
-  //     });
-  //   };
 
   const fetchInvoices = async () => {
     try {
@@ -119,8 +111,18 @@ const InvoiceTable = () => {
         return u.full_name || "-";
       },
     },
-    { accessorKey: "sub_amount", header: () => lang("invoice.subamount") },
-    { accessorKey: "total_amount", header: () => lang("invoice.totalUnit") },
+    // { accessorKey: "sub_amount", header: () => lang("invoice.subamount") },
+    {
+      accessorKey: 'sub_amount',
+      header: () => lang('invoice.subamount'),
+      cell: ({ getValue }) => priceWithCurrency(getValue()),
+    },
+    // { accessorKey: "total_amount", header: () => lang("invoice.totalUnit") },
+    {
+      accessorKey: 'total_amount',
+      header: () => lang('invoice.totalUnit'),
+      cell: ({ getValue }) => priceWithCurrency(getValue()),
+    },
     // {
     //   accessorKey: "start_time",
     //   header: () => "Start Time",

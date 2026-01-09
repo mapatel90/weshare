@@ -22,15 +22,25 @@ export function useFormatPrice() {
     }).format(amount);
 
     return formatted;
+  };
+}
 
-    // For Vietnamese currency, move the currency symbol to the end
-    if (currency === 'đ' || currency === 'VND' || site_country == 6) {
-      // Remove currency symbol (₫ or VND) from the beginning
-      const numberPart = formatted.replace(/^[^\d-]+\s*/, '').trim();
-      // Add currency symbol at the end
-      return `${numberPart} ${currency}`;
-    }
 
-    return formatted;
+export function usePriceWithCurrency() {
+  const { settings } = useSettings();
+
+  return (amount, options = {}) => {
+    if (amount == null || isNaN(amount)) return '-';
+
+    const currency = options.currency || settings?.finance_currency || 'VND';
+    const position = options.position || settings?.currency_position || 'before';
+    const symbol   = options.symbol   || settings?.currency_symbol || currency;
+
+    const value = Number(amount);
+
+    // Return without formatting
+    return position === 'after'
+      ? `${value} ${symbol}`
+      : `${symbol} ${value}`;
   };
 }
