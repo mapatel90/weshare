@@ -24,6 +24,7 @@ const InverterEvnReport = () => {
     total: 0,
     pages: 0,
   });
+  const [pageIndex, setPageIndex] = useState(0); // zero-based for Table
 
   const { lang } = useLanguage();
 
@@ -52,8 +53,8 @@ const InverterEvnReport = () => {
       }
 
       const params = new URLSearchParams({
-        page: "1",
-        downloadAll: "1",
+        page: String(pageIndex + 1),
+        limit: String(PAGE_SIZE),
       });
 
       // Add projectId if selected
@@ -114,12 +115,22 @@ const InverterEvnReport = () => {
       const apiTotal = res?.pagination?.total ?? mappedData.length;
       const total = apiTotal;
 
+      const nextPage = res?.pagination?.page ?? pageIndex + 1;
+      const nextLimit = res?.pagination?.limit ?? PAGE_SIZE;
+      const nextPages = res?.pagination?.pages ?? Math.max(1, Math.ceil(total / nextLimit));
+
       setPagination({
-        page: 1,
-        limit: PAGE_SIZE,
+        page: nextPage,
+        limit: nextLimit,
         total,
-        pages: Math.max(1, Math.ceil(total / PAGE_SIZE)),
+        pages: nextPages,
       });
+
+      // If current page exceeds total pages after filters, snap back to last page
+      const maxPageIndex = Math.max(0, nextPages - 1);
+      if (pageIndex > maxPageIndex) {
+        setPageIndex(maxPageIndex);
+      }
 
       setError(null);
     } catch (err) {
@@ -139,7 +150,12 @@ const InverterEvnReport = () => {
     }, 120000); // 2 minutes
 
     return () => clearInterval(interval);
-  }, [projectFilter, inverterFilter, searchTerm, startDate, endDate]);
+  }, [projectFilter, inverterFilter, searchTerm, startDate, endDate, pageIndex]);
+
+  // Reset to first page when filters change
+  useEffect(() => {
+    setPageIndex(0);
+  }, [projectFilter, inverterFilter, startDate, endDate]);
 
   // When projectFilter changes: if the currently selected inverter is not in returned inverterList => reset inverterFilter
   useEffect(() => {
@@ -163,6 +179,19 @@ const InverterEvnReport = () => {
     });
   }, [projectFilter, inverterFilter, reportsData]);
 
+  const handleSearchChange = (value) => {
+    setPageIndex(0);
+    setSearchTerm(value);
+  };
+
+  const handlePaginationChange = (nextPagination) => {
+    const updated =
+      typeof nextPagination === "function"
+        ? nextPagination({ pageIndex, pageSize: PAGE_SIZE })
+        : nextPagination;
+    setPageIndex(updated.pageIndex || 0);
+  };
+
   // -----------------------------
   // CSV Download (exports filtered set from the 50)
   // -----------------------------
@@ -173,6 +202,8 @@ const InverterEvnReport = () => {
       if (inverterFilter) params.append("inverterId", inverterFilter);
       if (searchTerm && searchTerm.trim())
         params.append("search", searchTerm.trim());
+      if (startDate) params.append("startDate", startDate);
+      if (endDate) params.append("endDate", endDate);
       params.append("downloadAll", "1");
 
       const res = await apiGet(`/api/inverter-data?${params.toString()}`);
@@ -369,7 +400,10 @@ const InverterEvnReport = () => {
               data={filteredData}
               columns={columns}
               disablePagination={false}
-              onSearchChange={setSearchTerm}
+              onSearchChange={handleSearchChange}
+              onPaginationChange={handlePaginationChange}
+              pageIndex={pageIndex}
+              pageSize={PAGE_SIZE}
               serverSideTotal={pagination.total} // total rows from server
               initialPageSize={PAGE_SIZE}
             />
