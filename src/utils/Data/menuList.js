@@ -138,14 +138,14 @@ export const menuList = [
     dropdownMenu: [
       {
         id: 1,
-        name: "Inverter Evn Report",
+        name: "Inverter evn report",
         path: "/admin/reports/inverter-evn",
         subdropdownMenu: false,
       },
       {
         id: 2,
-        name: "conjunctionreports",
-        path: "/admin/reports/conjunction",
+        name: "Project day report",
+        path: "/admin/reports/project-day",
         subdropdownMenu: false,
       },
       {
