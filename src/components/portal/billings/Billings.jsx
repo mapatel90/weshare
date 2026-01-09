@@ -2,8 +2,10 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { apiGet } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
+import { usePriceWithCurrency } from "@/hooks/useFormatPrice";
 
 const fallbackInvoices = [
     { name: "DCL Solutions", number: 1, invoiceDate: "21 Jul 2022", dueDate: "07 Oct 2022", amount: "$31.80", status: "Unfunded", download: true },
@@ -40,6 +42,7 @@ const Billings = () => {
     const [invoicesError, setInvoicesError] = useState("");
     const { user } = useAuth();
     const router = useRouter();
+    const priceWithCurrency = usePriceWithCurrency();
 
     const formatDate = (value) => {
         if (!value) return "—";
@@ -138,7 +141,7 @@ const Billings = () => {
                                 : "—",
                             invoiceDate: formatDate(inv?.invoice_date),
                             dueDate: formatDate(inv?.due_date),
-                            amount: formatCurrency(inv?.total_amount ?? inv?.amount),
+                            amount: inv?.total_amount ?? inv?.amount ?? 0,
                             status: statusLabel(inv?.status),
                             download: true,
                         };
@@ -248,10 +251,19 @@ const Billings = () => {
                         {filteredInvoices.map((inv, idx) => (
                             <tr key={inv.id} className={idx % 2 ? "bg-white" : "bg-gray-50"}>
                                 <td className="px-4 py-2 font-medium whitespace-nowrap">{inv.projectName}</td>
-                                <td className="px-4 py-2 whitespace-nowrap">{inv.invoiceName}</td>
+                                <td className="px-4 py-2 whitespace-nowrap">
+                                    <Link
+                                        href={`/offtaker/billings/invoice/${inv.id}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        style={{ color: '#1976d2', textDecoration: 'none', fontWeight: 500 }}
+                                    >
+                                        {inv.invoiceName}
+                                    </Link>
+                                </td>
                                 <td className="px-2 py-2 whitespace-nowrap">{inv.invoiceDate}</td>
                                 <td className="px-2 py-2 whitespace-nowrap">{inv.dueDate}</td>
-                                <td className="px-2 py-2 whitespace-nowrap">{inv.amount}</td>
+                                <td className="px-2 py-2 whitespace-nowrap">{priceWithCurrency(inv.amount)}</td>
                                 <td className="px-2 py-2 whitespace-nowrap">
                                     <span className={`px-3 py-1 rounded-full text-xs font-semibold ${statusColors[inv.status]}`}>{inv.status}</span>
                                 </td>

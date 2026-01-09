@@ -7,7 +7,8 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { formatEnergyUnit } from "@/utils/common";
 
 const InverterEvnReport = () => {
-  const PAGE_SIZE = 50; // show 50 rows per table page
+  const PAGE_SIZE = 50; // default rows per table page
+  const [pageSize, setPageSize] = useState(PAGE_SIZE);
 
   const [projectFilter, setProjectFilter] = useState(""); // store projectId (string)
   const [inverterFilter, setInverterFilter] = useState(""); // store inverterId (string)
@@ -20,7 +21,7 @@ const InverterEvnReport = () => {
   const [error, setError] = useState(null);
   const [pagination, setPagination] = useState({
     page: 1,
-    limit: PAGE_SIZE,
+    limit: pageSize,
     total: 0,
     pages: 0,
   });
@@ -54,7 +55,7 @@ const InverterEvnReport = () => {
 
       const params = new URLSearchParams({
         page: String(pageIndex + 1),
-        limit: String(PAGE_SIZE),
+        limit: String(pageSize),
       });
 
       // Add projectId if selected
@@ -116,7 +117,7 @@ const InverterEvnReport = () => {
       const total = apiTotal;
 
       const nextPage = res?.pagination?.page ?? pageIndex + 1;
-      const nextLimit = res?.pagination?.limit ?? PAGE_SIZE;
+      const nextLimit = res?.pagination?.limit ?? pageSize;
       const nextPages = res?.pagination?.pages ?? Math.max(1, Math.ceil(total / nextLimit));
 
       setPagination({
@@ -150,7 +151,7 @@ const InverterEvnReport = () => {
     }, 120000); // 2 minutes
 
     return () => clearInterval(interval);
-  }, [projectFilter, inverterFilter, searchTerm, startDate, endDate, pageIndex]);
+  }, [projectFilter, inverterFilter, searchTerm, startDate, endDate, pageIndex, pageSize]);
 
   // Reset to first page when filters change
   useEffect(() => {
@@ -185,11 +186,19 @@ const InverterEvnReport = () => {
   };
 
   const handlePaginationChange = (nextPagination) => {
+    const current = { pageIndex, pageSize };
     const updated =
       typeof nextPagination === "function"
-        ? nextPagination({ pageIndex, pageSize: PAGE_SIZE })
-        : nextPagination;
-    setPageIndex(updated.pageIndex || 0);
+        ? nextPagination(current)
+        : nextPagination || {};
+    if (typeof updated.pageIndex === "number") {
+      setPageIndex(updated.pageIndex);
+    } else if (updated.pageIndex == null) {
+      setPageIndex(0);
+    }
+    if (typeof updated.pageSize === "number") {
+      setPageSize(updated.pageSize);
+    }
   };
 
   // -----------------------------
@@ -403,9 +412,9 @@ const InverterEvnReport = () => {
               onSearchChange={handleSearchChange}
               onPaginationChange={handlePaginationChange}
               pageIndex={pageIndex}
-              pageSize={PAGE_SIZE}
+              pageSize={pageSize}
               serverSideTotal={pagination.total} // total rows from server
-              initialPageSize={PAGE_SIZE}
+              initialPageSize={pageSize}
             />
             {loading && (
               <div className="absolute inset-0 bg-white/70 flex items-center justify-center text-gray-600">

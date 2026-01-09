@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { apiGet } from "@/lib/api";
 import PaymentModal from "./PaymentModal";
+import { usePriceWithCurrency } from "@/hooks/usePriceWithCurrency";
 
 const InvoicePage = ({ invoiceId }) => {
   const [invoiceData, setInvoiceData] = useState("");
@@ -13,6 +14,7 @@ const InvoicePage = ({ invoiceId }) => {
   const [countries, setCountries] = useState([]);
   const [states, setStates] = useState([]);
   const [cities, setCities] = useState([]);
+  const priceWithCurrency = usePriceWithCurrency();
 
   useEffect(() => {
     const fetchTaxes = async () => {
@@ -163,19 +165,21 @@ const InvoicePage = ({ invoiceId }) => {
               title: item?.item || "Item",
               desc: item?.description || "",
               unit: item?.unit || "0",
-              price: formatCurrency(item?.price),
-              subtotal: formatCurrency(item?.item_total),
+              price: priceWithCurrency(item?.price),
+              subtotal: priceWithCurrency(item?.item_total),
             })),
             payment: {
               method: "Visa ***** ***** 1234",
             },
             summary: {
-              summary: formatCurrency(apiInv?.sub_amount),
+              summary: priceWithCurrency(apiInv?.sub_amount),
               discount: "$0",
               tax_id: apiInv?.tax_id || "0%",
-              tax_amount: formatCurrency(apiInv?.tax_amount),
-              total: formatCurrency(apiInv?.total_amount ?? apiInv?.sub_amount),
+              tax_amount: priceWithCurrency(apiInv?.tax_amount),
+              total: priceWithCurrency(apiInv?.total_amount ?? apiInv?.sub_amount),
             },
+            notes: apiInv?.notes || "",
+            terms_and_conditions: apiInv?.terms_and_conditions || "",
           };
 
           setInvoiceData(normalized);
@@ -225,9 +229,7 @@ const InvoicePage = ({ invoiceId }) => {
   };
 
   return (
-    <div className="p-8 bg-gray-50 min-h-screen">
       <div className="w-full bg-white rounded-xl shadow-md p-8">
-        <h2 className="text-xl font-semibold mb-6">Invoice</h2>
         <div className="border rounded-lg p-6 mb-8">
           <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-4">
             <div>
@@ -289,15 +291,41 @@ const InvoicePage = ({ invoiceId }) => {
           </table>
         </div>
 
-        <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-4">
-          <div>
-            {/* <div className="font-semibold mb-1">Payment Method:</div> */}
-            {/* <div className="text-gray-700">{payment.method}</div> */}
-          </div>
-          <div className="text-right mt-4 md:mt-0">
-            <div className="text-gray-700">Subtotal : {summary?.summary || ""}</div>
-            <div className="text-gray-700">Tax : {summary?.tax_amount || ""} {getTaxDisplay()}</div>
-            <div className="text-blue-700 font-bold text-lg">Total: {summary?.total || ""}</div>
+        <div className="mt-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Left Column - Notes and Terms */}
+            <div className="border rounded-lg p-4 shadow-sm bg-gray-50">
+              <div className="mb-4">
+                <div className="font-bold mb-2 text-gray-700 text-sm">Notes:</div>
+                <div className="text-gray-500 text-xs leading-relaxed">
+                  {invoiceData?.notes || 'No additional notes'}
+                </div>
+              </div>
+              <div>
+                <div className="font-bold mb-2 text-gray-700 text-sm">Terms & Conditions:</div>
+                <div className="text-gray-500 text-xs leading-relaxed">
+                  {invoiceData?.terms_and_conditions || 'No terms and conditions provided'}
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column - Totals */}
+            <div className="border rounded-lg p-4 md:p-6 shadow-sm bg-gray-50">
+              <div className="flex flex-col gap-2">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-500">Subtotal</span>
+                  <span className="font-semibold text-gray-900">{summary?.summary || ""}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-500">Tax {getTaxDisplay()}</span>
+                  <span className="font-semibold text-red-700">{summary?.tax_amount || ""}</span>
+                </div>
+                <div className="border-t pt-3 mt-2 flex justify-between items-center">
+                  <span className="font-bold text-gray-900">Total Due</span>
+                  <span className="font-bold text-lg text-blue-700">{summary?.total || ""}</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
         <div className="flex justify-end mt-4">
@@ -317,7 +345,6 @@ const InvoicePage = ({ invoiceId }) => {
           onSubmit={handleModalSubmit}
         />
       </div>
-    </div>
   );
 };
 
