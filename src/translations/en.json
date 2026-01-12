@@ -1326,6 +1326,7 @@
       "notifications": "Notifications",
       "reports": "Reports",
       "inverter_report": "Inverter Env Report",
+      "project_env_report": "Project Env Report",
       "savingreports": "Saving Reports",
       "conjunctionreports": "Conjunction Reports",
       "contracts": "Contracts",

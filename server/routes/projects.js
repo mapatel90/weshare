@@ -1598,6 +1598,7 @@ router.post('/report/project-energy-data', authenticateToken, async (req, res) =
   try {
     const {
       projectId,
+      offtaker_id,
       search,
       downloadAll,
       limit,
@@ -1613,7 +1614,10 @@ router.post('/report/project-energy-data', authenticateToken, async (req, res) =
 
 
     let where = {
-      projects: { is_deleted: 0 },
+      projects: {
+        is_deleted: 0,
+        ...(offtaker_id ? { offtaker_id: Number(offtaker_id) } : {}),
+      },
     };
 
     if (projectId) {
