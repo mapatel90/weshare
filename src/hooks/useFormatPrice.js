@@ -5,6 +5,8 @@ import { useSettings } from '@/contexts/SettingsContext';
 export function useFormatPrice() {
   const { settings, loading } = useSettings();
 
+  console.log("settings", settings);
+
   return (amount, options = {}) => {
     if (amount == null || isNaN(amount)) return '-';
 

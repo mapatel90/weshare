@@ -175,13 +175,27 @@ export default function AuthProvider({ children }) {
     router.push('/login');
   };
 
+  // Update user data (e.g., after profile update)
+  const updateUser = useCallback((updates) => {
+    setUser(prevUser => {
+      if (!prevUser) return prevUser;
+
+      const updatedUser = { ...prevUser, ...updates };
+
+      // Update cached user
+      localStorage.setItem('cachedUser', JSON.stringify(updatedUser));
+
+      return updatedUser;
+    });
+  }, []);
 
   const value = {
     user,
     loading,
     login,
     logout,
-    checkAuth
+    checkAuth,
+    updateUser
   }
 
   return (

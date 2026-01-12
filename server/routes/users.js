@@ -698,7 +698,10 @@ router.put('/profile/:id', authenticateToken, uploadAvatar.single('user_image'),
       phone_number,
       country_id,
       state_id,
-      city_id
+      city_id,
+      address_1,
+      address_2,
+      zipcode
     } = req.body;
 
     // Check if user exists
@@ -720,7 +723,10 @@ router.put('/profile/:id', authenticateToken, uploadAvatar.single('user_image'),
       ...(phone_number !== undefined && { phone_number }),
       ...(country_id !== undefined && { country_id: country_id ? parseInt(country_id) : null }),
       ...(state_id !== undefined && { state_id: state_id ? parseInt(state_id) : null }),
-      ...(city_id !== undefined && { city_id: city_id ? parseInt(city_id) : null })
+      ...(city_id !== undefined && { city_id: city_id ? parseInt(city_id) : null }),
+      ...(address_1 !== undefined && { address_1: address_1 ? address_1 : null }),
+      ...(address_2 !== undefined && { address_2: address_2 ? address_2 : null }),
+      ...(zipcode !== undefined && { zipcode: zipcode ? zipcode : null })
     };
 
     // Handle user_image upload

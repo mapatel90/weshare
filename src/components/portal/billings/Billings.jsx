@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { apiGet } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
-import { usePriceWithCurrency } from "@/hooks/useFormatPrice";
+import { downloadInvoicePDF } from "@/components/admin/invoice/InvoicePdf";
+import { usePriceWithCurrency } from "@/hooks/usePriceWithCurrency";
 
 const statusColors = {
   Paid: "bg-green-100 text-green-700",
@@ -225,9 +226,8 @@ const Billings = () => {
 
   const filteredInvoices = invoices;
 
-  const handleDownload = (number) => {
-    // Example: window.open(`/api/invoice/download/${number}`);
-    // router.push("/offtaker/billings/invoice");
+  const handleDownload = async (invoiceId) => {
+    await downloadInvoicePDF(invoiceId, priceWithCurrency);
   };
 
   const handleView = (invoiceId) => {
@@ -235,12 +235,12 @@ const Billings = () => {
   };
 
   return (
-    <div className="p-6 bg-white rounded-xl shadow-md">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-2">
+    <div className="p-6 bg-white shadow-md rounded-xl">
+      <div className="flex flex-col gap-2 mb-4 md:flex-row md:items-center md:justify-between">
         {/* Project Dropdown Filter */}
         <div className="flex flex-col gap-1">
           <select
-            className="theme-btn-blue-color border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
+            className="px-3 py-2 text-sm border rounded-md theme-btn-blue-color focus:outline-none focus:ring-2 focus:ring-blue-200"
             value={projectFilter}
             onChange={(e) => handleProjectFilterChange(e.target.value)}
             disabled={projectsLoading}
@@ -265,10 +265,10 @@ const Billings = () => {
             placeholder="Search project or invoice..."
             value={search}
             onChange={(e) => handleSearchChange(e.target.value)}
-            className="border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
+            className="px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-200"
           />
           <select
-            className="theme-btn-blue-color border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
+            className="px-3 py-2 text-sm border rounded-md theme-btn-blue-color focus:outline-none focus:ring-2 focus:ring-blue-200"
             value={statusFilter}
             onChange={(e) => handleStatusFilterChange(e.target.value)}
           >
@@ -283,19 +283,19 @@ const Billings = () => {
         <table className="min-w-full text-sm">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-4 py-3 text-left font-semibold">
+              <th className="px-4 py-3 font-semibold text-left">
                 PROJECT NAME
               </th>
-              <th className="px-4 py-3 text-left font-semibold">
+              <th className="px-4 py-3 font-semibold text-left">
                 INVOICE NAME
               </th>
-              <th className="px-2 py-3 text-left font-semibold">
+              <th className="px-2 py-3 font-semibold text-left">
                 INVOICE DATE
               </th>
-              <th className="px-2 py-3 text-left font-semibold">DUE DATE</th>
-              <th className="px-2 py-3 text-left font-semibold">AMOUNT</th>
-              <th className="px-2 py-3 text-left font-semibold">STATUS</th>
-              <th className="px-2 py-3 text-left font-semibold">DOWNLOAD</th>
+              <th className="px-2 py-3 font-semibold text-left">DUE DATE</th>
+              <th className="px-2 py-3 font-semibold text-left">AMOUNT</th>
+              <th className="px-2 py-3 font-semibold text-left">STATUS</th>
+              <th className="px-2 py-3 font-semibold text-left">DOWNLOAD</th>
             </tr>
           </thead>
           <tbody>
@@ -351,7 +351,7 @@ const Billings = () => {
                     {inv.download ? (
                       <div className="relative inline-block text-left">
                         <button
-                          className="bg-transparent border-none cursor-pointer px-2 py-1 dropdown-action-btn"
+                          className="px-2 py-1 bg-transparent border-none cursor-pointer dropdown-action-btn"
                           onClick={() => setDropdownOpen(idx)}
                         >
                           <span className="text-2xl">&#8942;</span>
@@ -364,18 +364,18 @@ const Billings = () => {
                               style={{ background: "transparent" }}
                               onClick={() => setDropdownOpen(null)}
                             />
-                            <div className="absolute right-0 mt-2 w-32 bg-white border rounded shadow-lg z-20 dropdown-action-menu">
+                            <div className="absolute right-0 z-20 w-32 mt-2 bg-white border rounded shadow-lg dropdown-action-menu">
                               <button
-                                className="block w-full text-left px-4 py-2 text-blue-600 hover:bg-gray-100"
+                                className="block w-full px-4 py-2 text-left text-blue-600 hover:bg-gray-100"
                                 onClick={() => {
-                                  handleDownload(inv.number);
+                                  handleDownload(inv.id);
                                   setDropdownOpen(null);
                                 }}
                               >
                                 Download
                               </button>
                               <button
-                                className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
+                                className="block w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100"
                                 onClick={() => {
                                   handleView(inv.id);
                                   setDropdownOpen(null);
