@@ -97,17 +97,25 @@ function Header({ toggleSidebar }) {
                         </MenuItem>
                     </Menu>
                     <Avatar
-                        src={getFullImageUrl(user?.avatar) || '/images/avatar/Profile.png'}
+                        src={getFullImageUrl(user?.avatar) || '/images/avatar/default-avatar.png'}
                         onClick={handleAvatarClick}
                         sx={{
+                            width: 40,
+                            height: 40,
                             color: '#000',
                             cursor: 'pointer',
+                            border: '2px solid #f0f0f0',
+                            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                            transition: 'all 0.3s',
                             '&:hover': {
-                                backgroundColor: '#FFF9ED'
+                                backgroundColor: '#FFF9ED',
+                                borderColor: '#F6A623',
+                                transform: 'scale(1.05)'
                             }
                         }}
+                        alt={user?.name || 'User Avatar'}
                     >
-                        <PersonOutlineIcon sx={{ fontSize: 28 }} />
+                        {!user?.avatar && <PersonOutlineIcon sx={{ fontSize: 28 }} />}
                     </Avatar>
                     <Menu
                         anchorEl={anchorEl}
@@ -117,17 +125,41 @@ function Header({ toggleSidebar }) {
                         transformOrigin={{ vertical: 'top', horizontal: 'right' }}
                         PaperProps={{
                             sx: {
-                                minWidth: 180,
+                                minWidth: 220,
                                 borderRadius: 3,
                                 boxShadow: '0 4px 16px rgba(0,0,0,0.10)',
                                 p: 0.5,
                             }
                         }}
                     >
-                        <div style={{ padding: '8px 16px', fontWeight: 600, fontSize: '1.05rem', color: '#555' }}>
-                            {user?.name || 'Offtaker User'}
+                        <div style={{
+                            padding: '12px 16px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '12px',
+                            borderBottom: '1px solid #eee',
+                            marginBottom: '8px'
+                        }}>
+                            <Avatar
+                                src={getFullImageUrl(user?.avatar) || '/images/avatar/default-avatar.png'}
+                                sx={{
+                                    width: 48,
+                                    height: 48,
+                                    border: '2px solid #f0f0f0',
+                                }}
+                                alt={user?.name || 'User Avatar'}
+                            >
+                                {!user?.avatar && <PersonOutlineIcon sx={{ fontSize: 24 }} />}
+                            </Avatar>
+                            <div>
+                                <div style={{ fontWeight: 600, fontSize: '1.05rem', color: '#333' }}>
+                                    {user?.name || 'Offtaker User'}
+                                </div>
+                                <div style={{ fontSize: '0.85rem', color: '#888' }}>
+                                    {user?.email || ''}
+                                </div>
+                            </div>
                         </div>
-                        <div style={{ borderBottom: '1px solid #eee', margin: '0 8px' }} />
                         <MenuItem onClick={() => { handleProfileClick(); }}
                             sx={{
                                 py: 1.5,
