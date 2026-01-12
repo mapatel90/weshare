@@ -1,9 +1,10 @@
 "use client";
-import React, { useEffect, useMemo, useState } from "react";
-import { apiGet } from "@/lib/api";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { apiGet, apiPost } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Table from "@/components/shared/table/Table";
+import { formatShort } from "@/utils/common";
 
 const SavingReports = () => {
   const PAGE_SIZE = 50; // show 50 rows per page
@@ -23,286 +24,296 @@ const SavingReports = () => {
     total: 0,
     pages: 0,
   });
+  const [pageIndex, setPageIndex] = useState(0);
+  const [startDate, setStartDate] = useState(""); // YYYY-MM-DD
+  const [endDate, setEndDate] = useState(""); // YYYY-MM-DD
 
   // Dropdown lists
   const [projectList, setProjectList] = useState([]);
   const [inverterList, setInverterList] = useState([]);
 
-  // -----------------------------
-  // Fetch Reports Function
-  // -----------------------------
-  const fetchReports = async () => {
+  const fetch_project_list = async () => {
+    try {
+      const res = await apiPost("/api/projects/dropdown/project", { offtaker_id: user?.id });
+      if (res && res.success) {
+        setProjectList(res.data);
+      }
+    } catch (error) {
+      console.error("Error fetching project list:", error);
+    }
+  };
+
+  const fetchReports = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
 
-      if (!user?.id) {
-        setError("User not logged in");
-        setLoading(false);
-        return;
+      if (startDate && endDate) {
+        const startTs = new Date(`${startDate}T00:00:00`);
+        const endTs = new Date(`${endDate}T23:59:59`);
+        if (startTs > endTs) {
+          setError("Start date cannot be after end date.");
+          setLoading(false);
+          setHasLoadedOnce(true);
+          return;
+        }
       }
 
       const params = new URLSearchParams({
-        page: "1",
-        downloadAll: "1", // fetch all data
+        page: String(pageIndex + 1),
+        limit: String(PAGE_SIZE),
       });
 
-      // Add projectId filter if selected
       if (projectFilter) {
         params.append("projectId", projectFilter);
       }
 
-      // Add inverterId filter if selected
-      if (inverterFilter) {
-        params.append("inverterId", inverterFilter);
-      }
-
-      // Add search term
+      // Add searchTerm for server-side search
       if (searchTerm) {
         params.append("search", searchTerm);
       }
 
-      const res = await apiGet(`/api/inverter-data?${params.toString()}`);
-      const items = Array.isArray(res?.data) ? res.data : [];
+      // Add date range filters (inclusive)
+      if (startDate) {
+        params.append("startDate", startDate);
+      }
+      if (endDate) {
+        params.append("endDate", endDate);
+      }
 
-      // Filter to only include offtaker's projects
-      const offtakerProjectIds = (res?.projectList || [])
-        .filter((p) => Number(p.offtaker_id) === Number(user.id))
-        .map((p) => Number(p.id));
+      params.append("offtaker_id", user?.id);
 
-      const filteredItems = items.filter((item) => {
-        const projectId = Number(item.project_id ?? item.projectId);
-        return offtakerProjectIds.includes(projectId);
-      });
+      const res = await apiGet(`/api/projects/report/saving-data?${params.toString()}`);
 
-      const mappedData = filteredItems.map((item) => ({
-        id: item.id,
-        projectId: item.project_id ?? item.projectId ?? null,
-        inverterId: item.project_inverter_id ?? null,
-        projectName:
-          item.projects?.project_name || `Project ${item.project_id ?? ""}`,
-        inverterName: item.project_inverters?.inverter_name || "-",
-        date: item.date,
-        time: item.time ?? "",
-        generatedKW:
-          item.generate_kw !== undefined && item.generate_kw !== null
-            ? (Number(item.generate_kw) / 1000).toFixed(2) + " kwh"
-            : "",
-        Acfrequency: item.ac_frequency ?? "",
-        DailyYield:
-          item.daily_yield !== undefined && item.daily_yield !== null
-            ? item.daily_yield + " kwh"
-            : "",
-        AnnualYield:
-          item.annual_yield !== undefined && item.annual_yield !== null
-            ? item.annual_yield + " kwh"
-            : "",
-        TotalYield:
-          item.total_yield !== undefined && item.total_yield !== null
-            ? item.total_yield + " kwh"
-            : "",
-      }));
-
-      setReportsData(mappedData);
-
-      // Set dropdown lists - only offtaker's projects
-      const offtakerProjects = (res?.projectList || []).filter(
-        (p) => Number(p.offtaker_id) === Number(user.id)
-      );
-      setProjectList(offtakerProjects);
-      
-      // Filter inverters to only show those from offtaker's projects
-      const offtakerInverters = (Array.isArray(res?.inverterList) ? res.inverterList : []).filter(
-        (inv) => offtakerProjectIds.includes(Number(inv.project_id))
-      );
-      setInverterList(offtakerInverters);
-
-      const apiTotal = mappedData.length;
-      setPagination({
-        page: 1,
-        limit: PAGE_SIZE,
-        total: apiTotal,
-        pages: Math.max(1, Math.ceil(apiTotal / PAGE_SIZE)),
-      });
-
-      setError(null);
+      if (res && res.success) {
+        setReportsData(res.data || []);
+        if (res.pagination) {
+          setPagination({
+            page: res.pagination.page,
+            limit: res.pagination.limit,
+            total: res.pagination.total,
+            pages: res.pagination.pages,
+          });
+        }
+        setHasLoadedOnce(true);
+      } else {
+        setError("Failed to load reports data");
+        setReportsData([]);
+      }
     } catch (err) {
+      console.error("Failed to fetch reports:", err);
       setError(err?.message || "Failed to load reports");
+      setReportsData([]);
     } finally {
       setLoading(false);
-      setHasLoadedOnce(true);
+    }
+  }, [pageIndex, projectFilter, startDate, endDate, searchTerm]);
+
+  const handleSearchChange = (value) => {
+    setPageIndex(0);
+    setSearchTerm(value);
+  };
+
+  const handlePaginationChange = (nextPagination) => {
+    const updated = typeof nextPagination === "function"
+      ? nextPagination({ pageIndex, pageSize: PAGE_SIZE })
+      : nextPagination;
+    setPageIndex(updated.pageIndex || 0);
+  };
+
+  const columns = useMemo(() => [
+    {
+      accessorKey: 'projects.project_name',
+      header: 'Project Name',
+      cell: ({ row }) => row.original.projects?.project_name || 'N/A',
+    },
+    {
+      accessorKey: 'date',
+      header: 'Date',
+      cell: ({ row }) => {
+        const date = row.original.date;
+        return date ? new Date(date).toLocaleDateString() : 'N/A';
+      },
+    },
+    {
+      accessorKey: 'grid_purchased_energy',
+      header: 'Grid Purchased',
+      cell: ({ row }) => (formatShort(row.original.grid_purchased_energy) || 0),
+    },
+    {
+      accessorKey: 'consume_energy',
+      header: 'Consume Energy',
+      cell: ({ row }) => (formatShort(row.original.consume_energy) || 0),
+    },
+    {
+      accessorKey: 'full_hour',
+      header: 'Full Hour',
+      cell: ({ row }) => (formatShort(row.original.full_hour) || 0),
+    },
+    {
+      accessorKey: 'battery_charge_energy',
+      header: 'Battery Charge',
+      cell: ({ row }) => (formatShort(row.original.battery_charge_energy) || 0),
+    },
+    {
+      accessorKey: 'battery_discharge_energy',
+      header: 'Battery Discharge',
+      cell: ({ row }) => (formatShort(row.original.battery_discharge_energy) || 0),
+    },
+    {
+      accessorKey: 'home_grid_energy',
+      header: 'Home Grid',
+      cell: ({ row }) => (formatShort(row.original.home_grid_energy) || 0),
+    },
+    {
+      accessorKey: 'back_up_energy',
+      header: 'Backup Energy',
+      cell: ({ row }) => (formatShort(row.original.back_up_energy) || 0),
+    },
+    {
+      accessorKey: 'energy',
+      header: 'Energy',
+      cell: ({ row }) => (formatShort(row.original.energy) || 0),
+    },
+    {
+      accessorKey: 'evn cost',
+      header: 'EvN Cost',
+      cell: ({ row }) => (formatShort(row.original.evn_amount) || 0),
+    },
+    {
+      accessorKey: 'weshare cost',
+      header: 'Weshare Cost',
+      cell: ({ row }) => (formatShort(row.original.weshare_amount) || 0),
+    },
+    {
+      accessorKey: 'saving_cost',
+      header: 'Saving Cost',
+      cell: ({ row }) => (formatShort(row.original.saving_cost) || 0),
+    },
+  ], []);
+
+  const downloadCSV = async () => {
+    try {
+      setLoading(true);
+
+      // Build params for CSV export (fetch all data, no pagination)
+      const params = new URLSearchParams();
+
+      if (projectFilter) {
+        params.append("projectId", projectFilter);
+      }
+
+      if (searchTerm) {
+        params.append("search", searchTerm);
+      }
+
+      if (startDate) {
+        params.append("startDate", startDate);
+      }
+      if (endDate) {
+        params.append("endDate", endDate);
+      }
+
+      // Fetch all data for CSV (set a high limit or fetch without pagination)
+      params.append("page", "1");
+      params.append("limit", "10000"); // Large limit to get all data
+
+      params.append("offtaker_id", user?.id);
+
+      const res = await apiGet(`/api/projects/report/saving-data?${params.toString()}`);
+
+      if (res && res.success && res.data) {
+        const data = res.data;
+
+        // Define CSV headers matching table columns
+        const headers = [
+          'Project Name',
+          'Date',
+          'Grid Purchased',
+          'Consume Energy',
+          'Full Hour',
+          'Battery Charge',
+          'Battery Discharge',
+          'Home Grid',
+          'Backup Energy',
+          'Energy',
+          'EvN Cost',
+          'Weshare Cost',
+          'Saving Cost'
+        ];
+
+        // Convert data to CSV rows
+        const csvRows = [
+          headers.join(','), // Header row
+          ...data.map(row => {
+            const values = [
+              `"${(row.projects?.project_name || 'N/A')}"`,
+              row.date ? `"${new Date(row.date).toLocaleDateString()}"` : '"N/A"',
+              formatShort(row.grid_purchased_energy) || 0,
+              formatShort(row.consume_energy) || 0,
+              formatShort(row.full_hour) || 0,
+              formatShort(row.battery_charge_energy) || 0,
+              formatShort(row.battery_discharge_energy) || 0,
+              formatShort(row.home_grid_energy) || 0,
+              formatShort(row.back_up_energy) || 0,
+              formatShort(row.energy) || 0,
+              formatShort(row.evn_amount) || 0,
+              formatShort(row.weshare_amount) || 0,
+              formatShort(row.saving_cost) || 0,
+            ];
+            return values.join(',');
+          })
+        ];
+
+        // Create CSV content
+        const csvContent = csvRows.join('\n');
+
+        // Create blob and download
+        const blob = new Blob(
+          ["\uFEFF" + csvContent],
+          { type: 'text/csv;charset=utf-8;' }
+        );
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+
+        // Generate filename with date range if applicable
+        let filename = 'project_day_report';
+        if (startDate && endDate) {
+          filename += `_${startDate}_to_${endDate}`;
+        } else if (startDate) {
+          filename += `_from_${startDate}`;
+        } else if (endDate) {
+          filename += `_until_${endDate}`;
+        }
+        filename += `_${new Date().toISOString().split('T')[0]}.csv`;
+
+        link.setAttribute('href', url);
+        link.setAttribute('download', filename);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } else {
+        setError("Failed to fetch data for CSV export");
+      }
+    } catch (err) {
+      console.error("Failed to export CSV:", err);
+      setError(err?.message || "Failed to export CSV");
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Fetch + refresh when filters/search change
+  useEffect(() => {
+    fetch_project_list();
+  }, []);
+
+
   useEffect(() => {
     fetchReports();
+  }, [fetchReports, hasLoadedOnce]);
 
-    const interval = setInterval(() => {
-      fetchReports();
-    }, 120000); // 2 minutes
 
-    return () => clearInterval(interval);
-  }, [projectFilter, inverterFilter, searchTerm, user?.id]);
-
-  // Reset inverter filter when project changes
-  useEffect(() => {
-    if (!inverterFilter) return;
-
-    const available = new Set((inverterList || []).map((i) => String(i.id)));
-    if (!available.has(inverterFilter)) {
-      setInverterFilter("");
-    }
-  }, [projectFilter, inverterList, inverterFilter]);
-
-  // -----------------------------
-  // Filtered Data
-  // -----------------------------
-  const filteredData = useMemo(() => {
-    return reportsData.filter((d) => {
-      if (projectFilter && String(d.projectId) !== projectFilter) return false;
-      if (inverterFilter && String(d.inverterId) !== inverterFilter)
-        return false;
-      return true;
-    });
-  }, [projectFilter, inverterFilter, reportsData]);
-
-  // -----------------------------
-  // CSV Download
-  // -----------------------------
-  const handleDownloadCSV = async () => {
-    try {
-      const params = new URLSearchParams();
-      if (projectFilter) params.append("projectId", projectFilter);
-      if (inverterFilter) params.append("inverterId", inverterFilter);
-      if (searchTerm && searchTerm.trim())
-        params.append("search", searchTerm.trim());
-      params.append("downloadAll", "1");
-
-      const res = await apiGet(`/api/inverter-data?${params.toString()}`);
-      const items = Array.isArray(res?.data) ? res.data : [];
-
-      // Filter to offtaker's projects
-      const offtakerProjectIds = (res?.projectList || [])
-        .filter((p) => Number(p.offtaker_id) === Number(user.id))
-        .map((p) => Number(p.id));
-
-      const filteredItems = items.filter((item) => {
-        const projectId = Number(item.project_id ?? item.projectId);
-        return offtakerProjectIds.includes(projectId);
-      });
-
-      const rows = filteredItems.map((item) => ({
-        projectName:
-          item.projects?.project_name || `Project ${item.project_id ?? ""}`,
-        inverterName: item?.project_inverters?.inverter_name || "-",
-        date: item.date,
-        time: item.time ?? "",
-        generatedKW:
-          item.generate_kw !== undefined && item.generate_kw !== null
-            ? (Number(item.generate_kw) / 1000).toFixed(2) + " kwh"
-            : "",
-        Acfrequency: item.ac_frequency ?? "",
-        DailyYield:
-          item.daily_yield !== undefined && item.daily_yield !== null
-            ? item.daily_yield + " kwh"
-            : "",
-        AnnualYield:
-          item.annual_yield !== undefined && item.annual_yield !== null
-            ? item.annual_yield + " kwh"
-            : "",
-        TotalYield:
-          item.total_yield !== undefined && item.total_yield !== null
-            ? item.total_yield + " kwh"
-            : "",
-      }));
-
-      const header = [
-        lang("projects.projectName"),
-        lang("inverter.inverterName"),
-        lang("common.date"),
-        lang("common.time"),
-        lang("common.generatedKW"),
-        lang("common.acFrequency"),
-        lang("reports.dailyYield"),
-        lang("reports.annualYield"),
-        lang("reports.totalYield"),
-      ];
-
-      const csvRows = rows.map((row) => [
-        row.projectName,
-        row.inverterName,
-        formatDateDDMMYYYY(row.date),
-        row.time ?? "",
-        row.generatedKW ?? "",
-        row.Acfrequency ?? "",
-        row.DailyYield ?? "",
-        row.AnnualYield ?? "",
-        row.TotalYield ?? "",
-      ]);
-
-      const csvContent =
-        "data:text/csv;charset=utf-8," +
-        [header, ...csvRows].map((e) => e.join(",")).join("\n");
-
-      const link = document.createElement("a");
-      link.setAttribute("href", encodeURI(csvContent));
-      link.setAttribute("download", "saving_reports.csv");
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    } catch (err) {
-      console.error("CSV download failed", err);
-    }
-  };
-
-  // helper to show date without timezone shift (dd/mm/yyyy)
-  const formatDateDDMMYYYY = (raw) => {
-    if (!raw) return "";
-    const datePart = String(raw).trim().split(/[ T]/)[0];
-    const [y, m, d] = datePart.split("-");
-    if (y && m && d) return `${d}/${m}/${y}`;
-    return "";
-  };
-
-  // -----------------------------
-  // Table Columns
-  // -----------------------------
-  const columns = useMemo(
-    () => [
-      {
-        accessorKey: "projectName",
-        header: () => lang("projects.projectName"),
-      },
-      {
-        accessorKey: "inverterName",
-        header: () => lang("inverter.inverterName"),
-      },
-      {
-        accessorKey: "date",
-        header: () => lang("common.date"),
-        cell: ({ row }) => formatDateDDMMYYYY(row.original.date),
-      },
-      { accessorKey: "time", header: () => lang("common.time") },
-      { accessorKey: "generatedKW", header: () => lang("common.generatedKW") },
-      { accessorKey: "Acfrequency", header: () => lang("common.acFrequency") },
-      { accessorKey: "DailyYield", header: () => lang("reports.dailyYield") },
-      {
-        accessorKey: "AnnualYield",
-        header: () => lang("reports.annualYield"),
-      },
-      {
-        accessorKey: "TotalYield",
-        header: () => lang("reports.totalYield"),
-        meta: { disableSort: true },
-      },
-    ],
-    [lang]
-  );
-
-  // -----------------------------
-  // UI Rendering
-  // -----------------------------
   return (
     <div className="p-6 bg-white rounded-3xl shadow-md">
       <div className="d-flex items-center justify-content-between gap-2 mb-4 mt-4 w-full flex-wrap">
@@ -320,22 +331,27 @@ const SavingReports = () => {
             ))}
           </select>
 
-          <select
-            value={inverterFilter}
-            onChange={(e) => setInverterFilter(e.target.value)}
-            className="theme-btn-blue-color border rounded-md px-3 py-2 me-2 text-sm"
-          >
-            <option value="">{lang("reports.allinverters")}</option>
-            {inverterList.map((i) => (
-              <option key={i.id} value={i.id}>
-                {i.name}
-              </option>
-            ))}
-          </select>
+          <input
+            type="date"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+            className="theme-btn-blue-color border rounded-md px-3 py-2 mx-2 text-sm"
+            placeholder={lang("common.startDate") || "Start Date"}
+          />
+
+          <input
+            type="date"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+            min={startDate || undefined}
+            className="theme-btn-blue-color border rounded-md px-3 py-2 mx-2 text-sm"
+            placeholder={lang("common.endDate") || "End Date"}
+          />
+
         </div>
 
         <button
-          onClick={handleDownloadCSV}
+          onClick={downloadCSV}
           className="common-grey-color border rounded-3 btn"
         >
           {lang("reports.downloadcsv")}
@@ -349,19 +365,16 @@ const SavingReports = () => {
 
         {error && <div className="text-red-600">Error: {error}</div>}
 
-        {hasLoadedOnce && filteredData.length === 0 && !error && !loading && (
-          <div className="text-center py-6 text-gray-600">
-            {lang("common.noData")}
-          </div>
-        )}
-
         {hasLoadedOnce && (
           <>
             <Table
-              data={filteredData}
+              data={reportsData}
               columns={columns}
               disablePagination={false}
-              onSearchChange={setSearchTerm}
+              onSearchChange={handleSearchChange}
+              onPaginationChange={handlePaginationChange}
+              pageIndex={pageIndex}
+              pageSize={PAGE_SIZE}
               serverSideTotal={pagination.total}
               initialPageSize={PAGE_SIZE}
             />

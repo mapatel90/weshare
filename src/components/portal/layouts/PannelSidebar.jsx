@@ -59,6 +59,7 @@ function PannelSidebar({ activeMenu, setActiveMenu }) {
                     <ChevronDown className="w-4 h-4" />
                 </div>
                 <div className={`submenu${activeMenu === 'reports' ? ' show' : ''}`}>
+                    <Link href="/offtaker/reports/inverter-env-reports/" className="menu-item">{lang("offtaker_login.sidebar.inverter_report")}</Link>
                     <Link href="/offtaker/reports/saving-reports/" className="menu-item">{lang("offtaker_login.sidebar.savingreports")}</Link>
                     <Link href="/offtaker/reports/conjunction-reports/" className="menu-item">{lang("offtaker_login.sidebar.conjunctionreports")}</Link>
                 </div>

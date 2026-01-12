@@ -30,12 +30,9 @@ const ProjectEnergyReport = () => {
             setLoading(true);
             setError(null);
 
-            const res = await apiGet(`/api/projects/dropdown/project`);
-            console.log("API Response:", res); // Check the structure
+            const res = await apiPost(`/api/projects/dropdown/project`);
 
-            // FIX HERE: Check the actual response structure
             if (res && res.data) {
-                // If API returns { data: [...] }
                 setProjects(res.data);
             } else if (Array.isArray(res)) {
                 // If API directly returns array
@@ -214,11 +211,11 @@ const ProjectEnergyReport = () => {
                     headers.join(','), // Header row
                     ...data.map(row => {
                         const values = [`"${(row.projects?.project_name || '-').replace(/"/g, '""')}"`,
-                            row.date ? `"${new Date(row.date).toLocaleDateString()}"` : '"-"',
-                            row.time ? `"${row.time}"` : '"-"',
-                            row.pv ? `"${row.pv}"` : '"0"',
-                            row.grid ? `"${row.grid}"` : '"0"',
-                            row.load ? `"${row.load}"` : '"0"',
+                        row.date ? `"${new Date(row.date).toLocaleDateString()}"` : '"-"',
+                        row.time ? `"${row.time}"` : '"-"',
+                        row.pv ? `"${row.pv}"` : '"0"',
+                        row.grid ? `"${row.grid}"` : '"0"',
+                        row.load ? `"${row.load}"` : '"0"',
                         ];
                         return values.join(',');
                     })
@@ -228,7 +225,10 @@ const ProjectEnergyReport = () => {
                 const csvContent = csvRows.join('\n');
 
                 // Create blob and download
-                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const blob = new Blob(
+                    ["\uFEFF" + csvContent],
+                    { type: 'text/csv;charset=utf-8;' }
+                );
                 const link = document.createElement('a');
                 const url = URL.createObjectURL(blob);
 

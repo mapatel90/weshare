@@ -148,18 +148,18 @@ export const menuList = [
         path: "/admin/reports/project-day",
         subdropdownMenu: false,
       },
-      {
-        id: 3,
-        name: "roireports",
-        path: "/admin/reports/roi",
-        subdropdownMenu: false,
-      },
-      {
-        id: 4,
-        name: "cashflowreports",
-        path: "/admin/reports/cash-flow",
-        subdropdownMenu: false,
-      },
+      // {
+      //   id: 3,
+      //   name: "roireports",
+      //   path: "/admin/reports/roi",
+      //   subdropdownMenu: false,
+      // },
+      // {
+      //   id: 4,
+      //   name: "cashflowreports",
+      //   path: "/admin/reports/cash-flow",
+      //   subdropdownMenu: false,
+      // },
       {
         id: 5,
         name: "Project energy",
