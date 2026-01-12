@@ -1274,7 +1274,141 @@ router.get('/dropdown/project', authenticateToken, async (req, res) => {
 
 
 // Get Project energy day data table name = project_energy_days_data
-router.get('/report/project-day-data', authenticateToken, async (req, res) => {
+// router.get('/report/project-day-data', authenticateToken, async (req, res) => {
+//   try {
+//     const {
+//       projectId,
+//       search,
+//       downloadAll,
+//       limit,
+//       page,
+//       startDate,
+//       endDate,
+//     } = req.query;
+
+//     const parsedLimit = Number(limit);
+//     const limitNumber =
+//       !Number.isNaN(parsedLimit) && parsedLimit > 0 ? parsedLimit : 50; // default to 50 rows when not explicitly provided
+//     const parsedPage = Number(page);
+//     const pageNumber = !Number.isNaN(parsedPage) && parsedPage > 0 ? parsedPage : 1;
+
+//     // Only fetch all when explicitly requested (CSV export). Otherwise page through results.
+//     const fetchAll = downloadAll === "1" || downloadAll === "true";
+
+//     let where = {
+//       projects: { is_deleted: 0 },
+//     };
+
+//     if (projectId) {
+//       where.project_id = Number(projectId);
+//     }
+
+//     // Add date range filtering
+//     if (startDate || endDate) {
+//       where.date = {};
+//       if (startDate) {
+//         where.date.gte = new Date(startDate);
+//       }
+//       if (endDate) {
+//         // Include the entire end date (end of day)
+//         const endDateObj = new Date(endDate);
+//         endDateObj.setHours(23, 59, 59, 999);
+//         where.date.lte = endDateObj;
+//       }
+//     }
+
+//     // Add search functionality (search in project name)
+//     if (search) {
+//       const searchNumber = Number(search);
+//       console.log("searchNumber", searchNumber);
+
+//       where.OR = [
+//         {
+//           projects: {
+//             project_name: {
+//               contains: search,
+//               mode: 'insensitive',
+//             },
+//           },
+//         },
+
+//         ...(isNaN(searchNumber)
+//           ? []
+//           : [
+//             { energy: { equals: searchNumber } },
+//             { grid_purchased_energy: { equals: searchNumber } },
+//             { consume_energy: { equals: searchNumber } },
+//           ]),
+//       ];
+//     }
+
+//     // Get total count for pagination
+//     const totalCount = await prisma.project_energy_days_data.count({
+//       where,
+//     });
+
+//     // Fetch records with pagination
+//     const data = await prisma.project_energy_days_data.findMany({
+//       where,
+//       include: {
+//         projects: {
+//           select: {
+//             id: true,
+//             project_name: true,
+//             project_slug: true,
+//             weshare_price_kwh: true,
+//             evn_price_kwh: true,
+//           },
+//         },
+//       },
+//       orderBy: {
+//         date: 'desc',
+//       },
+//       skip: fetchAll ? 0 : (pageNumber - 1) * limitNumber,
+//       take: fetchAll ? undefined : limitNumber,
+//     });
+
+//     // Calculate weshare and evn amounts for each record
+//     const dataWithCalculations = data.map((record) => {
+//       const wesharePrice = Number(record.projects?.weshare_price_kwh) || 0;
+//       const evnPrice = Number(record.projects?.evn_price_kwh) || 0;
+//       const energy = Number(record.energy) || 0;
+
+//       const weshare_amount = energy * wesharePrice;
+//       const evn_amount = energy * evnPrice;
+//       const saving_cost = evn_amount - weshare_amount;
+
+//       return {
+//         ...record,
+//         weshare_amount,
+//         evn_amount,
+//         saving_cost, // ✅ number
+//       };
+//     });
+
+//     const totalPages = Math.ceil(totalCount / limitNumber);
+
+//     res.status(200).json({
+//       success: true,
+//       data: dataWithCalculations,
+//       pagination: {
+//         page: pageNumber,
+//         limit: limitNumber,
+//         total: totalCount,
+//         pages: totalPages,
+//       },
+//     });
+//   } catch (error) {
+//     console.error("Error fetching project day data:", error);
+//     res.status(500).json({
+//       success: false,
+//       message: 'Failed to fetch project day data',
+//       error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+//     });
+//   }
+// });
+
+router.get("/report/project-day-data", authenticateToken, async (req, res) => {
   try {
     const {
       projectId,
@@ -1286,67 +1420,91 @@ router.get('/report/project-day-data', authenticateToken, async (req, res) => {
       endDate,
     } = req.query;
 
-    const parsedLimit = Number(limit);
-    const limitNumber =
-      !Number.isNaN(parsedLimit) && parsedLimit > 0 ? parsedLimit : 50; // default to 50 rows when not explicitly provided
-    const parsedPage = Number(page);
-    const pageNumber = !Number.isNaN(parsedPage) && parsedPage > 0 ? parsedPage : 1;
-
-    // Only fetch all when explicitly requested (CSV export). Otherwise page through results.
+    const limitNumber = Number(limit) > 0 ? Number(limit) : 50;
+    const pageNumber = Number(page) > 0 ? Number(page) : 1;
     const fetchAll = downloadAll === "1" || downloadAll === "true";
 
     let where = {
       projects: { is_deleted: 0 },
     };
 
+    // ✅ Project filter
     if (projectId) {
       where.project_id = Number(projectId);
     }
 
-    // Add date range filtering
+    // ✅ Date filter
     if (startDate || endDate) {
       where.date = {};
       if (startDate) {
         where.date.gte = new Date(startDate);
       }
       if (endDate) {
-        // Include the entire end date (end of day)
-        const endDateObj = new Date(endDate);
-        endDateObj.setHours(23, 59, 59, 999);
-        where.date.lte = endDateObj;
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999);
+        where.date.lte = end;
       }
     }
 
-    // Add search functionality (search in project name)
+    // ✅ SEARCH FIX (IMPORTANT PART)
     if (search) {
-      const searchNumber = Number(search);
+      const trimmed = search.trim();
+      const searchNumber = Number(trimmed);
+      const hasDecimal = trimmed.includes(".");
+      const numericConditions = [];
+
+      if (!isNaN(searchNumber)) {
+        if (hasDecimal) {
+          // exact decimal search
+          numericConditions.push(
+            { energy: { equals: searchNumber } },
+            { grid_purchased_energy: { equals: searchNumber } },
+            { consume_energy: { equals: searchNumber } }
+          );
+        } else {
+          // integer → range search (138 → 138.x)
+          numericConditions.push(
+            {
+              energy: {
+                gte: searchNumber,
+                lt: searchNumber + 1,
+              },
+            },
+            {
+              grid_purchased_energy: {
+                gte: searchNumber,
+                lt: searchNumber + 1,
+              },
+            },
+            {
+              consume_energy: {
+                gte: searchNumber,
+                lt: searchNumber + 1,
+              },
+            }
+          );
+        }
+      }
 
       where.OR = [
         {
           projects: {
             project_name: {
-              contains: search,
-              mode: 'insensitive',
+              contains: trimmed,
+              mode: "insensitive",
             },
           },
         },
-
-        ...(isNaN(searchNumber)
-          ? []
-          : [
-            { energy: { equals: searchNumber } },
-            { grid_purchased_energy: { equals: searchNumber } },
-            { consume_energy: { equals: searchNumber } },
-          ]),
+        ...numericConditions,
       ];
     }
 
-    // Get total count for pagination
+    // ✅ TOTAL COUNT
     const totalCount = await prisma.project_energy_days_data.count({
       where,
     });
 
-    // Fetch records with pagination
+    // ✅ DATA FETCH
     const data = await prisma.project_energy_days_data.findMany({
       where,
       include: {
@@ -1360,32 +1518,28 @@ router.get('/report/project-day-data', authenticateToken, async (req, res) => {
           },
         },
       },
-      orderBy: {
-        date: 'desc',
-      },
+      orderBy: { date: "desc" },
       skip: fetchAll ? 0 : (pageNumber - 1) * limitNumber,
       take: fetchAll ? undefined : limitNumber,
     });
 
-    // Calculate weshare and evn amounts for each record
-    const dataWithCalculations = data.map((record) => {
-      const wesharePrice = Number(record.projects?.weshare_price_kwh) || 0;
-      const evnPrice = Number(record.projects?.evn_price_kwh) || 0;
-      const energy = Number(record.energy) || 0;
+    // ✅ CALCULATIONS
+    const dataWithCalculations = data.map((row) => {
+      const wesharePrice = Number(row.projects?.weshare_price_kwh) || 0;
+      const evnPrice = Number(row.projects?.evn_price_kwh) || 0;
+      const energy = Number(row.energy) || 0;
 
       const weshare_amount = energy * wesharePrice;
       const evn_amount = energy * evnPrice;
       const saving_cost = evn_amount - weshare_amount;
 
       return {
-        ...record,
+        ...row,
         weshare_amount,
         evn_amount,
-        saving_cost, // ✅ number
+        saving_cost,
       };
     });
-
-    const totalPages = Math.ceil(totalCount / limitNumber);
 
     res.status(200).json({
       success: true,
@@ -1394,18 +1548,19 @@ router.get('/report/project-day-data', authenticateToken, async (req, res) => {
         page: pageNumber,
         limit: limitNumber,
         total: totalCount,
-        pages: totalPages,
+        pages: Math.ceil(totalCount / limitNumber),
       },
     });
   } catch (error) {
-    console.error("Error fetching project day data:", error);
+    console.error("Project day data error:", error);
     res.status(500).json({
       success: false,
-      message: 'Failed to fetch project day data',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+      message: "Failed to fetch project day data",
     });
   }
-});
+}
+);
+
 
 
 
