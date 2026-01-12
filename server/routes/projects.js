@@ -1562,8 +1562,127 @@ router.get("/report/project-day-data", authenticateToken, async (req, res) => {
 );
 
 // Project Energy Real Time Data 
-router.get('report/project-energy-data',authenticateToken, async (req, res) => {
+router.get('/report/project-energy-data', authenticateToken, async (req, res) => {
+  try {
+    const {
+      projectId,
+      search,
+      downloadAll,
+      limit,
+      page,
+      startDate,
+      endDate,
+    } = req.query;
 
+    const limitNumber = Number(limit) > 0 ? Number(limit) : 50;
+    const pageNumber = Number(page) > 0 ? Number(page) : 1;
+    const fetchAll = downloadAll === "1" || downloadAll === "true";
+
+    let where = {
+      projects: { is_deleted: 0 },
+    };
+
+    // ✅ Project filter
+    if (projectId) {
+      where.project_id = Number(projectId);
+    }
+
+    // ✅ Date range filter for `date` column (inclusive)
+    if (startDate || endDate) {
+      where.date = {};
+
+      if (startDate) {
+        // from start day 00:00:00
+        where.date.gte = new Date(`${startDate}T00:00:00.000Z`);
+      }
+
+      if (endDate) {
+        // until end day 23:59:59
+        where.date.lte = new Date(`${endDate}T23:59:59.999Z`);
+      }
+    }
+
+    // ✅ Search by project name, numeric pv/grid/load, and time string
+    if (search) {
+      const trimmed = search.trim();
+      const searchNumber = Number(trimmed);
+      const hasColon = trimmed.includes(":");
+
+      const orConditions = [
+        {
+          projects: {
+            project_name: {
+              contains: trimmed,
+              mode: "insensitive",
+            },
+          },
+        },
+      ];
+
+      // numeric search for pv / grid / load
+      if (!isNaN(searchNumber)) {
+        orConditions.push(
+          { pv: { equals: searchNumber } },
+          { grid: { equals: searchNumber } },
+          { load: { equals: searchNumber } },
+        );
+      }
+
+      // time search like "12:40:00"
+      if (hasColon) {
+        orConditions.push({
+          time: {
+            contains: trimmed,
+          },
+        });
+      } else {
+        orConditions.push({
+          time: {
+            startsWith: trimmed,
+          },
+        });
+      }
+
+      where.OR = orConditions;
+    }
+
+    const totalCount = await prisma.project_energy_data.count({ where });
+
+    const data = await prisma.project_energy_data.findMany({
+      where,
+      include: {
+        projects: {
+          select: {
+            id: true,
+            project_name: true,
+            project_slug: true,
+            weshare_price_kwh: true,
+            evn_price_kwh: true,
+          },
+        },
+      },
+      orderBy: { id: "desc" },
+      skip: fetchAll ? 0 : (pageNumber - 1) * limitNumber,
+      take: fetchAll ? undefined : limitNumber,
+    });
+
+    res.status(200).json({
+      success: true,
+      data,
+      pagination: {
+        page: pageNumber,
+        limit: limitNumber,
+        total: totalCount,
+        pages: Math.ceil(totalCount / limitNumber),
+      },
+    });
+  } catch (error) {
+    console.error("Project energy data error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch project energy data",
+    });
+  }
 });
 
 
