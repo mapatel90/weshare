@@ -91,7 +91,7 @@ const ProjectDayReport = () => {
             }
 
             const res = await apiGet(`/api/projects/report/project-day-data?${params.toString()}`);
-            
+
             if (res && res.success) {
                 setReportsData(res.data || []);
                 if (res.pagination) {
@@ -126,6 +126,113 @@ const ProjectDayReport = () => {
             ? nextPagination({ pageIndex, pageSize: PAGE_SIZE })
             : nextPagination;
         setPageIndex(updated.pageIndex || 0);
+    };
+
+    const downloadCSV = async () => {
+        try {
+            setLoading(true);
+
+            // Build params for CSV export (fetch all data, no pagination)
+            const params = new URLSearchParams();
+
+            if (projectFilter) {
+                params.append("projectId", projectFilter);
+            }
+
+            if (searchTerm) {
+                params.append("search", searchTerm);
+            }
+
+            if (startDate) {
+                params.append("startDate", startDate);
+            }
+            if (endDate) {
+                params.append("endDate", endDate);
+            }
+
+            // Fetch all data for CSV (set a high limit or fetch without pagination)
+            params.append("page", "1");
+            params.append("limit", "10000"); // Large limit to get all data
+
+            const res = await apiGet(`/api/projects/report/project-day-data?${params.toString()}`);
+
+            if (res && res.success && res.data) {
+                const data = res.data;
+
+                // Define CSV headers matching table columns
+                const headers = [
+                    'Project Name',
+                    'Date',
+                    'Grid Purchased',
+                    'Consume Energy',
+                    'Full Hour',
+                    'Battery Charge',
+                    'Battery Discharge',
+                    'Home Grid',
+                    'Backup Energy',
+                    'Energy',
+                    'EvN Cost',
+                    'Weshare Cost',
+                    'Saving Cost'
+                ];
+
+                // Convert data to CSV rows
+                const csvRows = [
+                    headers.join(','), // Header row
+                    ...data.map(row => {
+                        const values = [
+                            `"${(row.projects?.project_name || 'N/A').replace(/"/g, '""')}"`,
+                            row.date ? `"${new Date(row.date).toLocaleDateString()}"` : '"N/A"',
+                            formatShort(row.grid_purchased_energy) || 0,
+                            formatShort(row.consume_energy) || 0,
+                            formatShort(row.full_hour) || 0,
+                            formatShort(row.battery_charge_energy) || 0,
+                            formatShort(row.battery_discharge_energy) || 0,
+                            formatShort(row.home_grid_energy) || 0,
+                            formatShort(row.back_up_energy) || 0,
+                            formatShort(row.energy) || 0,
+                            formatShort(row.evn_amount) || 0,
+                            formatShort(row.weshare_amount) || 0,
+                            formatShort(row.saving_cost) || 0,
+                        ];
+                        return values.join(',');
+                    })
+                ];
+
+                // Create CSV content
+                const csvContent = csvRows.join('\n');
+
+                // Create blob and download
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+
+                // Generate filename with date range if applicable
+                let filename = 'project_day_report';
+                if (startDate && endDate) {
+                    filename += `_${startDate}_to_${endDate}`;
+                } else if (startDate) {
+                    filename += `_from_${startDate}`;
+                } else if (endDate) {
+                    filename += `_until_${endDate}`;
+                }
+                filename += `_${new Date().toISOString().split('T')[0]}.csv`;
+
+                link.setAttribute('href', url);
+                link.setAttribute('download', filename);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } else {
+                setError("Failed to fetch data for CSV export");
+            }
+        } catch (err) {
+            console.error("Failed to export CSV:", err);
+            setError(err?.message || "Failed to export CSV");
+        } finally {
+            setLoading(false);
+        }
     };
 
     // Define table columns
@@ -242,6 +349,15 @@ const ProjectDayReport = () => {
                     className="theme-btn-blue-color border rounded-md px-3 py-2 me-2 text-sm"
                     placeholder={lang("common.endDate") || "End Date"}
                 />
+
+                <button
+                    onClick={downloadCSV}
+                    disabled={loading || !hasLoadedOnce}
+                    className="theme-btn-blue-color border rounded-md px-3 me-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
+                    style={{ display: "inline", float: "right" }}
+                >
+                    {lang("reports.downloadcsv")}
+                </button>
             </div>
 
             <div className="overflow-x-auto">
