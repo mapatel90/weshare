@@ -1116,7 +1116,8 @@
     "notePlaceholder": "Enter any additional notes for this invoice...",
     "termsAndConditions": "Terms & Conditions",
     "termsPlaceholder": "Enter terms and conditions for this invoice...",
-    "taxAmount": "Tax Amount"
+    "taxAmount": "Tax Amount",
+    "allOfftaker": "All Offtakers"
   },
   "finance": {
     "title": "Finance General",

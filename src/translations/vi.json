@@ -1069,7 +1069,8 @@
     "notePlaceholder": "Nhập ghi chú cho hóa đơn",
     "termsAndConditions": "Điều khoản và điều kiện",
     "termsPlaceholder": "Nhập điều khoản và điều kiện cho hóa đơn",
-    "taxAmount": "Số tiền thuế"
+    "taxAmount": "Số tiền thuế",
+    "allOfftaker": "Tất cả Offtakers"
   },
   "finance": {
     "title": "Tài chính chung",
