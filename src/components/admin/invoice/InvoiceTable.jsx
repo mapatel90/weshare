@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import Table from "@/components/shared/table/Table";
 import { apiGet, apiDelete } from "@/lib/api";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -15,19 +15,83 @@ const InvoiceTable = () => {
   const { lang } = useLanguage();
   const router = useRouter();
   const [invoicesData, setInvoicesData] = useState([]);
+  console.log("Invoices Data:", invoicesData);
   const [taxesData, setTaxesData] = useState([]);
   const priceWithCurrency = usePriceWithCurrency();
 
+  // Filter and pagination states
+  const [projectFilter, setProjectFilter] = useState("");
+  const [offtakerFilter, setOfftakerFilter] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [pageIndex, setPageIndex] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 10,
+    total: 0,
+    pages: 0,
+  });
+  const [loading, setLoading] = useState(true);
+  const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
+
+  // Dropdown lists
+  const [projectList, setProjectList] = useState([]);
+  const [offtakerList, setOfftakerList] = useState([]);
+
   const fetchInvoices = async () => {
     try {
-      const response = await apiGet("/api/invoice/");
-      if (response?.success && response?.data?.invoices) {
-        setInvoicesData(response.data.invoices);
+      setLoading(true);
+
+      const params = new URLSearchParams({
+        page: String(pageIndex + 1),
+        limit: String(pageSize),
+      });
+
+      if (projectFilter) {
+        params.append("project_id", projectFilter);
+      }
+
+      if (offtakerFilter) {
+        params.append("offtaker_id", offtakerFilter);
+      }
+
+      if (searchTerm) {
+        params.append("search", searchTerm);
+      }
+
+      const response = await apiGet(`/api/invoice?${params.toString()}`);
+      if (response?.success && response?.data) {
+        const payload = response.data;
+        const invoices = Array.isArray(payload?.invoices)
+          ? payload.invoices
+          : Array.isArray(payload)
+          ? payload
+          : [];
+
+        setInvoicesData(invoices);
+
+        const apiPagination = response.pagination || payload?.pagination || {};
+        setPagination({
+          page: apiPagination.page || 1,
+          limit: apiPagination.limit || pageSize,
+          total: apiPagination.total || 0,
+          pages: apiPagination.pages || 0,
+        });
+
+        const maxPageIndex = Math.max(0, (apiPagination.pages || 1) - 1);
+
+        if (pageIndex > maxPageIndex) {
+          setPageIndex(maxPageIndex);
+        }
       } else {
         setInvoicesData([]);
       }
     } catch (e) {
+      console.error("Error fetching invoices:", e);
       setInvoicesData([]);
+    } finally {
+      setLoading(false);
+      setHasLoadedOnce(true);
     }
   };
 
@@ -46,49 +110,77 @@ const InvoiceTable = () => {
 
   const fetchProjects = async () => {
     try {
-      const res = await apiGet("/api/projects?status=1&limit=1000");
-      const items = Array.isArray(res?.projectList) ? res.projectList : [];
-      const active = items.filter((p) => String(p?.status) === "1");
-      const mapped = active.map((p) => ({
-        label: p.project_name,
-        value: String(p.id),
-      }));
-      setProjectOptions([
-        { label: lang("invoice.selectProject"), value: "" },
-        ...mapped,
-      ]);
-    } catch (_) {
-      setProjectOptions([]);
+      const response = await apiGet("/api/projects?status=1&limit=1000");
+      if (response?.success && Array.isArray(response?.projectList)) {
+        const active = response.projectList.filter(
+          (p) => String(p?.status) === "1"
+        );
+        setProjectList(active);
+      } else {
+        setProjectList([]);
+      }
+    } catch (e) {
+      console.error("Error fetching projects:", e);
+      setProjectList([]);
     }
   };
 
-  const fetchProjectOfftaker = async (projectId) => {
+  const fetchOfftakers = async () => {
     try {
-      const res = await apiGet(`/api/projects/${projectId}`);
-      const proj = res?.data;
-      const ot = proj?.offtaker;
-      if (ot?.id) {
-        const option = { label: ot.full_name || "", value: String(ot.id) };
-        setOfftakerOptions([option]);
-        setSelectedOfftaker(option);
-        if (errors.offtaker) setErrors((prev) => ({ ...prev, offtaker: "" }));
-      } else {
-        setOfftakerOptions([]);
-        setSelectedOfftaker(null);
-      }
-    } catch (_) {
-      setOfftakerOptions([]);
-      setSelectedOfftaker(null);
+      const response = await apiGet("/api/users?role=3&limit=1000");
+      // Support both shapes: { data: users[] } or { data: { users: users[] } }
+      const usersArray = Array.isArray(response?.data?.users)
+        ? response.data.users
+        : Array.isArray(response?.data)
+        ? response.data
+        : [];
+      setOfftakerList(usersArray);
+    } catch (e) {
+      console.error("Error fetching offtakers:", e);
+      setOfftakerList([]);
     }
   };
 
   useEffect(() => {
     fetchInvoices();
     fetchTaxes();
+    fetchProjects();
+    fetchOfftakers();
     const onSaved = () => fetchInvoices();
     window.addEventListener("invoice:saved", onSaved);
     return () => window.removeEventListener("invoice:saved", onSaved);
   }, []);
+
+  console.log("Invoices Data:", invoicesData);
+  console.log("Pagination State:", projectFilter, offtakerFilter, searchTerm, pageIndex, pageSize, pagination);
+  useEffect(() => {
+    fetchInvoices();
+  }, [projectFilter, offtakerFilter, searchTerm, pageIndex, pageSize]);
+
+  useEffect(() => {
+    setPageIndex(0);
+  }, [projectFilter, offtakerFilter, searchTerm]);
+
+  const handleSearchChange = (value) => {
+    setPageIndex(0);
+    setSearchTerm(value);
+  };
+
+  const handlePaginationChange = (nextPagination) => {
+    const current = { pageIndex, pageSize };
+    const updated =
+      typeof nextPagination === "function"
+        ? nextPagination(current)
+        : nextPagination || {};
+    if (typeof updated.pageIndex === "number") {
+      setPageIndex(updated.pageIndex);
+    } else if (updated.pageIndex == null) {
+      setPageIndex(0);
+    }
+    if (typeof updated.pageSize === "number") {
+      setPageSize(updated.pageSize);
+    }
+  };
 
   const handleDelete = async (id) => {
     const result = await Swal.fire({
@@ -114,12 +206,17 @@ const InvoiceTable = () => {
 
   const columns = [
     {
-      accessorKey: "invoice_number",
+      id: "invoice_display",
+      accessorFn: (row) => {
+        const prefix = row?.invoice_prefix || "";
+        const number = row?.invoice_number || "";
+        const combined = `${prefix ? `${prefix}-` : ""}${number}`;
+        return combined || "";
+      },
       header: () => lang("invoice.invoiceNumber") || "Invoice Number",
       cell: ({ row }) => {
-        const prefix = row?.original?.invoice_prefix || "";
-        const number = row?.original?.invoice_number || "";
-        if (!prefix && !number) return "-";
+        const display = row.getValue("invoice_display") || "";
+        if (!display.trim()) return "-";
         return (
           <Link
             href={`/admin/finance/invoice/view/${row.original.id}`}
@@ -127,35 +224,34 @@ const InvoiceTable = () => {
             rel="noopener noreferrer"
             style={{ color: '#1976d2', textDecoration: 'none', fontWeight: 500 }}
           >
-            {`${prefix}-${number}`}
+            {display}
           </Link>
         );
       },
     },
     {
-      accessorKey: "project.project_name",
+      id: "project_name",
+      accessorFn: (row) => row?.projects?.project_name || "",
       header: () => lang("invoice.project"),
-      cell: ({ row }) => row?.original?.projects?.project_name || "-",
+      cell: ({ row }) => row.getValue("project_name") || "-",
     },
     {
-      accessorKey: "offtaker",
+      id: "offtaker_name",
+      accessorFn: (row) => row?.users?.full_name || "",
       header: () => lang("invoice.offtaker"),
-      cell: ({ row }) => {
-        const u = row?.original?.users;
-        if (!u) return "-";
-        return u.full_name || "-";
-      },
+      cell: ({ row }) => row.getValue("offtaker_name") || "-",
     },
     {
-      accessorKey: "tax",
-      header: () => lang("invoice.tax"),
-      cell: ({ row }) => {
-        const taxId = row?.original?.tax_id;
-        if (!taxId) return "-";
+      id: "tax_label",
+      accessorFn: (row) => {
+        const taxId = row?.tax_id;
+        if (!taxId) return "";
         const tax = taxesData.find((t) => t.id === taxId);
-        if (!tax) return "-";
+        if (!tax) return "";
         return `${tax.name || ""} (${tax.value || 0}%)`;
       },
+      header: () => lang("invoice.tax"),
+      cell: ({ row }) => row.getValue("tax_label") || "-",
     },
     // { accessorKey: "sub_amount", header: () => lang("invoice.subamount") },
     {
@@ -265,7 +361,66 @@ const InvoiceTable = () => {
     },
   ];
 
-  return <Table data={invoicesData} columns={columns} />;
+  return (
+    <div className="p-6 bg-white rounded-3xl shadow-md">
+      <div className="d-flex items-center justify-content-between gap-2 mb-4 mt-4 w-full flex-wrap">
+        <div className="filter-button">
+          <select
+            value={projectFilter}
+            onChange={(e) => setProjectFilter(e.target.value)}
+            className="theme-btn-blue-color border rounded-md px-3 py-2 mx-2 text-sm"
+          >
+            <option value="">{lang("reports.allprojects") || "All Projects"}</option>
+            {projectList.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.project_name}
+              </option>
+            ))}
+          </select>
+
+          <select
+            value={offtakerFilter}
+            onChange={(e) => setOfftakerFilter(e.target.value)}
+            className="theme-btn-blue-color border rounded-md px-3 py-2 me-2 text-sm"
+          >
+            <option value="">{lang("invoice.allOfftaker") || "All Offtakers"}</option>
+            {offtakerList.map((o) => (
+              <option key={o.id} value={o.id}>
+                {o.full_name}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      <div className="overflow-x-auto relative">
+        {!hasLoadedOnce && loading && (
+          <div className="text-center py-6 text-gray-600">Loading...</div>
+        )}
+
+        {hasLoadedOnce && (
+          <>
+            <Table
+              data={invoicesData}
+              columns={columns}
+              disablePagination={false}
+              onSearchChange={handleSearchChange}
+              onPaginationChange={handlePaginationChange}
+              pageIndex={pageIndex}
+              pageSize={pageSize}
+              serverSideTotal={pagination.total}
+              initialPageSize={pageSize}
+            />
+            {loading && (
+              <div className="absolute inset-0 bg-white/70 flex items-center justify-center text-gray-600">
+                Refreshing...
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    </div>
+  );
 };
 
 export default InvoiceTable;
