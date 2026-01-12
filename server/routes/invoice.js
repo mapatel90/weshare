@@ -4,6 +4,115 @@ import { authenticateToken } from "../middleware/auth.js";
 
 const router = express.Router();
 
+// router.get("/", authenticateToken, async (req, res) => {
+//   try {
+//     const {
+//       page = 1,
+//       limit = 10,
+//       search,
+//       status,
+//       id,
+//       project_id,
+//       offtaker_id,
+//     } = req.query;
+//     const offset = (page - 1) * limit;
+
+//     // Build WHERE condition
+//     const where = {
+//       is_deleted: 0,
+//     };
+
+//     // Optional filters
+//     if (status !== undefined) {
+//       where.status = { equals: status };
+//     }
+
+//     if (id !== undefined) {
+//       where.id = parseInt(id);
+//     }
+
+//     if (project_id !== undefined) {
+//       where.project_id = parseInt(project_id);
+//     }
+
+//     if (offtaker_id !== undefined) {
+//       where.offtaker_id = parseInt(offtaker_id);
+//     }
+
+//     // Search by project name, offtaker full_name, and numeric amounts
+//     if (search) {
+//       const numeric = parseFloat(search);
+//       console.log("Searching invoices with term:", numeric);
+//       const orClauses = [
+//         {
+//           projects: {
+//             project_name: { contains: search, mode: "insensitive" },
+//           },
+//         },
+//         {
+//           users: {
+//             full_name: { contains: search, mode: "insensitive" },
+//           },
+//         },
+//       ];
+
+//       if (Number.isFinite(numeric)) {
+//         orClauses.push({ sub_amount: { equals: numeric } });
+//         orClauses.push({ tax_amount: { equals: numeric } });
+//         orClauses.push({ total_amount: { equals: numeric } });
+//       }
+
+//       where.OR = orClauses;
+//     }
+
+//     // Fetch data with relations
+//     const [invoices, total] = await Promise.all([
+//       prisma.invoices.findMany({
+//         where,
+//         skip: parseInt(offset),
+//         take: parseInt(limit),
+//         orderBy: { id: "asc" },
+//         include: {
+//           projects: {
+//             select: {
+//               id: true,
+//               project_name: true,
+//             },
+//           },
+//           users: {
+//             select: {
+//               id: true,
+//               full_name: true,
+//               email: true,
+//             },
+//           },
+//         },
+//       }),
+//       prisma.invoices.count({ where }),
+//     ]);
+
+//     // Send success response
+//     res.json({
+//       success: true,
+//       data: {
+//         invoices,
+//         pagination: {
+//           page: parseInt(page),
+//           limit: parseInt(limit),
+//           total,
+//           pages: Math.ceil(total / limit),
+//         },
+//       },
+//     });
+//   } catch (error) {
+//     console.error("Get invoices error:", error);
+//     res.status(500).json({
+//       success: false,
+//       message: "Internal server error",
+//     });
+//   }
+// });
+
 router.get("/", authenticateToken, async (req, res) => {
   try {
     const {
@@ -11,51 +120,81 @@ router.get("/", authenticateToken, async (req, res) => {
       limit = 10,
       search,
       status,
-      id,
       project_id,
       offtaker_id,
     } = req.query;
-    const offset = (page - 1) * limit;
 
-    // Build WHERE condition
+    const pageNumber = Number(page);
+    const limitNumber = Number(limit);
+    const offset = (pageNumber - 1) * limitNumber;
+
+    // BASE WHERE
     const where = {
       is_deleted: 0,
     };
 
-    // Optional filters
-    if (status !== undefined) {
-      where.status = { equals: status };
+    if (status) {
+      where.status = status;
     }
 
-    if (id !== undefined) {
-      where.id = parseInt(id);
+    if (project_id) {
+      where.project_id = Number(project_id);
     }
 
-    if (project_id !== undefined) {
-      where.project_id = parseInt(project_id);
+    if (offtaker_id) {
+      where.offtaker_id = Number(offtaker_id);
     }
 
-    if (offtaker_id !== undefined) {
-      where.offtaker_id = parseInt(offtaker_id);
-    }
+    // 🔍 SEARCH LOGIC (SIMPLE)
+    if (search && search.trim() !== "") {
+      const searchText = search.trim();
+      const searchNumber = Number(searchText);
+      console.log("Searching invoices with term:", searchText);
+      console.log("Parsed search number:", searchNumber);
 
-    // If you want to search by project name or user name
-    if (search) {
       where.OR = [
+        // project_name search (via project_id)
         {
-          project: { project_name: { contains: search, mode: "insensitive" } },
+          projects: {
+            is: {
+              project_name: {
+                contains: searchText,
+                mode: "insensitive",
+              },
+            },
+          },
         },
-        { users: { username: { contains: search, mode: "insensitive" } } },
+
+        // offtaker full_name search (via offtaker_id)
+        {
+          users: {
+            is: {
+              full_name: {
+                contains: searchText,
+                mode: "insensitive",
+              },
+            },
+          },
+        },
       ];
+
+      // numeric search
+      if (!Number.isNaN(searchNumber)) {
+        where.OR.push(
+          { sub_amount: searchNumber },
+          { tax_amount: searchNumber },
+          { total_amount: searchNumber }
+        );
+      }
     }
 
-    // Fetch data with relations
+    // FETCH DATA
     const [invoices, total] = await Promise.all([
       prisma.invoices.findMany({
         where,
-        skip: parseInt(offset),
-        take: parseInt(limit),
-        orderBy: { id: "asc" },
+        skip: offset,
+        take: limitNumber,
+        orderBy: { id: "desc" },
         include: {
           projects: {
             select: {
@@ -67,7 +206,6 @@ router.get("/", authenticateToken, async (req, res) => {
             select: {
               id: true,
               full_name: true,
-              email: true,
             },
           },
         },
@@ -75,27 +213,27 @@ router.get("/", authenticateToken, async (req, res) => {
       prisma.invoices.count({ where }),
     ]);
 
-    // Send success response
     res.json({
       success: true,
       data: {
         invoices,
         pagination: {
-          page: parseInt(page),
-          limit: parseInt(limit),
+          page: pageNumber,
+          limit: limitNumber,
           total,
-          pages: Math.ceil(total / limit),
+          pages: Math.ceil(total / limitNumber),
         },
       },
     });
   } catch (error) {
-    console.error("Get invoices error:", error);
+    console.error("Invoice search error:", error);
     res.status(500).json({
       success: false,
       message: "Internal server error",
     });
   }
 });
+
 
 // Get single invoice by ID
 router.get("/:id", authenticateToken, async (req, res) => {
