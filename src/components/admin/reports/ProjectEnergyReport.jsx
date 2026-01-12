@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import Table from "@/components/shared/table/Table";
-import { apiGet } from '@/lib/api';
+import { apiGet, apiPost } from '@/lib/api';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 const ProjectEnergyReport = () => {
@@ -84,7 +84,7 @@ const ProjectEnergyReport = () => {
                 params.append("endDate", endDate);
             }
 
-            const res = await apiGet(`/api/projects/report/project-energy-data?${params.toString()}`);
+            const res = await apiPost(`/api/projects/report/project-energy-data?${params.toString()}`);
 
             if (res && res.success) {
                 setProjectEnergyData(res.data || []);

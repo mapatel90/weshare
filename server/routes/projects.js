@@ -1433,7 +1433,7 @@ router.get("/report/project-day-data", authenticateToken, async (req, res) => {
       where.project_id = Number(projectId);
     }
 
-    // ✅ Date filter
+    // Date filter
     if (startDate || endDate) {
       where.date = {};
       if (startDate) {
@@ -1446,7 +1446,7 @@ router.get("/report/project-day-data", authenticateToken, async (req, res) => {
       }
     }
 
-    // ✅ SEARCH FIX (IMPORTANT PART)
+    // SEARCH FIX (IMPORTANT PART)
     if (search) {
       const trimmed = search.trim();
       const searchNumber = Number(trimmed);
@@ -1499,12 +1499,12 @@ router.get("/report/project-day-data", authenticateToken, async (req, res) => {
       ];
     }
 
-    // ✅ TOTAL COUNT
+    // TOTAL COUNT
     const totalCount = await prisma.project_energy_days_data.count({
       where,
     });
 
-    // ✅ DATA FETCH
+    // DATA FETCH
     const data = await prisma.project_energy_days_data.findMany({
       where,
       include: {
@@ -1523,7 +1523,7 @@ router.get("/report/project-day-data", authenticateToken, async (req, res) => {
       take: fetchAll ? undefined : limitNumber,
     });
 
-    // ✅ CALCULATIONS
+    // CALCULATIONS
     const dataWithCalculations = data.map((row) => {
       const wesharePrice = Number(row.projects?.weshare_price_kwh) || 0;
       const evnPrice = Number(row.projects?.evn_price_kwh) || 0;
@@ -1562,7 +1562,7 @@ router.get("/report/project-day-data", authenticateToken, async (req, res) => {
 );
 
 // Project Energy Real Time Data 
-router.get('/report/project-energy-data', authenticateToken, async (req, res) => {
+router.post('/report/project-energy-data', authenticateToken, async (req, res) => {
   try {
     const {
       projectId,
@@ -1573,36 +1573,37 @@ router.get('/report/project-energy-data', authenticateToken, async (req, res) =>
       startDate,
       endDate,
     } = req.query;
+    console.log("Req::", req.query)
 
     const limitNumber = Number(limit) > 0 ? Number(limit) : 50;
     const pageNumber = Number(page) > 0 ? Number(page) : 1;
     const fetchAll = downloadAll === "1" || downloadAll === "true";
+    
 
     let where = {
       projects: { is_deleted: 0 },
     };
 
-    // ✅ Project filter
     if (projectId) {
       where.project_id = Number(projectId);
     }
 
-    // ✅ Date range filter for `date` column (inclusive)
     if (startDate || endDate) {
       where.date = {};
 
       if (startDate) {
-        // from start day 00:00:00
-        where.date.gte = new Date(`${startDate}T00:00:00.000Z`);
+        const start = new Date(startDate);
+        start.setHours(0, 0, 0, 0);
+        where.date.gte = start;
       }
 
       if (endDate) {
-        // until end day 23:59:59
-        where.date.lte = new Date(`${endDate}T23:59:59.999Z`);
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999);
+        where.date.lte = end;
       }
     }
 
-    // ✅ Search by project name, numeric pv/grid/load, and time string
     if (search) {
       const trimmed = search.trim();
       const searchNumber = Number(trimmed);
