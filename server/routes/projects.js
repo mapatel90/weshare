@@ -1561,9 +1561,6 @@ router.get("/report/project-day-data", authenticateToken, async (req, res) => {
 }
 );
 
-
-
-
 // This /:identifier api set last in code  
 router.get("/:identifier", async (req, res) => {
   try {

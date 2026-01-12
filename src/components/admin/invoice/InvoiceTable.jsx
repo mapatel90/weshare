@@ -60,9 +60,17 @@ const InvoiceTable = () => {
       }
 
       const response = await apiGet(`/api/invoice?${params.toString()}`);
-      if (response?.success && response?.data?.invoices) {
-        setInvoicesData(response.data.invoices);
-        const apiPagination = response.data.pagination || {};
+      if (response?.success && response?.data) {
+        const payload = response.data;
+        const invoices = Array.isArray(payload?.invoices)
+          ? payload.invoices
+          : Array.isArray(payload)
+          ? payload
+          : [];
+
+        setInvoicesData(invoices);
+
+        const apiPagination = response.pagination || payload?.pagination || {};
         setPagination({
           page: apiPagination.page || 1,
           limit: apiPagination.limit || pageSize,
@@ -198,12 +206,17 @@ const InvoiceTable = () => {
 
   const columns = [
     {
-      accessorKey: "invoice_number",
+      id: "invoice_display",
+      accessorFn: (row) => {
+        const prefix = row?.invoice_prefix || "";
+        const number = row?.invoice_number || "";
+        const combined = `${prefix ? `${prefix}-` : ""}${number}`;
+        return combined || "";
+      },
       header: () => lang("invoice.invoiceNumber") || "Invoice Number",
       cell: ({ row }) => {
-        const prefix = row?.original?.invoice_prefix || "";
-        const number = row?.original?.invoice_number || "";
-        if (!prefix && !number) return "-";
+        const display = row.getValue("invoice_display") || "";
+        if (!display.trim()) return "-";
         return (
           <Link
             href={`/admin/finance/invoice/view/${row.original.id}`}
@@ -211,35 +224,34 @@ const InvoiceTable = () => {
             rel="noopener noreferrer"
             style={{ color: '#1976d2', textDecoration: 'none', fontWeight: 500 }}
           >
-            {`${prefix}-${number}`}
+            {display}
           </Link>
         );
       },
     },
     {
-      accessorKey: "project.project_name",
+      id: "project_name",
+      accessorFn: (row) => row?.projects?.project_name || "",
       header: () => lang("invoice.project"),
-      cell: ({ row }) => row?.original?.projects?.project_name || "-",
+      cell: ({ row }) => row.getValue("project_name") || "-",
     },
     {
-      accessorKey: "offtaker",
+      id: "offtaker_name",
+      accessorFn: (row) => row?.users?.full_name || "",
       header: () => lang("invoice.offtaker"),
-      cell: ({ row }) => {
-        const u = row?.original?.users;
-        if (!u) return "-";
-        return u.full_name || "-";
-      },
+      cell: ({ row }) => row.getValue("offtaker_name") || "-",
     },
     {
-      accessorKey: "tax",
-      header: () => lang("invoice.tax"),
-      cell: ({ row }) => {
-        const taxId = row?.original?.tax_id;
-        if (!taxId) return "-";
+      id: "tax_label",
+      accessorFn: (row) => {
+        const taxId = row?.tax_id;
+        if (!taxId) return "";
         const tax = taxesData.find((t) => t.id === taxId);
-        if (!tax) return "-";
+        if (!tax) return "";
         return `${tax.name || ""} (${tax.value || 0}%)`;
       },
+      header: () => lang("invoice.tax"),
+      cell: ({ row }) => row.getValue("tax_label") || "-",
     },
     // { accessorKey: "sub_amount", header: () => lang("invoice.subamount") },
     {

@@ -133,8 +133,12 @@ router.get("/", authenticateToken, async (req, res) => {
       is_deleted: 0,
     };
 
-    if (status) {
-      where.status = status;
+    // Ensure status filter is numeric (e.g., "0"/"1")
+    if (status !== undefined) {
+      const parsedStatus = Number(status);
+      if (!Number.isNaN(parsedStatus)) {
+        where.status = parsedStatus;
+      }
     }
 
     if (project_id) {
@@ -215,14 +219,12 @@ router.get("/", authenticateToken, async (req, res) => {
 
     res.json({
       success: true,
-      data: {
-        invoices,
-        pagination: {
-          page: pageNumber,
-          limit: limitNumber,
-          total,
-          pages: Math.ceil(total / limitNumber),
-        },
+      data: invoices,
+      pagination: {
+        page: pageNumber,
+        limit: limitNumber,
+        total,
+        pages: Math.ceil(total / limitNumber),
       },
     });
   } catch (error) {
