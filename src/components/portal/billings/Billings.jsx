@@ -6,6 +6,7 @@ import Link from "next/link";
 import { apiGet } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePriceWithCurrency } from "@/hooks/useFormatPrice";
+import { downloadInvoicePDF } from "@/components/admin/invoice/InvoicePdf";
 
 const statusColors = {
   Paid: "bg-green-100 text-green-700",
@@ -225,9 +226,8 @@ const Billings = () => {
 
   const filteredInvoices = invoices;
 
-  const handleDownload = (number) => {
-    // Example: window.open(`/api/invoice/download/${number}`);
-    // router.push("/offtaker/billings/invoice");
+  const handleDownload = async (invoiceId) => {
+    await downloadInvoicePDF(invoiceId, priceWithCurrency);
   };
 
   const handleView = (invoiceId) => {
@@ -368,7 +368,7 @@ const Billings = () => {
                               <button
                                 className="block w-full text-left px-4 py-2 text-blue-600 hover:bg-gray-100"
                                 onClick={() => {
-                                  handleDownload(inv.number);
+                                  handleDownload(inv.id);
                                   setDropdownOpen(null);
                                 }}
                               >

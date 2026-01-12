@@ -3,13 +3,14 @@ import React, { useEffect, useState, useMemo } from "react";
 import Table from "@/components/shared/table/Table";
 import { apiGet, apiDelete } from "@/lib/api";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { FiEdit3, FiTrash2, FiEye } from "react-icons/fi";
+import { FiEdit3, FiTrash2, FiEye, FiDownload } from "react-icons/fi";
 import { showSuccessToast } from "@/utils/topTost";
 import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { usePriceWithCurrency } from "@/hooks/usePriceWithCurrency";
 import { Chip, IconButton, Stack } from "@mui/material";
+import { downloadInvoicePDF } from "./InvoicePdf";
 
 const InvoiceTable = () => {
   const { lang } = useLanguage();
@@ -349,10 +350,34 @@ const InvoiceTable = () => {
             target="_blank"
             rel="noopener noreferrer"
           >
-            <IconButton size="small">
+            <IconButton
+              size="small"
+              sx={{
+                color: "#1976d2",
+                transition: "transform 0.2s ease",
+                "&:hover": {
+                  backgroundColor: "rgba(25, 118, 210, 0.08)",
+                  transform: "scale(1.1)",
+                },
+              }}
+            >
               <FiEye size={18} />
             </IconButton>
           </Link>
+          <IconButton
+            size="small"
+            onClick={() => downloadInvoicePDF(row.original.id, priceWithCurrency)}
+            sx={{
+              color: "#2e7d32",
+              transition: "transform 0.2s ease",
+              "&:hover": {
+                backgroundColor: "rgba(46, 125, 50, 0.08)",
+                transform: "scale(1.1)",
+              },
+            }}
+          >
+            <FiDownload size={18} />
+          </IconButton>
         </Stack>
       ),
       meta: {

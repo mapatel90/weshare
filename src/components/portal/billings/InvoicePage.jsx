@@ -228,9 +228,30 @@ const InvoicePage = ({ invoiceId }) => {
     setModalOpen(false);
   };
 
+  const handleDownloadPDF = () => {
+    if (!invoiceData) return;
+
+    const element = document.getElementById("invoice-content");
+    if (!element) return;
+
+    const opt = {
+      margin: 10,
+      filename: `${invoice?.prefix || ""}-${invoice?.number || "invoice"}.pdf`,
+      image: { type: "jpeg", quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { orientation: "portrait", unit: "mm", format: "a4" },
+    };
+
+    // Dynamically import html2pdf
+    import("html2pdf.js").then((html2pdf) => {
+      html2pdf.default().set(opt).from(element).save();
+    });
+  };
+
   return (
       <div className="w-full bg-white rounded-xl shadow-md p-8">
-        <div className="border rounded-lg p-6 mb-8">
+        <div id="invoice-content">
+          <div className="border rounded-lg p-6 mb-8">
           <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-4">
             <div>
               <div className="text-2xl font-bold theme-org-color mb-1">{company?.name || ""}</div>
@@ -328,7 +349,15 @@ const InvoicePage = ({ invoiceId }) => {
             </div>
           </div>
         </div>
-        <div className="flex justify-end mt-4">
+        </div>
+        <div className="flex justify-end gap-2 mt-4">
+          <button
+            className="bg-gray-600 text-white font-bold py-2 px-6 rounded shadow hover:bg-gray-700"
+            type="button"
+            onClick={handleDownloadPDF}
+          >
+            Download PDF
+          </button>
           <button
             className="theme-btn-org-color text-white font-bold py-2 px-6 rounded shadow"
             type="button"
