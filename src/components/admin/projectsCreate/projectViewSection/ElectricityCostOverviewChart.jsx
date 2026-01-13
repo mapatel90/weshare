@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import {
     LineChart,
     Line,
@@ -99,6 +99,19 @@ const ElectricityCostOverviewChart = ({
     selectedInverterId
 }) => {
     const { lang } = useLanguage();
+    const [isMobile, setIsMobile] = useState(false);
+    const [isTablet, setIsTablet] = useState(false);
+
+    useEffect(() => {
+        const checkScreenSize = () => {
+            const width = window.innerWidth;
+            setIsMobile(width < 768);
+            setIsTablet(width >= 768 && width < 1024);
+        };
+        checkScreenSize();
+        window.addEventListener("resize", checkScreenSize);
+        return () => window.removeEventListener("resize", checkScreenSize);
+    }, []);
 
     const chartData = useMemo(() => formatDataForChart(data, viewMode, selectedDate), [data, viewMode, selectedDate]);
 
@@ -148,20 +161,20 @@ const ElectricityCostOverviewChart = ({
         <>
             <style jsx>{`
                 .date-picker-wrapper {
-                    margin-bottom: 16px;
-                    width: 200px;
+                    margin-bottom: ${isMobile ? '8px' : '16px'};
+                    width: ${isMobile ? '100%' : '200px'};
                 }
                 .date-picker-wrapper :global(.react-datepicker-wrapper) {
                     width: 100%;
                 }
                 .date-picker-wrapper :global(.react-datepicker__input-container input) {
                     width: 100%;
-                    padding: 8px 12px;
+                    padding: ${isMobile ? '10px 12px' : '8px 12px'};
                     border-radius: 8px;
                     border: 1px solid ${isDark ? '#1b2436' : '#d1d5db'};
                     background: ${isDark ? '#121a2d' : '#fff'};
                     color: ${isDark ? '#ffffff' : '#111827'};
-                    font-size: 14px;
+                    font-size: ${isMobile ? '13px' : '14px'};
                 }
                 .date-picker-wrapper :global(.react-datepicker__input-container input:focus) {
                     outline: none;
@@ -174,8 +187,9 @@ const ElectricityCostOverviewChart = ({
                     <div
                         style={{
                             display: "flex",
-                            gap: "8px",
-                            // flexWrap: "wrap",        // ✅ mobile safe
+                            gap: isMobile ? "6px" : "8px",
+                            flexWrap: isMobile ? "wrap" : "nowrap",
+                            justifyContent: isMobile ? "center" : "flex-start"
                         }}
                     >
                         {["day", "month", "year"].map((mode) => {
@@ -186,8 +200,8 @@ const ElectricityCostOverviewChart = ({
                                     key={mode}
                                     onClick={() => onViewModeChange?.(mode)}
                                     style={{
-                                        padding: "6px 14px",
-                                        fontSize: "14px",
+                                        padding: isMobile ? "8px 12px" : "6px 14px",
+                                        fontSize: isMobile ? "13px" : "14px",
                                         borderRadius: "6px",
                                         border: isActive
                                             ? "1px solid #f97316"
@@ -205,8 +219,9 @@ const ElectricityCostOverviewChart = ({
                                         cursor: "pointer",
                                         fontWeight: isActive ? 600 : 400,
                                         transition: "all 0.2s ease",
-                                        minWidth: "72px",   // ✅ equal width
+                                        minWidth: isMobile ? "65px" : "72px",
                                         textAlign: "center",
+                                        flex: isMobile ? "1" : "0 0 auto"
                                     }}
                                 >
                                     {mode.charAt(0).toUpperCase() + mode.slice(1)}
@@ -218,7 +233,7 @@ const ElectricityCostOverviewChart = ({
 
                 {/* Date Picker - only show for day and month modes */}
                 {(viewMode === 'day' || viewMode === 'month') && (
-                    <div className="date-picker-wrapper">
+                    <div className="date-picker-wrapper" style={{ width: isMobile ? '100%' : '200px' }}>
                         {/* <DatePicker
                             selected={getSelectedDateForPicker()}
                             onChange={handleDateChange}

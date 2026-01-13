@@ -204,15 +204,20 @@ const daysInMonth = (year, monthIndex) => {
 };
 
 // Changed: support multiple inverter series & single inverter selection
-const PowerConsumptionDashboard = ({ projectId, readings = [], loading = false, selectedInverterId = '', projectInverters = [], selectedDate, onDateChange, setSelectedDate }) => {
+const PowerConsumptionDashboard = ({ projectId, readings = [], loading = false, selectedInverterId = '', projectInverters = [], selectedDate, onDateChange, setSelectedDate, isDark = false }) => {
   const [viewType, setViewType] = useState('day');
   const { lang } = useLanguage();
 
   // add responsive state to switch styles on small screens
-  const [isSmallScreen, setIsSmallScreen] = useState(() => typeof window !== 'undefined' ? window.innerWidth < 600 : false);
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' ? window.innerWidth < 768 : false);
+  const [isTablet, setIsTablet] = useState(() => typeof window !== 'undefined' ? (window.innerWidth >= 768 && window.innerWidth < 1024) : false);
 
   useEffect(() => {
-    const onResize = () => setIsSmallScreen(window.innerWidth < 600);
+    const onResize = () => {
+      const width = window.innerWidth;
+      setIsMobile(width < 768);
+      setIsTablet(width >= 768 && width < 1024);
+    };
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
   }, []);
@@ -220,10 +225,26 @@ const PowerConsumptionDashboard = ({ projectId, readings = [], loading = false, 
   // compute style: single-row buttons with horizontal scroll on small screens
   const viewButtonsStyle = {
     ...viewButtonsWrapperStyle,
-    flexWrap: isSmallScreen ? 'nowrap' : viewButtonsWrapperStyle.flexWrap,
-    overflowX: isSmallScreen ? 'auto' : undefined,
-    WebkitOverflowScrolling: isSmallScreen ? 'touch' : undefined,
-    paddingBottom: isSmallScreen ? '6px' : undefined,
+    flexWrap: isMobile ? 'nowrap' : viewButtonsWrapperStyle.flexWrap,
+    overflowX: isMobile ? 'auto' : undefined,
+    WebkitOverflowScrolling: isMobile ? 'touch' : undefined,
+    paddingBottom: isMobile ? '6px' : undefined,
+  };
+
+  const responsiveContainerStyle = {
+    ...containerStyle,
+    minWidth: isMobile ? '320px' : isTablet ? '600px' : '600px',
+    padding: isMobile ? '16px' : '24px',
+    backgroundColor: isDark ? '#121a2d' : '#ffffff',
+    overflowX: isMobile || isTablet ? 'auto' : 'visible',
+  };
+
+  const responsiveHeaderRowStyle = {
+    ...headerRowStyle,
+    flexDirection: isMobile ? 'column' : 'row',
+    alignItems: isMobile ? 'stretch' : 'center',
+    gap: isMobile ? '12px' : '0',
+    marginBottom: isMobile ? '20px' : '32px',
   };
 
 
@@ -445,70 +466,111 @@ const PowerConsumptionDashboard = ({ projectId, readings = [], loading = false, 
   };
 
   return (
-    <div style={containerStyle}>
+    <div style={responsiveContainerStyle}>
       {/* Header Controls */}
-      <div style={headerRowStyle}>
+      <div style={responsiveHeaderRowStyle}>
         {/* Date Navigation */}
         <input
           type="date"
           value={selectedDate}
           onChange={(e) => onDateChange(e.target.value)}
-          className="bg-black text-white border rounded-md px-3 py-2 me-2 text-sm"
+          style={{
+            backgroundColor: isDark ? '#121a2d' : '#fff',
+            color: isDark ? '#ffffff' : '#111827',
+            border: `1px solid ${isDark ? '#1b2436' : '#e5e7eb'}`,
+            borderRadius: '6px',
+            padding: isMobile ? '10px 12px' : '8px 12px',
+            fontSize: isMobile ? '13px' : '14px',
+            width: isMobile ? '100%' : 'auto',
+          }}
           placeholder={lang("common.endDate") || "End Date"}
         />
-
       </div>
 
       {/* Chart */}
-      <div style={{ width: '100%', height: 'calc(100vh - 180px)', minHeight: '420px' }}>
+      <div style={{
+        width: '100%',
+        height: isMobile ? '350px' : isTablet ? '400px' : 'calc(100vh - 180px)',
+        minHeight: isMobile ? '300px' : '420px'
+      }}>
         {loading ? (
-          <div style={stateMessageStyle}>
+          <div style={{
+            ...stateMessageStyle,
+            color: isDark ? '#b1b4c0' : '#6b7280'
+          }}>
             Loading inverter data...
           </div>
         ) : isEmptyState ? (
-          <div style={{ ...stateMessageStyle, flexDirection: 'column' }}>
+          <div style={{
+            ...stateMessageStyle,
+            flexDirection: 'column',
+            color: isDark ? '#b1b4c0' : '#6b7280'
+          }}>
             No inverter readings available for this date.
           </div>
         ) : (
           <>
-            <ResponsiveContainer width="100%" height="100%" minWidth={600}>
+            <ResponsiveContainer
+              width="100%"
+              height="100%"
+              minWidth={isMobile ? 300 : isTablet ? 500 : 0}
+            >
               <LineChart
                 data={chartData}
-                margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+                margin={{
+                  top: isMobile ? 15 : 20,
+                  right: isMobile ? 10 : isTablet ? 20 : 30,
+                  left: isMobile ? 10 : 20,
+                  bottom: isMobile ? 40 : 60
+                }}
               >
-                <CartesianGrid strokeDasharray="4 4" stroke="#f0f0f0" />
+                <CartesianGrid strokeDasharray="4 4" stroke={isDark ? '#1b2436' : '#f0f0f0'} opacity={0.3} />
                 <XAxis
                   dataKey={xAxisProps.dataKey || 'xValue'}
                   type={xAxisProps.type || 'category'}
                   domain={xAxisProps.domain}
                   ticks={xAxisProps.ticks}
-                  tick={{ fill: '#666', fontSize: 12 }}
-                  tickLine={{ stroke: '#ccc' }}
-                  axisLine={{ stroke: '#ccc' }}
+                  tick={{ fill: isDark ? '#b1b4c0' : '#666', fontSize: isMobile ? 10 : 12 }}
+                  tickLine={{ stroke: isDark ? '#1b2436' : '#ccc' }}
+                  axisLine={{ stroke: isDark ? '#1b2436' : '#ccc' }}
                   allowDecimals={false}
                   tickFormatter={xAxisProps.tickFormatter}
+                  interval={isMobile ? 1 : 0}
                 />
                 <YAxis
-                  label={{ value: 'kW', angle: -90, position: 'insideLeft', style: { fill: '#666', fontSize: 14 } }}
-                  tick={{ fill: '#666', fontSize: 12 }}
-                  tickLine={{ stroke: '#ccc' }}
-                  axisLine={{ stroke: '#ccc' }}
+                  label={!isMobile ? {
+                    value: 'kW',
+                    angle: -90,
+                    position: 'insideLeft',
+                    style: { fill: isDark ? '#b1b4c0' : '#666', fontSize: isMobile ? 12 : 14 }
+                  } : undefined}
+                  tick={{ fill: isDark ? '#b1b4c0' : '#666', fontSize: isMobile ? 10 : 12 }}
+                  tickLine={{ stroke: isDark ? '#1b2436' : '#ccc' }}
+                  axisLine={{ stroke: isDark ? '#1b2436' : '#ccc' }}
                   domain={yAxisDomain}
                   ticks={yAxisTicks || undefined}
                   tickCount={yAxisTicks ? undefined : 6}
+                  width={isMobile ? 45 : isTablet ? 55 : 60}
                 />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: 'white',
-                    border: '1px solid #ccc',
+                    backgroundColor: isDark ? '#121a2d' : 'white',
+                    border: `1px solid ${isDark ? '#1b2436' : '#ccc'}`,
                     borderRadius: '8px',
-                    padding: '8px 12px'
+                    padding: isMobile ? '6px 10px' : '8px 12px',
+                    fontSize: isMobile ? '11px' : '12px',
+                    color: isDark ? '#ffffff' : '#111827'
                   }}
                   formatter={(value, name) => [`${Number(value).toFixed(3)} kW`, name]}
                   labelFormatter={tooltipLabelFormatter}
                 />
 
-                <Legend verticalAlign="bottom" height={40} />
+                <Legend
+                  verticalAlign="bottom"
+                  height={isMobile ? 30 : 40}
+                  wrapperStyle={{ fontSize: isMobile ? '10px' : '12px' }}
+                  iconSize={isMobile ? 10 : 14}
+                />
 
                 {/* Render series: if single inverter selected, seriesInfo will contain only that */}
                 {seriesInfo.map((s) => (
@@ -517,13 +579,12 @@ const PowerConsumptionDashboard = ({ projectId, readings = [], loading = false, 
                     type="monotone"
                     dataKey={s.key}
                     stroke={s.color}
-                    strokeWidth={2.5}
-                    dot={false}
+                    strokeWidth={isMobile ? 2 : 2.5}
+                    dot={isMobile ? false : { r: 3 }}
                     name={s.name}
-                    activeDot={{ r: 5 }}
+                    activeDot={isMobile ? false : { r: 5 }}
                     isAnimationActive={false}
                     connectNulls={true}
-                    // explicitly disable any area fill that can appear with multiple series
                     fill="none"
                     fillOpacity={0}
                     strokeOpacity={0.95}

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { Activity, Battery, Power, Zap, batteryPlus } from 'lucide-react';
+import { CalendarCog, Battery, Zap, batteryPlus, Gauge } from 'lucide-react';
 import { apiGet } from '@/lib/api';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Battery0BarOutlined, Battery90Rounded, Battery90TwoTone } from '@mui/icons-material';
@@ -71,39 +71,64 @@ export default function SolarPlantOverviewCard() {
       <div
         style={{
           backgroundColor: colors.cardBg,
-          borderRadius: 12,
+          borderRadius: 10,
           boxShadow: colors.boxShadow,
-          padding: 24,
+          padding: 16,
           border: `1px solid ${colors.border}`,
           transition: "box-shadow 0.3s",
+          minHeight: 130,
+          display: "flex",
+          flexDirection: "column",
         }}
       >
         <div
           style={{
             display: "flex",
-            alignItems: "flex-start",
+            alignItems: "center",
             justifyContent: "space-between",
-            marginBottom: 16,
+            marginBottom: 12,
           }}
         >
           <div
             style={{
-              padding: 12,
-              borderRadius: 8,
-              background: color,
               display: "flex",
               alignItems: "center",
-              justifyContent: "center",
+              gap: 8,
+              flex: 1,
+              minWidth: 0,
             }}
           >
-            <Icon style={{ width: 24, height: 24, color: "#fff" }} />
+            <div
+              style={{
+                padding: 6,
+                borderRadius: 6,
+                background: color,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: 0,
+              }}
+            >
+              <Icon style={{ width: 16, height: 16, color: "#fff" }} />
+            </div>
+            <p style={{
+              fontSize: 13,
+              color: colors.textMuted,
+              fontWeight: 500,
+              margin: 0,
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis"
+            }}>
+              {title}
+            </p>
           </div>
           {trend !== null && trend !== undefined && (
             <span
               style={{
-                fontSize: 12,
+                fontSize: 11,
                 fontWeight: 600,
-                padding: "4px 8px",
+                padding: "3px 6px",
                 borderRadius: 4,
                 backgroundColor:
                   trend > 0 ? colors.trendPositiveBg : colors.trendNegativeBg,
@@ -111,6 +136,7 @@ export default function SolarPlantOverviewCard() {
                   trend > 0
                     ? colors.trendPositiveText
                     : colors.trendNegativeText,
+                flexShrink: 0,
               }}
             >
               {trend > 0 ? "+" : ""}
@@ -120,12 +146,13 @@ export default function SolarPlantOverviewCard() {
         </div>
         <h3
           style={{
-            fontSize: 30,
+            fontSize: 32,
             fontWeight: "bold",
             color: colors.text,
-            marginBottom: 4,
+            marginBottom: 8,
             display: "flex",
             alignItems: "baseline",
+            lineHeight: 1.2,
           }}
         >
           {(() => {
@@ -140,15 +167,21 @@ export default function SolarPlantOverviewCard() {
               return (
                 <>
                   <span>{integerPart}</span>
-                  <span style={{ fontSize: '0.6em', fontWeight: 'normal' }}>{fractionalAndUnit}</span>
+                  <span style={{ fontSize: '0.55em', fontWeight: 'normal', marginLeft: 2 }}>{fractionalAndUnit}</span>
                 </>
               )
             }
             return value
           })()}
         </h3>
-        <p style={{ fontSize: 14, color: colors.textMuted }}>{title}</p>
-        <p style={{ fontSize: 12, color: colors.textSubtitle, marginTop: 4 }}>
+        <p style={{
+          fontSize: 14,
+          color: colors.textSubtitle,
+          lineHeight: 1.4,
+          marginTop: "auto",
+          opacity: 0.8,
+          margin: 0
+        }}>
           {subtitle}
         </p>
       </div>
@@ -222,13 +255,13 @@ export default function SolarPlantOverviewCard() {
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
-              gap: 16,
+              gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+              gap: 12,
               marginBottom: 24,
             }}
           >
             <StatCard
-              icon={Power}
+              icon={Gauge}
               title={lang("projectView.projectInformation.capacitsy", "Power")}
               value={formatEnergyUnit(total_power)}
               subtitle={
@@ -252,7 +285,7 @@ export default function SolarPlantOverviewCard() {
               isDark={isDark}
             />
             <StatCard
-              icon={Activity}
+              icon={CalendarCog}
               title={lang("reports.monthlyYield", "Monthly Yield")}
               value={formatEnergyUnit(monthly_energy)}
               subtitle={
@@ -263,7 +296,7 @@ export default function SolarPlantOverviewCard() {
               isDark={isDark}
             />
             <StatCard
-              icon={Activity}
+              icon={CalendarCog}
               title={lang("reports.totalYield", "Total Yield")}
               value={formatEnergyUnit(total_energy)}
               subtitle={

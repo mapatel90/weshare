@@ -1,6 +1,91 @@
-import React from 'react';
+"use client";
+
+import React, { useEffect, useState } from 'react';
+import { apiGet } from "@/lib/api";
+import { useAuth } from "@/contexts/AuthContext";
+import { usePriceWithCurrency } from "@/hooks/usePriceWithCurrency";
+
+const statusColors = {
+  Paid: "status-installation",
+  Unpaid: "status-upcoming",
+  Pending: "status-upcoming",
+};
 
 export default function BillingCard() {
+    const [invoices, setInvoices] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const { user } = useAuth();
+    const priceWithCurrency = usePriceWithCurrency();
+
+    const formatDate = (value) => {
+        if (!value) return "—";
+        const d = new Date(value);
+        if (Number.isNaN(d.getTime())) return "—";
+        const month = d.toLocaleDateString("en-US", { month: "long" });
+        const year = d.getFullYear();
+        return `${month} ${year}`;
+    };
+
+    const statusLabel = (value) => {
+        if (typeof value === "string") return value;
+        const map = {
+            0: "Unpaid",
+            1: "Paid",
+        };
+        return map[value] ?? "Pending";
+    };
+
+    useEffect(() => {
+        const fetchInvoices = async () => {
+            if (!user?.id) {
+                setInvoices([]);
+                return;
+            }
+
+            setLoading(true);
+
+            try {
+                const params = new URLSearchParams({
+                    page: "1",
+                    limit: "5",
+                });
+
+                if (user.role === 3) {
+                    params.append("offtaker_id", String(user.id));
+                }
+
+                const response = await apiGet(`/api/invoice?${params.toString()}`, {
+                    includeAuth: true,
+                });
+
+                const list = response?.data;
+
+                if (response?.success && Array.isArray(list)) {
+                    const normalized = list.map((inv, idx) => ({
+                        id: inv?.id ?? idx,
+                        projectName: inv?.projects?.project_name || "—",
+                        invoiceName: inv?.invoice_number
+                            ? `${inv?.invoice_prefix || ""}-${inv.invoice_number}`.trim()
+                            : "—",
+                        period: formatDate(inv?.invoice_date),
+                        amount: inv?.total_amount ?? inv?.amount ?? 0,
+                        status: statusLabel(inv?.status),
+                    }));
+
+                    setInvoices(normalized);
+                } else {
+                    setInvoices([]);
+                }
+            } catch (error) {
+                console.error("Failed to fetch invoices", error);
+                setInvoices([]);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchInvoices();
+    }, [user?.id, user?.role]);
 
     return (
         <div className="billing-card">
@@ -18,45 +103,35 @@ export default function BillingCard() {
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>Project A</td>
-                        <td>INV-2024-005</td>
-                        <td>January 2025</td>
-                        <td>đ149.23K</td>
-                        <td><span className="status-badge status-upcoming">Pending</span></td>
-                    </tr>
-                    <tr>
-                        <td>Project B</td>
-                        <td>INV-2024-004</td>
-                        <td>December 2024</td>
-                        <td>đ158.87K</td>
-                        <td><span className="status-badge status-installation">Paid</span></td>
-                    </tr>
-                    <tr>
-                        <td>Project C</td>
-                        <td>INV-2024-003</td>
-                        <td>November 2024</td>
-                        <td>đ145.67K</td>
-                        <td><span className="status-badge status-upcoming">Pending</span></td>                       
-                    </tr>
-                    <tr>
-                        <td>Project D</td>
-                        <td>INV-2024-002</td>
-                        <td>October 2024</td>
-                        <td>đ134.25K</td>
-                        <td><span className="status-badge status-upcoming">Pending</span></td>
-                    </tr>
-                    <tr>
-                        <td>Project E</td>
-                        <td>INV-2024-001</td>
-                        <td>September 2024</td>
-                        <td>đ167.83K</td>
-                        <td><span className="status-badge status-upcoming">Pending</span></td>
-                    </tr>
+                    {loading ? (
+                        <tr>
+                            <td colSpan={5} style={{ textAlign: 'center', padding: '20px' }}>
+                                Loading...
+                            </td>
+                        </tr>
+                    ) : invoices.length === 0 ? (
+                        <tr>
+                            <td colSpan={5} style={{ textAlign: 'center', padding: '20px' }}>
+                                No invoices found
+                            </td>
+                        </tr>
+                    ) : (
+                        invoices.map((inv) => (
+                            <tr key={inv.id}>
+                                <td>{inv.projectName}</td>
+                                <td>{inv.invoiceName}</td>
+                                <td>{inv.period}</td>
+                                <td>{priceWithCurrency(inv.amount)}</td>
+                                <td>
+                                    <span className={`status-badge ${statusColors[inv.status] || "status-upcoming"}`}>
+                                        {inv.status}
+                                    </span>
+                                </td>
+                            </tr>
+                        ))
+                    )}
                 </tbody>
             </table>
         </div>
     );
 }
-
-// export default BillingCard;

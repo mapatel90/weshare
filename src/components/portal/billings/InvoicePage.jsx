@@ -1,10 +1,15 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { apiGet } from "@/lib/api";
-import PaymentModal from "./PaymentModal";
+import { useRouter } from "next/navigation";
+import { apiGet, apiPost, apiUpload } from "@/lib/api";
 import { usePriceWithCurrency } from "@/hooks/usePriceWithCurrency";
+import { useAuth } from "@/contexts/AuthContext";
+import PaymentModal from "@/components/portal/billings/PaymentModal";
+import { showSuccessToast } from "@/utils/topTost";
 
 const InvoicePage = ({ invoiceId }) => {
+  const { user } = useAuth();
+  const router = useRouter();
   const [invoiceData, setInvoiceData] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -146,6 +151,7 @@ const InvoicePage = ({ invoiceId }) => {
               prefix: apiInv?.invoice_prefix || "",
               created: formatDate(apiInv?.invoice_date),
               due: formatDate(apiInv?.due_date),
+              status: apiInv?.status,
             },
             client: {
               name: apiInv?.users?.full_name || "—",
@@ -200,6 +206,7 @@ const InvoicePage = ({ invoiceId }) => {
   }, [invoiceId, companySettings, countries, states, cities]);
 
   const { company, invoice, client, items, payment, summary } = invoiceData || {};
+  const invoiceDisplay = `${invoice?.prefix || ""}-${invoice?.number || ""}`;
   const qrCodeSrc = companySettings?.finance_qr_code || "/images/invoice_qr.jpg";
 
   const getCompanyAddress = () => {
@@ -224,8 +231,51 @@ const InvoicePage = ({ invoiceId }) => {
     return invoiceData.summary.tax_id;
   };
 
-  const handleModalSubmit = (data) => {
-    setModalOpen(false);
+  const handleModalSubmit = async (data) => {
+    try {
+      // Upload screenshot file to server
+      let uploadedImageUrl = "";
+      if (data.image) {
+        const formData = new FormData();
+        formData.append("file", data.image);
+        formData.append("folder", "payment");
+
+        try {
+          const uploadResponse = await apiUpload("/api/upload", formData, { includeAuth: true });
+          if (uploadResponse?.success && uploadResponse?.data?.url) {
+            uploadedImageUrl = uploadResponse.data.url;
+          }
+        } catch (uploadError) {
+          console.error("Error uploading file:", uploadError);
+          alert("Failed to upload screenshot. Please try again.");
+          return;
+        }
+      }
+
+      // Create payment record in database
+      const amountString = summary?.total?.replace(/[^\d.]/g, "") || "0";
+      const paymentData = {
+        invoice_id: invoiceId,
+        offtaker_id: user?.id,
+        ss_url: uploadedImageUrl,
+        amount: Number(amountString),
+        status: 1, // Pending status
+      };
+
+      const paymentResponse = await apiPost("/api/payments", paymentData, { includeAuth: true });
+
+      if (paymentResponse?.success) {
+        // alert("Payment submitted successfully!");
+        showSuccessToast("Payment submitted successfully!");
+        setModalOpen(false);
+        router.push("/offtaker/billings");
+      } else {
+        alert("Failed to submit payment. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error submitting payment:", error);
+      alert("Error submitting payment: " + error.message);
+    }
   };
 
   const handleDownloadPDF = () => {
@@ -272,7 +322,7 @@ const InvoicePage = ({ invoiceId }) => {
         <div className="flex flex-col md:flex-row md:justify-between mb-4">
           <div>
             <div className="font-bold text-lg mb-2">INVOICE</div>
-            <div className="text-gray-700">Invoice : <span className="font-semibold">{invoice?.prefix || ""}-{invoice?.number || ""}</span></div>
+            <div className="text-gray-700">Invoice : <span className="font-semibold">{invoiceDisplay}</span></div>
             <div className="text-gray-700">Created: <span className="font-semibold">{invoice?.created || ""}</span></div>
             <div className="text-gray-700">Due: <span className="font-semibold">{invoice?.due || ""}</span></div>
           </div>
@@ -288,8 +338,7 @@ const InvoicePage = ({ invoiceId }) => {
           <table className="min-w-full text-sm">
             <thead className="bg-gray-100">
               <tr>
-                <th className="px-4 py-3 text-left font-semibold">#</th>
-                <th className="px-4 py-3 text-left font-semibold">DESCRIPTION</th>
+                <th className="px-4 py-3 text-left font-semibold">ITEM</th>
                 <th className="px-4 py-3 text-left font-semibold">QTY</th>
                 <th className="px-4 py-3 text-left font-semibold">RATE</th>
                 <th className="px-4 py-3 text-left font-semibold">SUBTOTAL</th>
@@ -298,7 +347,6 @@ const InvoicePage = ({ invoiceId }) => {
             <tbody>
               {(items || []).map((item, idx) => (
                 <tr key={item.id} className={idx % 2 ? "bg-white" : "bg-gray-50"}>
-                  <td className="px-4 py-2 font-medium whitespace-nowrap">{item.id}</td>
                   <td className="px-4 py-2 whitespace-nowrap">
                     <div className="font-semibold">{item.title}</div>
                     <div className="text-gray-500 text-xs">{item.desc}</div>
@@ -358,18 +406,20 @@ const InvoicePage = ({ invoiceId }) => {
           >
             Download PDF
           </button>
-          <button
-            className="theme-btn-org-color text-white font-bold py-2 px-6 rounded shadow"
-            type="button"
-            onClick={() => setModalOpen(true)}
-          >
-            Make a Payment
-          </button>
+          {invoice?.status !== 1 && (
+            <button
+              className="theme-btn-org-color text-white font-bold py-2 px-6 rounded shadow"
+              type="button"
+              onClick={() => setModalOpen(true)}
+            >
+              Make a Payment
+            </button>
+          )}
         </div>
         <PaymentModal
           isOpen={modalOpen}
           onClose={() => setModalOpen(false)}
-          invoiceNumber={invoice?.number || ""}
+          invoiceNumber={invoiceDisplay}
           totalAmount={summary?.total || ""}
           onSubmit={handleModalSubmit}
         />

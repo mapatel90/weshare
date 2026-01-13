@@ -1,20 +1,27 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { apiGet } from "@/lib/api";
+import { apiGet, apiPost, apiUpload } from "@/lib/api";
 import PaymentModal from "@/components/portal/billings/PaymentModal";
 import { usePriceWithCurrency } from "@/hooks/usePriceWithCurrency";
+import { useAuth } from "@/contexts/AuthContext";
+import { useRouter } from "next/navigation";
+import { showSuccessToast } from "@/utils/topTost";
 
 const InvoiceViewContant = ({ invoiceId }) => {
   const [invoiceData, setInvoiceData] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [taxes, setTaxes] = useState([]);
   const [companySettings, setCompanySettings] = useState({});
   const [countries, setCountries] = useState([]);
   const [states, setStates] = useState([]);
   const [cities, setCities] = useState([]);
   const priceWithCurrency = usePriceWithCurrency();
+  const { user } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
     const fetchTaxes = async () => {
@@ -87,15 +94,14 @@ const InvoiceViewContant = ({ invoiceId }) => {
     }
   }, [companySettings?.site_state]);
 
-  useEffect(() => {
-    const fetchInvoice = async () => {
-      if (!invoiceId) {
-        setLoading(false);
-        return;
-      }
+  const fetchInvoice = async () => {
+    if (!invoiceId) {
+      setLoading(false);
+      return;
+    }
 
-      setLoading(true);
-      setError("");
+    setLoading(true);
+    setError("");
 
       try {
         const response = await apiGet(`/api/invoice/${invoiceId}`, { includeAuth: true });
@@ -177,6 +183,7 @@ const InvoiceViewContant = ({ invoiceId }) => {
             },
             notes: apiInv?.notes || "",
             terms_and_conditions: apiInv?.terms_and_conditions || "",
+            status: apiInv?.status || 0,
           };
 
           setInvoiceData(normalized);
@@ -193,10 +200,12 @@ const InvoiceViewContant = ({ invoiceId }) => {
       }
     };
 
+  useEffect(() => {
     fetchInvoice();
   }, [invoiceId, companySettings, countries, states, cities]);
 
   const { company, invoice, client, items, payment, summary } = invoiceData || {};
+  const invoiceDisplay = `${invoice?.prefix || ""}-${invoice?.number || ""}`;
   const qrCodeSrc = companySettings?.finance_qr_code || "/images/invoice_qr.jpg";
 
   const getTaxDisplay = () => {
@@ -209,8 +218,52 @@ const InvoiceViewContant = ({ invoiceId }) => {
     return invoiceData.summary.tax_id;
   };
 
-  const handleModalSubmit = (data) => {
-    setModalOpen(false);
+  const handleModalSubmit = async (data) => {
+    try {
+      setSubmitting(true);
+      setError("");
+      setSuccessMessage("");
+
+      // Upload screenshot first
+      let ss_url = "";
+      if (data.image) {
+        const formData = new FormData();
+        formData.append("file", data.image);
+        formData.append("folder", "payment");
+
+        const uploadResponse = await apiUpload("/api/upload", formData);
+        if (uploadResponse?.success && uploadResponse?.data?.url) {
+          ss_url = uploadResponse.data.url;
+        } else {
+          throw new Error("Failed to upload screenshot");
+        }
+      }
+
+      // Create payment record
+      const amountString = summary?.total?.replace(/[^\d.]/g, "") || "0";
+      const paymentData = {
+        invoice_id: invoiceId,
+        offtaker_id: user?.id,
+        amount: Number(amountString) || 0,
+        ss_url: ss_url,
+        status: 1, // Paid status
+      };
+
+      const response = await apiPost("/api/payments", paymentData);
+      if (!response?.success) {
+        throw new Error(response?.message || "Payment creation failed");
+      }
+
+      // Show success message
+      showSuccessToast("Payment submitted successfully!");
+      setModalOpen(false);
+      router.push("/admin/finance/invoice");
+    } catch (err) {
+      console.error("Payment submission error:", err);
+      setError(err.message || "Failed to submit payment. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleDownloadPDF = () => {
@@ -236,6 +289,16 @@ const InvoiceViewContant = ({ invoiceId }) => {
 
   return (
       <div className="bg-white rounded shadow p-4">
+        {error && (
+          <div className="alert alert-danger mb-3" role="alert">
+            {error}
+          </div>
+        )}
+        {successMessage && (
+          <div className="alert alert-success mb-3" role="alert">
+            {successMessage}
+          </div>
+        )}
         <div id="invoice-content-body">
         <h2 className="h4 fw-semibold mb-4">Invoice</h2>
         <div className="border rounded p-4 mb-4">
@@ -259,7 +322,7 @@ const InvoiceViewContant = ({ invoiceId }) => {
         <div className="d-flex flex-column flex-md-row justify-content-between mb-3">
           <div>
             <div className="fw-bold h5 mb-2">INVOICE</div>
-            <div style={{ color: '#374151' }}>Invoice : <span className="fw-semibold">{invoice?.prefix || ""}-{invoice?.number || ""}</span></div>
+            <div style={{ color: '#374151' }}>Invoice : <span className="fw-semibold">{invoiceDisplay}</span></div>
             <div style={{ color: '#374151' }}>Created: <span className="fw-semibold">{invoice?.created || ""}</span></div>
             <div style={{ color: '#374151' }}>Due: <span className="fw-semibold">{invoice?.due || ""}</span></div>
           </div>
@@ -275,8 +338,7 @@ const InvoiceViewContant = ({ invoiceId }) => {
           <table className="table table-sm mb-0">
             <thead style={{ backgroundColor: '#f3f4f6' }}>
               <tr>
-                <th className="px-3 py-2 text-start fw-semibold">#</th>
-                <th className="px-3 py-2 text-start fw-semibold">DESCRIPTION</th>
+                <th className="px-3 py-2 text-start fw-semibold">ITEM</th>
                 <th className="px-3 py-2 text-start fw-semibold">QTY</th>
                 <th className="px-3 py-2 text-start fw-semibold">RATE</th>
                 <th className="px-3 py-2 text-start fw-semibold">SUBTOTAL</th>
@@ -285,7 +347,6 @@ const InvoiceViewContant = ({ invoiceId }) => {
             <tbody>
               {(items || []).map((item, idx) => (
                 <tr key={item.id} style={{ backgroundColor: idx % 2 ? '#ffffff' : '#f9fafb' }}>
-                  <td className="px-3 py-2 fw-medium text-nowrap">{item.id}</td>
                   <td className="px-3 py-2 text-nowrap">
                     <div className="fw-semibold">{item.title}</div>
                     <div className="text-muted" style={{ fontSize: '0.75rem' }}>{item.desc}</div>
@@ -349,18 +410,21 @@ const InvoiceViewContant = ({ invoiceId }) => {
           >
             Download PDF
           </button>
+          {invoiceData?.status !== 1 && (
           <button
             className="btn text-white fw-bold px-4 py-2 rounded shadow common-orange-color"
             type="button"
             onClick={() => setModalOpen(true)}
+            disabled={submitting}
           >
-            Make a Payment
+            {submitting ? "Processing..." : "Make a Payment"}
           </button>
+          )}
         </div>
         <PaymentModal
           isOpen={modalOpen}
           onClose={() => setModalOpen(false)}
-          invoiceNumber={invoice?.number || ""}
+          invoiceNumber={invoiceDisplay || ""}
           totalAmount={summary?.total || ""}
           onSubmit={handleModalSubmit}
         />
