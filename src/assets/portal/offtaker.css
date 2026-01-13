@@ -801,9 +801,9 @@ body {
 }
 
 .impact-grid {
-  display: grid;
+  /* display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
+  gap: 16px; */
 }
 
 .impact-card {

@@ -15,7 +15,7 @@ import DatePicker from 'react-datepicker';
 import dayjs from 'dayjs';
 import { formatShort } from '@/utils/common';
 
-const ElectricityCostBarChart = ({
+const SavingCostBarChart = ({
     electricityMonthCostData,
     electricityMonthCostDataLoading,
     selectedYear,
@@ -78,7 +78,6 @@ const ElectricityCostBarChart = ({
           background: ${isDark ? '#121a2d' : '#fff'};
           color: ${isDark ? '#ffffff' : '#111827'};
           font-size: 14px;
-          text-align: center;
         }
       `}</style>
             <div style={{ width: '100%', height: 500 }}>
@@ -109,16 +108,15 @@ const ElectricityCostBarChart = ({
                             domain={[0, roundedMax]}
                             ticks={ticks}
                             label={{
-                                value: 'Cost (VND)',
+                                value: 'Cost',
                                 angle: -90,
                                 position: 'insideLeft',
                                 offset: 10,
-                                dx: -30,
                                 style: { fill: isDark ? '#cbd5f5' : '#374151' },
                             }}
                             allowDecimals={false}
                             tick={{ fill: isDark ? '#e5e7eb' : '#111827' }}
-                            tickFormatter={(v) => `${formatShort(v).toLocaleString()}`}
+                            tickFormatter={(v) => `${formatShort(v).toLocaleString()} VND`}
                         />
 
                         <Tooltip
@@ -143,14 +141,6 @@ const ElectricityCostBarChart = ({
                             fill={isDark ? '#f97316' : '#f97316'}
                             barSize={12}
                         />
-
-                        {/* Saving bar */}
-                        <Bar
-                            dataKey="saving"
-                            name="Saving"
-                            fill={isDark ? '#fbbf24' : '#fbbf24'}
-                            barSize={12}
-                        />
                     </BarChart>
                 </ResponsiveContainer>
             </div>
@@ -158,4 +148,4 @@ const ElectricityCostBarChart = ({
     );
 };
 
-export default ElectricityCostBarChart;
+export default SavingCostBarChart;

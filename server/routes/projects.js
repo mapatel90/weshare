@@ -1069,11 +1069,13 @@ router.post("/electricity/monthly-cost-chart", async (req, res) => {
     const { projectId, year } = req.body;
 
     if (!projectId) {
-      return res.status(400).json({ error: "Project Id required parameters" });
+      return res.status(400).json({
+        success: false,
+        message: "Project Id is required",
+      });
     }
-    const selectedYear = year || dayjs().format('YYYY');
 
-    // const projectIdInt = Number(projectId);
+    const selectedYear = year || dayjs().format("YYYY");
 
     const project = await prisma.projects.findFirst({
       where: { id: Number(projectId) },
@@ -1084,15 +1086,18 @@ router.post("/electricity/monthly-cost-chart", async (req, res) => {
     });
 
     if (!project) {
-      return res.status(404).json({ error: "Project not found" });
+      return res.status(404).json({
+        success: false,
+        message: "Project not found",
+      });
     }
 
     const energyData = await prisma.project_energy_days_data.findMany({
       where: {
         project_id: Number(projectId),
         date: {
-          gte: new Date(`${year}-01-01`),
-          lte: new Date(`${year}-12-31`),
+          gte: new Date(`${selectedYear}-01-01T00:00:00.000Z`),
+          lte: new Date(`${selectedYear}-12-31T23:59:59.999Z`),
         },
       },
       select: {
@@ -1101,39 +1106,52 @@ router.post("/electricity/monthly-cost-chart", async (req, res) => {
       },
     });
 
+    // 🔹 Monthly aggregation
     const monthlyMap = {};
 
-    energyData.forEach(row => {
-      const month = new Date(row.date).getMonth(); // 0–11
+    energyData.forEach((row) => {
+      const monthIndex = new Date(row.date).getMonth(); // 0–11
 
-      if (!monthlyMap[month]) {
-        monthlyMap[month] = 0;
+      if (!monthlyMap[monthIndex]) {
+        monthlyMap[monthIndex] = 0;
       }
 
-      monthlyMap[month] += row.energy || 0;
+      monthlyMap[monthIndex] += Number(row.energy) || 0;
     });
 
-    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const monthNames = [
+      "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+    ];
 
-    const chartData = monthNames.map((name, index) => {
+    const chartData = monthNames.map((month, index) => {
       const totalKwh = monthlyMap[index] || 0;
 
+      const evnAmount =
+        totalKwh * (Number(project.evn_price_kwh) || 0);
+
+      const weshareAmount =
+        totalKwh * (Number(project.weshare_price_kwh) || 0);
+
       return {
-        month: name,
-        evn: totalKwh * project.evn_price_kwh,
-        weshare: totalKwh * project.weshare_price_kwh,
+        month,
+        evn: Number(evnAmount.toFixed(2)),
+        weshare: Number(weshareAmount.toFixed(2)),
+        saving: Number((evnAmount - weshareAmount).toFixed(2)),
       };
     });
+
     return res.json({
       success: true,
       year: selectedYear,
       data: chartData,
     });
-
-  }
-  catch (error) {
+  } catch (error) {
     console.error("Error fetching monthly electricity cost data:", error);
-    return res.status(500).json({ error: "Server error" });
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
   }
 });
 
@@ -1213,20 +1231,26 @@ router.post('/electricity/overview-chart', async (req, res) => {
       }
 
       if (!resultMap[key]) {
-        resultMap[key] = { evn: 0, weshare: 0 };
+        resultMap[key] = { evn: 0, weshare: 0, saving: 0 };
       }
 
-      resultMap[key].evn +=
-        row.energy * project.evn_price_kwh;
+      const energy = Number(row.energy) || 0;
+      const evnPrice = Number(project.evn_price_kwh) || 0;
+      const wesharePrice = Number(project.weshare_price_kwh) || 0;
 
-      resultMap[key].weshare +=
-        row.energy * project.weshare_price_kwh;
+      const evnAmount = energy * evnPrice;
+      const weshareAmount = energy * wesharePrice;
+
+      resultMap[key].evn += evnAmount;
+      resultMap[key].weshare += weshareAmount;
+      resultMap[key].saving += (evnAmount - weshareAmount);
     });
 
     const data = Object.keys(resultMap).map((key) => ({
       label: key,
       evn: resultMap[key].evn,
       weshare: resultMap[key].weshare,
+      saving: resultMap[key].saving
     }));
 
     return res.json({

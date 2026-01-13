@@ -40,7 +40,6 @@ const formatDataForChart = (apiData, viewMode, selectedDate) => {
                 day,
                 evn: map[day]?.evn > 0 ? map[day].evn : null,
                 weshare: map[day]?.weshare > 0 ? map[day].weshare : null,
-                saving: map[day]?.saving > 0 ? map[day].saving : null,
 
             };
         });
@@ -88,7 +87,7 @@ const formatDataForChart = (apiData, viewMode, selectedDate) => {
 };
 
 
-const ElectricityCostOverviewChart = ({
+const SavingCostOverviewChart = ({
     data,
     loading = false,
     viewMode = "day",
@@ -170,7 +169,7 @@ const ElectricityCostOverviewChart = ({
             `}</style>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 45 }}>
-                {/* {!selectedInverterId && (
+                {!selectedInverterId && (
                     <div
                         style={{
                             display: "flex",
@@ -214,7 +213,7 @@ const ElectricityCostOverviewChart = ({
                             );
                         })}
                     </div>
-                )} */}
+                )}
 
                 {/* Date Picker - only show for day and month modes */}
                 {(viewMode === 'day' || viewMode === 'month') && (
@@ -262,18 +261,17 @@ const ElectricityCostOverviewChart = ({
                     {viewMode === "day" ? (
                         <BarChart
                             data={chartData}
-                            margin={{ top: 10, right: 30, left: 50, bottom: 0 }}
+                            margin={{ top: 10, right: 30, left: 40, bottom: 0 }}
                         >
                             <CartesianGrid strokeDasharray="3 3" opacity={0.3} stroke={isDark ? '#1b2436' : '#e5e7eb'} />
 
                             <XAxis
                                 dataKey="day"
                                 type="number"
-                                domain={[0.5, 'dataMax']}
+                                domain={[1, 'dataMax']}
                                 ticks={dayTicks}
                                 allowDecimals={false}
                                 interval={0}
-                                padding={{ left: 10, right: 10 }}
                                 tick={{ fill: isDark ? '#cbd5f5' : '#374151', fontSize: 12 }}
                                 tickFormatter={(v) => String(Math.round(v))}
                                 label={{
@@ -321,12 +319,6 @@ const ElectricityCostOverviewChart = ({
                                 dataKey="weshare"
                                 name="WeShare Cost"
                                 fill="#f97316"
-                                barSize={12}
-                            />
-                            <Bar
-                                dataKey="saving"
-                                name="Saving Cost"
-                                fill="#fbbf24"
                                 barSize={12}
                             />
                         </BarChart>
@@ -403,4 +395,4 @@ const ElectricityCostOverviewChart = ({
     );
 };
 
-export default ElectricityCostOverviewChart;
+export default SavingCostOverviewChart;

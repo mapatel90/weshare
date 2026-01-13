@@ -17,12 +17,15 @@ import SolarEnergyFlow from "@/components/admin/projectsCreate/projectViewSectio
 import { useLanguage } from "@/contexts/LanguageContext";
 import EnergyChart from "@/components/admin/projectsCreate/projectViewSection/MonthChart";
 import EnergyYearChart from "@/components/admin/projectsCreate/projectViewSection/YearChart";
-import { useDarkMode } from "@/utils/common";
+import { getDarkModeColors, useDarkMode } from "@/utils/common";
+import ElectricityCostOverviewChart from "@/components/admin/projectsCreate/projectViewSection/ElectricityCostOverviewChart";
+import ElectricityCostBarChart from "@/components/admin/projectsCreate/projectViewSection/ElectricityCostBarChart";
 
 function DashboardView() {
   const { user } = useAuth();
   const { lang } = useLanguage();
   const isDark = useDarkMode();
+  const colors = getDarkModeColors(isDark);
   const [showProjectsDropdown, setShowProjectsDropdown] = useState(false);
   const [showInverterDropdown, setShowInverterDropdown] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -60,6 +63,16 @@ function DashboardView() {
     new Date().toISOString().split("T")[0]
   );
   const [ChartYearData, setChartYearData] = useState([]);
+
+  const [electricityMonthCostData, setElectricityMonthCostData] = useState(null);
+  const [electricityMonthCostDataLoading, setElectricityMonthCostDataLoading] = useState(true);
+  const [electricitySelectedYear, setElectricitySelectedYear] = useState(new Date().getFullYear().toString());
+  const [electricityOverviewData, setElectricityOverviewData] = useState(null);
+  const [electricityOverviewDataLoading, setElectricityOverviewDataLoading] = useState(true);
+  const [electricityOverviewViewMode, setElectricityOverviewViewMode] = useState("day"); // day | month | year
+  const [electricityOverviewDate, setElectricityOverviewDate] = useState(new Date().toISOString().slice(0, 7)); // YYYY-MM for day, YYYY for month
+  const [savingsViewTab, setSavingsViewTab] = useState("daily"); // daily | monthly | comparison
+
 
   // fetch offtaker projects similar to ProjectTable
   useEffect(() => {
@@ -379,6 +392,64 @@ function DashboardView() {
       loadEnergyYearWiseData();
     }
   }, [selectedProject?.id, selectedEnergyYear]);
+
+  // Electricity Month Cost Data
+  useEffect(() => {
+    const loadElectricityMonthCostData = async () => {
+      const payload = {
+        projectId: selectedProject?.id ?? null,
+        year: electricitySelectedYear ?? null
+      };
+
+      try {
+        setElectricityMonthCostDataLoading(true);
+        const res = await apiPost(`/api/projects/electricity/monthly-cost-chart`, payload);
+        setElectricityMonthCostData(res?.success ? res.data : null);
+      } finally {
+        setElectricityMonthCostDataLoading(false);
+      }
+    };
+    if (selectedProject?.id) {
+      loadElectricityMonthCostData();
+    }
+  }, [selectedProject?.id, electricitySelectedYear]);
+
+
+  // // electricity overview chart data
+  useEffect(() => {
+    const loadElectricityOverviewData = async () => {
+      if (!selectedProject?.id) return;
+
+      let dateValue;
+      if (electricityOverviewViewMode === "day") {
+        dateValue = electricityOverviewDate; // YYYY-MM format
+      } else if (electricityOverviewViewMode === "month") {
+        dateValue = electricityOverviewDate.slice(0, 4); // YYYY format
+      } else {
+        dateValue = new Date().getFullYear().toString(); // YYYY format (not used by API but required)
+      }
+
+      const payload = {
+        projectId: selectedProject?.id ?? null,
+        type: electricityOverviewViewMode,
+        date: dateValue,
+      };
+
+      try {
+        setElectricityOverviewDataLoading(true);
+        const res = await apiPost(`/api/projects/electricity/overview-chart`, payload);
+        setElectricityOverviewData(res?.success ? res.data : null);
+      } catch (error) {
+        console.error("Error loading electricity overview data:", error);
+        setElectricityOverviewData(null);
+      } finally {
+        setElectricityOverviewDataLoading(false);
+      }
+    };
+    if (selectedProject?.id) {
+      loadElectricityOverviewData();
+    }
+  }, [selectedProject?.id, electricityOverviewViewMode, electricityOverviewDate]);
 
   return (
     <div>
@@ -773,119 +844,77 @@ function DashboardView() {
       <div className="dashboard-row">
         <div className="chart-card">
           <div className="card-header">
-            <div className="card-title">Monthly Savings Tracker</div>
+            <div className="card-title">Savings Tracker</div>
             <div className="tabs">
-              <button className="tab">Daily</button>
-              <button className="tab">Monthly</button>
-              <button className="tab active">Comparison</button>
+              <button
+                className={`tab ${savingsViewTab === "daily" ? "active" : ""}`}
+                onClick={() => {
+                  setSavingsViewTab("daily");
+                  setElectricityOverviewViewMode("day");
+                }}
+              >
+                Daily
+              </button>
+              <button
+                className={`tab ${savingsViewTab === "monthly" ? "active" : ""}`}
+                onClick={() => {
+                  setSavingsViewTab("monthly");
+                  // keep month-cost chart on currently selected year
+                }}
+              >
+                Monthly
+              </button>
+              {/* <button
+                className={`tab ${savingsViewTab === "comparison" ? "active" : ""}`}
+                onClick={() => {
+                  setSavingsViewTab("comparison");
+                  setElectricityOverviewViewMode("year");
+                  // ensure overview uses a sensible default year range
+                  setElectricityOverviewDate(new Date().getFullYear().toString());
+                }}
+              >
+                Comparison
+              </button> */}
             </div>
           </div>
           <p
             style={{ color: "#6b7280", fontSize: "13px", marginBottom: "20px" }}
           >
-            Compare your WeChain bills vs EVN baseline rates
+            electricity cost comparison between EVN and WeShare with savings analysis
           </p>
 
-          <div className="legend">
-            <div className="legend-item">
-              <div
-                className="legend-color"
-                style={{ background: "#fbbf24" }}
-              ></div>
-              <span>WeChain Bill</span>
-            </div>
-            <div className="legend-item">
-              <div
-                className="legend-color"
-                style={{ background: "#1f2937" }}
-              ></div>
-              <span>EVN Equivalent</span>
-            </div>
-          </div>
-
           <div className="chart-container">
-            <div className="bar-chart">
-              <div className="bar-group">
-                <div className="bars">
-                  <div className="bar orange" style={{ height: "160px" }}></div>
-                  <div className="bar dark" style={{ height: "50px" }}></div>
-                </div>
-                <div className="month-label">JAN</div>
-              </div>
-              <div className="bar-group">
-                <div className="bars">
-                  <div className="bar orange" style={{ height: "110px" }}></div>
-                  <div className="bar dark" style={{ height: "120px" }}></div>
-                </div>
-                <div className="month-label">FEB</div>
-              </div>
-              <div className="bar-group">
-                <div className="bars">
-                  <div className="bar orange" style={{ height: "80px" }}></div>
-                  <div className="bar dark" style={{ height: "140px" }}></div>
-                </div>
-                <div className="month-label">MAR</div>
-              </div>
-              <div className="bar-group">
-                <div className="bars">
-                  <div className="bar orange" style={{ height: "130px" }}></div>
-                  <div className="bar dark" style={{ height: "115px" }}></div>
-                </div>
-                <div className="month-label">APR</div>
-              </div>
-              <div className="bar-group">
-                <div className="bars">
-                  <div className="bar orange" style={{ height: "200px" }}></div>
-                  <div className="bar dark" style={{ height: "50px" }}></div>
-                </div>
-                <div className="month-label">JUN</div>
-              </div>
-              <div className="bar-group">
-                <div className="bars">
-                  <div className="bar orange" style={{ height: "70px" }}></div>
-                  <div className="bar dark" style={{ height: "130px" }}></div>
-                </div>
-                <div className="month-label">JUL</div>
-              </div>
-              <div className="bar-group">
-                <div className="bars">
-                  <div className="bar orange" style={{ height: "170px" }}></div>
-                  <div className="bar dark" style={{ height: "100px" }}></div>
-                </div>
-                <div className="month-label">AUG</div>
-              </div>
-              <div className="bar-group">
-                <div className="bars">
-                  <div className="bar orange" style={{ height: "130px" }}></div>
-                  <div className="bar dark" style={{ height: "110px" }}></div>
-                </div>
-                <div className="month-label">SEP</div>
-              </div>
-              <div className="bar-group">
-                <div className="bars">
-                  <div className="bar orange" style={{ height: "40px" }}></div>
-                  <div className="bar dark" style={{ height: "90px" }}></div>
-                </div>
-                <div className="month-label">OCT</div>
-              </div>
-              <div className="bar-group">
-                <div className="bars">
-                  <div className="bar orange" style={{ height: "60px" }}></div>
-                  <div className="bar dark" style={{ height: "70px" }}></div>
-                </div>
-                <div className="month-label">NOV</div>
-              </div>
-              <div className="bar-group">
-                <div className="bars">
-                  <div className="bar orange" style={{ height: "110px" }}></div>
-                  <div className="bar dark" style={{ height: "0px" }}></div>
-                </div>
-                <div className="month-label">DEC</div>
-              </div>
-            </div>
+            {savingsViewTab === "monthly" ? (
+              <ElectricityCostBarChart
+                electricityMonthCostData={electricityMonthCostData}
+                electricityMonthCostDataLoading={electricityMonthCostDataLoading}
+                selectedYear={electricitySelectedYear}
+                onYearChange={setElectricitySelectedYear}
+                isDark={isDark}
+              />
+            ) : (
+              <ElectricityCostOverviewChart
+                data={electricityOverviewData}
+                loading={electricityOverviewDataLoading}
+                viewMode={electricityOverviewViewMode}
+                onViewModeChange={(mode) => {
+                  setElectricityOverviewViewMode(mode);
+                  // keep tab in sync when switching modes from inside chart
+                  if (mode === "day") {
+                    setSavingsViewTab("daily");
+                  } else if (mode === "year") {
+                    setSavingsViewTab("comparison");
+                  }
+                }}
+                selectedDate={electricityOverviewDate}
+                onDateChange={setElectricityOverviewDate}
+                isDark={isDark}
+                selectedInverterId={selectedInverter?.inverterId}
+              />
+            )}
           </div>
 
-          <div className="chart-stats">
+          {/* <div className="chart-stats">
             <div className="chart-stat">
               <div className="chart-stat-value" style={{ color: "#fbbf24" }}>
                 đ937K
@@ -902,25 +931,9 @@ function DashboardView() {
               <div className="chart-stat-value">12</div>
               <div className="chart-stat-label">Months of Savings</div>
             </div>
-          </div>
+          </div> */}
         </div>
         <div>
-          <div className="chart-card" style={{ marginBottom: "20px" }}>
-            <div className="circle-stats">
-              <div className="circle-stat">
-                <div className="circle orange">
-                  <span>56%</span>
-                </div>
-                <div className="circle-label">Upcoming Projects</div>
-              </div>
-              <div className="circle-stat">
-                <div className="circle green">
-                  <span>77%</span>
-                </div>
-                <div className="circle-label">Under Installation Projects</div>
-              </div>
-            </div>
-          </div>
           <div className="chart-card">
             <div className="card-title" style={{ marginBottom: "20px" }}>
               🌱 Environmental Impact
