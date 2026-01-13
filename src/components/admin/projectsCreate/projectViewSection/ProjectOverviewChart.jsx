@@ -140,7 +140,7 @@ const formatKw = (value) => {
   return `${num.toFixed(3)} kW`;
 };
 
-const CustomTooltip = ({ active, payload, label, isDark = false }) => {
+const CustomTooltip = ({ active, payload, label, isDark = false, isMobile = false }) => {
   if (!active || !payload?.length) return null;
   const styles = getStyles(isDark);
 
@@ -148,13 +148,23 @@ const CustomTooltip = ({ active, payload, label, isDark = false }) => {
   const byKey = new Map(payload.map((p) => [p.dataKey, p]));
 
   return (
-    <div style={styles.tooltipWrapStyle}>
-      <div style={styles.tooltipTitleStyle}>{displayTime}</div>
+    <div style={{
+      ...styles.tooltipWrapStyle,
+      padding: isMobile ? '8px 10px' : '10px 12px',
+      fontSize: isMobile ? '11px' : '12px'
+    }}>
+      <div style={{
+        ...styles.tooltipTitleStyle,
+        fontSize: isMobile ? 11 : 13
+      }}>{displayTime}</div>
       {SERIES.map((s) => {
         const entry = byKey.get(s.key);
         const value = entry?.value;
         return (
-          <div key={s.key} style={tooltipRowStyle}>
+          <div key={s.key} style={{
+            ...tooltipRowStyle,
+            fontSize: isMobile ? 12 : 14
+          }}>
             <span style={{ color: s.stroke, fontWeight: 600 }}>{s.name} :</span>
             <span style={{ color: s.stroke, fontWeight: 600 }}>{formatKw(value)}</span>
           </div>
@@ -168,6 +178,18 @@ const CustomTooltip = ({ active, payload, label, isDark = false }) => {
 const ProjectOverviewChart = ({ projectId, readings = [], loading = false, selectedDate, onDateChange, isDark = false }) => {
   const { lang } = useLanguage();
   const styles = getStyles(isDark);
+  const [isMobile, setIsMobile] = React.useState(() => typeof window !== 'undefined' ? window.innerWidth < 768 : false);
+  const [isTablet, setIsTablet] = React.useState(() => typeof window !== 'undefined' ? (window.innerWidth >= 768 && window.innerWidth < 1024) : false);
+
+  React.useEffect(() => {
+    const onResize = () => {
+      const width = window.innerWidth;
+      setIsMobile(width < 768);
+      setIsTablet(width >= 768 && width < 1024);
+    };
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
   const { chartData, xAxisProps, yAxisDomain, yAxisTicks } = useMemo(() => {
     const selectedKey = normalizeDateKey(selectedDate);
 
@@ -278,10 +300,24 @@ const ProjectOverviewChart = ({ projectId, readings = [], loading = false, selec
 
   const isEmptyState = !loading && (!chartData || !chartData.length);
 
+  const responsiveContainerStyle = {
+    ...styles.containerStyle,
+    padding: isMobile ? '16px' : '24px',
+    overflowX: isMobile || isTablet ? 'auto' : 'visible',
+  };
+
+  const responsiveHeaderRowStyle = {
+    ...styles.headerRowStyle,
+    flexDirection: isMobile ? 'column' : 'row',
+    alignItems: isMobile ? 'stretch' : 'center',
+    gap: isMobile ? '12px' : '0',
+    marginBottom: isMobile ? '20px' : '32px',
+  };
+
   return (
-    <div style={styles.containerStyle}>
+    <div style={responsiveContainerStyle}>
       {/* Header Controls */}
-      <div style={styles.headerRowStyle}>
+      <div style={responsiveHeaderRowStyle}>
         {/* Date input (project-level) */}
         <input
           type="date"
@@ -292,16 +328,21 @@ const ProjectOverviewChart = ({ projectId, readings = [], loading = false, selec
             color: isDark ? '#ffffff' : '#111827',
             border: `1px solid ${isDark ? '#1b2436' : '#e5e7eb'}`,
             borderRadius: '6px',
-            padding: '8px 12px',
-            marginRight: '8px',
-            fontSize: '14px',
+            padding: isMobile ? '10px 12px' : '8px 12px',
+            marginRight: isMobile ? '0' : '8px',
+            fontSize: isMobile ? '13px' : '14px',
+            width: isMobile ? '100%' : 'auto',
           }}
           placeholder={lang("common.endDate") || "End Date"}
         />
       </div>
 
       {/* Chart */}
-      <div style={{ width: '100%', height: 'calc(100vh - 180px)', minHeight: '420px' }}>
+      <div style={{
+        width: '100%',
+        height: isMobile ? '350px' : isTablet ? '400px' : 'calc(100vh - 180px)',
+        minHeight: isMobile ? '300px' : '420px'
+      }}>
         {loading ? (
           <div style={styles.stateMessageStyle}>
             Loading project data...
@@ -312,10 +353,19 @@ const ProjectOverviewChart = ({ projectId, readings = [], loading = false, selec
           </div>
         ) : (
           <>
-            <ResponsiveContainer width="100%" height="100%" minWidth={600}>
+            <ResponsiveContainer
+              width="100%"
+              height="100%"
+              minWidth={isMobile ? 300 : isTablet ? 500 : 0}
+            >
               <ComposedChart
                 data={chartData}
-                margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+                margin={{
+                  top: isMobile ? 15 : 20,
+                  right: isMobile ? 10 : isTablet ? 20 : 30,
+                  left: isMobile ? 10 : 20,
+                  bottom: isMobile ? 40 : 60
+                }}
               >
                 <defs>
                   {SERIES.map((s) => (
@@ -325,31 +375,43 @@ const ProjectOverviewChart = ({ projectId, readings = [], loading = false, selec
                     </linearGradient>
                   ))}
                 </defs>
-                <CartesianGrid strokeDasharray="4 4" stroke={isDark ? '#1b2436' : '#f0f0f0'} />
+                <CartesianGrid strokeDasharray="4 4" stroke={isDark ? '#1b2436' : '#f0f0f0'} opacity={0.3} />
                 <XAxis
                   dataKey={xAxisProps.dataKey || 'xValue'}
                   type={xAxisProps.type || 'category'}
                   domain={xAxisProps.domain}
                   ticks={xAxisProps.ticks}
-                  tick={{ fill: isDark ? '#b1b4c0' : '#666', fontSize: 12 }}
+                  tick={{ fill: isDark ? '#b1b4c0' : '#666', fontSize: isMobile ? 10 : 12 }}
                   tickLine={{ stroke: isDark ? '#1b2436' : '#ccc' }}
                   axisLine={{ stroke: isDark ? '#1b2436' : '#ccc' }}
                   allowDecimals={false}
                   tickFormatter={xAxisProps.tickFormatter}
+                  interval={isMobile ? 1 : 0}
                 />
                 <YAxis
-                  label={{ value: 'kW', angle: -90, position: 'insideLeft', style: { fill: isDark ? '#b1b4c0' : '#666', fontSize: 14 } }}
-                  tick={{ fill: isDark ? '#b1b4c0' : '#666', fontSize: 12 }}
+                  label={!isMobile ? {
+                    value: 'kW',
+                    angle: -90,
+                    position: 'insideLeft',
+                    style: { fill: isDark ? '#b1b4c0' : '#666', fontSize: isMobile ? 12 : 14 }
+                  } : undefined}
+                  tick={{ fill: isDark ? '#b1b4c0' : '#666', fontSize: isMobile ? 10 : 12 }}
                   tickLine={{ stroke: isDark ? '#1b2436' : '#ccc' }}
                   axisLine={{ stroke: isDark ? '#1b2436' : '#ccc' }}
                   domain={yAxisDomain}
                   ticks={yAxisTicks || undefined}
                   tickCount={yAxisTicks ? undefined : 6}
+                  width={isMobile ? 45 : isTablet ? 55 : 60}
                 />
                 <Tooltip
-                  content={<CustomTooltip isDark={isDark} />}
+                  content={<CustomTooltip isDark={isDark} isMobile={isMobile} />}
                 />
-                <Legend verticalAlign="bottom" height={40} />
+                <Legend
+                  verticalAlign="bottom"
+                  height={isMobile ? 30 : 40}
+                  wrapperStyle={{ fontSize: isMobile ? '10px' : '12px' }}
+                  iconSize={isMobile ? 10 : 14}
+                />
 
                 {SERIES.map((s) => (
                   <Area
@@ -372,10 +434,10 @@ const ProjectOverviewChart = ({ projectId, readings = [], loading = false, selec
                     type="monotone"
                     dataKey={s.key}
                     stroke={s.stroke}
-                    strokeWidth={s.key === 'pv' ? 2.5 : 2}
-                    dot={false}
+                    strokeWidth={isMobile ? (s.key === 'pv' ? 2 : 1.5) : (s.key === 'pv' ? 2.5 : 2)}
+                    dot={isMobile ? false : { r: 3 }}
                     name={s.name}
-                    activeDot={{ r: 5 }}
+                    activeDot={isMobile ? false : { r: 5 }}
                     isAnimationActive={false}
                     connectNulls
                     strokeOpacity={0.95}

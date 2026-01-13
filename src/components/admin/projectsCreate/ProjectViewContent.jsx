@@ -645,8 +645,8 @@ const ProjectViewContent = ({ projectId = "" }) => {
         style={{
           display: "grid",
           gridTemplateColumns: isTablet || isMobile ? "1fr" : "1.5fr 1fr",
-          gap: "24px",
-          marginBottom: "24px",
+          gap: isMobile ? "16px" : "24px",
+          marginBottom: isMobile ? "16px" : "24px",
           height: isTablet || isMobile ? "auto" : "",
         }}
       >
@@ -659,15 +659,15 @@ const ProjectViewContent = ({ projectId = "" }) => {
               ? "0 0 20px rgba(14, 32, 56, 0.3)"
               : "0 1px 3px rgba(0,0,0,0.1)",
             border: `1px solid ${colors.borderLight}`,
-            padding: "24px",
-            overflowX: isTablet || isMobile ? "auto" : '',
+            padding: isMobile ? "16px" : "24px",
+            overflowX: "visible",
           }}>
           <h3
             style={{
-              fontSize: "18px",
+              fontSize: isMobile ? "16px" : "18px",
               fontWeight: "bold",
               color: colors.text,
-              marginBottom: "16px",
+              marginBottom: isMobile ? "12px" : "16px",
             }}
           >
             {lang(
@@ -694,15 +694,15 @@ const ProjectViewContent = ({ projectId = "" }) => {
               ? "0 0 20px rgba(14, 32, 56, 0.3)"
               : "0 1px 3px rgba(0,0,0,0.1)",
             border: `1px solid ${colors.borderLight}`,
-            padding: "24px",
+            padding: isMobile ? "16px" : "24px",
             overflowX: "auto",
           }}>
           <h3
             style={{
-              fontSize: "18px",
+              fontSize: isMobile ? "16px" : "18px",
               fontWeight: "bold",
               color: colors.text,
-              marginBottom: "16px",
+              marginBottom: isMobile ? "12px" : "16px",
             }}
           >
             {lang(

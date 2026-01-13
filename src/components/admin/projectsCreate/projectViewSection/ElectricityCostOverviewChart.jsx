@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import {
     LineChart,
     Line,
@@ -96,6 +96,19 @@ const ElectricityCostOverviewChart = ({
     selectedInverterId
 }) => {
     const { lang } = useLanguage();
+    const [isMobile, setIsMobile] = useState(false);
+    const [isTablet, setIsTablet] = useState(false);
+
+    useEffect(() => {
+        const checkScreenSize = () => {
+            const width = window.innerWidth;
+            setIsMobile(width < 768);
+            setIsTablet(width >= 768 && width < 1024);
+        };
+        checkScreenSize();
+        window.addEventListener("resize", checkScreenSize);
+        return () => window.removeEventListener("resize", checkScreenSize);
+    }, []);
 
     const chartData = useMemo(() => formatDataForChart(data, viewMode, selectedDate), [data, viewMode, selectedDate]);
 
@@ -145,20 +158,20 @@ const ElectricityCostOverviewChart = ({
         <>
             <style jsx>{`
                 .date-picker-wrapper {
-                    margin-bottom: 16px;
-                    width: 200px;
+                    margin-bottom: ${isMobile ? '8px' : '16px'};
+                    width: ${isMobile ? '100%' : '200px'};
                 }
                 .date-picker-wrapper :global(.react-datepicker-wrapper) {
                     width: 100%;
                 }
                 .date-picker-wrapper :global(.react-datepicker__input-container input) {
                     width: 100%;
-                    padding: 8px 12px;
+                    padding: ${isMobile ? '10px 12px' : '8px 12px'};
                     border-radius: 8px;
                     border: 1px solid ${isDark ? '#1b2436' : '#d1d5db'};
                     background: ${isDark ? '#121a2d' : '#fff'};
                     color: ${isDark ? '#ffffff' : '#111827'};
-                    font-size: 14px;
+                    font-size: ${isMobile ? '13px' : '14px'};
                 }
                 .date-picker-wrapper :global(.react-datepicker__input-container input:focus) {
                     outline: none;
@@ -166,13 +179,21 @@ const ElectricityCostOverviewChart = ({
                 }
             `}</style>
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 45 }}>
+            <div style={{
+                display: 'flex',
+                flexDirection: isMobile ? 'column' : 'row',
+                justifyContent: 'space-between',
+                alignItems: isMobile ? 'stretch' : 'center',
+                marginBottom: isMobile ? 20 : 45,
+                gap: isMobile ? '12px' : '16px'
+            }}>
                 {!selectedInverterId && (
                     <div
                         style={{
                             display: "flex",
-                            gap: "8px",
-                            // flexWrap: "wrap",        // ✅ mobile safe
+                            gap: isMobile ? "6px" : "8px",
+                            flexWrap: isMobile ? "wrap" : "nowrap",
+                            justifyContent: isMobile ? "center" : "flex-start"
                         }}
                     >
                         {["day", "month", "year"].map((mode) => {
@@ -183,8 +204,8 @@ const ElectricityCostOverviewChart = ({
                                     key={mode}
                                     onClick={() => onViewModeChange?.(mode)}
                                     style={{
-                                        padding: "6px 14px",
-                                        fontSize: "14px",
+                                        padding: isMobile ? "8px 12px" : "6px 14px",
+                                        fontSize: isMobile ? "13px" : "14px",
                                         borderRadius: "6px",
                                         border: isActive
                                             ? "1px solid #f97316"
@@ -202,8 +223,9 @@ const ElectricityCostOverviewChart = ({
                                         cursor: "pointer",
                                         fontWeight: isActive ? 600 : 400,
                                         transition: "all 0.2s ease",
-                                        minWidth: "72px",   // ✅ equal width
+                                        minWidth: isMobile ? "65px" : "72px",
                                         textAlign: "center",
+                                        flex: isMobile ? "1" : "0 0 auto"
                                     }}
                                 >
                                     {mode.charAt(0).toUpperCase() + mode.slice(1)}
@@ -215,7 +237,7 @@ const ElectricityCostOverviewChart = ({
 
                 {/* Date Picker - only show for day and month modes */}
                 {(viewMode === 'day' || viewMode === 'month') && (
-                    <div className="date-picker-wrapper">
+                    <div className="date-picker-wrapper" style={{ width: isMobile ? '100%' : '200px' }}>
                         {/* <DatePicker
                             selected={getSelectedDateForPicker()}
                             onChange={handleDateChange}
@@ -255,91 +277,105 @@ const ElectricityCostOverviewChart = ({
                     No data available
                 </div>
             ) : (
-                <ResponsiveContainer width="100%" height={400} minWidth={630} style={{ marginTop: 30 }}>
-                    <LineChart
-                        data={chartData}
-                        margin={{ top: 10, right: 30, left: 40, bottom: 0 }}
+                <div style={{ width: '100%', overflowX: isMobile || isTablet ? 'auto' : 'visible' }}>
+                    <ResponsiveContainer
+                        width="100%"
+                        height={isMobile ? 300 : isTablet ? 350 : 400}
+                        minWidth={isMobile ? 300 : isTablet ? 500 : 0}
+                        style={{ marginTop: isMobile ? 15 : 30 }}
                     >
-                        <CartesianGrid strokeDasharray="3 3" opacity={0.3} stroke={isDark ? '#1b2436' : '#e5e7eb'} />
-
-                        <XAxis
-                            dataKey={viewMode === "day" ? "day" : "label"}
-                            type={viewMode === "day" ? "number" : "category"}
-                            domain={viewMode === "day" ? [1, 'dataMax'] : undefined}
-                            ticks={viewMode === "day" ? dayTicks : undefined}
-                            allowDecimals={false}
-                            interval={viewMode === "day" ? 0 : 0}
-                            tick={{ fill: isDark ? '#cbd5f5' : '#374151', fontSize: 12 }}
-                            tickFormatter={(v) => viewMode === "day" ? String(Math.round(v)) : v}
-                            label={{
-                                value: xAxisLabel,
-                                position: 'insideBottom',
-                                offset: -1,
-                                style: { fill: isDark ? '#cbd5f5' : '#374151' },
+                        <LineChart
+                            data={chartData}
+                            margin={{
+                                top: 10,
+                                right: isMobile ? 10 : isTablet ? 20 : 30,
+                                left: isMobile ? 0 : isTablet ? 10 : 40,
+                                bottom: 0
                             }}
-                        />
+                        >
+                            <CartesianGrid strokeDasharray="3 3" opacity={0.3} stroke={isDark ? '#1b2436' : '#e5e7eb'} />
 
-                        <YAxis
-                            tickFormatter={(v) => `${formatShort(v)}`}
-                            tick={{ fill: isDark ? '#cbd5f5' : '#374151' }}
-                            label={{
-                                value: 'Cost (VND)',
-                                angle: -90,
-                                dx: -30,
-                                position: 'insideLeft',
-                                style: { fill: isDark ? '#cbd5f5' : '#374151' },
-                            }}
-                        />
+                            <XAxis
+                                dataKey={viewMode === "day" ? "day" : "label"}
+                                type={viewMode === "day" ? "number" : "category"}
+                                domain={viewMode === "day" ? [1, 'dataMax'] : undefined}
+                                ticks={viewMode === "day" ? dayTicks : undefined}
+                                allowDecimals={false}
+                                interval={viewMode === "day" ? (isMobile ? 2 : isTablet ? 1 : 0) : 0}
+                                tick={{ fill: isDark ? '#cbd5f5' : '#374151', fontSize: isMobile ? 10 : 12 }}
+                                tickFormatter={(v) => viewMode === "day" ? String(Math.round(v)) : v}
+                                label={{
+                                    value: xAxisLabel,
+                                    position: 'insideBottom',
+                                    offset: -1,
+                                    style: { fill: isDark ? '#cbd5f5' : '#374151', fontSize: isMobile ? 10 : 12 },
+                                }}
+                            />
 
-                        <Tooltip
-                            labelFormatter={(label) => {
-                                if (viewMode === "day") {
-                                    return dayjs(`${selectedDate}-${label}`).format("DD MMM YYYY");
-                                }
+                            <YAxis
+                                tickFormatter={(v) => `${formatShort(v)}`}
+                                tick={{ fill: isDark ? '#cbd5f5' : '#374151', fontSize: isMobile ? 10 : 12 }}
+                                label={!isMobile ? {
+                                    value: 'Cost (VND)',
+                                    angle: -90,
+                                    dx: -30,
+                                    position: 'insideLeft',
+                                    style: { fill: isDark ? '#cbd5f5' : '#374151', fontSize: isMobile ? 10 : 12 },
+                                } : undefined}
+                                width={isMobile ? 50 : isTablet ? 60 : 80}
+                            />
 
-                                if (viewMode === "year") {
+                            <Tooltip
+                                labelFormatter={(label) => {
+                                    if (viewMode === "day") {
+                                        return dayjs(`${selectedDate}-${label}`).format("DD MMM YYYY");
+                                    }
+
+                                    if (viewMode === "year") {
+                                        return label;
+                                    }
+
                                     return label;
-                                }
+                                }}
+                                formatter={(value) => `${formatShort(value).toLocaleString()}`}
+                                contentStyle={{
+                                    backgroundColor: isDark ? '#121a2d' : '#ffffff',
+                                    border: `1px solid ${isDark ? '#1b2436' : '#d1d5db'}`,
+                                    borderRadius: '8px',
+                                    color: isDark ? '#ffffff' : '#111827',
+                                    fontSize: isMobile ? '11px' : '12px',
+                                }}
+                            />
 
-                                return label;
-                            }}
-                            formatter={(value) => `${formatShort(value).toLocaleString()}`}
-                            contentStyle={{
-                                backgroundColor: isDark ? '#121a2d' : '#ffffff',
-                                border: `1px solid ${isDark ? '#1b2436' : '#d1d5db'}`,
-                                borderRadius: '8px',
-                                color: isDark ? '#ffffff' : '#111827',
-                            }}
-                        />
+                            <Legend
+                                wrapperStyle={{ fontSize: isMobile ? '11px' : '12px' }}
+                                iconSize={isMobile ? 10 : 14}
+                            />
 
+                            {/* EVN Line */}
+                            <Line
+                                type="monotone"
+                                dataKey="evn"
+                                name="EVN Cost"
+                                stroke="#2563eb"
+                                strokeWidth={isMobile ? 2 : 3}
+                                dot={isMobile ? false : { r: 4, fill: '#2563eb' }}
+                                connectNulls={false}
+                            />
 
-                        <Legend />
-
-                        {/* EVN Line */}
-                        <Line
-                            type="monotone"
-                            dataKey="evn"
-                            name="EVN Cost"
-                            stroke="#2563eb"
-                            strokeWidth={3}
-                            dot={{ r: 4, fill: '#2563eb' }}
-                            // activeDot={{ r: 6 }}
-                            connectNulls={false}
-                        />
-
-                        {/* WeShare Line */}
-                        <Line
-                            type="monotone"
-                            dataKey="weshare"
-                            name="WeShare Cost"
-                            stroke="#f97316"
-                            strokeWidth={3}
-                            dot={{ r: 4, fill: '#f97316' }}
-                            // activeDot={{ r: 6 }}
-                            connectNulls={false}
-                        />
-                    </LineChart>
-                </ResponsiveContainer>
+                            {/* WeShare Line */}
+                            <Line
+                                type="monotone"
+                                dataKey="weshare"
+                                name="WeShare Cost"
+                                stroke="#f97316"
+                                strokeWidth={isMobile ? 2 : 3}
+                                dot={isMobile ? false : { r: 4, fill: '#f97316' }}
+                                connectNulls={false}
+                            />
+                        </LineChart>
+                    </ResponsiveContainer>
+                </div>
             )}
         </>
         // </div>

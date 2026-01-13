@@ -1,6 +1,6 @@
 'use client';
 import { useLanguage } from '@/contexts/LanguageContext';
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import {
     ComposedChart,
     Bar,
@@ -82,6 +82,20 @@ const generateHoursTicks = (max, step) =>
 
 const EnergyYearChart = ({ ChartYearData, selectedEnergyYear, onYearChange, isDark }) => {
     const { lang } = useLanguage();
+    const [isMobile, setIsMobile] = useState(false);
+    const [isTablet, setIsTablet] = useState(false);
+
+    useEffect(() => {
+        const checkScreenSize = () => {
+            const width = window.innerWidth;
+            setIsMobile(width < 768);
+            setIsTablet(width >= 768 && width < 1024);
+        };
+        checkScreenSize();
+        window.addEventListener("resize", checkScreenSize);
+        return () => window.removeEventListener("resize", checkScreenSize);
+    }, []);
+
     const selectedYearDate = useMemo(
         () => dayjs(selectedEnergyYear, 'YYYY').toDate(),
         [selectedEnergyYear]
@@ -112,25 +126,29 @@ const EnergyYearChart = ({ ChartYearData, selectedEnergyYear, onYearChange, isDa
             <style jsx>{`
                 .container {
                 background: ${isDark ? "#121a2d" : "#fff"};
+                padding: ${isMobile ? '0px' : isTablet ? '20px' : '24px'};
                 }
                 .picker-wrapper {
-                margin-bottom: 16px;
-                width: 520px;
+                margin-bottom: ${isMobile ? '0px' : '16px'};
+                width: ${isMobile ? '100%' : isTablet ? '30%' : '520px'};
                 }
                 .picker-wrapper :global(.react-datepicker-wrapper) {
-                width: 20%;
+                width: ${isMobile ? '100%' : '20%'};
                 }
                 .picker-wrapper :global(.react-datepicker__input-container input) {
                 width: 100%;
+                padding: ${isMobile ? '10px 12px' : '8px 12px'};
                 border-radius: 8px;
                 border: 1px solid ${isDark ? '#1b2436' : '#d1d5db'};
                 background: ${isDark ? '#121a2d' : '#fff'};
                 color: ${isDark ? '#ffffff' : '#111827'};
-                font-size: 14px;
+                font-size: ${isMobile ? '13px' : '14px'};
                 }
       `}</style>
 
-            <div className="container">
+            <div className="container" style={{
+                overflowX: isMobile || isTablet ? 'auto' : 'visible'
+            }}>
                 <div className="picker-wrapper">
                     <DatePicker
                         selected={selectedYearDate}
@@ -140,43 +158,79 @@ const EnergyYearChart = ({ ChartYearData, selectedEnergyYear, onYearChange, isDa
                     />
                 </div>
 
-                <ResponsiveContainer width="100%" height={380} minWidth={1000}>
+                <ResponsiveContainer
+                    width="100%"
+                    height={isMobile ? 350 : isTablet ? 380 : 400}
+                    minWidth={isMobile ? 320 : isTablet ? 700 : 0}
+                >
                     <ComposedChart
                         data={data}
-                        margin={{ top: 40, right: 60, left: 80, bottom: 0 }}
+                        margin={{
+                            top: isMobile ? 30 : 40,
+                            right: isMobile ? 20 : isTablet ? 40 : 60,
+                            left: isMobile ? 20 : isTablet ? 50 : 80,
+                            bottom: isMobile ? 5 : 10
+                        }}
                     >
-                        <CartesianGrid strokeDasharray="3 3" />
+                        <CartesianGrid strokeDasharray="3 3" stroke={isDark ? '#1b2436' : '#e0e0e0'} opacity={0.3} />
 
                         {/* kWh */}
                         <YAxis
                             yAxisId="kwh"
                             orientation="left"
-                            label={{ value: "kWh", position: "top", dy: -10 }}
+                            width={isMobile ? 40 : isTablet ? 50 : 60}
+                            label={!isMobile ? {
+                                value: "kWh",
+                                position: "top",
+                                dy: -10,
+                                style: { fontSize: isMobile ? 10 : 12, fill: isDark ? '#cbd5f5' : '#666' }
+                            } : undefined}
                             domain={[0, paddedMaxKwh]}
                             ticks={generateTicks(maxKwh, 50)}
+                            stroke={isDark ? '#cbd5f5' : '#666'}
+                            tick={{ fontSize: isMobile ? 9 : isTablet ? 10 : 11, fill: isDark ? '#cbd5f5' : '#666' }}
                         />
 
                         {/* Money */}
                         <YAxis
                             yAxisId="money"
                             orientation="left"
-                            offset={60}
-                            label={{ value: "M VND", position: "top", dy: -10 }}
+                            offset={isMobile ? 40 : isTablet ? 50 : 60}
+                            width={isMobile ? 40 : isTablet ? 50 : 60}
+                            label={!isMobile ? {
+                                value: "M VND",
+                                position: "top",
+                                dy: -10,
+                                style: { fontSize: isMobile ? 10 : 12, fill: isDark ? '#cbd5f5' : '#666' }
+                            } : undefined}
                             domain={[0, paddedMaxMoney]}
                             ticks={generateTicks(maxMoney, 50)}
+                            stroke={isDark ? '#cbd5f5' : '#666'}
+                            tick={{ fontSize: isMobile ? 9 : isTablet ? 10 : 11, fill: isDark ? '#cbd5f5' : '#666' }}
                         />
 
                         {/* Hours */}
                         <YAxis
                             yAxisId="hours"
                             orientation="right"
-                            label={{ value: "h", position: "top", dy: -10 }}
+                            width={isMobile ? 40 : isTablet ? 50 : 60}
+                            label={!isMobile ? {
+                                value: "h",
+                                position: "top",
+                                dy: -10,
+                                style: { fontSize: isMobile ? 10 : 12, fill: isDark ? '#cbd5f5' : '#666' }
+                            } : undefined}
                             domain={[0, paddedMaxHours]}
                             ticks={generateHoursTicks(maxHours, 0.5)}
-
+                            stroke={isDark ? '#cbd5f5' : '#666'}
+                            tick={{ fontSize: isMobile ? 9 : isTablet ? 10 : 11, fill: isDark ? '#cbd5f5' : '#666' }}
                         />
 
-                        <XAxis dataKey="month" />
+                        <XAxis
+                            dataKey="month"
+                            stroke={isDark ? '#cbd5f5' : '#666'}
+                            tick={{ fontSize: isMobile ? 10 : 11, fill: isDark ? '#cbd5f5' : '#666' }}
+                        />
 
                         <Tooltip
                             labelFormatter={(day) =>
@@ -188,25 +242,55 @@ const EnergyYearChart = ({ ChartYearData, selectedEnergyYear, onYearChange, isDa
                                 if (name === "Revenue") {
                                     return [`${formatShort(value)} VND`, name];
                                 }
-                                if (name === "Full Load Hours") {
+                                if (name === "Hours") {
                                     return [`${value} h`, name];
                                 }
                                 return [`${formatShort(value)} kWh`, name];
                             }}
                             contentStyle={{
-                                backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                                border: '1px solid #ccc',
+                                backgroundColor: isDark ? '#121a2d' : 'rgba(255, 255, 255, 0.95)',
+                                border: `1px solid ${isDark ? '#1b2436' : '#ccc'}`,
                                 borderRadius: '8px',
-                                padding: '10px'
+                                padding: isMobile ? '8px' : '10px',
+                                fontSize: isMobile ? '11px' : '12px',
+                                color: isDark ? '#ffffff' : '#111827'
                             }}
                         />
-                        <Legend verticalAlign="bottom" />
+                        <Legend
+                            verticalAlign="bottom"
+                            height={isMobile ? 28 : 36}
+                            wrapperStyle={{
+                                fontSize: isMobile ? '10px' : '12px',
+                                paddingTop: isMobile ? '8px' : '12px'
+                            }}
+                            iconSize={isMobile ? 10 : 14}
+                        />
 
                         {/* Bars */}
-                        <Bar yAxisId="kwh" dataKey="yield" fill="#f0cf00" />
-                        <Bar yAxisId="kwh" dataKey="exporting" fill="#5f91cb" />
-                        <Bar yAxisId="kwh" dataKey="importing" fill="#E84855" />
-                        <Bar yAxisId="kwh" dataKey="consumed" fill="#fda23a" />
+                        <Bar
+                            yAxisId="kwh"
+                            dataKey="yield"
+                            fill="#f0cf00"
+                            barSize={isMobile ? 12 : isTablet ? 18 : 24}
+                        />
+                        <Bar
+                            yAxisId="kwh"
+                            dataKey="exporting"
+                            fill="#5f91cb"
+                            barSize={isMobile ? 12 : isTablet ? 18 : 24}
+                        />
+                        <Bar
+                            yAxisId="kwh"
+                            dataKey="importing"
+                            fill="#E84855"
+                            barSize={isMobile ? 12 : isTablet ? 18 : 24}
+                        />
+                        <Bar
+                            yAxisId="kwh"
+                            dataKey="consumed"
+                            fill="#fda23a"
+                            barSize={isMobile ? 12 : isTablet ? 18 : 24}
+                        />
 
                         <Line
                             yAxisId="hours"
@@ -214,9 +298,9 @@ const EnergyYearChart = ({ ChartYearData, selectedEnergyYear, onYearChange, isDa
                             stroke="#4a7fbc"
                             name="Hours"
                             yAxisOffset={10}
-                            strokeWidth={2}
-                            dot={{ r: 5, fill: "#2563eb" }}
-                            activeDot={{ r: 6 }}
+                            strokeWidth={isMobile ? 1.5 : 2}
+                            dot={isMobile ? false : { r: 5, fill: "#2563eb" }}
+                            activeDot={isMobile ? false : { r: 6 }}
                         />
 
                         <Line
@@ -225,9 +309,9 @@ const EnergyYearChart = ({ ChartYearData, selectedEnergyYear, onYearChange, isDa
                             stroke="#f08519"
                             name="Revenue"
                             yAxisOffset={10}
-                            strokeWidth={2}
-                            dot={{ r: 5, fill: "#f08519" }}
-                            activeDot={{ r: 6 }}
+                            strokeWidth={isMobile ? 1.5 : 2}
+                            dot={isMobile ? false : { r: 5, fill: "#f08519" }}
+                            activeDot={isMobile ? false : { r: 6 }}
                         />
                     </ComposedChart>
                 </ResponsiveContainer>

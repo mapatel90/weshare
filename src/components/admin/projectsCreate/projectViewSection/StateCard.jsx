@@ -39,22 +39,29 @@ const StatCard = ({
   const colors = {
     bg: isDark ? '#121a2d' : '#fff',
     text: isDark ? '#fff' : '#111827',
-    muted: '#9ca3af',
+    textSubtitle: isDark ? "#111827" : "#111827",
+    textMuted: isDark ? "#b1b4c0" : "#111827",
     border: isDark ? '#1b2436' : '#f3f4f6',
+    boxShadow: isDark
+      ? '0 0 20px rgba(14, 32, 56, 0.3)'
+      : '0 1px 3px rgba(0,0,0,0.1)',
   }
 
   return (
     <div
       style={{
         background: colors.bg,
-        borderRadius: 12,
-        padding: 24,
+        borderRadius: 10,
+        padding: 16,
         border: `1px solid ${colors.border}`,
+        boxShadow: colors.boxShadow,
+        minHeight: 130,
+        display: 'flex',
+        flexDirection: 'column',
+        transition: 'box-shadow 0.3s',
       }}
     >
-
-
-      {/* VALUE */}
+      {/* VALUE - Special case for CircularProgress */}
       {React.isValidElement(value) ? (
         <div
           style={{
@@ -62,30 +69,60 @@ const StatCard = ({
             justifyContent: 'center',
             alignItems: 'center',
             margin: '1px 0',
+            flex: 1,
           }}
         >
           {value}
         </div>
       ) : (
         <>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
+          {/* Icon + Title in one line */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              marginBottom: 12,
+            }}
+          >
             <div
               style={{
-                padding: 12,
-                borderRadius: 8,
+                padding: 6,
+                borderRadius: 6,
                 background: color,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
               }}
             >
-              <Icon size={24} color="#fff" />
+              <Icon size={16} color="#fff" />
             </div>
+            <p
+              style={{
+                fontSize: 13,
+                color: colors.textMuted,
+                fontWeight: 500,
+                margin: 0,
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              }}
+            >
+              {title}
+            </p>
           </div>
+
+          {/* Value Display */}
           <h3
             style={{
-              fontSize: 28,
+              fontSize: 32,
               fontWeight: 700,
               color: colors.text,
+              marginBottom: 8,
               display: 'flex',
               alignItems: 'baseline',
+              lineHeight: 1.2,
             }}
           >
             {(() => {
@@ -101,7 +138,7 @@ const StatCard = ({
                 return (
                   <>
                     <span>{integerPart}</span>
-                    <span style={{ fontSize: '0.6em', fontWeight: 'normal' }}>
+                    <span style={{ fontSize: '0.55em', fontWeight: 'normal', marginLeft: 2 }}>
                       {fractionalPart}
                       {unitWithSpace}
                     </span>
@@ -111,22 +148,29 @@ const StatCard = ({
               return value
             })()}
           </h3>
+
+          {/* Subtitle */}
+          {subtitle && (
+            <p
+              style={{
+                fontSize: 14,
+                color: colors.textSubtitle,
+                lineHeight: 1.4,
+                marginTop: 'auto',
+                opacity: 0.8,
+                margin: 0,
+              }}
+            >
+              {subtitle}
+            </p>
+          )}
         </>
-      )}
-
-
-      <p style={{ fontSize: 14, color: colors.muted }}>{title}</p>
-
-      {subtitle && (
-        <p style={{ fontSize: 12, color: colors.muted, marginTop: 4 }}>
-          {subtitle}
-        </p>
       )}
     </div>
   )
 }
 
-const CircularProgress = ({ percentage = 0, size = 160, strokeWidth = 12, isDark }) => {
+const CircularProgress = ({ percentage = 0, size = 100, strokeWidth = 12, isDark }) => {
   const radius = (size - strokeWidth) / 2
   const circumference = 2 * Math.PI * radius
   const offset = circumference - (percentage / 100) * circumference
@@ -161,15 +205,15 @@ const CircularProgress = ({ percentage = 0, size = 160, strokeWidth = 12, isDark
         fontWeight="700"
         fill={isDark ? '#fff' : '#111'}
       >
-        <tspan x="50%" dy="-10" fontSize="25">
+        <tspan x="50%" dy="-10" fontSize="16">
           {percentage}%
         </tspan>
 
-        <tspan x="50%" dy="25" fontSize="15" fontWeight="400">
+        <tspan x="50%" dy="25" fontSize="10" fontWeight="400">
           Capital
         </tspan>
 
-        <tspan x="50%" dy="15" fontSize="15" fontWeight="400">
+        <tspan x="50%" dy="15" fontSize="10" fontWeight="400">
           Recovered
         </tspan>
       </text>
@@ -241,8 +285,8 @@ const StatCardsGrid = ({
     <div
       style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-        gap: 16,
+        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+        gap: 12,
         marginBottom: 24
       }}
     >

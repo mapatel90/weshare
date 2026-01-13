@@ -158,9 +158,20 @@ const generateTicks = (max, step) => {
 const EnergyChart = ({ chartMonthData, selectedMonthYear, onMonthYearChange, isMobile, isDark = false, monthlyChartDataLoading }) => {
   const { lang } = useLanguage();
   const styles = getStyles(isDark);
+  const [isTablet, setIsTablet] = useState(false);
   const [selectedDate, setSelectedDate] = useState(
     selectedMonthYear ? dayjs(selectedMonthYear, 'YYYY-MM').toDate() : new Date()
   );
+
+  useEffect(() => {
+    const checkScreenSize = () => {
+      const width = window.innerWidth;
+      setIsTablet(width >= 768 && width < 1024);
+    };
+    checkScreenSize();
+    window.addEventListener("resize", checkScreenSize);
+    return () => window.removeEventListener("resize", checkScreenSize);
+  }, []);
 
   useEffect(() => {
     if (selectedMonthYear) {
@@ -193,12 +204,12 @@ const EnergyChart = ({ chartMonthData, selectedMonthYear, onMonthYearChange, isM
       <style>{`
         .date-picker-wrapper .react-datepicker__input-container input {
           width: 100%;
-          padding: 8px 12px;
+          padding: ${isMobile ? '10px 12px' : '8px 12px'};
           border-radius: 8px;
           border: 1px solid ${isDark ? '#1b2436' : '#d1d5db'};
           background: ${isDark ? '#121a2d' : '#fff'};
           color: ${isDark ? '#ffffff' : '#111827'};
-          font-size: 14px;
+          font-size: ${isMobile ? '13px' : '14px'};
         }
         .date-picker-wrapper .react-datepicker__input-container input:focus {
           outline: none;
@@ -206,8 +217,11 @@ const EnergyChart = ({ chartMonthData, selectedMonthYear, onMonthYearChange, isM
         }
       `}</style>
 
-      <div style={styles.containerStyle}>
-        <div className='date-picker-wrapper' style={{ width: isMobile ? '40%' : '10%' }}>
+      <div style={{
+        ...styles.containerStyle,
+        padding: isMobile ? '16px' : isTablet ? '24px' : '32px'
+      }}>
+        <div className='date-picker-wrapper' style={{ width: isMobile ? '100%' : isTablet ? '30%' : '10%' }}>
           <DatePicker
             selected={selectedDate}
             onChange={handleDateChange}
@@ -219,68 +233,88 @@ const EnergyChart = ({ chartMonthData, selectedMonthYear, onMonthYearChange, isM
           />
         </div>
       </div>
-      <div style={{ width: '100%', height: 'calc(60vh - 120px)', minHeight: '420px' }}>
-        <ResponsiveContainer width="100%" height="100%" minWidth={850}>
+      <div style={{
+        width: '100%',
+        height: isMobile ? '400px' : isTablet ? '450px' : 'calc(60vh - 120px)',
+        minHeight: isMobile ? '350px' : '420px',
+        overflowX: isMobile || isTablet ? 'auto' : 'visible'
+      }}>
+        <ResponsiveContainer
+          width="100%"
+          height="100%"
+          minWidth={isMobile ? 320 : isTablet ? 600 : 0}
+        >
           <ComposedChart
             data={data}
-            margin={{ top: 40, right: 60, left: 40, bottom: 20 }}
+            margin={{
+              top: isMobile ? 30 : 40,
+              right: isMobile ? 20 : isTablet ? 40 : 60,
+              left: isMobile ? 10 : isTablet ? 20 : 40,
+              bottom: isMobile ? 10 : 20
+            }}
           >
-            <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
+            <CartesianGrid strokeDasharray="3 3" stroke={isDark ? '#1b2436' : '#e0e0e0'} opacity={0.3} />
 
             {/* Left Y-axis for K VND */}
             <YAxis
               yAxisId="money"
               orientation="left"
-              // width={60}
-              label={{
+              width={isMobile ? 40 : isTablet ? 50 : 60}
+              label={!isMobile ? {
                 value: 'K VND',
                 position: 'top',
                 dx: 0,
-                dy: -10
-              }}
+                dy: -10,
+                style: { fontSize: isMobile ? 10 : 12, fill: isDark ? '#cbd5f5' : '#666' }
+              } : undefined}
               domain={[0, maxMoney]}
               ticks={generateTicks(maxMoney, 50)}
-              stroke="#666"
+              stroke={isDark ? '#cbd5f5' : '#666'}
+              tick={{ fontSize: isMobile ? 9 : isTablet ? 10 : 11, fill: isDark ? '#cbd5f5' : '#666' }}
             />
 
             {/* Middle Y-axis for kWh */}
             <YAxis
               yAxisId="kwh"
               orientation="left"
-              // width={60}
-              label={{
+              width={isMobile ? 40 : isTablet ? 50 : 60}
+              label={!isMobile ? {
                 value: 'kWh',
                 position: 'top',
                 dx: 20,
-                dy: -10
-              }}
+                dy: -10,
+                style: { fontSize: isMobile ? 10 : 12, fill: isDark ? '#cbd5f5' : '#666' }
+              } : undefined}
               domain={[0, maxKwh]}
               ticks={generateTicks(maxKwh, 10)}
-              stroke="#666"
+              stroke={isDark ? '#cbd5f5' : '#666'}
+              tick={{ fontSize: isMobile ? 9 : isTablet ? 10 : 11, fill: isDark ? '#cbd5f5' : '#666' }}
             />
 
             {/* Right Y-axis for h */}
             <YAxis
               yAxisId="hours"
               orientation="right"
-              width={60}
-              label={{
+              width={isMobile ? 40 : isTablet ? 50 : 60}
+              label={!isMobile ? {
                 value: 'h',
                 angle: 0,
                 position: 'top',
                 dx: -30,
-                dy: -10
-              }}
+                dy: -10,
+                style: { fontSize: isMobile ? 10 : 12, fill: isDark ? '#cbd5f5' : '#666' }
+              } : undefined}
               domain={[0, maxHours]}
               ticks={generateTicks(maxHours, 0.5)}
-              stroke="#666"
+              stroke={isDark ? '#cbd5f5' : '#666'}
+              tick={{ fontSize: isMobile ? 9 : isTablet ? 10 : 11, fill: isDark ? '#cbd5f5' : '#666' }}
             />
 
             <XAxis
               dataKey="day"
-              stroke="#666"
-              interval={0}
-              tick={{ fontSize: 11 }}
+              stroke={isDark ? '#cbd5f5' : '#666'}
+              interval={isMobile ? 2 : isTablet ? 1 : 0}
+              tick={{ fontSize: isMobile ? 9 : 11, fill: isDark ? '#cbd5f5' : '#666' }}
             />
 
             <Tooltip
@@ -299,19 +333,24 @@ const EnergyChart = ({ chartMonthData, selectedMonthYear, onMonthYearChange, isM
                 return [`${formatShort(value)} kWh`, name];
               }}
               contentStyle={{
-                backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                border: '1px solid #ccc',
+                backgroundColor: isDark ? '#121a2d' : 'rgba(255, 255, 255, 0.95)',
+                border: `1px solid ${isDark ? '#1b2436' : '#ccc'}`,
                 borderRadius: '8px',
-                padding: '10px'
+                padding: isMobile ? '8px' : '10px',
+                fontSize: isMobile ? '11px' : '12px',
+                color: isDark ? '#ffffff' : '#111827'
               }}
             />
 
 
             <Legend
               verticalAlign="bottom"
-              height={36}
-              // iconType="rect"
-              wrapperStyle={{ paddingTop: '20px' }}
+              height={isMobile ? 28 : 36}
+              wrapperStyle={{
+                paddingTop: isMobile ? '10px' : '20px',
+                fontSize: isMobile ? '10px' : '12px'
+              }}
+              iconSize={isMobile ? 10 : 14}
             />
 
             {/* Bars */}
@@ -320,28 +359,28 @@ const EnergyChart = ({ chartMonthData, selectedMonthYear, onMonthYearChange, isM
               dataKey="yield"
               name="Yield"
               fill="#f0cf00"
-              barSize={24}
+              barSize={isMobile ? 12 : isTablet ? 18 : 24}
             />
             <Bar
               yAxisId="kwh"
               dataKey="exporting"
               name="Exporting"
               fill="#5f91cb"
-              barSize={24}
+              barSize={isMobile ? 12 : isTablet ? 18 : 24}
             />
             <Bar
               yAxisId="kwh"
               dataKey="importing"
               name="Importing"
               fill="#E84855"
-              barSize={24}
+              barSize={isMobile ? 12 : isTablet ? 18 : 24}
             />
             <Bar
               yAxisId="kwh"
               dataKey="consumed"
               name="Consumed"
               fill="#fda23a"
-              barSize={24}
+              barSize={isMobile ? 12 : isTablet ? 18 : 24}
             />
 
             {/* Lines */}
@@ -351,7 +390,7 @@ const EnergyChart = ({ chartMonthData, selectedMonthYear, onMonthYearChange, isM
               dataKey="fullLoadHours"
               name="Full Load Hours"
               stroke="#4a7fbc"
-              strokeWidth={2}
+              strokeWidth={isMobile ? 1.5 : 2}
               dot={false}
             />
             <Line
@@ -360,7 +399,7 @@ const EnergyChart = ({ chartMonthData, selectedMonthYear, onMonthYearChange, isM
               dataKey="earning"
               name="Revenue"
               stroke="#f08519"
-              strokeWidth={2}
+              strokeWidth={isMobile ? 1.5 : 2}
               dot={false}
             />
           </ComposedChart>
