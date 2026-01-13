@@ -189,9 +189,9 @@ const ProjectEnergyReport = () => {
 
             // Fetch all data for CSV (set a high limit or fetch without pagination)
             params.append("page", "1");
-            params.append("limit", "10000"); // Large limit to get all data
+            params.append("limit", "1000000"); // Large limit to get all data
 
-            const res = await apiGet(`/api/projects/report/project-energy-data?${params.toString()}`);
+            const res = await apiPost(`/api/projects/report/project-energy-data?${params.toString()}`);
 
             if (res && res.success && res.data) {
                 const data = res.data;
