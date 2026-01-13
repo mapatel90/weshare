@@ -14,11 +14,19 @@ import StatsCardOverview from "./sections/StateDashboard";
 import { useAuth } from "@/contexts/AuthContext";
 import { apiGet, apiPost } from "@/lib/api";
 import SolarEnergyFlow from "@/components/admin/projectsCreate/projectViewSection/Animated";
+import { useLanguage } from "@/contexts/LanguageContext";
+import EnergyChart from "@/components/admin/projectsCreate/projectViewSection/MonthChart";
+import EnergyYearChart from "@/components/admin/projectsCreate/projectViewSection/YearChart";
+import { useDarkMode } from "@/utils/common";
 
 function DashboardView() {
   const { user } = useAuth();
+  const { lang } = useLanguage();
+  const isDark = useDarkMode();
   const [showProjectsDropdown, setShowProjectsDropdown] = useState(false);
   const [showInverterDropdown, setShowInverterDropdown] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [isTablet, setIsTablet] = useState(false);
 
   // new: projects state for dropdown (remove static entries)
   const [projects, setProjects] = useState([]);
@@ -36,15 +44,22 @@ function DashboardView() {
   const [inverterLatest, setInverterLatest] = useState(null);
   const [inverterLatestLoading, setInverterLatestLoading] = useState(false);
   const [inverterLatestError, setInverterLatestError] = useState(null);
+  const [chartMonthData, setChartMonthData] = useState(null);
+  const [yearChartDataLoading, setYearChartDataLoading] = useState(true);
+  const [selectedEnergyYear, setSelectedEnergyYear] = useState(new Date().getFullYear().toString());
+  const [selectedMonthYear, setSelectedMonthYear] = useState(new Date().toISOString().slice(0, 7));
+  const [monthlyChartDataLoading, setMonthlyChartDataLoading] = useState(true);
 
   // Chart data states
   const [projectChartData, setProjectChartData] = useState(null);
+  const [ChartViewMode, setChartViewMode] = useState("day");
   const [projectChartLoading, setProjectChartLoading] = useState(false);
   const [inverterChartData, setInverterChartData] = useState(null);
   const [inverterChartLoading, setInverterChartLoading] = useState(false);
   const [selectedDate, setSelectedDate] = useState(
     new Date().toISOString().split("T")[0]
   );
+  const [ChartYearData, setChartYearData] = useState([]);
 
   // fetch offtaker projects similar to ProjectTable
   useEffect(() => {
@@ -320,6 +335,51 @@ function DashboardView() {
     };
   }, [showProjectsDropdown, showInverterDropdown]);
 
+
+  useEffect(() => {
+    const loadEnergyDayWiseData = async () => {
+      const [year, month] = selectedMonthYear.split('-');
+      const payload = {
+        projectId: selectedProject?.id ?? null,
+        year: year ?? null,
+        month: month ?? null
+      };
+
+      try {
+        setMonthlyChartDataLoading(true);
+        const res = await apiPost(`/api/projects/chart_month_data`, payload);
+        setChartMonthData(res?.success ? res.data : null);
+      } finally {
+        setMonthlyChartDataLoading(false);
+      }
+    };
+    if (selectedProject?.id && selectedMonthYear) {
+      loadEnergyDayWiseData();
+    }
+  }, [selectedProject?.id, selectedMonthYear])
+
+
+  useEffect(() => {
+    const loadEnergyYearWiseData = async () => {
+      // const year = "2026";
+
+      const payload = {
+        projectId: selectedProject?.id ?? null,
+        year: selectedEnergyYear ?? null
+      };
+      try {
+        // setYearChartDataLoading(true);
+        const res = await apiPost(`/api/projects/chart_year_data`, payload);
+        setChartYearData(res?.success ? res.data : null);
+      } finally {
+        // setYearChartDataLoading(false);
+      }
+    };
+    if (selectedProject?.id) {
+      loadEnergyYearWiseData();
+    }
+  }, [selectedProject?.id, selectedEnergyYear]);
+
   return (
     <div>
       {/* <StatsCardOverview /> */}
@@ -525,34 +585,34 @@ function DashboardView() {
                           />
                         </li>
                         {inverters.map((inv) => {
-                        const isSelectedInv =
-                          selectedInverter &&
-                          (selectedInverter.id === inv.id ||
-                            selectedInverter.inverterId === inv.inverterId);
-                        return (
-                          <li
-                            key={inv.id ?? inv.inverterId}
-                            role="button"
-                            tabIndex={0}
-                            style={{
-                              padding: "8px 16px",
-                              cursor: "pointer",
-                              display: "flex",
-                              justifyContent: "space-between",
-                              alignItems: "center",
-                              background: isSelectedInv ? "#eef2ff" : undefined,
-                              fontWeight: isSelectedInv ? 600 : 400,
-                              color: "#111827",
-                            }}
-                            onClick={() => {
-                              setSelectedInverter(inv);
-                              setShowInverterDropdown(false);
-                            }}
-                          >
-                            <span>{inv.name}</span>
-                          </li>
-                        );
-                      })}
+                          const isSelectedInv =
+                            selectedInverter &&
+                            (selectedInverter.id === inv.id ||
+                              selectedInverter.inverterId === inv.inverterId);
+                          return (
+                            <li
+                              key={inv.id ?? inv.inverterId}
+                              role="button"
+                              tabIndex={0}
+                              style={{
+                                padding: "8px 16px",
+                                cursor: "pointer",
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                                background: isSelectedInv ? "#eef2ff" : undefined,
+                                fontWeight: isSelectedInv ? 600 : 400,
+                                color: "#111827",
+                              }}
+                              onClick={() => {
+                                setSelectedInverter(inv);
+                                setShowInverterDropdown(false);
+                              }}
+                            >
+                              <span>{inv.name}</span>
+                            </li>
+                          );
+                        })}
                       </>
                     ) : (
                       <li style={{ padding: "8px 16px", color: "#6b7280" }}>
@@ -631,29 +691,78 @@ function DashboardView() {
                     color: "#111827",
                   }}
                 >
-                  Energy Production Overview
+                  {lang(
+                    "projectView.energyProduction.energy_production",
+                    "Energy Production Overviews"
+                  )}
                 </h3>
+                <div style={{ display: "flex", gap: "8px" }}>
+                  {["day", "month", "year"].map((mode) => (
+                    <button
+                      key={mode}
+                      onClick={() => setChartViewMode(mode)}
+                      style={{
+                        padding: "6px 14px",
+                        fontSize: "14px",
+                        borderRadius: "6px",
+                        border:
+                          ChartViewMode === mode
+                            ? "1px solid #f97316"
+                            : "1px solid #d1d5db",
+                        backgroundColor:
+                          ChartViewMode === mode ? "#f97316" : "#ffffff",
+                        color: ChartViewMode === mode ? "#ffffff" : "#374151",
+                        cursor: "pointer",
+                        fontWeight: ChartViewMode === mode ? 600 : 400,
+                        transition: "all 0.2s ease",
+                      }}
+                    >
+                      {mode.charAt(0).toUpperCase() + mode.slice(1)}
+                    </button>
+                  ))}
+                </div>
               </div>
-              {selectedInverter ? (
-                <PowerConsumptionDashboard
-                  projectId={selectedProject.id}
-                  readings={inverterChartData || []}
-                  loading={inverterChartLoading}
-                  selectedInverterId={selectedInverter.inverterId}
-                  projectInverters={inverters}
-                  selectedDate={selectedDate}
-                  onDateChange={setSelectedDate}
-                  setSelectedDate={setSelectedDate}
+
+              {ChartViewMode === "month" && (
+                <EnergyChart
+                  chartMonthData={chartMonthData}
+                  selectedMonthYear={selectedMonthYear}
+                  onMonthYearChange={setSelectedMonthYear}
+                  monthlyChartDataLoading={monthlyChartDataLoading}
+                  isMobile={isMobile}
+                  isDark={isDark}
                 />
-              ) : (
-                <ProjectOverviewChart
-                  projectId={selectedProject.id}
-                  readings={projectChartData || []}
-                  loading={projectChartLoading}
-                  selectedDate={selectedDate}
-                  onDateChange={setSelectedDate}
-                  setSelectedDate={setSelectedDate}
+              )}
+              {ChartViewMode === "year" && (
+                <EnergyYearChart
+                  ChartYearData={ChartYearData}
+                  selectedEnergyYear={selectedEnergyYear}
+                  onYearChange={setSelectedEnergyYear}
+                  isDark={isDark}
                 />
+              )}
+              {ChartViewMode === "day" && (
+                selectedInverter ? (
+                  <PowerConsumptionDashboard
+                    projectId={selectedProject.id}
+                    readings={inverterChartData || []}
+                    loading={inverterChartLoading}
+                    selectedInverterId={selectedInverter.inverterId}
+                    projectInverters={inverters}
+                    selectedDate={selectedDate}
+                    onDateChange={setSelectedDate}
+                    setSelectedDate={setSelectedDate}
+                  />
+                ) : (
+                  <ProjectOverviewChart
+                    projectId={selectedProject.id}
+                    readings={projectChartData || []}
+                    loading={projectChartLoading}
+                    selectedDate={selectedDate}
+                    onDateChange={setSelectedDate}
+                    setSelectedDate={setSelectedDate}
+                  />
+                )
               )}
             </div>
           </div>
@@ -820,7 +929,7 @@ function DashboardView() {
               <div className="impact-card">
                 <div style={{ fontSize: "35px" }}>🍃</div>
                 <div className="impact-value">
-                  {selectedProject?.project_data?.[0]?.power_station_avoided_co2 
+                  {selectedProject?.project_data?.[0]?.power_station_avoided_co2
                     ? `${selectedProject.project_data[0].power_station_avoided_co2} kg`
                     : '-'}
                 </div>
@@ -828,16 +937,16 @@ function DashboardView() {
               </div>
               <div className="impact-card">
                 <div style={{ fontSize: "35px" }}>💡</div>
-                <div className="impact-value">{selectedProject?.project_data?.[0]?.power_station_avoided_tce 
-                    ? `${selectedProject.project_data[0].power_station_avoided_tce} kWh`
-                    : '-'}</div>
+                <div className="impact-value">{selectedProject?.project_data?.[0]?.power_station_avoided_tce
+                  ? `${selectedProject.project_data[0].power_station_avoided_tce} kWh`
+                  : '-'}</div>
                 <div className="impact-label">Clean Energy Consumed</div>
               </div>
               <div className="impact-card" style={{ gridColumn: "1 / -1" }}>
                 <div style={{ fontSize: "35px" }}>🌳</div>
-                <div className="impact-value">{selectedProject?.project_data?.[0]?.power_station_num_tree 
-                    ? `${selectedProject.project_data[0].power_station_num_tree} trees`
-                    : '-'}</div>
+                <div className="impact-value">{selectedProject?.project_data?.[0]?.power_station_num_tree
+                  ? `${selectedProject.project_data[0].power_station_num_tree} trees`
+                  : '-'}</div>
                 <div className="impact-label">Equivalent planted</div>
               </div>
             </div>
