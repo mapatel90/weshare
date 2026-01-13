@@ -1,14 +1,14 @@
 "use client"
 import React from 'react'
 import DynamicTitle from '@/components/common/DynamicTitle'
-import SavingReports from '@/components/portal/reports/SavingReports'
+import ProjectEnvReport from '@/components/portal/reports/ProjectEnvReport'
 
 const page = () => {
     return (
         <>
             <DynamicTitle titleKey="projects.projectlist" />
             <div className='row'>
-               <SavingReports />
+               <ProjectEnvReport />
             </div>
         </>
     )

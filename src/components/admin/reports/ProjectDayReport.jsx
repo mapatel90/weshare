@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import Table from "@/components/shared/table/Table";
-import { apiGet } from '@/lib/api';
+import { apiGet, apiPost } from '@/lib/api';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { formatShort } from '@/utils/common';
 
@@ -30,7 +30,7 @@ const ProjectDayReport = () => {
             setLoading(true);
             setError(null);
 
-            const res = await apiGet(`/api/projects/dropdown/project`);
+            const res = await apiPost(`/api/projects/dropdown/project`);
             console.log("API Response:", res); // Check the structure
 
             // FIX HERE: Check the actual response structure
@@ -203,7 +203,10 @@ const ProjectDayReport = () => {
                 const csvContent = csvRows.join('\n');
 
                 // Create blob and download
-                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const blob = new Blob(
+                    ["\uFEFF" + csvContent],
+                    { type: 'text/csv;charset=utf-8;' }
+                );
                 const link = document.createElement('a');
                 const url = URL.createObjectURL(blob);
 
