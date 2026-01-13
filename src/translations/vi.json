@@ -995,7 +995,8 @@
     "selectOfftaker": "Chọn Offtaker",
     "amount": "Số tiền",
     "status": "Trạng thái",
-    "onlynumbers": "Chỉ cho phép nhập số (ví dụ: 123456)"
+    "onlynumbers": "Chỉ cho phép nhập số (ví dụ: 123456)",
+    "paymentlist": "Danh sách thanh toán"
   },
   "usersView": {
     "CreateUser": "Tạo người dùng",

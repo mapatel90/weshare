@@ -288,7 +288,7 @@ const InvoiceTable = () => {
         const status = row.original.status;
         const config = {
           1: { label: lang("invoice.paid"), color: "#17c666" },
-          0: { label: lang("invoice.unpaid"), color: "#ea4d4d" },
+          0: { label: lang("common.pending"), color: "#ea4d4d" },
         }[status] || { label: String(status ?? "-"), color: "#999" };
         return (
           <Chip

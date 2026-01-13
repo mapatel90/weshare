@@ -1042,7 +1042,8 @@
     "selectOfftaker": "Select Offtaker",
     "amount": "Amount",
     "status": "Status",
-    "onlynumbers": "Only numbers are allowed (e.g. 123456)"
+    "onlynumbers": "Only numbers are allowed (e.g. 123456)",
+    "paymentlist": "Payment List"
   },
   "usersView": {
     "CreateUser": "Create User",

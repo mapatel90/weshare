@@ -29,6 +29,7 @@ import investerRoutes from "./routes/invester.js";
 import contractRoutes from "./routes/contract.js";
 import cronRoutes from "./routes/cron.js";
 import inverterDataRoutes from "./routes/inverterData.js";
+import uploadRoutes from "./routes/upload.js";
 
 // Load environment variables
 const __filename = fileURLToPath(import.meta.url);
@@ -107,6 +108,7 @@ app.use("/api/testimonials", testimonialRoutes);
 app.use("/api/contactus", contactusRoutes);
 app.use("/api/blog", blogRoutes);
 app.use("/api/lease", leaseRoutes);
+app.use("/api/upload", uploadRoutes);
 app.use("/api/investors", investerRoutes);
 app.use("/api/contracts", contractRoutes);
 app.use("/api/cron", cronRoutes);

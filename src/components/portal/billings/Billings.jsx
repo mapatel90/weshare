@@ -26,6 +26,7 @@ const Billings = () => {
   const [projectsError, setProjectsError] = useState("");
   const [dropdownProjects, setDropdownProjects] = useState([]);
   const [invoices, setInvoices] = useState([]);
+  const [taxesData, setTaxesData] = useState([]);
   const [invoicesLoading, setInvoicesLoading] = useState(false);
   const [invoicesError, setInvoicesError] = useState("");
   const [pageIndex, setPageIndex] = useState(0);
@@ -56,7 +57,7 @@ const Billings = () => {
   const statusLabel = (value) => {
     if (typeof value === "string") return value;
     const map = {
-      0: "Unpaid",
+      0: "Pending",
       1: "Paid",
     };
     return map[value] ?? "Pending";
@@ -102,6 +103,15 @@ const Billings = () => {
 
         if (response?.success && Array.isArray(list)) {
           const normalized = list.map((inv, idx) => {
+            const taxId = inv?.tax_id;
+            let taxDisplay = "";
+            if (taxId) {
+              const tax = taxesData.find((t) => t.id === taxId);
+              if (tax) {
+                taxDisplay = `${tax.name || ""} (${tax.value || 0}%)`;
+              }
+            }
+            
             return {
               id: inv?.id ?? idx,
               projectId: inv?.projects?.id ?? null,
@@ -111,6 +121,9 @@ const Billings = () => {
                 : "—",
               invoiceDate: formatDate(inv?.invoice_date),
               dueDate: formatDate(inv?.due_date),
+              tax: taxDisplay,
+              subAmount: priceWithCurrency(inv?.sub_amount),
+              taxAmount: priceWithCurrency(inv?.tax_amount),
               amount: inv?.total_amount ?? inv?.amount ?? 0,
               status: statusLabel(inv?.status),
               download: true,
@@ -152,7 +165,25 @@ const Billings = () => {
     projectFilter,
     pageIndex,
     pageSize,
+    taxesData,
   ]);
+
+  const fetchTaxes = async () => {
+    try {
+      const response = await apiGet("/api/settings/taxes");
+      if (response?.success && response?.data) {
+        setTaxesData(response.data);
+      } else {
+        setTaxesData([]);
+      }
+    } catch (e) {
+      setTaxesData([]);
+    }
+  };
+
+  useEffect(() => {
+    fetchTaxes();
+  }, []);
 
   // Fetch stable projects list for dropdown independent of filters
   useEffect(() => {
@@ -293,7 +324,12 @@ const Billings = () => {
                 INVOICE DATE
               </th>
               <th className="px-2 py-3 font-semibold text-left">DUE DATE</th>
-              <th className="px-2 py-3 font-semibold text-left">AMOUNT</th>
+              <th className="px-2 py-3 font-semibold text-left">TAX</th>
+              <th className="px-2 py-3 font-semibold text-left">SUB AMOUNT</th>
+              <th className="px-2 py-3 font-semibold text-left">TAX AMOUNT</th>
+              <th className="px-2 py-3 font-semibold text-left">
+                TOTAL AMOUNT
+              </th>
               <th className="px-2 py-3 font-semibold text-left">STATUS</th>
               <th className="px-2 py-3 font-semibold text-left">DOWNLOAD</th>
             </tr>
@@ -301,10 +337,7 @@ const Billings = () => {
           <tbody>
             {filteredInvoices.length === 0 ? (
               <tr>
-                <td
-                  className="px-4 py-6 text-center text-gray-500"
-                  colSpan={7}
-                >
+                <td className="px-4 py-6 text-center text-gray-500" colSpan={7}>
                   No invoices found
                 </td>
               </tr>
@@ -335,6 +368,13 @@ const Billings = () => {
                     {inv.invoiceDate}
                   </td>
                   <td className="px-2 py-2 whitespace-nowrap">{inv.dueDate}</td>
+                  <td className="px-2 py-2 whitespace-nowrap">{inv.tax}</td>
+                  <td className="px-2 py-2 whitespace-nowrap">
+                    {inv.subAmount}
+                  </td>
+                  <td className="px-2 py-2 whitespace-nowrap">
+                    {inv.taxAmount}
+                  </td>
                   <td className="px-2 py-2 whitespace-nowrap">
                     {priceWithCurrency(inv.amount)}
                   </td>
