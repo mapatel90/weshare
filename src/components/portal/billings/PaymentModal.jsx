@@ -1,27 +1,66 @@
 'use client';
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { apiGet } from "@/lib/api";
+import { useAuth } from "@/contexts/AuthContext";
 
 const PaymentModal = ({ isOpen, onClose, invoiceNumber, onSubmit, totalAmount }) => {
-    const [transactionId, setTransactionId] = useState("");
     const [image, setImage] = useState(null);
     const [imagePreview, setImagePreview] = useState(null);
     const [dragActive, setDragActive] = useState(false);
-    const [selectedInvoice, setSelectedInvoice] = useState("");
+    const [selectedInvoice, setSelectedInvoice] = useState(invoiceNumber || "");
+    const [invoiceOptions, setInvoiceOptions] = useState([]);
+    const { user } = useAuth();
 
-    const invoiceOptions = [
-        { value: "INV001", label: "Invoice #INV001" },
-        { value: "INV002", label: "Invoice #INV002" },
-        { value: "INV003", label: "Invoice #INV003" }
-    ];
-
-    React.useEffect(() => {
+    useEffect(() => {
         if (isOpen) {
             setImagePreview(null);
+            // If invoiceNumber is provided, find the matching option and set selectedInvoice to its ID value
+            if (invoiceNumber) {
+                const matchingOption = invoiceOptions.find(opt => opt.label === invoiceNumber);
+                if (matchingOption) {
+                    setSelectedInvoice(matchingOption.value);
+                } else {
+                    setSelectedInvoice("");
+                }
+            } else {
+                setSelectedInvoice("");
+            }
         }
-    }, [isOpen]);
+    }, [isOpen, invoiceNumber, invoiceOptions]);
+
+    useEffect(() => {
+        const fetchInvoices = async () => {
+            if (!isOpen) return;
+
+            try {
+                const response = await apiGet("/api/invoice?status=0");
+
+                const list = response?.data;
+                if (response?.success && Array.isArray(list)) {
+                    const opts = list.map((inv, idx) => {
+                        const id = inv?.id ?? idx;
+                        const display = `${inv?.invoice_prefix || ""}-${inv?.invoice_number || ""}`;
+                        const amount = Number(inv?.total_amount ?? inv?.sub_amount ?? 0);
+                        return { value: String(id), label: display, amount };
+                    });
+                    setInvoiceOptions(opts);
+                } else {
+                    setInvoiceOptions([]);
+                }
+            } catch (err) {
+                console.error("Error fetching invoice options", err);
+                setInvoiceOptions([]);
+            }
+        };
+
+        fetchInvoices();
+    }, [isOpen, user?.id, user?.role]);
 
     if (!isOpen) return null;
+
+    const selectedOption = invoiceOptions.find(opt => opt.value === selectedInvoice);
+    const displayAmount = totalAmount ?? selectedOption?.amount ?? "";
 
     const handleImageChange = (file) => {
         if (file) {
@@ -59,7 +98,8 @@ const PaymentModal = ({ isOpen, onClose, invoiceNumber, onSubmit, totalAmount })
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        onSubmit({ invoiceNumber: invoiceNumber || selectedInvoice, transactionId, image });
+        const invoiceVal = invoiceNumber || selectedInvoice;
+        onSubmit({ invoice_id: invoiceVal, image, amount: displayAmount });
     };
 
     return (
@@ -89,7 +129,7 @@ const PaymentModal = ({ isOpen, onClose, invoiceNumber, onSubmit, totalAmount })
                     <div className="mb-3">
                         <label className="form-label fw-semibold">Invoice Number</label>
                         <select
-                            value={invoiceNumber ? invoiceNumber : selectedInvoice}
+                            value={selectedInvoice}
                             onChange={e => setSelectedInvoice(e.target.value)}
                             className="form-select"
                             style={{ backgroundColor: '#f3f4f6' }}
@@ -106,7 +146,7 @@ const PaymentModal = ({ isOpen, onClose, invoiceNumber, onSubmit, totalAmount })
                         <label className="form-label fw-semibold">Total Amount</label>
                         <input
                             type="text"
-                            value={totalAmount}
+                            value={displayAmount}
                             readOnly
                             className="form-control"
                             required

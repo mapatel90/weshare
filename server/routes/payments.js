@@ -10,7 +10,7 @@ router.get('/', authenticateToken, async (req, res) => {
     const items = await prisma.payments.findMany({
       where: { is_deleted: 0 },
       orderBy: { id: 'desc' },
-      include: { users: true }
+      include: { users: true, invoices: { include: { projects: true } } }
     });
     res.json({ success: true, data: items });
   } catch (error) {
@@ -21,18 +21,28 @@ router.get('/', authenticateToken, async (req, res) => {
 // Create payment
 router.post('/', authenticateToken, async (req, res) => {
   try {
-    const { invoice_id, offtaker_id, amount, status } = req.body;
-    if (!offtaker_id) {
+    const { invoice_id, offtaker_id, ss_url, amount, status } = req.body;
+    if (!offtaker_id && invoice_id != "") {
       return res.status(400).json({ success: false, message: 'offtaker_id is required' });
     }
     const created = await prisma.payments.create({
       data: {
         invoice_id: parseInt(invoice_id ?? 0),
         offtaker_id: parseInt(offtaker_id),
-        amount: parseInt(amount),
+        ss_url: ss_url || '',
+        amount: parseFloat(amount) || 0,
         status: parseInt(status ?? 1)
       }
     });
+
+    // Update invoice status to 1 (paid) if invoice_id is provided
+    if (invoice_id) {
+      await prisma.invoices.update({
+        where: { id: parseInt(invoice_id) },
+        data: { status: 1 }
+      });
+    }
+
     res.json({ success: true, data: created });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Internal server error', error: error.message });
@@ -49,7 +59,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
       data: {
         ...(invoice_id !== undefined && { invoice_id: parseInt(invoice_id) }),
         ...(offtaker_id !== undefined && { offtaker_id: parseInt(offtaker_id) }),
-        ...(amount !== undefined && { amount: parseInt(amount) }),
+        ...(amount !== undefined && { amount: parseFloat(amount) }),
         ...(status !== undefined && { status: parseInt(status) })
       }
     });

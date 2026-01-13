@@ -4,10 +4,12 @@ import React, { useEffect, useMemo, useState } from 'react';
 import Table from "@/components/shared/table/Table";
 import { apiGet, apiPost } from '@/lib/api';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useAuth } from '@/contexts/AuthContext';
 
-const ProjectEnergyReport = () => {
+const ProjectEnvReport = () => {
     const PAGE_SIZE = 50;
     const { lang } = useLanguage();
+    const { user } = useAuth();
     const [loading, setLoading] = useState(true);
     const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
     const [search, setSearch] = useState('');
@@ -30,7 +32,7 @@ const ProjectEnergyReport = () => {
             setLoading(true);
             setError(null);
 
-            const res = await apiPost(`/api/projects/dropdown/project`);
+            const res = await apiPost("/api/projects/dropdown/project", { offtaker_id: user?.id });
 
             if (res && res.data) {
                 setProjects(res.data);
@@ -80,6 +82,8 @@ const ProjectEnergyReport = () => {
             if (endDate) {
                 params.append("endDate", endDate);
             }
+
+            params.append("offtaker_id", user?.id);
 
             const res = await apiPost(`/api/projects/report/project-energy-data?${params.toString()}`);
 
@@ -151,7 +155,7 @@ const ProjectEnergyReport = () => {
         {
             accessorKey: 'pv',
             header: 'PV',
-            cell: ({ row }) => row.original.pv || 'N/A',
+            cell: ({ row }) => row.original.pv || '0',
         },
         {
             accessorKey: 'grid',
@@ -161,7 +165,7 @@ const ProjectEnergyReport = () => {
         {
             accessorKey: 'load',
             header: 'Load',
-            cell: ({ row }) => row.original.load || 'N/A',
+            cell: ({ row }) => row.original.load || '0',
         },
     ], []);
 
@@ -262,8 +266,8 @@ const ProjectEnergyReport = () => {
 
     return (
         <>
-            <div className="p-6 bg-white rounded-xl shadow-md">
-                <div className="flex flex-row flex-wrap items-center justify-start md:justify-end gap-2 mb-4 mt-4">
+            <div className="p-6 bg-white rounded-3xl shadow-md">
+                <div className="d-flex items-center gap-2 mb-4 mt-4 w-full flex-wrap">
                     <select
                         id="projectFilter"
                         className="theme-btn-blue-color border rounded-md px-3 me-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
@@ -337,4 +341,4 @@ const ProjectEnergyReport = () => {
     );
 };
 
-export default ProjectEnergyReport;
+export default ProjectEnvReport;

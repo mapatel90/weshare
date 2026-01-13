@@ -138,34 +138,34 @@ export const menuList = [
     dropdownMenu: [
       {
         id: 1,
-        name: "Inverter evn",
+        name: "Inverter evn report",
         path: "/admin/reports/inverter-evn",
         subdropdownMenu: false,
       },
       {
         id: 2,
-        name: "Project day",
-        path: "/admin/reports/project-day",
+        name: "Project evn report",
+        path: "/admin/reports/project-env",
         subdropdownMenu: false,
       },
       {
         id: 3,
-        name: "roireports",
-        path: "/admin/reports/roi",
+        name: "Saving Report",
+        path: "/admin/reports/saving-report",
         subdropdownMenu: false,
       },
-      {
-        id: 4,
-        name: "cashflowreports",
-        path: "/admin/reports/cash-flow",
-        subdropdownMenu: false,
-      },
-      {
-        id: 5,
-        name: "Project energy",
-        path: "/admin/reports/project-energy",
-        subdropdownMenu: false,
-      },
+      // {
+      //   id: 3,
+      //   name: "roireports",
+      //   path: "/admin/reports/roi",
+      //   subdropdownMenu: false,
+      // },
+      // {
+      //   id: 4,
+      //   name: "cashflowreports",
+      //   path: "/admin/reports/cash-flow",
+      //   subdropdownMenu: false,
+      // },
     ],
   },
   {

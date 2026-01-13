@@ -995,7 +995,8 @@
     "selectOfftaker": "Chọn Offtaker",
     "amount": "Số tiền",
     "status": "Trạng thái",
-    "onlynumbers": "Chỉ cho phép nhập số (ví dụ: 123456)"
+    "onlynumbers": "Chỉ cho phép nhập số (ví dụ: 123456)",
+    "paymentlist": "Danh sách thanh toán"
   },
   "usersView": {
     "CreateUser": "Tạo người dùng",
@@ -1274,6 +1275,8 @@
       "payments": "Thanh toán",
       "notifications": "Thông báo",
       "reports": "Báo cáo",
+      "inverter_report": "Báo cáo Env biến tần",
+      "project_env_report":"Báo cáo môi trường dự án",
       "savingreports": "Báo cáo tiết kiệm",
       "conjunctionreports": "Báo cáo kết hợp",
       "contracts": "Hợp đồng",
