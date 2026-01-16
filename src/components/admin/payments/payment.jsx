@@ -3,31 +3,19 @@ import React, { useEffect, useMemo, useState } from 'react'
 import PageHeader from '@/components/shared/pageHeader/PageHeader'
 import DynamicTitle from '@/components/common/DynamicTitle'
 import { useLanguage } from '@/contexts/LanguageContext'
-import { apiGet, apiPost, apiPut, apiPatch } from '@/lib/api'
+import { apiGet, apiPost, apiUpload } from '@/lib/api'
 import Table from '@/components/shared/table/Table'
-import { FiEdit3, FiTrash2 } from 'react-icons/fi'
-import Swal from 'sweetalert2'
+import { FiImage } from 'react-icons/fi'
 import { showSuccessToast, showErrorToast } from '@/utils/topTost'
 import useOfftakerData from '@/hooks/useOfftakerData'
+import PaymentModal from '@/components/portal/billings/PaymentModal'
 import {
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    TextField,
-    Select,
-    MenuItem,
-    FormControl,
-    InputLabel,
-    FormHelperText,
     Button,
     Chip,
-    Box,
     IconButton,
     Typography,
     Stack,
 } from "@mui/material";
-import { Close as CloseIcon } from "@mui/icons-material";
 
 const PaymentsPage = () => {
     const { lang } = useLanguage()
@@ -35,34 +23,40 @@ const PaymentsPage = () => {
 
     const [items, setItems] = useState([])
     const [showModal, setShowModal] = useState(false)
-    const [modalType, setModalType] = useState('add') // add | edit
-    const [editId, setEditId] = useState(null)
-    // const [loading, setLoading] = useState(false)
-
     const [form, setForm] = useState({
         invoice_id: '',
         offtaker_id: '',
         amount: '',
+        ss_url: '',
         status: 1,
     })
-    const [formError, setFormError] = useState({ amount: '' })
 
-    const STATUS_OPTIONS = [
-        { label: lang('common.active', 'Active'), value: 1 },
-        { label: lang('common.inactive', 'Inactive'), value: 0 },
-    ]
 
-    // static invoice options
-    const INVOICE_OPTIONS = useMemo(() => ([
-        { label: 'INV-1001', value: 1001 },
-        { label: 'INV-1002', value: 1002 },
-        { label: 'INV-1003', value: 1003 },
-    ]), [])
 
     const fetchItems = async () => {
         try {
-            const res = await apiGet('/api/payments')
-            if (res?.success) setItems(res.data)
+            const res = await apiGet('/api/payments?page=1&pageSize=1000')
+            if (res?.success && Array.isArray(res?.data)) {
+                const formatted = res.data.map((payment) => ({
+                    id: payment.id,
+                    projectName: payment.invoices?.projects?.project_name || "N/A",
+                    invoiceNumber: payment.invoices?.invoice_number || "N/A",
+                    invoicePrefix: payment.invoices?.invoice_prefix || "",
+                    paymentDate: payment.created_at
+                        ? new Date(payment.created_at).toLocaleDateString("en-US")
+                        : "N/A",
+                    invoiceDate: payment.invoices?.invoice_date
+                        ? new Date(payment.invoices.invoice_date).toLocaleDateString("en-US")
+                        : "N/A",
+                    dueDate: payment.invoices?.due_date
+                        ? new Date(payment.invoices.due_date).toLocaleDateString("en-US")
+                        : "N/A",
+                    amount: payment.amount || 0,
+                    status: payment.status === 1 ? "Paid" : "Pending",
+                    ss_url: payment.ss_url || "",
+                }))
+                setItems(formatted)
+            }
         } catch (e) {
             // ignore
         }
@@ -71,134 +65,99 @@ const PaymentsPage = () => {
     useEffect(() => { fetchItems() }, [])
 
     const openAdd = () => {
-        setModalType('add')
-        setForm({ invoice_id: '', offtaker_id: '', amount: '', status: 1 })
-        setFormError({ amount: '' })
-        setEditId(null)
         setShowModal(true)
     }
-    const openEdit = (row) => {
-        setModalType('edit')
-        setForm({
-            invoice_id: row.invoice_id || '',
-            offtaker_id: row.offtaker_id || '',
-            amount: row.amount?.toString?.() || '',
-            status: row.status
-        })
-        setFormError({ amount: '' })
-        setEditId(row.id)
-        setShowModal(true)
+
+    const closeModal = () => {
+        setShowModal(false)
+        setForm({ invoice_id: '', offtaker_id: '', amount: '', ss_url: '', status: 1 })
     }
-    const closeModal = () => setShowModal(false)
 
     const handleSave = async (e) => {
         // e.preventDefault();
         
-        const errors = {};
-        const intRegex = /^\d+$/;
-        
-        // Validate required fields
-        if (!form.offtaker_id) {
-            errors.offtaker_id = lang('payments.offtakerRequired', 'Offtaker is required');
-        }
-        
-        if (!form.status && form.status !== 0) {
-            errors.status = lang('payments.statusRequired', 'Status is required');
-        }
-        
-        // If any errors found, show them and stop submission
-        if (Object.keys(errors).length > 0) {
-            setFormError(errors);
-            return;
-        }
-
-        // Clear previous errors and proceed
-        setFormError({});
-        // setLoading(true);
         try {
+            // Upload screenshot first
+            let ss_url = "";
+            if (form.image) {
+                const formData = new FormData();
+                formData.append("file", form.image);
+                formData.append("folder", "payment");
+
+                const uploadResponse = await apiUpload("/api/upload", formData);
+                if (uploadResponse?.success && uploadResponse?.data?.url) {
+                    ss_url = uploadResponse.data.url;
+                } else {
+                    throw new Error("Failed to upload screenshot");
+                }
+            }
+
             // Prepare payload with correct types
             const payload = {
                 invoice_id: form.invoice_id ? Number(form.invoice_id) : 0,
                 offtaker_id: Number(form.offtaker_id),
                 amount: Number(form.amount),
-                status: Number(form.status)
+                ss_url: ss_url || form.ss_url || '',
+                status: 1
             };
-            let res;
-            if (modalType === 'add') {
-                res = await apiPost('/api/payments', payload);
-                if (res?.success) {
-                    showSuccessToast(lang('payments.createdSuccessfully', 'Payment Created Successfully'));
-                }
-            } else {
-                res = await apiPut(`/api/payments/${editId}`, payload);
-                if (res?.success) {
-                    showSuccessToast(lang('payments.updatedSuccessfully', 'Payment Updated Successfully'));
-                }
-            }
 
+            const res = await apiPost('/api/payments', payload);
             if (res?.success) {
+                showSuccessToast(lang('payments.createdSuccessfully', 'Payment Created Successfully'));
                 closeModal();
                 await fetchItems();
             } else {
                 showErrorToast(res?.message || lang('payments.errorOccurred', 'An error occurred. Please try again.'));
             }
         } catch (err) {
-            alert('error');
             showErrorToast(err?.message || lang('payments.errorOccurred', 'An error occurred. Please try again.'));
         }
     };
 
-    const handleDelete = async (row) => {
-        const confirm = await Swal.fire({
-            icon: 'warning',
-            title: lang('common.areYouSure', 'Are you sure?'),
-            text: lang('modal.deleteWarning', 'This action cannot be undone!'),
-            showCancelButton: true,
-            confirmButtonText: lang('common.yesDelete', 'Yes, delete it!'),
-            confirmButtonColor: '#d33',
-        })
-        if (confirm.isConfirmed) {
-            const res = await apiPatch(`/api/payments/${row.id}/soft-delete`, {})
-            if (res?.success) {
-                showSuccessToast(lang('payments.deletedSuccessfully', 'Payment Deleted Successfully'))
-                fetchItems()
-            } else {
-                showErrorToast(res?.message || lang('payments.errorOccurred', 'An error occurred. Please try again.'))
-            }
-        }
-    }
 
     const columns = [
         {
-            accessorKey: 'invoice_id',
-            header: () => lang('payments.invoice', 'Invoice'),
-            cell: info => {
-                const id = info.getValue()
-                const match = INVOICE_OPTIONS.find(o => o.value == id)
-                return match ? match.label : id || '-'
-            }
+            accessorKey: 'projectName',
+            header: () => 'Project Name',
+            cell: info => info.getValue() || 'N/A'
         },
         {
-            accessorKey: 'offtaker',
-            header: () => lang('payments.offtaker', 'Offtaker'),
+            accessorKey: 'invoiceNumber',
+            header: () => 'Invoice',
             cell: ({ row }) => {
-                const user = row.original?.users
-                return user ? `${user.full_name}` : '-'
+                const prefix = row.original?.invoicePrefix || ""
+                const number = row.original?.invoiceNumber || "N/A"
+                return `${prefix}${prefix ? '-' : ''}${number}`
             }
         },
         {
             accessorKey: 'amount',
-            header: () => lang('payments.amount', 'Amount'),
-            cell: info => info.getValue()
+            header: () => 'Amount',
+            cell: info => info.getValue() || 0
+        },
+        {
+            accessorKey: 'invoiceDate',
+            header: () => 'Invoice Date',
+            cell: info => info.getValue() || 'N/A'
+        },
+        {
+            accessorKey: 'dueDate',
+            header: () => 'Due Date',
+            cell: info => info.getValue() || 'N/A'
+        },
+        {
+            accessorKey: 'paymentDate',
+            header: () => 'Payment Date',
+            cell: info => info.getValue() || 'N/A'
         },
         {
             accessorKey: 'status',
-            header: () => lang('payments.status', 'Status'),
+            header: () => 'Status',
             cell: info => {
                 const status = info.getValue();
                 const config = {
-                    1: { label: lang('common.active', 'Active'), color: '#17c666' },
-                    0: { label: lang('common.inactive', 'Inactive'), color: '#ea4d4d' },
+                    'Paid': { label: 'Paid', color: '#17c666' },
+                    'Pending': { label: 'Pending', color: '#ea4d4d' },
                 }[status] || { label: String(status ?? '-'), color: '#999' };
                 return (
                     <Chip
@@ -218,46 +177,22 @@ const PaymentsPage = () => {
             }
         },
         {
-            accessorKey: 'actions',
-            header: () => lang('common.actions', 'Actions'),
+            accessorKey: 'ss_url',
+            header: () => 'Screenshot',
             cell: ({ row }) => {
-                const item = row.original
-                return (
-                    <Stack direction="row" spacing={1} sx={{ flexWrap: 'nowrap' }}>
-                        <IconButton
-                            size="small"
-                            onClick={() => openEdit(item)}
-                            title={lang('common.edit', 'Edit')}
-                            sx={{
-                                color: '#1976d2',
-                                transition: 'transform 0.2s ease',
-                                '&:hover': {
-                                    backgroundColor: 'rgba(25, 118, 210, 0.08)',
-                                    transform: 'scale(1.1)',
-                                },
-                            }}
+                const ss_url = row.original?.ss_url
+                return ss_url ? (
+                    <button
+                        onClick={() => window.open(ss_url, '_blank', 'noopener,noreferrer')}
+                        title="View Screenshot"
+                        className="btn text-blue-600 hover:text-blue-800"
                         >
-                            <FiEdit3 size={18} />
-                        </IconButton>
-                        <IconButton
-                            size="small"
-                            onClick={() => handleDelete(item)}
-                            title={lang('common.delete', 'Delete')}
-                            sx={{
-                                color: '#d32f2f',
-                                transition: 'transform 0.2s ease',
-                                '&:hover': {
-                                    backgroundColor: 'rgba(211, 47, 47, 0.08)',
-                                    transform: 'scale(1.1)',
-                                },
-                            }}
-                        >
-                            <FiTrash2 size={18} />
-                        </IconButton>
-                    </Stack>
+                        <FiImage size={18} />
+                    </button>
+                ) : (
+                    <span className="text-gray-400">No Screenshot</span>
                 )
-            },
-            meta: { disableSort: true }
+            }
         }
     ]
 
@@ -276,101 +211,11 @@ const PaymentsPage = () => {
                 </div>
             </div>
 
-            <Dialog
-                open={showModal}
+            <PaymentModal
+                isOpen={showModal}
                 onClose={closeModal}
-                maxWidth="sm"
-                fullWidth
-                PaperProps={{
-                    sx: {
-                        borderRadius: 2,
-                    },
-                }}
-            >
-                <form onSubmit={handleSave}>
-                    <DialogTitle
-                        sx={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            pb: 1,
-                        }}
-                    >
-                        <Typography variant="h6" component="span">
-                            {modalType === 'edit'
-                                ? lang('payments.editPayment', 'Edit Payment')
-                                : lang('payments.addPayment', 'Add Payment')}
-                        </Typography>
-                        <IconButton
-                            aria-label="close"
-                            onClick={closeModal}
-                            sx={{
-                                color: (theme) => theme.palette.grey[500],
-                            }}
-                        >
-                            <CloseIcon />
-                        </IconButton>
-                    </DialogTitle>
-                    <DialogContent>
-                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, pt: 2 }}>
-                            <FormControl fullWidth>
-                                <InputLabel id="invoice-select-label">{lang('payments.invoice', 'Invoice')}</InputLabel>
-                                <Select
-                                    labelId="invoice-select-label"
-                                    value={form.invoice_id}
-                                    label={lang('payments.invoice', 'Invoice')}
-                                    onChange={(e) => setForm({ ...form, invoice_id: e.target.value })}
-                                >
-                                    <MenuItem value="">{lang('payments.selectInvoice', 'Select Invoice')}</MenuItem>
-                                    {INVOICE_OPTIONS.map(opt => (
-                                        <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
-                                    ))}
-                                </Select>
-                            </FormControl>
-
-                            <FormControl fullWidth error={!!formError.offtaker_id}>
-                                <InputLabel id="offtaker-select-label">{lang('payments.offtaker', 'Offtaker')} *</InputLabel>
-                                <Select
-                                    labelId="offtaker-select-label"
-                                    value={form.offtaker_id}
-                                    label={`${lang('payments.offtaker', 'Offtaker')} *`}
-                                    onChange={(e) => setForm({ ...form, offtaker_id: e.target.value })}
-                                    disabled={loadingOfftakers}
-                                >
-                                    <MenuItem value="">{lang('payments.selectOfftaker', 'Select Offtaker')}</MenuItem>
-                                    {offtakers.map(o => (
-                                        <MenuItem key={o.id} value={o.id}>{o.full_name}</MenuItem>
-                                    ))}
-                                </Select>
-                                {formError.offtaker_id && <FormHelperText>{formError.offtaker_id}</FormHelperText>}
-                            </FormControl>
-
-                            <FormControl fullWidth error={!!formError.status}>
-                                <InputLabel id="status-select-label">{lang('common.status', 'Status')} *</InputLabel>
-                                <Select
-                                    labelId="status-select-label"
-                                    value={form.status}
-                                    label={`${lang('common.status', 'Status')} *`}
-                                    onChange={(e) => setForm({ ...form, status: parseInt(e.target.value) })}
-                                >
-                                    {STATUS_OPTIONS.map(opt => (
-                                        <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
-                                    ))}
-                                </Select>
-                                {formError.status && <FormHelperText>{formError.status}</FormHelperText>}
-                            </FormControl>
-                        </Box>
-                    </DialogContent>
-                    <DialogActions sx={{ px: 3, pb: 2.5 }}>
-                        <Button onClick={closeModal} color="error" variant="outlined" className="custom-orange-outline">
-                            {lang('common.cancel', 'Cancel')}
-                        </Button>
-                        <Button onClick={handleSave} variant="contained" className="common-grey-color">
-                            {lang('common.save', 'Save')}
-                        </Button>
-                    </DialogActions>
-                </form>
-            </Dialog>
+                onSubmit={handleSave}
+            />
         </>
     )
 }

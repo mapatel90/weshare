@@ -4,15 +4,93 @@ import { authenticateToken } from '../middleware/auth.js';
 
 const router = express.Router();
 
-// List payments (exclude soft-deleted)
+// List payments (exclude soft-deleted) with search and date filters
 router.get('/', authenticateToken, async (req, res) => {
   try {
+    const { search = '', paymentDate = '', projectId = '', status = '', page = 1, pageSize = 10 } = req.query;
+    const pageNum = parseInt(page);
+    const limit = parseInt(pageSize);
+    const skip = (pageNum - 1) * limit;
+
+    // Build search condition
+    const searchAmount = parseFloat(search);
+    const searchCondition = search
+      ? {
+          OR: [
+            { invoices: { invoice_number: { contains: search } } },
+            { invoices: { invoice_prefix: { contains: search } } },
+            { invoices: { projects: { project_name: { contains: search } } } },
+            ...((!isNaN(searchAmount)) ? [{ amount: searchAmount }] : [])
+          ]
+        }
+      : {};
+
+    // Build date condition for specific payment date
+    const dateCondition = {};
+    if (paymentDate) {
+      const startTs = new Date(`${paymentDate}T00:00:00`).getTime();
+      const endTs = new Date(`${paymentDate}T23:59:59`).getTime();
+      dateCondition.created_at = {
+        gte: new Date(startTs),
+        lte: new Date(endTs)
+      };
+    }
+
+    // Build project condition
+    const projectCondition = projectId ? { invoices: { project_id: parseInt(projectId) } } : {};
+
+    // Build status condition
+    const statusCondition = status !== '' ? { status: parseInt(status) } : {};
+
+    const whereClause = {
+      is_deleted: 0,
+      ...searchCondition,
+      ...dateCondition,
+      ...projectCondition,
+      ...statusCondition
+    };
+
+    // Get total count for pagination
+    const totalCount = await prisma.payments.count({ where: whereClause });
+
+    // Get paginated items
     const items = await prisma.payments.findMany({
-      where: { is_deleted: 0 },
+      where: whereClause,
       orderBy: { id: 'desc' },
+      include: { users: true, invoices: { include: { projects: true } } },
+      skip,
+      take: limit
+    });
+
+    res.json({ 
+      success: true, 
+      data: items,
+      pagination: {
+        page: pageNum,
+        pageSize: limit,
+        totalCount,
+        totalPages: Math.ceil(totalCount / limit)
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Internal server error', error: error.message });
+  }
+});
+
+// Get single payment by ID (with relations)
+router.get('/:id', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const item = await prisma.payments.findFirst({
+      where: { id: parseInt(id), is_deleted: 0 },
       include: { users: true, invoices: { include: { projects: true } } }
     });
-    res.json({ success: true, data: items });
+
+    if (!item) {
+      return res.status(404).json({ success: false, message: 'Payment not found' });
+    }
+
+    res.json({ success: true, data: item });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Internal server error', error: error.message });
   }
