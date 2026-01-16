@@ -435,7 +435,13 @@ const InverterEnvReport = () => {
           >
             <option value="">{lang("reports.allinverters")}</option>
 
-            {sortByNameAsc(inverterList,"name") .map((i) => (
+            {[...inverterList]
+              .sort((a, b) => {
+                const nameA = (a.inverter_name ?? a.name ?? "").toLowerCase();
+                const nameB = (b.inverter_name ?? b.name ?? "").toLowerCase();
+                return nameA.localeCompare(nameB);
+              })
+              .map((i) => (
                 <option key={i.id} value={i.id}>
                   {i.inverter_name ?? i.name ?? `Inverter ${i.id}`}
                 </option>
