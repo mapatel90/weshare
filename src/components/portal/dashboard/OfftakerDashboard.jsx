@@ -843,7 +843,7 @@ function DashboardView() {
       {/* Dashboard */}
       <div className="dashboard-row">
         <div className="chart-card">
-          <div className="card-header">
+          <div className="card-header" style={{ marginBottom: '10px' }}>
             <div className="card-title">Savings Tracker</div>
             <div className="tabs">
               <button
@@ -878,7 +878,7 @@ function DashboardView() {
             </div>
           </div>
           <p
-            style={{ color: "#6b7280", fontSize: "13px", marginBottom: "20px" }}
+            style={{ color: "#6b7280", fontSize: "13px", marginBottom: '10px' }}
           >
             electricity cost comparison between EVN and WeShare with savings analysis
           </p>

@@ -161,7 +161,7 @@ const ElectricityCostOverviewChart = ({
         <>
             <style jsx>{`
                 .date-picker-wrapper {
-                    margin-bottom: ${isMobile ? '8px' : '16px'};
+                    margin-bottom: ${isMobile ? '8px' : '0px'};
                     width: ${isMobile ? '100%' : '200px'};
                 }
                 .date-picker-wrapper :global(.react-datepicker-wrapper) {
@@ -182,7 +182,7 @@ const ElectricityCostOverviewChart = ({
                 }
             `}</style>
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 45 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 0 }}>
                 {/* {!selectedInverterId && (
                     <div
                         style={{

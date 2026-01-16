@@ -435,9 +435,9 @@ const ProjectOverviewChart = ({ projectId, readings = [], loading = false, selec
                     dataKey={s.key}
                     stroke={s.stroke}
                     strokeWidth={isMobile ? (s.key === 'pv' ? 2 : 1.5) : (s.key === 'pv' ? 2.5 : 2)}
-                    dot={isMobile ? false : { r: 3 }}
+                    dot={false}
                     name={s.name}
-                    activeDot={isMobile ? false : { r: 5 }}
+                    activeDot={false}
                     isAnimationActive={false}
                     connectNulls
                     strokeOpacity={0.95}

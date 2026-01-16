@@ -580,9 +580,9 @@ const PowerConsumptionDashboard = ({ projectId, readings = [], loading = false, 
                     dataKey={s.key}
                     stroke={s.color}
                     strokeWidth={isMobile ? 2 : 2.5}
-                    dot={isMobile ? false : { r: 3 }}
+                    dot={false}
                     name={s.name}
-                    activeDot={isMobile ? false : { r: 5 }}
+                    activeDot={false}
                     isAnimationActive={false}
                     connectNulls={true}
                     fill="none"
