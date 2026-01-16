@@ -96,7 +96,7 @@ const ElectricityCostBarChart = ({
       `}</style>
             <div style={{
                 width: '100%',
-                height: isMobile ? 400 : isTablet ? 450 : 500,
+                height: isMobile ? 400 : isTablet ? 450 : 400,
                 overflowX: isMobile || isTablet ? 'auto' : 'visible'
             }}>
                 <div className="picker-wrapper">
