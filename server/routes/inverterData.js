@@ -129,18 +129,22 @@ router.get("/", async (req, res) => {
     }
 
     // Fetch records: fetch all by default or cap to provided limit
-    const inverterData = await prisma.inverter_data.findMany({
-      where: effectiveWhere,
-      orderBy: { date: "desc" },
-      // distinct: ["inverter_id", "date"],
-      include: {
-        projects: true,
-        project_inverters: true,
-      },
-      skip: fetchAll ? 0 : (pageNumber - 1) * limitNumber,
-      take: fetchAll ? undefined : limitNumber,
-    });
-
+    let inverterData = [];
+    if (projectId && inverterId) {
+      inverterData = await prisma.inverter_data.findMany({
+        where: effectiveWhere,
+        orderBy: { date: "desc" },
+        include: {
+          projects: true,
+          project_inverters: true,
+        },
+        skip: fetchAll ? 0 : (pageNumber - 1) * limitNumber,
+        take: fetchAll ? undefined : limitNumber,
+      });
+    } else {
+      inverterData = []; 
+    }
+    
     const effectiveLimit = fetchAll ? totalCount : limitNumber;
     const returnedCount = fetchAll
       ? totalCount
@@ -178,9 +182,9 @@ router.get("/", async (req, res) => {
         page: pageNumber,
         limit: fetchAll ? totalCount : effectiveLimit,
         total: totalCount,
-          pages: fetchAll
-            ? 1
-            : Math.max(1, Math.ceil(totalCount / pageSize || 1)),
+        pages: fetchAll
+          ? 1
+          : Math.max(1, Math.ceil(totalCount / pageSize || 1)),
       },
     });
   } catch (error) {
@@ -469,7 +473,7 @@ router.post("/monthly-chart", async (req, res) => {
     // If projectInverterId is provided, filter by that inverter
     // If not provided (null/empty), show all inverters for the project
     if (projectInverterId) {
-      where.project_inverter_id  = Number(projectInverterId);
+      where.project_inverter_id = Number(projectInverterId);
     }
 
     // Fetch all data matching the criteria with inverter and project_inverters relations

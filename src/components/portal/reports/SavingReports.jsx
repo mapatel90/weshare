@@ -25,12 +25,13 @@ const SavingReports = () => {
     pages: 0,
   });
   const [pageIndex, setPageIndex] = useState(0);
-  const [startDate, setStartDate] = useState(""); // YYYY-MM-DD
-  const [endDate, setEndDate] = useState(""); // YYYY-MM-DD
-
-  // Dropdown lists
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [projectList, setProjectList] = useState([]);
-  const [inverterList, setInverterList] = useState([]);
+  const [appliedProject, setAppliedProject] = useState("");
+  const [appliedStartDate, setAppliedStartDate] = useState("");
+  const [appliedEndDate, setAppliedEndDate] = useState("");
+  const isSubmitDisabled = !projectFilter;
 
   const fetch_project_list = async () => {
     try {
@@ -48,9 +49,10 @@ const SavingReports = () => {
       setLoading(true);
       setError(null);
 
-      if (startDate && endDate) {
-        const startTs = new Date(`${startDate}T00:00:00`);
-        const endTs = new Date(`${endDate}T23:59:59`);
+      // Use applied filters (only fetch when submit is clicked)
+      if (appliedStartDate && appliedEndDate) {
+        const startTs = new Date(`${appliedStartDate}T00:00:00`);
+        const endTs = new Date(`${appliedEndDate}T23:59:59`);
         if (startTs > endTs) {
           setError("Start date cannot be after end date.");
           setLoading(false);
@@ -59,14 +61,18 @@ const SavingReports = () => {
         }
       }
 
+      // Don't fetch if no project is selected/applied
+      if (!appliedProject) {
+        setLoading(false);
+        return;
+      }
+
       const params = new URLSearchParams({
         page: String(pageIndex + 1),
         limit: String(PAGE_SIZE),
       });
 
-      if (projectFilter) {
-        params.append("projectId", projectFilter);
-      }
+      params.append("projectId", appliedProject);
 
       // Add searchTerm for server-side search
       if (searchTerm) {
@@ -74,11 +80,11 @@ const SavingReports = () => {
       }
 
       // Add date range filters (inclusive)
-      if (startDate) {
-        params.append("startDate", startDate);
+      if (appliedStartDate) {
+        params.append("startDate", appliedStartDate);
       }
-      if (endDate) {
-        params.append("endDate", endDate);
+      if (appliedEndDate) {
+        params.append("endDate", appliedEndDate);
       }
 
       params.append("offtaker_id", user?.id);
@@ -107,7 +113,7 @@ const SavingReports = () => {
     } finally {
       setLoading(false);
     }
-  }, [pageIndex, projectFilter, startDate, endDate, searchTerm]);
+  }, [pageIndex, appliedProject, appliedStartDate, appliedEndDate, searchTerm, user?.id]);
 
   const handleSearchChange = (value) => {
     setPageIndex(0);
@@ -119,6 +125,15 @@ const SavingReports = () => {
       ? nextPagination({ pageIndex, pageSize: PAGE_SIZE })
       : nextPagination;
     setPageIndex(updated.pageIndex || 0);
+  };
+
+  const handleSubmit = () => {
+    // Apply the filters and reset to first page
+    setAppliedProject(projectFilter);
+    setAppliedStartDate(startDate);
+    setAppliedEndDate(endDate);
+    setPageIndex(0);
+    setSearchTerm(""); // Reset search on submit
   };
 
   const columns = useMemo(() => [
@@ -197,21 +212,22 @@ const SavingReports = () => {
       setLoading(true);
 
       // Build params for CSV export (fetch all data, no pagination)
+      // Use applied filters for CSV export
       const params = new URLSearchParams();
 
-      if (projectFilter) {
-        params.append("projectId", projectFilter);
+      if (appliedProject) {
+        params.append("projectId", appliedProject);
       }
 
       if (searchTerm) {
         params.append("search", searchTerm);
       }
 
-      if (startDate) {
-        params.append("startDate", startDate);
+      if (appliedStartDate) {
+        params.append("startDate", appliedStartDate);
       }
-      if (endDate) {
-        params.append("endDate", endDate);
+      if (appliedEndDate) {
+        params.append("endDate", appliedEndDate);
       }
 
       // Fetch all data for CSV (set a high limit or fetch without pagination)
@@ -278,12 +294,12 @@ const SavingReports = () => {
 
         // Generate filename with date range if applicable
         let filename = 'project_day_report';
-        if (startDate && endDate) {
-          filename += `_${startDate}_to_${endDate}`;
-        } else if (startDate) {
-          filename += `_from_${startDate}`;
-        } else if (endDate) {
-          filename += `_until_${endDate}`;
+        if (appliedStartDate && appliedEndDate) {
+          filename += `_${appliedStartDate}_to_${appliedEndDate}`;
+        } else if (appliedStartDate) {
+          filename += `_from_${appliedStartDate}`;
+        } else if (appliedEndDate) {
+          filename += `_until_${appliedEndDate}`;
         }
         filename += `_${new Date().toISOString().split('T')[0]}.csv`;
 
@@ -309,9 +325,13 @@ const SavingReports = () => {
   }, []);
 
 
+  // Only fetch when applied filters change or page/search changes
   useEffect(() => {
-    fetchReports();
-  }, [fetchReports, hasLoadedOnce]);
+    // Only fetch if a project has been applied (after submit)
+    if (appliedProject) {
+      fetchReports();
+    }
+  }, [fetchReports]);
 
 
   return (
@@ -348,6 +368,14 @@ const SavingReports = () => {
             placeholder={lang("common.endDate") || "End Date"}
           />
 
+          <button
+            onClick={handleSubmit}
+            disabled={isSubmitDisabled}
+            className={`theme-btn-blue-color border rounded-md px-4 py-2 text-sm ${isSubmitDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
+          >
+            Submit
+          </button>
+
         </div>
 
         <button
@@ -359,32 +387,20 @@ const SavingReports = () => {
       </div>
 
       <div className="overflow-x-auto relative">
-        {!hasLoadedOnce && loading && (
-          <div className="text-center py-6 text-gray-600">Loading...</div>
-        )}
-
         {error && <div className="text-red-600">Error: {error}</div>}
-
-        {hasLoadedOnce && (
-          <>
-            <Table
-              data={reportsData}
-              columns={columns}
-              disablePagination={false}
-              onSearchChange={handleSearchChange}
-              onPaginationChange={handlePaginationChange}
-              pageIndex={pageIndex}
-              pageSize={PAGE_SIZE}
-              serverSideTotal={pagination.total}
-              initialPageSize={PAGE_SIZE}
-            />
-            {loading && (
-              <div className="absolute inset-0 bg-white/70 flex items-center justify-center text-gray-600">
-                Refreshing...
-              </div>
-            )}
-          </>
-        )}
+        <>
+          <Table
+            data={reportsData}
+            columns={columns}
+            disablePagination={false}
+            onSearchChange={handleSearchChange}
+            onPaginationChange={handlePaginationChange}
+            pageIndex={pageIndex}
+            pageSize={PAGE_SIZE}
+            serverSideTotal={pagination.total}
+            initialPageSize={PAGE_SIZE}
+          />
+        </>
       </div>
     </div>
   );
