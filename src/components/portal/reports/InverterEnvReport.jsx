@@ -30,7 +30,7 @@ const InverterEnvReport = () => {
 
   const [appliedProject, setAppliedProject] = useState("");
   const [appliedInverter, setAppliedInverter] = useState("");
-  const isSubmitDisabled = !projectFilter || !inverterFilter;
+  const isSubmitDisabled = !projectFilter;
 
 
   // -----------------------------
@@ -222,7 +222,7 @@ const InverterEnvReport = () => {
 
 
   const handleSubmit = () => {
-    if (!projectFilter || !inverterFilter) {
+    if (!projectFilter) {
       alert("Please select both Project and Inverter");
       return;
     }
@@ -236,7 +236,7 @@ const InverterEnvReport = () => {
   };
 
   useEffect(() => {
-    if (!appliedProject || !appliedInverter) return;
+    if (!appliedProject) return;
 
     fetchReports();
 
@@ -416,7 +416,7 @@ const InverterEnvReport = () => {
             ))}
           </select>
 
-          <select
+          {/* <select
             value={inverterFilter}
             onChange={(e) => setInverterFilter(e.target.value)}
             className="theme-btn-blue-color border rounded-md px-3 py-2 me-2 text-sm"
@@ -427,6 +427,19 @@ const InverterEnvReport = () => {
                 {i.inverter_name ?? i.name ?? `Inverter ${i.id}`}
               </option>
             ))}
+          </select> */}
+          <select
+            value={inverterFilter}
+            onChange={(e) => setInverterFilter(e.target.value)}
+            className="theme-btn-blue-color border rounded-md px-3 py-2 me-2 text-sm"
+          >
+            <option value="">{lang("reports.allinverters")}</option>
+
+            {sortByNameAsc(inverterList,"name") .map((i) => (
+                <option key={i.id} value={i.id}>
+                  {i.inverter_name ?? i.name ?? `Inverter ${i.id}`}
+                </option>
+              ))}
           </select>
 
           <button

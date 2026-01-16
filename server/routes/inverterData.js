@@ -130,7 +130,7 @@ router.get("/", async (req, res) => {
 
     // Fetch records: fetch all by default or cap to provided limit
     let inverterData = [];
-    if (projectId && inverterId) {
+    if (projectId) {
       inverterData = await prisma.inverter_data.findMany({
         where: effectiveWhere,
         orderBy: { date: "desc" },

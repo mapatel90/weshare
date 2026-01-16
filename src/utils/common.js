@@ -202,3 +202,16 @@ export const useDarkMode = () => {
 
   return isDark;
 };
+
+
+export const sortByNameAsc = (list = [], key = "name") => {
+  return [...list].sort((a, b) => {
+    const nameA = String(a?.[key] ?? "").toLowerCase();
+    const nameB = String(b?.[key] ?? "").toLowerCase();
+
+    return nameA.localeCompare(nameB, undefined, {
+      numeric: true,
+      sensitivity: "base",
+    });
+  });
+};
