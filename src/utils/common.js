@@ -215,3 +215,25 @@ export const sortByNameAsc = (list = [], key = "name") => {
     });
   });
 };
+
+
+export const formatMonthYear = (value) => {
+  if (!value) return "N/A";
+
+  if (/^\d{2}\/\d{4}$/.test(value)) return value;
+
+  if (/^[A-Za-z]+ \d{4}$/.test(value)) {
+    const [m, y] = value.split(" ");
+    const map = {
+      January: "01", February: "02", March: "03", April: "04",
+      May: "05", June: "06", July: "07", August: "08",
+      September: "09", October: "10", November: "11", December: "12",
+    };
+    return `${map[m]}/${y}`;
+  }
+
+  const d = new Date(value);
+  if (isNaN(d)) return "N/A";
+  return `${String(d.getMonth() + 1).padStart(2, "0")}/${d.getFullYear()}`;
+};
+
