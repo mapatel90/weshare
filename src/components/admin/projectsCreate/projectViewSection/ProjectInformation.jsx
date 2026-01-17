@@ -149,7 +149,7 @@ const ProjectInformation = ({ project = {}, isDark = false }) => {
           </div>
 
           {/* BOTTOM: Last 3 Cards (Country, State, City) - Full Width Below Image */}
-          <div className="col-12 mt-0">
+          <div className="col-12 mt-1">
             <div className="row g-3">
               <div className="col-lg-4 col-md-4 col-sm-12">
                 <InfoCard icon={DollarSign} label={lang('projectView.projectInformation.investor_profit', 'Investor Profit')} value={`${project.investor_profit}%`} color={getAutoRandomColor()} isDark={isDark} />

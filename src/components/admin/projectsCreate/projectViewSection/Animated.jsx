@@ -1406,7 +1406,7 @@ export default function SolarEnergyFlow({
               {lang("inverter.noinverterfound", "No inverters found")}
             </div>
           ) : (
-            sortByNameAsc(displayInverters, "inverter_name").map((inverter) => (
+            sortByNameAsc( displayInverters,displayInverters[0]?.inverter_name ? "inverter_name" : "name").map((inverter) => (
               <div
                 key={inverter.id}
                 style={{
