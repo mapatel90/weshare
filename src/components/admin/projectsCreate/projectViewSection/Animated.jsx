@@ -9,6 +9,7 @@ import {
   FiTrendingUp,
 } from "react-icons/fi";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { sortByNameAsc } from "@/utils/common";
 
 export default function SolarEnergyFlow({
   inverters = [],
@@ -80,9 +81,8 @@ export default function SolarEnergyFlow({
 
   const Arrow = ({ path, color, scale = 1 }) => (
     <path
-      d={`M${-4 * scale},${-8 * scale} L${4 * scale},0 L${-4 * scale},${
-        8 * scale
-      } Z`}
+      d={`M${-4 * scale},${-8 * scale} L${4 * scale},0 L${-4 * scale},${8 * scale
+        } Z`}
       fill={color}
     >
       <animateMotion dur="3s" repeatCount="indefinite" rotate="auto">
@@ -196,8 +196,8 @@ export default function SolarEnergyFlow({
               {(project?.project_data?.[0]?.epm_type !== 1
                 ? project?.project_data?.[0]?.generator_power > 0
                 : project?.project_data?.[0]?.family_load_power > 0) && (
-                <Arrow path="#consumePath" color="#FB923C" />
-              )}
+                  <Arrow path="#consumePath" color="#FB923C" />
+                )}
             </g>
 
             {project?.project_data?.[0]?.epm_type !== 1 && (
@@ -217,7 +217,7 @@ export default function SolarEnergyFlow({
                 />
                 {project?.project_data?.[0]?.family_load_power &&
                   Math.abs(project?.project_data?.[0]?.family_load_power) >
-                    0 && (
+                  0 && (
                     <Arrow path="#inverterToGridLoadPath" color="#8da094ff" />
                   )}
               </g>
@@ -572,9 +572,9 @@ export default function SolarEnergyFlow({
                 fontWeight: 600,
               }}
             >
-                {project?.project_data?.[0]?.epm_type !== 1
-                  ? lang("animated.backupload")
-                  : lang("animated.consumed", "Consumed")}
+              {project?.project_data?.[0]?.epm_type !== 1
+                ? lang("animated.backupload")
+                : lang("animated.consumed", "Consumed")}
             </div>
           </div>
         </div>
@@ -590,12 +590,12 @@ export default function SolarEnergyFlow({
           screenSize === "pc"
             ? "1100px 1fr"
             : screenSize === "laptop"
-            ? "1fr"
-            : screenSize === "tablet"
-            ? "1fr"
-            : screenSize === "mobile"
-            ? "repeat(auto-fit, minmax(300px, 1fr))"
-            : "1fr",
+              ? "1fr"
+              : screenSize === "tablet"
+                ? "1fr"
+                : screenSize === "mobile"
+                  ? "repeat(auto-fit, minmax(300px, 1fr))"
+                  : "1fr",
         gap: "24px",
         marginBottom: "24px",
         width: "100%",
@@ -660,9 +660,8 @@ export default function SolarEnergyFlow({
                   padding: isSmallScreen ? 12 : 15,
                   borderRadius: 50,
                   background: isDark ? "rgba(254, 243, 199, 0.1)" : "#FFFBEB",
-                  border: `1px solid ${
-                    isDark ? "rgba(250, 204, 21, 0.3)" : "#FDE68A"
-                  }`,
+                  border: `1px solid ${isDark ? "rgba(250, 204, 21, 0.3)" : "#FDE68A"
+                    }`,
                   display: "flex",
                   alignItems: "center",
                   gap: isSmallScreen ? 8 : 12,
@@ -737,7 +736,7 @@ export default function SolarEnergyFlow({
                     border: `1px solid ${
                       // isDark ? "rgba(34, 197, 94, 0.3)" : "#86EFAC"
                       isDark ? "rgba(34, 197, 94, 0.3)" : "#93C5FD"
-                    }`,
+                      }`,
                     display: "flex",
                     alignItems: "center",
                     gap: isSmallScreen ? 8 : 12,
@@ -856,9 +855,8 @@ export default function SolarEnergyFlow({
                   padding: isSmallScreen ? 12 : 15,
                   borderRadius: 50,
                   background: isDark ? "rgba(254, 202, 202, 0.1)" : "#FEF2F2",
-                  border: `1px solid ${
-                    isDark ? "rgba(248, 113, 113, 0.3)" : "#FECACA"
-                  }`,
+                  border: `1px solid ${isDark ? "rgba(248, 113, 113, 0.3)" : "#FECACA"
+                    }`,
                   display: "flex",
                   alignItems: "center",
                   gap: isSmallScreen ? 8 : 12,
@@ -937,27 +935,27 @@ export default function SolarEnergyFlow({
                     screenSize === "tablet"
                       ? 345
                       : screenSize === "laptop" || screenSize === "pc"
-                      ? 530
-                      : 530,
+                        ? 530
+                        : 530,
                   top:
                     screenSize === "tablet"
                       ? 125
                       : screenSize === "laptop" || screenSize === "pc"
-                      ? 225
-                      : 225,
+                        ? 225
+                        : 225,
                   transform: "translate(-50%)",
                   height:
                     screenSize === "tablet"
                       ? 55
                       : screenSize === "laptop" || screenSize === "pc"
-                      ? 85
-                      : 85,
+                        ? 85
+                        : 85,
                   width:
                     screenSize === "tablet"
                       ? 55
                       : screenSize === "laptop" || screenSize === "pc"
-                      ? 85
-                      : 85,
+                        ? 85
+                        : 85,
                   borderRadius: "50%",
                   border: "2px solid #FB923C",
                   display: "flex",
@@ -983,26 +981,25 @@ export default function SolarEnergyFlow({
                       screenSize === "tablet"
                         ? 432
                         : screenSize === "laptop" || screenSize === "pc"
-                        ? 615
-                        : 615,
+                          ? 615
+                          : 615,
                     top:
                       screenSize === "tablet"
                         ? 128
                         : screenSize === "laptop" || screenSize === "pc"
-                        ? 220
-                        : 220,
+                          ? 220
+                          : 220,
                     width:
                       screenSize === "tablet"
                         ? 220
                         : screenSize === "laptop" || screenSize === "pc"
-                        ? 400
-                        : 400,
+                          ? 400
+                          : 400,
                     padding: screenSize === "tablet" ? "12px" : 15,
                     borderRadius: 50,
                     background: isDark ? "rgba(59, 130, 246, 0.1)" : "#DCFCE7",
-                    border: `1px solid ${
-                      isDark ? "rgba(59, 130, 246, 0.3)" : "#86EFAC"
-                    }`,
+                    border: `1px solid ${isDark ? "rgba(59, 130, 246, 0.3)" : "#86EFAC"
+                      }`,
                     display: "flex",
                     alignItems: "center",
                     gap: screenSize === "tablet" ? 8 : 12,
@@ -1073,26 +1070,25 @@ export default function SolarEnergyFlow({
                     screenSize === "tablet"
                       ? 432
                       : screenSize === "laptop" || screenSize === "pc"
-                      ? 615
-                      : 615,
+                        ? 615
+                        : 615,
                   top:
                     screenSize === "tablet"
                       ? 238
                       : screenSize === "laptop" || screenSize === "pc"
-                      ? 390
-                      : 390,
+                        ? 390
+                        : 390,
                   width:
                     screenSize === "tablet"
                       ? 220
                       : screenSize === "laptop" || screenSize === "pc"
-                      ? 400
-                      : 400,
+                        ? 400
+                        : 400,
                   padding: screenSize === "tablet" ? "12px" : 15,
                   borderRadius: 50,
                   background: isDark ? "rgba(254, 215, 170, 0.1)" : "#FFF7ED",
-                  border: `1px solid ${
-                    isDark ? "rgba(251, 146, 60, 0.3)" : "#FED7AA"
-                  }`,
+                  border: `1px solid ${isDark ? "rgba(251, 146, 60, 0.3)" : "#FED7AA"
+                    }`,
                   display: "flex",
                   alignItems: "center",
                   gap: screenSize === "tablet" ? 8 : 12,
@@ -1154,7 +1150,7 @@ export default function SolarEnergyFlow({
                     {project?.project_data?.[0]?.epm_type !== 1
                       ? project?.project_data?.[0]?.generator_today_energy || 0
                       : project?.project_data?.[0]?.home_load_today_energy ||
-                        0}{" "}
+                      0}{" "}
                     Kwh
                   </div>
                 </div>
@@ -1246,12 +1242,12 @@ export default function SolarEnergyFlow({
                   {(project?.project_data?.[0]?.epm_type !== 1
                     ? project?.project_data?.[0]?.generator_power > 0
                     : project?.project_data?.[0]?.family_load_power > 0) && (
-                    <Arrow
-                      path="#consumePath"
-                      color="#FB923C"
-                      scale={screenSize === "tablet" ? 0.85 : 1}
-                    />
-                  )}
+                      <Arrow
+                        path="#consumePath"
+                        color="#FB923C"
+                        scale={screenSize === "tablet" ? 0.85 : 1}
+                      />
+                    )}
                 </g>
 
                 {project?.project_data?.[0]?.epm_type !== 1 && (
@@ -1270,8 +1266,8 @@ export default function SolarEnergyFlow({
                             ? "M 416 380 L 475 380 Q 505 380 505 350 L 505 272"
                             : "M 416 380 L 475 380 Q 505 380 505 350 L 505 236"
                           : screenSize === "tablet"
-                          ? "M 505 272 L 505 350 Q 505 380 475 380 L 416 380"
-                          : "M 505 236 L 505 350 Q 505 380 475 380 L 416 380"
+                            ? "M 505 272 L 505 350 Q 505 380 475 380 L 416 380"
+                            : "M 505 236 L 505 350 Q 505 380 475 380 L 416 380"
                       }
                       stroke="#1372dfff"
                       strokeWidth="2"
@@ -1308,7 +1304,7 @@ export default function SolarEnergyFlow({
                     />
                     {project?.project_data?.[0]?.family_load_power &&
                       Math.abs(project?.project_data?.[0]?.family_load_power) >
-                        0 && (
+                      0 && (
                         <Arrow
                           path="#inverterToGridLoadPath"
                           color="#8da094ff"
@@ -1337,10 +1333,10 @@ export default function SolarEnergyFlow({
             screenSize === "pc"
               ? "600px"
               : screenSize === "laptop"
-              ? "auto"
-              : screenSize === "tablet"
-              ? "auto"
-              : "auto",
+                ? "auto"
+                : screenSize === "tablet"
+                  ? "auto"
+                  : "auto",
           display: "flex",
           flexDirection: "column",
           minWidth: screenSize === "pc" ? "380px" : "auto",
@@ -1392,10 +1388,10 @@ export default function SolarEnergyFlow({
               screenSize === "tablet"
                 ? "1fr 1fr"
                 : screenSize === "pc"
-                ? "1fr"
-                : screenSize === "mobile"
-                ? "repeat(auto-fit, minmax(250px, 1fr))"
-                : "1fr",
+                  ? "1fr"
+                  : screenSize === "mobile"
+                    ? "repeat(auto-fit, minmax(250px, 1fr))"
+                    : "1fr",
             gap: "12px",
           }}
         >
@@ -1410,7 +1406,7 @@ export default function SolarEnergyFlow({
               {lang("inverter.noinverterfound", "No inverters found")}
             </div>
           ) : (
-            displayInverters.map((inverter) => (
+            sortByNameAsc(displayInverters, "name").map((inverter) => (
               <div
                 key={inverter.id}
                 style={{
@@ -1463,12 +1459,12 @@ export default function SolarEnergyFlow({
                       borderRadius: "9999px",
                       backgroundColor:
                         inverter?.inverter?.status === 1 ||
-                        inverter.status === 1
+                          inverter.status === 1
                           ? "#dcfce7"
                           : "#fee2e2",
                       color:
                         inverter?.inverter?.status === 1 ||
-                        inverter.status === 1
+                          inverter.status === 1
                           ? "#166534"
                           : "#991b1b",
                       fontWeight: 600,

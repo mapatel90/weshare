@@ -20,6 +20,8 @@ import EnergyYearChart from "@/components/admin/projectsCreate/projectViewSectio
 import { getDarkModeColors, useDarkMode } from "@/utils/common";
 import ElectricityCostOverviewChart from "@/components/admin/projectsCreate/projectViewSection/ElectricityCostOverviewChart";
 import ElectricityCostBarChart from "@/components/admin/projectsCreate/projectViewSection/ElectricityCostBarChart";
+import { sortByNameAsc } from "@/utils/common";
+
 
 function DashboardView() {
   const { user } = useAuth();
@@ -655,11 +657,12 @@ function DashboardView() {
                             }}
                           />
                         </li>
-                        {inverters.map((inv) => {
+                        {sortByNameAsc(inverters, "name").map((inv) => {
                           const isSelectedInv =
                             selectedInverter &&
                             (selectedInverter.id === inv.id ||
                               selectedInverter.inverterId === inv.inverterId);
+
                           return (
                             <li
                               key={inv.id ?? inv.inverterId}
@@ -684,6 +687,7 @@ function DashboardView() {
                             </li>
                           );
                         })}
+
                       </>
                     ) : (
                       <li style={{ padding: "8px 16px", color: "#6b7280" }}>
@@ -970,7 +974,7 @@ function DashboardView() {
       <div className="row">
         <AllProjects />
 
-        <AllReports />
+        {/* <AllReports /> */}
 
         <AllContracts />
       </div>

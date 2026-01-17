@@ -4,7 +4,7 @@ import React, { useMemo, useState, useEffect } from "react";
 import Table from "@/components/shared/table/Table";
 import { apiGet } from "@/lib/api";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { formatEnergyUnit } from "@/utils/common";
+import { formatEnergyUnit, sortByNameAsc } from "@/utils/common";
 
 const InverterEvnReport = () => {
   const PAGE_SIZE = 50; // default rows per table page
@@ -33,6 +33,23 @@ const InverterEvnReport = () => {
   const [projectList, setProjectList] = useState([]);
   const [inverterList, setInverterList] = useState([]);
 
+  const [appliedProject, setAppliedProject] = useState("");
+  const [appliedInverter, setAppliedInverter] = useState("");
+  const [appliedStartDate, setAppliedStartDate] = useState("");
+  const [appliedEndDate, setAppliedEndDate] = useState("");
+  const isSubmitDisabled = !projectFilter;
+
+  // -----------------------------
+  // Handle Submit - Apply filters and fetch data
+  // -----------------------------
+  const handleSubmit = () => {
+    setAppliedProject(projectFilter);
+    setAppliedInverter(inverterFilter);
+    setAppliedStartDate(startDate);
+    setAppliedEndDate(endDate);
+    setPageIndex(0); // Reset to first page
+  };
+
   // -----------------------------
   // Fetch Reports Function (always fetch latest 50)
   // -----------------------------
@@ -42,9 +59,9 @@ const InverterEvnReport = () => {
       setError(null);
 
       // basic client-side validation to avoid inverted ranges
-      if (startDate && endDate) {
-        const startTs = new Date(`${startDate}T00:00:00`);
-        const endTs = new Date(`${endDate}T23:59:59`);
+      if (appliedStartDate && appliedEndDate) {
+        const startTs = new Date(`${appliedStartDate}T00:00:00`);
+        const endTs = new Date(`${appliedEndDate}T23:59:59`);
         if (startTs > endTs) {
           setError("Start date cannot be after end date.");
           setLoading(false);
@@ -59,13 +76,13 @@ const InverterEvnReport = () => {
       });
 
       // Add projectId if selected
-      if (projectFilter) {
-        params.append("projectId", projectFilter);
+      if (appliedProject) {
+        params.append("projectId", appliedProject);
       }
 
       // Add inverterId if selected
-      if (inverterFilter) {
-        params.append("inverterId", inverterFilter);
+      if (appliedInverter) {
+        params.append("inverterId", appliedInverter);
       }
 
       // Add searchTerm for server-side search
@@ -74,11 +91,11 @@ const InverterEvnReport = () => {
       }
 
       // Add date range filters (inclusive)
-      if (startDate) {
-        params.append("startDate", startDate);
+      if (appliedStartDate) {
+        params.append("startDate", appliedStartDate);
       }
-      if (endDate) {
-        params.append("endDate", endDate);
+      if (appliedEndDate) {
+        params.append("endDate", appliedEndDate);
       }
 
       const res = await apiGet(`/api/inverter-data?${params.toString()}`);
@@ -87,7 +104,7 @@ const InverterEvnReport = () => {
         id: item.id,
         projectId: item.project_id ?? item.project_id ?? null,
         inverterId: item.project_inverter_id ?? item.project_inverter_id ?? null,
-        projectName:item.projects?.project_name || `Project ${item.projectId ?? item.project_id ?? ""}`,
+        projectName: item.projects?.project_name || `Project ${item.projectId ?? item.project_id ?? ""}`,
         inverterName: item.project_inverters?.inverter_name,
         date: item.date,
         time: item.time ?? "",
@@ -142,43 +159,74 @@ const InverterEvnReport = () => {
     }
   };
 
-  // Fetch + refresh when filters/search change
+  // Fetch dropdown lists on mount (projects and inverters)
   useEffect(() => {
+    const fetchDropdownLists = async () => {
+      try {
+        const params = new URLSearchParams({
+          page: "1",
+          limit: "1",
+        });
+        const res = await apiGet(`/api/inverter-data?${params.toString()}`);
+        setProjectList(Array.isArray(res?.projectList) ? res.projectList : []);
+        setInverterList(Array.isArray(res?.inverterList) ? res.inverterList : []);
+      } catch (err) {
+        console.error("Failed to load dropdown lists", err);
+      }
+    };
+    fetchDropdownLists();
+  }, []);
+
+  // Fetch + refresh when applied filters/search/pagination change
+  useEffect(() => {
+    // Only fetch if at least project is selected (applied)
+    if (!appliedProject) {
+      setLoading(false);
+      setHasLoadedOnce(false);
+      setReportsData([]);
+      setPagination({ page: 1, limit: pageSize, total: 0, pages: 0 });
+      return;
+    }
+
     fetchReports();
 
     const interval = setInterval(() => {
-      fetchReports();
+      if (appliedProject) {
+        fetchReports();
+      }
     }, 120000); // 2 minutes
 
     return () => clearInterval(interval);
-  }, [projectFilter, inverterFilter, searchTerm, startDate, endDate, pageIndex, pageSize]);
+  }, [appliedProject, appliedInverter, appliedStartDate, appliedEndDate, searchTerm, pageIndex, pageSize]);
 
-  // Reset to first page when filters change
-  useEffect(() => {
-    setPageIndex(0);
-  }, [projectFilter, inverterFilter, startDate, endDate]);
+  // Filter inverters based on selected project
+  const filteredInverterList = useMemo(() => {
+    if (!projectFilter) {
+      // If no project selected, show all inverters
+      return inverterList;
+    }
+    // Filter inverters that belong to the selected project
+    return inverterList.filter(
+      (inverter) => String(inverter.project_id) === String(projectFilter)
+    );
+  }, [projectFilter, inverterList]);
 
-  // When projectFilter changes: if the currently selected inverter is not in returned inverterList => reset inverterFilter
+  // When projectFilter changes: if the currently selected inverter is not in filtered list => reset inverterFilter
   useEffect(() => {
     if (!inverterFilter) return;
 
-    const available = new Set((inverterList || []).map((i) => String(i.id)));
+    const available = new Set((filteredInverterList || []).map((i) => String(i.id)));
     if (!available.has(inverterFilter)) {
       setInverterFilter("");
     }
-  }, [projectFilter, inverterList, inverterFilter]);
+  }, [projectFilter, filteredInverterList, inverterFilter]);
 
   // -----------------------------
-  // Filtered Data (client-side filtering on fetched 50)
+  // Filtered Data (server-side filtering, so just return reportsData)
   // -----------------------------
   const filteredData = useMemo(() => {
-    return reportsData.filter((d) => {
-      if (projectFilter && String(d.projectId) !== projectFilter) return false;
-      if (inverterFilter && String(d.inverterId) !== inverterFilter)
-        return false;
-      return true;
-    });
-  }, [projectFilter, inverterFilter, reportsData]);
+    return reportsData;
+  }, [reportsData]);
 
   const handleSearchChange = (value) => {
     setPageIndex(0);
@@ -207,12 +255,12 @@ const InverterEvnReport = () => {
   const handleDownloadCSV = async () => {
     try {
       const params = new URLSearchParams();
-      if (projectFilter) params.append("projectId", projectFilter);
-      if (inverterFilter) params.append("inverterId", inverterFilter);
+      if (appliedProject) params.append("projectId", appliedProject);
+      if (appliedInverter) params.append("inverterId", appliedInverter);
       if (searchTerm && searchTerm.trim())
         params.append("search", searchTerm.trim());
-      if (startDate) params.append("startDate", startDate);
-      if (endDate) params.append("endDate", endDate);
+      if (appliedStartDate) params.append("startDate", appliedStartDate);
+      if (appliedEndDate) params.append("endDate", appliedEndDate);
       params.append("downloadAll", "1");
 
       const res = await apiGet(`/api/inverter-data?${params.toString()}`);
@@ -354,9 +402,10 @@ const InverterEvnReport = () => {
             value={inverterFilter}
             onChange={(e) => setInverterFilter(e.target.value)}
             className="theme-btn-blue-color border rounded-md px-3 py-2 me-2 text-sm"
+            disabled={!projectFilter}
           >
             <option value="">{lang("reports.allinverters")}</option>
-            {inverterList.map((i) => (
+            {sortByNameAsc(filteredInverterList, "name").map((i) => (
               <option key={i.id} value={i.id}>
                 {i.name}
               </option>
@@ -379,6 +428,16 @@ const InverterEvnReport = () => {
             className="theme-btn-blue-color border rounded-md px-3 py-2 me-2 text-sm"
             placeholder={lang("common.endDate") || "End Date"}
           />
+
+          <button
+            onClick={handleSubmit}
+            disabled={isSubmitDisabled}
+            className={`theme-btn-blue-color border rounded-md px-4 py-2 text-sm ${
+              isSubmitDisabled ? "opacity-50 cursor-not-allowed" : ""
+            }`}
+          >
+            Submit
+          </button>
         </div>
 
         <button
@@ -395,14 +454,6 @@ const InverterEvnReport = () => {
         )}
 
         {error && <div className="text-red-600">Error: {error}</div>}
-
-        {hasLoadedOnce && filteredData.length === 0 && !error && !loading && (
-          <div className="text-center py-6 text-gray-600">
-            {lang("common.noData")}
-          </div>
-        )}
-
-        {hasLoadedOnce && (
           <>
             {/* Keep the table mounted so search input state is retained */}
             <Table
@@ -416,13 +467,7 @@ const InverterEvnReport = () => {
               serverSideTotal={pagination.total} // total rows from server
               initialPageSize={pageSize}
             />
-            {loading && (
-              <div className="absolute inset-0 bg-white/70 flex items-center justify-center text-gray-600">
-                Refreshing...
-              </div>
-            )}
           </>
-        )}
       </div>
     </div>
   );
