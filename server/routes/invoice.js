@@ -293,6 +293,10 @@ router.get("/:id", authenticateToken, async (req, res) => {
           },
           orderBy: { id: "asc" },
         },
+        payments: {
+          where: { is_deleted: 0 },
+          orderBy: { id: "desc" },
+        },
       },
     });
 
