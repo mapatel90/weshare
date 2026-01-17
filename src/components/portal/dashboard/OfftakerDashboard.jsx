@@ -739,6 +739,7 @@ function DashboardView() {
               gridTemplateColumns: "repeat(auto-fit, minmax(500px, 1fr))",
               gap: "24px",
               marginBottom: "24px",
+              overflow: "auto"
             }}
           >
             {/* PRODUCTION CHART */}
@@ -846,7 +847,7 @@ function DashboardView() {
 
       {/* Dashboard */}
       <div className="dashboard-row">
-        <div className="chart-card">
+        <div className="chart-card" style={{overflow: 'auto'}}>
           <div className="card-header" style={{ marginBottom: '10px' }}>
             <div className="card-title">Savings Tracker</div>
             <div className="tabs">

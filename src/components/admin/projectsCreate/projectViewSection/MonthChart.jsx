@@ -155,23 +155,24 @@ const generateTicks = (max, step) => {
 };
 
 
-const EnergyChart = ({ chartMonthData, selectedMonthYear, onMonthYearChange, isMobile, isDark = false, monthlyChartDataLoading }) => {
+const EnergyChart = ({ chartMonthData, selectedMonthYear, onMonthYearChange, isDark = false, monthlyChartDataLoading }) => {
   const { lang } = useLanguage();
   const styles = getStyles(isDark);
-  const [isTablet, setIsTablet] = useState(false);
+  const [isTablet, setIsTablet] = useState();
   const [selectedDate, setSelectedDate] = useState(
     selectedMonthYear ? dayjs(selectedMonthYear, 'YYYY-MM').toDate() : new Date()
   );
+  const [isMobile, setIsMobile] = React.useState(() => typeof window !== 'undefined' ? window.innerWidth < 768 : false);
 
-  useEffect(() => {
-    const checkScreenSize = () => {
-      const width = window.innerWidth;
-      setIsTablet(width >= 768 && width < 1024);
-    };
-    checkScreenSize();
-    window.addEventListener("resize", checkScreenSize);
-    return () => window.removeEventListener("resize", checkScreenSize);
-  }, []);
+  React.useEffect(() => {
+      const onResize = () => {
+        const width = window.innerWidth;
+        setIsMobile(width < 768);
+        setIsTablet(width >= 768 && width < 1024);
+      };
+      window.addEventListener('resize', onResize);
+      return () => window.removeEventListener('resize', onResize);
+    }, []);
 
   useEffect(() => {
     if (selectedMonthYear) {
@@ -221,7 +222,7 @@ const EnergyChart = ({ chartMonthData, selectedMonthYear, onMonthYearChange, isM
         ...styles.containerStyle,
         padding: isMobile ? '16px' : isTablet ? '24px' : '32px'
       }}>
-        <div className='date-picker-wrapper' style={{ width: isMobile ? '100%' : isTablet ? '30%' : '10%' }}>
+        <div className='date-picker-wrapper' style={{  width: isMobile ? '30%' : isTablet ? '50%' : '10%', }}>
           <DatePicker
             selected={selectedDate}
             onChange={handleDateChange}
