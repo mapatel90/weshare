@@ -37,7 +37,7 @@ export const downloadPaymentPDF = async (paymentId, priceWithCurrency) => {
     /* ================= DATA ================= */
     const invoiceNumber = `${payment?.invoices?.invoice_prefix || ""}-${payment?.invoices?.invoice_number || ""}`.trim();
     const projectName = payment?.invoices?.projects?.project_name || "N/A";
-    const invoiceStatus = statusLabel(payment?.invoices?.status);
+    const invoiceStatus = statusLabel(payment?.status);
 
     /* ================= STATUS STYLES (FIXED) ================= */
     const statusStyles = {
@@ -110,7 +110,7 @@ export const downloadPaymentPDF = async (paymentId, priceWithCurrency) => {
               align-items: center;
               gap: 8px;
               margin-top: 14px;
-              padding: 0px 10px 10px 0px;
+              padding: 0px 10px 4px 0px;
               font-size: 13px;
               font-weight: 600;
               color: ${s.text};

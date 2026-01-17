@@ -12,7 +12,7 @@ import { downloadPaymentPDF } from "./PaymentPdf";
 
 const statusColors = {
   Paid: "bg-green-100 text-green-700",
-  Pending: "bg-gray-200 text-gray-700",
+  "Pending Verification": "bg-gray-200 text-gray-700",
   Unfunded: "bg-orange-100 text-orange-700",
 };
 
@@ -80,7 +80,7 @@ const Payments = () => {
               ? new Date(payment.invoices.due_date).toLocaleDateString("en-US")
               : "N/A",
             amount: payment.amount || 0,
-            status: payment.status === 1 ? "Paid" : "Pending",
+            status: payment.status === 1 ? "Paid" : "Pending Verification",
             ss_url: payment.ss_url || "",
             download: true,
           }));
@@ -130,6 +130,8 @@ const Payments = () => {
 
   // Handle search with debounce effect
   useEffect(() => {
+    if (search.trim() === "") return;
+
     const timeoutId = setTimeout(() => {
       setCurrentPage(1);
       fetchPayments(search, paymentDate, selectedProject, selectedStatus, 1);
@@ -223,7 +225,7 @@ const Payments = () => {
         offtaker_id: user?.id,
         amount: parseFloat(data.amount) || 0,
         ss_url: ss_url,
-        status: 1, // Paid status
+        status: 0, // Paid status
       };
 
       const response = await apiPost("/api/payments", paymentData);
@@ -248,11 +250,6 @@ const Payments = () => {
 
   return (
     <div className="p-6 bg-white rounded-xl shadow-md">
-      {error && (
-        <div className="bg-red-100 text-red-700 px-4 py-3 rounded mb-4">
-          {error}
-        </div>
-      )}
 
       {loading && (
         <div className="text-center py-8">

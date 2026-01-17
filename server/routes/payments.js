@@ -109,17 +109,9 @@ router.post('/', authenticateToken, async (req, res) => {
         offtaker_id: parseInt(offtaker_id),
         ss_url: ss_url || '',
         amount: parseFloat(amount) || 0,
-        status: parseInt(status ?? 1)
+        status: parseInt(status ?? 0)
       }
     });
-
-    // Update invoice status to 1 (paid) if invoice_id is provided
-    if (invoice_id) {
-      await prisma.invoices.update({
-        where: { id: parseInt(invoice_id) },
-        data: { status: 1 }
-      });
-    }
 
     res.json({ success: true, data: created });
   } catch (error) {
@@ -156,6 +148,40 @@ router.patch('/:id/soft-delete', authenticateToken, async (req, res) => {
       data: { is_deleted: 1 }
     });
     res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Internal server error', error: error.message });
+  }
+});
+
+// Mark payment as paid (new dedicated endpoint)
+router.put('/:id/mark-as-paid', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // Get the payment to find associated invoice
+    const payment = await prisma.payments.findFirst({
+      where: { id: parseInt(id) }
+    });
+
+    if (!payment) {
+      return res.status(404).json({ success: false, message: 'Payment not found' });
+    }
+
+    // Update payment status to 1 (paid)
+    const updated = await prisma.payments.update({
+      where: { id: parseInt(id) },
+      data: { status: 1 }
+    });
+
+    // Also update associated invoice status to 1 (paid) if invoice_id exists
+    if (payment.invoice_id) {
+      await prisma.invoices.update({
+        where: { id: parseInt(payment.invoice_id) },
+        data: { status: 1 }
+      });
+    }
+
+    res.json({ success: true, data: updated });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Internal server error', error: error.message });
   }

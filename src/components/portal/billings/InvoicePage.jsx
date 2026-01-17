@@ -19,6 +19,7 @@ const InvoicePage = ({ invoiceId }) => {
   const [countries, setCountries] = useState([]);
   const [states, setStates] = useState([]);
   const [cities, setCities] = useState([]);
+  const [hasPayment, setHasPayment] = useState(false);
   const priceWithCurrency = usePriceWithCurrency();
 
   useEffect(() => {
@@ -110,6 +111,7 @@ const InvoicePage = ({ invoiceId }) => {
 
         if (response?.success && response?.data) {
           const apiInv = response.data;
+          setHasPayment(Array.isArray(apiInv?.payments) && apiInv.payments.length > 0);
           const formatDate = (val) => {
             if (!val) return "—";
             const d = new Date(val);
@@ -259,7 +261,7 @@ const InvoicePage = ({ invoiceId }) => {
         offtaker_id: user?.id,
         ss_url: uploadedImageUrl,
         amount: Number(amountString),
-        status: 1, // Pending status
+        status: 0, // Pending status
       };
 
       const paymentResponse = await apiPost("/api/payments", paymentData, { includeAuth: true });
@@ -267,6 +269,7 @@ const InvoicePage = ({ invoiceId }) => {
       if (paymentResponse?.success) {
         // alert("Payment submitted successfully!");
         showSuccessToast("Payment submitted successfully!");
+        setHasPayment(true);
         setModalOpen(false);
         router.push("/offtaker/billings");
       } else {
@@ -339,9 +342,9 @@ const InvoicePage = ({ invoiceId }) => {
             <thead className="bg-gray-100">
               <tr>
                 <th className="px-4 py-3 text-left font-semibold">ITEM</th>
-                <th className="px-4 py-3 text-left font-semibold">QTY</th>
-                <th className="px-4 py-3 text-left font-semibold">RATE</th>
-                <th className="px-4 py-3 text-left font-semibold">SUBTOTAL</th>
+                <th className="px-4 py-3 text-left font-semibold">UNIT(KWH)</th>
+                <th className="px-4 py-3 text-left font-semibold">RATE(PER KWH)</th>
+                <th className="px-4 py-3 text-left font-semibold">ITEM TOTAL</th>
               </tr>
             </thead>
             <tbody>
@@ -406,7 +409,7 @@ const InvoicePage = ({ invoiceId }) => {
           >
             Download PDF
           </button>
-          {invoice?.status !== 1 && (
+          {!hasPayment && invoice?.status !== 1 && (
             <button
               className="theme-btn-org-color text-white font-bold py-2 px-6 rounded shadow"
               type="button"
