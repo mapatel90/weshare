@@ -660,7 +660,7 @@ const ProjectViewContent = ({ projectId = "" }) => {
               : "0 1px 3px rgba(0,0,0,0.1)",
             border: `1px solid ${colors.borderLight}`,
             padding: isMobile ? "16px" : "24px",
-            overflowX: "visible",
+            overflowX: isMobile ? "auto" : "visible",
           }}>
           <h3
             style={{
