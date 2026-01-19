@@ -9,6 +9,7 @@ import PaymentModal from "../billings/PaymentModal";
 import { useAuth } from "@/contexts/AuthContext";
 import { showSuccessToast } from "@/utils/topTost";
 import { downloadPaymentPDF } from "./PaymentPdf";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const statusColors = {
   Paid: "bg-green-100 text-green-700",
@@ -35,6 +36,7 @@ const Payments = () => {
   const router = useRouter();
   const priceWithCurrency = usePriceWithCurrency();
   const { user } = useAuth();
+  const { lang } = useLanguage();
 
   // Fetch payments from API with server-side search, date filters, and pagination
   const fetchPayments = async (searchQuery = search, paymentDateVal = paymentDate, projectId = selectedProject, status = selectedStatus, page = currentPage) => {
@@ -263,7 +265,7 @@ const Payments = () => {
             <div className="flex items-center gap-2 flex-wrap">
               <input
                 type="text"
-                placeholder="Search Project, Invoice, Amount..."
+                placeholder={lang("payments.searchPlaceholder", "Search project or invoice...")}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
@@ -273,7 +275,7 @@ const Payments = () => {
                 onChange={(e) => setSelectedProject(e.target.value)}
                 className="border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
               >
-                <option value="">All Projects</option>
+                <option value="">{lang("reports.allprojects", "All Projects")}</option>
                 {projects.map((project) => (
                   <option key={project.id} value={project.id}>
                     {project.project_name}
@@ -285,9 +287,9 @@ const Payments = () => {
                 onChange={(e) => setSelectedStatus(e.target.value)}
                 className="border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
               >
-                <option value="">All Status</option>
-                <option value="1">Paid</option>
-                <option value="0">Pending</option>
+                <option value="">{lang("invoice.allStatus", "All Status")}</option>
+                <option value="1">{lang("invoice.paid", "Paid")}</option>
+                <option value="0">{lang("common.pending", "Pending")}</option>
               </select>
               <input
                 type="date"
@@ -302,7 +304,7 @@ const Payments = () => {
               onClick={() => setModalOpen(true)}
               disabled={submitting}
             >
-              Add Payment
+              {lang("payments.addPayment", "Add Payment")}
             </button>
           </div>
 
@@ -311,22 +313,22 @@ const Payments = () => {
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-4 py-3 text-left font-semibold">
-                    Project Name
+                    {lang("projects.projectName", "Project Name")}
                   </th>
-                  <th className="px-4 py-3 text-left font-semibold">INVOICE</th>
-                  <th className="px-2 py-3 text-left font-semibold">AMOUNT</th>
+                  <th className="px-4 py-3 text-left font-semibold">{lang("payments.invoice", "Invoice")}</th>
+                  <th className="px-2 py-3 text-left font-semibold">{lang("payments.amount", "Amount")}</th>
                   <th className="px-2 py-3 text-left font-semibold">
-                    INVOICE DATE
-                  </th>
-                  <th className="px-2 py-3 text-left font-semibold">
-                    DUE DATE
+                    {lang("invoice.invoiceDate", "Invoice Date")}
                   </th>
                   <th className="px-2 py-3 text-left font-semibold">
-                    PAYMENT DATE
+                    {lang("invoice.dueDate", "Due Date")}
                   </th>
-                  <th className="px-2 py-3 text-left font-semibold">STATUS</th>
-                  <th className="px-2 py-3 text-center">SCREENSHOT</th>
-                  <th className="px-2 py-3 text-left font-semibold">ACTIONS</th>
+                  <th className="px-2 py-3 text-left font-semibold">
+                    {lang("payments.paymentDate", "Payment Date")}
+                  </th>
+                  <th className="px-2 py-3 text-left font-semibold">{lang("common.status", "Status")}</th>
+                  <th className="px-2 py-3 text-center">{lang("payments.screenshot", "Screenshot")}</th>
+                  <th className="px-2 py-3 text-left font-semibold">{lang("common.actions", "Actions")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -402,14 +404,14 @@ const Payments = () => {
                                       setDropdownOpen(null);
                                     }}
                                   >
-                                    Download
+                                    {lang("common.download", "Download")}
                                   </button>
                                 </div>
                               </>
                             )}
                           </div>
                         ) : (
-                          <span className="text-gray-400">Download</span>
+                          <span className="text-gray-400">{lang("common.download", "Download")}</span>
                         )}
                       </td>
                     </tr>
@@ -420,7 +422,7 @@ const Payments = () => {
                       colSpan="10"
                       className="px-4 py-4 text-center text-gray-500"
                     >
-                      No payments found
+                      {lang("payments.noPaymentsFound", "No payments found")}
                     </td>
                   </tr>
                 )}
@@ -439,7 +441,7 @@ const Payments = () => {
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
               >
-                Prev
+                {lang("common.prev", "Prev")}
               </button>
               {getPageNumbers().map((page) => (
                 <button 
@@ -459,7 +461,7 @@ const Payments = () => {
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage === totalPages}
               >
-                Next
+                {lang("news.next", "Next")}
               </button>
             </div>
           </div>
@@ -470,6 +472,7 @@ const Payments = () => {
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
         onSubmit={handlePaymentSubmit}
+        lang={lang}
       />
     </div>
   );

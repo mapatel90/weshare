@@ -7,6 +7,7 @@ import { apiGet } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { downloadInvoicePDF } from "@/components/admin/invoice/InvoicePdf";
 import { usePriceWithCurrency } from "@/hooks/usePriceWithCurrency";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const statusColors = {
   Paid: "bg-green-100 text-green-700",
@@ -38,6 +39,7 @@ const Billings = () => {
     pages: 0,
   });
   const { user } = useAuth();
+  const { lang } = useLanguage();
   const router = useRouter();
   const priceWithCurrency = usePriceWithCurrency();
 
@@ -276,7 +278,7 @@ const Billings = () => {
             onChange={(e) => handleProjectFilterChange(e.target.value)}
             disabled={projectsLoading}
           >
-            <option value="">All Projects</option>
+            <option value="">{lang("dashboard.all_project", "All Projects")}</option>
             {dropdownProjects.map((project) => (
               <option key={project.id} value={project.id}>
                 {project.name}
@@ -293,7 +295,7 @@ const Billings = () => {
         <div className="flex items-center gap-2">
           <input
             type="text"
-            placeholder="Search project or invoice..."
+            placeholder={lang("invoice.searchProjectOrInvoice", "Search project or invoice...")}
             value={search}
             onChange={(e) => handleSearchChange(e.target.value)}
             className="px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-200"
@@ -303,9 +305,9 @@ const Billings = () => {
             value={statusFilter}
             onChange={(e) => handleStatusFilterChange(e.target.value)}
           >
-            <option value="">All Status</option>
-            <option value="1">Paid</option>
-            <option value="0">Unpaid</option>
+            <option value="">{lang("invoice.allStatus", "All Status")}</option>
+            <option value="1">{lang("invoice.paid", "Paid")}</option>
+            <option value="0">{lang("invoice.unpaid", "Unpaid")}</option>
           </select>
         </div>
       </div>
@@ -315,23 +317,23 @@ const Billings = () => {
           <thead className="bg-gray-50">
             <tr>
               <th className="px-4 py-3 font-semibold text-left">
-                PROJECT NAME
+                {lang("projects.projectName", "Project Name")}
               </th>
               <th className="px-4 py-3 font-semibold text-left">
-                INVOICE NAME
+                {lang("invoice.invoiceName", "Invoice Name")}
               </th>
               <th className="px-2 py-3 font-semibold text-left">
-                INVOICE DATE
+                {lang("invoice.invoiceDate", "Invoice Date")}
               </th>
-              <th className="px-2 py-3 font-semibold text-left">DUE DATE</th>
-              <th className="px-2 py-3 font-semibold text-left">TAX</th>
-              <th className="px-2 py-3 font-semibold text-left">SUB AMOUNT</th>
-              <th className="px-2 py-3 font-semibold text-left">TAX AMOUNT</th>
+              <th className="px-2 py-3 font-semibold text-left">{lang("invoice.dueDate", "Due Date")}</th>
+              <th className="px-2 py-3 font-semibold text-left">{lang("invoice.tax", "Tax")}</th>
+              <th className="px-2 py-3 font-semibold text-left">{lang("invoice.subamount", "Sub Amount")}</th>
+              <th className="px-2 py-3 font-semibold text-left">{lang("invoice.taxAmount", "Tax Amount")}</th>
               <th className="px-2 py-3 font-semibold text-left">
-                TOTAL AMOUNT
+                {lang("invoice.totalAmount", "Total Amount")}
               </th>
-              <th className="px-2 py-3 font-semibold text-left">STATUS</th>
-              <th className="px-2 py-3 font-semibold text-left">DOWNLOAD</th>
+              <th className="px-2 py-3 font-semibold text-left">{lang("invoice.status", "Status")}</th>
+              <th className="px-2 py-3 font-semibold text-left">{lang("common.download", "Download")}</th>
             </tr>
           </thead>
           <tbody>
@@ -412,7 +414,7 @@ const Billings = () => {
                                   setDropdownOpen(null);
                                 }}
                               >
-                                Download
+                                {lang("common.download", "Download")}
                               </button>
                               <button
                                 className="block w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100"
@@ -421,14 +423,14 @@ const Billings = () => {
                                   setDropdownOpen(null);
                                 }}
                               >
-                                View
+                                {lang("common.view", "View")}
                               </button>
                             </div>
                           </>
                         )}
                       </div>
                     ) : (
-                      <span className="text-gray-400">Download</span>
+                      <span className="text-gray-400">{lang("common.download", "Download")}</span>
                     )}
                   </td>
                 </tr>

@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { apiGet } from '@/lib/api';
 import React, { useState, useEffect } from 'react';
 import { Search, Calendar, ChevronDown, MapPin } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // Fetch contracts from API and set state
 const ContractsView = () => {
@@ -16,6 +17,7 @@ const ContractsView = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [sortOption, setSortOption] = useState("newest");
     const [dateDropdownOpen, setDateDropdownOpen] = useState(false);
+    const { lang } = useLanguage();
 
     const fetchContracts = async () => {
         setIsLoading(true);
@@ -116,7 +118,7 @@ const ContractsView = () => {
                         rel="noopener noreferrer"
                         className="border border-gray-300 rounded px-3 py-1 text-sm font-medium text-gray-700 hover:bg-gray-50"
                         >
-                        View
+                        {lang("navigation.view")}
                         </a>
                     ) : (
                         <a
@@ -125,7 +127,7 @@ const ContractsView = () => {
                         rel="noopener noreferrer"
                         className="border border-gray-300 rounded px-3 py-1 text-sm font-medium text-gray-700 hover:bg-gray-50"
                         >
-                        View
+                        {lang("navigation.view")}
                         </a>
                     )}
                 </div>
@@ -145,7 +147,7 @@ const ContractsView = () => {
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                                 <input
                                     type="text"
-                                    placeholder="Search"
+                                    placeholder={lang("common.search")}
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                     className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-slate-500 focus:border-transparent outline-none"
@@ -161,9 +163,9 @@ const ContractsView = () => {
                                     className="flex items-center gap-2 px-4 py-2.5 bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition-colors"
                                     style={{ minWidth: 140 }}
                                 >
-                                    <option value="newest">Newest</option>
-                                    <option value="oldest">Oldest</option>
-                                    <option value="az">Project A→Z</option>
+                                    <option value="newest">{lang("common.Newest")}</option>
+                                    <option value="oldest">{lang("common.Oldest")}</option>
+                                    <option value="az">{lang("common.Project A→Z")}</option>
                                 </select>
                             </div>
                         </div>
@@ -171,7 +173,7 @@ const ContractsView = () => {
                     {/* Card Grid */}
                     <div className="px-6 py-4"> 
                             {isLoading ? (
-                                <div className="text-center text-sm text-gray-500 py-8">Loading contracts...</div>
+                                <div className="text-center text-sm text-gray-500 py-8">{lang("common.loading")}</div>
                             ) : filteredContracts.length ? (
                                 <div className="flex flex-wrap gap-6 float-left pb-6">
                                     {filteredContracts.map((contract) => (
@@ -179,7 +181,7 @@ const ContractsView = () => {
                                     ))}
                                 </div>
                             ) : (
-                                <div className="text-center text-sm text-gray-500 py-8">No data available.</div>
+                                <div className="text-center text-sm text-gray-500 py-8">{lang("common.noData")}</div>
                             )}
                     </div>
                 </div>

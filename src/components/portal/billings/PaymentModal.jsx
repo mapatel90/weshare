@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { apiGet } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 
-const PaymentModal = ({ isOpen, onClose, invoiceNumber, onSubmit, totalAmount }) => {
+const PaymentModal = ({ isOpen, onClose, invoiceNumber, onSubmit, totalAmount, lang }) => {
     const [image, setImage] = useState(null);
     const [imagePreview, setImagePreview] = useState(null);
     const [dragActive, setDragActive] = useState(false);
@@ -124,10 +124,10 @@ const PaymentModal = ({ isOpen, onClose, invoiceNumber, onSubmit, totalAmount })
                 style={{ width: '100%', maxWidth: '500px' }}
                 onClick={(e) => e.stopPropagation()}
             >
-                <h2 className="h4 fw-bold mb-3">Make a Payment</h2>
+                <h2 className="h4 fw-bold mb-3">{lang("payments.makePayment", "Make a Payment")}</h2>
                 <form onSubmit={handleSubmit}>
                     <div className="mb-3">
-                        <label className="form-label fw-semibold">Invoice Number</label>
+                        <label className="form-label fw-semibold">{lang("invoice.invoiceNumber", "Invoice Number")}</label>
                         <select
                             value={selectedInvoice}
                             onChange={e => setSelectedInvoice(e.target.value)}
@@ -136,14 +136,14 @@ const PaymentModal = ({ isOpen, onClose, invoiceNumber, onSubmit, totalAmount })
                             required
                             disabled={!!invoiceNumber}
                         >
-                            <option value="" disabled>Select Invoice</option>
+                            <option value="" disabled>{lang("payments.selectInvoice", "Select Invoice")}</option>
                             {invoiceOptions.map(opt => (
                                 <option key={opt.value} value={opt.value}>{opt.label}</option>
                             ))}
                         </select>
                     </div>
                     <div className="mb-3">
-                        <label className="form-label fw-semibold">Total Amount</label>
+                        <label className="form-label fw-semibold">{lang("payments.totalAmount", "Total Amount")}</label>
                         <input
                             type="text"
                             value={displayAmount}
@@ -153,7 +153,7 @@ const PaymentModal = ({ isOpen, onClose, invoiceNumber, onSubmit, totalAmount })
                         />
                     </div>
                     <div className="mb-3">
-                        <label className="form-label fw-semibold">Upload Screenshot</label>
+                        <label className="form-label fw-semibold">{lang("payments.uploadScreenshot", "Upload Screenshot")}</label>
                         <div
                             style={{
                                 width: '100%',
@@ -173,7 +173,7 @@ const PaymentModal = ({ isOpen, onClose, invoiceNumber, onSubmit, totalAmount })
                             onDrop={handleDrop}
                             onClick={() => document.getElementById('file-upload-input').click()}
                         >
-                            <span className="text-muted">Drag & Upload or Click to select</span>
+                            <span className="text-muted">{lang("payments.dragUploadOrClick", "Drag & Upload or Click to select")}</span>
                             <input
                                 id="file-upload-input"
                                 type="file"
@@ -201,13 +201,13 @@ const PaymentModal = ({ isOpen, onClose, invoiceNumber, onSubmit, totalAmount })
                             className="btn btn-secondary px-4 py-2"
                             onClick={onClose}
                         >
-                            Cancel
+                            {lang("common.cancel", "Cancel")}
                         </button>
                         <button
                             type="submit"
                             className="btn text-white fw-bold px-4 py-2 common-orange-color"
                         >
-                            Submit Payment
+                            {lang("payments.submitPayment", "Submit Payment")}
                         </button>
                     </div>
                 </form>
