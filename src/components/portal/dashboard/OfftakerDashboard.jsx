@@ -480,7 +480,7 @@ function DashboardView() {
                 }}
                 style={{ minWidth: "110px" }}
               >
-                {selectedProject ? selectedProject.name : "All Projects ▼"}
+                {selectedProject ? selectedProject.name : "lang(dashboard.all_project, All Project)"} ▼
               </button>
               {showProjectsDropdown && (
                 <div
@@ -557,7 +557,7 @@ function DashboardView() {
                       })
                     ) : (
                       <li style={{ padding: "8px 16px", color: "#6b7280" }}>
-                        No projects available.
+                        {lang("dashboard.no_projects", "No projects available.")}
                       </li>
                     )}
                   </ul>
@@ -591,7 +591,7 @@ function DashboardView() {
                 }}
                 disabled={!selectedProject}
               >
-                {selectedInverter ? selectedInverter.name : "All Inverters ▼"}
+                {selectedInverter ? selectedInverter.name : lang("dashboard.all_inverters", "All Inverters")} ▼
               </button>
               {showInverterDropdown && selectedProject && (
                 <div
@@ -646,7 +646,7 @@ function DashboardView() {
                             setShowInverterDropdown(false);
                           }}
                         >
-                          <span>All Inverters</span>
+                          <span>{lang("dashboard.all_inverters", "All Inverters")}</span>
                         </li>
                         <li style={{ padding: "4px 0" }}>
                           <hr
@@ -691,7 +691,7 @@ function DashboardView() {
                       </>
                     ) : (
                       <li style={{ padding: "8px 16px", color: "#6b7280" }}>
-                        No inverters for this project.
+                        {lang("dashboard.no_inverters", "No inverters for this project.")}
                       </li>
                     )}
                   </ul>
@@ -703,11 +703,11 @@ function DashboardView() {
           {/* show selected project (optional) */}
           {selectedProject && (
             <div style={{ marginBottom: "12px", color: "#374151" }}>
-              Selected project: <strong>{selectedProject.name}</strong>
+              {lang("dashboard.selected_project", "Selected project:")} <strong>{selectedProject.name}</strong>
               {selectedInverter && (
                 <span style={{ marginLeft: 12 }}>
                   {" "}
-                  • Inverter: <strong>{selectedInverter.name}</strong>
+                  {lang("dashboard.selected_inverter", "Inverter:")} <strong>{selectedInverter.name}</strong>
                 </span>
               )}
             </div>
@@ -723,6 +723,7 @@ function DashboardView() {
             selectedProject={selectedProject}
             selectedInverter={selectedInverter}
             totalProjectSize={totalProjectSize}
+            lang={lang}
           />
 
           <SolarEnergyFlow
@@ -848,7 +849,7 @@ function DashboardView() {
       <div className="dashboard-row">
         <div className="chart-card">
           <div className="card-header" style={{ marginBottom: '10px' }}>
-            <div className="card-title">Savings Tracker</div>
+            <div className="card-title">{lang("dashboard.savingsTracker", "Savings Tracker")}</div>
             <div className="tabs">
               <button
                 className={`tab ${savingsViewTab === "daily" ? "active" : ""}`}
@@ -857,7 +858,7 @@ function DashboardView() {
                   setElectricityOverviewViewMode("day");
                 }}
               >
-                Daily
+                {lang("dashboard.daily", "Daily")}
               </button>
               <button
                 className={`tab ${savingsViewTab === "monthly" ? "active" : ""}`}
@@ -866,7 +867,7 @@ function DashboardView() {
                   // keep month-cost chart on currently selected year
                 }}
               >
-                Monthly
+                {lang("dashboard.monthly", "Monthly")}
               </button>
               {/* <button
                 className={`tab ${savingsViewTab === "comparison" ? "active" : ""}`}
@@ -884,7 +885,7 @@ function DashboardView() {
           <p
             style={{ color: "#6b7280", fontSize: "13px", marginBottom: '10px' }}
           >
-            electricity cost comparison between EVN and WeShare with savings analysis
+            {lang("dashboard.savingsTrackerDescription", "Track your electricity cost savings over time compared to traditional grid consumption. View daily savings, monthly summaries, and year-over-year comparisons to see the impact of your solar investment.")}
           </p>
 
           <div className="chart-container">
@@ -940,7 +941,7 @@ function DashboardView() {
         <div>
           <div className="chart-card">
             <div className="card-title" style={{ marginBottom: "20px" }}>
-              🌱 Environmental Impact
+              🌱 {lang("dashboard.environmentalImpact", "Environmental Impact")}
             </div>
             <div className="impact-grid">
               <div className="impact-card">
@@ -950,21 +951,21 @@ function DashboardView() {
                     ? `${selectedProject.project_data[0].power_station_avoided_co2} kg`
                     : '-'}
                 </div>
-                <div className="impact-label">CO₂ Avoided This Year</div>
+                <div className="impact-label">{lang("dashboard.co2Avoided", "CO₂ Avoided This Year")}</div>
               </div>
               <div className="impact-card">
                 <div style={{ fontSize: "35px" }}>💡</div>
                 <div className="impact-value">{selectedProject?.project_data?.[0]?.power_station_avoided_tce
                   ? `${selectedProject.project_data[0].power_station_avoided_tce} kWh`
                   : '-'}</div>
-                <div className="impact-label">Clean Energy Consumed</div>
+                <div className="impact-label">{lang("dashboard.cleanEnergyConsumed", "Clean Energy Consumed")}</div>
               </div>
               <div className="impact-card" style={{ gridColumn: "1 / -1" }}>
                 <div style={{ fontSize: "35px" }}>🌳</div>
                 <div className="impact-value">{selectedProject?.project_data?.[0]?.power_station_num_tree
                   ? `${selectedProject.project_data[0].power_station_num_tree} trees`
                   : '-'}</div>
-                <div className="impact-label">Equivalent planted</div>
+                <div className="impact-label">{lang("dashboard.equivalentPlanted", "Equivalent planted")}</div>
               </div>
             </div>
           </div>
@@ -985,9 +986,13 @@ function DashboardView() {
       {/* Bottom Row */}
       <div className="bottom-row">
         {/* Billing Card */}
-        <BillingCard />
+        <BillingCard 
+          lang={lang}
+        />
         {/* Documents Card */}
-        <DocumentsCard />
+        <DocumentsCard 
+          lang={lang}
+        />
       </div>
     </div>
   );

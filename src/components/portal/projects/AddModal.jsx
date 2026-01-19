@@ -4,12 +4,14 @@ import { apiPost, apiGet, apiUpload } from "@/lib/api";
 import { showSuccessToast, showErrorToast } from "@/utils/topTost";
 import { generateSlug, checkProjectNameExists } from "@/utils/projectUtils";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function AddModal({ open, onClose }) {
   const [internalOpen, setInternalOpen] = useState(false);
   const isControlled = typeof open === "boolean";
   const isOpen = isControlled ? open : internalOpen;
   const { user } = useAuth() || {};
+  const { lang } = useLanguage();
 
   // form state (match TabProjectBasicDetails / API fields)
   const [name, setName] = useState("");
@@ -294,7 +296,7 @@ export default function AddModal({ open, onClose }) {
             className="inline-flex items-center gap-2 px-3 py-2 mb-3 text-white rounded-lg text-sm"
             style={{ backgroundColor: "#F6A623" }}
           >
-            <span className="text-lg leading-none">+</span> Add
+            <span className="text-lg leading-none">+</span> {lang("modal.add", "Add")}
           </button>
         </div>
       )}
@@ -320,7 +322,7 @@ export default function AddModal({ open, onClose }) {
           {/* Header */}
           <div className="flex items-center justify-between px-6 py-4 border-b">
             <h2 className="text-black text-xl font-semibold">
-              Project Details
+              {lang("projects.projectdetails", "Project Details")}
             </h2>
             <button
               onClick={closeModal}
@@ -338,13 +340,13 @@ export default function AddModal({ open, onClose }) {
           >
             <div className="border rounded-lg p-4 shadow-sm bg-white">
               <h3 className="font-semibold mb-2 text-lg text-black">
-                Basic Information
+                {lang("projects.basicinformation", "Basic Information")}
               </h3>
 
               <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
                 <div className="flex flex-col" data-field="name">
                   <label className="mb-1 font-medium text-sm text-black">
-                    Project Name
+                    {lang("projects.projectName", "Project Name")}
                   </label>
                   <input
                     value={name}
@@ -378,7 +380,7 @@ export default function AddModal({ open, onClose }) {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                 <div className="flex flex-col">
                   <label className="mb-1 font-medium text-sm text-black">
-                    Project Slug
+                    {lang("projects.projectslug", "Project Slug")}
                   </label>
                   <input
                     value={projectSlug}
@@ -391,7 +393,7 @@ export default function AddModal({ open, onClose }) {
 
                 <div className="flex flex-col" data-field="selectedProjectTypeId">
                   <label className="mb-1 font-medium text-sm text-black">
-                    Project Type
+                    {lang("projects.projectType", "Project Type")}
                   </label>
                   <select
                     value={selectedProjectTypeId}
@@ -422,7 +424,7 @@ export default function AddModal({ open, onClose }) {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                 <div className="flex flex-col" data-field="productCode">
                   <label className="mb-1 font-medium text-sm text-black">
-                    Project ID / Code
+                    {lang("projects.projectIdCode", "Project ID / Code")}
                   </label>
                   <input
                     value={productCode}
@@ -444,15 +446,15 @@ export default function AddModal({ open, onClose }) {
 
                 <div className="flex flex-col">
                   <label className="mb-1 font-medium text-sm text-black">
-                    Status
+                    {lang("projects.status", "Status")}
                   </label>
                   <select
                     value={status}
                     onChange={(e) => setStatus(Number(e.target.value))}
                     className="input-field"
                   >
-                    <option value={1}>Active</option>
-                    <option value={0}>Inactive</option>
+                    <option value={1}>{lang("projects.active", "Active")}</option>
+                    <option value={0}>{lang("projects.inactive", "Inactive")}</option>
                   </select>
                 </div>
               </div>
@@ -461,7 +463,7 @@ export default function AddModal({ open, onClose }) {
             {/* Financial / energy / summary sections (connected to state) */}
             <div className="border rounded-lg p-4 shadow-sm bg-white">
               <h3 className="font-semibold mb-2 text-lg text-black">
-                Financial Details
+                {lang("projects.financialdetails", "Financial Details")}
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* <div className="flex flex-col">
@@ -470,7 +472,7 @@ export default function AddModal({ open, onClose }) {
                 </div> */}
                 <div className="flex flex-col" data-field="askingPrice">
                   <label className="mb-1 font-medium text-sm">
-                    Target Investment Amount ($)
+                    {lang("projects.targetInvestmentAmount", "Target Investment Amount ($)")}
                   </label>
                   <input
                     value={askingPrice}
@@ -492,7 +494,7 @@ export default function AddModal({ open, onClose }) {
 
                 <div className="flex flex-col" data-field="leaseTerm">
                   <label className="mb-1 font-medium text-sm">
-                    Lease Term (Years)
+                    {lang("projects.leaseterm", "Lease Term (years)")}
                   </label>
                   <input
                     value={leaseTerm}
@@ -516,12 +518,12 @@ export default function AddModal({ open, onClose }) {
 
             <div className="border rounded-lg p-4 shadow-sm bg-white">
               <h3 className="font-semibold mb-2 text-lg text-black">
-                Energy Generation Details
+                {lang("projects.energyGenerationDetails", "Energy Generation Details")}
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
                 <div className="flex flex-col" data-field="projectSize">
                   <label className="mb-1 font-medium text-sm">
-                    Installed Capacity (kWp)
+                    {lang("projects.installedCapacity", "Installed Capacity (kWp)")}
                   </label>
                   <input
                     value={projectSize}
@@ -544,7 +546,7 @@ export default function AddModal({ open, onClose }) {
 
               <div className="grid grid-cols-1 md:grid-cols-1 gap-4 mt-4">
                 <div className="flex flex-col" data-field="projectLocation">
-                  <label className="mb-1 font-medium text-sm">Location</label>
+                  <label className="mb-1 font-medium text-sm">{lang("common.location", "Location")}</label>
                   <input
                     value={projectLocation}
                     onChange={(e) => {

@@ -11,7 +11,7 @@ const statusColors = {
   Pending: "status-upcoming",
 };
 
-export default function BillingCard() {
+export default function BillingCard( { lang } ) {
     const [invoices, setInvoices] = useState([]);
     const [loading, setLoading] = useState(false);
     const { user } = useAuth();
@@ -29,8 +29,8 @@ export default function BillingCard() {
     const statusLabel = (value) => {
         if (typeof value === "string") return value;
         const map = {
-            0: "Unpaid",
-            1: "Paid",
+            0: lang("common.pending", "Pending"),
+            1: lang("invoice.paid", "Paid"),
         };
         return map[value] ?? "Pending";
     };
@@ -90,23 +90,23 @@ export default function BillingCard() {
     return (
         <div className="billing-card">
             <div className="card-header">
-                <div className="card-title">💳 Billing</div>
+                <div className="card-title">💳 {lang("dashboard.billing", "Billing")}</div>
             </div>
             <table>
                 <thead>
                     <tr>
-                        <th>PROJECT NAME</th>
-                        <th>INVOICE</th>
-                        <th>PERIOD</th>
-                        <th>AMOUNT</th>
-                        <th>STATUS</th>
+                        <th>{lang("projects.projectName", "Project Name")}</th>
+                        <th>{lang("menu.invoices", "Invoice")}</th>
+                        <th>{lang("dashboard.period", "Period")}</th>
+                        <th>{lang("payments.amount", "Amount")}</th>
+                        <th>{lang("common.status", "Status")}</th>
                     </tr>
                 </thead>
                 <tbody>
                     {loading ? (
                         <tr>
                             <td colSpan={5} style={{ textAlign: 'center', padding: '20px' }}>
-                                Loading...
+                                {lang("common.loading", "Loading...")}
                             </td>
                         </tr>
                     ) : invoices.length === 0 ? (

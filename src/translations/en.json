@@ -347,6 +347,7 @@
     "investmentsummaryreports": "Investment Summary Reports"
   },
   "dashboard": {
+    "dashboard": "Dashboard",
     "totalSales": "Total Sales",
     "totalRevenue": "Total Revenue",
     "totalCustomers": "Total Customers",
@@ -368,7 +369,30 @@
     "dailyVisitors": "Daily Visitors",
     "pageViews": "Page Views",
     "bounceRate": "Bounce Rate",
-    "avgSessionDuration": "Avg Session Duration"
+    "avgSessionDuration": "Avg Session Duration",
+    "all_project": "All Projects",
+    "all_inverters": "All Inverters",
+    "no_projects": "No projects available.",
+    "no_inverters": "No inverters for this project.",
+    "selected_project": "Selected project:",
+    "selected_inverter": "Inverter:",
+    "scope": "Scope",
+    "capacity": "Capacity",
+    "monthly_yield": "Monthly Yield",
+    "energy_produced_today": "Energy produced today",
+    "energy_produced_this_month": "Energy produced this month",
+    "lifetime_energy_produced": "Lifetime energy produced",
+    "billing": "Billing",
+    "period": "Period",
+    "savingsTracker": "Savings Tracker",
+    "daily": "Daily",
+    "monthly": "Monthly",
+    "savingsTrackerDescription": "electricity cost comparison between EVN and WeShare with savings analysis",
+    "environmentalImpact": "Environmental Impact",
+    "co2Avoided": "CO₂ Avoided This Year",
+    "cleanEnergyConsumed": "Clean Energy Consumed",
+    "equivalentPlanted": "Equivalent planted",
+    "dataNotFound": "No data found"
   },
   "table": {
     "serialNumber": "#",
@@ -869,7 +893,16 @@
     "evn_price_kwh": "EVN Price",
     "evn_price_kwh_placeholder": "Enter EVN price",
     "weshare_price_kwh": "WeShare Price",
-    "weshare_price_kwh_placeholder": "Enter WeShare price"
+    "weshare_price_kwh_placeholder": "Enter WeShare price",
+    "projectdetails": "Project Details",
+    "basicinformation": "Basic Information",
+    "projectslug": "Project Slug",
+    "projectIdCode": "Project ID / Code",
+    "financialdetails": "Financial Details",
+    "targetInvestmentAmount": "Target Investment Amount ($)",
+    "leaseterm": "Lease Term (years)",
+    "energyGenerationDetails": "Energy Generation Details",
+    "installedCapacity": "Installed Capacity (kWp)"
   },
   "settings": {
     "title": "Settings",

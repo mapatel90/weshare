@@ -1,11 +1,11 @@
 import React from 'react'
-import EmailOverview from '@/components/EmailOverview'
 import DashboardView from '@/components/portal/dashboard/OfftakerDashboard'
-
+import DynamicTitle from '@/components/common/DynamicTitle'
 
 const page = () => {
     return (
         <>
+            <DynamicTitle titleKey="dashboard.dashboard" />
             <div className='row'>
                 <DashboardView />
             </div>

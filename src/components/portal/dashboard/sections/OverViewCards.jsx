@@ -55,6 +55,7 @@ export default function OverViewCards({
   selectedProject = null,
   selectedInverter = null,
   totalProjectSize = null, // NEW
+  lang,
 }) {
   const isProjectSelected = !!selectedProject;
   const isInverterSelected = !!selectedInverter;
@@ -104,7 +105,7 @@ export default function OverViewCards({
 
   // Daily yield display
   let dailyYieldValue = "-";
-  let dailyYieldSubtitle = `Energy produced today`;
+  let dailyYieldSubtitle = `${lang("dashboard.energy_produced_today", "Energy produced today")}`;
 
   if (inverterLatestLoading) {
     dailyYieldValue = "Loading...";
@@ -117,7 +118,7 @@ export default function OverViewCards({
 
   // Monthly yield display
   let monthlyYieldValue = "-";
-  let monthlyYieldSubtitle = `Monthly energy produced`;
+  let monthlyYieldSubtitle = `${lang("dashboard.energy_produced_this_month", "Energy produced this month")}`;
 
   if (inverterLatestLoading) {
     monthlyYieldValue = "Loading...";
@@ -130,7 +131,7 @@ export default function OverViewCards({
 
   // Total yield display
   let totalYieldValue = "-";
-  let totalYieldSubtitle = `Lifetime energy produced`;
+  let totalYieldSubtitle = `${lang("dashboard.lifetime_energy_produced", "Lifetime energy produced")}`;
 
   if (inverterLatestLoading) {
     totalYieldValue = "Loading...";
@@ -150,10 +151,10 @@ export default function OverViewCards({
             alt="Power Icon"
             className="w-8 h-6"
           />
-          <span className="text-gray-800 font-medium">Scope</span>
+          <span className="text-gray-800 font-medium">{lang("dashboard.scope", "Scope")}</span>
         </div>
         <div className="stat-value">{renderEnergyDisplay(projectSizeValue)}</div>
-        <div className="stat-label">Capacity</div>
+        <div className="stat-label">{lang("dashboard.capacity", "Capacity")}</div>
 
         {/* NEW: show project_size (selected or aggregated total) */}
       </div>
@@ -165,7 +166,7 @@ export default function OverViewCards({
             alt="Daily Yield Icon"
             className="w-8 h-6"
           />
-          <span className="text-gray-800 font-medium">Daily Yield</span>
+          <span className="text-gray-800 font-medium">{lang("reports.dailyYield", "Daily Yield")}</span>
         </div>
         <div className="stat-value">{renderEnergyDisplay(dailyYieldValue)}</div>
         <div className="stat-label">{dailyYieldSubtitle}</div>
@@ -178,7 +179,7 @@ export default function OverViewCards({
             alt="Monthly Yield Icon"
             className="w-8 h-6"
           />
-          <span className="text-gray-800 font-medium">Monthly Yield</span>
+          <span className="text-gray-800 font-medium">{lang("dashboard.monthly_yield", "Monthly Yield")}</span>
         </div>
         <div className="stat-value">{renderEnergyDisplay(monthlyYieldValue)}</div>
         <div className="stat-label">{monthlyYieldSubtitle}</div>
@@ -191,7 +192,7 @@ export default function OverViewCards({
             alt="Total Yield Icon"
             className="w-8 h-6"
           />
-          <span className="text-gray-800 font-medium">Total Yield</span>
+          <span className="text-gray-800 font-medium">{lang("reports.totalYield", "Total Yield")}</span>
         </div>
         <div className="stat-value">{renderEnergyDisplay(totalYieldValue)}</div>
         <div className="stat-label">{totalYieldSubtitle}</div>

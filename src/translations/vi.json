@@ -331,6 +331,7 @@
     "investmentsummaryreports": "Báo cáo tóm tắt đầu tư"
   },
   "dashboard": {
+    "dashboard" : "Trang tổng quan",
     "totalSales": "Tổng doanh số",
     "totalRevenue": "Tổng doanh thu",
     "totalCustomers": "Tổng khách hàng",
@@ -352,7 +353,30 @@
     "dailyVisitors": "Lượt truy cập hàng ngày",
     "pageViews": "Lượt xem trang",
     "bounceRate": "Tỷ lệ thoát",
-    "avgSessionDuration": "Thời lượng phiên trung bình"
+    "avgSessionDuration": "Thời lượng phiên trung bình",
+    "all_project": "Tất cả dự án",
+    "all_inverters": "Tất cả biến tần",
+    "no_projects": "Không có dự án nào.",
+    "no_inverters": "Không có biến tần cho dự án này.",
+    "selected_project": "Dự án đã chọn:",
+    "selected_inverter": "Biến tần:",
+    "scope": "Phạm vi",
+    "capacity": "Công suất",
+    "monthly_yield": "Sản lượng hàng tháng",
+    "energy_produced_today": "Năng lượng sản xuất hôm nay",
+    "energy_produced_this_month": "Năng lượng sản xuất trong tháng này",
+    "lifetime_energy_produced": "Năng lượng sản xuất trọn đời",
+    "billing": "Thanh toán",
+    "period": "Kỳ hạn",
+    "savingsTracker": "Bộ theo dõi tiết kiệm",
+    "daily": "Ngày",
+    "monthly": "Tháng",
+    "savingsTrackerDescription": "so sánh chi phí điện năng giữa Tập đoàn Điện lực Việt Nam và WeShare bằng phân tích tiết kiệm",
+    "environmentalImpact": "Tác động môi trường",
+    "co2Avoided": "CO₂ tránh được trong năm nay",
+    "cleanEnergyConsumed": "Năng lượng sạch đã tiêu thụ",
+    "equivalentPlanted": "Tương đương đã trồng",
+    "dataNotFound":"Không tìm thấy dữ liệu"
   },
   "table": {
     "serialNumber": "#",
@@ -842,7 +866,16 @@
     "evn_price_kwh": "Giá EVN mỗi kWh",
     "evn_price_kwh_placeholder": "Nhập giá EVN",
     "weshare_price_kwh": "Giá WeShare mỗi kWh",
-    "weshare_price_kwh_placeholder": "Nhập giá WeShare"
+    "weshare_price_kwh_placeholder": "Nhập giá WeShare",
+    "projectdetails": "Chi tiết dự án",
+    "basicinformation": "Thông tin cơ bản",
+    "projectslug": "Slug dự án",
+    "projectIdCode": "ID / Mã dự án",
+    "financialdetails": "Chi tiết tài chính",
+    "targetInvestmentAmount": "Số tiền đầu tư mục tiêu ($)",
+    "leaseterm": "Thời hạn thuê (năm)",
+    "energyGenerationDetails": "Chi tiết phát điện",
+    "installedCapacity": "Công suất lắp đặt (kWp)"
   },
   "placeholders": {
     "your_company_name": "Tên công ty của bạn [Ví dụ: Theme Ocean]",
