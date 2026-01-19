@@ -17,6 +17,18 @@ const PageHeaderTitle = () => {
     if (
         parts.length >= 4 &&
         parts[0] === "offtaker" &&
+        parts[1] === "projects" &&
+        parts[2] === "details"
+    ) {
+        title = "Proect details";
+        breadcrumb = [
+            { name: lang("menu.contracts", "Project"), href: "/offtaker/projects" },
+            { name: lang("menu.details", "Details"), href: null }
+        ];
+    }
+    else if (
+        parts.length >= 4 &&
+        parts[0] === "offtaker" &&
         parts[1] === "contracts" &&
         parts[2] === "details"
     ) {
