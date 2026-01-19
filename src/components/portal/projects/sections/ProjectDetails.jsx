@@ -536,6 +536,7 @@ const ProjectDetails = ({ project_id }) => {
                         selectedProject={selectedProject}
                         selectedInverter={selectedInverter}
                         totalProjectSize={totalProjectSize}
+                        lang={lang}
                     />
 
                     <SolarEnergyFlow
