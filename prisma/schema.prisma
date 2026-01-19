@@ -476,6 +476,10 @@ model users {
   country_id           Int?
   zipcode              String?                @db.VarChar(20)
   qr_code              String?                @db.VarChar(500)
+  email_verified       Int                    @default(0)
+  email_verified_at    DateTime?
+  email_verify_token   String?                @db.VarChar(255)
+  email_verify_expires DateTime?
   status               Int                    @default(1)
   is_deleted           Int                    @default(0)
   terms_accepted       Int                    @default(1)

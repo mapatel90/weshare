@@ -41,7 +41,7 @@ const SettingsEmailForm = () => {
   const [formData, setFormData] = useState({
     smtp_email: "",
     smtp_email_from_address: "",
-    // smtp_email_from_name: "",
+    smtp_email_from_name: "",
     smtp_email_host: "",
     smtp_email_user: "",
     smtp_email_password: "",
@@ -61,7 +61,7 @@ const SettingsEmailForm = () => {
         smtp_email: getSetting("smtp_email", "") || "",
         smtp_email_from_address:
           getSetting("smtp_email_from_address", "") || "",
-        // smtp_email_from_name: getSetting("smtp_email_from_name", "") || "",
+        smtp_email_from_name: getSetting("smtp_email_from_name", "") || "",
         smtp_email_host: getSetting("smtp_email_host", "") || "",
         smtp_email_user: getSetting("smtp_email_user", "") || "",
         smtp_email_password: getSetting("smtp_email_password", "") || "",
@@ -108,7 +108,7 @@ const SettingsEmailForm = () => {
   const hasAnySmtpInput = () => {
     const {
       smtp_email_from_address,
-      // smtp_email_from_name,
+      smtp_email_from_name,
       smtp_email_host,
       smtp_email_user,
       smtp_email_password,
@@ -117,7 +117,7 @@ const SettingsEmailForm = () => {
     } = formData;
     return [
       smtp_email_from_address,
-      // smtp_email_from_name,
+      smtp_email_from_name,
       smtp_email_host,
       smtp_email_user,
       smtp_email_password,
@@ -279,12 +279,12 @@ const SettingsEmailForm = () => {
               </div>
 
               <div className="mb-4">
-                <TextField fullWidth label={lang("smtp.fromAddressLabel")} placeholder={"example@domain.com"} value={formData.smtp_email_from_address} onChange={(e)=>handleChange("smtp_email_from_address", e.target.value)} helperText={lang("smtp.fromAddressInfo")} />
+                <TextField fullWidth label="From Email" placeholder={"example@domain.com"} value={formData.smtp_email_from_address} onChange={(e)=>handleChange("smtp_email_from_address", e.target.value)} helperText="The email address that will appear in the 'From' field" />
               </div>
 
-              {/* <div className="mb-4">
-                <TextField fullWidth label={lang("smtp.fromNameLabel")} placeholder={"Your Company Name"} value={formData.smtp_email_from_name} onChange={(e)=>handleChange("smtp_email_from_name", e.target.value)} helperText={lang("smtp.fromNameInfo")} />
-              </div> */}
+              <div className="mb-4">
+                <TextField fullWidth label="From Name" placeholder={"WeShare Energy"} value={formData.smtp_email_from_name} onChange={(e)=>handleChange("smtp_email_from_name", e.target.value)} helperText="The name that will appear alongside the email address" />
+              </div>
 
               <div className="mb-4">
                 <TextField fullWidth label={lang("smtp.hostLabel")} placeholder={"smtp.gmail.com"} value={formData.smtp_email_host} onChange={(e)=>handleChange("smtp_email_host", e.target.value)} helperText={lang("smtp.hostInfo")} />

@@ -19,7 +19,7 @@ const getSmtpSettings = async () => {
       'smtp_email_port',
     ];
 
-    const settings = await prisma.setting.findMany({
+    const settings = await prisma.settings.findMany({
       where: { key: { in: smtpKeys } }
     });
 
@@ -45,13 +45,18 @@ const createTransporter = async (customSettings = null) => {
   try {
     let smtpConfig;
 
+    console.log("smtpConfig", smtpConfig);
+
     if (customSettings) {
       // Use custom settings if provided
       smtpConfig = customSettings;
+      console.log("customSettings", customSettings);
     } else {
       // Try to get settings from database first
       try {
         const dbSettings = await getSmtpSettings();
+
+        console.log("dbSettings", dbSettings);
 
         if (dbSettings.smtp_email_host && dbSettings.smtp_email_user && dbSettings.smtp_email_password) {
           const port = Number(dbSettings.smtp_email_port) || 587;
@@ -378,6 +383,136 @@ export const sendPasswordResetConfirmationEmail = async (email) => {
 };
 
 /**
+ * Send email verification email
+ * @param {string} email - User email
+ * @param {string} fullName - User full name
+ * @param {string} verificationToken - Verification token
+ * @returns {Promise<Object>} Result object
+ */
+export const sendEmailVerificationEmail = async (email, fullName, verificationToken) => {
+  const appUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+  const verificationUrl = `${appUrl}/verify-email?token=${verificationToken}`;
+
+  const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Verify Your Email</title>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+          }
+          .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+          }
+          .header {
+            background: linear-gradient(135deg, #F6A623 0%, #e09620 100%);
+            padding: 30px;
+            text-align: center;
+          }
+          .header h1 {
+            margin: 0;
+            color: #ffffff;
+            font-size: 24px;
+          }
+          .content {
+            padding: 40px 30px;
+          }
+          .button {
+            display: inline-block;
+            padding: 14px 40px;
+            margin: 25px 0;
+            background: #F6A623;
+            color: #ffffff !important;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+            text-align: center;
+          }
+          .footer {
+            background: #f8f8f8;
+            padding: 20px 30px;
+            text-align: center;
+            font-size: 12px;
+            color: #999;
+          }
+          .warning {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>✉️ Verify Your Email Address</h1>
+          </div>
+          <div class="content">
+            <h2>Hello ${fullName},</h2>
+            <p>Thank you for registering with WeShare Energy! To complete your registration, please verify your email address.</p>
+
+            <div style="text-align: center;">
+              <a href="${verificationUrl}" class="button">Verify Email Address</a>
+            </div>
+
+            <div class="warning">
+              <p><strong>⏰ Important:</strong> This verification link will expire in 24 hours.</p>
+            </div>
+
+            <p>If you didn't create an account with us, please ignore this email.</p>
+
+            <p style="margin-top: 30px;">If the button doesn't work, copy and paste this link into your browser:</p>
+            <p style="word-break: break-all; color: #2386FF; font-size: 12px;">${verificationUrl}</p>
+          </div>
+          <div class="footer">
+            <p>© ${new Date().getFullYear()} WeShare Energy. All rights reserved.</p>
+            <p>This is an automated email. Please do not reply to this message.</p>
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+
+  const textContent = `
+    Verify Your Email Address
+
+    Hello ${fullName},
+
+    Thank you for registering with WeShare Energy! To complete your registration, please verify your email address.
+
+    Click the link below to verify your email:
+    ${verificationUrl}
+
+    ⏰ Important: This verification link will expire in 24 hours.
+
+    If you didn't create an account with us, please ignore this email.
+
+    © ${new Date().getFullYear()} WeShare Energy. All rights reserved.
+  `;
+
+  return sendEmail({
+    to: email,
+    subject: 'Verify Your Email Address - WeShare Energy',
+    html: htmlContent,
+    text: textContent,
+  });
+};
+
+/**
  * Send welcome email to new user
  * @param {string} email - User email
  * @param {string} fullName - User full name
@@ -535,12 +670,501 @@ export const sendNotificationEmail = async (email, subject, message) => {
   });
 };
 
+/**
+ * Send invoice email
+ * @param {Object} invoice - Invoice details
+ * @param {Object} user - User details
+ * @returns {Promise<Object>} Result object
+ */
+export const sendInvoiceEmail = async (invoice, user) => {
+  const appUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+  const viewInvoiceUrl = `${appUrl}/offtaker/invoices/${invoice.id}`;
+
+  const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Invoice ${invoice.invoice_number}</title>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+          }
+          .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+          }
+          .header {
+            background: linear-gradient(135deg, #F6A623 0%, #e09620 100%);
+            padding: 30px;
+            text-align: center;
+          }
+          .header h1 {
+            margin: 0;
+            color: #ffffff;
+            font-size: 24px;
+          }
+          .content {
+            padding: 40px 30px;
+          }
+          .invoice-details {
+            background: #f8f9fa;
+            border-radius: 6px;
+            padding: 20px;
+            margin: 20px 0;
+          }
+          .invoice-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #dee2e6;
+          }
+          .invoice-row:last-child {
+            border-bottom: none;
+            font-weight: bold;
+            font-size: 18px;
+          }
+          .button {
+            display: inline-block;
+            padding: 14px 40px;
+            margin: 25px 0;
+            background: #F6A623;
+            color: #ffffff !important;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+            text-align: center;
+          }
+          .footer {
+            background: #f8f8f8;
+            padding: 20px 30px;
+            text-align: center;
+            font-size: 12px;
+            color: #999;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>🧾 New Invoice</h1>
+          </div>
+          <div class="content">
+            <h2>Hello ${user.full_name || user.name},</h2>
+            <p>A new invoice has been generated for your account.</p>
+
+            <div class="invoice-details">
+              <div class="invoice-row">
+                <span>Invoice Number:</span>
+                <span><strong>${invoice.invoice_number}</strong></span>
+              </div>
+              <div class="invoice-row">
+                <span>Invoice Date:</span>
+                <span>${new Date(invoice.invoice_date).toLocaleDateString()}</span>
+              </div>
+              <div class="invoice-row">
+                <span>Due Date:</span>
+                <span>${new Date(invoice.due_date).toLocaleDateString()}</span>
+              </div>
+              <div class="invoice-row">
+                <span>Total Amount:</span>
+                <span>${invoice.currency} ${invoice.total_amount.toLocaleString()}</span>
+              </div>
+            </div>
+
+            <div style="text-align: center;">
+              <a href="${viewInvoiceUrl}" class="button">View Invoice</a>
+            </div>
+
+            <p>Please ensure payment is made by the due date to avoid any service interruption.</p>
+          </div>
+          <div class="footer">
+            <p>© ${new Date().getFullYear()} WeShare. All rights reserved.</p>
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+
+  return sendEmail({
+    to: user.email,
+    subject: `Invoice ${invoice.invoice_number} - Payment Due`,
+    html: htmlContent,
+  });
+};
+
+/**
+ * Send payment confirmation email
+ * @param {Object} payment - Payment details
+ * @param {Object} invoice - Invoice details
+ * @param {Object} user - User details
+ * @returns {Promise<Object>} Result object
+ */
+export const sendPaymentConfirmationEmail = async (payment, invoice, user) => {
+  const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Payment Confirmation</title>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+          }
+          .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+          }
+          .header {
+            background: linear-gradient(135deg, #28a745 0%, #218838 100%);
+            padding: 30px;
+            text-align: center;
+          }
+          .header h1 {
+            margin: 0;
+            color: #ffffff;
+            font-size: 24px;
+          }
+          .content {
+            padding: 40px 30px;
+          }
+          .success-icon {
+            text-align: center;
+            font-size: 64px;
+            margin: 20px 0;
+          }
+          .payment-details {
+            background: #f8f9fa;
+            border-radius: 6px;
+            padding: 20px;
+            margin: 20px 0;
+          }
+          .payment-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #dee2e6;
+          }
+          .payment-row:last-child {
+            border-bottom: none;
+          }
+          .footer {
+            background: #f8f8f8;
+            padding: 20px 30px;
+            text-align: center;
+            font-size: 12px;
+            color: #999;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>✅ Payment Confirmed</h1>
+          </div>
+          <div class="content">
+            <div class="success-icon">✓</div>
+            <h2 style="text-align: center;">Thank you for your payment!</h2>
+            <p>Hello ${user.full_name || user.name},</p>
+            <p>We have successfully received your payment.</p>
+
+            <div class="payment-details">
+              <div class="payment-row">
+                <span>Invoice Number:</span>
+                <span><strong>${invoice.invoice_number}</strong></span>
+              </div>
+              <div class="payment-row">
+                <span>Amount Paid:</span>
+                <span><strong>${invoice.currency} ${payment.amount.toLocaleString()}</strong></span>
+              </div>
+              <div class="payment-row">
+                <span>Payment Date:</span>
+                <span>${new Date(payment.created_at).toLocaleDateString()}</span>
+              </div>
+              <div class="payment-row">
+                <span>Transaction ID:</span>
+                <span>#${payment.id}</span>
+              </div>
+            </div>
+
+            <p>A receipt has been generated and is available in your account.</p>
+          </div>
+          <div class="footer">
+            <p>© ${new Date().getFullYear()} WeShare. All rights reserved.</p>
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+
+  return sendEmail({
+    to: user.email,
+    subject: 'Payment Confirmation - WeShare',
+    html: htmlContent,
+  });
+};
+
+/**
+ * Send contract notification email
+ * @param {Object} contract - Contract details
+ * @param {Object} user - User details
+ * @param {string} status - Contract status (approved/rejected)
+ * @returns {Promise<Object>} Result object
+ */
+export const sendContractNotificationEmail = async (contract, user, status) => {
+  const appUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+  const viewContractUrl = `${appUrl}/offtaker/contracts/${contract.id}`;
+  const isApproved = status === 'approved' || status === 1;
+  const statusText = isApproved ? 'Approved' : 'Rejected';
+  const statusColor = isApproved ? '#28a745' : '#dc3545';
+
+  const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Contract ${statusText}</title>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+          }
+          .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+          }
+          .header {
+            background: linear-gradient(135deg, ${statusColor} 0%, ${statusColor}dd 100%);
+            padding: 30px;
+            text-align: center;
+          }
+          .header h1 {
+            margin: 0;
+            color: #ffffff;
+            font-size: 24px;
+          }
+          .content {
+            padding: 40px 30px;
+          }
+          .contract-details {
+            background: #f8f9fa;
+            border-radius: 6px;
+            padding: 20px;
+            margin: 20px 0;
+          }
+          .button {
+            display: inline-block;
+            padding: 14px 40px;
+            margin: 25px 0;
+            background: ${statusColor};
+            color: #ffffff !important;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+            text-align: center;
+          }
+          .footer {
+            background: #f8f8f8;
+            padding: 20px 30px;
+            text-align: center;
+            font-size: 12px;
+            color: #999;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>📄 Contract ${statusText}</h1>
+          </div>
+          <div class="content">
+            <h2>Hello ${user.full_name || user.name},</h2>
+            <p>Your contract <strong>${contract.contract_title}</strong> has been ${statusText.toLowerCase()}.</p>
+
+            ${!isApproved && contract.rejectreason ? `
+            <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0;">
+              <p style="margin: 0;"><strong>Reason:</strong> ${contract.rejectreason}</p>
+            </div>
+            ` : ''}
+
+            <div style="text-align: center;">
+              <a href="${viewContractUrl}" class="button">View Contract</a>
+            </div>
+
+            ${isApproved ? '<p>You can now proceed with the next steps.</p>' : '<p>Please review and make necessary updates to your contract.</p>'}
+          </div>
+          <div class="footer">
+            <p>© ${new Date().getFullYear()} WeShare. All rights reserved.</p>
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+
+  return sendEmail({
+    to: user.email,
+    subject: `Contract ${statusText}: ${contract.contract_title}`,
+    html: htmlContent,
+  });
+};
+
+/**
+ * Send project notification email
+ * @param {Object} project - Project details
+ * @param {Object} user - User details
+ * @param {string} eventType - Event type (created/updated/approved)
+ * @returns {Promise<Object>} Result object
+ */
+export const sendProjectNotificationEmail = async (project, user, eventType) => {
+  const appUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+  const viewProjectUrl = `${appUrl}/offtaker/projects/${project.id}`;
+
+  let title = '';
+  let message = '';
+
+  switch (eventType) {
+    case 'created':
+      title = 'New Project Created';
+      message = `Your project <strong>${project.project_name}</strong> has been successfully created.`;
+      break;
+    case 'updated':
+      title = 'Project Updated';
+      message = `Your project <strong>${project.project_name}</strong> has been updated.`;
+      break;
+    case 'approved':
+      title = 'Project Approved';
+      message = `Congratulations! Your project <strong>${project.project_name}</strong> has been approved.`;
+      break;
+    default:
+      title = 'Project Notification';
+      message = `There's an update on your project <strong>${project.project_name}</strong>.`;
+  }
+
+  const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>${title}</title>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+          }
+          .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+          }
+          .header {
+            background: linear-gradient(135deg, #F6A623 0%, #e09620 100%);
+            padding: 30px;
+            text-align: center;
+          }
+          .header h1 {
+            margin: 0;
+            color: #ffffff;
+            font-size: 24px;
+          }
+          .content {
+            padding: 40px 30px;
+          }
+          .button {
+            display: inline-block;
+            padding: 14px 40px;
+            margin: 25px 0;
+            background: #F6A623;
+            color: #ffffff !important;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+            text-align: center;
+          }
+          .footer {
+            background: #f8f8f8;
+            padding: 20px 30px;
+            text-align: center;
+            font-size: 12px;
+            color: #999;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>⚡ ${title}</h1>
+          </div>
+          <div class="content">
+            <h2>Hello ${user.full_name || user.name},</h2>
+            <p>${message}</p>
+
+            <div style="text-align: center;">
+              <a href="${viewProjectUrl}" class="button">View Project</a>
+            </div>
+          </div>
+          <div class="footer">
+            <p>© ${new Date().getFullYear()} WeShare. All rights reserved.</p>
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+
+  return sendEmail({
+    to: user.email,
+    subject: `${title}: ${project.project_name}`,
+    html: htmlContent,
+  });
+};
+
 export default {
   sendEmail,
+  sendEmailVerificationEmail,
   sendPasswordResetEmail,
   sendPasswordResetConfirmationEmail,
   sendWelcomeEmail,
   sendNotificationEmail,
+  sendInvoiceEmail,
+  sendPaymentConfirmationEmail,
+  sendContractNotificationEmail,
+  sendProjectNotificationEmail,
   getSmtpSettings,
   createTransporter,
 };

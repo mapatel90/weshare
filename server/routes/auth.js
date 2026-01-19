@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import prisma from '../utils/prisma.js';
 import redis from '../utils/redis.js';
-import { sendPasswordResetEmail, sendPasswordResetConfirmationEmail } from '../utils/email.js';
+import { sendPasswordResetEmail, sendPasswordResetConfirmationEmail, sendEmailVerificationEmail } from '../utils/email.js';
 
 const router = express.Router();
 
@@ -85,6 +85,11 @@ router.post('/register', async (req, res) => {
     const saltRounds = 12;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
+    // Generate email verification token
+    const verificationToken = crypto.randomBytes(32).toString('hex');
+    const tokenExpiry = new Date();
+    tokenExpiry.setHours(tokenExpiry.getHours() + 24); // 24 hours expiry
+
     // Create user (store username and email)
     const newUser = await prisma.users.create({
       data: {
@@ -100,7 +105,10 @@ router.post('/register', async (req, res) => {
         state_id,
         country_id,
         zipcode,
-        status: 1,
+        email_verified: 0,
+        email_verify_token: verificationToken,
+        email_verify_expires: tokenExpiry,
+        status: 0, // Inactive until email verified
         terms_accepted: termsAccepted || 0
       },
       select: {
@@ -111,13 +119,23 @@ router.post('/register', async (req, res) => {
         phone_number: true,
         role_id: true,
         status: true,
+        email_verified: true,
         created_at: true
       }
     });
 
+    // Send verification email (don't block registration if email fails)
+    sendEmailVerificationEmail(newUser.email, newUser.full_name, verificationToken)
+      .then(() => {
+        console.log(`✅ Verification email sent to ${newUser.email}`);
+      })
+      .catch((error) => {
+        console.error('❌ Failed to send verification email:', error.message);
+      });
+
     res.status(201).json({
       success: true,
-      message: 'User registered successfully',
+      message: 'User registered successfully. Please check your email to verify your account.',
       data: newUser
     });
 
@@ -181,6 +199,16 @@ router.post('/login', async (req, res) => {
       return res.status(403).json({
         success: false,
         message: 'Account is not activated. Please contact administrator.'
+      });
+    }
+
+    // Check if email is verified (only for offtakers and investors - role_id 2 or 3)
+    if ((user.role_id === 2 || user.role_id === 3) && user.email_verified === 0) {
+      return res.status(403).json({
+        success: false,
+        message: 'Please verify your email address before logging in. Check your inbox for the verification link.',
+        emailNotVerified: true,
+        email: user.email
       });
     }
 
@@ -560,6 +588,130 @@ router.get('/verify-reset-token/:token', async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Internal server error'
+    });
+  }
+});
+
+// Verify email with token
+router.get('/verify-email/:token', async (req, res) => {
+  try {
+    const { token } = req.params;
+
+    if (!token) {
+      return res.status(400).json({
+        success: false,
+        message: 'Verification token is required'
+      });
+    }
+
+    // Find user with this token
+    const user = await prisma.users.findFirst({
+      where: {
+        email_verify_token: token,
+        email_verified: 0
+      }
+    });
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid or expired verification token'
+      });
+    }
+
+    // Check if token is expired
+    if (user.email_verify_expires && new Date() > user.email_verify_expires) {
+      return res.status(400).json({
+        success: false,
+        message: 'Verification token has expired. Please request a new one.'
+      });
+    }
+
+    // Update user - mark email as verified
+    await prisma.users.update({
+      where: { id: user.id },
+      data: {
+        status : 1, // Activate account upon email verification
+        email_verified: 1,
+        email_verified_at: new Date(),
+        email_verify_token: null,
+        email_verify_expires: null
+      }
+    });
+
+    res.json({
+      success: true,
+      message: 'Email verified successfully! You can now login.'
+    });
+
+  } catch (error) {
+    console.error('Email verification error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error during email verification'
+    });
+  }
+});
+
+// Resend verification email
+router.post('/resend-verification', async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email is required'
+      });
+    }
+
+    // Find user by email
+    const user = await prisma.users.findFirst({
+      where: { email }
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Check if already verified
+    if (user.email_verified === 1) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email is already verified'
+      });
+    }
+
+    // Generate new verification token
+    const verificationToken = crypto.randomBytes(32).toString('hex');
+    const tokenExpiry = new Date();
+    tokenExpiry.setHours(tokenExpiry.getHours() + 24); // 24 hours expiry
+
+    // Update user with new token
+    await prisma.users.update({
+      where: { id: user.id },
+      data: {
+        email_verify_token: verificationToken,
+        email_verify_expires: tokenExpiry
+      }
+    });
+
+    // Send verification email
+    await sendEmailVerificationEmail(user.email, user.full_name, verificationToken);
+
+    res.json({
+      success: true,
+      message: 'Verification email sent successfully. Please check your inbox.'
+    });
+
+  } catch (error) {
+    console.error('Resend verification error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to resend verification email'
     });
   }
 });
