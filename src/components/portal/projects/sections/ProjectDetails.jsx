@@ -6,7 +6,6 @@ import PowerConsumptionDashboard from "@/components/admin/projectsCreate/project
 import { useAuth } from "@/contexts/AuthContext";
 import { apiGet, apiPost } from "@/lib/api";
 import SolarEnergyFlow from "@/components/admin/projectsCreate/projectViewSection/Animated";
-import { useLanguage } from "@/contexts/LanguageContext";
 import EnergyChart from "@/components/admin/projectsCreate/projectViewSection/MonthChart";
 import EnergyYearChart from "@/components/admin/projectsCreate/projectViewSection/YearChart";
 import { getDarkModeColors, useDarkMode } from "@/utils/common";
@@ -14,7 +13,7 @@ import ElectricityCostOverviewChart from "@/components/admin/projectsCreate/proj
 import ElectricityCostBarChart from "@/components/admin/projectsCreate/projectViewSection/ElectricityCostBarChart";
 import { sortByNameAsc } from "@/utils/common";
 import OverViewCards from "../../dashboard/sections/OverViewCards";
-
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const ProjectDetails = ({ project_id }) => {
     const { user } = useAuth();
@@ -537,6 +536,7 @@ const ProjectDetails = ({ project_id }) => {
                         selectedProject={selectedProject}
                         selectedInverter={selectedInverter}
                         totalProjectSize={totalProjectSize}
+                        lang={lang}
                     />
 
                     <SolarEnergyFlow

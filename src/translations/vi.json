@@ -185,7 +185,20 @@
     "alarm": "BÁO ĐỘNG",
     "approved": "Đã phê duyệt",
     "pending": "Đang chờ",
-    "rejected": "Đã từ chối"
+    "rejected": "Đã từ chối",
+    "all":"Tất cả",
+    "download": "Tải xuống",
+    "prev": "Trước",
+    "day": "Ngày",
+    "month": "Tháng",
+    "Newest": "Mới nhất",
+    "Oldest": "Cũ nhất",
+    "Project A→Z": "Dự án A→Z",
+    "no_file": "Không có tệp",
+    "approve": "Phê duyệt",
+    "reject": "Từ chối",
+    "rejectContract": "Từ chối hợp đồng",
+    "reasonForRejection": "Lý do từ chối"
   },
   "messages": {
     "success": "Thao tác thành công",
@@ -376,7 +389,11 @@
     "co2Avoided": "CO₂ tránh được trong năm nay",
     "cleanEnergyConsumed": "Năng lượng sạch đã tiêu thụ",
     "equivalentPlanted": "Tương đương đã trồng",
-    "dataNotFound":"Không tìm thấy dữ liệu"
+    "dataNotFound":"Không tìm thấy dữ liệu",
+    "trees": "Cây",
+    "projectSummary": "Tóm tắt dự án",
+    "projectStartDate": "Ngày bắt đầu dự án",
+    "uploadDocuments": "Tải lên tài liệu / hình ảnh"
   },
   "table": {
     "serialNumber": "#",
@@ -875,7 +892,17 @@
     "targetInvestmentAmount": "Số tiền đầu tư mục tiêu ($)",
     "leaseterm": "Thời hạn thuê (năm)",
     "energyGenerationDetails": "Chi tiết phát điện",
-    "installedCapacity": "Công suất lắp đặt (kWp)"
+    "installedCapacity": "Công suất lắp đặt (kWp)",
+    "projectEndDate": "Ngày kết thúc dự án",
+    "selectProjectType": "Chọn loại dự án",
+    "enterNumber": "Nhập số",
+    "enterLocation": "Nhập vị trí",
+    "projectDescriptionPlaceholder": "Nhập mô tả dự án",
+    "optionalProjectImageUpload": "Tải lên hình ảnh dự án (tùy chọn)",
+    "clear": "Xóa",
+    "apply": "Áp dụng",
+    "under_installation": "Đang lắp đặt",
+    "kWh/year": "kWh/năm"
   },
   "placeholders": {
     "your_company_name": "Tên công ty của bạn [Ví dụ: Theme Ocean]",
@@ -1029,7 +1056,16 @@
     "amount": "Số tiền",
     "status": "Trạng thái",
     "onlynumbers": "Chỉ cho phép nhập số (ví dụ: 123456)",
-    "paymentlist": "Danh sách thanh toán"
+    "paymentlist": "Danh sách thanh toán",
+    "searchPlaceholder": "Tìm kiếm dự án, hóa đơn, số tiền...",
+    "paymentDate": "Ngày thanh toán",
+    "screenshot": "Ảnh chụp màn hình",
+    "noPaymentsFound": "Không tìm thấy thanh toán",
+    "makePayment": "Thực hiện thanh toán",
+    "totalAmount": "Tổng số tiền",
+    "uploadScreenshot": "Tải lên ảnh chụp màn hình",
+    "dragUploadOrClick": "Kéo và tải lên hoặc nhấp chuột để chọn",
+    "submitPayment": "Gửi thanh toán"
   },
   "usersView": {
     "CreateUser": "Tạo người dùng",
@@ -1058,6 +1094,7 @@
   },
   "invoice": {
     "invoices": "Hóa đơn",
+    "invoiceName": "Tên hóa đơn",
     "invoiceHeader": "Tiêu đề hóa đơn",
     "addInvoice": "Thêm hóa đơn",
     "invoiceNumber": "Số hóa đơn",
@@ -1104,7 +1141,9 @@
     "termsAndConditions": "Điều khoản và điều kiện",
     "termsPlaceholder": "Nhập điều khoản và điều kiện cho hóa đơn",
     "taxAmount": "Số tiền thuế",
-    "allOfftaker": "Tất cả Offtakers"
+    "allOfftaker": "Tất cả Offtakers",
+    "allStatus": "Tất cả trạng thái",
+    "searchProjectOrInvoice": "Tìm kiếm dự án hoặc hóa đơn..."
   },
   "finance": {
     "title": "Tài chính chung",
@@ -1326,6 +1365,7 @@
     "editInvestor": "Chỉnh sửa nhà đầu tư"
   },
   "contract": {
+    "contract_summary": "Tóm tắt hợp đồng",
     "contract": "Hợp đồng",
     "no_contracts_found": "Không tìm thấy hợp đồng nào",
     "uploadDocument": "Tải lên tài liệu",
@@ -1339,7 +1379,11 @@
     "date": "Ngày",
     "addContract": "Thêm hợp đồng",
     "editContract": "Sửa hợp đồng",
-    "viewcontract": "Xem hợp đồng"
+    "viewcontract": "Xem hợp đồng",
+    "contractName": "Tên hợp đồng",
+    "contractDate": "Ngày hợp đồng",
+    "contractDescription": "Mô tả hợp đồng",
+    "contractDocument": "Tài liệu hợp đồng"
   },
   "meter": {
     "meter": "Công tơ",
@@ -1382,7 +1426,17 @@
     "capacityperKWh": "Giá điện năng tiêu thụ trên mỗi kWh",
     "dailyRevenue": "Doanh thu hàng ngày",
     "totalRevenue": "Tổng doanh thu",
-    "monthlyRevenue": "Doanh thu hàng tháng"
+    "monthlyRevenue": "Doanh thu hàng tháng",
+    "gridPurchased": "Lưới điện đã mua",
+    "consumeEnergy": "Tiêu thụ năng lượng",
+    "fullhour": "Giờ đầy đủ",
+    "batteryCharged": "Ắc quy đã sạc",
+    "homeGrid": "Lưới điện gia đình",
+    "backupEnergy": "Năng lượng dự phòng",
+    "energy": "Năng lượng",
+    "evnCost": "Chi phí EVN",
+    "weshareCost": "Chi phí WeShare",
+    "savingCost": "Chi phí tiết kiệm"
   },
   "projectView": {
     "projectInformation": {
@@ -1446,7 +1500,8 @@
     "daily_charge": "Sạc hàng ngày",
     "today_discharge": "hôm nay xả hàng",
     "backupload": "Tải dự phòng",
-    "perkwh": "mỗi kWh"
+    "perkwh": "mỗi kWh",
+    "load": "Tải"
   },
   "billings": {
     "billings": "Hóa đơn"

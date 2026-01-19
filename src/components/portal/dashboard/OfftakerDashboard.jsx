@@ -964,7 +964,7 @@ function DashboardView() {
               <div className="impact-card" style={{ gridColumn: "1 / -1" }}>
                 <div style={{ fontSize: "35px" }}>🌳</div>
                 <div className="impact-value">{selectedProject?.project_data?.[0]?.power_station_num_tree
-                  ? `${selectedProject.project_data[0].power_station_num_tree} trees`
+                  ? `${selectedProject.project_data[0].power_station_num_tree} ${lang("dashboard.trees", "Trees")}`
                   : '-'}</div>
                 <div className="impact-label">{lang("dashboard.equivalentPlanted", "Equivalent planted")}</div>
               </div>

@@ -6,6 +6,7 @@ import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import { createBulkNotifications, createNotification } from '../utils/notifications.js';
 
 const router = express.Router();
 
@@ -74,6 +75,36 @@ router.post("/", upload.single('document'), async (req, res) => {
       },
     });
 
+    if (created) {
+      const notificationMessage =
+        `New contract created for project "${created.projects.project_name}".`;
+
+      const notificationPayload = {
+        title: notificationMessage,
+        message: notificationMessage,
+        moduleType: 'projects',
+        moduleId: projectId,
+      };
+
+      // 1️⃣ Offtaker notification
+      if (offtakerId) {
+        await createNotification({
+          userId: offtakerId,
+          actionUrl: `contracts/details/${created.id}`,
+          ...notificationPayload,
+        });
+      }
+
+      // 2️⃣ Interested Investor notification
+      if (investorId) {
+        await createNotification({
+          userId: investorId,
+          actionUrl: `contracts/details/${created.id}`,
+          ...notificationPayload,
+        });
+      }
+    }
+
     return res.status(201).json({ success: true, data: created });
   } catch (error) {
     console.error(error);
@@ -84,15 +115,15 @@ router.post("/", upload.single('document'), async (req, res) => {
 // List contracts (filterable, pagination, search)
 router.get("/", async (req, res) => {
   try {
-    const { 
-      projectId, 
-      investorId, 
-      offtakerId, 
-      status, 
-      includeDeleted, 
-      page = 1, 
-      limit, 
-      userId, 
+    const {
+      projectId,
+      investorId,
+      offtakerId,
+      status,
+      includeDeleted,
+      page = 1,
+      limit,
+      userId,
       id,
       search,
       downloadAll,
@@ -145,9 +176,9 @@ router.get("/", async (req, res) => {
       const isISODate = /^\d{4}-\d{2}-\d{2}$/.test(trimmedSearch);
       const dateRange = isISODate
         ? {
-            gte: new Date(`${trimmedSearch}T00:00:00.000Z`),
-            lte: new Date(`${trimmedSearch}T23:59:59.999Z`),
-          }
+          gte: new Date(`${trimmedSearch}T00:00:00.000Z`),
+          lte: new Date(`${trimmedSearch}T23:59:59.999Z`),
+        }
         : null;
 
       const orFilters = [
@@ -221,8 +252,8 @@ router.get("/", async (req, res) => {
     const returnedCount = fetchAll ? totalCount : Math.min(totalCount, effectiveLimit);
     const pageSize = 20;
 
-    return res.json({ 
-      success: true, 
+    return res.json({
+      success: true,
       data,
       projectList,
       offtakerList,
@@ -347,6 +378,26 @@ router.put("/:id/status", authenticateToken, async (req, res) => {
       where: { id },
       data: updateData,
     });
+
+    let notificationMessage = '';
+
+    if (Number(status) === 1) {
+      notificationMessage = `Contract for "${existing.contract_title}" has been approved.`;
+    }
+
+    if (Number(status) === 2) {
+      notificationMessage = `Contract for "${existing.contract_title}" has been rejected. Reason: ${reason}`;
+    }
+
+    await createNotification({
+      userId: '1',
+      title: notificationMessage,
+      message: notificationMessage,
+      moduleType: 'contract',
+      moduleId: existing?.id,
+      actionUrl: `contract/view/${existing?.id}`,
+    });
+
     return res.json({ success: true, data: updated });
   } catch (error) {
     console.error(error);

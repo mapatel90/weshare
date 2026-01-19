@@ -202,7 +202,20 @@
     "alarm": "ALARM",
     "approved": "Approved",
     "pending": "Pending",
-    "rejected": "Rejected"
+    "rejected": "Rejected",
+    "all":"All",
+    "download": "Download",
+    "prev": "Prev",
+    "day": "Day",
+    "month": "Month",
+    "Newest": "Newest",
+    "Oldest": "Oldest",
+    "Project A→Z": "Project A→Z",
+    "no_file": "No File",
+    "approve": "Approve",
+    "reject": "Reject",
+    "rejectContract": "Reject Contract",
+    "reasonForRejection": "Reason for rejection"
   },
   "messages": {
     "success": "Operation completed successfully",
@@ -392,7 +405,11 @@
     "co2Avoided": "CO₂ Avoided This Year",
     "cleanEnergyConsumed": "Clean Energy Consumed",
     "equivalentPlanted": "Equivalent planted",
-    "dataNotFound": "No data found"
+    "dataNotFound": "No data found",
+    "trees": "Trees",
+    "projectSummary": "Project Summary",
+    "projectStartDate": "Project Start Date",
+    "uploadDocuments": "Upload Documents / Image"
   },
   "table": {
     "serialNumber": "#",
@@ -902,7 +919,15 @@
     "targetInvestmentAmount": "Target Investment Amount ($)",
     "leaseterm": "Lease Term (years)",
     "energyGenerationDetails": "Energy Generation Details",
-    "installedCapacity": "Installed Capacity (kWp)"
+    "installedCapacity": "Installed Capacity (kWp)",
+    "projectEndDate": "Project End Date",
+    "selectProjectType": "Select Project Type",
+    "enterNumber": "Enter Number",
+    "enterLocation": "Enter Location",
+    "projectDescriptionPlaceholder": "Enter project description",
+    "optionalProjectImageUpload": "Optional project image upload",
+    "clear": "Clear",
+    "apply": "Apply"
   },
   "settings": {
     "title": "Settings",
@@ -1032,7 +1057,9 @@
     "noinverterfound": "No inverters found",
     "serial": "Serial",
     "apiUrlNamePlaceholder": "API URL",
-    "project_inverter": "Projects Inverter"
+    "project_inverter": "Projects Inverter",
+    "under_installation": "Under Installation",
+    "kWh/year": "kWh/year"
   },
   "projectType": {
     "title": "Project Types",
@@ -1076,7 +1103,16 @@
     "amount": "Amount",
     "status": "Status",
     "onlynumbers": "Only numbers are allowed (e.g. 123456)",
-    "paymentlist": "Payment List"
+    "paymentlist": "Payment List",
+    "searchPlaceholder": "Search Project, Invoice, Amount...",
+    "paymentDate": "Payment Date",
+    "screenshot": "Screenshot",
+    "noPaymentsFound": "No payments found",
+    "makePayment": "Make a Payment",
+    "totalAmount": "Total Amount",
+    "uploadScreenshot": "Upload Screenshot",
+    "dragUploadOrClick": "Drag & Upload or Click to select",
+    "submitPayment": "Submit Payment"
   },
   "usersView": {
     "CreateUser": "Create User",
@@ -1105,6 +1141,7 @@
   },
   "invoice": {
     "invoices": "Invoices",
+    "invoiceName": "Invoice Name",
     "invoiceHeader": "Invoice Header",
     "addInvoice": "Add Invoice",
     "invoiceNumber": "Invoice Number",
@@ -1151,7 +1188,9 @@
     "termsAndConditions": "Terms & Conditions",
     "termsPlaceholder": "Enter terms and conditions for this invoice...",
     "taxAmount": "Tax Amount",
-    "allOfftaker": "All Offtakers"
+    "allOfftaker": "All Offtakers",
+    "allStatus": "All Status",
+    "searchProjectOrInvoice": "Search project or invoice..."
   },
   "finance": {
     "title": "Finance General",
@@ -1391,7 +1430,11 @@
     "date": "Date",
     "addContract": "Add Contract",
     "editContract": "Edit Contract",
-    "viewcontract": "View Contract"
+    "viewcontract": "View Contract",
+    "contractName": "Contract Name",
+    "contractDescription": "Contract Description",
+    "contractDate": "Contract Date",
+    "contractDocument": "Contract Document"
   },
   "meter": {
     "meter": "Meter",
@@ -1434,7 +1477,17 @@
     "capacityperKWh": "Capacity price per kWh",
     "dailyRevenue": "Daily Revenue",
     "totalRevenue": "Total Revenue",
-    "monthlyRevenue": "Monthly Revenue"
+    "monthlyRevenue": "Monthly Revenue",
+    "gridPurchased": "Grid Purchased",
+    "consumeEnergy": "Consume Energy",
+    "fullhour": "Full Hour",
+    "batteryCharged": "Battery Charged",
+    "homeGrid": "Home Grid",
+    "backupEnergy": "Backup Energy",
+    "energy": "Energy",
+    "evnCost": "EVN Cost",
+    "weshareCost": "WeShare Cost",
+    "savingCost": "Saving Cost"
   },
   "projectView": {
     "projectInformation": {
@@ -1498,7 +1551,8 @@
     "daily_charge": "Daily Charge",
     "today_discharged": "Today Discharged",
     "backupload": "Back-Up Load",
-    "perkwh": "Per kWh"
+    "perkwh": "Per kWh",
+    "load": "Load"
   },
   "billings": {
     "billings": "Billings"
