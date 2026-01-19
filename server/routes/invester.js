@@ -1,6 +1,7 @@
 import express from "express";
 import prisma from "../utils/prisma.js";
 import { authenticateToken } from "../middleware/auth.js";
+import { createNotification } from "../utils/notifications.js";
 
 const router = express.Router();
 
@@ -29,21 +30,17 @@ router.post("/", async (req, res) => {
       const project = await prisma.projects.findFirst({
         where: { id: Number(projectId) },
         include: { offtaker: true },
-      }); 
+      });
 
       if (project && project.offtaker) {
         const notificationMessage = `New investor interest with name ${fullName} for project "${project.project_name}".`;
-        await prisma.notifications.create({
-          data: {
-            user_id: project.offtaker.id,
-            title: notificationMessage,
-            message: notificationMessage,
-            module_type: 'projects',
-            module_id: project.id,
-            action_url: `/projects/${project.id}/investors`,
-            is_read: 0,
-            created_by: userId ?? null,
-          },
+        await createNotification({
+          userId: project.offtaker.id,
+          title: notificationMessage,
+          message: notificationMessage,
+          moduleType: 'projects',
+          moduleId: project.id,
+          actionUrl: `/projects/${project.id}/investors`,
         });
       }
     }
