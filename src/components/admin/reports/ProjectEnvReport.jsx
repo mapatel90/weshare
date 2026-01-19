@@ -5,7 +5,7 @@ import Table from "@/components/shared/table/Table";
 import { apiGet, apiPost } from '@/lib/api';
 import { useLanguage } from '@/contexts/LanguageContext';
 
-const ProjectEnergyReport = () => {
+const ProjectEnvReport = () => {
     const PAGE_SIZE = 50;
     const { lang } = useLanguage();
     const [loading, setLoading] = useState(true);
@@ -24,13 +24,17 @@ const ProjectEnergyReport = () => {
     const [endDate, setEndDate] = useState('');
     const [pageIndex, setPageIndex] = useState(0);
     const [projectEnergyData, setProjectEnergyData] = useState([]);
+    const [appliedProject, setAppliedProject] = useState("");
+    const [appliedStartDate, setAppliedStartDate] = useState("");
+    const [appliedEndDate, setAppliedEndDate] = useState("");
+    const isSubmitDisabled = !projectFilter;
 
     const fetch_project_list = async () => {
         try {
             setLoading(true);
             setError(null);
 
-            const res = await apiPost(`/api/projects/dropdown/project`);
+            const res = await apiPost("/api/projects/dropdown/project");
 
             if (res && res.data) {
                 setProjects(res.data);
@@ -54,9 +58,9 @@ const ProjectEnergyReport = () => {
             setLoading(true);
             setError(null);
 
-            if (startDate && endDate) {
-                const startTs = new Date(`${startDate}T00:00:00`);
-                const endTs = new Date(`${endDate}T23:59:59`);
+            if (appliedStartDate && appliedEndDate) {
+                const startTs = new Date(`${appliedStartDate}T00:00:00`);
+                const endTs = new Date(`${appliedEndDate}T23:59:59`);
                 if (startTs > endTs) {
                     setError("Start date cannot be after end date.");
                     setLoading(false);
@@ -68,18 +72,20 @@ const ProjectEnergyReport = () => {
                 page: String(pageIndex + 1),
                 limit: String(PAGE_SIZE),
             });
-            if (projectFilter) {
-                params.append("projectId", projectFilter);
+            if (appliedProject) {
+                params.append("projectId", appliedProject);
             }
             if (search) {
                 params.append("search", search);
             }
-            if (startDate) {
-                params.append("startDate", startDate);
+            if (appliedStartDate) {
+                params.append("startDate", appliedStartDate);
             }
-            if (endDate) {
-                params.append("endDate", endDate);
+            if (appliedEndDate) {
+                params.append("endDate", appliedEndDate);
             }
+
+            // params.append("offtaker_id", user?.id);
 
             const res = await apiPost(`/api/projects/report/project-energy-data?${params.toString()}`);
 
@@ -106,9 +112,28 @@ const ProjectEnergyReport = () => {
         }
     };
 
+
+    const handleSubmit = () => {
+        if (!projectFilter) {
+            alert("Please select Project");
+            return;
+        }
+
+        // Clear old data and reset loading state when submitting new filters
+        setProjectEnergyData([]);
+        setHasLoadedOnce(false);
+        setLoading(true);
+        setPageIndex(0);
+        setSearch('');
+        setAppliedProject(projectFilter);
+        setAppliedStartDate(startDate);
+        setAppliedEndDate(endDate);
+    };
+
     useEffect(() => {
+        if (!appliedProject) return;
         fetch_project_energy_data();
-    }, [projectFilter, startDate, endDate, search, pagination.limit, pageIndex]);
+    }, [appliedProject, appliedStartDate, appliedEndDate, search, pageIndex]);
 
     useEffect(() => {
         fetch_project_list();
@@ -151,7 +176,7 @@ const ProjectEnergyReport = () => {
         {
             accessorKey: 'pv',
             header: 'PV',
-            cell: ({ row }) => row.original.pv || 'N/A',
+            cell: ({ row }) => row.original.pv || '0',
         },
         {
             accessorKey: 'grid',
@@ -161,7 +186,7 @@ const ProjectEnergyReport = () => {
         {
             accessorKey: 'load',
             header: 'Load',
-            cell: ({ row }) => row.original.load || 'N/A',
+            cell: ({ row }) => row.original.load || '0',
         },
     ], []);
 
@@ -172,19 +197,19 @@ const ProjectEnergyReport = () => {
             // Build params for CSV export (fetch all data, no pagination)
             const params = new URLSearchParams();
 
-            if (projectFilter) {
-                params.append("projectId", projectFilter);
+            if (appliedProject) {
+                params.append("projectId", appliedProject);
             }
 
             if (search) {
                 params.append("search", search);
             }
 
-            if (startDate) {
-                params.append("startDate", startDate);
+            if (appliedStartDate) {
+                params.append("startDate", appliedStartDate);
             }
-            if (endDate) {
-                params.append("endDate", endDate);
+            if (appliedEndDate) {
+                params.append("endDate", appliedEndDate);
             }
 
             // Fetch all data for CSV (set a high limit or fetch without pagination)
@@ -234,12 +259,12 @@ const ProjectEnergyReport = () => {
 
                 // Generate filename with date range if applicable
                 let filename = 'project_energy_report';
-                if (startDate && endDate) {
-                    filename += `_${startDate}_to_${endDate}`;
-                } else if (startDate) {
-                    filename += `_from_${startDate}`;
-                } else if (endDate) {
-                    filename += `_until_${endDate}`;
+                if (appliedStartDate && appliedEndDate) {
+                    filename += `_${appliedStartDate}_to_${appliedEndDate}`;
+                } else if (appliedStartDate) {
+                    filename += `_from_${appliedStartDate}`;
+                } else if (appliedEndDate) {
+                    filename += `_until_${appliedEndDate}`;
                 }
                 filename += `_${new Date().toISOString().split('T')[0]}.csv`;
 
@@ -262,39 +287,47 @@ const ProjectEnergyReport = () => {
 
     return (
         <>
-            <div className="p-6 bg-white rounded-xl shadow-md">
-                <div className="flex flex-row flex-wrap items-center justify-start md:justify-end gap-2 mb-4 mt-4">
-                    <select
-                        id="projectFilter"
-                        className="theme-btn-blue-color border rounded-md px-3 me-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
-                        value={projectFilter}
-                        onChange={(e) => setProjectFilter(e.target.value)}
-                    >
-                        <option value="">All Projects</option>
-                        {projects.map((p, index) => (
-                            <option key={p?.id ?? index} value={p?.id}>
-                                {p?.project_name}
-                            </option>
-                        ))}
-                    </select>
+            <div className="p-6 bg-white rounded-3xl shadow-md">
+                <div className="d-flex items-center justify-content-between gap-2 mb-4 mt-4 w-full flex-wrap">
+                    <div className="filter-button">
+                        <select
+                            id="projectFilter"
+                            className="theme-btn-blue-color border  rounded-md px-3 me-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
+                            value={projectFilter}
+                            onChange={(e) => setProjectFilter(e.target.value)}
+                        >
+                            <option value="">All Projects</option>
+                            {projects.map((p, index) => (
+                                <option key={p?.id ?? index} value={p?.id}>
+                                    {p?.project_name}
+                                </option>
+                            ))}
+                        </select>
 
-                    <input
-                        type="date"
-                        value={startDate}
-                        onChange={(e) => setStartDate(e.target.value)}
-                        className="theme-btn-blue-color border rounded-md px-3 py-2 me-2 text-sm"
-                        placeholder={lang("common.startDate") || "Start Date"}
-                    />
+                        <input
+                            type="date"
+                            value={startDate}
+                            onChange={(e) => setStartDate(e.target.value)}
+                            className="theme-btn-blue-color border rounded-md px-3 py-2 me-2 text-sm"
+                            placeholder={lang("common.startDate") || "Start Date"}
+                        />
 
-                    <input
-                        type="date"
-                        value={endDate}
-                        onChange={(e) => setEndDate(e.target.value)}
-                        min={startDate || undefined}
-                        className="theme-btn-blue-color border rounded-md px-3 py-2 me-2 text-sm"
-                        placeholder={lang("common.endDate") || "End Date"}
-                    />
-
+                        <input
+                            type="date"
+                            value={endDate}
+                            onChange={(e) => setEndDate(e.target.value)}
+                            min={startDate || undefined}
+                            className="theme-btn-blue-color border rounded-md px-3 py-2 me-2 text-sm"
+                            placeholder={lang("common.endDate") || "End Date"}
+                        />
+                        <button
+                            onClick={handleSubmit}
+                            disabled={isSubmitDisabled}
+                            className={`theme-btn-blue-color border rounded-md px-4 py-2 text-sm ${isSubmitDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
+                        >
+                            Submit
+                        </button>
+                    </div>
                     <button
                         onClick={downloadCSV}
                         disabled={loading || !hasLoadedOnce}
@@ -310,31 +343,28 @@ const ProjectEnergyReport = () => {
                     )}
 
                     {error && <div className="text-red-600">Error: {error}</div>}
-                    {hasLoadedOnce && (
-                        <>
-                            {/* Keep the table mounted so search input state is retained */}
-                            <Table
-                                data={projectEnergyData}
-                                columns={columns}
-                                disablePagination={false}
-                                onSearchChange={handleSearchChange}
-                                onPaginationChange={handlePaginationChange}
-                                pageIndex={pageIndex}
-                                pageSize={PAGE_SIZE}
-                                serverSideTotal={pagination.total}
-                                initialPageSize={PAGE_SIZE}
-                            />
-                            {loading && (
-                                <div className="absolute inset-0 bg-white/70 flex items-center justify-center text-gray-600">
-                                    Refreshing...
-                                </div>
-                            )}
-                        </>
-                    )}
+                    <>
+                        <Table
+                            data={projectEnergyData}
+                            columns={columns}
+                            disablePagination={false}
+                            onSearchChange={handleSearchChange}
+                            onPaginationChange={handlePaginationChange}
+                            pageIndex={pageIndex}
+                            pageSize={PAGE_SIZE}
+                            serverSideTotal={pagination.total}
+                            initialPageSize={PAGE_SIZE}
+                        />
+                        {loading && (
+                            <div className="absolute inset-0 bg-white/70 flex items-center justify-center text-gray-600">
+                                Refreshing...
+                            </div>
+                        )}
+                    </>
                 </div>
             </div>
         </>
     );
 };
 
-export default ProjectEnergyReport;
+export default ProjectEnvReport;

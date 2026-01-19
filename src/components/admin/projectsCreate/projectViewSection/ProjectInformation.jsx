@@ -131,25 +131,25 @@ const ProjectInformation = ({ project = {}, isDark = false }) => {
           </div>
 
           {/* RIGHT: First 6 Info Cards */}
-          <div className="col-lg-8 col-md-12">
+          <div className="col-lg-8">
             <div className="row g-3">
-              <div className="col-6">
+              <div className="col-lg-6 col-md-4 col-sm-12">
                 <InfoCard icon={Sun} label={lang('projectView.projectInformation.project_type', 'Project Type')} value={project.project_types?.type_name} color={getAutoRandomColor()} isDark={isDark} />
               </div>
-              <div className="col-6">
+              <div className="col-lg-6 col-md-4 col-sm-12">
                 <InfoCard icon={Activity} label={lang('projectView.projectInformation.status', 'Status')} value={project.status === 1 ? 'Active' : 'Inactive'} color={getAutoRandomColor()} isDark={isDark} />
               </div>
-              <div className="col-6">
+              <div className="col-lg-6 col-md-4 col-sm-12">
                 <InfoCard icon={Users} label={lang('projectView.projectInformation.offtaker', 'offtaker')} value={project.offtaker?.full_name} color={getAutoRandomColor()} isDark={isDark} />
               </div>
-              <div className="col-6">
+              <div className="col-lg-6 col-md-4 col-sm-12">
                 <InfoCard icon={TrendingUp} label={lang('projectView.projectInformation.asking_price', 'Asking Price')} value={project.asking_price} color={getAutoRandomColor()} isDark={isDark} />
               </div>
             </div>
           </div>
 
           {/* BOTTOM: Last 3 Cards (Country, State, City) - Full Width Below Image */}
-          <div className="col-12 mt-0">
+          <div className="col-12 mt-1">
             <div className="row g-3">
               <div className="col-lg-4 col-md-4 col-sm-12">
                 <InfoCard icon={DollarSign} label={lang('projectView.projectInformation.investor_profit', 'Investor Profit')} value={`${project.investor_profit}%`} color={getAutoRandomColor()} isDark={isDark} />

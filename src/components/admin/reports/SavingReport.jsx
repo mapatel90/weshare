@@ -37,7 +37,7 @@ const SavingReports = () => {
 
   const fetch_project_list = async () => {
     try {
-      const res = await apiPost("/api/projects/dropdown/project", { offtaker_id: user?.id });
+      const res = await apiPost("/api/projects/dropdown/project");
       if (res && res.success) {
         setProjectList(res.data);
       }
@@ -94,7 +94,7 @@ const SavingReports = () => {
         params.append("groupBy", appliedGroupBy);
       }
 
-      params.append("offtaker_id", user?.id);
+      // params.append("offtaker_id", user?.id);
 
       const res = await apiGet(`/api/projects/report/saving-data?${params.toString()}`);
 
@@ -268,7 +268,7 @@ const SavingReports = () => {
       params.append("page", "1");
       params.append("limit", "10000"); // Large limit to get all data
 
-      params.append("offtaker_id", user?.id);
+      // params.append("offtaker_id", user?.id);
 
       const res = await apiGet(`/api/projects/report/saving-data?${params.toString()}`);
 
@@ -386,7 +386,7 @@ const SavingReports = () => {
           <select
             value={projectFilter}
             onChange={(e) => setProjectFilter(e.target.value)}
-            className="theme-btn-blue-color border rounded-md px-3 py-2 text-sm min-w-[180px]"
+            className="theme-btn-blue-color border  rounded-md px-3 me-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
           >
             <option value="">{lang("reports.allprojects")}</option>
             {projectList.map((p) => (
@@ -406,7 +406,7 @@ const SavingReports = () => {
                 setSearchTerm("");
               }
             }}
-            className="theme-btn-blue-color border rounded-md px-3 py-2 text-sm min-w-[120px]"
+            className="theme-btn-blue-color border  rounded-md px-3 me-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
           >
             <option value="day">Day</option>
             <option value="month">Month</option>
@@ -417,7 +417,7 @@ const SavingReports = () => {
             type="date"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
-            className="border rounded-md px-3 py-2 text-sm" style={{backgroundColor: '#102c41', color: 'white'}}
+            className="theme-btn-blue-color border rounded-md px-3 py-2 me-2 text-sm"
           />
 
           {/* End Date */}
@@ -426,7 +426,7 @@ const SavingReports = () => {
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
             min={startDate || undefined}
-            className="border rounded-md px-3 py-2 text-sm" style={{backgroundColor: '#102c41', color: 'white'}}
+            className="theme-btn-blue-color border rounded-md px-3 py-2 me-2 text-sm"
           />
 
           {/* Submit */}

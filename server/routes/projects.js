@@ -1069,11 +1069,13 @@ router.post("/electricity/monthly-cost-chart", async (req, res) => {
     const { projectId, year } = req.body;
 
     if (!projectId) {
-      return res.status(400).json({ error: "Project Id required parameters" });
+      return res.status(400).json({
+        success: false,
+        message: "Project Id is required",
+      });
     }
-    const selectedYear = year || dayjs().format('YYYY');
 
-    // const projectIdInt = Number(projectId);
+    const selectedYear = year || dayjs().format("YYYY");
 
     const project = await prisma.projects.findFirst({
       where: { id: Number(projectId) },
@@ -1084,15 +1086,18 @@ router.post("/electricity/monthly-cost-chart", async (req, res) => {
     });
 
     if (!project) {
-      return res.status(404).json({ error: "Project not found" });
+      return res.status(404).json({
+        success: false,
+        message: "Project not found",
+      });
     }
 
     const energyData = await prisma.project_energy_days_data.findMany({
       where: {
         project_id: Number(projectId),
         date: {
-          gte: new Date(`${year}-01-01`),
-          lte: new Date(`${year}-12-31`),
+          gte: new Date(`${selectedYear}-01-01T00:00:00.000Z`),
+          lte: new Date(`${selectedYear}-12-31T23:59:59.999Z`),
         },
       },
       select: {
@@ -1101,39 +1106,52 @@ router.post("/electricity/monthly-cost-chart", async (req, res) => {
       },
     });
 
+    // 🔹 Monthly aggregation
     const monthlyMap = {};
 
-    energyData.forEach(row => {
-      const month = new Date(row.date).getMonth(); // 0–11
+    energyData.forEach((row) => {
+      const monthIndex = new Date(row.date).getMonth(); // 0–11
 
-      if (!monthlyMap[month]) {
-        monthlyMap[month] = 0;
+      if (!monthlyMap[monthIndex]) {
+        monthlyMap[monthIndex] = 0;
       }
 
-      monthlyMap[month] += row.energy || 0;
+      monthlyMap[monthIndex] += Number(row.energy) || 0;
     });
 
-    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const monthNames = [
+      "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+    ];
 
-    const chartData = monthNames.map((name, index) => {
+    const chartData = monthNames.map((month, index) => {
       const totalKwh = monthlyMap[index] || 0;
 
+      const evnAmount =
+        totalKwh * (Number(project.evn_price_kwh) || 0);
+
+      const weshareAmount =
+        totalKwh * (Number(project.weshare_price_kwh) || 0);
+
       return {
-        month: name,
-        evn: totalKwh * project.evn_price_kwh,
-        weshare: totalKwh * project.weshare_price_kwh,
+        month,
+        evn: Number(evnAmount.toFixed(2)),
+        weshare: Number(weshareAmount.toFixed(2)),
+        saving: Number((evnAmount - weshareAmount).toFixed(2)),
       };
     });
+
     return res.json({
       success: true,
       year: selectedYear,
       data: chartData,
     });
-
-  }
-  catch (error) {
+  } catch (error) {
     console.error("Error fetching monthly electricity cost data:", error);
-    return res.status(500).json({ error: "Server error" });
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
   }
 });
 
@@ -1213,20 +1231,26 @@ router.post('/electricity/overview-chart', async (req, res) => {
       }
 
       if (!resultMap[key]) {
-        resultMap[key] = { evn: 0, weshare: 0 };
+        resultMap[key] = { evn: 0, weshare: 0, saving: 0 };
       }
 
-      resultMap[key].evn +=
-        row.energy * project.evn_price_kwh;
+      const energy = Number(row.energy) || 0;
+      const evnPrice = Number(project.evn_price_kwh) || 0;
+      const wesharePrice = Number(project.weshare_price_kwh) || 0;
 
-      resultMap[key].weshare +=
-        row.energy * project.weshare_price_kwh;
+      const evnAmount = energy * evnPrice;
+      const weshareAmount = energy * wesharePrice;
+
+      resultMap[key].evn += evnAmount;
+      resultMap[key].weshare += weshareAmount;
+      resultMap[key].saving += (evnAmount - weshareAmount);
     });
 
     const data = Object.keys(resultMap).map((key) => ({
       label: key,
       evn: resultMap[key].evn,
       weshare: resultMap[key].weshare,
+      saving: resultMap[key].saving
     }));
 
     return res.json({
@@ -1447,6 +1471,7 @@ router.get("/report/saving-data", authenticateToken, async (req, res) => {
       page,
       startDate,
       endDate,
+      groupBy,
     } = req.query;
 
     const limitNumber = Number(limit) > 0 ? Number(limit) : 50;
@@ -1531,6 +1556,10 @@ router.get("/report/saving-data", authenticateToken, async (req, res) => {
       ];
     }
 
+    // If grouping by month, we need to fetch ALL data first, then group
+    // Otherwise, use pagination as usual
+    const shouldFetchAllForGrouping = groupBy === "month";
+
     // TOTAL COUNT
     const totalCount = await prisma.project_energy_days_data.count({
       where,
@@ -1551,12 +1580,12 @@ router.get("/report/saving-data", authenticateToken, async (req, res) => {
         },
       },
       orderBy: { date: "desc" },
-      skip: fetchAll ? 0 : (pageNumber - 1) * limitNumber,
-      take: fetchAll ? undefined : limitNumber,
+      skip: shouldFetchAllForGrouping ? 0 : (fetchAll ? 0 : (pageNumber - 1) * limitNumber),
+      take: shouldFetchAllForGrouping ? undefined : (fetchAll ? undefined : limitNumber),
     });
 
     // CALCULATIONS
-    const dataWithCalculations = data.map((row) => {
+    let dataWithCalculations = data.map((row) => {
       const wesharePrice = Number(row.projects?.weshare_price_kwh) || 0;
       const evnPrice = Number(row.projects?.evn_price_kwh) || 0;
       const energy = Number(row.energy) || 0;
@@ -1573,16 +1602,96 @@ router.get("/report/saving-data", authenticateToken, async (req, res) => {
       };
     });
 
-    res.status(200).json({
-      success: true,
-      data: dataWithCalculations,
-      pagination: {
-        page: pageNumber,
-        limit: limitNumber,
-        total: totalCount,
-        pages: Math.ceil(totalCount / limitNumber),
-      },
-    });
+    // GROUP BY MONTH IF REQUESTED
+    if (groupBy === "month") {
+      // Group data by project_id and month
+      const monthGroups = {};
+
+      dataWithCalculations.forEach((row) => {
+        const date = new Date(row.date);
+        const year = date.getFullYear();
+        const month = date.getMonth(); // 0-11
+        const monthKey = `${row.project_id}-${year}-${month}`;
+
+        if (!monthGroups[monthKey]) {
+          // Format date as MM/YYYY (e.g., "01/2026")
+          const monthStr = String(month + 1).padStart(2, '0');
+          const yearStr = String(year);
+          monthGroups[monthKey] = {
+            id: monthKey,
+            project_id: row.project_id,
+            projects: row.projects,
+            date: `${monthStr}/${yearStr}`,
+            energy: 0,
+            grid_purchased_energy: 0,
+            consume_energy: 0,
+            full_hour: 0,
+            battery_charge_energy: 0,
+            battery_discharge_energy: 0,
+            home_grid_energy: 0,
+            back_up_energy: 0,
+            weshare_amount: 0,
+            evn_amount: 0,
+            saving_cost: 0,
+            created_at: row.created_at,
+          };
+        }
+
+        // Sum all numeric fields
+        monthGroups[monthKey].energy += Number(row.energy) || 0;
+        monthGroups[monthKey].grid_purchased_energy += Number(row.grid_purchased_energy) || 0;
+        monthGroups[monthKey].consume_energy += Number(row.consume_energy) || 0;
+        monthGroups[monthKey].full_hour += Number(row.full_hour) || 0;
+        monthGroups[monthKey].battery_charge_energy += Number(row.battery_charge_energy) || 0;
+        monthGroups[monthKey].battery_discharge_energy += Number(row.battery_discharge_energy) || 0;
+        monthGroups[monthKey].home_grid_energy += Number(row.home_grid_energy) || 0;
+        monthGroups[monthKey].back_up_energy += Number(row.back_up_energy) || 0;
+        monthGroups[monthKey].weshare_amount += Number(row.weshare_amount) || 0;
+        monthGroups[monthKey].evn_amount += Number(row.evn_amount) || 0;
+        monthGroups[monthKey].saving_cost += Number(row.saving_cost) || 0;
+      });
+
+      // Convert grouped object to array and sort by date (newest first)
+      // Parse MM/YYYY format for sorting
+      const allMonths = Object.values(monthGroups).sort((a, b) => {
+        // Parse MM/YYYY format (e.g., "01/2026")
+        const parseMonthYear = (str) => {
+          const [month, year] = str.split('/').map(Number);
+          return new Date(year, month - 1, 1); // month is 0-indexed in Date constructor
+        };
+        const dateA = parseMonthYear(a.date);
+        const dateB = parseMonthYear(b.date);
+        return dateB - dateA;
+      });
+
+      // Apply pagination to grouped months
+      const paginatedMonths = fetchAll 
+        ? allMonths 
+        : allMonths.slice((pageNumber - 1) * limitNumber, pageNumber * limitNumber);
+
+      res.status(200).json({
+        success: true,
+        data: paginatedMonths,
+        pagination: {
+          page: pageNumber,
+          limit: limitNumber,
+          total: allMonths.length,
+          pages: Math.ceil(allMonths.length / limitNumber),
+        },
+      });
+    } else {
+      // Original day-based response
+      res.status(200).json({
+        success: true,
+        data: dataWithCalculations,
+        pagination: {
+          page: pageNumber,
+          limit: limitNumber,
+          total: totalCount,
+          pages: Math.ceil(totalCount / limitNumber),
+        },
+      });
+    }
   } catch (error) {
     console.error("Project day data error:", error);
     res.status(500).json({

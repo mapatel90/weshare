@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
-import { apiGet } from "@/lib/api";
+import { apiGet, apiPost } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Table from "@/components/shared/table/Table";
@@ -28,6 +28,60 @@ const InverterEnvReport = () => {
   const [projectList, setProjectList] = useState([]);
   const [inverterList, setInverterList] = useState([]);
 
+  const [appliedProject, setAppliedProject] = useState("");
+  const [appliedInverter, setAppliedInverter] = useState("");
+  const isSubmitDisabled = !projectFilter;
+
+
+  // -----------------------------
+  // Fetch Project List
+  // -----------------------------
+  const fetchProjectList = async () => {
+    try {
+      if (!user?.id) return;
+
+      const res = await apiPost("/api/projects/dropdown/project", {
+        offtaker_id: user.id
+      });
+
+      if (res && res.success && Array.isArray(res.data)) {
+        setProjectList(res.data);
+      } else if (Array.isArray(res)) {
+        setProjectList(res);
+      } else {
+        setProjectList([]);
+      }
+    } catch (err) {
+      console.error("Error fetching project list:", err);
+      setProjectList([]);
+    }
+  };
+
+  // -----------------------------
+  // Fetch Inverter List
+  // -----------------------------
+  const fetchInverterList = async (projectId) => {
+    try {
+      if (!projectId) {
+        setInverterList([]);
+        return;
+      }
+
+      const res = await apiGet(`/api/project-inverters?project_id=${projectId}`);
+
+      if (Array.isArray(res?.data)) {
+        setInverterList(res.data);
+      } else if (Array.isArray(res)) {
+        setInverterList(res);
+      } else {
+        setInverterList([]);
+      }
+    } catch (err) {
+      console.error("Error fetching inverter list:", err);
+      setInverterList([]);
+    }
+  };
+
   // -----------------------------
   // Fetch Reports Function
   // -----------------------------
@@ -42,20 +96,32 @@ const InverterEnvReport = () => {
         return;
       }
 
+
+      // if (!projectFilter || !inverterFilter) {
+      //   setReportsData([]);
+      //   setPagination({
+      //     page: 1,
+      //     limit: PAGE_SIZE,
+      //     total: 0,
+      //     pages: 1,
+      //   });
+      //   return;
+      // }
+
       const params = new URLSearchParams({
         page: "1",
         downloadAll: "1", // fetch all data
       });
 
       // Add projectId filter if selected
-      if (projectFilter) {
-        params.append("projectId", projectFilter);
+      if (appliedProject) {
+        params.append("projectId", appliedProject);
       }
 
-      // Add inverterId filter if selected
-      if (inverterFilter) {
-        params.append("inverterId", inverterFilter);
+      if (appliedInverter) {
+        params.append("inverterId", appliedInverter);
       }
+
 
       // Add search term
       if (searchTerm) {
@@ -105,17 +171,8 @@ const InverterEnvReport = () => {
 
       setReportsData(mappedData);
 
-      // Set dropdown lists - only offtaker's projects
-      const offtakerProjects = (res?.projectList || []).filter(
-        (p) => Number(p.offtaker_id) === Number(user.id)
-      );
-      setProjectList(offtakerProjects);
-      
-      // Filter inverters to only show those from offtaker's projects
-      const offtakerInverters = (Array.isArray(res?.inverterList) ? res.inverterList : []).filter(
-        (inv) => offtakerProjectIds.includes(Number(inv.project_id))
-      );
-      setInverterList(offtakerInverters);
+      // Note: Project and inverter lists are now fetched separately via fetchProjectList and fetchInverterList
+      // This ensures dropdowns are populated on component mount, not just after submit
 
       const apiTotal = mappedData.length;
       setPagination({
@@ -134,18 +191,26 @@ const InverterEnvReport = () => {
     }
   };
 
-  // Fetch + refresh when filters/search change
+  // Fetch project list on component mount
   useEffect(() => {
-    fetchReports();
+    if (user?.id) {
+      fetchProjectList();
+    }
+  }, [user?.id]);
 
-    const interval = setInterval(() => {
-      fetchReports();
-    }, 120000); // 2 minutes
+  // Fetch inverter list when project filter changes
+  useEffect(() => {
+    if (projectFilter) {
+      fetchInverterList(projectFilter);
+      // Reset inverter filter when project changes
+      setInverterFilter("");
+    } else {
+      setInverterList([]);
+      setInverterFilter("");
+    }
+  }, [projectFilter]);
 
-    return () => clearInterval(interval);
-  }, [projectFilter, inverterFilter, searchTerm, user?.id]);
-
-  // Reset inverter filter when project changes
+  // Reset inverter filter when inverter list changes and selected inverter is not available
   useEffect(() => {
     if (!inverterFilter) return;
 
@@ -153,25 +218,56 @@ const InverterEnvReport = () => {
     if (!available.has(inverterFilter)) {
       setInverterFilter("");
     }
-  }, [projectFilter, inverterList, inverterFilter]);
+  }, [inverterList, inverterFilter]);
+
+
+  const handleSubmit = () => {
+    if (!projectFilter) {
+      alert("Please select both Project and Inverter");
+      return;
+    }
+
+    // Clear old data and reset loading state when submitting new filters
+    setReportsData([]);
+    setHasLoadedOnce(false);
+    setLoading(true);
+    setAppliedProject(projectFilter);
+    setAppliedInverter(inverterFilter);
+  };
+
+  useEffect(() => {
+    if (!appliedProject) return;
+
+    fetchReports();
+
+    const interval = setInterval(fetchReports, 120000);
+    return () => clearInterval(interval);
+  }, [appliedProject, appliedInverter, searchTerm, user?.id]);
+
 
   // -----------------------------
   // Filtered Data
   // -----------------------------
   const filteredData = useMemo(() => {
     return reportsData.filter((d) => {
-      if (projectFilter && String(d.projectId) !== projectFilter) return false;
-      if (inverterFilter && String(d.inverterId) !== inverterFilter)
+      if (appliedProject && String(d.projectId) !== appliedProject) return false;
+      if (appliedInverter && String(d.inverterId) !== appliedInverter)
         return false;
       return true;
     });
-  }, [projectFilter, inverterFilter, reportsData]);
+  }, [appliedProject, appliedInverter, reportsData]);
 
   // -----------------------------
   // CSV Download
   // -----------------------------
   const handleDownloadCSV = async () => {
     try {
+
+      if (!projectFilter || !inverterFilter) {
+        alert("Please select both Project and Inverter to download CSV");
+        return;
+      }
+
       const params = new URLSearchParams();
       if (projectFilter) params.append("projectId", projectFilter);
       if (inverterFilter) params.append("inverterId", inverterFilter);
@@ -242,7 +338,7 @@ const InverterEnvReport = () => {
       ]);
 
       const csvContent =
-        "data:text/csv;charset=utf-8," +
+        "data:text/csv;charset=utf-8,\uFEFF" +
         [header, ...csvRows].map((e) => e.join(",")).join("\n");
 
       const link = document.createElement("a");
@@ -320,7 +416,7 @@ const InverterEnvReport = () => {
             ))}
           </select>
 
-          <select
+          {/* <select
             value={inverterFilter}
             onChange={(e) => setInverterFilter(e.target.value)}
             className="theme-btn-blue-color border rounded-md px-3 py-2 me-2 text-sm"
@@ -328,10 +424,37 @@ const InverterEnvReport = () => {
             <option value="">{lang("reports.allinverters")}</option>
             {inverterList.map((i) => (
               <option key={i.id} value={i.id}>
-                {i.name}
+                {i.inverter_name ?? i.name ?? `Inverter ${i.id}`}
               </option>
             ))}
+          </select> */}
+          <select
+            value={inverterFilter}
+            onChange={(e) => setInverterFilter(e.target.value)}
+            className="theme-btn-blue-color border rounded-md px-3 py-2 me-2 text-sm"
+          >
+            <option value="">{lang("reports.allinverters")}</option>
+
+            {[...inverterList]
+              .sort((a, b) => {
+                const nameA = (a.inverter_name ?? a.name ?? "").toLowerCase();
+                const nameB = (b.inverter_name ?? b.name ?? "").toLowerCase();
+                return nameA.localeCompare(nameB);
+              })
+              .map((i) => (
+                <option key={i.id} value={i.id}>
+                  {i.inverter_name ?? i.name ?? `Inverter ${i.id}`}
+                </option>
+              ))}
           </select>
+
+          <button
+            onClick={handleSubmit}
+            disabled={isSubmitDisabled}
+            className={`theme-btn-blue-color border rounded-md px-4 py-2 text-sm ${isSubmitDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
+          >
+            Submit
+          </button>
         </div>
 
         <button
@@ -343,35 +466,35 @@ const InverterEnvReport = () => {
       </div>
 
       <div className="overflow-x-auto relative">
-        {!hasLoadedOnce && loading && (
+        {/* {!hasLoadedOnce && loading && (
           <div className="text-center py-6 text-gray-600">Loading...</div>
-        )}
+        )} */}
 
         {error && <div className="text-red-600">Error: {error}</div>}
-
-        {hasLoadedOnce && filteredData.length === 0 && !error && !loading && (
+        {console.log("filteredData", filteredData)}
+        {/* {filteredData.length === 0 && !error && (
           <div className="text-center py-6 text-gray-600">
             {lang("common.noData")}
           </div>
-        )}
+        )} */}
 
-        {hasLoadedOnce && (
-          <>
-            <Table
-              data={filteredData}
-              columns={columns}
-              disablePagination={false}
-              onSearchChange={setSearchTerm}
-              serverSideTotal={pagination.total}
-              initialPageSize={PAGE_SIZE}
-            />
-            {loading && (
+        {/* {filteredData.length > 0 && ( */}
+        <>
+          <Table
+            data={filteredData}
+            columns={columns}
+            disablePagination={false}
+            onSearchChange={setSearchTerm}
+            serverSideTotal={pagination.total}
+            initialPageSize={PAGE_SIZE}
+          />
+          {/* {loading && (
               <div className="absolute inset-0 bg-white/70 flex items-center justify-center text-gray-600">
                 Refreshing...
               </div>
-            )}
-          </>
-        )}
+            )} */}
+        </>
+        {/* )} */}
       </div>
     </div>
   );

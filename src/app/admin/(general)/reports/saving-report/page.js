@@ -2,7 +2,7 @@ import React from 'react'
 import PageHeader from '@/components/shared/pageHeader/PageHeader'
 import Footer from '@/components/shared/Footer'
 import DynamicTitle from '@/components/common/DynamicTitle'
-import ProjectDayReport from '@/components/admin/reports/ProjectDayReport'
+import SavingReports from '@/components/admin/reports/SavingReport'
 
 const page = () => {
     return (
@@ -12,7 +12,7 @@ const page = () => {
             </PageHeader>
             <div className='main-content'>
                 <div className='row'>
-                    <ProjectDayReport />
+                    <SavingReports />
                 </div>
             </div>
             <Footer />

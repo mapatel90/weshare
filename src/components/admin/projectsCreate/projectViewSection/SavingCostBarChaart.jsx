@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo } from 'react';
 import {
     BarChart,
     Bar,
@@ -15,7 +15,7 @@ import DatePicker from 'react-datepicker';
 import dayjs from 'dayjs';
 import { formatShort } from '@/utils/common';
 
-const ElectricityCostBarChart = ({
+const SavingCostBarChart = ({
     electricityMonthCostData,
     electricityMonthCostDataLoading,
     selectedYear,
@@ -23,19 +23,6 @@ const ElectricityCostBarChart = ({
     isDark,
 }) => {
     const { lang } = useLanguage();
-    const [isMobile, setIsMobile] = useState(false);
-    const [isTablet, setIsTablet] = useState(false);
-
-    useEffect(() => {
-        const checkScreenSize = () => {
-            const width = window.innerWidth;
-            setIsMobile(width < 768);
-            setIsTablet(width >= 768 && width < 1024);
-        };
-        checkScreenSize();
-        window.addEventListener("resize", checkScreenSize);
-        return () => window.removeEventListener("resize", checkScreenSize);
-    }, []);
 
     const handleYearChange = (date) => {
         if (!date) return;
@@ -73,32 +60,27 @@ const ElectricityCostBarChart = ({
         .container {
           width: 100%;
           height: 100%;
-          padding: ${isMobile ? '16px' : '24px'};
+          padding: 24px;
           background: ${isDark ? "#121a2d" : "#fff"};
         }
         .picker-wrapper {
-          margin-bottom: ${isMobile ? '12px' : '16px'};
-          width: ${isMobile ? '100%' : isTablet ? '200px' : '432px'};
+          margin-bottom: 16px;
+          width: 432px;
         }
         .picker-wrapper :global(.react-datepicker-wrapper) {
-          margin-left: ${isMobile ? '0' : '8%'};
-          width: ${isMobile ? '100%' : '30%'};
+          margin-left:8%;
+          width: 30%;
         }
         .picker-wrapper :global(.react-datepicker__input-container input) {
           width: 100%;
-          padding: ${isMobile ? '10px 12px' : '8px 12px'};
           border-radius: 8px;
           border: 1px solid ${isDark ? '#1b2436' : '#d1d5db'};
           background: ${isDark ? '#121a2d' : '#fff'};
           color: ${isDark ? '#ffffff' : '#111827'};
-          font-size: ${isMobile ? '13px' : '14px'};
+          font-size: 14px;
         }
       `}</style>
-            <div style={{
-                width: '100%',
-                height: isMobile ? 400 : isTablet ? 450 : 400,
-                overflowX: isMobile || isTablet ? 'auto' : 'visible'
-            }}>
+            <div style={{ width: '100%', height: 500 }}>
                 <div className="picker-wrapper">
                     <DatePicker
                         selected={selectedYear ? dayjs(selectedYear, 'YYYY').toDate() : null}
@@ -108,11 +90,7 @@ const ElectricityCostBarChart = ({
                     />
                 </div>
 
-                <ResponsiveContainer
-                    width={isMobile ? '100%' : '94%'}
-                    height={isMobile ? '85%' : '86%'}
-                    minWidth={isMobile ? 280 : isTablet ? 350 : 0}
-                >
+                <ResponsiveContainer width="94%" height="86%" minWidth={400}>
                     <BarChart
                         data={data}
                         margin={{ top: 20, right: 40, left: 40, bottom: 20 }}
@@ -130,40 +108,30 @@ const ElectricityCostBarChart = ({
                             domain={[0, roundedMax]}
                             ticks={ticks}
                             label={{
-                                value: 'Cost (VND)',
+                                value: 'Cost',
                                 angle: -90,
                                 position: 'insideLeft',
                                 offset: 10,
-                                dx: -30,
                                 style: { fill: isDark ? '#cbd5f5' : '#374151' },
                             }}
                             allowDecimals={false}
                             tick={{ fill: isDark ? '#e5e7eb' : '#111827' }}
-                            tickFormatter={(v) => `${formatShort(v).toLocaleString()}`}
+                            tickFormatter={(v) => `${formatShort(v).toLocaleString()} VND`}
                         />
 
                         <Tooltip
                             formatter={(value) => `${formatShort(value).toLocaleString()} VND`}
-                            contentStyle={{
-                                backgroundColor: isDark ? '#121a2d' : '#ffffff',
-                                border: `1px solid ${isDark ? '#1b2436' : '#d1d5db'}`,
-                                borderRadius: '8px',
-                                color: isDark ? '#ffffff' : '#111827',
-                                fontSize: isMobile ? '11px' : '12px',
-                            }}
+
                         />
 
-                        <Legend
-                            wrapperStyle={{ fontSize: isMobile ? '11px' : '12px' }}
-                            iconSize={isMobile ? 10 : 14}
-                        />
+                        <Legend />
 
                         {/* EVN bar */}
                         <Bar
                             dataKey="evn"
                             name="EVN"
                             fill={isDark ? '#2563eb' : '#2563eb'}
-                            barSize={isMobile ? 8 : isTablet ? 10 : 12}
+                            barSize={12}
                         />
 
                         {/* WeShare bar */}
@@ -171,14 +139,6 @@ const ElectricityCostBarChart = ({
                             dataKey="weshare"
                             name="WeShare"
                             fill={isDark ? '#f97316' : '#f97316'}
-                            barSize={isMobile ? 8 : isTablet ? 10 : 12}
-                        />
-
-                        {/* Saving bar */}
-                        <Bar
-                            dataKey="saving"
-                            name="Saving"
-                            fill={isDark ? '#fbbf24' : '#fbbf24'}
                             barSize={12}
                         />
                     </BarChart>
@@ -188,4 +148,4 @@ const ElectricityCostBarChart = ({
     );
 };
 
-export default ElectricityCostBarChart;
+export default SavingCostBarChart;

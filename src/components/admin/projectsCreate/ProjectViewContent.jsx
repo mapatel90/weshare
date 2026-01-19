@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { apiGet, apiPost } from "@/lib/api";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useDarkMode, getDarkModeColors } from "@/utils/common";
+import { useDarkMode, getDarkModeColors, sortByNameAsc } from "@/utils/common";
 import StatCardsGrid from "./projectViewSection/StateCard";
 import PowerConsumptionDashboard from "./projectViewSection/inverterChart";
 import ProjectInformation from "./projectViewSection/ProjectInformation";
@@ -592,7 +592,7 @@ const ProjectViewContent = ({ projectId = "" }) => {
                     >
                       {lang("inverter.selectInverter", "Select Inverter")}
                     </option>
-                    {projectInverters.map((pi, index) => {
+                    {sortByNameAsc(projectInverters, "inverter_name").map((pi, index) => {
                       const inv = pi.inverter || {};
                       const label = pi.inverter_name
                         ? `${pi.inverter_name} (Serial: ${pi.inverter_serial_number || "N/A"
@@ -660,7 +660,7 @@ const ProjectViewContent = ({ projectId = "" }) => {
               : "0 1px 3px rgba(0,0,0,0.1)",
             border: `1px solid ${colors.borderLight}`,
             padding: isMobile ? "16px" : "24px",
-            overflowX: "visible",
+            overflowX: isMobile ? "auto" : "visible",
           }}>
           <h3
             style={{

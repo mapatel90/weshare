@@ -148,9 +148,9 @@ export const downloadInvoicePDF = async (invoiceId, priceWithCurrency) => {
             <tr style="background-color: #f3f4f6;">
               <th style="padding: 12px; text-align: left; border: 1px solid #ddd; font-weight: 600;">#</th>
               <th style="padding: 12px; text-align: left; border: 1px solid #ddd; font-weight: 600;">DESCRIPTION</th>
-              <th style="padding: 12px; text-align: left; border: 1px solid #ddd; font-weight: 600;">QTY</th>
-              <th style="padding: 12px; text-align: left; border: 1px solid #ddd; font-weight: 600;">RATE</th>
-              <th style="padding: 12px; text-align: left; border: 1px solid #ddd; font-weight: 600;">SUBTOTAL</th>
+              <th style="padding: 12px; text-align: left; border: 1px solid #ddd; font-weight: 600;">UNIT(KWH)</th>
+              <th style="padding: 12px; text-align: left; border: 1px solid #ddd; font-weight: 600;">RATE(PER KWH)</th>
+              <th style="padding: 12px; text-align: left; border: 1px solid #ddd; font-weight: 600;">ITEM TOTAL</th>
             </tr>
           </thead>
           <tbody>

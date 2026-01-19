@@ -8,35 +8,63 @@ import { FiImage } from "react-icons/fi";
 import PaymentModal from "../billings/PaymentModal";
 import { useAuth } from "@/contexts/AuthContext";
 import { showSuccessToast } from "@/utils/topTost";
+import { downloadPaymentPDF } from "./PaymentPdf";
 
 const statusColors = {
   Paid: "bg-green-100 text-green-700",
-  Pending: "bg-gray-200 text-gray-700",
+  "Pending Verification": "bg-gray-200 text-gray-700",
   Unfunded: "bg-orange-100 text-orange-700",
 };
 
 const Payments = () => {
   const [payments, setPayments] = useState([]);
+  const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
   const [search, setSearch] = useState("");
+  const [paymentDate, setPaymentDate] = useState("");
+  const [selectedProject, setSelectedProject] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize] = useState(10);
+  const [totalCount, setTotalCount] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
   const router = useRouter();
   const priceWithCurrency = usePriceWithCurrency();
   const { user } = useAuth();
 
-  // Fetch payments from API
-  const fetchPayments = async () => {
+  // Fetch payments from API with server-side search, date filters, and pagination
+  const fetchPayments = async (searchQuery = search, paymentDateVal = paymentDate, projectId = selectedProject, status = selectedStatus, page = currentPage) => {
     try {
       setLoading(true);
-      const response = await apiGet("/api/payments", { includeAuth: true });
+      
+      const params = new URLSearchParams({
+        search: searchQuery,
+        page: page.toString(),
+        pageSize: pageSize.toString()
+      });
+      
+      if (paymentDateVal) {
+        params.append("paymentDate", paymentDateVal);
+      }
+      
+      if (projectId) {
+        params.append("projectId", projectId);
+      }
+
+      if (status) {
+        params.append("status", status);
+      }
+      
+      const response = await apiGet(`/api/payments?${params.toString()}`, { includeAuth: true });
 
         if (response?.success && Array.isArray(response?.data)) {
           const formattedPayments = response.data.map((payment) => ({
             id: payment.id,
+            paymentId: payment.id,
             projectName: payment.invoices?.projects?.project_name || "N/A",
             invoiceNumber: payment.invoices?.invoice_number || "N/A",
             invoicePrefix: payment.invoices?.invoice_prefix || "",
@@ -52,39 +80,118 @@ const Payments = () => {
               ? new Date(payment.invoices.due_date).toLocaleDateString("en-US")
               : "N/A",
             amount: payment.amount || 0,
-            status: payment.status === 1 ? "Paid" : "Pending",
+            status: payment.status === 1 ? "Paid" : "Pending Verification",
             ss_url: payment.ss_url || "",
             download: true,
           }));
           setPayments(formattedPayments);
+          setError("");
+          
+          // Update pagination info
+          if (response.pagination) {
+            setTotalCount(response.pagination.totalCount);
+            setTotalPages(response.pagination.totalPages);
+          }
         } else {
           setError("Failed to load payments");
+          setPayments([]);
         }
       } catch (err) {
         console.error("Error fetching payments:", err);
         setError("Unable to fetch payments");
+        setPayments([]);
       } finally {
         setLoading(false);
       }
     };
 
   useEffect(() => {
+    const fetchPaymentProjects = async () => {
+      try {
+        const response = await apiGet('/api/payments?page=1&pageSize=1000', { includeAuth: true });
+        if (response?.success && Array.isArray(response?.data)) {
+          const uniqueProjects = Array.from(
+            new Map(
+              response.data
+                .filter((payment) => payment.invoices?.projects)
+                .map((payment) => [payment.invoices.projects.id, payment.invoices.projects])
+            ).values()
+          );
+          setProjects(uniqueProjects);
+        }
+      } catch (err) {
+        console.error('Error fetching payment projects:', err);
+      }
+    };
+
+    fetchPaymentProjects();
     fetchPayments();
   }, []);
 
+  // Handle search with debounce effect
+  useEffect(() => {
+    if (search.trim() === "") return;
+
+    const timeoutId = setTimeout(() => {
+      setCurrentPage(1);
+      fetchPayments(search, paymentDate, selectedProject, selectedStatus, 1);
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [search]);
+
+  // Handle date filter
+  useEffect(() => {
+    setCurrentPage(1);
+    fetchPayments(search, paymentDate, selectedProject, selectedStatus, 1);
+  }, [paymentDate]);
+
+  // Handle project filter
+  useEffect(() => {
+    setCurrentPage(1);
+    fetchPayments(search, paymentDate, selectedProject, selectedStatus, 1);
+  }, [selectedProject]);
+
+  // Handle status filter
+  useEffect(() => {
+    setCurrentPage(1);
+    fetchPayments(search, paymentDate, selectedProject, selectedStatus, 1);
+  }, [selectedStatus]);
+
+  // Handle page change
+  useEffect(() => {
+    if (currentPage > 1) {
+      fetchPayments(search, paymentDate, selectedProject, selectedStatus, currentPage);
+    }
+  }, [currentPage]);
+
+  const handlePageChange = (page) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
+
+  const getPageNumbers = () => {
+    const pages = [];
+    const maxVisible = 5;
+    let start = Math.max(1, currentPage - 2);
+    let end = Math.min(totalPages, start + maxVisible - 1);
+    
+    if (end - start < maxVisible - 1) {
+      start = Math.max(1, end - maxVisible + 1);
+    }
+    
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+    return pages;
+  };
+
   // No custom event listeners needed. Use backdrop for outside click.
 
-  const filteredPayments = payments.filter(
-    (p) =>
-      p.projectName.toLowerCase().includes(search.toLowerCase()) ||
-      `${p.invoicePrefix}-${p.invoiceNumber}`
-        .toLowerCase()
-        .includes(search.toLowerCase())
-  );
-
-  const handleDownload = (number) => {
-    // Example: window.open(`/api/payment/download/${number}`);
-    router.push("/portal/payments/invoice");
+  const handleDownload = async (paymentId) => {
+    if (!paymentId) return;
+    await downloadPaymentPDF(paymentId, priceWithCurrency);
   };
 
   const openScreenshot = (url) => {
@@ -118,7 +225,7 @@ const Payments = () => {
         offtaker_id: user?.id,
         amount: parseFloat(data.amount) || 0,
         ss_url: ss_url,
-        status: 1, // Paid status
+        status: 0, // Paid status
       };
 
       const response = await apiPost("/api/payments", paymentData);
@@ -143,17 +250,6 @@ const Payments = () => {
 
   return (
     <div className="p-6 bg-white rounded-xl shadow-md">
-      {error && (
-        <div className="bg-red-100 text-red-700 px-4 py-3 rounded mb-4">
-          {error}
-        </div>
-      )}
-
-      {successMessage && (
-        <div className="bg-green-100 text-green-700 px-4 py-3 rounded mb-4">
-          {successMessage}
-        </div>
-      )}
 
       {loading && (
         <div className="text-center py-8">
@@ -164,13 +260,41 @@ const Payments = () => {
       {!loading && (
         <>
           <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-2">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <input
                 type="text"
-                placeholder="Search User or Invoice..."
+                placeholder="Search Project, Invoice, Amount..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
+              />
+              <select
+                value={selectedProject}
+                onChange={(e) => setSelectedProject(e.target.value)}
+                className="border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
+              >
+                <option value="">All Projects</option>
+                {projects.map((project) => (
+                  <option key={project.id} value={project.id}>
+                    {project.project_name}
+                  </option>
+                ))}
+              </select>
+              <select
+                value={selectedStatus}
+                onChange={(e) => setSelectedStatus(e.target.value)}
+                className="border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
+              >
+                <option value="">All Status</option>
+                <option value="1">Paid</option>
+                <option value="0">Pending</option>
+              </select>
+              <input
+                type="date"
+                value={paymentDate}
+                onChange={(e) => setPaymentDate(e.target.value)}
+                className="border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
+                placeholder="Payment Date"
               />
             </div>
             <button
@@ -206,8 +330,8 @@ const Payments = () => {
                 </tr>
               </thead>
               <tbody>
-                {filteredPayments.length > 0 ? (
-                  filteredPayments.map((payment, idx) => (
+                {payments.length > 0 ? (
+                  payments.map((payment, idx) => (
                     <tr
                       key={payment.id}
                       className={idx % 2 ? "bg-white" : "bg-gray-50"}
@@ -274,7 +398,7 @@ const Payments = () => {
                                   <button
                                     className="block w-full text-left px-4 py-2 text-blue-600 hover:bg-gray-100"
                                     onClick={() => {
-                                      handleDownload(payment.number);
+                                      handleDownload(payment.id);
                                       setDropdownOpen(null);
                                     }}
                                   >
@@ -307,23 +431,35 @@ const Payments = () => {
           {/* Pagination */}
           <div className="flex items-center justify-between mt-4">
             <div className="text-sm text-gray-500">
-              1 - {filteredPayments.length} of {payments.length} entries
+              {totalCount > 0 ? ((currentPage - 1) * pageSize + 1) : 0} - {Math.min(currentPage * pageSize, totalCount)} of {totalCount} entries
             </div>
-            <div className="flex gap-1">
-              <button className="w-8 h-8 rounded bg-blue-600 text-white font-bold">
-                1
+            <div className="flex gap-1 items-center">
+              <button 
+                className="px-3 h-8 rounded bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+              >
+                Prev
               </button>
-              <button className="w-8 h-8 rounded bg-gray-100 text-gray-700">
-                2
-              </button>
-              <button className="w-8 h-8 rounded bg-gray-100 text-gray-700">
-                3
-              </button>
-              <button className="w-8 h-8 rounded bg-gray-100 text-gray-700">
-                4
-              </button>
-              <button className="w-8 h-8 rounded bg-gray-100 text-gray-700">
-                5
+              {getPageNumbers().map((page) => (
+                <button 
+                  key={page}
+                  className={`w-8 h-8 rounded font-bold ${
+                    currentPage === page 
+                      ? 'bg-blue-600 text-white' 
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                  onClick={() => handlePageChange(page)}
+                >
+                  {page}
+                </button>
+              ))}
+              <button 
+                className="px-3 h-8 rounded bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+              >
+                Next
               </button>
             </div>
           </div>

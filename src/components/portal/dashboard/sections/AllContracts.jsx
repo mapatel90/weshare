@@ -6,6 +6,7 @@ import CardLoader from "@/components/shared/CardLoader";
 import { apiGet } from "@/lib/api";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
+import Link from "next/link";
 
 const AllContracts = ({ title }) => {
   const {
@@ -74,7 +75,7 @@ const AllContracts = ({ title }) => {
   };
 
   return (
-    <div className="col-xxl-4">
+    <div className="col-xxl-6">
       <div
         className={`card stretch shadow stretch-full ${
           isExpanded ? "card-expand" : ""
@@ -101,9 +102,13 @@ const AllContracts = ({ title }) => {
                     return (
                       <tr key={id} className="align-middle" style={{ borderBottom: "1px solid #e5e7eb" }}>
                         <td>
-                          <div className="fw-semibold text-decoration-none" title={contract_title || "Unnamed"}>
-                            {truncateText(contract_title || "Unnamed", 20)}
-                          </div>
+                           <Link
+                            href={`/offtaker/contracts/details/${id}`}
+                            className="fw-semibold text-decoration-none"
+                            title={contract_title || "Untitled"}
+                          >
+                            {truncateText(contract_title || "Untitled", 20)}
+                          </Link>
                           <div className="fs-12 text-muted" title={projects?.project_name || "N/A"}>
                             Project: {truncateText(projects?.project_name, 20)}
                           </div>

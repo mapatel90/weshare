@@ -1,380 +1,567 @@
-'use client'
-import React, { useEffect, useMemo, useState } from 'react'
-import PageHeader from '@/components/shared/pageHeader/PageHeader'
-import DynamicTitle from '@/components/common/DynamicTitle'
-import { useLanguage } from '@/contexts/LanguageContext'
-import { apiGet, apiPost, apiPut, apiPatch } from '@/lib/api'
-import Table from '@/components/shared/table/Table'
-import { FiEdit3, FiTrash2 } from 'react-icons/fi'
-import Swal from 'sweetalert2'
-import { showSuccessToast, showErrorToast } from '@/utils/topTost'
-import useOfftakerData from '@/hooks/useOfftakerData'
+"use client";
+import React, { useEffect, useMemo, useState } from "react";
+import PageHeader from "@/components/shared/pageHeader/PageHeader";
+import DynamicTitle from "@/components/common/DynamicTitle";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { apiGet, apiPost, apiUpload, apiPut } from "@/lib/api";
+import Table from "@/components/shared/table/Table";
+import { FiImage, FiDownload, FiMoreHorizontal } from "react-icons/fi";
+import { showSuccessToast, showErrorToast } from "@/utils/topTost";
+import PaymentModal from "@/components/portal/billings/PaymentModal";
+import { downloadPaymentPDF } from "@/components/portal/payments/PaymentPdf";
+import Dropdown from "@/components/shared/Dropdown";
 import {
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    TextField,
-    Select,
-    MenuItem,
-    FormControl,
-    InputLabel,
-    FormHelperText,
-    Button,
-    Chip,
-    Box,
-    IconButton,
-    Typography,
-    Stack,
+  Button,
+  Chip,
+  IconButton,
+  Typography,
+  Stack,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Box,
 } from "@mui/material";
-import { Close as CloseIcon } from "@mui/icons-material";
+import { usePriceWithCurrency } from "@/hooks/usePriceWithCurrency";
+import { useAuth } from "@/contexts/AuthContext";
 
 const PaymentsPage = () => {
-    const { lang } = useLanguage()
-    const { offtakers, loadingOfftakers } = useOfftakerData()
+  const { lang } = useLanguage();
+  const { user } = useAuth();
 
-    const [items, setItems] = useState([])
-    const [showModal, setShowModal] = useState(false)
-    const [modalType, setModalType] = useState('add') // add | edit
-    const [editId, setEditId] = useState(null)
-    // const [loading, setLoading] = useState(false)
+  const [items, setItems] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [screenshotModal, setScreenshotModal] = useState(false);
+  const [selectedScreenshot, setSelectedScreenshot] = useState(null);
+  const priceWithCurrency = usePriceWithCurrency();
 
-    const [form, setForm] = useState({
-        invoice_id: '',
-        offtaker_id: '',
-        amount: '',
-        status: 1,
-    })
-    const [formError, setFormError] = useState({ amount: '' })
+  // Filter and pagination states
+  const [projectFilter, setProjectFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [paymentDateFilter, setPaymentDateFilter] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [pageIndex, setPageIndex] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    pageSize: 10,
+    totalCount: 0,
+    totalPages: 0,
+  });
+  const [loading, setLoading] = useState(true);
+  const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
 
-    const STATUS_OPTIONS = [
-        { label: lang('common.active', 'Active'), value: 1 },
-        { label: lang('common.inactive', 'Inactive'), value: 0 },
-    ]
+  // Dropdown lists
+  const [projectList, setProjectList] = useState([]);
 
-    // static invoice options
-    const INVOICE_OPTIONS = useMemo(() => ([
-        { label: 'INV-1001', value: 1001 },
-        { label: 'INV-1002', value: 1002 },
-        { label: 'INV-1003', value: 1003 },
-    ]), [])
+  const fetchItems = async () => {
+    try {
+      setLoading(true);
 
-    const fetchItems = async () => {
-        try {
-            const res = await apiGet('/api/payments')
-            if (res?.success) setItems(res.data)
-        } catch (e) {
-            // ignore
+      const params = new URLSearchParams({
+        page: String(pageIndex + 1),
+        pageSize: String(pageSize),
+      });
+
+      if (projectFilter) {
+        params.append("projectId", projectFilter);
+      }
+
+      if (statusFilter !== "") {
+        params.append("status", statusFilter);
+      }
+
+      if (paymentDateFilter) {
+        params.append("paymentDate", paymentDateFilter);
+      }
+
+      if (searchTerm) {
+        params.append("search", searchTerm);
+      }
+
+      const res = await apiGet(`/api/payments?${params.toString()}`);
+      if (res?.success && Array.isArray(res?.data)) {
+        const formatted = res.data.map((payment) => ({
+          id: payment.id,
+          projectName: payment.invoices?.projects?.project_name || "N/A",
+          invoiceNumber: payment.invoices?.invoice_number || "N/A",
+          invoicePrefix: payment.invoices?.invoice_prefix || "",
+          paymentDate: payment.created_at
+            ? new Date(payment.created_at).toLocaleDateString("en-US")
+            : "N/A",
+          invoiceDate: payment.invoices?.invoice_date
+            ? new Date(payment.invoices.invoice_date).toLocaleDateString(
+                "en-US"
+              )
+            : "N/A",
+          dueDate: payment.invoices?.due_date
+            ? new Date(payment.invoices.due_date).toLocaleDateString("en-US")
+            : "N/A",
+          amount: payment.amount || 0,
+          status: payment.status === 1 ? "Paid" : "Pending Verification",
+          ss_url: payment.ss_url || "",
+        }));
+        setItems(formatted);
+
+        // Update pagination info
+        const apiPagination = res.pagination || {};
+        setPagination({
+          page: apiPagination.page || 1,
+          pageSize: apiPagination.pageSize || pageSize,
+          totalCount: apiPagination.totalCount || 0,
+          totalPages: apiPagination.totalPages || 0,
+        });
+
+        const maxPageIndex = Math.max(0, (apiPagination.totalPages || 1) - 1);
+        if (pageIndex > maxPageIndex) {
+          setPageIndex(maxPageIndex);
         }
+      } else {
+        setItems([]);
+      }
+    } catch (e) {
+      console.error("Error fetching payments:", e);
+      setItems([]);
+    } finally {
+      setLoading(false);
+      setHasLoadedOnce(true);
     }
+  };
 
-    useEffect(() => { fetchItems() }, [])
-
-    const openAdd = () => {
-        setModalType('add')
-        setForm({ invoice_id: '', offtaker_id: '', amount: '', status: 1 })
-        setFormError({ amount: '' })
-        setEditId(null)
-        setShowModal(true)
+  const fetchProjects = async () => {
+    try {
+      const response = await apiGet("/api/projects?status=1&limit=1000");
+      if (response?.success && Array.isArray(response?.projectList)) {
+        const active = response.projectList.filter(
+          (p) => String(p?.status) === "1"
+        );
+        setProjectList(active);
+      } else {
+        setProjectList([]);
+      }
+    } catch (e) {
+      console.error("Error fetching projects:", e);
+      setProjectList([]);
     }
-    const openEdit = (row) => {
-        setModalType('edit')
-        setForm({
-            invoice_id: row.invoice_id || '',
-            offtaker_id: row.offtaker_id || '',
-            amount: row.amount?.toString?.() || '',
-            status: row.status
-        })
-        setFormError({ amount: '' })
-        setEditId(row.id)
-        setShowModal(true)
+  };
+
+  useEffect(() => {
+    fetchItems();
+    fetchProjects();
+  }, []);
+
+  useEffect(() => {
+    fetchItems();
+  }, [projectFilter, statusFilter, paymentDateFilter, searchTerm, pageIndex, pageSize]);
+
+  useEffect(() => {
+    setPageIndex(0);
+  }, [projectFilter, statusFilter, paymentDateFilter, searchTerm]);
+
+  const openAdd = () => {
+    setShowModal(true);
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+  };
+
+  const handleDownload = async (paymentId) => {
+    if (!paymentId) return;
+    await downloadPaymentPDF(paymentId, priceWithCurrency);
+  };
+
+  const handleSave = async (data) => {
+    try {
+      // Upload screenshot first
+      let ss_url = "";
+      if (data.image) {
+        const formData = new FormData();
+        formData.append("file", data.image);
+        formData.append("folder", "payment");
+
+        const uploadResponse = await apiUpload("/api/upload", formData);
+        if (uploadResponse?.success && uploadResponse?.data?.url) {
+          ss_url = uploadResponse.data.url;
+        } else {
+          throw new Error("Failed to upload screenshot");
+        }
+      }
+
+      // Prepare payload with correct types
+      const payload = {
+        invoice_id: data.invoice_id ? Number(data.invoice_id) : 0,
+        offtaker_id: user?.id,
+        amount: parseFloat(data.amount) || 0,
+        ss_url: ss_url,
+        status: 0,
+      };
+
+      const res = await apiPost("/api/payments", payload);
+      if (res?.success) {
+        showSuccessToast(
+          lang("payments.createdSuccessfully", "Payment Created Successfully")
+        );
+        closeModal();
+        await fetchItems();
+      } else {
+        showErrorToast(
+          res?.message ||
+            lang(
+              "payments.errorOccurred",
+              "An error occurred. Please try again."
+            )
+        );
+      }
+    } catch (err) {
+      showErrorToast(
+        err?.message ||
+          lang("payments.errorOccurred", "An error occurred. Please try again.")
+      );
     }
-    const closeModal = () => setShowModal(false)
+  };
 
-    const handleSave = async (e) => {
-        // e.preventDefault();
-        
-        const errors = {};
-        const intRegex = /^\d+$/;
-        
-        // Validate required fields
-        if (!form.offtaker_id) {
-            errors.offtaker_id = lang('payments.offtakerRequired', 'Offtaker is required');
-        }
-        
-        if (!form.status && form.status !== 0) {
-            errors.status = lang('payments.statusRequired', 'Status is required');
-        }
-        
-        // If any errors found, show them and stop submission
-        if (Object.keys(errors).length > 0) {
-            setFormError(errors);
-            return;
-        }
+  const handleSearchChange = (value) => {
+    setPageIndex(0);
+    setSearchTerm(value);
+  };
 
-        // Clear previous errors and proceed
-        setFormError({});
-        // setLoading(true);
-        try {
-            // Prepare payload with correct types
-            const payload = {
-                invoice_id: form.invoice_id ? Number(form.invoice_id) : 0,
-                offtaker_id: Number(form.offtaker_id),
-                amount: Number(form.amount),
-                status: Number(form.status)
-            };
-            let res;
-            if (modalType === 'add') {
-                res = await apiPost('/api/payments', payload);
-                if (res?.success) {
-                    showSuccessToast(lang('payments.createdSuccessfully', 'Payment Created Successfully'));
-                }
-            } else {
-                res = await apiPut(`/api/payments/${editId}`, payload);
-                if (res?.success) {
-                    showSuccessToast(lang('payments.updatedSuccessfully', 'Payment Updated Successfully'));
-                }
-            }
-
-            if (res?.success) {
-                closeModal();
-                await fetchItems();
-            } else {
-                showErrorToast(res?.message || lang('payments.errorOccurred', 'An error occurred. Please try again.'));
-            }
-        } catch (err) {
-            alert('error');
-            showErrorToast(err?.message || lang('payments.errorOccurred', 'An error occurred. Please try again.'));
-        }
-    };
-
-    const handleDelete = async (row) => {
-        const confirm = await Swal.fire({
-            icon: 'warning',
-            title: lang('common.areYouSure', 'Are you sure?'),
-            text: lang('modal.deleteWarning', 'This action cannot be undone!'),
-            showCancelButton: true,
-            confirmButtonText: lang('common.yesDelete', 'Yes, delete it!'),
-            confirmButtonColor: '#d33',
-        })
-        if (confirm.isConfirmed) {
-            const res = await apiPatch(`/api/payments/${row.id}/soft-delete`, {})
-            if (res?.success) {
-                showSuccessToast(lang('payments.deletedSuccessfully', 'Payment Deleted Successfully'))
-                fetchItems()
-            } else {
-                showErrorToast(res?.message || lang('payments.errorOccurred', 'An error occurred. Please try again.'))
-            }
-        }
+  const handlePaginationChange = (nextPagination) => {
+    const current = { pageIndex, pageSize };
+    const updated =
+      typeof nextPagination === "function"
+        ? nextPagination(current)
+        : nextPagination || {};
+    if (typeof updated.pageIndex === "number") {
+      setPageIndex(updated.pageIndex);
+    } else if (updated.pageIndex == null) {
+      setPageIndex(0);
     }
+    if (typeof updated.pageSize === "number") {
+      setPageSize(updated.pageSize);
+    }
+  };
 
-    const columns = [
-        {
-            accessorKey: 'invoice_id',
-            header: () => lang('payments.invoice', 'Invoice'),
-            cell: info => {
-                const id = info.getValue()
-                const match = INVOICE_OPTIONS.find(o => o.value == id)
-                return match ? match.label : id || '-'
-            }
-        },
-        {
-            accessorKey: 'offtaker',
-            header: () => lang('payments.offtaker', 'Offtaker'),
-            cell: ({ row }) => {
-                const user = row.original?.users
-                return user ? `${user.full_name}` : '-'
-            }
-        },
-        {
-            accessorKey: 'amount',
-            header: () => lang('payments.amount', 'Amount'),
-            cell: info => info.getValue()
-        },
-        {
-            accessorKey: 'status',
-            header: () => lang('payments.status', 'Status'),
-            cell: info => {
-                const status = info.getValue();
-                const config = {
-                    1: { label: lang('common.active', 'Active'), color: '#17c666' },
-                    0: { label: lang('common.inactive', 'Inactive'), color: '#ea4d4d' },
-                }[status] || { label: String(status ?? '-'), color: '#999' };
-                return (
-                    <Chip
-                        label={config.label}
-                        sx={{
-                            backgroundColor: config.color,
-                            color: '#fff',
-                            fontWeight: 500,
-                            minWidth: 80,
-                            '&:hover': {
-                                backgroundColor: config.color,
-                                opacity: 0.9,
-                            },
-                        }}
-                    />
-                );
-            }
-        },
-        {
-            accessorKey: 'actions',
-            header: () => lang('common.actions', 'Actions'),
-            cell: ({ row }) => {
-                const item = row.original
-                return (
-                    <Stack direction="row" spacing={1} sx={{ flexWrap: 'nowrap' }}>
-                        <IconButton
-                            size="small"
-                            onClick={() => openEdit(item)}
-                            title={lang('common.edit', 'Edit')}
-                            sx={{
-                                color: '#1976d2',
-                                transition: 'transform 0.2s ease',
-                                '&:hover': {
-                                    backgroundColor: 'rgba(25, 118, 210, 0.08)',
-                                    transform: 'scale(1.1)',
-                                },
-                            }}
-                        >
-                            <FiEdit3 size={18} />
-                        </IconButton>
-                        <IconButton
-                            size="small"
-                            onClick={() => handleDelete(item)}
-                            title={lang('common.delete', 'Delete')}
-                            sx={{
-                                color: '#d32f2f',
-                                transition: 'transform 0.2s ease',
-                                '&:hover': {
-                                    backgroundColor: 'rgba(211, 47, 47, 0.08)',
-                                    transform: 'scale(1.1)',
-                                },
-                            }}
-                        >
-                            <FiTrash2 size={18} />
-                        </IconButton>
-                    </Stack>
-                )
+  const handleMarkAsPaid = async (paymentId) => {
+    try {
+      const res = await apiPut(`/api/payments/${paymentId}/mark-as-paid`, {});
+      if (res?.success) {
+        showSuccessToast(
+          lang("payments.markedAsPaid", "Payment Marked as Paid")
+        );
+        await fetchItems();
+      } else {
+        showErrorToast(
+          res?.message ||
+            lang("payments.errorOccurred", "An error occurred. Please try again.")
+        );
+      }
+    } catch (err) {
+      showErrorToast(
+        err?.message ||
+          lang("payments.errorOccurred", "An error occurred. Please try again.")
+      );
+    }
+  };
+
+  const columns = [
+    {
+      accessorKey: "projectName",
+      header: () => "Project Name",
+      cell: (info) => info.getValue() || "N/A",
+    },
+    {
+      accessorKey: "invoiceNumber",
+      header: () => "Invoice",
+      cell: ({ row }) => {
+        const prefix = row.original?.invoicePrefix || "";
+        const number = row.original?.invoiceNumber || "N/A";
+        return `${prefix}${prefix ? "-" : ""}${number}`;
+      },
+    },
+    {
+      accessorKey: "amount",
+      header: () => "Amount",
+      cell: (info) => priceWithCurrency(info.getValue() || 0),
+    },
+    {
+      accessorKey: "invoiceDate",
+      header: () => "Invoice Date",
+      cell: (info) => info.getValue() || "N/A",
+    },
+    {
+      accessorKey: "dueDate",
+      header: () => "Due Date",
+      cell: (info) => info.getValue() || "N/A",
+    },
+    {
+      accessorKey: "paymentDate",
+      header: () => "Payment Date",
+      cell: (info) => info.getValue() || "N/A",
+    },
+    {
+      accessorKey: "status",
+      header: () => "Status",
+      cell: (info) => {
+        const status = info.getValue();
+        const config = {
+          Paid: { label: "Paid", color: "#17c666" },
+          "Pending Verification": {
+            label: "Pending Verification",
+            color: "#ea4d4d",
+          },
+        }[status] || { label: String(status ?? "-"), color: "#999" };
+        return (
+          <Chip
+            label={config.label}
+            sx={{
+              backgroundColor: config.color,
+              color: "#fff",
+              fontWeight: 500,
+              minWidth: 80,
+              "&:hover": {
+                backgroundColor: config.color,
+                opacity: 0.9,
+              },
+            }}
+          />
+        );
+      },
+    },
+    {
+      accessorKey: "ss_url",
+      header: () => "Screenshot",
+      cell: ({ row }) => {
+        const ss_url = row.original?.ss_url;
+        return ss_url ? (
+          <IconButton
+            size="small"
+            onClick={() => {
+              setSelectedScreenshot(ss_url);
+              setScreenshotModal(true);
+            }}
+            sx={{ color: "#1976d2" }}
+            title="View Screenshot"
+          >
+            <FiImage size={18} />
+          </IconButton>
+        ) : (
+          <span className="text-gray-400">No Screenshot</span>
+        );
+      },
+    },
+    {
+      accessorKey: "actions",
+      header: () => "Actions",
+      cell: ({ row }) => {
+        const paymentId = row.original.id;
+        const paymentStatus = row.original.status;
+        
+        const rowActions = [
+          {
+            label: "Download PDF",
+            icon: <FiDownload />,
+            onClick: async () => {
+              await handleDownload(paymentId);
             },
-            meta: { disableSort: true }
-        }
-    ]
+          },
+          { type: "divider" },
+        ];
 
-    return (
-        <>
-            <DynamicTitle titleKey="payments.title" />
-            <PageHeader>
-                <div className="ms-auto">
-                    <Button variant="contained" className="common-orange-color" onClick={openAdd}>+ {lang('payments.addPayment', 'Add Payment')}</Button>
-                    {/* <button type="button" className="btn btn-primary" onClick={openAdd}>+ {lang('payments.addPayment', 'Add Payment')}</button> */}
-                </div>
-            </PageHeader>
-            <div className='main-content'>
-                <div className='row'>
-                    <Table data={items} columns={columns} />
-                </div>
+        if (paymentStatus !== "Paid") {
+          rowActions.push({
+            label: "Mark as Paid",
+            icon: <span>✓</span>,
+            onClick: async () => {
+              await handleMarkAsPaid(paymentId);
+            },
+          });
+        }
+
+        return (
+          <div className="hstack gap-2 justify-content-start">
+            <Dropdown
+              dropdownItems={rowActions}
+              triggerClass="avatar-md"
+              triggerIcon={<FiMoreHorizontal />}
+            />
+          </div>
+        );
+      },
+      meta: {
+        disableSort: true,
+      },
+    },
+  ];
+
+  return (
+    <>
+      <DynamicTitle titleKey="payments.title" />
+      <PageHeader>
+        <div className="ms-auto">
+          <Button
+            variant="contained"
+            className="common-orange-color"
+            onClick={openAdd}
+          >
+            + {lang("payments.addPayment", "Add Payment")}
+          </Button>
+        </div>
+      </PageHeader>
+      <div className="main-content">
+        <div className="row">
+          <div className="p-6 bg-white rounded-3xl shadow-md">
+            <div className="d-flex items-center justify-content-between gap-2 mb-4 mt-4 w-full flex-wrap">
+              <div className="filter-button">
+                <select
+                  value={projectFilter}
+                  onChange={(e) => setProjectFilter(e.target.value)}
+                  className="theme-btn-blue-color border rounded-md px-3 py-2 mx-2 text-sm"
+                >
+                  <option value="">
+                    {lang("reports.allprojects", "All Projects")}
+                  </option>
+                  {projectList.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.project_name}
+                    </option>
+                  ))}
+                </select>
+
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="theme-btn-blue-color border rounded-md px-3 py-2 me-2 text-sm"
+                >
+                  <option value="">
+                    {lang("payments.allStatus", "All Status")}
+                  </option>
+                  <option value="1">
+                    {lang("invoice.paid", "Paid")}
+                  </option>
+                  <option value="0">
+                    {lang("common.pending", "Pending")}
+                  </option>
+                </select>
+
+                <input
+                  type="date"
+                  value={paymentDateFilter}
+                  onChange={(e) => setPaymentDateFilter(e.target.value)}
+                  className="theme-btn-blue-color border rounded-md px-3 py-2 me-2 text-sm"
+                  placeholder="Payment Date"
+                />
+              </div>
             </div>
 
-            <Dialog
-                open={showModal}
-                onClose={closeModal}
-                maxWidth="sm"
-                fullWidth
-                PaperProps={{
-                    sx: {
-                        borderRadius: 2,
-                    },
-                }}
-            >
-                <form onSubmit={handleSave}>
-                    <DialogTitle
-                        sx={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            pb: 1,
-                        }}
-                    >
-                        <Typography variant="h6" component="span">
-                            {modalType === 'edit'
-                                ? lang('payments.editPayment', 'Edit Payment')
-                                : lang('payments.addPayment', 'Add Payment')}
-                        </Typography>
-                        <IconButton
-                            aria-label="close"
-                            onClick={closeModal}
-                            sx={{
-                                color: (theme) => theme.palette.grey[500],
-                            }}
-                        >
-                            <CloseIcon />
-                        </IconButton>
-                    </DialogTitle>
-                    <DialogContent>
-                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, pt: 2 }}>
-                            <FormControl fullWidth>
-                                <InputLabel id="invoice-select-label">{lang('payments.invoice', 'Invoice')}</InputLabel>
-                                <Select
-                                    labelId="invoice-select-label"
-                                    value={form.invoice_id}
-                                    label={lang('payments.invoice', 'Invoice')}
-                                    onChange={(e) => setForm({ ...form, invoice_id: e.target.value })}
-                                >
-                                    <MenuItem value="">{lang('payments.selectInvoice', 'Select Invoice')}</MenuItem>
-                                    {INVOICE_OPTIONS.map(opt => (
-                                        <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
-                                    ))}
-                                </Select>
-                            </FormControl>
+            <div className="overflow-x-auto relative">
+              {!hasLoadedOnce && loading && (
+                <div className="text-center py-6 text-gray-600">Loading...</div>
+              )}
 
-                            <FormControl fullWidth error={!!formError.offtaker_id}>
-                                <InputLabel id="offtaker-select-label">{lang('payments.offtaker', 'Offtaker')} *</InputLabel>
-                                <Select
-                                    labelId="offtaker-select-label"
-                                    value={form.offtaker_id}
-                                    label={`${lang('payments.offtaker', 'Offtaker')} *`}
-                                    onChange={(e) => setForm({ ...form, offtaker_id: e.target.value })}
-                                    disabled={loadingOfftakers}
-                                >
-                                    <MenuItem value="">{lang('payments.selectOfftaker', 'Select Offtaker')}</MenuItem>
-                                    {offtakers.map(o => (
-                                        <MenuItem key={o.id} value={o.id}>{o.full_name}</MenuItem>
-                                    ))}
-                                </Select>
-                                {formError.offtaker_id && <FormHelperText>{formError.offtaker_id}</FormHelperText>}
-                            </FormControl>
+              {hasLoadedOnce && (
+                <>
+                  <Table
+                    data={items}
+                    columns={columns}
+                    disablePagination={false}
+                    onSearchChange={handleSearchChange}
+                    onPaginationChange={handlePaginationChange}
+                    pageIndex={pageIndex}
+                    pageSize={pageSize}
+                    serverSideTotal={pagination.totalCount}
+                    initialPageSize={pageSize}
+                  />
+                  {loading && (
+                    <div className="absolute inset-0 bg-white/70 flex items-center justify-center text-gray-600">
+                      Refreshing...
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
 
-                            <FormControl fullWidth error={!!formError.status}>
-                                <InputLabel id="status-select-label">{lang('common.status', 'Status')} *</InputLabel>
-                                <Select
-                                    labelId="status-select-label"
-                                    value={form.status}
-                                    label={`${lang('common.status', 'Status')} *`}
-                                    onChange={(e) => setForm({ ...form, status: parseInt(e.target.value) })}
-                                >
-                                    {STATUS_OPTIONS.map(opt => (
-                                        <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
-                                    ))}
-                                </Select>
-                                {formError.status && <FormHelperText>{formError.status}</FormHelperText>}
-                            </FormControl>
-                        </Box>
-                    </DialogContent>
-                    <DialogActions sx={{ px: 3, pb: 2.5 }}>
-                        <Button onClick={closeModal} color="error" variant="outlined" className="custom-orange-outline">
-                            {lang('common.cancel', 'Cancel')}
-                        </Button>
-                        <Button onClick={handleSave} variant="contained" className="common-grey-color">
-                            {lang('common.save', 'Save')}
-                        </Button>
-                    </DialogActions>
-                </form>
-            </Dialog>
-        </>
-    )
-}
+      <PaymentModal
+        isOpen={showModal}
+        onClose={closeModal}
+        onSubmit={handleSave}
+      />
 
-export default PaymentsPage
+      {/* Screenshot Viewer Modal */}
+      <Dialog
+        open={screenshotModal}
+        onClose={() => setScreenshotModal(false)}
+        maxWidth="md"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+            boxShadow: "0 8px 28px rgba(0,0,0,0.15)",
+          },
+        }}
+      >
+        <DialogTitle
+          sx={{
+            fontWeight: 700,
+            fontSize: "1.25rem",
+            borderBottom: "1px solid #e0e0e0",
+            pb: 1.5,
+          }}
+        >
+          Payment Screenshot
+        </DialogTitle>
 
+        <DialogContent
+          dividers
+          sx={{
+            background: "#fafafa",
+            px: 3,
+            py: 3,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            minHeight: "400px",
+          }}
+        >
+          {selectedScreenshot && (
+            <Box
+              component="img"
+              src={selectedScreenshot}
+              alt="Payment Screenshot"
+              sx={{
+                maxWidth: "100%",
+                maxHeight: "70vh",
+                objectFit: "contain",
+                borderRadius: 2,
+              }}
+              onError={(e) => {
+                e.target.src = "/images/general/no-image.png";
+              }}
+            />
+          )}
+        </DialogContent>
 
+        <DialogActions sx={{ px: 3, py: 1.5, borderTop: "1px solid #e0e0e0" }}>
+          <Button
+            onClick={() => setScreenshotModal(false)}
+            variant="contained"
+            sx={{
+              background: "#424242",
+              "&:hover": { background: "#333" },
+              borderRadius: 2,
+              textTransform: "none",
+              px: 3,
+            }}
+          >
+            {lang("common.close", "Close")}
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </>
+  );
+};
+
+export default PaymentsPage;

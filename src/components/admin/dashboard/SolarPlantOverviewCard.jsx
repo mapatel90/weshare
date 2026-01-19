@@ -56,7 +56,7 @@ export default function SolarPlantOverviewCard() {
       cardBg: isDark ? "#121a2d" : "#fff",
       text: isDark ? "#ffffff" : "#111827",
       textMuted: isDark ? "#b1b4c0" : "#111827",
-      textSubtitle: isDark ? "#111827" : "#111827",
+      textSubtitle: isDark ? "#ffffff" : "#111827",
       border: isDark ? "#1b2436" : "#f3f4f6",
       trendPositiveBg: isDark ? "rgba(34, 197, 94, 0.2)" : "#dcfce7",
       trendPositiveText: isDark ? "#22c55e" : "#166534",
