@@ -72,7 +72,7 @@ const AllProjects = ({ title }) => {
                       <tr key={id} className="align-middle" style={{ borderBottom: "1px solid #e5e7eb" }}>
                         <td>
                           <Link
-                            href={`/offtaker/projects`}
+                            href={`/offtaker/projects/details/${id}`}
                             className="fw-semibold text-decoration-none"
                             title={project_name || "Untitled"}
                           >

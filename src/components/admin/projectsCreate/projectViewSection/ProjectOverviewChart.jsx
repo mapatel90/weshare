@@ -7,9 +7,9 @@ const TIME_TICK_HOURS = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22];
 const xAxisTicks = [...TIME_TICK_HOURS];
 
 const SERIES = [
-  { key: 'load', name: 'Load (kW)', stroke: '#3b82f6' },
-  { key: 'pv', name: 'PV (kW)', stroke: '#f97316' },
-  { key: 'grid', name: 'Grid (kW)', stroke: '#22c55e' },
+  { key: 'load', name: 'Load (kW)', stroke: '#fdaa4c' },
+  { key: 'pv', name: 'PV (kW)', stroke: '#f0cf03' },
+  { key: 'grid', name: 'Grid (kW)', stroke: '#25a4b8' },
 ];
 
 const normalizeDateKey = (value) => {
@@ -302,6 +302,7 @@ const ProjectOverviewChart = ({ projectId, readings = [], loading = false, selec
 
   const responsiveContainerStyle = {
     ...styles.containerStyle,
+    height: isMobile ? 'auto' : '60vh',
     padding: isMobile ? '16px' : '24px',
     overflowX: isMobile || isTablet ? 'auto' : 'visible',
   };

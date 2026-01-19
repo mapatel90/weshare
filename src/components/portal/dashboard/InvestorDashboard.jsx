@@ -12,9 +12,13 @@ import AllContracts from "./sections/AllContractsInvestor";
 import SolarEnergyFlow from "@/components/admin/projectsCreate/projectViewSection/Animated";
 import { apiGet, apiPost } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
+import EnergyYearChart from "@/components/admin/projectsCreate/projectViewSection/YearChart";
+import EnergyChart from "@/components/admin/projectsCreate/projectViewSection/MonthChart";
+import { useDarkMode } from "@/utils/common";
 
 function DashboardView() {
   const { user } = useAuth();
+  const isDark = useDarkMode();
 
   const [showProjectsDropdown, setShowProjectsDropdown] = useState(false);
   const [showInverterDropdown, setShowInverterDropdown] = useState(false);
@@ -41,6 +45,15 @@ function DashboardView() {
   const [selectedDate, setSelectedDate] = useState(
     new Date().toISOString().split("T")[0]
   );
+
+  const [ChartViewMode, setChartViewMode] = useState("day");
+  const [chartMonthData, setChartMonthData] = useState(null);
+  const [yearChartDataLoading, setYearChartDataLoading] = useState(true);
+  const [selectedEnergyYear, setSelectedEnergyYear] = useState(new Date().getFullYear().toString());
+  const [selectedMonthYear, setSelectedMonthYear] = useState(new Date().toISOString().slice(0, 7));
+  const [monthlyChartDataLoading, setMonthlyChartDataLoading] = useState(true);
+  const [ChartYearData, setChartYearData] = useState([]);
+  const [isMobile, setIsMobile] = useState(false);
 
   const normalizeInvestorProject = (entry) => {
     const source = entry.projects || entry;
@@ -251,6 +264,51 @@ function DashboardView() {
     };
     loadInverterChartData();
   }, [selectedProject?.id, selectedInverter?.inverterId, selectedDate]);
+
+
+  useEffect(() => {
+    const loadEnergyDayWiseData = async () => {
+      const [year, month] = selectedMonthYear.split('-');
+      const payload = {
+        projectId: selectedProject?.id ?? null,
+        year: year ?? null,
+        month: month ?? null
+      };
+
+      try {
+        setMonthlyChartDataLoading(true);
+        const res = await apiPost(`/api/projects/chart_month_data`, payload);
+        setChartMonthData(res?.success ? res.data : null);
+      } finally {
+        setMonthlyChartDataLoading(false);
+      }
+    };
+    if (selectedProject?.id && selectedMonthYear) {
+      loadEnergyDayWiseData();
+    }
+  }, [selectedProject?.id, selectedMonthYear])
+
+
+  useEffect(() => {
+    const loadEnergyYearWiseData = async () => {
+      // const year = "2026";
+
+      const payload = {
+        projectId: selectedProject?.id ?? null,
+        year: selectedEnergyYear ?? null
+      };
+      try {
+        // setYearChartDataLoading(true);
+        const res = await apiPost(`/api/projects/chart_year_data`, payload);
+        setChartYearData(res?.success ? res.data : null);
+      } finally {
+        // setYearChartDataLoading(false);
+      }
+    };
+    if (selectedProject?.id) {
+      loadEnergyYearWiseData();
+    }
+  }, [selectedProject?.id, selectedEnergyYear]);
 
   useEffect(() => {
     function handleClick(e) {
@@ -538,7 +596,7 @@ function DashboardView() {
             totalProjectSize={totalProjectSize}
           />
 
-          <SolarEnergyFlow 
+          <SolarEnergyFlow
             project={selectedProject}
             projectId={selectedProject?.id}
             inverters={inverters}
@@ -583,7 +641,51 @@ function DashboardView() {
               >
                 Energy Production Overview
               </h3>
+              <div style={{ display: "flex", gap: "8px" }}>
+                {["day", "month", "year"].map((mode) => (
+                  <button
+                    key={mode}
+                    onClick={() => setChartViewMode(mode)}
+                    style={{
+                      padding: "6px 14px",
+                      fontSize: "14px",
+                      borderRadius: "6px",
+                      border:
+                        ChartViewMode === mode
+                          ? "1px solid #f97316"
+                          : "1px solid #d1d5db",
+                      backgroundColor:
+                        ChartViewMode === mode ? "#f97316" : "#ffffff",
+                      color: ChartViewMode === mode ? "#ffffff" : "#374151",
+                      cursor: "pointer",
+                      fontWeight: ChartViewMode === mode ? 600 : 400,
+                      transition: "all 0.2s ease",
+                    }}
+                  >
+                    {mode.charAt(0).toUpperCase() + mode.slice(1)}
+                  </button>
+                ))}
+              </div>
             </div>
+
+            {ChartViewMode === "month" && (
+              <EnergyChart
+                chartMonthData={chartMonthData}
+                selectedMonthYear={selectedMonthYear}
+                onMonthYearChange={setSelectedMonthYear}
+                monthlyChartDataLoading={monthlyChartDataLoading}
+                isMobile={isMobile}
+                isDark={isDark}
+              />
+            )}
+            {ChartViewMode === "year" && (
+              <EnergyYearChart
+                ChartYearData={ChartYearData}
+                selectedEnergyYear={selectedEnergyYear}
+                onYearChange={setSelectedEnergyYear}
+                isDark={isDark}
+              />
+            )}
             {selectedInverter ? (
               <PowerConsumptionDashboard
                 projectId={selectedProject.id}
@@ -609,198 +711,15 @@ function DashboardView() {
         </div>
       )}
 
-      <div className="dashboard-row mt-3">
-        <div className="chart-card">
-          <div className="card-header">
-            <div className="card-title">Monthly Savings Tracker</div>
-            <div className="tabs">
-              <button className="tab">Daily</button>
-              <button className="tab">Monthly</button>
-              <button className="tab active">Comparison</button>
-            </div>
-          </div>
-          <p
-            style={{ color: "#6b7280", fontSize: "13px", marginBottom: "20px" }}
-          >
-            Compare your WeChain bills vs EVN baseline rates
-          </p>
-
-          <div className="legend">
-            <div className="legend-item">
-              <div
-                className="legend-color"
-                style={{ background: "#fbbf24" }}
-              ></div>
-              <span>WeChain Bill</span>
-            </div>
-            <div className="legend-item">
-              <div
-                className="legend-color"
-                style={{ background: "#1f2937" }}
-              ></div>
-              <span>EVN Equivalent</span>
-            </div>
-          </div>
-
-          <div className="chart-container">
-            <div className="bar-chart">
-              <div className="bar-group">
-                <div className="bars">
-                  <div className="bar orange" style={{ height: "160px" }}></div>
-                  <div className="bar dark" style={{ height: "50px" }}></div>
-                </div>
-                <div className="month-label">JAN</div>
-              </div>
-              <div className="bar-group">
-                <div className="bars">
-                  <div className="bar orange" style={{ height: "110px" }}></div>
-                  <div className="bar dark" style={{ height: "120px" }}></div>
-                </div>
-                <div className="month-label">FEB</div>
-              </div>
-              <div className="bar-group">
-                <div className="bars">
-                  <div className="bar orange" style={{ height: "80px" }}></div>
-                  <div className="bar dark" style={{ height: "140px" }}></div>
-                </div>
-                <div className="month-label">MAR</div>
-              </div>
-              <div className="bar-group">
-                <div className="bars">
-                  <div className="bar orange" style={{ height: "130px" }}></div>
-                  <div className="bar dark" style={{ height: "115px" }}></div>
-                </div>
-                <div className="month-label">APR</div>
-              </div>
-              <div className="bar-group">
-                <div className="bars">
-                  <div className="bar orange" style={{ height: "200px" }}></div>
-                  <div className="bar dark" style={{ height: "50px" }}></div>
-                </div>
-                <div className="month-label">JUN</div>
-              </div>
-              <div className="bar-group">
-                <div className="bars">
-                  <div className="bar orange" style={{ height: "70px" }}></div>
-                  <div className="bar dark" style={{ height: "130px" }}></div>
-                </div>
-                <div className="month-label">JUL</div>
-              </div>
-              <div className="bar-group">
-                <div className="bars">
-                  <div className="bar orange" style={{ height: "170px" }}></div>
-                  <div className="bar dark" style={{ height: "100px" }}></div>
-                </div>
-                <div className="month-label">AUG</div>
-              </div>
-              <div className="bar-group">
-                <div className="bars">
-                  <div className="bar orange" style={{ height: "130px" }}></div>
-                  <div className="bar dark" style={{ height: "110px" }}></div>
-                </div>
-                <div className="month-label">SEP</div>
-              </div>
-              <div className="bar-group">
-                <div className="bars">
-                  <div className="bar orange" style={{ height: "40px" }}></div>
-                  <div className="bar dark" style={{ height: "90px" }}></div>
-                </div>
-                <div className="month-label">OCT</div>
-              </div>
-              <div className="bar-group">
-                <div className="bars">
-                  <div className="bar orange" style={{ height: "60px" }}></div>
-                  <div className="bar dark" style={{ height: "70px" }}></div>
-                </div>
-                <div className="month-label">NOV</div>
-              </div>
-              <div className="bar-group">
-                <div className="bars">
-                  <div className="bar orange" style={{ height: "110px" }}></div>
-                  <div className="bar dark" style={{ height: "0px" }}></div>
-                </div>
-                <div className="month-label">DEC</div>
-              </div>
-            </div>
-          </div>
-
-          <div className="chart-stats">
-            <div className="chart-stat">
-              <div className="chart-stat-value" style={{ color: "#fbbf24" }}>
-                đ937K
-              </div>
-              <div className="chart-stat-label">Total Savings (2024)</div>
-            </div>
-            <div className="chart-stat">
-              <div className="chart-stat-value" style={{ color: "#f59e0b" }}>
-                34.2%
-              </div>
-              <div className="chart-stat-label">Avg Discount vs EVN</div>
-            </div>
-            <div className="chart-stat">
-              <div className="chart-stat-value">12</div>
-              <div className="chart-stat-label">Months of Savings</div>
-            </div>
-          </div>
-        </div>
-        <div>
-          <div className="chart-card" style={{ marginBottom: "20px" }}>
-            <div className="circle-stats">
-              <div className="circle-stat">
-                <div className="circle orange">
-                  <span>56%</span>
-                </div>
-                <div className="circle-label">Upcoming Projects</div>
-              </div>
-              <div className="circle-stat">
-                <div className="circle green">
-                  <span>77%</span>
-                </div>
-                <div className="circle-label">Under Installation Projects</div>
-              </div>
-            </div>
-          </div>
-          <div className="chart-card">
-            <div className="card-title" style={{ marginBottom: "20px" }}>
-              🌱 Environmental Impact
-            </div>
-            <div className="impact-grid">
-              <div className="impact-card">
-                <div style={{ fontSize: "35px" }}>🍃</div>
-                <div className="impact-value">{selectedProject?.project_data?.[0]?.power_station_avoided_co2 
-                    ? `${selectedProject.project_data[0].power_station_avoided_co2} kg`
-                    : '-'}</div>
-                <div className="impact-label">CO₂ Avoided This Year</div>
-              </div>
-              <div className="impact-card">
-                <div style={{ fontSize: "35px" }}>💡</div>
-                <div className="impact-value">{selectedProject?.project_data?.[0]?.power_station_avoided_tce 
-                    ? `${selectedProject.project_data[0].power_station_avoided_tce} kWh`
-                    : '-'}</div>
-                <div className="impact-label">Clean Energy Consumed</div>
-              </div>
-              <div className="impact-card" style={{ gridColumn: "1 / -1" }}>
-                <div style={{ fontSize: "35px" }}>🌳</div>
-                <div className="impact-value">{selectedProject?.project_data?.[0]?.power_station_num_tree 
-                    ? `${selectedProject.project_data[0].power_station_num_tree} trees`
-                    : '-'}</div>
-                <div className="impact-label">Equivalent planted</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-<div className="row">
-      <AllProjects />
-      <AllReports />
-      <AllContracts />
+      <div className="row">
+        <AllProjects />
+        <AllContracts />
       </div>
 
       <ProjectsTable />
 
-      <div className="bottom-row">
         <PayoutCard />
+      <div className="bottom-row">
         {/* <DocumentsCard /> */}
       </div>
     </div>

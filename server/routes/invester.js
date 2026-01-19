@@ -24,6 +24,30 @@ router.post("/", async (req, res) => {
       },
     });
 
+    //THis is to create notification for the offtaker when an investor shows interest
+    if (projectId) {
+      const project = await prisma.projects.findFirst({
+        where: { id: Number(projectId) },
+        include: { offtaker: true },
+      }); 
+
+      if (project && project.offtaker) {
+        const notificationMessage = `New investor interest with name ${fullName} for project "${project.project_name}".`;
+        await prisma.notifications.create({
+          data: {
+            user_id: project.offtaker.id,
+            title: notificationMessage,
+            message: notificationMessage,
+            module_type: 'projects',
+            module_id: project.id,
+            action_url: `/projects/${project.id}/investors`,
+            is_read: 0,
+            created_by: userId ?? null,
+          },
+        });
+      }
+    }
+
     return res.status(201).json({ success: true, data: created });
   } catch (error) {
     console.error(error);
