@@ -234,6 +234,7 @@ model password_reset_tokens {
   id         Int      @id @default(autoincrement())
   created_by Int?
   email      String   @db.VarChar(150)
+  username   String   @db.VarChar(150)
   token      String   @db.VarChar(255)
   expires_at DateTime
   used       Boolean  @default(false)
@@ -501,6 +502,10 @@ model users {
   country_id           Int?
   zipcode              String?                @db.VarChar(20)
   qr_code              String?                @db.VarChar(500)
+  email_verified       Int                    @default(0)
+  email_verified_at    DateTime?
+  email_verify_token   String?                @db.VarChar(255)
+  email_verify_expires DateTime?
   status               Int                    @default(1)
   is_deleted           Int                    @default(0)
   terms_accepted       Int                    @default(1)

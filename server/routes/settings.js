@@ -424,7 +424,7 @@ router.post('/test-email', authenticateToken, async (req, res) => {
     const smtpKeys = [
       'smtp_email',
       'smtp_email_from_address',
-      // 'smtp_email_from_name',
+      'smtp_email_from_name',
       'smtp_email_host',
       'smtp_email_user',
       'smtp_email_password',
@@ -438,7 +438,7 @@ router.post('/test-email', authenticateToken, async (req, res) => {
 
     const protocol = s['smtp_email'] || 'SSL';
     const fromAddress = s['smtp_email_from_address'] || '';
-    // const fromName = s['smtp_email_from_name'] || '';
+    const fromName = s['smtp_email_from_name'] || '';
     const host = s['smtp_email_host'] || '';
     const user = s['smtp_email_user'] || '';
     const pass = s['smtp_email_password'] || '';

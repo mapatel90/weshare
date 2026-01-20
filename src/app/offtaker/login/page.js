@@ -5,10 +5,13 @@ import Link from 'next/link'
 import { Box, Card, CardContent, Typography } from "@mui/material";
 import LoginForm from '@/components/authentication/LoginForm'
 import { useLanguage } from '@/contexts/LanguageContext';
+import DynamicTitle from '@/components/common/DynamicTitle'
 
 const OfftakerLoginPage = () => {
     const { lang } = useLanguage();
     return (
+        <>
+        <DynamicTitle titleKey="page_title.offtakerLogin" />
         <Box
             className="loginSection"
             sx={{
@@ -55,6 +58,7 @@ const OfftakerLoginPage = () => {
                 </CardContent>
             </Card>
         </Box>
+        </>
     )
 }
 
