@@ -266,8 +266,6 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
     if (project && created_by != 1) {
 
       const lang = await getUserLanguage(1);
-      console.log("project",project);
-      console.log("lang",lang);
 
       const notification_message = t(lang, 'notification_msg.project_created', {
         project_name: project.project_name,
@@ -276,6 +274,23 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
 
       await createNotification({
         userId: '1',
+        title: notification_message,
+        message: notification_message,
+        moduleType: 'projects',
+        moduleId: project?.id,
+        actionUrl: `projects/view/${project.id}`,
+        created_by: parseInt(created_by),
+      });
+    } else {
+      const lang = await getUserLanguage(project.offtaker?.id);
+
+      const notification_message = t(lang, 'notification_msg.project_created', {
+        project_name: project.project_name,
+        created_by: 'System Administrator'
+      });
+
+      await createNotification({
+        userId: project.offtaker?.id,
         title: notification_message,
         message: notification_message,
         moduleType: 'projects',
