@@ -33,6 +33,7 @@ const upload = multer({ storage });
 router.post('/', authenticateToken, upload.single('image'), async (req, res) => {
     try {
         const { project, offtaker, description, review_status } = req.body;
+        const userId = req.user?.id; // Get user ID from authenticated token
 
         // Prefer uploaded file path; fallback to provided string
         const uploadedPath = req.file ? `/images/testimonial/${req.file.filename}` : (req.body.image || null);
@@ -48,6 +49,8 @@ router.post('/', authenticateToken, upload.single('image'), async (req, res) => 
                 image: uploadedPath,
                 description,
                 review_status: Number(review_status),
+                created_by: userId,
+                created_at: new Date(),
             }
         });
 

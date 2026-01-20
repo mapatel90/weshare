@@ -13,34 +13,23 @@ import {
 import { useLanguage } from '@/contexts/LanguageContext';
 
 const ForgotPasswordForm = ({ loginPath = '/login' }) => {
-    const [email, setEmail] = useState('');
+    const [username, setUsername] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState(false);
-    const [emailError, setEmailError] = useState('');
+    const [usernameError, setUsernameError] = useState('');
     const { lang } = useLanguage();
-
-    const validateEmail = (email) => {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return emailRegex.test(email);
-    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
         setError('');
         setSuccess(false);
-        setEmailError('');
+        setUsernameError('');
 
         // Validation
-        if (!email.trim()) {
-            setEmailError(lang('validation.emailRequired'));
-            setLoading(false);
-            return;
-        }
-
-        if (!validateEmail(email)) {
-            setEmailError(lang('validation.emailInvalidFormat'));
+        if (!username.trim()) {
+            setUsernameError(lang('validation.usernameRequired'));
             setLoading(false);
             return;
         }
@@ -52,7 +41,7 @@ const ForgotPasswordForm = ({ loginPath = '/login' }) => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ email: email.trim() }),
+                body: JSON.stringify({ username: username.trim() }),
             });
 
             const data = await response.json();
@@ -62,7 +51,7 @@ const ForgotPasswordForm = ({ loginPath = '/login' }) => {
             }
 
             setSuccess(true);
-            setEmail(''); // Clear email field after success
+            setUsername(''); // Clear username field after success
         } catch (err) {
             console.error('Forgot password error:', err);
             setError(err.message || lang('authentication.resetLinkError'));
@@ -75,7 +64,7 @@ const ForgotPasswordForm = ({ loginPath = '/login' }) => {
         <Box>
             <Box sx={{ mb: 3 }}>
                 <Typography variant="body1" sx={{ color: '#718096', textAlign: 'center' }}>
-                    {lang('authentication.enterEmailForReset')}
+                    {lang('authentication.enterUsernameForReset')}
                 </Typography>
             </Box>
 
@@ -112,20 +101,20 @@ const ForgotPasswordForm = ({ loginPath = '/login' }) => {
                 <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%' }}>
                     <Box sx={{ mb: 3 }}>
                         <Typography variant="body2" sx={{ mb: 1, color: '#696969', fontWeight: 500 }}>
-                            {lang('authentication.email')} *
+                            {lang('authentication.username')} *
                         </Typography>
                         <TextField
                             fullWidth
-                            type="email"
-                            placeholder={lang('authentication.enterEmail')}
-                            value={email}
+                            type="text"
+                            placeholder={lang('authentication.enterUsername')}
+                            value={username}
                             onChange={(e) => {
-                                setEmail(e.target.value);
-                                if (emailError) setEmailError('');
+                                setUsername(e.target.value);
+                                if (usernameError) setUsernameError('');
                                 if (error) setError('');
                             }}
-                            error={!!emailError}
-                            helperText={emailError}
+                            error={!!usernameError}
+                            helperText={usernameError}
                             required
                             variant="outlined"
                             sx={{

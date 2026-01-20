@@ -7,12 +7,14 @@ import { showSuccessToast, showErrorToast } from '@/utils/topTost'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { generateSlug, checkProjectNameExists } from '@/utils/projectUtils'
 import ProjectForm from './ProjectForm'
+import { useAuth } from '@/contexts/AuthContext'
 const MAX_PROJECT_IMAGES = 10
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024
 
 const TabProjectBasicDetails = ({ setFormData, formData, error, setError }) => {
     const router = useRouter()
     const { lang } = useLanguage()
+    const { user } = useAuth()
     const {
         countries,
         states,
@@ -307,6 +309,7 @@ const TabProjectBasicDetails = ({ setFormData, formData, error, setError }) => {
                 name: formData.project_name,
                 project_slug: formData.project_slug || generateSlug(formData.project_name),
                 project_type_id: Number(formData.project_type_id),
+                ...(user?.id && { created_by: Number(user.id) }),
                 ...(formData.offtaker_id && { offtaker_id: Number(formData.offtaker_id) }),
                 address_1: formData.address_1 || '',
                 address_2: formData.address_2 || '',

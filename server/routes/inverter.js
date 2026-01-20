@@ -6,7 +6,7 @@ const router = express.Router();
 
 router.post("/", authenticateToken, async (req, res) => {
   try {
-    const { companyName, inverterName, inverter_type_id, apiKey, apiUrl, secretKey, status } = req.body;
+    const { companyName, inverterName, inverter_type_id, apiKey, apiUrl, secretKey, status, created_by } = req.body;
 
     // Basic validation
     if (!companyName || !inverterName || !inverter_type_id || !apiKey || !apiUrl || !secretKey || status === undefined) {
@@ -27,6 +27,7 @@ router.post("/", authenticateToken, async (req, res) => {
         secret_key: secretKey,
         status,  
         api_status: 1,  // 👈 fixed default
+        created_by,
       },
     });
 

@@ -1,6 +1,8 @@
 import express from "express";
 import prisma from "../utils/prisma.js";
 import { authenticateToken } from "../middleware/auth.js";
+import { sendInvoiceEmail } from "../utils/email.js";
+import { createNotification } from "../utils/notifications.js";
 
 const router = express.Router();
 
@@ -339,6 +341,8 @@ router.post("/", authenticateToken, async (req, res) => {
       items = [],
       note,
       terms_and_conditions,
+      created_by,
+      status
     } = req.body;
 
     if (!project_id || !offtaker_id || status === undefined) {
@@ -401,6 +405,7 @@ router.post("/", authenticateToken, async (req, res) => {
           billing_zipcode: billing_zipcode ? parseInt(billing_zipcode) : null,
           notes: note || "",
           terms_and_conditions: terms_and_conditions || "",
+          created_by: created_by ? parseInt(created_by) : null,
         },
       });
 

@@ -23,10 +23,11 @@ import {
   Typography,
 } from "@mui/material";
 import { Close as CloseIcon } from "@mui/icons-material";
+import { useAuth } from "@/contexts/AuthContext";
 
 const InverterTab = ({ projectId, handleSaveAction }) => {
   const { lang } = useLanguage();
-
+  const { user } = useAuth();
 
   // Modal & Form state
   const [showModal, setShowModal] = useState(false);
@@ -173,6 +174,7 @@ const InverterTab = ({ projectId, handleSaveAction }) => {
           warranty_expire_date: hasWarranty ? warrantyExpireDate : null,
           in_warranty: hasWarranty ? 1 : 0,
           status,
+          created_by: user?.id,
         });
         if (res.success) {
           showSuccessToast(

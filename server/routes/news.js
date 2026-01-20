@@ -33,6 +33,8 @@ const upload = multer({ storage });
 router.post("/", authenticateToken, upload.single('news_image'), async (req, res) => {
   try {
     const { news_title, news_date, news_description, news_slug } = req.body;
+    const userId = req.user?.id; // Get user ID from authenticated token
+    
     // Prefer uploaded file
     const uploadedPath = req.file ? `/images/news/${req.file.filename}` : (req.body.news_image || null);
 
@@ -60,6 +62,8 @@ router.post("/", authenticateToken, upload.single('news_image'), async (req, res
         image: uploadedPath,
         description: news_description,
         slug: news_slug,
+        created_by: userId,
+        created_at: new Date(),
       },
     });
 

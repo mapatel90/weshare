@@ -176,6 +176,8 @@ router.post('/', authenticateToken, upload.single('qrCode'), async (req, res) =>
       language
     } = req.body;
 
+    const createdBy = req.user?.id ? parseInt(req.user.id) : null;
+
     // Validate required fields
     if (!username || !fullName || !email || !password) {
       return res.status(400).json({
@@ -237,7 +239,8 @@ router.post('/', authenticateToken, upload.single('qrCode'), async (req, res) =>
         zipcode,
         qr_code: qrCodePath,
         status: parseInt(status),
-        language: language ? language : "en"
+        language: language ? language : "en",
+        ...(createdBy !== null && { created_by: createdBy })
       },
       select: {
         id: true,

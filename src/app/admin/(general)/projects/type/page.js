@@ -8,6 +8,7 @@ import Table from '@/components/shared/table/Table'
 import { FiEdit3, FiTrash2 } from 'react-icons/fi'
 import Swal from 'sweetalert2'
 import { showSuccessToast, showErrorToast } from '@/utils/topTost'
+import { useAuth } from '@/contexts/AuthContext'
 import {
   Dialog,
   DialogTitle,
@@ -30,6 +31,7 @@ import { Close as CloseIcon } from "@mui/icons-material";
 
 const ProjectTypePage = () => {
     const { lang } = useLanguage()
+    const { user } = useAuth()
 
     const [items, setItems] = useState([])
     const [showModal, setShowModal] = useState(false)
@@ -75,7 +77,7 @@ const ProjectTypePage = () => {
         try {
             let res
             if (modalType === 'add') {
-                res = await apiPost('/api/project-types', { name: form.name, status: form.status })
+                res = await apiPost('/api/project-types', { name: form.name, status: form.status, created_by: user?.id })
                 if (res?.success) showSuccessToast(lang('projectType.createdSuccessfully', 'Type Created Successfully'))
             } else {
                 res = await apiPut(`/api/project-types/${editId}`, { name: form.name, status: form.status })

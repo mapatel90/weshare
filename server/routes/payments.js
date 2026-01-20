@@ -99,7 +99,7 @@ router.get('/:id', authenticateToken, async (req, res) => {
 // Create payment
 router.post('/', authenticateToken, async (req, res) => {
   try {
-    const { invoice_id, offtaker_id, ss_url, amount, status } = req.body;
+    const { invoice_id, offtaker_id, ss_url, amount, status, created_by } = req.body;
     if (!offtaker_id && invoice_id != "") {
       return res.status(400).json({ success: false, message: 'offtaker_id is required' });
     }
@@ -109,7 +109,8 @@ router.post('/', authenticateToken, async (req, res) => {
         offtaker_id: parseInt(offtaker_id),
         ss_url: ss_url || '',
         amount: parseFloat(amount) || 0,
-        status: parseInt(status ?? 0)
+        status: parseInt(status ?? 0),
+        created_by: parseInt(created_by)
       }
     });
 
