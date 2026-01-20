@@ -10,7 +10,7 @@ const PageHeaderTitle = () => {
     const { lang } = useLanguage();
 
     const parts = pathName.split("/").filter(Boolean);
-    let title = "Dashboard";
+    let title = lang("page_title.dashboard", "Dashboard");
     let breadcrumb = [];
 
     // Special case for /offtaker/contracts/details/:id
@@ -51,11 +51,11 @@ const PageHeaderTitle = () => {
             { name: lang("menu.invoice", "Invoice"), href: null }
         ];
     } else {
-        const pageKey = parts[parts.length - 1] || "dashboard";
+        const pageKey = parts[parts.length - 1] || lang("page_title.dashboard", "dashboard");
         const pageName = lang(`menu.${pageKey}`, pageKey.replace(/-/g, " "));
         title = pageName.charAt(0).toUpperCase() + pageName.slice(1);
         breadcrumb = [
-            { name: "Dashboard", href: "/offtaker/dashboard" },
+            { name: lang("page_title.dashboard", "Dashboard"), href: "/offtaker/dashboard" },
             { name: title, href: null }
         ];
     }
