@@ -477,6 +477,7 @@ model users {
   country_id           Int?
   zipcode              String?                @db.VarChar(20)
   qr_code              String?                @db.VarChar(500)
+  language             String?                @db.VarChar(255)
   status               Int                    @default(1)
   is_deleted           Int                    @default(0)
   terms_accepted       Int                    @default(1)
