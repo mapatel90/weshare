@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Menu, MenuItem, Badge, Box, Typography, Divider, CircularProgress } from '@mui/material';
 import { useAuth } from '@/contexts/AuthContext';
 import { apiGet, apiPatch } from '@/lib/api';
+import { FiBell } from 'react-icons/fi';
+import { useDarkMode } from '@/utils/common';
 
 const NotificationsModal = () => {
     const { user } = useAuth();
@@ -10,6 +12,7 @@ const NotificationsModal = () => {
     const [unreadCount, setUnreadCount] = useState(0);
     const [loading, setLoading] = useState(false);
     const open = Boolean(anchorEl);
+    const isDark = useDarkMode();
 
     // Fetch unread count
     const fetchUnreadCount = async () => {
@@ -131,9 +134,10 @@ const NotificationsModal = () => {
             <div
                 className="profile-icon"
                 onClick={handleClick}
-                style={{ cursor: 'pointer', position: 'relative' }}
+                style={{ cursor: 'pointer', position: 'relative', right: 12 }}
             >
-                🔔
+                <FiBell size={20} color={isDark ? '#eea140' : '#eea140'} />
+
                 {unreadCount > 0 && (
                     <Badge
                         badgeContent={unreadCount}
