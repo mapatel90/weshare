@@ -1,5 +1,5 @@
-import en from '../../src/translations/en.json' assert { type: 'json' };
-import vi from '../../src/translations/vi.json' assert { type: 'json' };
+import en from '../../src/translations/en.json' with { type: 'json' };
+import vi from '../../src/translations/vi.json' with { type: 'json' };
 
 const translations = { en, vi };
 
