@@ -22,9 +22,11 @@ import { Close as CloseIcon } from "@mui/icons-material";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import { getFullImageUrl } from "@/utils/common";
+import { useAuth } from "@/contexts/AuthContext";
 
 const NewsTable = () => {
   const { lang } = useLanguage();
+  const { user } = useAuth();
 
   const [newsData, setNewsData] = useState([]);
 
@@ -85,6 +87,7 @@ const NewsTable = () => {
     form.append("news_date", newsDate);
     form.append("news_description", newsDescription);
     form.append("news_slug", newsSlug);
+    if (user?.id) form.append("created_by", user.id);
     if (newsImageFile) form.append("news_image", newsImageFile);
     else if (!editingId && newsImage) form.append("news_image", newsImage);
     return form;

@@ -20,14 +20,14 @@ router.get('/', authenticateToken, async (req, res) => {
 // Create inverter type
 router.post('/', authenticateToken, async (req, res) => {
   try {
-    const { type, status } = req.body;
+    const { type, status, created_by } = req.body;
 
     if (!type || status === undefined) {
       return res.status(400).json({ success: false, message: 'Type and status are required.' });
     }
 
     const created = await prisma.inverter_type.create({
-      data: { type, status },
+      data: { type, status, created_by },
     });
 
     return res.status(201).json({ success: true, message: 'Inverter type added successfully', data: created });

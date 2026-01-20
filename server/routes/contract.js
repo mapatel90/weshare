@@ -32,7 +32,7 @@ const contractStorage = multer.diskStorage({
 const upload = multer({ storage: contractStorage });
 
 // Create contract (supports multipart file 'document' OR a direct document path in body)
-router.post("/", upload.single('document'), async (req, res) => {
+router.post("/", authenticateToken, upload.single('document'), async (req, res) => {
   try {
     const {
       projectId,
@@ -44,6 +44,7 @@ router.post("/", upload.single('document'), async (req, res) => {
       contractDate,
       status,
     } = req.body;
+    const userId = req.user?.id; // Get user ID from authenticated token
 
     // prefer uploaded file path
     const uploadedPath = req.file ? `/images/contract/${req.file.filename}` : (documentUpload || null);
@@ -67,6 +68,7 @@ router.post("/", upload.single('document'), async (req, res) => {
         document_upload: uploadedPath || null,
         contract_date: formattedDate,
         status: typeof status !== 'undefined' ? Number(status) : 0,
+        created_by: userId,
       },
       include: {
         projects: true,
@@ -305,6 +307,7 @@ router.put("/:id", authenticateToken, upload.single('document'), async (req, res
       contractDate,
       status,
     } = req.body;
+    const userId = req.user?.id; // Get user ID from authenticated token
 
     const existing = await prisma.contracts.findFirst({ where: { id } });
     if (!existing || existing.is_deleted) {
@@ -339,6 +342,8 @@ router.put("/:id", authenticateToken, upload.single('document'), async (req, res
       document_upload: newDocumentPath ? newDocumentPath : (typeof documentUpload !== 'undefined' ? documentUpload : undefined),
       contract_date: typeof contractDate !== 'undefined' ? (formattedDate ? formattedDate : null) : undefined,
       status: typeof status !== 'undefined' ? Number(status) : undefined,
+      created_by: userId,
+      updated_at: new Date(),
     };
 
     const updated = await prisma.contracts.update({

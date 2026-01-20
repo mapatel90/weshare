@@ -175,6 +175,8 @@ router.post('/', authenticateToken, upload.single('qrCode'), async (req, res) =>
       status
     } = req.body;
 
+    const createdBy = req.user?.id ? parseInt(req.user.id) : null;
+
     // Validate required fields
     if (!username || !fullName || !email || !password) {
       return res.status(400).json({
@@ -235,7 +237,8 @@ router.post('/', authenticateToken, upload.single('qrCode'), async (req, res) =>
         country_id: countryId ? parseInt(countryId) : null,
         zipcode,
         qr_code: qrCodePath,
-        status: parseInt(status)
+        status: parseInt(status),
+        ...(createdBy !== null && { created_by: createdBy })
       },
       select: {
         id: true,

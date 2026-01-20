@@ -191,10 +191,11 @@ const PaymentsPage = () => {
       // Prepare payload with correct types
       const payload = {
         invoice_id: data.invoice_id ? Number(data.invoice_id) : 0,
-        offtaker_id: user?.id,
+        offtaker_id: user?.id || null,
         amount: parseFloat(data.amount) || 0,
         ss_url: ss_url,
         status: 0,
+        created_by: user?.id || null,
       };
 
       const res = await apiPost("/api/payments", payload);
@@ -488,6 +489,7 @@ const PaymentsPage = () => {
         isOpen={showModal}
         onClose={closeModal}
         onSubmit={handleSave}
+        lang={lang}
       />
 
       {/* Screenshot Viewer Modal */}

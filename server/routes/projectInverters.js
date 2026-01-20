@@ -63,7 +63,7 @@ router.get('/', authenticateToken, async (req, res) => {
 // Add a new project_inverter link
 router.post('/', authenticateToken, async (req, res) => {
   try {
-    const { project_id, inverter_id, kilowatt, status, inverter_serial_number, inverter_name, model, version, warranty_expire_date, in_warranty } = req.body;
+    const { project_id, inverter_id, kilowatt, status, inverter_serial_number, inverter_name, model, version, warranty_expire_date, in_warranty, created_by } = req.body;
     if (!project_id || !inverter_id || !kilowatt || status === undefined) {
       return res.status(400).json({ success: false, message: 'All fields required' });
     }
@@ -79,6 +79,7 @@ router.post('/', authenticateToken, async (req, res) => {
         warranty_expire_date: warranty_expire_date ? new Date(warranty_expire_date) : null,
         in_warranty: in_warranty ? parseInt(in_warranty) : 0,
         status: parseInt(status),
+        created_by: parseInt(created_by),
       }
     });
     res.status(201).json({ success: true, data: added });

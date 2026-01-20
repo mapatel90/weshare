@@ -3,11 +3,13 @@ import React, { useState } from "react";
 import { showSuccessToast, showErrorToast } from "@/utils/topTost";
 import { apiPost } from "@/lib/api";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 
 export default function GetInTouchFormSection() {
   const { lang } = useLanguage();
+  const { user } = useAuth();
 
   const [formData, setFormData] = useState({
     fullName: "",
@@ -69,7 +71,10 @@ export default function GetInTouchFormSection() {
     }
 
     try {
-      const data = await apiPost("/api/contactus", formData);
+      const data = await apiPost("/api/contactus", {
+        ...formData,
+        created_by: user?.id || null,
+      });
 
       if (data.success) {
         // Clear form after successful submission

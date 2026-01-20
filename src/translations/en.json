@@ -1002,7 +1002,8 @@
     "enteraddress_2": "Enter address line 2",
     "enterzipcode": "Enter zip code",
     "enterphonenumber": "Enter phone number",
-    "your_company_mail": "Your company email address"
+    "your_company_mail": "Your company email address",
+    "enterfullname": "Enter full name"
   },
   "roles": {
     "rolesManagement": "Roles Management",

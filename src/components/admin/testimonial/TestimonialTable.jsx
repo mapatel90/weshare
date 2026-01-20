@@ -25,6 +25,7 @@ import {
 } from "@mui/material";
 import { Close as CloseIcon } from "@mui/icons-material";
 import { getFullImageUrl } from "@/utils/common";
+import { useAuth } from "@/contexts/AuthContext";
 
 const TestimonialTable = () => {
     const { lang } = useLanguage();
@@ -47,6 +48,7 @@ const TestimonialTable = () => {
     const [image, setImage] = useState("");
     const [imageFile, setImageFile] = useState(null);
     const [imagePreviewUrl, setImagePreviewUrl] = useState("");
+    const { user } = useAuth();
 
     const clearError = (key) =>
         setErrors((prev) => (prev[key] ? { ...prev, [key]: "" } : prev));
@@ -69,6 +71,7 @@ const TestimonialTable = () => {
         form.append("offtaker", selectedOfftaker?.value || "");
         form.append("description", description);
         form.append("review_status", reviewStatus);
+        if (user?.id) form.append("created_by", user.id);
         if (imageFile) form.append("image", imageFile);
         else if (!editingId && image) form.append("image", image);
         return form;

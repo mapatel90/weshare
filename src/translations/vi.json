@@ -925,7 +925,8 @@
     "enteraddress_2": "Nhập địa chỉ dòng 2",
     "enterzipcode": "Nhập mã zip",
     "enterphonenumber": "Nhập số điện thoại",
-    "your_company_mail": "Địa chỉ email công ty của bạn"
+    "your_company_mail": "Địa chỉ email công ty của bạn",
+    "enterfullname": "Nhập họ và tên đầy đủ"
   },
   "roles": {
     "rolesManagement": "Quản lý vai trò",
