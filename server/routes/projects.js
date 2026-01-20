@@ -8,6 +8,7 @@ import prisma from "../utils/prisma.js";
 import { authenticateToken } from "../middleware/auth.js";
 import dayjs from "dayjs";
 import { createNotification } from "../utils/notifications.js";
+import { getUserLanguage, t } from '../utils/i18n.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -263,12 +264,20 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
     });
 
     if (project && created_by != 1) {
-      const notificationMessage = `New project created for "${project.project_name}" Created by ${project.offtaker?.full_name}.`;
+
+      const lang = await getUserLanguage(1);
+      console.log("project",project);
+      console.log("lang",lang);
+
+      const notification_message = t(lang, 'notification_msg.project_created', {
+        project_name: project.project_name,
+        created_by: project.offtaker?.full_name
+      });
 
       await createNotification({
         userId: '1',
-        title: notificationMessage,
-        message: notificationMessage,
+        title: notification_message,
+        message: notification_message,
         moduleType: 'projects',
         moduleId: project?.id,
         actionUrl: `projects/view/${project.id}`,

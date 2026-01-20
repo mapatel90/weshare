@@ -82,7 +82,8 @@ const UsersEditForm = () => {
           cityId: user.city_id?.toString() || '',
           zipcode: user.zipcode || '',
           qrCode: user.qr_code || '',
-          status: user.status?.toString() || ''
+          status: user.status?.toString() || '',
+          language: user.language
         })
 
         setOriginalUsername(user.username || '')

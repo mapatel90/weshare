@@ -175,6 +175,9 @@
     "cancel": "Cancel",
     "delete": "Delete",
     "logo": "Logo",
+    "language": "Language",
+    "en": "English",
+    "vi": "Vietnamese",
     "icon": "Favicon",
     "edit": "Edit",
     "add": "Add",
@@ -1617,5 +1620,8 @@
   },
   "billings": {
     "billings": "Billings"
+  },
+  "notification_msg": {
+    "project_created": "New project \"{{project_name}}\" created by \"{{created_by}}\"."
   }
 }

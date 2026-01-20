@@ -35,7 +35,8 @@ const UserForm = ({ initialData = {}, onSubmit, includePassword = false, exclude
         cityId: '',
         zipcode: '',
         qrCode: '',
-        status: '1'
+        status: '1',
+        language: 'en',
     })
 
     const [qrCodeFile, setQrCodeFile] = useState(null)
@@ -63,7 +64,14 @@ const UserForm = ({ initialData = {}, onSubmit, includePassword = false, exclude
             // avoid merging roles into formData (roles should be passed via roles prop)
             const data = { ...initialData }
             if (data.roles) delete data.roles
-            setFormData(prev => ({ ...prev, ...data }))
+            // never pre-fill password fields (backend returns hashed password)
+            if (data.password) delete data.password
+            setFormData(prev => ({
+                ...prev,
+                ...data,
+                password: '',
+                confirmPassword: ''
+            }))
 
             // Set QR code preview if exists
             if (data.qrCode) {
@@ -233,8 +241,13 @@ const UserForm = ({ initialData = {}, onSubmit, includePassword = false, exclude
             }
             // remove confirmPassword if present
             delete submitData.confirmPassword
+
             // If editing and password field left empty, don't send password (keep old password)
-            if (isEditing && (!formData.password || formData.password === '')) {
+            if (includePassword) {
+                if (isEditing && (!formData.password || formData.password.trim() === '')) {
+                    delete submitData.password
+                }
+            } else {
                 delete submitData.password
             }
 
@@ -295,6 +308,21 @@ const UserForm = ({ initialData = {}, onSubmit, includePassword = false, exclude
                                             onChange={handleInputChange}
                                             placeholder={lang('placeholders.enterphonenumber')}
                                         />
+                                    </div>
+                                    <div className="col-md-3 mb-3">
+                                        <FormControl fullWidth>
+                                            <InputLabel id="status-select-label">{lang('common.language')}</InputLabel>
+                                            <Select
+                                                labelId="status-select-label"
+                                                name="language"
+                                                value={formData?.language || 'en'}
+                                                label={lang('common.language')}
+                                                onChange={handleInputChange}
+                                            >
+                                                <MenuItem value="en">{lang('common.en')}</MenuItem>
+                                                <MenuItem value="vi">{lang('common.vi')}</MenuItem>
+                                            </Select>
+                                        </FormControl>
                                     </div>
                                 </div>
                             </div>

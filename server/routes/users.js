@@ -172,7 +172,8 @@ router.post('/', authenticateToken, upload.single('qrCode'), async (req, res) =>
       stateId,
       countryId,
       zipcode,
-      status
+      status,
+      language
     } = req.body;
 
     const createdBy = req.user?.id ? parseInt(req.user.id) : null;
@@ -238,6 +239,7 @@ router.post('/', authenticateToken, upload.single('qrCode'), async (req, res) =>
         zipcode,
         qr_code: qrCodePath,
         status: parseInt(status),
+        language: language ? language : "en",
         ...(createdBy !== null && { created_by: createdBy })
       },
       select: {
@@ -255,6 +257,7 @@ router.post('/', authenticateToken, upload.single('qrCode'), async (req, res) =>
         zipcode: true,
         qr_code: true,
         status: true,
+        language: true,
         created_at: true
       }
     });
@@ -341,6 +344,7 @@ router.get('/:id', authenticateToken, async (req, res) => {
         zipcode: true,
         qr_code: true,
         status: true,
+        language: true,
         created_at: true,
         updated_at: true,
         cities: {
@@ -405,6 +409,7 @@ router.put('/:id', authenticateToken, upload.single('qrCode'), async (req, res) 
       countryId,
       zipcode,
       status,
+      language,
       password
     } = req.body;
 
@@ -467,7 +472,8 @@ router.put('/:id', authenticateToken, upload.single('qrCode'), async (req, res) 
         : {}),
       // other
       ...(zipcode !== undefined ? { zipcode } : {}),
-      ...(status !== undefined ? { status: parseInt(status) } : {})
+      ...(status !== undefined ? { status: parseInt(status) } : {}),
+      ...(language !== undefined ? { language } : {})
     }
 
     // If password is provided (non-empty), hash it and include in update
@@ -510,6 +516,7 @@ router.put('/:id', authenticateToken, upload.single('qrCode'), async (req, res) 
         zipcode: true,
         qr_code: true,
         status: true,
+        language: true,
         updated_at: true,
         cities: {
           select: {
@@ -669,6 +676,7 @@ router.post('/GetUserByRole', authenticateToken, async (req, res) => {
         state_id: true,
         country_id: true,
         zipcode: true,
+        language: true,
         status: true,
         created_at: true,
         updated_at: true,
@@ -704,7 +712,8 @@ router.put('/profile/:id', authenticateToken, uploadAvatar.single('user_image'),
       city_id,
       address_1,
       address_2,
-      zipcode
+      zipcode,
+      language
     } = req.body;
 
     // Check if user exists
@@ -729,7 +738,8 @@ router.put('/profile/:id', authenticateToken, uploadAvatar.single('user_image'),
       ...(city_id !== undefined && { city_id: city_id ? parseInt(city_id) : null }),
       ...(address_1 !== undefined && { address_1: address_1 ? address_1 : null }),
       ...(address_2 !== undefined && { address_2: address_2 ? address_2 : null }),
-      ...(zipcode !== undefined && { zipcode: zipcode ? zipcode : null })
+      ...(zipcode !== undefined && { zipcode: zipcode ? zipcode : null }),
+      ...(language !== undefined && { language: language ? language : "en" })
     };
 
     // Handle user_image upload
@@ -755,6 +765,7 @@ router.put('/profile/:id', authenticateToken, uploadAvatar.single('user_image'),
         full_name: true,
         email: true,
         phone_number: true,
+        language: true,
         user_image: true,
         country_id: true,
         state_id: true,

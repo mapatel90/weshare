@@ -20,6 +20,7 @@ import { apiGet, apiUpload } from '@/lib/api'
 import { useAuth } from '@/contexts/AuthContext'
 import useLocationData from '@/hooks/useLocationData'
 import { showErrorToast, showSuccessToast } from '@/utils/topTost'
+import { useLanguage } from '@/contexts/LanguageContext';
 // import { toast } from 'react-toastify'
 // -------- DARK MODE HOOK ----------
 const useDarkMode = () => {
@@ -44,7 +45,7 @@ const useDarkMode = () => {
     return isDark;
 };
 const ProfilePage = () => {
-
+    const { lang } = useLanguage()
     const { user } = useAuth()
     const theme = useTheme();
     const isDarkMode = theme.palette.mode === 'dark' || document.documentElement.classList.contains('app-skin-dark');
@@ -71,7 +72,8 @@ const ProfilePage = () => {
         country_id: '',
         state_id: '',
         city_id: '',
-        user_image: ''
+        user_image: '',
+        language: ''
     })
     const [imageFile, setImageFile] = useState(null)
     const [imagePreview, setImagePreview] = useState(null)
@@ -94,7 +96,8 @@ const ProfilePage = () => {
                         country_id: userData.country_id || '',
                         state_id: userData.state_id || '',
                         city_id: userData.city_id || '',
-                        user_image: userData.user_image || ''
+                        user_image: userData.user_image || '',
+                        language: userData.language
                     })
 
 
@@ -198,6 +201,7 @@ const ProfilePage = () => {
             formData.append('country_id', profileData.country_id || '')
             formData.append('state_id', profileData.state_id || '')
             formData.append('city_id', profileData.city_id || '')
+            formData.append('language', profileData.language)
 
             // Add image file if selected
             if (imageFile) {
@@ -415,6 +419,24 @@ const ProfilePage = () => {
                                     ))}
                                 </TextField>
                             </Grid>
+                            {/* Language */}
+                            <Grid item xs={12} md={6}>
+                                <TextField
+                                    fullWidth
+                                    select
+                                    label={lang('common.language')}
+                                    name="language"
+                                    value={profileData.language}
+                                    onChange={handleInputChange}
+                                    variant="outlined"
+                                    InputLabelProps={{ style: { color: isDarkMode ? '#fff' : undefined } }}
+                                    InputProps={{ style: { color: isDarkMode ? '#fff' : undefined } }}
+                                >
+                                    <MenuItem value="en">{lang('common.en')}</MenuItem>
+                                    <MenuItem value="vi">{lang('common.vi')}</MenuItem>
+                                </TextField>
+                            </Grid>
+
                             {/* Submit Buttons */}
                             <Grid item xs={12}>
                                 <Box display="flex" justifyContent="flex-end" gap={2}>

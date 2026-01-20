@@ -161,6 +161,7 @@
     "edit": "Sửa",
     "logo": "Logo",
     "icon": "Favicon",
+    "language": "Ngoại ngữ",
     "add": "Thêm",
     "update": "Cập nhật",
     "create": "Tạo",
@@ -238,7 +239,7 @@
     "approved": "Đã phê duyệt",
     "pending": "Đang chờ",
     "rejected": "Đã từ chối",
-    "all":"Tất cả",
+    "all": "Tất cả",
     "download": "Tải xuống",
     "prev": "Trước",
     "day": "Ngày",
@@ -404,7 +405,7 @@
     "investmentsummaryreports": "Báo cáo tóm tắt đầu tư"
   },
   "dashboard": {
-    "dashboard" : "Trang tổng quan",
+    "dashboard": "Trang tổng quan",
     "totalSales": "Tổng doanh số",
     "totalRevenue": "Tổng doanh thu",
     "totalCustomers": "Tổng khách hàng",
@@ -449,7 +450,7 @@
     "co2Avoided": "CO₂ tránh được trong năm nay",
     "cleanEnergyConsumed": "Năng lượng sạch đã tiêu thụ",
     "equivalentPlanted": "Tương đương đã trồng",
-    "dataNotFound":"Không tìm thấy dữ liệu",
+    "dataNotFound": "Không tìm thấy dữ liệu",
     "trees": "Cây",
     "projectSummary": "Tóm tắt dự án",
     "projectStartDate": "Ngày bắt đầu dự án",
@@ -1409,7 +1410,7 @@
       "notifications": "Thông báo",
       "reports": "Báo cáo",
       "inverter_report": "Báo cáo Env biến tần",
-      "project_env_report":"Báo cáo môi trường dự án",
+      "project_env_report": "Báo cáo môi trường dự án",
       "savingreports": "Báo cáo tiết kiệm",
       "conjunctionreports": "Báo cáo kết hợp",
       "contracts": "Hợp đồng",
@@ -1566,5 +1567,8 @@
   },
   "billings": {
     "billings": "Hóa đơn"
+  },
+  "notification_msg": {
+    "project_created": "Dự án mới \"{{project_name}}\" được tạo bởi \"{{created_by}}\"."
   }
 }
