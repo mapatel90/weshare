@@ -18,6 +18,7 @@ export const createNotification = async ({
   moduleType = null,
   moduleId = null,
   actionUrl = null,
+  created_by = null,
 }) => {
   try {
     // Validation
@@ -38,6 +39,7 @@ export const createNotification = async ({
         module_id: moduleId ? parseInt(moduleId) : null,
         action_url: actionUrl,
         is_read: 0,
+        created_by: created_by,
       },
     });
 

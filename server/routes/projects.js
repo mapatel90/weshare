@@ -7,6 +7,7 @@ import { dirname } from "path";
 import prisma from "../utils/prisma.js";
 import { authenticateToken } from "../middleware/auth.js";
 import dayjs from "dayjs";
+import { createNotification } from "../utils/notifications.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -192,6 +193,7 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
       start_date,
       evn_price_kwh,
       weshare_price_kwh,
+      created_by,
       status = 1,
     } = req.body;
     console.log("req.body", req.body);
@@ -209,6 +211,7 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
     const project = await prisma.projects.create({
       data: {
         project_name: name,
+        created_by: parseInt(created_by),
         project_slug: uniqueSlug,
         ...(project_type_id && {
           project_types: { connect: { id: project_type_id } },
@@ -258,6 +261,20 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
         },
       },
     });
+
+    if (project && created_by != 1) {
+      const notificationMessage = `New project created for "${project.project_name}" Created by ${project.offtaker?.full_name}.`;
+
+      await createNotification({
+        userId: '1',
+        title: notificationMessage,
+        message: notificationMessage,
+        moduleType: 'projects',
+        moduleId: project?.id,
+        actionUrl: `projects/view/${project.id}`,
+        created_by: parseInt(created_by),
+      });
+    }
 
     res.status(201).json({
       success: true,
@@ -1665,8 +1682,8 @@ router.get("/report/saving-data", authenticateToken, async (req, res) => {
       });
 
       // Apply pagination to grouped months
-      const paginatedMonths = fetchAll 
-        ? allMonths 
+      const paginatedMonths = fetchAll
+        ? allMonths
         : allMonths.slice((pageNumber - 1) * limitNumber, pageNumber * limitNumber);
 
       res.status(200).json({

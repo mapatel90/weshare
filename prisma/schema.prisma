@@ -363,6 +363,7 @@ model project_types {
 
 model projects {
   id                   Int                    @id @default(autoincrement())
+  created_by           Int?
   offtaker_id          Int?
   investor_id          Int?
   project_name         String                 @db.VarChar(255)

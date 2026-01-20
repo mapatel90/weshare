@@ -774,29 +774,37 @@ function DashboardView() {
                   )}
                 </h3>
                 <div style={{ display: "flex", gap: "8px" }}>
-                  {["day", "month", "year"].map((mode) => (
-                    <button
-                      key={mode}
-                      onClick={() => setChartViewMode(mode)}
-                      style={{
-                        padding: "6px 14px",
-                        fontSize: "14px",
-                        borderRadius: "6px",
-                        border:
-                          ChartViewMode === mode
-                            ? "1px solid #f97316"
-                            : "1px solid #d1d5db",
-                        backgroundColor:
-                          ChartViewMode === mode ? "#f97316" : "#ffffff",
-                        color: ChartViewMode === mode ? "#ffffff" : "#374151",
-                        cursor: "pointer",
-                        fontWeight: ChartViewMode === mode ? 600 : 400,
-                        transition: "all 0.2s ease",
-                      }}
-                    >
-                      {mode.charAt(0).toUpperCase() + mode.slice(1)}
-                    </button>
-                  ))}
+                  {["day", "month", "year"].map((mode) => {
+                    const modeLabels = {
+                      day: lang("common.day", "Day"),
+                      month: lang("common.month", "Month"),
+                      year: lang("projects.year", "Year")
+                    };
+                    
+                    return (
+                      <button
+                        key={mode}
+                        onClick={() => setChartViewMode(mode)}
+                        style={{
+                          padding: "6px 14px",
+                          fontSize: "14px",
+                          borderRadius: "6px",
+                          border:
+                            ChartViewMode === mode
+                              ? "1px solid #f97316"
+                              : "1px solid #d1d5db",
+                          backgroundColor:
+                            ChartViewMode === mode ? "#f97316" : "#ffffff",
+                          color: ChartViewMode === mode ? "#ffffff" : "#374151",
+                          cursor: "pointer",
+                          fontWeight: ChartViewMode === mode ? 600 : 400,
+                          transition: "all 0.2s ease",
+                        }}
+                      >
+                        {modeLabels[mode]}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
