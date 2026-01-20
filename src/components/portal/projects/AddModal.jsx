@@ -228,6 +228,7 @@ export default function AddModal({ open, onClose }) {
         project_close_date: projectCloseDate || null,
         project_location: projectLocation || "",
         start_date: startDate || null,
+        created_by: Number(user?.id),
         status: Number(status),
       };
 
