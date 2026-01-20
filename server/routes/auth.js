@@ -69,9 +69,13 @@ router.post('/register', async (req, res) => {
       });
     }
 
+    // Trim username and password for consistency
+    const trimmedUsername = username.trim();
+    const trimmedPassword = password.trim();
+
     // Check if user already exists (by username)
     const existingUser = await prisma.users.findFirst({
-      where: { username }
+      where: { username: trimmedUsername }
     });
 
     if (existingUser) {
@@ -83,7 +87,7 @@ router.post('/register', async (req, res) => {
 
     // Hash password
     const saltRounds = 12;
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    const hashedPassword = await bcrypt.hash(trimmedPassword, saltRounds);
 
     // Generate email verification token
     const verificationToken = crypto.randomBytes(32).toString('hex');
@@ -94,7 +98,7 @@ router.post('/register', async (req, res) => {
     const newUser = await prisma.users.create({
       data: {
         full_name,
-        username,
+        username: trimmedUsername,
         email,
         password: hashedPassword,
         phone_number,
@@ -173,9 +177,9 @@ router.post('/login', async (req, res) => {
       });
     }
 
-    // Find user by username
+    // Find user by username (trim username for consistency)
     const user = await prisma.users.findFirst({
-      where: { username }
+      where: { username: username.trim() }
     });
 
     if (!user) {
@@ -185,8 +189,8 @@ router.post('/login', async (req, res) => {
       });
     }
 
-    // Check password
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    // Check password (trim password for consistency with registration and reset)
+    const isPasswordValid = await bcrypt.compare(password.trim(), user.password);
     if (!isPasswordValid) {
       return res.status(401).json({
         success: false,
@@ -244,7 +248,6 @@ router.post('/login', async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: process.env.JWT_EXPIRES_IN }
     );
-    console.log("Login Token::", token);
 
     // 🔑 Redis session
     const rememberMe = req.body.rememberMe === true;
@@ -295,8 +298,7 @@ router.get('/me', async (req, res) => {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    // console.log('decoded:', decoded)
-
+    
 
     // 🔐 Redis validation
     const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
@@ -376,26 +378,31 @@ router.post('/logout', async (req, res) => {
 // Forgot password - send reset link
 router.post('/forgot-password', async (req, res) => {
   try {
-    const { email } = req.body;
+    const { username } = req.body;
 
-    // Validate email
-    if (!email) {
+    // Validate username
+    if (!username) {
       return res.status(400).json({
         success: false,
-        message: 'Email is required'
+        message: 'Username is required'
       });
     }
 
-    // Check if user exists with this email
+    // Check if user exists with this username (case-insensitive)
     const user = await prisma.users.findFirst({
-      where: { email }
+      where: {
+        username: {
+          equals: username,
+          mode: 'insensitive'
+        }
+      }
     });
 
-    // If user doesn't exist, return error
+    // If user doesn't exist, return generic error (don't reveal if user exists)
     if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: 'No account found with this email address.'
+      return res.status(200).json({
+        success: true,
+        message: 'If this username exists, a password reset link has been sent to the registered email address.'
       });
     }
 
@@ -412,22 +419,22 @@ router.post('/forgot-password', async (req, res) => {
     const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
 
     // Delete any existing tokens for this email
-    await prisma.passwordResetToken.deleteMany({
-      where: { email }
+    await prisma.password_reset_tokens.deleteMany({
+      where: { username: user.username }
     });
 
     // Create new reset token
-    await prisma.passwordResetToken.create({
+    await prisma.password_reset_tokens.create({
       data: {
-        email,
+        username: user.username,
         token: hashedToken,
-        expiresAt,
+        expires_at: expiresAt,
         used: false
       }
     });
 
     // Send email with reset link
-    const emailResult = await sendPasswordResetEmail(email, resetToken);
+    const emailResult = await sendPasswordResetEmail(user.email, resetToken);
 
     if (!emailResult.success) {
       console.error('Failed to send email:', emailResult.error);
@@ -439,7 +446,7 @@ router.post('/forgot-password', async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Password reset link has been sent to your email. Please check your inbox.'
+      message: 'Password reset link has been sent to your registered email address. Please check your inbox.'
     });
 
   } catch (error) {
@@ -479,11 +486,11 @@ router.post('/reset-password', async (req, res) => {
       .digest('hex');
 
     // Find valid token
-    const resetToken = await prisma.passwordResetToken.findFirst({
+    const resetToken = await prisma.password_reset_tokens.findFirst({
       where: {
         token: hashedToken,
         used: false,
-        expiresAt: {
+        expires_at: {
           gt: new Date() // Token not expired
         }
       }
@@ -498,7 +505,7 @@ router.post('/reset-password', async (req, res) => {
 
     // Find user by email
     const user = await prisma.users.findFirst({
-      where: { email: resetToken.email }
+      where: { username: resetToken.username }
     });
 
     if (!user) {
@@ -519,7 +526,7 @@ router.post('/reset-password', async (req, res) => {
     });
 
     // Mark token as used
-    await prisma.passwordResetToken.update({
+    await prisma.password_reset_tokens.update({
       where: { id: resetToken.id },
       data: { used: true }
     });
@@ -560,11 +567,11 @@ router.get('/verify-reset-token/:token', async (req, res) => {
       .digest('hex');
 
     // Check if token exists and is valid
-    const resetToken = await prisma.passwordResetToken.findFirst({
+    const resetToken = await prisma.password_reset_tokens.findFirst({
       where: {
         token: hashedToken,
         used: false,
-        expiresAt: {
+        expires_at: {
           gt: new Date()
         }
       }
@@ -577,10 +584,16 @@ router.get('/verify-reset-token/:token', async (req, res) => {
       });
     }
 
+    // Find user by email to get username
+    const user = await prisma.users.findFirst({
+      where: { username: resetToken.username }
+    });
+
     res.json({
       success: true,
       message: 'Token is valid',
-      email: resetToken.email // Optionally return email to show in form
+      username: user ? user.username : null,
+      email: resetToken.email // Keep email for backwards compatibility
     });
 
   } catch (error) {

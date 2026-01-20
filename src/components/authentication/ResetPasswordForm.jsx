@@ -29,7 +29,7 @@ const ResetPasswordForm = ({ token, loginPath = '/login' }) => {
     const [newPasswordError, setNewPasswordError] = useState('');
     const [confirmPasswordError, setConfirmPasswordError] = useState('');
     const [tokenValid, setTokenValid] = useState(false);
-    const [userEmail, setUserEmail] = useState('');
+    const [username, setUsername] = useState('');
     const { lang } = useLanguage();
     const router = useRouter();
 
@@ -49,7 +49,7 @@ const ResetPasswordForm = ({ token, loginPath = '/login' }) => {
 
                 if (response.ok && data.success) {
                     setTokenValid(true);
-                    setUserEmail(data.email || '');
+                    setUsername(data.username || '');
                 } else {
                     setError(data.message || lang('authentication.invalidOrExpiredToken'));
                 }
@@ -166,9 +166,9 @@ const ResetPasswordForm = ({ token, loginPath = '/login' }) => {
                 <Typography variant="body1" sx={{ color: '#718096', textAlign: 'center', mb: 1 }}>
                     {lang('authentication.enterNewPassword')}
                 </Typography>
-                {userEmail && (
+                {username && (
                     <Typography variant="body2" sx={{ color: '#4a5568', textAlign: 'center', fontWeight: 500 }}>
-                        {lang('authentication.forAccount')}: {userEmail}
+                        {lang('authentication.forAccount')}: {username}
                     </Typography>
                 )}
             </Box>

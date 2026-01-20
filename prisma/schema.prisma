@@ -219,7 +219,7 @@ model news {
 
 model password_reset_tokens {
   id         Int      @id @default(autoincrement())
-  email      String   @db.VarChar(150)
+  username   String   @db.VarChar(150)
   token      String   @db.VarChar(255)
   expires_at DateTime
   used       Boolean  @default(false)
