@@ -75,7 +75,7 @@ const ContractsDetails = ({ contractId }) => {
         return <div className="p-8 text-center text-gray-500">Loading contract details...</div>;
     }
     if (!contract) {
-        return <div className="p-8 text-center text-red-500">Contract not found.</div>;
+        return <div className="p-8 text-center text-red-500">{lang('contracts.no_contracts_found', 'Contract not found.')}</div>;
     }
     return (
         <div className="min-h-full bg-gradient-to-br from-slate-50 to-slate-100 p-6 flex flex-col items-center">
@@ -83,15 +83,15 @@ const ContractsDetails = ({ contractId }) => {
                 <div className="bg-white rounded-xl p-8 mb-8">
                     <h1 className="text-3xl font-bold mb-4 text-gray-900 border-b pb-2">{contract.contract_title}</h1>
                     <div className="mb-6">
-                        <h2 className="text-lg font-semibold mb-2 text-gray-800">Contract Summary</h2>
+                        <h2 className="text-lg font-semibold mb-2 text-gray-800">{lang('contract.contract_summary', 'Contract Summary')}</h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 mt-4 gap-6">
                             <div>
-                                <Field label={lang('psrojects.projectName', 'Contract Name')} value={contract.projects?.project_name} />
-                                <Field label={lang('prsojects.projectType', 'Contract Description')} value={contract.contract_description} />
+                                <Field label={lang('contract.contractName', 'Contract Name')} value={contract.projects?.project_name} />
+                                <Field label={lang('contract.contractDescription', 'Contract Description')} value={contract.contract_description} />
                             </div>
                             <div>
-                                <Field label={lang('prosjects.selectOfftaker', 'Contract Date')} value={`${contract.contract_date ? new Date(contract.contract_date).toLocaleDateString('en-GB') : '-'}`.trim()} />
-                                <Field label={lang('prosjects.selectOfftaker', 'Contract Document')} value={
+                                <Field label={lang('contract.contractDate', 'Contract Date')} value={`${contract.contract_date ? new Date(contract.contract_date).toLocaleDateString('en-GB') : '-'}`.trim()} />
+                                <Field label={lang('contract.contractDocument', 'Contract Document')} value={
                                     contract.documentUpload ? (
                                         <a
                                             href={contract.documentUpload}
@@ -102,7 +102,7 @@ const ContractsDetails = ({ contractId }) => {
                                             View File
                                         </a>
                                     ) : (
-                                        <span className="text-gray-400">No file</span>
+                                        <span className="text-gray-400">{lang('common.no_file', 'No file')}</span>
                                     )
                                 }
                                 />
@@ -110,7 +110,7 @@ const ContractsDetails = ({ contractId }) => {
                         </div>
                     </div>
                     <div className="mb-6">
-                        <h2 className="text-lg font-semibold mb-3 text-gray-800">Project Information</h2>
+                        <h2 className="text-lg font-semibold mb-3 text-gray-800">{lang('projects.projectInformation', 'Project Information')}</h2>
                         {/* <h2 className="text-xl font-semibold mb-2 text-blue-700">{contract.project.project_name}</h2> */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
@@ -147,7 +147,7 @@ const ContractsDetails = ({ contractId }) => {
                                 disabled={actionLoading}
                                 onClick={() => handleContractAction(1)}
                             >
-                                {actionLoading ? "Processing..." : "Approve"}
+                                {actionLoading ? "Processing..." : lang('common.approve', 'Approve')}
                             </button>
 
                             <button
@@ -155,7 +155,7 @@ const ContractsDetails = ({ contractId }) => {
                                 disabled={actionLoading}
                                 onClick={() => setShowRejectModal(true)}
                             >
-                                {actionLoading ? "Processing..." : "Reject"}
+                                {actionLoading ? "Processing..." : lang('common.reject', 'Reject')}
                             </button>
                         </div>
                     )}
@@ -163,8 +163,8 @@ const ContractsDetails = ({ contractId }) => {
                     {showRejectModal && (
                         <div className="fixed inset-0 z-50 flex items-center justify-center bg-opacity-30 backdrop-blur-sm">
                             <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-md">
-                                <h2 className="text-xl font-bold mb-4 text-gray-800">Reject Contract</h2>
-                                <label className="block mb-2 font-medium text-gray-700">Reason for rejection</label>
+                                <h2 className="text-xl font-bold mb-4 text-gray-800">{lang('common.rejectContract', 'Reject Contract')}</h2>
+                                <label className="block mb-2 font-medium text-gray-700">{lang('common.reasonForRejection', 'Reason for rejection')}</label>
                                 <textarea
                                     className="w-full border rounded-lg p-2 mb-2"
                                     rows={3}
@@ -178,7 +178,7 @@ const ContractsDetails = ({ contractId }) => {
                                         className="px-4 py-2 mr-2 rounded-lg bg-gray-300 text-gray-700 hover:bg-gray-400"
                                         onClick={() => { setShowRejectModal(false); setRejectReason(""); setRejectError(""); }}
                                         disabled={actionLoading}
-                                    >Cancel</button>
+                                    >{lang('common.cancel', 'Cancel')}</button>
                                     <button
                                         className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700"
                                         disabled={actionLoading}
@@ -190,7 +190,7 @@ const ContractsDetails = ({ contractId }) => {
                                             setRejectError("");
                                             await handleContractAction(2);
                                         }}
-                                    >{actionLoading ? "Processing..." : "Reject"}</button>
+                                    >{actionLoading ? "Processing..." : lang('common.reject', 'Reject')}</button>
                                 </div>
                             </div>
                         </div>

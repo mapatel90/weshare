@@ -372,7 +372,7 @@ export default function AddModal({ open, onClose }) {
                     }}
                     onBlur={handleProjectNameBlur}
                     className={`input-field ${fieldErrors.name ? "border-red-500" : ""}`}
-                    placeholder="Enter Project Name"
+                    placeholder={lang("projects.projectNamePlaceholder", "Enter Project Name")}
                   />
                   {fieldErrors.name && <div className="text-red-600 text-sm mt-1">{fieldErrors.name}</div>}
                 </div>
@@ -387,7 +387,7 @@ export default function AddModal({ open, onClose }) {
                     value={projectSlug}
                     onChange={(e) => setProjectSlug(e.target.value)}
                     className="input-field"
-                    placeholder="Project Slug"
+                    placeholder={lang("projects.projectslug", "Project Slug")}
                     disabled
                   />
                 </div>
@@ -411,7 +411,7 @@ export default function AddModal({ open, onClose }) {
                     }}
                     className={`input-field ${fieldErrors.selectedProjectTypeId ? "border-red-500" : ""}`}
                   >
-                    <option value="">Select Project Type</option>
+                    <option value="">{lang("projects.selectProjectType", "Select Project Type")}</option>
                     {projectTypesList && Array.isArray(projectTypesList) && projectTypesList.map((t) => (
                       <option key={t.id} value={t.id}>
                         {t.type_name}
@@ -488,7 +488,7 @@ export default function AddModal({ open, onClose }) {
                       }
                     }}
                     className={`input-field ${fieldErrors.askingPrice ? "border-red-500" : ""}`}
-                    placeholder="Enter Number"
+                    placeholder={lang("projects.enterNumber", "Enter Number")}
                   />
                   {fieldErrors.askingPrice && <div className="text-red-600 text-sm mt-1">{fieldErrors.askingPrice}</div>}
                 </div>
@@ -510,7 +510,7 @@ export default function AddModal({ open, onClose }) {
                       }
                     }}
                     className={`input-field ${fieldErrors.leaseTerm ? "border-red-500" : ""}`}
-                    placeholder="Enter Number"
+                    placeholder={lang("projects.enterNumber", "Enter Number")}
                   />
                   {fieldErrors.leaseTerm && <div className="text-red-600 text-sm mt-1">{fieldErrors.leaseTerm}</div>}
                 </div>
@@ -539,7 +539,7 @@ export default function AddModal({ open, onClose }) {
                       }
                     }}
                     className={`input-field ${fieldErrors.projectSize ? "border-red-500" : ""}`}
-                    placeholder="Enter Number"
+                    placeholder={lang("projects.enterNumber", "Enter Number")}
                   />
                   {fieldErrors.projectSize && <div className="text-red-600 text-sm mt-1">{fieldErrors.projectSize}</div>}
                 </div>
@@ -561,7 +561,7 @@ export default function AddModal({ open, onClose }) {
                       }
                     }}
                     className={`input-field ${fieldErrors.projectLocation ? "border-red-500" : ""}`}
-                    placeholder="Enter Location"
+                    placeholder={lang("projects.enterLocation", "Enter Location")}
                   />
                   {fieldErrors.projectLocation && <div className="text-red-600 text-sm mt-1">{fieldErrors.projectLocation}</div>}
                 </div>
@@ -570,12 +570,12 @@ export default function AddModal({ open, onClose }) {
 
             <div className="border rounded-lg p-4 shadow-sm bg-white">
               <h3 className="font-semibold mb-2 text-lg text-black">
-                Project Summary
+                {lang("dashboard.projectSummary", "Project Summary")}
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex flex-col" data-field="startDate">
                   <label className="mb-1 font-medium text-sm">
-                    Project Start Date
+                    {lang("dashboard.projectStartDate", "Project Start Date")}
                   </label>
                   <input
                     value={startDate}
@@ -596,7 +596,7 @@ export default function AddModal({ open, onClose }) {
                 </div>
                 <div className="flex flex-col" data-field="projectCloseDate">
                   <label className="mb-1 font-medium text-sm">
-                    Project End Date
+                    {lang("projects.projectEndDate", "Project End Date")}
                   </label>
                   <input
                     value={projectCloseDate}
@@ -619,7 +619,7 @@ export default function AddModal({ open, onClose }) {
 
               <div className="flex flex-col mt-4" data-field="projectDescription">
                 <label className="mb-1 font-medium text-sm text-black">
-                  Description
+                  {lang("news.description", "Description")}
                 </label>
                 <textarea
                   value={projectDescription}
@@ -635,13 +635,13 @@ export default function AddModal({ open, onClose }) {
                   }}
                   className={`input-field ${fieldErrors.projectDescription ? "border-red-500" : ""}`}
                   rows="4"
-                  placeholder="Enter Description"
+                  placeholder={lang("projects.projectDescriptionPlaceholder", "Enter project description")}
                 ></textarea>
                 {fieldErrors.projectDescription && <div className="text-red-600 text-sm mt-1">{fieldErrors.projectDescription}</div>}
               </div>
 
               <label className="mb-1 font-medium text-sm mt-4 text-black">
-                Upload Documents / Image
+                {lang("dashboard.uploadDocuments", "Upload Documents / Image")}
               </label>
               <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center text-gray-500 text-sm">
                 <input
@@ -650,7 +650,7 @@ export default function AddModal({ open, onClose }) {
                   onChange={handleImageFileChange}
                 />
                 <div className="mt-2 text-xs text-gray-600">
-                  Optional project image
+                  {lang("projects.optionalProjectImageUpload", "Optional project image upload")}
                 </div>
                 {imagePreview && (
                   <div className="mt-2">
@@ -682,14 +682,14 @@ export default function AddModal({ open, onClose }) {
               className="cancel-btn"
               disabled={loading}
             >
-              Cancel
+              {lang("common.cancel", "Cancel")}
             </button>
             <button
               onClick={handleSubmit}
               className="next-btn"
               disabled={loading}
             >
-              {loading ? "Saving..." : "Save"}
+              {loading ? lang("common.saving", "Saving...") : lang("common.save", "Save")}
             </button>
           </div>
         </aside>

@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useMemo, useEffect } from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
 import {
   Search,
   ChevronDown,
@@ -63,7 +64,7 @@ const normalizeApiProject = (project) => {
   const normalizedCover = coverImage ? getFullImageUrl(coverImage) : null;
 
   const statusString =
-    statusDictionary[project?.status] ?? project?.status ?? "Upcoming";
+    statusDictionary[project?.status] ?? project?.status ?? lang("home.exchangeHub.upcoming", "Upcoming");
   // map display status to numeric filter codes: Upcoming => 1, Under Installation => 0
   const statusCode =
     statusString === "Upcoming"
@@ -72,7 +73,8 @@ const normalizeApiProject = (project) => {
       ? 0
       : project?.status ?? null;
   return {
-    id: project?.id ? `#${project.id}` : project?.project_code ?? "—",
+    projectId: project?.id ?? null,
+    displayId: project?.id ? `#${project.id}` : project?.project_code ?? "—",
     project_image: normalizedCover,
     projectName: project?.project_name ?? "—",
     status: statusString,
@@ -96,6 +98,7 @@ const normalizeApiProject = (project) => {
 
 const SolarProjectTable = () => {
   const { user } = useAuth();
+  const { lang } = useLanguage();
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -411,11 +414,11 @@ const SolarProjectTable = () => {
           {/* Filters */}
           <div className="p-6 border-b border-gray-200">
             <div className="flex flex-wrap gap-3">
-              <div className="flex-1 min-w-[250px] relative">
+                  <div className="flex-1 min-w-[250px] relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
                   type="text"
-                  placeholder="Search here..."
+                  placeholder={lang("home.exchangeHub.searchPlaceholder", "Search here...")}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-slate-500 focus:border-transparent outline-none"
@@ -442,7 +445,7 @@ const SolarProjectTable = () => {
                 >
                   <Calendar className="w-4 h-4" />
                   <span className="text-sm font-medium">
-                    Start Date - End Date
+                    {lang("projects.startDate", "Start Date")} - {lang("projects.endDate", "End Date")}
                   </span>
                   <ChevronDown className="w-4 h-4" />
                 </button>
@@ -452,7 +455,7 @@ const SolarProjectTable = () => {
                     <div className="space-y-3">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Start Date
+                          {lang("projects.startDate", "Start Date")}
                         </label>
                         <input
                           type="date"
@@ -463,7 +466,7 @@ const SolarProjectTable = () => {
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                          End Date
+                          {lang("projects.endDate", "End Date")}
                         </label>
                         <input
                           type="date"
@@ -486,7 +489,7 @@ const SolarProjectTable = () => {
                           }}
                           className="flex-1 px-3 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
                         >
-                          Clear
+                          {lang("projects.clear", "Clear")}
                         </button>
                         <button
                           onClick={() => {
@@ -498,7 +501,7 @@ const SolarProjectTable = () => {
                           }}
                           className="flex-1 px-3 py-2 text-sm bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition-colors"
                         >
-                          Apply
+                          {lang("projects.apply", "Apply")}
                         </button>
                       </div>
                     </div>
@@ -510,7 +513,7 @@ const SolarProjectTable = () => {
                 <button className="flex items-center gap-2 px-4 py-2.5 bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition-colors">
                   {/* <div className="relative"> */}
                   <MapPin className="w-4 h-4" />
-                  <span className="text-sm font-medium">Location</span>
+                  <span className="text-sm font-medium">{lang("leaseRequest.location", "Location")}</span>
                   <ChevronDown className="w-4 h-4" />
                   {/* </div> */}
                 </button>
@@ -525,7 +528,7 @@ const SolarProjectTable = () => {
                     aria-expanded={statusDropdownOpen}
                   >
                     <Filter className="w-4 h-4" />
-                    <span className="text-sm font-medium">Status</span>
+                    <span className="text-sm font-medium">{lang("projects.status", "Status")}</span>
                     <ChevronDown className="w-4 h-4" />
                   </button>
 
@@ -543,7 +546,7 @@ const SolarProjectTable = () => {
                             : "hover:bg-gray-50"
                         }`}
                       >
-                        All
+                        {lang("common.all", "All")}
                       </button>
                       <button
                         onClick={() => {
@@ -557,7 +560,7 @@ const SolarProjectTable = () => {
                             : "hover:bg-gray-50"
                         }`}
                       >
-                        Upcoming
+                        {lang("home.exchangeHub.upcoming", "Upcoming")}
                       </button>
                       <button
                         onClick={() => {
@@ -571,8 +574,8 @@ const SolarProjectTable = () => {
                             : "hover:bg-gray-50"
                         }`}
                       >
-                        Under Installation
-                      </button>
+                        {lang("projects.under_installation", "Under Installation")}
+                      </button> 
                     </div>
                   )}
                 </div>
@@ -595,7 +598,7 @@ const SolarProjectTable = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-4 md:gap-6">
                 {currentProjects.map((project, idx) => (
                   <div
-                    key={project.id ?? idx}
+                    key={project.projectId ?? project.id ?? idx}
                     className="bg-white rounded-xl shadow border border-gray-200 p-0 flex flex-col hover:shadow-lg transition-shadow overflow-hidden md:p-1 sm:p-0"
                   >
                     {/* Image and status badge */}
@@ -622,10 +625,10 @@ const SolarProjectTable = () => {
                         {project.projectName}
                       </h2>
                       <div className="text-xs text-gray-500 mb-1">
-                        ID: {project.product_code}
+                        {lang("home.exchangeHub.id", "ID")}: {project.product_code}
                       </div>
                       <div className="text-sm text-gray-600 mb-2">
-                        Offtaker:{" "}
+                        {lang("home.exchangeHub.offtaker", "Offtaker")}:{" "}
                         <span className="font-medium">
                           {project.offtaker_name}
                         </span>
@@ -647,15 +650,15 @@ const SolarProjectTable = () => {
                             {project.targetInvestment}
                           </div>
                           <div className="text-xs text-gray-500">
-                            Target Investment
+                            {lang("home.exchangeHub.targetInvestment", "Target Investment")}
                           </div>
                         </div>
                         <div className="bg-gray-50 rounded-lg p-2 text-center">
                           <div className="text-base font-bold text-amber-600">
-                            {project.expectedGeneration} kWh/year
+                            {project.expectedGeneration} 
                           </div>
                           <div className="text-xs text-gray-500">
-                            Expected Generation
+                            {lang("home.exchangeHub.expectedGeneration", "Expected Generation (kWh)")}
                           </div>
                         </div>
                         <div className="bg-gray-50 rounded-lg p-2 text-center">
@@ -663,22 +666,22 @@ const SolarProjectTable = () => {
                             {project.expectedROI}
                           </div>
                           <div className="text-xs text-gray-500">
-                            Expected ROI
+                            {lang("home.exchangeHub.expectedROI", "Expected ROI")}
                           </div>
                         </div>
                       </div>
                       {/* Payback/Lease info */}
                       <div className="flex flex-col md:flex-row gap-2 bg-gray-100 rounded-lg p-2 mb-3 text-center text-xs font-medium text-gray-700">
                         <div className="flex-1 md:border-r border-gray-300">
-                          <div>Payback Period</div>
+                          <div>{lang("home.exchangeHub.paybackPeriod", "Payback Period")}</div>
                           <div className="text-lg font-bold text-slate-900">
                             {project.paybackPeriod}
                           </div>
                         </div>
                         <div className="flex-1">
-                          <div>Lease Term</div>
+                          <div>{lang("home.exchangeHub.leaseTerm", "Lease Term")}</div>
                           <div className="text-lg font-bold text-slate-900">
-                            15 years
+                            15 {lang("home.exchangeHub.years", "years")}
                           </div>
                         </div>
                       </div>
@@ -687,7 +690,7 @@ const SolarProjectTable = () => {
                         {/* <button className="flex-1 px-4 py-2 bg-amber-500 text-white rounded-lg font-semibold hover:bg-amber-600 transition-colors text-sm">Invest Early</button> */}
                         <a
                           className="flex-1 px-4 py-2 border border-gray-300 text-slate-900 rounded-lg font-semibold hover:bg-gray-100 transition-colors text-sm flex items-center justify-center gap-1"
-                          href={`/frontend/exchange-hub/${project.project_slug}`}
+                          href={`/offtaker/projects/details/${project.projectId ?? project.id ?? ""}`}
                           target="_blank"
                           rel="noopener noreferrer"
                         >
@@ -704,7 +707,7 @@ const SolarProjectTable = () => {
                               d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"
                             />
                           </svg>
-                          View Details
+                          {lang("home.exchangeHub.viewDetails", "View Details")}
                         </a>
                       </div>
                     </div>
@@ -713,7 +716,7 @@ const SolarProjectTable = () => {
               </div>
             ) : (
               <div className="text-center text-sm text-gray-500 py-8">
-                No data available.
+                {lang("common.noData", "No data available.")}
               </div>
             )}
           </div>
