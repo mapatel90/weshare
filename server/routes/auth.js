@@ -611,6 +611,8 @@ router.get('/verify-email/:token', async (req, res) => {
   try {
     const { token } = req.params;
 
+    console.log("token", token);
+
     if (!token) {
       return res.status(400).json({
         success: false,
@@ -625,6 +627,8 @@ router.get('/verify-email/:token', async (req, res) => {
         email_verified: 0
       }
     });
+
+    console.log("user", user);
 
     if (!user) {
       return res.status(400).json({
