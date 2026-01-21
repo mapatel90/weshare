@@ -7,6 +7,7 @@ import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import { createBulkNotifications, createNotification } from '../utils/notifications.js';
+import { getUserLanguage, t } from '../utils/i18n.js';
 
 const router = express.Router();
 
@@ -78,17 +79,24 @@ router.post("/", authenticateToken, upload.single('document'), async (req, res) 
     });
 
     if (created) {
-      const notificationMessage =
-        `New contract created for project "${created.projects.project_name}".`;
+      const lang = await getUserLanguage(offtakerId ? offtakerId : investorId);
+
+      const notification_title = t(lang, 'notification_msg.contract_title');
+
+      const notification_message = t(lang, 'notification_msg.contract_created', {
+        project_name: created?.projects.project_name,
+        created_by: 'System Administrator'
+      });
 
       const notificationPayload = {
-        title: notificationMessage,
-        message: notificationMessage,
+        title: notification_title,
+        message: notification_message,
         moduleType: 'projects',
         moduleId: projectId,
+        created_by: userId
       };
 
-      // 1️⃣ Offtaker notification
+      //  Offtaker notification
       if (offtakerId) {
         await createNotification({
           userId: offtakerId,
@@ -97,7 +105,7 @@ router.post("/", authenticateToken, upload.single('document'), async (req, res) 
         });
       }
 
-      // 2️⃣ Interested Investor notification
+      // Interested Investor notification
       if (investorId) {
         await createNotification({
           userId: investorId,
@@ -384,24 +392,35 @@ router.put("/:id/status", authenticateToken, async (req, res) => {
       data: updateData,
     });
 
-    let notificationMessage = '';
+    const lang = await getUserLanguage(existing?.created_by);
+
+    let notification_title = '';
+    let notification_message = '';
 
     if (Number(status) === 1) {
-      notificationMessage = `Contract for "${existing.contract_title}" has been approved.`;
+      notification_title = t(lang, 'notification_msg.contract_approved_title');
+      notification_message = t(lang, 'notification_msg.contract_approved_message', {
+        contract_title: existing.contract_title,
+      });
     }
 
     if (Number(status) === 2) {
-      notificationMessage = `Contract for "${existing.contract_title}" has been rejected. Reason: ${reason}`;
+      notification_title = t(lang, 'notification_msg.contract_rejected_title');
+      notification_message = t(lang, 'notification_msg.contract_rejected_message', {
+        contract_title: existing.contract_title,
+      });
     }
 
     await createNotification({
-      userId: '1',
-      title: notificationMessage,
-      message: notificationMessage,
+      userId: existing?.created_by,
+      title: notification_title,
+      message: notification_message,
       moduleType: 'contract',
       moduleId: existing?.id,
       actionUrl: `contract/view/${existing?.id}`,
+      created_by: existing?.offtaker_id
     });
+
 
     return res.json({ success: true, data: updated });
   } catch (error) {
