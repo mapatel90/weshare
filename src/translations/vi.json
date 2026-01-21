@@ -33,6 +33,8 @@
     "inverters": "Biến tần",
     "inverterDetails": "Chi tiết biến tần",
     "users": "Người dùng",
+    "createUser": "Tạo người dùng",
+    "editUser": "Chỉnh sửa người dùng",
     "userManagement": "Quản lý người dùng",
     "profile": "Hồ sơ",
     "settings": "Cài đặt",

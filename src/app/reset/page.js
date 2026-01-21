@@ -4,9 +4,12 @@ import React from 'react';
 import { Box, Card, CardContent, Typography, Link } from '@mui/material';
 import ForgotPasswordForm from '@/components/authentication/ForgotPasswordForm';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { usePageTitle } from '@/contexts/PageTitleContext';
 
 const ResetPage = () => {
     const { lang } = useLanguage();
+    usePageTitle('page_title.forgotPassword');
+
     return (
         <Box
             className="loginSection"

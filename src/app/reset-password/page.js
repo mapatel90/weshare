@@ -4,10 +4,13 @@ import React, { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import ResetPasswordForm from '@/components/authentication/ResetPasswordForm';
 import { CircularProgress, Box, Card, CardContent, Typography } from '@mui/material';
+import { usePageTitle } from '@/contexts/PageTitleContext';
 
 const ResetPasswordContent = () => {
     const searchParams = useSearchParams();
     const token = searchParams.get('token');
+
+    usePageTitle('page_title.resetPassword');
 
     return (
         <Box
