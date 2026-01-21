@@ -1569,6 +1569,8 @@
     "billings": "Hóa đơn"
   },
   "notification_msg": {
-    "project_created": "Dự án mới \"{{project_name}}\" được tạo bởi \"{{created_by}}\"."
+    "project_created": "Dự án mới \"{{project_name}}\" được tạo bởi \"{{created_by}}\".",
+    "invoice_created": "Hóa đơn mới \"{{invoice_number}}\" được tạo bởi \"{{created_by}}\".",
+    "payment_made": "Thanh toán \"{{amount}}\" được thực hiện bởi \"{{created_by}}\" cho hóa đơn \"{{invoice_number}}\"."
   }
 }

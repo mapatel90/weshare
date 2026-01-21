@@ -249,6 +249,7 @@ const InvoiceViewContant = ({ invoiceId }) => {
         amount: Number(amountString) || 0,
         ss_url: ss_url,
         status: 0, // Paid status
+        created_by: user?.id,
       };
 
       const response = await apiPost("/api/payments", paymentData);

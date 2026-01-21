@@ -288,7 +288,7 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
         project_name: project.project_name,
         created_by: 'System Administrator'
       });
-
+      
       await createNotification({
         userId: project.offtaker?.id,
         title: notification_message,

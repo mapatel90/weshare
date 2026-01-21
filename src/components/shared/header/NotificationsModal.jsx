@@ -131,31 +131,26 @@ const NotificationsModal = () => {
 
     return (
         <>
-            <div
-                className="profile-icon"
-                onClick={handleClick}
-                style={{ cursor: 'pointer', position: 'relative', right: 12 }}
+            <Badge
+                badgeContent={unreadCount}
+                color="error"
+                sx={{
+                    cursor: 'pointer',
+                    marginRight: '12px',
+                    '& .MuiBadge-badge': {
+                        fontSize: '0.65rem',
+                        height: 18,
+                        minWidth: 18,
+                        padding: '0 4px',
+                        marginTop: '4px',
+                        backgroundColor: '#F6A623'
+                    }
+                }}
             >
-                <FiBell size={20} color={isDark ? '#eea140' : '#eea140'} />
-
-                {unreadCount > 0 && (
-                    <Badge
-                        badgeContent={unreadCount}
-                        color="error"
-                        sx={{
-                            position: 'absolute',
-                            top: -5,
-                            right: -5,
-                            '& .MuiBadge-badge': {
-                                fontSize: '0.65rem',
-                                height: 18,
-                                minWidth: 18,
-                                padding: '0 4px'
-                            }
-                        }}
-                    />
-                )}
-            </div>
+                <div className="profile-icon" onClick={handleClick}>
+                    <FiBell size={20} color={isDark ? '#eea140' : '#eea140'} />
+                </div>
+            </Badge>
 
             <Menu
                 anchorEl={anchorEl}
@@ -169,7 +164,8 @@ const NotificationsModal = () => {
                         maxHeight: 500,
                         borderRadius: 2,
                         boxShadow: '0 4px 16px rgba(0,0,0,0.10)',
-                        mt: 1
+                        mt: 1,
+                        overflow: 'hidden'
                     }
                 }}
             >
@@ -206,23 +202,22 @@ const NotificationsModal = () => {
                         </Typography>
                     </Box>
                 ) : (
-                    <Box sx={{ maxHeight: 400, overflowY: 'auto' }}>
-                        {notifications.map((notification) => (
-                            <MenuItem
-                                key={notification.id}
-                                onClick={() => handleNotificationClick(notification)}
-                                sx={{
-                                    py: 1.5,
-                                    px: 2,
-                                    backgroundColor: notification.is_read === 0 ? 'rgba(246, 166, 35, 0.05)' : 'transparent',
-                                    borderLeft: notification.is_read === 0 ? '3px solid #F6A623' : '3px solid transparent',
-                                    '&:hover': {
-                                        backgroundColor: 'rgba(246, 166, 35, 0.1)',
-                                    },
-                                    display: 'block',
-                                    whiteSpace: 'normal',
-                                }}
-                            >
+                    notifications.map((notification) => (
+                        <MenuItem
+                            key={notification.id}
+                            onClick={() => handleNotificationClick(notification)}
+                            sx={{
+                                py: 1.5,
+                                px: 2,
+                                backgroundColor: notification.is_read === 0 ? 'rgba(246, 166, 35, 0.05)' : 'transparent',
+                                borderLeft: notification.is_read === 0 ? '3px solid #F6A623' : '3px solid transparent',
+                                '&:hover': {
+                                    backgroundColor: 'rgba(246, 166, 35, 0.1)',
+                                },
+                                display: 'block',
+                                whiteSpace: 'normal',
+                            }}
+                        >
                                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                                     <Typography
                                         variant="subtitle2"
@@ -272,8 +267,7 @@ const NotificationsModal = () => {
                                     {formatTimeAgo(notification.created_at)}
                                 </Typography>
                             </MenuItem>
-                        ))}
-                    </Box>
+                        ))
                 )}
 
                 {/* Footer */}
