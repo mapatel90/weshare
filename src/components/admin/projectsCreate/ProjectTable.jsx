@@ -17,23 +17,32 @@ import { showSuccessToast, showErrorToast } from "@/utils/topTost";
 import { apiGet, apiPut, apiDelete, apiPost } from "@/lib/api";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-const StatusDropdown = memo(({ value, onChange }) => {
-  const { lang } = useLanguage();
-  const statusOptions = [
-    { label: lang("projects.active", "Active"), value: "1" },
-    { label: lang("projects.inactive", "Inactive"), value: "0" },
-  ];
+const StatusDropdown = memo(({ value, onChange, options, disabled }) => {
+  const statusOptions = Array.isArray(options) ? options : [];
+  const [selectedOption, setSelectedOption] = useState(null);
+
+  // Sync selected option from numeric id value
+  useEffect(() => {
+    if (!statusOptions.length) return;
+    const match = statusOptions.find(
+      (opt) => String(opt.value) === String(value)
+    );
+    setSelectedOption(match || null);
+  }, [value, statusOptions]);
 
   const handleChange = async (option) => {
+    setSelectedOption(option);
     await onChange(option.value);
   };
 
   return (
     <SelectDropdown
       options={statusOptions}
-      defaultSelect={String(value ?? 0)}
+      defaultSelect={selectedOption?.label || ""}
+      selectedOption={selectedOption}
       onSelectOption={handleChange}
       searchable={false}
+      disabled={disabled}
     />
   );
 });
@@ -52,11 +61,14 @@ const ProjectTable = () => {
   const [projectFilter, setProjectFilter] = useState("");
   const [offtakerFilter, setOfftakerFilter] = useState("");
   const [solisStatusFilter, setSolisStatusFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
 
   // Dropdown lists
   const [projectList, setProjectList] = useState([]);
   const [offtakerList, setOfftakerList] = useState([]);
+  const [projectStatusList, setProjectStatusList] = useState([]);
+  const [loadingStatuses, setLoadingStatuses] = useState(false);
 
   // Pagination
   const [pagination, setPagination] = useState({
@@ -100,6 +112,10 @@ const ProjectTable = () => {
 
       if (searchTerm) {
         params.append("search", searchTerm);
+      }
+
+      if (statusFilter) {
+        params.append("status", statusFilter);
       }
 
       const res = await apiGet(`/api/projects?${params.toString()}`);
@@ -150,6 +166,23 @@ const ProjectTable = () => {
     }
   };
 
+  const fetchProjectStatuses = async () => {
+    try {
+      setLoadingStatuses(true);
+      const res = await apiGet("/api/projects/status");
+      if (res?.success && Array.isArray(res.data)) {
+        setProjectStatusList(res.data);
+      } else {
+        setProjectStatusList([]);
+      }
+    } catch (err) {
+      console.error("Fetch project statuses failed:", err);
+      setProjectStatusList([]);
+    } finally {
+      setLoadingStatuses(false);
+    }
+  };
+
   // Fetch and auto-refresh every 2 minutes
   useEffect(() => {
     fetchProjects();
@@ -159,7 +192,11 @@ const ProjectTable = () => {
     }, 120000); // 2 minutes
 
     return () => clearInterval(interval);
-  }, [projectFilter, offtakerFilter, searchTerm]);
+  }, [projectFilter, offtakerFilter, searchTerm, statusFilter]);
+
+  useEffect(() => {
+    fetchProjectStatuses();
+  }, []);
 
   // Filter data by solis status (client-side)
   const filteredData = useMemo(() => {
@@ -190,6 +227,13 @@ const ProjectTable = () => {
       showErrorToast(err.message || "Failed to update status");
     }
   };
+
+  const statusOptions = useMemo(() => {
+    return (projectStatusList || []).map((s) => ({
+      label: s?.name ?? `Status ${s?.id}`,
+      value: String(s?.id),
+    }));
+  }, [projectStatusList]);
 
   const columns = [
     {
@@ -304,17 +348,22 @@ const ProjectTable = () => {
       header: () => lang("common.status"),
       cell: ({ row }) => {
         const statusValue = row.original.status;
-        const status =
-          statusValue == 1
-            ? { label: lang("common.active"), color: "success" }
-            : { label: lang("common.inactive"), color: "danger" };
+        const statusObj = projectStatusList.find(
+          (s) => String(s.id) === String(statusValue)
+        );
+        const label = statusObj?.name || "-";
 
         return (
-          <span
-            className={`badge bg-soft-${status.color} text-${status.color}`}
-          >
-            {status.label}
-          </span>
+          <div className="d-flex align-items-center gap-2">
+            <div style={{ minWidth: 140 }} onClick={(e) => e.stopPropagation()}>
+              <StatusDropdown
+                value={statusValue}
+                options={statusOptions}
+                disabled={loadingStatuses}
+                onChange={(next) => handleStatusChange(row.original.id, next)}
+              />
+            </div>
+          </div>
         );
       },
     },
@@ -429,6 +478,22 @@ const ProjectTable = () => {
             <option value="online">Online</option>
             <option value="offline">Offline</option>
             <option value="alarm">Alarm</option>
+          </select>
+
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="theme-btn-blue-color border rounded-md px-3 py-2 me-2 text-sm"
+            disabled={loadingStatuses}
+          >
+            <option value="">
+              {lang("projects.allStatus", "All Status")}
+            </option>
+            {projectStatusList.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.name}
+              </option>
+            ))}
           </select>
         </div>
       </div>

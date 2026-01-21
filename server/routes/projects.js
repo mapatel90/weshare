@@ -9,6 +9,7 @@ import { authenticateToken } from "../middleware/auth.js";
 import dayjs from "dayjs";
 import { createNotification } from "../utils/notifications.js";
 import { getUserLanguage, t } from '../utils/i18n.js';
+import { getUserFullName } from "../utils/common.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -283,12 +284,13 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
       });
     } else {
       const lang = await getUserLanguage(project.offtaker?.id);
+      const creator_name = await getUserFullName(created_by);
 
       const notification_message = t(lang, 'notification_msg.project_created', {
         project_name: project.project_name,
-        created_by: 'System Administrator'
+        created_by: creator_name
       });
-      
+
       await createNotification({
         userId: project.offtaker?.id,
         title: notification_message,
@@ -1868,6 +1870,29 @@ router.post('/report/project-energy-data', authenticateToken, async (req, res) =
     res.status(500).json({
       success: false,
       message: "Failed to fetch project energy data",
+    });
+  }
+});
+
+
+// Project_status
+router.get('/status', async (req, res) => {
+  try {
+    const project_status = await prisma.project_status.findMany({
+      where: {
+        is_deleted: 0,
+      },
+    });
+
+    res.status(200).json({
+      success: true,
+      data: project_status,
+    });
+  } catch (error) {
+    console.error("Project status error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch project status",
     });
   }
 });

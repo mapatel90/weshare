@@ -550,3 +550,10 @@ model notifications {
   users                users?                 @relation("NotificationUser", fields: [user_id], references: [id])
   created_users        users?                 @relation("NotificationCreator", fields: [created_by], references: [id])
 }
+
+
+model project_status {
+  id                  Int                    @id @default(autoincrement())
+  name                String?
+  is_deleted          Int                    @default(0)
+}

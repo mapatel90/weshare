@@ -1628,9 +1628,9 @@
     "contract_title":"Contract Generated",
     "contract_created": "A new contract has been successfully created for the project \"{{project_name}}\" created by \"{{created_by}}\".",
     "contract_approved_title": "Contract Approved",
-    "contract_approved_message": "The contract \"{{contract_title}}\" has been approved.",
+    "contract_approved_message": "The contract \"{{contract_title}}\" has been approved by \"{{created_by}}\".",
     "contract_rejected_title": "Contract Rejected",
-    "contract_rejected_message": "The contract \"{{contract_title}}\" has been rejected"
+    "contract_rejected_message": "The contract \"{{contract_title}}\" has been rejected by \"{{created_by}}\"."
 
   }
 }
