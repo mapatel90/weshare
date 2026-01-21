@@ -3,6 +3,8 @@ import prisma from "../utils/prisma.js";
 import { authenticateToken } from "../middleware/auth.js";
 import { sendInvoiceEmail } from "../utils/email.js";
 import { createNotification } from "../utils/notifications.js";
+import { getUserLanguage, t } from '../utils/i18n.js';
+import { getUserFullName } from "../utils/common.js";
 
 const router = express.Router();
 
@@ -189,7 +191,7 @@ router.get("/", authenticateToken, async (req, res) => {
         where.OR.push(
           { sub_amount: searchNumber },
           { tax_amount: searchNumber },
-          { total_amount: searchNumber }
+          { total_amount: searchNumber },
         );
       }
     }
@@ -237,7 +239,6 @@ router.get("/", authenticateToken, async (req, res) => {
     });
   }
 });
-
 
 // Get single invoice by ID
 router.get("/:id", authenticateToken, async (req, res) => {
@@ -341,6 +342,8 @@ router.post("/", authenticateToken, async (req, res) => {
       items = [],
       note,
       terms_and_conditions,
+      created_by,
+      status,
     } = req.body;
 
     if (!project_id || !offtaker_id || status === undefined) {
@@ -368,13 +371,13 @@ router.post("/", authenticateToken, async (req, res) => {
 
     const itemsTotal = parsedItems.reduce(
       (sum, it) => sum + it.unit * it.price,
-      0
+      0,
     );
 
-    const invoiceAmount = amount !== undefined ? parseFloat(amount) : itemsTotal;
-    const invoiceTotal = total_unit !== undefined
-      ? parseFloat(total_unit)
-      : itemsTotal;
+    const invoiceAmount =
+      amount !== undefined ? parseFloat(amount) : itemsTotal;
+    const invoiceTotal =
+      total_unit !== undefined ? parseFloat(total_unit) : itemsTotal;
 
     const created = await prisma.$transaction(async (tx) => {
       const newInvoice = await tx.invoices.create({
@@ -396,15 +399,39 @@ router.post("/", authenticateToken, async (req, res) => {
           billing_adress_1: billing_adress_1 || "",
           billing_adress_2: billing_adress_2 || "",
           billing_city_id: billing_city_id ? parseInt(billing_city_id) : null,
-          billing_state_id: billing_state_id ? parseInt(billing_state_id) : null,
+          billing_state_id: billing_state_id
+            ? parseInt(billing_state_id)
+            : null,
           billing_country_id: billing_country_id
             ? parseInt(billing_country_id)
             : null,
           billing_zipcode: billing_zipcode ? parseInt(billing_zipcode) : null,
           notes: note || "",
           terms_and_conditions: terms_and_conditions || "",
+          created_by: created_by ? parseInt(created_by) : null,
         },
       });
+
+    if (newInvoice){
+
+      const lang = await getUserLanguage(newInvoice.offtaker_id);
+      const creatorName = await getUserFullName(created_by);
+
+      const notification_message = t(lang, 'notification_msg.invoice_created', {
+        invoice_number: newInvoice.invoice_prefix + "-" + newInvoice.invoice_number,
+        created_by: creatorName,
+      });
+
+      await createNotification({
+        userId: newInvoice?.offtaker_id,
+        title: notification_message,
+        message: notification_message,
+        moduleType: "Invoice",
+        moduleId: newInvoice?.id,
+        actionUrl: `/offtaker/billings/invoice/${newInvoice?.id}`,
+        created_by: parseInt(created_by),
+      });
+    }
 
       if (parsedItems.length) {
         await tx.invoice_items.createMany({
@@ -494,13 +521,13 @@ router.put("/:id", authenticateToken, async (req, res) => {
 
     const itemsTotal = parsedItems.reduce(
       (sum, it) => sum + it.unit * it.price,
-      0
+      0,
     );
 
-    const invoiceAmount = amount !== undefined ? parseFloat(amount) : itemsTotal;
-    const invoiceTotal = total_unit !== undefined
-      ? parseFloat(total_unit)
-      : itemsTotal;
+    const invoiceAmount =
+      amount !== undefined ? parseFloat(amount) : itemsTotal;
+    const invoiceTotal =
+      total_unit !== undefined ? parseFloat(total_unit) : itemsTotal;
 
     const updated = await prisma.$transaction(async (tx) => {
       const inv = await tx.invoices.update({
@@ -523,7 +550,9 @@ router.put("/:id", authenticateToken, async (req, res) => {
           billing_adress_1: billing_adress_1 || "",
           billing_adress_2: billing_adress_2 || "",
           billing_city_id: billing_city_id ? parseInt(billing_city_id) : null,
-          billing_state_id: billing_state_id ? parseInt(billing_state_id) : null,
+          billing_state_id: billing_state_id
+            ? parseInt(billing_state_id)
+            : null,
           billing_country_id: billing_country_id
             ? parseInt(billing_country_id)
             : null,

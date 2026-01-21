@@ -26,6 +26,7 @@ import {
   Stack,
 } from "@mui/material";
 import { Close as CloseIcon } from "@mui/icons-material";
+import { useAuth } from "@/contexts/AuthContext";
 
 const InverterTable = () => {
   const { lang } = useLanguage();
@@ -49,6 +50,7 @@ const InverterTable = () => {
   const [modalMode, setModalMode] = useState(null);
   const [status, setStatus] = useState("");
   const [statusError, setStatusError] = useState("");
+  const { user } = useAuth();
 
   const resetForm = () => {
     setCompanyName("");
@@ -203,6 +205,7 @@ const InverterTable = () => {
         secretKey,
         apiUrl: apiUrlName, // <-- include in payload (snake_case for backend)
         status: parseInt(status),
+        created_by: user?.id ? parseInt(user.id) : null,
       };
       const res = editingId
         ? await apiPut(`/api/inverters/${editingId}`, payload)

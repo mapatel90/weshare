@@ -24,6 +24,7 @@ import {
   Typography,
   Stack,
 } from "@mui/material";
+import { useAuth } from "@/contexts/AuthContext";
 import { Close as CloseIcon } from "@mui/icons-material";
 
 const InverterTypeTable = () => {
@@ -37,6 +38,7 @@ const InverterTypeTable = () => {
   const [errors, setErrors] = useState({});
   const [statusError, setStatusError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const { user } = useAuth();
 
   const resetForm = () => {
     setTypeName("");
@@ -120,7 +122,7 @@ const InverterTypeTable = () => {
 
     try {
       setSubmitting(true);
-      const payload = { type: typeName, status: parseInt(status) };
+      const payload = { type: typeName, status: parseInt(status), created_by: user?.id ? parseInt(user.id) : null };
       const res = editingId
         ? await apiPut(`/api/inverterTypes/${editingId}`, payload)
         : await apiPost("/api/inverterTypes", payload);

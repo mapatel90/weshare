@@ -18,9 +18,11 @@ import {
   Typography,
 } from "@mui/material";
 import { Close as CloseIcon } from "@mui/icons-material";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Investor = ({ projectId, onInvestorMarked, handleSaveAction }) => {
   const { lang } = useLanguage();
+  const { user } = useAuth();
 
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState("add");
@@ -106,6 +108,7 @@ const Investor = ({ projectId, onInvestorMarked, handleSaveAction }) => {
         phoneNumber: phoneNumber || null,
         notes: notes || null,
         status,
+        created_by: user?.id,
       };
 
       if (modalType === "add") {

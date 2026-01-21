@@ -2,6 +2,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import Table from "@/components/shared/table/Table";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { apiGet, apiUpload, apiDelete } from "@/lib/api";
 import { showSuccessToast } from "@/utils/topTost";
 import Swal from "sweetalert2";
@@ -25,6 +26,7 @@ import { getFullImageUrl } from "@/utils/common";
 
 const BlogTable = () => {
   const { lang } = useLanguage();
+  const { user } = useAuth();
 
   const [blogData, setBlogData] = useState([]);
 
@@ -84,6 +86,7 @@ const BlogTable = () => {
     form.append("blog_date", blogDate);
     form.append("blog_description", blogDescription);
     form.append("blog_slug", blogSlug);
+    if (user?.id) form.append("created_by", user.id);
     if (blogImageFile) form.append("blog_image", blogImageFile);
     else if (!editingId && blogImage) form.append("blog_image", blogImage);
     return form;

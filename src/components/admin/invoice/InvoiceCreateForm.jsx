@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import useLocationData from "@/hooks/useLocationData";
 import InvoiceItem from "./InvoiceItem";
 import { usePriceWithCurrency } from "@/hooks/usePriceWithCurrency";
+import { useAuth } from "@/contexts/AuthContext";
 
 import {
   Box,
@@ -31,6 +32,7 @@ import {
 
 const InvoiceCreateForm = ({ invoiceId = null }) => {
   const { lang } = useLanguage();
+  const { user } = useAuth();
   const router = useRouter();
   const isDark = useDarkMode();
   const priceWithCurrency = usePriceWithCurrency();
@@ -633,6 +635,7 @@ const InvoiceCreateForm = ({ invoiceId = null }) => {
         items: preparedItems,
         note: invoiceNote || "",
         terms_and_conditions: termsAndConditions || "",
+        created_by: user?.id ? parseInt(user.id) : null,
       };
       const res = invoiceId
         ? await apiPut(`/api/invoice/${invoiceId}`, payload)

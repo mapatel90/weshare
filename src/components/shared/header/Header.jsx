@@ -11,6 +11,7 @@ import MegaMenu from './megaManu/MegaMenu';
 import { NavigationContext } from '@/contentApi/navigationProvider';
 
 
+
 const Header = () => {
     const { navigationOpen, setNavigationOpen } = useContext(NavigationContext)
     const [openMegaMenu, setOpenMegaMenu] = useState(false)
@@ -114,7 +115,7 @@ const Header = () => {
     const fullScreenMinimize = () => {
         if (document.exitFullscreen) {
             document.exitFullscreen();
-        } else if (document.mozCancelFullScreen) { 
+        } else if (document.mozCancelFullScreen) {
             document.mozCancelFullScreen();
         } else if (document.webkitExitFullscreen) {
             document.webkitExitFullscreen();
@@ -132,7 +133,7 @@ const Header = () => {
                 {/* <!--! [Start] Header Left !--> */}
                 <div className="header-left d-flex align-items-center gap-4">
                     {/* <!--! [Start] nxl-head-mobile-toggler !--> */}
-                    <a href="#" className="nxl-head-mobile-toggler" onClick={(e) => {e.preventDefault(), setNavigationOpen(true)}} id="mobile-collapse">
+                    <a href="#" className="nxl-head-mobile-toggler" onClick={(e) => { e.preventDefault(), setNavigationOpen(true) }} id="mobile-collapse">
                         <div className={`hamburger hamburger--arrowturn ${navigationOpen ? "is-active" : ""}`}>
                             <div className="hamburger-box">
                                 <div className="hamburger-inner"></div>
@@ -160,7 +161,7 @@ const Header = () => {
                     {/* <!--! [End] nxl-navigation-toggle !-->
                     <!--! [Start] nxl-lavel-mega-menu-toggle !--> */}
                     <div className="nxl-lavel-mega-menu-toggle d-flex d-lg-none">
-                        <a href="#" onClick={(e) => {e.preventDefault(), setOpenMegaMenu(true)}} id="nxl-lavel-mega-menu-open">
+                        <a href="#" onClick={(e) => { e.preventDefault(), setOpenMegaMenu(true) }} id="nxl-lavel-mega-menu-open">
                             <FiAlignLeft size={24} />
                         </a>
                     </div>
@@ -168,16 +169,11 @@ const Header = () => {
                     <!--! [Start] nxl-lavel-mega-menu !--> */}
                     <div className="nxl-drp-link nxl-lavel-mega-menu">
                         <div className="nxl-lavel-mega-menu-toggle d-flex d-lg-none">
-                            <a href="#" onClick={(e) => {e.preventDefault(), setOpenMegaMenu(false)}} id="nxl-lavel-mega-menu-hide">
+                            <a href="#" onClick={(e) => { e.preventDefault(), setOpenMegaMenu(false) }} id="nxl-lavel-mega-menu-hide">
                                 <i className="me-2"><FiArrowLeft /></i>
                                 <span>Back</span>
                             </a>
                         </div>
-                        {/* <!--! [Start] nxl-lavel-mega-menu-wrapper !--> */}
-                        {/* <div className="nxl-lavel-mega-menu-wrapper d-flex gap-3">
-                            <HeaderDropDownModal />
-                            <MegaMenu />
-                        </div> */}
                     </div>
                 </div>
                 {/* <!--! [End] Header Left !-->
@@ -185,15 +181,8 @@ const Header = () => {
                 <div className="header-right ms-auto">
                     <div className="d-flex align-items-center">
                         {/* <SearchModal /> */}
+                        <NotificationsModal />
                         <LanguagesModal />
-                        {/* <div className="nxl-h-item d-none d-sm-flex" >
-                            <div className="full-screen-switcher">
-                                <span className="nxl-head-link me-0">
-                                    <FiMaximize size={20} className="maximize" onClick={fullScreenMaximize} />
-                                    <FiMinimize size={20} className="minimize" onClick={fullScreenMinimize} />
-                                </span>
-                            </div>
-                        </div> */}
                         <div className="nxl-h-item dark-light-theme">
                             <div className="nxl-head-link me-0 dark-button" onClick={() => handleThemeMode("dark")}>
                                 <FiMoon size={20} />
@@ -202,8 +191,11 @@ const Header = () => {
                                 <FiSun size={20} />
                             </div>
                         </div>
+                        <div className="nxl-h-item dark-light-theme">
+                            
+                        </div>
                         {/* <TimesheetsModal /> */}
-                        <NotificationsModal />
+
                         <ProfileModal />
                     </div>
                 </div>

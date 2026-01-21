@@ -9,9 +9,11 @@ import {
   Button
 } from "@mui/material";
 import ContractModal from "./ContractModal";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Contract = ({ projectId, handleCloseForm }) => {
   const { lang } = useLanguage();
+  const { user } = useAuth();
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState("add");
   const [loading, setLoading] = useState(false);
@@ -247,6 +249,7 @@ const Contract = ({ projectId, handleCloseForm }) => {
         status,
         offtakerId: partyType === "offtaker" ? (selectedOfftaker || offtakerList?.id || null) : null,
         investorId: partyType === "investor" ? (selectedInvestor || null) : null,
+        created_by: user?.id,
       };
 
       if (modalType === "add") {

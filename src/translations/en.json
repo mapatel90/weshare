@@ -177,6 +177,9 @@
     "cancel": "Cancel",
     "delete": "Delete",
     "logo": "Logo",
+    "language": "Language",
+    "en": "English",
+    "vi": "Vietnamese",
     "icon": "Favicon",
     "edit": "Edit",
     "add": "Add",
@@ -335,10 +338,18 @@
   },
   "menu": {
     "dashboards": "Dashboards",
+    "dashboard": "Dashboard",
     "analytics": "Analytics",
     "crm": "CRM",
     "reports": "Reports",
+    "payment": "Payments",
+    "inverter-env-reports": "Inverter ENV Reports",
+    "project-env-reports": "Project ENV Reports",
+    "saving-reports" : "Saving Reports",
     "applications": "Applications",
+    "billings": "Billings",
+    "contracts": "Contracts",
+    "notifications": "Notifications",
     "chat": "Chat",
     "type": "Type",
     "email": "Email",
@@ -1056,7 +1067,8 @@
     "enteraddress_2": "Enter address line 2",
     "enterzipcode": "Enter zip code",
     "enterphonenumber": "Enter phone number",
-    "your_company_mail": "Your company email address"
+    "your_company_mail": "Your company email address",
+    "enterfullname": "Enter full name"
   },
   "roles": {
     "rolesManagement": "Roles Management",
@@ -1610,5 +1622,17 @@
   },
   "billings": {
     "billings": "Billings"
+  },
+  "notification_msg": {
+    "project_created": "New project \"{{project_name}}\" created by \"{{created_by}}\".",
+    "invoice_created": "New invoice \"{{invoice_number}}\" created by \"{{created_by}}\".",
+    "payment_made": "Payment of \"{{amount}}\" made by \"{{created_by}}\" for invoice \"{{invoice_number}}\".",
+    "contract_title":"Contract Generated",
+    "contract_created": "A new contract has been successfully created for the project \"{{project_name}}\" created by \"{{created_by}}\".",
+    "contract_approved_title": "Contract Approved",
+    "contract_approved_message": "The contract \"{{contract_title}}\" has been approved.",
+    "contract_rejected_title": "Contract Rejected",
+    "contract_rejected_message": "The contract \"{{contract_title}}\" has been rejected"
+
   }
 }

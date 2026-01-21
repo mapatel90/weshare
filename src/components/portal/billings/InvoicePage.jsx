@@ -6,9 +6,11 @@ import { usePriceWithCurrency } from "@/hooks/usePriceWithCurrency";
 import { useAuth } from "@/contexts/AuthContext";
 import PaymentModal from "@/components/portal/billings/PaymentModal";
 import { showSuccessToast } from "@/utils/topTost";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const InvoicePage = ({ invoiceId }) => {
   const { user } = useAuth();
+  const { lang } = useLanguage();
   const router = useRouter();
   const [invoiceData, setInvoiceData] = useState("");
   const [loading, setLoading] = useState(true);
@@ -262,6 +264,7 @@ const InvoicePage = ({ invoiceId }) => {
         ss_url: uploadedImageUrl,
         amount: Number(amountString),
         status: 0, // Pending status
+        created_by: user?.id,
       };
 
       const paymentResponse = await apiPost("/api/payments", paymentData, { includeAuth: true });
@@ -425,6 +428,7 @@ const InvoicePage = ({ invoiceId }) => {
           invoiceNumber={invoiceDisplay}
           totalAmount={summary?.total || ""}
           onSubmit={handleModalSubmit}
+          lang={lang}
         />
       </div>
   );

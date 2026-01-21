@@ -333,7 +333,8 @@ router.get('/me', async (req, res) => {
         country_id: true,
         zipcode: true,
         status: true,
-        user_image: true
+        user_image: true,
+        language: true
       }
     });
 

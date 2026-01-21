@@ -7,6 +7,7 @@ import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import { createBulkNotifications, createNotification } from '../utils/notifications.js';
+import { getUserLanguage, t } from '../utils/i18n.js';
 
 const router = express.Router();
 
@@ -32,7 +33,7 @@ const contractStorage = multer.diskStorage({
 const upload = multer({ storage: contractStorage });
 
 // Create contract (supports multipart file 'document' OR a direct document path in body)
-router.post("/", upload.single('document'), async (req, res) => {
+router.post("/", authenticateToken, upload.single('document'), async (req, res) => {
   try {
     const {
       projectId,
@@ -44,6 +45,7 @@ router.post("/", upload.single('document'), async (req, res) => {
       contractDate,
       status,
     } = req.body;
+    const userId = req.user?.id; // Get user ID from authenticated token
 
     // prefer uploaded file path
     const uploadedPath = req.file ? `/images/contract/${req.file.filename}` : (documentUpload || null);
@@ -67,6 +69,7 @@ router.post("/", upload.single('document'), async (req, res) => {
         document_upload: uploadedPath || null,
         contract_date: formattedDate,
         status: typeof status !== 'undefined' ? Number(status) : 0,
+        created_by: userId,
       },
       include: {
         projects: true,
@@ -76,17 +79,24 @@ router.post("/", upload.single('document'), async (req, res) => {
     });
 
     if (created) {
-      const notificationMessage =
-        `New contract created for project "${created.projects.project_name}".`;
+      const lang = await getUserLanguage(offtakerId ? offtakerId : investorId);
+
+      const notification_title = t(lang, 'notification_msg.contract_title');
+
+      const notification_message = t(lang, 'notification_msg.contract_created', {
+        project_name: created?.projects.project_name,
+        created_by: 'System Administrator'
+      });
 
       const notificationPayload = {
-        title: notificationMessage,
-        message: notificationMessage,
+        title: notification_title,
+        message: notification_message,
         moduleType: 'projects',
         moduleId: projectId,
+        created_by: userId
       };
 
-      // 1️⃣ Offtaker notification
+      //  Offtaker notification
       if (offtakerId) {
         await createNotification({
           userId: offtakerId,
@@ -95,7 +105,7 @@ router.post("/", upload.single('document'), async (req, res) => {
         });
       }
 
-      // 2️⃣ Interested Investor notification
+      // Interested Investor notification
       if (investorId) {
         await createNotification({
           userId: investorId,
@@ -305,6 +315,7 @@ router.put("/:id", authenticateToken, upload.single('document'), async (req, res
       contractDate,
       status,
     } = req.body;
+    const userId = req.user?.id; // Get user ID from authenticated token
 
     const existing = await prisma.contracts.findFirst({ where: { id } });
     if (!existing || existing.is_deleted) {
@@ -339,6 +350,8 @@ router.put("/:id", authenticateToken, upload.single('document'), async (req, res
       document_upload: newDocumentPath ? newDocumentPath : (typeof documentUpload !== 'undefined' ? documentUpload : undefined),
       contract_date: typeof contractDate !== 'undefined' ? (formattedDate ? formattedDate : null) : undefined,
       status: typeof status !== 'undefined' ? Number(status) : undefined,
+      created_by: userId,
+      updated_at: new Date(),
     };
 
     const updated = await prisma.contracts.update({
@@ -379,24 +392,35 @@ router.put("/:id/status", authenticateToken, async (req, res) => {
       data: updateData,
     });
 
-    let notificationMessage = '';
+    const lang = await getUserLanguage(existing?.created_by);
+
+    let notification_title = '';
+    let notification_message = '';
 
     if (Number(status) === 1) {
-      notificationMessage = `Contract for "${existing.contract_title}" has been approved.`;
+      notification_title = t(lang, 'notification_msg.contract_approved_title');
+      notification_message = t(lang, 'notification_msg.contract_approved_message', {
+        contract_title: existing.contract_title,
+      });
     }
 
     if (Number(status) === 2) {
-      notificationMessage = `Contract for "${existing.contract_title}" has been rejected. Reason: ${reason}`;
+      notification_title = t(lang, 'notification_msg.contract_rejected_title');
+      notification_message = t(lang, 'notification_msg.contract_rejected_message', {
+        contract_title: existing.contract_title,
+      });
     }
 
     await createNotification({
-      userId: '1',
-      title: notificationMessage,
-      message: notificationMessage,
+      userId: existing?.created_by,
+      title: notification_title,
+      message: notification_message,
       moduleType: 'contract',
       moduleId: existing?.id,
       actionUrl: `contract/view/${existing?.id}`,
+      created_by: existing?.offtaker_id
     });
+
 
     return res.json({ success: true, data: updated });
   } catch (error) {

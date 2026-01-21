@@ -7,7 +7,7 @@ const router = express.Router();
 
 router.post("/", async (req, res) => {
   try {
-    const { projectId, userId, fullName, email, phoneNumber, notes } = req.body;
+    const { projectId, userId, fullName, email, phoneNumber, notes, created_by } = req.body;
     if (!fullName || !email) {
       return res
         .status(400)
@@ -22,6 +22,7 @@ router.post("/", async (req, res) => {
         email,
         phone_number: phoneNumber ?? null,
         notes: notes ?? null,
+        created_by: created_by ?? null,
       },
     });
 

@@ -163,6 +163,7 @@
     "edit": "Sửa",
     "logo": "Logo",
     "icon": "Favicon",
+    "language": "Ngoại ngữ",
     "add": "Thêm",
     "update": "Cập nhật",
     "create": "Tạo",
@@ -240,7 +241,7 @@
     "approved": "Đã phê duyệt",
     "pending": "Đang chờ",
     "rejected": "Đã từ chối",
-    "all":"Tất cả",
+    "all": "Tất cả",
     "download": "Tải xuống",
     "prev": "Trước",
     "day": "Ngày",
@@ -317,11 +318,19 @@
   },
   "menu": {
     "dashboards": "Bảng điều khiển",
+    "dashboard": "Bảng điều khiển",
     "analytics": "Phân tích",
     "crm": "CRM",
     "reports": "Báo cáo",
+    "payments": "Thanh toán",
+    "inverter-env-reports": "báo cáo môi trường biến tần",
+    "project-env-reports": "báo cáo môi trường dự án",
+    "saving-reports": "báo cáo tiết kiệm",
     "invoices": "Hóa đơn",
     "applications": "Ứng dụng",
+    "billings": "Hóa đơn",
+    "contracts": "Hợp đồng",
+    "notifications": "Thông báo",
     "chat": "Trò chuyện",
     "email": "Email",
     "type": "Loại",
@@ -398,7 +407,7 @@
     "investmentsummaryreports": "Báo cáo tóm tắt đầu tư"
   },
   "dashboard": {
-    "dashboard" : "Trang tổng quan",
+    "dashboard": "Trang tổng quan",
     "totalSales": "Tổng doanh số",
     "totalRevenue": "Tổng doanh thu",
     "totalCustomers": "Tổng khách hàng",
@@ -443,7 +452,7 @@
     "co2Avoided": "CO₂ tránh được trong năm nay",
     "cleanEnergyConsumed": "Năng lượng sạch đã tiêu thụ",
     "equivalentPlanted": "Tương đương đã trồng",
-    "dataNotFound":"Không tìm thấy dữ liệu",
+    "dataNotFound": "Không tìm thấy dữ liệu",
     "trees": "Cây",
     "projectSummary": "Tóm tắt dự án",
     "projectStartDate": "Ngày bắt đầu dự án",
@@ -979,7 +988,8 @@
     "enteraddress_2": "Nhập địa chỉ dòng 2",
     "enterzipcode": "Nhập mã zip",
     "enterphonenumber": "Nhập số điện thoại",
-    "your_company_mail": "Địa chỉ email công ty của bạn"
+    "your_company_mail": "Địa chỉ email công ty của bạn",
+    "enterfullname": "Nhập họ và tên đầy đủ"
   },
   "roles": {
     "rolesManagement": "Quản lý vai trò",
@@ -1402,7 +1412,7 @@
       "notifications": "Thông báo",
       "reports": "Báo cáo",
       "inverter_report": "Báo cáo Env biến tần",
-      "project_env_report":"Báo cáo môi trường dự án",
+      "project_env_report": "Báo cáo môi trường dự án",
       "savingreports": "Báo cáo tiết kiệm",
       "conjunctionreports": "Báo cáo kết hợp",
       "contracts": "Hợp đồng",
@@ -1559,5 +1569,16 @@
   },
   "billings": {
     "billings": "Hóa đơn"
+  },
+  "notification_msg": {
+    "project_created": "Dự án mới \"{{project_name}}\" được tạo bởi \"{{created_by}}\".",
+    "invoice_created": "Hóa đơn mới \"{{invoice_number}}\" được tạo bởi \"{{created_by}}\".",
+    "payment_made": "Thanh toán \"{{amount}}\" được thực hiện bởi \"{{created_by}}\" cho hóa đơn \"{{invoice_number}}\".",
+    "contract_title": "Hợp đồng đã được tạo",
+    "contract_created": "Một hợp đồng mới đã được tạo thành công cho dự án \"{{project_name}}\" bởi \"{{created_by}}\".",
+    "contract_approved_title": "Hợp đồng đã được phê duyệt",
+    "contract_approved_message": "Hợp đồng \"{{contract_title}}\" đã được phê duyệt.",
+    "contract_rejected_title": "Hợp đồng bị từ chối",
+    "contract_rejected_message": "Hợp đồng \"{{contract_title}}\" đã bị từ chối."
   }
 }

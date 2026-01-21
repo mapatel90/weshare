@@ -24,10 +24,12 @@ router.post('/', authenticateToken, async (req, res) => {
     if (!name || status === undefined) {
       return res.status(400).json({ success: false, message: 'name and status are required' });
     }
+    const createdBy = req.user?.id ? parseInt(req.user.id) : null;
     const created = await prisma.project_types.create({
       data: {
         type_name: name,
-        status: parseInt(status)
+        status: parseInt(status),
+        ...(createdBy !== null && { created_by: createdBy })
       }
     });
     res.status(201).json({ success: true, data: created });

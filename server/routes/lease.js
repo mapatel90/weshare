@@ -15,7 +15,8 @@ router.post('/', async (req, res) => {
       cityId,
       address,
       subject,
-      message
+      message,
+      created_by
     } = req.body || {}
 
     // Basic validation
@@ -35,6 +36,7 @@ router.post('/', async (req, res) => {
       city_id: cityId ? Number(cityId) : null,
       address: address ? String(address).trim() : null,
       subject: subject ? String(subject).trim() : null,
+      created_by: created_by ? Number(created_by) : null,
       message: String(message).trim()
     }
 

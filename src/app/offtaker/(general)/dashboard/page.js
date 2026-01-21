@@ -5,7 +5,7 @@ import DynamicTitle from '@/components/common/DynamicTitle'
 const page = () => {
     return (
         <>
-            <DynamicTitle titleKey="dashboard.dashboard" />
+            <DynamicTitle titleKey="menu.dashboards" />
             <div className='row'>
                 <DashboardView />
             </div>

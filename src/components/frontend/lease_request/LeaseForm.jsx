@@ -5,9 +5,11 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import useLocationData from '@/hooks/useLocationData';
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function LeaseFormSection() {
   const { lang } = useLanguage();
+  const { user } = useAuth();
 
   const [formData, setFormData] = useState({
     fullName: "",
@@ -100,7 +102,8 @@ export default function LeaseFormSection() {
         ...formData,
         countryId: formData.countryId || null,
         stateId: formData.stateId || null,
-        cityId: formData.cityId || null
+        cityId: formData.cityId || null,
+        created_by: user?.id || null
       };
 
       const data = await apiPost("/api/lease", payload);

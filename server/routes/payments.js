@@ -1,6 +1,9 @@
 import express from 'express';
 import prisma from '../utils/prisma.js';
 import { authenticateToken } from '../middleware/auth.js';
+import { getUserLanguage, t } from '../utils/i18n.js';
+import { getUserFullName } from "../utils/common.js";
+import { createNotification } from "../utils/notifications.js";
 
 const router = express.Router();
 
@@ -99,7 +102,7 @@ router.get('/:id', authenticateToken, async (req, res) => {
 // Create payment
 router.post('/', authenticateToken, async (req, res) => {
   try {
-    const { invoice_id, offtaker_id, ss_url, amount, status } = req.body;
+    const { invoice_id, offtaker_id, ss_url, amount, status, created_by } = req.body;
     if (!offtaker_id && invoice_id != "") {
       return res.status(400).json({ success: false, message: 'offtaker_id is required' });
     }
@@ -109,9 +112,36 @@ router.post('/', authenticateToken, async (req, res) => {
         offtaker_id: parseInt(offtaker_id),
         ss_url: ss_url || '',
         amount: parseFloat(amount) || 0,
-        status: parseInt(status ?? 0)
+        status: parseInt(status ?? 0),
+        created_by: parseInt(created_by)
       }
     });
+
+    if (created && created_by !== 1) {
+
+      const newInvoice = await prisma.invoices.findUnique({
+        where: { id: created.invoice_id },
+      });
+
+      const lang = await getUserLanguage(created.offtaker_id);
+      const creatorName = await getUserFullName(created_by);
+
+      const notification_message = t(lang, 'notification_msg.payment_made', {
+        invoice_number: newInvoice.invoice_prefix + "-" + newInvoice.invoice_number,
+        created_by: creatorName,
+        amount: created?.amount,
+      });
+
+      await createNotification({
+        userId: '1',
+        title: notification_message,
+        message: notification_message,
+        moduleType: "Payment",
+        moduleId: created?.id,
+        actionUrl: `/offtaker/payments`,
+        created_by: parseInt(created_by),
+      });
+    }
 
     res.json({ success: true, data: created });
   } catch (error) {

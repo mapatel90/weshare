@@ -421,6 +421,7 @@ const ProjectDetail = ({ projectId }) => {
         email: investEmail,
         phoneNumber: investPhone,
         notes: investNotes,
+        created_by: user?.id,
       };
 
       const res = await apiPost("/api/investors", payload);

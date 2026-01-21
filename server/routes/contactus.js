@@ -70,7 +70,8 @@ router.post('/', async (req, res) => {
       email,
       phoneNumber,
       subject,
-      message
+      message,
+      created_by
     } = req.body;
 
     // Validate required fields
@@ -99,7 +100,9 @@ router.post('/', async (req, res) => {
         subject,
         message,
         project_id: 2,
-        status: 1 // 1 = read/responded
+        status: 1, // 1 = read/responded
+        created_by: created_by ? Number(created_by) : null,
+        created_at: new Date(),
       }
     });
 
