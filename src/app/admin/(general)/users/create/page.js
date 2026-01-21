@@ -3,8 +3,11 @@ import React from 'react'
 import PageHeader from '@/components/shared/pageHeader/PageHeader'
 import UsersCreateHeader from '@/components/admin/users/UsersCreateHeader'
 import UsersCreateForm from '@/components/admin/users/UsersCreateForm'
+import { usePageTitle } from '@/contexts/PageTitleContext';
 
 const page = () => {
+  usePageTitle('page_title.createUser');
+  
   return (
     <>
       <PageHeader>

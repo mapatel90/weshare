@@ -26,6 +26,7 @@ const formatNumber = (v, suffix = "") => {
 
 const ProjectViewContent = ({ projectId = "" }) => {
   const { lang } = useLanguage();
+
   const isDark = useDarkMode();
   const colors = getDarkModeColors(isDark);
 

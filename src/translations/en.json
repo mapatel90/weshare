@@ -33,6 +33,8 @@
     "inverters": "Inverters",
     "inverterDetails": "Inverter Details",
     "users": "Users",
+    "createUser": "Create User",
+    "editUser": "Edit User",
     "userManagement": "User Management",
     "profile": "Profile",
     "settings": "Settings",
