@@ -211,8 +211,29 @@ async function main() {
       console.log(`ℹ️ Tax ${tax.name} already exists, skipping...`);
     }
   }
+  const projectStatuses = [
+    { id: 1, name: 'Pending', is_deleted: 0 },
+    { id: 2, name: 'Upcoming', is_deleted: 0 },
+    { id: 3, name: 'Under installation', is_deleted: 0 },
+  ];
 
-  console.log("🎉 Database seeding completed successfully!");
+  for (const status of projectStatuses) {
+    const existingStatus = await prisma.project_status.findFirst({
+      where: { name: status.name },
+    });
+
+    if (!existingStatus) {
+      await prisma.project_status.create({
+        data: status,
+      });
+    } else {
+      console.log(`Project status "${status.name}" already exists, skipping...`);
+    }
+    console.log(`Project status added`);
+  }
+
+
+  console.log("Database seeding completed successfully!");
 }
 
 main()

@@ -21,11 +21,13 @@ const ProjectForm = ({
   loading = { form: false },
   checkingName = false,
   projectTypes = [],
+  projectStatuses = [],
   offtakers = [],
   countries = [],
   states = [],
   cities = [],
   loadingOfftakers = false,
+  loadingStatuses = false,
   loadingCountries = false,
   loadingStates = false,
   loadingCities = false,
@@ -788,19 +790,19 @@ const ProjectForm = ({
                   <Select
                     labelId="status-select-label"
                     name="status"
-                    value={formData.status}
+                    value={formData.status ?? ""}
                     label={lang("projects.status", "Status")}
                     onChange={handleInputChange}
+                    disabled={loadingStatuses}
                   >
                     <MenuItem value="">
                       {lang("projects.selectStatus", "Select Status")}
                     </MenuItem>
-                    <MenuItem value="active">
-                      {lang("projects.active", "Active")}
-                    </MenuItem>
-                    <MenuItem value="inactive">
-                      {lang("projects.inactive", "Inactive")}
-                    </MenuItem>
+                    {projectStatuses.map((status) => (
+                      <MenuItem key={status.id} value={status.id}>
+                        {status.name}
+                      </MenuItem>
+                    ))}
                   </Select>
                   {error.status && (
                     <FormHelperText>{error.status}</FormHelperText>

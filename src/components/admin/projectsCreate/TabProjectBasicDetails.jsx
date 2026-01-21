@@ -31,6 +31,8 @@ const TabProjectBasicDetails = ({ setFormData, formData, error, setError }) => {
     const [loading, setLoading] = useState({ form: false })
     const [projectTypes, setProjectTypes] = useState([])
     const [checkingName, setCheckingName] = useState(false)
+    const [projectStatuses, setProjectStatuses] = useState([])
+    const [loadingStatuses, setLoadingStatuses] = useState(false)
     const [queuedImages, setQueuedImages] = useState([])
 
     // Offtakers are loaded by hook on mount; load project types
@@ -46,6 +48,32 @@ const TabProjectBasicDetails = ({ setFormData, formData, error, setError }) => {
         loadTypes()
     }, [])
 
+    useEffect(() => {
+        const loadStatuses = async () => {
+            setLoadingStatuses(true)
+            try {
+                const res = await apiGet('/api/projects/status')
+                if (res?.success && Array.isArray(res.data)) {
+                    setProjectStatuses(res.data)
+                    setFormData(prev => {
+                        if (prev.status !== undefined && prev.status !== null && prev.status !== '') {
+                            return prev
+                        }
+                        const firstId = res.data?.[0]?.id
+                        return firstId ? { ...prev, status: firstId } : prev
+                    })
+                }
+            } catch (err) {
+                console.error('Failed to load project statuses:', err)
+                showErrorToast(lang('projects.statusLoadFailed', 'Failed to load project statuses'))
+            } finally {
+                setLoadingStatuses(false)
+            }
+        }
+
+        loadStatuses()
+    }, [lang, setFormData])
+
     // Handle all input fields
     const handleInputChange = (e) => {
         const { name, value } = e.target
@@ -53,6 +81,8 @@ const TabProjectBasicDetails = ({ setFormData, formData, error, setError }) => {
         if (name === 'project_name') {
             const slug = generateSlug(value)
             setFormData(prev => ({ ...prev, [name]: value, project_slug: slug }))
+        } else if (name === 'status') {
+            setFormData(prev => ({ ...prev, status: value === '' ? '' : Number(value) }))
         } else {
             setFormData(prev => ({ ...prev, [name]: value }))
         }
@@ -67,6 +97,8 @@ const TabProjectBasicDetails = ({ setFormData, formData, error, setError }) => {
                     isValid = value === '' || numberRegex.test(value)
                 } else if (name === 'lease_term') {
                     isValid = value !== '' && intRegex.test(value)
+                } else if (name === 'status') {
+                    isValid = value !== ''
                 } else {
                     isValid = Boolean(value)
                 }
@@ -331,7 +363,9 @@ const TabProjectBasicDetails = ({ setFormData, formData, error, setError }) => {
                 weshare_price_kwh: formData.weshare_price_kwh && formData.weshare_price_kwh !== '' ? parseFloat(formData.weshare_price_kwh) : null,
                 project_close_date: formData.project_close_date || null,
                 project_location: formData.project_location || '',
-                status: formData.status === 'active' ? 1 : 0
+                status: formData.status !== '' && formData.status !== undefined && formData.status !== null
+                    ? Number(formData.status)
+                    : (projectStatuses?.[0]?.id ?? 1)
             };
 
             // Submit to API
@@ -370,11 +404,13 @@ const TabProjectBasicDetails = ({ setFormData, formData, error, setError }) => {
             loading={loading}
             checkingName={checkingName}
             projectTypes={projectTypes}
+            projectStatuses={projectStatuses}
             offtakers={offtakers}
             countries={countries}
             states={states}
             cities={cities}
             loadingOfftakers={loadingOfftakers}
+            loadingStatuses={loadingStatuses}
             loadingCountries={loadingCountries}
             loadingStates={loadingStates}
             loadingCities={loadingCities}

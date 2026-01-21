@@ -8,6 +8,7 @@ import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import { createBulkNotifications, createNotification } from '../utils/notifications.js';
 import { getUserLanguage, t } from '../utils/i18n.js';
+import { getUserFullName } from '../utils/common.js';
 
 const router = express.Router();
 
@@ -80,12 +81,13 @@ router.post("/", authenticateToken, upload.single('document'), async (req, res) 
 
     if (created) {
       const lang = await getUserLanguage(offtakerId ? offtakerId : investorId);
+      const creator_name = await getUserFullName(userId);
 
       const notification_title = t(lang, 'notification_msg.contract_title');
 
       const notification_message = t(lang, 'notification_msg.contract_created', {
         project_name: created?.projects.project_name,
-        created_by: 'System Administrator'
+        created_by: creator_name
       });
 
       const notificationPayload = {
@@ -393,6 +395,7 @@ router.put("/:id/status", authenticateToken, async (req, res) => {
     });
 
     const lang = await getUserLanguage(existing?.created_by);
+    const creator_name = await getUserFullName(existing?.offtaker_id);
 
     let notification_title = '';
     let notification_message = '';
@@ -401,6 +404,7 @@ router.put("/:id/status", authenticateToken, async (req, res) => {
       notification_title = t(lang, 'notification_msg.contract_approved_title');
       notification_message = t(lang, 'notification_msg.contract_approved_message', {
         contract_title: existing.contract_title,
+        created_by: creator_name
       });
     }
 
@@ -408,6 +412,7 @@ router.put("/:id/status", authenticateToken, async (req, res) => {
       notification_title = t(lang, 'notification_msg.contract_rejected_title');
       notification_message = t(lang, 'notification_msg.contract_rejected_message', {
         contract_title: existing.contract_title,
+        created_by: creator_name
       });
     }
 

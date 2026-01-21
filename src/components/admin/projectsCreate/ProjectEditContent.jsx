@@ -63,6 +63,8 @@ const ProjectEditContent = ({ projectId }) => {
         status: ''
     })
     const [projectTypes, setProjectTypes] = useState([])
+    const [projectStatuses, setProjectStatuses] = useState([])
+    const [loadingStatuses, setLoadingStatuses] = useState(false)
     const [galleryImages, setGalleryImages] = useState([])
     const [queuedImages, setQueuedImages] = useState([])
     const [removedImageIds, setRemovedImageIds] = useState([])
@@ -235,8 +237,15 @@ const ProjectEditContent = ({ projectId }) => {
             try {
                 setLoading(prev => ({ ...prev, init: true }))
 
-                const typesRes = await apiGet('/api/project-types')
+                const [typesRes, statusRes] = await Promise.all([
+                    apiGet('/api/project-types'),
+                    apiGet('/api/projects/status')
+                ])
+
                 if (typesRes?.success) setProjectTypes(typesRes.data)
+                if (statusRes?.success && Array.isArray(statusRes.data)) {
+                    setProjectStatuses(statusRes.data)
+                }
 
                 const res = await apiGet(`/api/projects/${projectId}`)
                 if (res?.success && res.data) {
@@ -280,7 +289,7 @@ const ProjectEditContent = ({ projectId }) => {
                         evn_price_kwh: p.evn_price_kwh !== undefined && p.evn_price_kwh !== null ? String(p.evn_price_kwh) : '',
                         weshare_price_kwh: p.weshare_price_kwh !== undefined && p.weshare_price_kwh !== null ? String(p.weshare_price_kwh) : '',
                         solis_plant_id: p.solis_plant_id || '', // ← add Solis Plant ID into form
-                        status: p.status === 1 ? 'active' : 'inactive'
+                        status: typeof p.status === 'number' ? p.status : p.status === 1 ? 1 : p.status === 0 ? 0 : (statusRes?.data?.[0]?.id ?? '')
                     })
                     if (p.country_id) handleCountryChange(p.country_id)
                     if (p.state_id) handleStateChange(p.state_id)
@@ -303,6 +312,8 @@ const ProjectEditContent = ({ projectId }) => {
         if (name === 'project_name') {
             const slug = generateSlug(value)
             setFormData(prev => ({ ...prev, [name]: value, project_slug: slug }))
+        } else if (name === 'status') {
+            setFormData(prev => ({ ...prev, status: value === '' ? '' : Number(value) }))
         } else {
             setFormData(prev => ({ ...prev, [name]: value }))
         }
@@ -318,6 +329,8 @@ const ProjectEditContent = ({ projectId }) => {
                     isValid = value === '' || numberRegex.test(value)
                 } else if (name === 'lease_term') {
                     isValid = value === '' || intRegex.test(value)
+                } else if (name === 'status') {
+                    isValid = value !== ''
                 } else {
                     isValid = Boolean(value)
                 }
@@ -398,6 +411,10 @@ const ProjectEditContent = ({ projectId }) => {
         const errors = {}
         requiredFields.forEach(field => { if (!formData[field]) { errors[field] = lang('validation.required', 'Required') } })
 
+        if (formData.status === '' || formData.status === null || formData.status === undefined) {
+            errors.status = lang('validation.required', 'Required')
+        }
+
         // Check if project name already exists one more time before submit
         if (formData.project_name) {
             const nameExists = await checkProjectNameExists(formData.project_name, projectId)
@@ -453,7 +470,9 @@ const ProjectEditContent = ({ projectId }) => {
                 evn_price_kwh: formData.evn_price_kwh && formData.evn_price_kwh !== '' ? parseFloat(formData.evn_price_kwh) : null,
                 weshare_price_kwh: formData.weshare_price_kwh && formData.weshare_price_kwh !== '' ? parseFloat(formData.weshare_price_kwh) : null,
                 solis_plant_id: formData.solis_plant_id || '', // ← include when updating
-                status: formData.status === 'active' ? 1 : 0
+                status: formData.status !== '' && formData.status !== undefined && formData.status !== null
+                    ? Number(formData.status)
+                    : (projectStatuses?.[0]?.id ?? 0)
             }
             const res = await apiPut(`/api/projects/${projectId}`, payload)
             if (!res?.success) {
@@ -537,11 +556,13 @@ const ProjectEditContent = ({ projectId }) => {
                                 loading={loading}
                                 checkingName={checkingName}
                                 projectTypes={projectTypes}
+                                projectStatuses={projectStatuses}
                                 offtakers={offtakers}
                                 countries={countries}
                                 states={states}
                                 cities={cities}
                                 loadingOfftakers={loadingOfftakers}
+                                loadingStatuses={loadingStatuses}
                                 loadingCountries={loadingCountries}
                                 loadingStates={loadingStates}
                                 loadingCities={loadingCities}
