@@ -1571,6 +1571,12 @@
   "notification_msg": {
     "project_created": "Dự án mới \"{{project_name}}\" được tạo bởi \"{{created_by}}\".",
     "invoice_created": "Hóa đơn mới \"{{invoice_number}}\" được tạo bởi \"{{created_by}}\".",
-    "payment_made": "Thanh toán \"{{amount}}\" được thực hiện bởi \"{{created_by}}\" cho hóa đơn \"{{invoice_number}}\"."
+    "payment_made": "Thanh toán \"{{amount}}\" được thực hiện bởi \"{{created_by}}\" cho hóa đơn \"{{invoice_number}}\".",
+    "contract_title": "Hợp đồng đã được tạo",
+    "contract_created": "Một hợp đồng mới đã được tạo thành công cho dự án \"{{project_name}}\" bởi \"{{created_by}}\".",
+    "contract_approved_title": "Hợp đồng đã được phê duyệt",
+    "contract_approved_message": "Hợp đồng \"{{contract_title}}\" đã được phê duyệt.",
+    "contract_rejected_title": "Hợp đồng bị từ chối",
+    "contract_rejected_message": "Hợp đồng \"{{contract_title}}\" đã bị từ chối."
   }
 }
