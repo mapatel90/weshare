@@ -6,7 +6,7 @@ import Notification from '@/components/portal/notifications/Notification'
 const page = () => {
     return (
         <>
-            <DynamicTitle titleKey="notifications.notificationlist" />
+            <DynamicTitle titleKey="notification.title" />
             <div className='row'>
               <Notification />
             </div>

@@ -169,6 +169,15 @@
     "welcomeBack": "Welcome back Log in to your admin account"
   },
   "common": {
+    "action": "Action",
+    "makePayment": "Make a Payment",
+    "downloadPdf": "Download PDF",
+    "totaldue": "Total Due",
+    "unit(kwh)": "UNIT(KWH)",
+    "rate(perkwh)": "RATE(PER KWH)",
+    "itemtotal": "ITEM TOTAL",
+    "item": "ITEM",
+    "due": "Due",
     "save": "Save",
     "user": "User",
     "email": "Email",
@@ -353,6 +362,7 @@
     "email": "Email",
     "tasks": "Tasks",
     "invoices": "Invoice",
+    "invoice": "Invoice",
     "notes": "Notes",
     "storage": "Storage",
     "calendar": "Calendar",
@@ -1204,6 +1214,8 @@
     "userRole": "User Role"
   },
   "invoice": {
+    "invoiceto": "Invoice To",
+    "invoice": "INVOICE",
     "invoices": "Invoices",
     "invoiceName": "Invoice Name",
     "invoiceHeader": "Invoice Header",
@@ -1632,5 +1644,13 @@
     "contract_rejected_title": "Contract Rejected",
     "contract_rejected_message": "The contract \"{{contract_title}}\" has been rejected"
 
+  },
+  "notification": {
+    "title": "Notifications",
+    "noNotifications": "No notifications available.",
+    "module": "Module",
+    "unreadonly": "Unread Only",
+    "readonly": "Read Only",
+    "allModules": "All Modules Types"
   }
 }
