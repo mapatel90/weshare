@@ -67,7 +67,7 @@ function Header({ toggleSidebar }) {
             </div>
             <div className="header-right">
                 <div className="profile-icons">
-                    <div className="profile-icon">🔔</div>
+                    <NotificationsModal />
                     {/* Language Switcher as circular flag image */}
                     <div className="profile-icon" onClick={handleLangIconClick} style={{ cursor: 'pointer', padding: 0 }}>
                         <img
