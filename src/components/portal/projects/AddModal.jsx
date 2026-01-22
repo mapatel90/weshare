@@ -229,7 +229,7 @@ export default function AddModal({ open, onClose }) {
         project_location: projectLocation || "",
         start_date: startDate || null,
         created_by: Number(user?.id),
-        status: Number(status),
+        status: Number(1),
       };
 
       const res = await apiPost("/api/projects/AddProject", payload);
@@ -443,20 +443,6 @@ export default function AddModal({ open, onClose }) {
                     placeholder="#P15001"
                   />
                   {fieldErrors.productCode && <div className="text-red-600 text-sm mt-1">{fieldErrors.productCode}</div>}
-                </div>
-
-                <div className="flex flex-col">
-                  <label className="mb-1 font-medium text-sm text-black">
-                    {lang("projects.status", "Status")}
-                  </label>
-                  <select
-                    value={status}
-                    onChange={(e) => setStatus(Number(e.target.value))}
-                    className="input-field"
-                  >
-                    <option value={1}>{lang("projects.active", "Active")}</option>
-                    <option value={0}>{lang("projects.inactive", "Inactive")}</option>
-                  </select>
                 </div>
               </div>
             </div>

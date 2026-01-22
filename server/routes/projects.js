@@ -268,6 +268,10 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
 
       const lang = await getUserLanguage(1);
 
+      const notification_title = t(lang, 'notification_msg.project_created_title', {
+        project_name: project.project_name
+      });
+
       const notification_message = t(lang, 'notification_msg.project_created', {
         project_name: project.project_name,
         created_by: project.offtaker?.full_name
@@ -275,7 +279,7 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
 
       await createNotification({
         userId: '1',
-        title: notification_message,
+        title: notification_title,
         message: notification_message,
         moduleType: 'projects',
         moduleId: project?.id,
@@ -716,6 +720,34 @@ router.put("/:id/status", authenticateToken, async (req, res) => {
       data: { status: parseInt(status) },
     });
 
+    const project_status = await prisma.project_status.findFirst({
+      where: { id: parseInt(status) },
+      select: { name: true },
+    });
+
+    const status_name = project_status?.name || 'Updated';
+
+    const lang = await getUserLanguage(updated.offtaker_id);
+
+    const notification_title = t(lang, 'notification_msg.project_status_title', {
+      project_name: updated.project_name
+    });
+
+    const notification_message = t(lang, 'notification_msg.project_status_message', {
+      project_name: updated.project_name,
+      status_name: status_name
+    });
+
+    await createNotification({
+      userId: updated.offtaker_id,
+      title: notification_title,
+      message: notification_message,
+      moduleType: 'projects',
+      moduleId: updated.id,
+      actionUrl: `projects/view/${updated.id}`,
+      created_by: 1,
+    });
+
     res.json({ success: true, data: updated });
   } catch (error) {
     console.error("Update project status error:", error);
@@ -759,6 +791,22 @@ router.put("/:id", authenticateToken, async (req, res) => {
       status,
       solis_plant_id,
     } = req.body;
+
+
+    const existingProject = await prisma.projects.findFirst({
+      where: { id: projectId },
+      select: {
+        status: true,
+        offtaker_id: true,
+        project_name: true,
+      },
+    });
+
+    if (!existingProject) {
+      return res.status(404).json({ success: false, message: "Project not found" });
+    }
+
+    const old_status = existingProject?.status;
 
     const updateData = {
       ...(name !== undefined && { project_name: name }),
@@ -830,6 +878,38 @@ router.put("/:id", authenticateToken, async (req, res) => {
         project_types: true,
       },
     });
+
+    const new_status = updated?.status;
+
+    if (status !== undefined && old_status !== null && new_status !== null && old_status !== new_status) {
+      const project_status = await prisma.project_status.findFirst({
+        where: { id: new_status },
+        select: { name: true },
+      });
+
+      const status_name = project_status?.name;
+
+      const lang = await getUserLanguage(updated.offtaker_id);
+
+      const notification_title = t(lang, 'notification_msg.project_status_title', {
+        project_name: updated.project_name
+      });
+
+      const notification_message = t(lang, 'notification_msg.project_status_message', {
+        project_name: updated.project_name,
+        status_name: status_name,
+      });
+
+      await createNotification({
+        userId: updated.offtaker_id,
+        title: notification_title,
+        message: notification_message,
+        moduleType: 'projects',
+        moduleId: updated.id,
+        actionUrl: `projects/view/${updated.id}`,
+        created_by: 1,
+      });
+    }
 
     res.json({ success: true, data: updated });
   } catch (error) {

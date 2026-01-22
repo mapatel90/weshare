@@ -1571,6 +1571,7 @@
     "billings": "Hóa đơn"
   },
   "notification_msg": {
+    "project_created_title":"Dự án mới đã được tạo",
     "project_created": "Dự án mới \"{{project_name}}\" được tạo bởi \"{{created_by}}\".",
     "invoice_created": "Hóa đơn mới \"{{invoice_number}}\" được tạo bởi \"{{created_by}}\".",
     "payment_made": "Thanh toán \"{{amount}}\" được thực hiện bởi \"{{created_by}}\" cho hóa đơn \"{{invoice_number}}\".",
@@ -1579,6 +1580,8 @@
     "contract_approved_title": "Hợp đồng đã được phê duyệt",
     "contract_approved_message": "Hợp đồng \"{{contract_title}}\" đã được phê duyệt bởi \"{{created_by}}\".",
     "contract_rejected_title": "Hợp đồng bị từ chối",
-    "contract_rejected_message": "Hợp đồng \"{{contract_title}}\" đã bị từ chối bởi \"{{created_by}}\"."
+    "contract_rejected_message": "Hợp đồng \"{{contract_title}}\" đã bị từ chối bởi \"{{created_by}}\".",
+    "project_status_title": "Trạng thái dự án \"{{project_name}}\" đã được cập nhật",
+    "project_status_message": "Trạng thái của dự án \"{{project_name}}\" đã được cập nhật thành \"{{status_name}}\"."
   }
 }
