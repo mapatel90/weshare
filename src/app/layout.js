@@ -9,6 +9,7 @@ import ThemeCustomizer from "@/components/shared/ThemeCustomizer";
 import AuthProvider from "@/contexts/AuthContext";
 import { SettingsProvider } from "@/contexts/SettingsContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
+import { PageTitleProvider } from "@/contexts/PageTitleContext";
 import GlobalLoader from "@/components/shared/GlobalLoader";
 import DynamicFavicon from "@/components/common/DynamicFavicon";
 import Script from "next/script";
@@ -28,18 +29,20 @@ export default function RootLayout({ children }) {
       </head>
       <body>
         <LanguageProvider>
-          <SettingsProvider>
-            <AuthProvider>
-              <SettingSideBarProvider>
-                <NavigationProvider>
-                  {children}
-                </NavigationProvider>
-              </SettingSideBarProvider>
-              {/* <ThemeCustomizer /> */}
-              <GlobalLoader />
-              <DynamicFavicon />
-            </AuthProvider>
-          </SettingsProvider>
+          <PageTitleProvider defaultSuffix="WeShare">
+            <SettingsProvider>
+              <AuthProvider>
+                <SettingSideBarProvider>
+                  <NavigationProvider>
+                    {children}
+                  </NavigationProvider>
+                </SettingSideBarProvider>
+                {/* <ThemeCustomizer /> */}
+                <GlobalLoader />
+                <DynamicFavicon />
+              </AuthProvider>
+            </SettingsProvider>
+          </PageTitleProvider>
         </LanguageProvider>
         <Script
           src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"

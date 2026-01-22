@@ -23,7 +23,7 @@ export function PageTitleProvider({ children, defaultSuffix = 'WeShare' }) {
       const { titleKey, suffix, useSuffix } = pageTitle;
       const title = lang(titleKey);
       const finalSuffix = suffix !== undefined ? suffix : defaultSuffix;
-      const fullTitle = useSuffix !== false ? `${title} - ${finalSuffix}` : title;
+      const fullTitle = useSuffix !== false ? `${finalSuffix} | ${title}` : title;
       document.title = fullTitle;
     }
   }, [pageTitle, lang, defaultSuffix]);
@@ -59,16 +59,17 @@ export function PageTitleProvider({ children, defaultSuffix = 'WeShare' }) {
  */
 export function usePageTitle(titleKey, options = {}) {
   const { setPageTitle } = useContext(PageTitleContext);
+  const { suffix, useSuffix } = options;
 
   useEffect(() => {
     if (titleKey) {
       setPageTitle({
         titleKey,
-        suffix: options.suffix,
-        useSuffix: options.useSuffix
+        suffix,
+        useSuffix
       });
     }
-  }, [titleKey, options.suffix, options.useSuffix, setPageTitle]);
+  }, [titleKey, suffix, useSuffix, setPageTitle]);
 }
 
 export default PageTitleContext;

@@ -9,6 +9,7 @@ import { authenticateToken } from "../middleware/auth.js";
 import dayjs from "dayjs";
 import { createNotification } from "../utils/notifications.js";
 import { getUserLanguage, t } from '../utils/i18n.js';
+import { getUserFullName } from "../utils/common.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -267,6 +268,10 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
 
       const lang = await getUserLanguage(1);
 
+      const notification_title = t(lang, 'notification_msg.project_created_title', {
+        project_name: project.project_name
+      });
+
       const notification_message = t(lang, 'notification_msg.project_created', {
         project_name: project.project_name,
         created_by: project.offtaker?.full_name
@@ -274,7 +279,7 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
 
       await createNotification({
         userId: '1',
-        title: notification_message,
+        title: notification_title,
         message: notification_message,
         moduleType: 'projects',
         moduleId: project?.id,
@@ -283,12 +288,13 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
       });
     } else {
       const lang = await getUserLanguage(project.offtaker?.id);
+      const creator_name = await getUserFullName(created_by);
 
       const notification_message = t(lang, 'notification_msg.project_created', {
         project_name: project.project_name,
-        created_by: 'System Administrator'
+        created_by: creator_name
       });
-      
+
       await createNotification({
         userId: project.offtaker?.id,
         title: notification_message,
@@ -714,6 +720,34 @@ router.put("/:id/status", authenticateToken, async (req, res) => {
       data: { status: parseInt(status) },
     });
 
+    const project_status = await prisma.project_status.findFirst({
+      where: { id: parseInt(status) },
+      select: { name: true },
+    });
+
+    const status_name = project_status?.name || 'Updated';
+
+    const lang = await getUserLanguage(updated.offtaker_id);
+
+    const notification_title = t(lang, 'notification_msg.project_status_title', {
+      project_name: updated.project_name
+    });
+
+    const notification_message = t(lang, 'notification_msg.project_status_message', {
+      project_name: updated.project_name,
+      status_name: status_name
+    });
+
+    await createNotification({
+      userId: updated.offtaker_id,
+      title: notification_title,
+      message: notification_message,
+      moduleType: 'projects',
+      moduleId: updated.id,
+      actionUrl: `projects/view/${updated.id}`,
+      created_by: 1,
+    });
+
     res.json({ success: true, data: updated });
   } catch (error) {
     console.error("Update project status error:", error);
@@ -757,6 +791,22 @@ router.put("/:id", authenticateToken, async (req, res) => {
       status,
       solis_plant_id,
     } = req.body;
+
+
+    const existingProject = await prisma.projects.findFirst({
+      where: { id: projectId },
+      select: {
+        status: true,
+        offtaker_id: true,
+        project_name: true,
+      },
+    });
+
+    if (!existingProject) {
+      return res.status(404).json({ success: false, message: "Project not found" });
+    }
+
+    const old_status = existingProject?.status;
 
     const updateData = {
       ...(name !== undefined && { project_name: name }),
@@ -828,6 +878,38 @@ router.put("/:id", authenticateToken, async (req, res) => {
         project_types: true,
       },
     });
+
+    const new_status = updated?.status;
+
+    if (status !== undefined && old_status !== null && new_status !== null && old_status !== new_status) {
+      const project_status = await prisma.project_status.findFirst({
+        where: { id: new_status },
+        select: { name: true },
+      });
+
+      const status_name = project_status?.name;
+
+      const lang = await getUserLanguage(updated.offtaker_id);
+
+      const notification_title = t(lang, 'notification_msg.project_status_title', {
+        project_name: updated.project_name
+      });
+
+      const notification_message = t(lang, 'notification_msg.project_status_message', {
+        project_name: updated.project_name,
+        status_name: status_name,
+      });
+
+      await createNotification({
+        userId: updated.offtaker_id,
+        title: notification_title,
+        message: notification_message,
+        moduleType: 'projects',
+        moduleId: updated.id,
+        actionUrl: `projects/view/${updated.id}`,
+        created_by: 1,
+      });
+    }
 
     res.json({ success: true, data: updated });
   } catch (error) {
@@ -1868,6 +1950,29 @@ router.post('/report/project-energy-data', authenticateToken, async (req, res) =
     res.status(500).json({
       success: false,
       message: "Failed to fetch project energy data",
+    });
+  }
+});
+
+
+// Project_status
+router.get('/status', async (req, res) => {
+  try {
+    const project_status = await prisma.project_status.findMany({
+      where: {
+        is_deleted: 0,
+      },
+    });
+
+    res.status(200).json({
+      success: true,
+      data: project_status,
+    });
+  } catch (error) {
+    console.error("Project status error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch project status",
     });
   }
 });

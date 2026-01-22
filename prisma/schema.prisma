@@ -233,7 +233,6 @@ model news {
 model password_reset_tokens {
   id         Int      @id @default(autoincrement())
   created_by Int?
-  email      String   @db.VarChar(150)
   username   String   @db.VarChar(150)
   token      String   @db.VarChar(255)
   expires_at DateTime
@@ -549,4 +548,11 @@ model notifications {
 
   users                users?                 @relation("NotificationUser", fields: [user_id], references: [id])
   created_users        users?                 @relation("NotificationCreator", fields: [created_by], references: [id])
+}
+
+
+model project_status {
+  id                  Int                    @id @default(autoincrement())
+  name                String?
+  is_deleted          Int                    @default(0)
 }

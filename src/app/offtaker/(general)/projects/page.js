@@ -2,17 +2,16 @@
 import React from 'react'
 import SolarProjectTable from '@/components/portal/projects/ProjectTable'
 import AddModal from '@/components/portal/projects/AddModal'
-import DynamicTitle from '@/components/common/DynamicTitle'
+import { usePageTitle } from '@/contexts/PageTitleContext';
 
 const page = () => {
+    usePageTitle('page_title.projectList');
+    
     return (
-        <>
-            <DynamicTitle titleKey="projects.projectlist" />
-            <div className='row'>
-                <AddModal />
-                <SolarProjectTable />
-            </div>
-        </>
+        <div className='row'>
+            <AddModal />
+            <SolarProjectTable />
+        </div>
     )
 }
 
