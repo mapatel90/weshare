@@ -66,6 +66,7 @@ const Payments = () => {
         if (response?.success && Array.isArray(response?.data)) {
           const formattedPayments = response.data.map((payment) => ({
             id: payment.id,
+            invoice_id: payment.invoice_id,
             paymentId: payment.id,
             projectName: payment.invoices?.projects?.project_name || "N/A",
             invoiceNumber: payment.invoices?.invoice_number || "N/A",
@@ -474,6 +475,7 @@ const Payments = () => {
         onClose={() => setModalOpen(false)}
         onSubmit={handlePaymentSubmit}
         lang={lang}
+        payments={payments}
       />
     </div>
   );

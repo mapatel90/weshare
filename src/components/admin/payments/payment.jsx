@@ -83,6 +83,7 @@ const PaymentsPage = () => {
       if (res?.success && Array.isArray(res?.data)) {
         const formatted = res.data.map((payment) => ({
           id: payment.id,
+          invoice_id: payment.invoice_id,
           projectName: payment.invoices?.projects?.project_name || "N/A",
           invoiceNumber: payment.invoices?.invoice_number || "N/A",
           invoicePrefix: payment.invoices?.invoice_prefix || "",
@@ -490,6 +491,7 @@ const PaymentsPage = () => {
         onClose={closeModal}
         onSubmit={handleSave}
         lang={lang}
+        payments={items}
       />
 
       {/* Screenshot Viewer Modal */}

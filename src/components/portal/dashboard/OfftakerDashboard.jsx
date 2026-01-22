@@ -855,133 +855,135 @@ function DashboardView() {
       )}
 
       {/* Dashboard */}
-      <div className="dashboard-row">
-        <div className="chart-card" style={{overflow: 'auto'}}>
-          <div className="card-header" style={{ marginBottom: '10px' }}>
-            <div className="card-title">{lang("dashboard.savingsTracker", "Savings Tracker")}</div>
-            <div className="tabs">
-              <button
-                className={`tab ${savingsViewTab === "daily" ? "active" : ""}`}
-                onClick={() => {
-                  setSavingsViewTab("daily");
-                  setElectricityOverviewViewMode("day");
-                }}
-              >
-                {lang("dashboard.daily", "Daily")}
-              </button>
-              <button
-                className={`tab ${savingsViewTab === "monthly" ? "active" : ""}`}
-                onClick={() => {
-                  setSavingsViewTab("monthly");
-                  // keep month-cost chart on currently selected year
-                }}
-              >
-                {lang("dashboard.monthly", "Monthly")}
-              </button>
-              {/* <button
-                className={`tab ${savingsViewTab === "comparison" ? "active" : ""}`}
-                onClick={() => {
-                  setSavingsViewTab("comparison");
-                  setElectricityOverviewViewMode("year");
-                  // ensure overview uses a sensible default year range
-                  setElectricityOverviewDate(new Date().getFullYear().toString());
-                }}
-              >
-                Comparison
-              </button> */}
-            </div>
-          </div>
-          <p
-            style={{ color: "#6b7280", fontSize: "13px", marginBottom: '10px' }}
-          >
-            {lang("dashboard.savingsTrackerDescription", "Track your electricity cost savings over time compared to traditional grid consumption. View daily savings, monthly summaries, and year-over-year comparisons to see the impact of your solar investment.")}
-          </p>
-
-          <div className="chart-container">
-            {savingsViewTab === "monthly" ? (
-              <ElectricityCostBarChart
-                electricityMonthCostData={electricityMonthCostData}
-                electricityMonthCostDataLoading={electricityMonthCostDataLoading}
-                selectedYear={electricitySelectedYear}
-                onYearChange={setElectricitySelectedYear}
-                isDark={isDark}
-              />
-            ) : (
-              <ElectricityCostOverviewChart
-                data={electricityOverviewData}
-                loading={electricityOverviewDataLoading}
-                viewMode={electricityOverviewViewMode}
-                onViewModeChange={(mode) => {
-                  setElectricityOverviewViewMode(mode);
-                  // keep tab in sync when switching modes from inside chart
-                  if (mode === "day") {
+      {selectedProject && (
+        <div className="dashboard-row">
+          <div className="chart-card" style={{overflow: 'auto'}}>
+            <div className="card-header" style={{ marginBottom: '10px' }}>
+              <div className="card-title">{lang("dashboard.savingsTracker", "Savings Tracker")}</div>
+              <div className="tabs">
+                <button
+                  className={`tab ${savingsViewTab === "daily" ? "active" : ""}`}
+                  onClick={() => {
                     setSavingsViewTab("daily");
-                  } else if (mode === "year") {
+                    setElectricityOverviewViewMode("day");
+                  }}
+                >
+                  {lang("dashboard.daily", "Daily")}
+                </button>
+                <button
+                  className={`tab ${savingsViewTab === "monthly" ? "active" : ""}`}
+                  onClick={() => {
+                    setSavingsViewTab("monthly");
+                    // keep month-cost chart on currently selected year
+                  }}
+                >
+                  {lang("dashboard.monthly", "Monthly")}
+                </button>
+                {/* <button
+                  className={`tab ${savingsViewTab === "comparison" ? "active" : ""}`}
+                  onClick={() => {
                     setSavingsViewTab("comparison");
-                  }
-                }}
-                selectedDate={electricityOverviewDate}
-                onDateChange={setElectricityOverviewDate}
-                isDark={isDark}
-                selectedInverterId={selectedInverter?.inverterId}
-              />
-            )}
-          </div>
+                    setElectricityOverviewViewMode("year");
+                    // ensure overview uses a sensible default year range
+                    setElectricityOverviewDate(new Date().getFullYear().toString());
+                  }}
+                >
+                  Comparison
+                </button> */}
+              </div>
+            </div>
+            <p
+              style={{ color: "#6b7280", fontSize: "13px", marginBottom: '10px' }}
+            >
+              {lang("dashboard.savingsTrackerDescription", "Track your electricity cost savings over time compared to traditional grid consumption. View daily savings, monthly summaries, and year-over-year comparisons to see the impact of your solar investment.")}
+            </p>
 
-          {/* <div className="chart-stats">
-            <div className="chart-stat">
-              <div className="chart-stat-value" style={{ color: "#fbbf24" }}>
-                đ937K
-              </div>
-              <div className="chart-stat-label">Total Savings (2024)</div>
+            <div className="chart-container">
+              {savingsViewTab === "monthly" ? (
+                <ElectricityCostBarChart
+                  electricityMonthCostData={electricityMonthCostData}
+                  electricityMonthCostDataLoading={electricityMonthCostDataLoading}
+                  selectedYear={electricitySelectedYear}
+                  onYearChange={setElectricitySelectedYear}
+                  isDark={isDark}
+                />
+              ) : (
+                <ElectricityCostOverviewChart
+                  data={electricityOverviewData}
+                  loading={electricityOverviewDataLoading}
+                  viewMode={electricityOverviewViewMode}
+                  onViewModeChange={(mode) => {
+                    setElectricityOverviewViewMode(mode);
+                    // keep tab in sync when switching modes from inside chart
+                    if (mode === "day") {
+                      setSavingsViewTab("daily");
+                    } else if (mode === "year") {
+                      setSavingsViewTab("comparison");
+                    }
+                  }}
+                  selectedDate={electricityOverviewDate}
+                  onDateChange={setElectricityOverviewDate}
+                  isDark={isDark}
+                  selectedInverterId={selectedInverter?.inverterId}
+                />
+              )}
             </div>
-            <div className="chart-stat">
-              <div className="chart-stat-value" style={{ color: "#f59e0b" }}>
-                34.2%
-              </div>
-              <div className="chart-stat-label">Avg Discount vs EVN</div>
-            </div>
-            <div className="chart-stat">
-              <div className="chart-stat-value">12</div>
-              <div className="chart-stat-label">Months of Savings</div>
-            </div>
-          </div> */}
-        </div>
-        <div>
-          <div className="chart-card">
-            <div className="card-title" style={{ marginBottom: "20px" }}>
-              🌱 {lang("dashboard.environmentalImpact", "Environmental Impact")}
-            </div>
-            <div className="impact-grid">
-              <div className="impact-card">
-                <div style={{ fontSize: "35px" }}>🍃</div>
-                <div className="impact-value">
-                  {selectedProject?.project_data?.[0]?.power_station_avoided_co2
-                    ? `${selectedProject.project_data[0].power_station_avoided_co2} kg`
-                    : '-'}
+
+            {/* <div className="chart-stats">
+              <div className="chart-stat">
+                <div className="chart-stat-value" style={{ color: "#fbbf24" }}>
+                  đ937K
                 </div>
-                <div className="impact-label">{lang("dashboard.co2Avoided", "CO₂ Avoided This Year")}</div>
+                <div className="chart-stat-label">Total Savings (2024)</div>
               </div>
-              <div className="impact-card">
-                <div style={{ fontSize: "35px" }}>💡</div>
-                <div className="impact-value">{selectedProject?.project_data?.[0]?.power_station_avoided_tce
-                  ? `${selectedProject.project_data[0].power_station_avoided_tce} kWh`
-                  : '-'}</div>
-                <div className="impact-label">{lang("dashboard.cleanEnergyConsumed", "Clean Energy Consumed")}</div>
+              <div className="chart-stat">
+                <div className="chart-stat-value" style={{ color: "#f59e0b" }}>
+                  34.2%
+                </div>
+                <div className="chart-stat-label">Avg Discount vs EVN</div>
               </div>
-              <div className="impact-card" style={{ gridColumn: "1 / -1" }}>
-                <div style={{ fontSize: "35px" }}>🌳</div>
-                <div className="impact-value">{selectedProject?.project_data?.[0]?.power_station_num_tree
-                  ? `${selectedProject.project_data[0].power_station_num_tree} ${lang("dashboard.trees", "Trees")}`
-                  : '-'}</div>
-                <div className="impact-label">{lang("dashboard.equivalentPlanted", "Equivalent planted")}</div>
+              <div className="chart-stat">
+                <div className="chart-stat-value">12</div>
+                <div className="chart-stat-label">Months of Savings</div>
+              </div>
+            </div> */}
+          </div>
+          <div>
+            <div className="chart-card">
+              <div className="card-title" style={{ marginBottom: "20px" }}>
+                🌱 {lang("dashboard.environmentalImpact", "Environmental Impact")}
+              </div>
+              <div className="impact-grid">
+                <div className="impact-card">
+                  <div style={{ fontSize: "35px" }}>🍃</div>
+                  <div className="impact-value">
+                    {selectedProject?.project_data?.[0]?.power_station_avoided_co2
+                      ? `${selectedProject.project_data[0].power_station_avoided_co2} kg`
+                      : '-'}
+                  </div>
+                  <div className="impact-label">{lang("dashboard.co2Avoided", "CO₂ Avoided This Year")}</div>
+                </div>
+                <div className="impact-card">
+                  <div style={{ fontSize: "35px" }}>💡</div>
+                  <div className="impact-value">{selectedProject?.project_data?.[0]?.power_station_avoided_tce
+                    ? `${selectedProject.project_data[0].power_station_avoided_tce} kWh`
+                    : '-'}</div>
+                  <div className="impact-label">{lang("dashboard.cleanEnergyConsumed", "Clean Energy Consumed")}</div>
+                </div>
+                <div className="impact-card" style={{ gridColumn: "1 / -1" }}>
+                  <div style={{ fontSize: "35px" }}>🌳</div>
+                  <div className="impact-value">{selectedProject?.project_data?.[0]?.power_station_num_tree
+                    ? `${selectedProject.project_data[0].power_station_num_tree} ${lang("dashboard.trees", "Trees")}`
+                    : '-'}</div>
+                  <div className="impact-label">{lang("dashboard.equivalentPlanted", "Equivalent planted")}</div>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
 
-      <div className="row">
+      <div className="row mt-3">
         <AllProjects />
 
         {/* <AllReports /> */}

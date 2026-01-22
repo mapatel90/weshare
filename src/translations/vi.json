@@ -156,6 +156,15 @@
     "welcomeBack": "Chào mừng bạn trở lại Đăng nhập vào tài khoản quản trị của bạn"
   },
   "common": {
+    "action": "Hành động",
+    "makePayment": "Thực hiện thanh toán",
+    "downloadPdf": "Tải xuống PDF",
+    "totaldue": "TỔNG CỘNG PHẢI TRẢ",
+    "unit(kwh)": "ĐƠN VỊ (KWH)",
+    "rate(perkwh)": "TỶ LỆ (MỖI KWH)",
+    "itemtotal": "Tổng mục",
+    "item": "Mục",
+    "due": "Hạn chót",
     "save": "Lưu",
     "user": "Người dùng",
     "cancel": "Hủy",
@@ -317,6 +326,7 @@
     "kilowattRequired": "Kilowatt là bắt buộc"
   },
   "menu": {
+    "invoice": "Hóa đơn",
     "dashboards": "Bảng điều khiển",
     "dashboard": "Bảng điều khiển",
     "analytics": "Phân tích",
@@ -1156,6 +1166,9 @@
     "userRole": "Vai trò người dùng"
   },
   "invoice": {
+    "item": "Mục",
+    "invoiceto": "Hóa đơn cho",
+    "invoice": "HÓA ĐƠN",
     "invoices": "Hóa đơn",
     "invoiceName": "Tên hóa đơn",
     "invoiceHeader": "Tiêu đề hóa đơn",
@@ -1584,5 +1597,13 @@
     "project_status_message": "Trạng thái của dự án \"{{project_name}}\" đã được cập nhật thành \"{{status_name}}\".",
     "investor_marked_title": "Nhà đầu tư được chỉ định",
     "investor_marked_message": "Bạn đã được chỉ định làm nhà đầu tư cho dự án \"{{project_name}}\" bởi \"{{assigned_by}}\"."
+  },
+  "notification": {
+    "title": "Thông báo",
+    "noNotifications": "Không có thông báo nào",
+    "module": "Mô-đun",
+    "readOnly": "Chỉ đọc",
+    "unreadonly": "Bỏ chỉ đọc",
+    "allModules": "Tất cả các loại mô-đun"
   }
 }
