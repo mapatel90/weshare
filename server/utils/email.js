@@ -251,7 +251,7 @@ export const sendPasswordResetEmail = async (email, resetToken) => {
               <p>If you didn't request this password reset, please ignore this email. Your password will remain unchanged.</p>
               
               <p style="margin-top: 30px;">If the button doesn't work, copy and paste this link into your browser:</p>
-              // <p style="word-break: break-all; color: #2386FF; font-size: 12px;">${resetUrl}</p>
+              <p style="word-break: break-all; color: #2386FF; font-size: 12px;">${resetUrl}</p>
             </div>
             <div class="footer">
               <p>© ${new Date().getFullYear()} WeShare. All rights reserved.</p>

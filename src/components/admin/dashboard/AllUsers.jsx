@@ -88,7 +88,7 @@ const AllUsers = ({ title }) => {
                               color: status === 1 ? "#15803d" : "#b91c1c",
                             }}
                           >
-                            {status === 1 ? "Active" : "Inactive"}
+                            {status === 1 ? lang("common.active", "Active") : lang("common.inactive", "Inactive")}
                           </span>
                         </td>
                       </tr>

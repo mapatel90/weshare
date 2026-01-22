@@ -148,12 +148,12 @@ const SavingReports = () => {
   const columns = useMemo(() => [
     {
       accessorKey: 'projects.project_name',
-      header: 'Project Name',
+      header: lang('projects.projectName', 'Project Name'),
       cell: ({ row }) => row.original.projects?.project_name || 'N/A',
     },
     {
       accessorKey: 'date',
-      header: appliedGroupBy === 'day' ? 'Date' : 'Month',
+      header: appliedGroupBy === 'day' ? lang('common.date', 'Date') : lang('common.month', 'Month'),
       cell: ({ row }) => {
         const date = row.original.date;
         if (!date) return 'N/A';
@@ -181,57 +181,57 @@ const SavingReports = () => {
     },
     {
       accessorKey: 'grid_purchased_energy',
-      header: 'Grid Purchased',
+      header: lang('reports.gridPurchased', 'Grid Purchased'),
       cell: ({ row }) => (formatShort(row.original.grid_purchased_energy) || 0),
     },
     {
       accessorKey: 'consume_energy',
-      header: 'Consume Energy',
+      header: lang('reports.consumeEnergy', 'Consume Energy'),
       cell: ({ row }) => (formatShort(row.original.consume_energy) || 0),
     },
     {
       accessorKey: 'full_hour',
-      header: 'Full Hour',
+      header: lang('reports.fullHour', 'Full Hour'),
       cell: ({ row }) => (formatShort(row.original.full_hour) || 0),
     },
     {
       accessorKey: 'battery_charge_energy',
-      header: 'Battery Charge',
+      header: lang('reports.batteryCharge', 'Battery Charge'),
       cell: ({ row }) => (formatShort(row.original.battery_charge_energy) || 0),
     },
     {
       accessorKey: 'battery_discharge_energy',
-      header: 'Battery Discharge',
+      header: lang('reports.batteryDischarge', 'Battery Discharge'),
       cell: ({ row }) => (formatShort(row.original.battery_discharge_energy) || 0),
     },
     {
       accessorKey: 'home_grid_energy',
-      header: 'Home Grid',
+      header: lang('reports.homeGrid', 'Home Grid'),
       cell: ({ row }) => (formatShort(row.original.home_grid_energy) || 0),
     },
     {
       accessorKey: 'back_up_energy',
-      header: 'Backup Energy',
+      header: lang('reports.backupEnergy', 'Backup Energy'),
       cell: ({ row }) => (formatShort(row.original.back_up_energy) || 0),
     },
     {
       accessorKey: 'energy',
-      header: 'Energy',
+      header: lang('reports.energy', 'Energy'),
       cell: ({ row }) => (formatShort(row.original.energy) || 0),
     },
     {
       accessorKey: 'evn cost',
-      header: 'EvN Cost',
+      header: lang('reports.evnCost', 'EvN Cost'),
       cell: ({ row }) => (formatShort(row.original.evn_amount) || 0),
     },
     {
       accessorKey: 'weshare cost',
-      header: 'Weshare Cost',
+      header: lang('reports.weshareCost', 'Weshare Cost'),
       cell: ({ row }) => (formatShort(row.original.weshare_amount) || 0),
     },
     {
       accessorKey: 'saving_cost',
-      header: 'Saving Cost',
+      header: lang('reports.savingCost', 'Saving Cost'),
       cell: ({ row }) => (formatShort(row.original.saving_cost) || 0),
     },
   ], [appliedGroupBy]);
@@ -408,8 +408,8 @@ const SavingReports = () => {
             }}
             className="theme-btn-blue-color border  rounded-md px-3 me-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
           >
-            <option value="day">Day</option>
-            <option value="month">Month</option>
+            <option value="day">{lang("common.day", "Day")}</option>
+            <option value="month">{lang("common.month", "Month")}</option>
           </select>
 
           {/* Start Date */}
@@ -436,7 +436,7 @@ const SavingReports = () => {
             className={`theme-btn-blue-color border rounded-md px-5 py-2 text-sm whitespace-nowrap
     ${isSubmitDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
           >
-            Submit
+            {lang("common.submit")}
           </button>
 
         </div>

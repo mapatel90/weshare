@@ -174,6 +174,7 @@ const CircularProgress = ({ percentage = 0, size = 100, strokeWidth = 12, isDark
   const radius = (size - strokeWidth) / 2
   const circumference = 2 * Math.PI * radius
   const offset = circumference - (percentage / 100) * circumference
+  const { lang } = useLanguage()
 
   return (
     <svg width={size} height={size}>
@@ -210,11 +211,11 @@ const CircularProgress = ({ percentage = 0, size = 100, strokeWidth = 12, isDark
         </tspan>
 
         <tspan x="50%" dy="25" fontSize="10" fontWeight="400">
-          Capital
+          {lang('common.capital', 'Capital')}
         </tspan>
 
         <tspan x="50%" dy="15" fontSize="10" fontWeight="400">
-          Recovered
+          {lang('common.Recovered', 'Recovered')}
         </tspan>
       </text>
 
@@ -292,7 +293,7 @@ const StatCardsGrid = ({
     >
       <StatCard
         icon={Sun}
-        title={lang('Capacity')}
+        title={lang('dashboard.capacity')}
         value={`${formatNumber(project?.project_size)} kWh`}
         subtitle={`${lang('reports.capacityPrice', 'Capacity Price')}:  ${formatPrice(pricePerKwh)} / kWh`}
         color="linear-gradient(to bottom right, #fbbf24, #f97316)"
@@ -301,7 +302,7 @@ const StatCardsGrid = ({
 
       <StatCard
         icon={Zap}
-        title={lang('Daily Yield')}
+        title={lang('reports.dailyYield')}
         value={`${formatNumber(dailyEnergy)} kWh`}
         subtitle={
           dailyRevenue
@@ -314,7 +315,7 @@ const StatCardsGrid = ({
 
       <StatCard
         icon={Activity}
-        title={lang('Monthly Yield')}
+        title={lang('dashboard.monthly_yield', 'Monthly Yield')}
         value={formatEnergyUnit(monthlyEnergy)}
         subtitle={
           monthlyRevenue
@@ -327,7 +328,7 @@ const StatCardsGrid = ({
 
       <StatCard
         icon={Activity}
-        title={lang('Total Yield')}
+        title={lang('reports.totalYield')}
         value={formatEnergyUnit(totalEnergy)}
         subtitle={
           totalRevenue

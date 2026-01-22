@@ -269,12 +269,12 @@ const PaymentsPage = () => {
   const columns = [
     {
       accessorKey: "projectName",
-      header: () => "Project Name",
+      header: () => lang("projects.projectName", "Project Name"),
       cell: (info) => info.getValue() || "N/A",
     },
     {
       accessorKey: "invoiceNumber",
-      header: () => "Invoice",
+      header: () => lang("invoice.invoice", "Invoice"),
       cell: ({ row }) => {
         const prefix = row.original?.invoicePrefix || "";
         const number = row.original?.invoiceNumber || "N/A";
@@ -283,33 +283,33 @@ const PaymentsPage = () => {
     },
     {
       accessorKey: "amount",
-      header: () => "Amount",
+      header: () => lang("invoice.amount", "Amount"),
       cell: (info) => priceWithCurrency(info.getValue() || 0),
     },
     {
       accessorKey: "invoiceDate",
-      header: () => "Invoice Date",
+      header: () => lang("invoice.invoiceDate", "Invoice Date"),
       cell: (info) => info.getValue() || "N/A",
     },
     {
       accessorKey: "dueDate",
-      header: () => "Due Date",
+      header: () => lang("invoice.dueDate", "Due Date"),
       cell: (info) => info.getValue() || "N/A",
     },
     {
       accessorKey: "paymentDate",
-      header: () => "Payment Date",
+      header: () => lang("payments.paymentDate", "Payment Date"),
       cell: (info) => info.getValue() || "N/A",
     },
     {
       accessorKey: "status",
-      header: () => "Status",
+      header: () => lang("payments.status", "Status"),
       cell: (info) => {
         const status = info.getValue();
         const config = {
-          Paid: { label: "Paid", color: "#17c666" },
+          Paid: { label: lang("payments.paid", "Paid"), color: "#17c666" },
           "Pending Verification": {
-            label: "Pending Verification",
+            label: lang("common.pendingVerification", "Pending Verification"),
             color: "#ea4d4d",
           },
         }[status] || { label: String(status ?? "-"), color: "#999" };
@@ -332,7 +332,7 @@ const PaymentsPage = () => {
     },
     {
       accessorKey: "ss_url",
-      header: () => "Screenshot",
+      header: () => lang("payments.screenshot", "Screenshot"),
       cell: ({ row }) => {
         const ss_url = row.original?.ss_url;
         return ss_url ? (
@@ -354,7 +354,7 @@ const PaymentsPage = () => {
     },
     {
       accessorKey: "actions",
-      header: () => "Actions",
+      header: () => lang("common.actions", "Actions"),
       cell: ({ row }) => {
         const paymentId = row.original.id;
         const paymentStatus = row.original.status;
@@ -398,7 +398,6 @@ const PaymentsPage = () => {
 
   return (
     <>
-      <DynamicTitle titleKey="payments.title" />
       <PageHeader>
         <div className="ms-auto">
           <Button
@@ -436,7 +435,7 @@ const PaymentsPage = () => {
                   className="theme-btn-blue-color border rounded-md px-3 py-2 me-2 text-sm"
                 >
                   <option value="">
-                    {lang("payments.allStatus", "All Status")}
+                    {lang("invoice.allStatus", "All Status")}
                   </option>
                   <option value="1">
                     {lang("invoice.paid", "Paid")}

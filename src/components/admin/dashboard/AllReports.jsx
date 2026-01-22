@@ -52,11 +52,11 @@ const AllReports = ({ title }) => {
         <CardHeader title={cardTitle} viewHref="/admin/reports/saving" />
         <div className="card-body custom-card-action p-0">
           {loading ? (
-            <div className="p-4 text-center text-muted">Loading...</div>
+            <div className="p-4 text-center text-muted">{lang("common.loading", "Loading...")}</div>
           ) : error ? (
             <div className="p-4 text-center text-danger">{error}</div>
           ) : reports.length === 0 ? (
-            <div className="p-4 text-center text-muted">No reports found</div>
+            <div className="p-4 text-center text-muted">{lang("reports.noReportsFound", "No reports found")}</div>
           ) : (
             <div className="table-responsive">
               <table className="table table-hover mb-0">

@@ -853,12 +853,12 @@ const InvoiceCreateForm = ({ invoiceId = null }) => {
                     color: colors.textSecondary,
                   }}
                 >
-                  {lang("invoice.offtaker")}
+                  {lang("payments.offtaker")}
                 </InputLabel>
                 <Select
                   labelId="offtaker-select-label"
                   value={selectedOfftaker?.value || ""}
-                  label={lang("invoice.offtaker")}
+                  label={lang("payments.offtaker")}
                   onChange={(e) => {
                     const value = e.target.value;
                     const option =
@@ -1328,12 +1328,12 @@ const InvoiceCreateForm = ({ invoiceId = null }) => {
                     borderBottom: `1px solid ${colors.border}`,
                   }}
                 >
-                  <Box>Item</Box>
-                  <Box>Description</Box>
-                  <Box>Qty</Box>
-                  <Box>Rate</Box>
-                  <Box>Amount</Box>
-                  <Box sx={{ textAlign: "center" }}>Action</Box>
+                  <Box>{lang("invoice.items") || "Item"}</Box>
+                  <Box>{lang("common.description") || "Description"}</Box>
+                  <Box>{lang("invoice.quantity") || "Qty"}</Box>
+                  <Box>{lang("common.rate") || "Rate"}</Box>
+                  <Box>{lang("invoice.amount") || "Amount"}</Box>
+                  <Box sx={{ textAlign: "center" }}>{lang("common.action") || "Action"}</Box>
                 </Box>
 
                 {invoiceItems.map((row, idx) => (
@@ -1345,6 +1345,7 @@ const InvoiceCreateForm = ({ invoiceId = null }) => {
                     onRemove={handleRemoveItem}
                     isDark={isDark}
                     priceWithCurrency={priceWithCurrency}
+                    lang={lang}
                   />
                 ))}
               </Box>

@@ -98,6 +98,7 @@
     "UserManagement": "User Management"
   },
   "authentication": {
+    "createNewPassword": "Create New Password",
     "login": "Login",
     "loginIntoYourAccount": "Login into your Account",
     "loginAsOfftaker": "Login as Offtaker",
@@ -171,6 +172,18 @@
     "welcomeBack": "Welcome back Log in to your admin account"
   },
   "common": {
+    "pendingVerification": "Pending Verification",
+    "rate": "Rate",
+    "savings": "Savings",
+    "weshare": "WeShare",
+    "env": "ENV",
+    "Capital": "Capital",
+    "Recovered": "Recovered",
+    "partyName": "Party Name",
+    "todayearnings": "Today Earnings",
+    "monthearnings": "Month Earnings",
+    "totalearnings": "Total Earnings",
+    "power": "Power",
     "action": "Action",
     "makePayment": "Make a Payment",
     "downloadPdf": "Download PDF",
@@ -707,7 +720,7 @@
       "max": "Max",
       "showing": "Showing",
       "projects": "projects",
-      "project": "project",
+      "project": "Project",
       "matching": "matching",
       "openForLease": "Projects Open for Lease",
       "forResale": "Project For Resale",
@@ -897,6 +910,14 @@
     "deliveryRate": "Delivery Rate"
   },
   "projects": {
+    "costVND": "Cost (VND)",
+    "solisPlantIdPlaceholder": "Enter Solis Plant ID",
+    "solisPlantId": "Solis Plant ID",
+    "gallery": "Project Gallery",
+    "projectSlugPlaceholder": "Project Slug",
+    "solisStatus": "Solis Status",
+    "allSolisStatus": "All Solis Status",
+    "noProjects": "No projects available.",
     "remaining": "Remaining",
     "deadline": "Deadline",
     "progress": "Progress",
@@ -1097,6 +1118,7 @@
     "deletedSuccessfully": "Role Deleted Successfully"
   },
   "inverter": {
+    "project_inverters": "Project Inverters",
     "inverterdetails": "Inverter Details",
     "inverter": "Inverter",
     "addInverter": "Add Inverter",
@@ -1491,7 +1513,8 @@
     "notes": "Notes",
     "deleted": "Investor Deleted Successfully",
     "updated": "Investor Updated Successfully",
-    "editInvestor": "Edit Investor"
+    "editInvestor": "Edit Investor",
+    "noInvestorsFound": "No investors found"
   },
   "contract": {
     "contract_summary": "Contract Summary",
@@ -1540,6 +1563,8 @@
     "enterMeterUrl": "Enter Meter Url"
   },
   "reports": {
+    "capacityPrice": "Capacity Price",
+    "noReportsFound": "No reports found",
     "reports": "Reports",
     "allreports": "All Reports",
     "allprojects": "All Projects",
@@ -1593,13 +1618,15 @@
       "tree_planted": "Equivalent Trees Planted"
     },
     "energyProduction": {
-      "energy_production": "Energy Production Overview"
+      "energy_production": "Energy Production Overview",
+      "monthly_energy_production": "Electricity Cost Production Overview",
+      "yearly_energy_production": "Electricity Monthly Cost (VND)"
     }
   },
   "projecttablelabel": {
     "name": "Name",
     "code,": "Code",
-    "type": "type",
+    "type": "Type",
     "inverter": "Inverter",
     "projectID": "Project ID",
     "offtaker": "Offtaker",
