@@ -265,6 +265,7 @@
     "acFrequency": "AC FREQUENCY",
     "online": "ONLINE",
     "offline": "OFFLINE",
+    "abnormal_offline": "ABNORMAL OFFLINE",
     "alarm": "ALARM",
     "approved": "Approved",
     "pending": "Pending",

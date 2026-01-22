@@ -246,6 +246,7 @@
     "acFrequency": "TẦN SỐ AC",
     "online": "TRỰC TUYẾN",
     "offline": "NGOẠI TUYẾN",
+    "abnormal_offline": "NGOẠI TUYẾN BẤT THƯỜNG",
     "alarm": "BÁO ĐỘNG",
     "approved": "Đã phê duyệt",
     "pending": "Đang chờ",

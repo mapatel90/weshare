@@ -1406,7 +1406,7 @@ export default function SolarEnergyFlow({
               {lang("inverter.noinverterfound", "No inverters found")}
             </div>
           ) : (
-            sortByNameAsc( displayInverters,displayInverters[0]?.inverter_name ? "inverter_name" : "name").map((inverter) => (
+            sortByNameAsc(displayInverters, displayInverters[0]?.inverter_name ? "inverter_name" : "name").map((inverter) => (
               <div
                 key={inverter.id}
                 style={{
@@ -1463,19 +1463,25 @@ export default function SolarEnergyFlow({
                           ? "#dcfce7"
                           : "#fee2e2",
                       color:
-                        inverter?.inverter?.status === 1 ||
-                          inverter.status === 1
-                          ? "#166534"
-                          : "#991b1b",
+                        inverter?.inverter?.status === 1 || inverter?.status === 1
+                          ? "#166534"        // green (Online)
+                          : inverter?.status === 3
+                            ? "#f97316"      // orange (Alarm)
+                            : "#991b1b",
                       fontWeight: 600,
                       fontSize: screenSize === "tablet" ? "8px" : "10px",
                       whiteSpace: "nowrap",
                       marginLeft: "8px",
                     }}
                   >
-                    {inverter?.inverter?.status === 1 || inverter.status === 1
-                      ? lang("common.online", "Online")
-                      : lang("common.offline", "Offline")}
+                    {inverter?.status === 2 && ((inverter?.state_exception_flag ?? inverter?.raw?.state_exception_flag) === 1)
+                      ? lang("common.abnormal_offline", "Abnormal Offline")
+                      : inverter?.status === 1
+                        ? lang("common.online", "Online")
+                        : inverter?.status === 3
+                          ? lang("common.alarm", "Alarm")
+                          : lang("common.offline", "Offline")
+                    }
                   </span>
                 </div>
 
