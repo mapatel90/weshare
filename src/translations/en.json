@@ -278,6 +278,7 @@
     "acFrequency": "AC FREQUENCY",
     "online": "ONLINE",
     "offline": "OFFLINE",
+    "abnormal_offline": "ABNORMAL OFFLINE",
     "alarm": "ALARM",
     "approved": "Approved",
     "pending": "Pending",
@@ -1673,8 +1674,10 @@
     "contract_approved_message": "The contract \"{{contract_title}}\" has been approved by \"{{created_by}}\".",
     "contract_rejected_title": "Contract Rejected",
     "contract_rejected_message": "The contract \"{{contract_title}}\" has been rejected by \"{{created_by}}\".",
-    "project_status_title": "\"{{project_name}}\" Status Updated",
-    "project_status_message": "Project \"{{project_name}}\" status has been updated to \"{{status_name}}\"."
+    "project_status_title": "Project \"{{project_name}}\" status updated",
+    "project_status_message": "Project \"{{project_name}}\" status has been updated to \"{{status_name}}\".",
+    "investor_marked_title": "Investor Assigned",
+    "investor_marked_message": "You have been assigned as an investor for the project \"{{project_name}}\" by \"{{assigned_by}}\"."
   },
    "notification": {
     "title": "Notifications",

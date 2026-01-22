@@ -262,6 +262,7 @@
     "acFrequency": "TẦN SỐ AC",
     "online": "TRỰC TUYẾN",
     "offline": "NGOẠI TUYẾN",
+    "abnormal_offline": "NGOẠI TUYẾN BẤT THƯỜNG",
     "alarm": "BÁO ĐỘNG",
     "approved": "Đã phê duyệt",
     "pending": "Đang chờ",
@@ -646,7 +647,6 @@
         "step3Title": "Kiếm Tiền & Theo Dõi Theo Thời Gian Thực",
         "step3Point1": "Theo dõi lợi nhuận và hiệu suất dự án của bạn theo thời gian thực thông qua Ứng dụng Web WeShare."
       }
-
     },
     "portfolio": {
       "title": "Tổng quan danh mục đầu tư",
@@ -1614,7 +1614,7 @@
     "billings": "Hóa đơn"
   },
   "notification_msg": {
-    "project_created_title":"Dự án mới đã được tạo",
+    "project_created_title": "Dự án mới đã được tạo",
     "project_created": "Dự án mới \"{{project_name}}\" được tạo bởi \"{{created_by}}\".",
     "invoice_created": "Hóa đơn mới \"{{invoice_number}}\" được tạo bởi \"{{created_by}}\".",
     "payment_made": "Thanh toán \"{{amount}}\" được thực hiện bởi \"{{created_by}}\" cho hóa đơn \"{{invoice_number}}\".",
@@ -1625,14 +1625,16 @@
     "contract_rejected_title": "Hợp đồng bị từ chối",
     "contract_rejected_message": "Hợp đồng \"{{contract_title}}\" đã bị từ chối bởi \"{{created_by}}\".",
     "project_status_title": "Trạng thái dự án \"{{project_name}}\" đã được cập nhật",
-    "project_status_message": "Trạng thái của dự án \"{{project_name}}\" đã được cập nhật thành \"{{status_name}}\"."
+    "project_status_message": "Trạng thái của dự án \"{{project_name}}\" đã được cập nhật thành \"{{status_name}}\".",
+    "investor_marked_title": "Nhà đầu tư được chỉ định",
+    "investor_marked_message": "Bạn đã được chỉ định làm nhà đầu tư cho dự án \"{{project_name}}\" bởi \"{{assigned_by}}\"."
   },
-   "notification": {
+  "notification": {
     "title": "Thông báo",
     "noNotifications": "Không có thông báo nào",
     "module": "Mô-đun",
     "readOnly": "Chỉ đọc",
     "unreadonly": "Bỏ chỉ đọc",
     "allModules": "Tất cả các loại mô-đun"
-   }
+  }
 }

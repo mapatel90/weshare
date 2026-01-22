@@ -130,35 +130,35 @@ const InverterTab = ({ projectId, handleSaveAction }) => {
 
   const handleSave = async (e) => {
     e.preventDefault();
-    
+
     // Reset errors
     setKilowattError("");
     setSerialNumberError("");
-    
+
     // Validate required fields
     if (!selectedInverter) return;
-    
+
     if (!kilowatt || String(kilowatt).trim() === "") {
       setKilowattError(
         lang("validation.kilowattRequired", "Kilowatt is required")
       );
       return;
     }
-    
+
     if (!serialNumber || serialNumber.trim() === "") {
       setSerialNumberError(
         lang("validation.serialNumberRequired", "Serial Number is required")
       );
       return;
     }
-    
+
     if (!/^[0-9]*\.?[0-9]+$/.test(kilowatt)) {
       setKilowattError(
         lang("inverter.onlyNumbers", "Only numbers are allowed (e.g. 1234.56)")
       );
       return;
     }
-    
+
     setLoading(true);
     let res = {};
     try {
@@ -312,25 +312,39 @@ const InverterTab = ({ projectId, handleSaveAction }) => {
       header: () => lang("common.status", "Status"),
       cell: (info) => {
         const statusValue = info.getValue();
+        const { state_exception_flag } = info.row.original;
         if (statusValue === 1) {
           return (
             <span className="badge bg-soft-success text-success">
               {lang("common.online", "Online")}
             </span>
           );
-        } else if (statusValue === 2) {
+        }
+
+        if (statusValue === 2 && state_exception_flag === 1) {
+          return (
+            <span className="badge bg-soft-danger text-danger">
+              {lang("common.abnormal_offline", "Abnormal Offline")}
+            </span>
+          );
+        }
+
+        if (statusValue === 2) {
           return (
             <span className="badge bg-soft-danger text-danger">
               {lang("common.offline", "Offline")}
             </span>
           );
-        } else if (statusValue === 3) {
+        }
+
+        if (statusValue === 3) {
           return (
             <span className="badge bg-soft-warning text-warning">
               {lang("common.alarm", "Alarm")}
             </span>
           );
         }
+
         return "-";
       },
     },

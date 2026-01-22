@@ -15,10 +15,12 @@ import { useAuth } from "@/contexts/AuthContext";
 import EnergyYearChart from "@/components/admin/projectsCreate/projectViewSection/YearChart";
 import EnergyChart from "@/components/admin/projectsCreate/projectViewSection/MonthChart";
 import { useDarkMode } from "@/utils/common";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 function DashboardView() {
   const { user } = useAuth();
   const isDark = useDarkMode();
+  const { lang } = useLanguage();
 
   const [showProjectsDropdown, setShowProjectsDropdown] = useState(false);
   const [showInverterDropdown, setShowInverterDropdown] = useState(false);
@@ -594,6 +596,7 @@ function DashboardView() {
             selectedProject={selectedProject}
             selectedInverter={selectedInverter}
             totalProjectSize={totalProjectSize}
+            lang={lang}
           />
 
           <SolarEnergyFlow

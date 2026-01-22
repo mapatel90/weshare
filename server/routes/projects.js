@@ -712,44 +712,73 @@ router.get("/", async (req, res) => {
 
 router.put("/:id/status", authenticateToken, async (req, res) => {
   try {
-    const { id } = req.params;
-    const { status } = req.body;
+    const projectId = parseInt(req.params.id);
+    const newStatus = parseInt(req.body.status);
 
+    //  Update project status
     const updated = await prisma.projects.update({
-      where: { id: parseInt(id) },
-      data: { status: parseInt(status) },
+      where: { id: projectId },
+      data: { status: newStatus },
     });
 
+    //  Get status name
     const project_status = await prisma.project_status.findFirst({
-      where: { id: parseInt(status) },
+      where: { id: newStatus },
       select: { name: true },
     });
 
-    const status_name = project_status?.name || 'Updated';
+    const status_name = project_status?.name || "Updated";
 
-    const lang = await getUserLanguage(updated.offtaker_id);
+    //  Notify offtaker
+    if (updated.offtaker_id) {
+      const lang = await getUserLanguage(updated.offtaker_id);
 
-    const notification_title = t(lang, 'notification_msg.project_status_title', {
-      project_name: updated.project_name
+      await createNotification({
+        userId: updated.offtaker_id,
+        title: t(lang, "notification_msg.project_status_title", {
+          project_name: updated.project_name,
+        }),
+        message: t(lang, "notification_msg.project_status_message", {
+          project_name: updated.project_name,
+          status_name,
+        }),
+        moduleType: "projects",
+        moduleId: updated.id,
+        actionUrl: `projects/view/${updated.id}`,
+        created_by: 1,
+      });
+    }
+
+    //  Notify investor (single)
+    const investor = await prisma.interested_investors.findFirst({
+      where: { project_id: projectId },
+      select: { user_id: true },
     });
 
-    const notification_message = t(lang, 'notification_msg.project_status_message', {
-      project_name: updated.project_name,
-      status_name: status_name
-    });
+    if (investor) {
+      const lang = await getUserLanguage(investor.user_id);
 
-    await createNotification({
-      userId: updated.offtaker_id,
-      title: notification_title,
-      message: notification_message,
-      moduleType: 'projects',
-      moduleId: updated.id,
-      actionUrl: `projects/view/${updated.id}`,
-      created_by: 1,
-    });
+      await createNotification({
+        userId: investor.user_id,
+        title: t(lang, "notification_msg.project_status_title", {
+          project_name: updated.project_name,
+        }),
+        message: t(lang, "notification_msg.project_status_message", {
+          project_name: updated.project_name,
+          status_name,
+        }),
+        moduleType: "projects",
+        moduleId: updated.id,
+        actionUrl: `projects/view/${updated.id}`,
+        created_by: 1,
+      });
+    }
 
+    // 5️⃣ Response
     res.json({ success: true, data: updated });
-  } catch (error) {
+
+  }
+  catch (error) {
     console.error("Update project status error:", error);
     res.status(500).json({ success: false, message: "Internal server error" });
   }
@@ -909,6 +938,38 @@ router.put("/:id", authenticateToken, async (req, res) => {
         actionUrl: `projects/view/${updated.id}`,
         created_by: 1,
       });
+
+      const investor = await prisma.interested_investors.findFirst({
+        where: { project_id: projectId },
+        select: { user_id: true },
+      });
+
+      if (investor) {
+        // single user → single language
+        const lang = await getUserLanguage(investor.user_id);
+
+        const notification_title = t(lang, 'notification_msg.project_status_title', {
+          project_name: updated.project_name,
+        }
+        );
+
+        const notification_message = t(lang, 'notification_msg.project_status_message',
+          {
+            project_name: updated.project_name,
+            status_name: status_name,
+          }
+        );
+
+        await createNotification({
+          userId: investor.user_id,
+          title: notification_title,
+          message: notification_message,
+          moduleType: 'projects',
+          moduleId: updated.id,
+          actionUrl: `projects/view/${updated.id}`,
+          created_by: 1,
+        });
+      }
     }
 
     res.json({ success: true, data: updated });
