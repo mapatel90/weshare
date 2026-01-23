@@ -237,3 +237,32 @@ export const formatMonthYear = (value) => {
   return `${String(d.getMonth() + 1).padStart(2, "0")}/${d.getFullYear()}`;
 };
 
+
+
+export const getTimeLeft = (closeDate) => {
+  if (!closeDate) return '-'
+  
+  const now = new Date();
+  const end = new Date(closeDate)
+
+  // Invalid date or already closed
+  if (isNaN(end.getTime())) return '-'
+  if (end <= now) return 'Expired'
+
+  const diffMs = end - now
+
+  const dayMs = 1000 * 60 * 60 * 24
+  const days = Math.floor(diffMs / dayMs)
+  const months = Math.floor(days / 30)
+  const years = Math.floor(days / 365)
+
+  if (years >= 1) {
+    return `${years} year${years > 1 ? 's' : ''}`
+  }
+
+  if (months >= 1) {
+    return `${months} month${months > 1 ? 's' : ''}`
+  }
+
+  return `${days} day${days > 1 ? 's' : ''}`
+}

@@ -115,7 +115,7 @@ const ProjectTable = () => {
       }
 
       if (statusFilter) {
-        params.append("status", statusFilter);
+        params.append("project_status_id", statusFilter);
       }
 
       const res = await apiGet(`/api/projects?${params.toString()}`);
@@ -347,7 +347,7 @@ const ProjectTable = () => {
       accessorKey: "status",
       header: () => lang("common.status"),
       cell: ({ row }) => {
-        const statusValue = row.original.status;
+        const statusValue = row.original.project_status?.id || row.original.status;
         const statusObj = projectStatusList.find(
           (s) => String(s.id) === String(statusValue)
         );

@@ -196,7 +196,7 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
       evn_price_kwh,
       weshare_price_kwh,
       created_by,
-      status = 1,
+      project_status_id = 1,
     } = req.body;
     console.log("req.body", req.body);
 
@@ -248,13 +248,16 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
         project_location: project_location || "",
         weshare_price_kwh: parseFloat(weshare_price_kwh) || null,
         evn_price_kwh: parseFloat(evn_price_kwh) || null,
-        status: parseInt(status),
+        ...(project_status_id && {
+          project_status: { connect: { id: parseInt(project_status_id) } },
+        }),
         updated_at: new Date()
       },
       include: {
         countries: true,
         states: true,
         cities: true,
+        project_status: true,
         offtaker: {
           select: { id: true, full_name: true, email: true },
         },
@@ -597,7 +600,7 @@ router.get("/", async (req, res) => {
       page = 1,
       limit,
       search,
-      status,
+      project_status_id,
       offtaker_id,
       project_id,
       downloadAll,
@@ -643,9 +646,14 @@ router.get("/", async (req, res) => {
       where.id = projectIdInt;
     }
 
-    // Filter by status
-    if (status !== undefined && status !== "") {
-      where.status = parseInt(status);
+    // Filter by status (supports single value or comma-separated values)
+    if (project_status_id !== undefined && project_status_id !== "") {
+      const status_array = String(project_status_id).split(',').map(s => parseInt(s.trim())).filter(s => !isNaN(s));
+      if (status_array.length === 1) {
+        where.project_status_id = status_array[0];
+      } else if (status_array.length > 1) {
+        where.project_status_id = { in: status_array };
+      }
     }
 
     // Get total count before applying limit
@@ -658,6 +666,7 @@ router.get("/", async (req, res) => {
           offtaker: { select: { id: true, full_name: true, email: true, phone_number: true } },
           cities: true,
           states: true,
+          project_status: true,
           countries: true,
           project_types: true,
           project_images: true,
@@ -718,7 +727,7 @@ router.put("/:id/status", authenticateToken, async (req, res) => {
     //  Update project status
     const updated = await prisma.projects.update({
       where: { id: projectId },
-      data: { status: newStatus },
+      data: { project_status: { connect: { id: newStatus } } },
     });
 
     //  Get status name
@@ -817,7 +826,7 @@ router.put("/:id", authenticateToken, async (req, res) => {
       project_location,
       weshare_price_kwh,
       evn_price_kwh,
-      status,
+      project_status_id,
       solis_plant_id,
     } = req.body;
 
@@ -825,7 +834,7 @@ router.put("/:id", authenticateToken, async (req, res) => {
     const existingProject = await prisma.projects.findFirst({
       where: { id: projectId },
       select: {
-        status: true,
+        project_status: true,
         offtaker_id: true,
         project_name: true,
       },
@@ -835,7 +844,7 @@ router.put("/:id", authenticateToken, async (req, res) => {
       return res.status(404).json({ success: false, message: "Project not found" });
     }
 
-    const old_status = existingProject?.status;
+    const old_status = existingProject?.project_status?.id;
 
     const updateData = {
       ...(name !== undefined && { project_name: name }),
@@ -886,7 +895,10 @@ router.put("/:id", authenticateToken, async (req, res) => {
       ...(project_location !== undefined && {
         project_location: project_location || "",
       }),
-      ...(status !== undefined && { status: parseInt(status) }),
+      ...(project_status_id !== undefined &&
+        (project_status_id
+          ? { project_status: { connect: { id: parseInt(project_status_id) } } }
+          : { project_status: { disconnect: true } })),
       ...(weshare_price_kwh !== undefined && { weshare_price_kwh: parseFloat(weshare_price_kwh) || null }),
       ...(evn_price_kwh !== undefined && { evn_price_kwh: parseFloat(evn_price_kwh) || null }),
     };
@@ -905,12 +917,13 @@ router.put("/:id", authenticateToken, async (req, res) => {
         states: true,
         countries: true,
         project_types: true,
+        project_status: true,
       },
     });
 
-    const new_status = updated?.status;
+    const new_status = updated?.project_status?.id;
 
-    if (status !== undefined && old_status !== null && new_status !== null && old_status !== new_status) {
+    if (project_status_id !== undefined && old_status !== null && new_status !== null && old_status !== new_status) {
       const project_status = await prisma.project_status.findFirst({
         where: { id: new_status },
         select: { name: true },
@@ -2059,6 +2072,7 @@ router.get("/:identifier", async (req, res) => {
         states: true,
         countries: true,
         project_types: true,
+        project_status: true,
         project_images: true,
         project_data: true,
         interested_investors: { select: { id: true, full_name: true, email: true, phone_number: true } },

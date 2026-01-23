@@ -4,8 +4,9 @@ import { useRouter } from 'next/navigation'
 import { useLanguage } from '@/contexts/LanguageContext'
 import './styles/exchange-hub-custom.css'
 import './styles/responsive.css'
-import { getFullImageUrl } from '@/utils/common'
+import { formatEnergyUnit, formatShort, getFullImageUrl, getTimeLeft } from '@/utils/common'
 import { getPrimaryProjectImage } from '@/utils/projectUtils'
+
 
 const ProjectCard = ({ project, activeTab }) => {
     const { lang } = useLanguage()
@@ -46,8 +47,7 @@ const ProjectCard = ({ project, activeTab }) => {
     }
 
     // Calculate accumulative generation with fallback
-    const accumulative = project.accumulative_generation ||
-        (parseFloat(project.project_size || 0) * 1500).toFixed(0)
+    const accumulative = formatEnergyUnit(project.project_size) || 0
 
     const getDefaultImageUrl = () => {
         const cover = getPrimaryProjectImage(project)
@@ -115,12 +115,12 @@ const ProjectCard = ({ project, activeTab }) => {
                         {/* Stats - 3 Columns */}
                         <div className="stats-image">
                             <div className="stat-image">
-                                <h4>${formatNumber(project.asking_price || project.target_investment || 1450000)}</h4>
+                                <h4>{formatShort(project.asking_price || project.target_investment || 1450000).toLocaleString()}</h4>
                                 <p>{lang('home.exchangeHub.targetInvestment') || 'Target Investment'}</p>
                             </div>
                             <div className="stat-image">
                                 <h4 className="text-secondary-color">
-                                    {formatNumber(accumulative || (parseFloat(project.project_size || 1800) * 1000))} kWh/year
+                                    {accumulative ? accumulative : project?.project_size}
                                 </h4>
                                 <p>{lang('home.exchangeHub.expectedGeneration') || 'Expected Generation'}</p>
                             </div>
@@ -150,7 +150,7 @@ const ProjectCard = ({ project, activeTab }) => {
                                     {lang('home.exchangeHub.fundProgress') || 'Fund Progress'}: <strong className="text-secondary-color">{project?.fund_progress || '45'}%</strong>
                                 </span>
                                 <span className="time-left">
-                                    {lang('home.exchangeHub.timeLeft') || 'Time left'}: {project?.time_left || '3 Month'}
+                                    {lang('home.exchangeHub.timeLeft') || 'Time left'}: {getTimeLeft(project?.project_close_date)}
                                 </span>
                             </div>
                             <div className="progress-bar-container">
@@ -168,9 +168,12 @@ const ProjectCard = ({ project, activeTab }) => {
 
                         {/* Action Buttons */}
                         <div className="buttons-image">
-                            <button className="btn btn-primary-custom" style={{ padding: '14px 0px' }}>
-                                {lang('home.exchangeHub.investEarly') || 'Invest Early'}
-                            </button>
+                            {project?.project_status_id == 2 && getTimeLeft(project?.project_close_date) !== 'Expired' ? (
+                                <button className="btn btn-primary-custom" style={{ padding: '14px 0px' }}>
+                                    {lang('home.exchangeHub.investEarly') || 'Invest Early'}
+                                </button>
+                            ) : null}
+
                             <button
                                 className="btn btn-secondary-custom"
                                 onClick={() => router.push(`/frontend/exchange-hub/${project.project_slug}`)}
