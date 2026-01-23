@@ -301,7 +301,7 @@ export default function SolarEnergyFlow({
           </div>
 
           {/* Battery */}
-          {project?.project_data?.[0]?.epm_type !== 1 && batteryPercent > 0 (
+          {project?.project_data?.[0]?.epm_type !== 1 && batteryPercent > 0 && (
             <div
               style={{
                 position: "absolute",
