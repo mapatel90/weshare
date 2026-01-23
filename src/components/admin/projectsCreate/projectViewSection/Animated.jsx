@@ -722,7 +722,7 @@ export default function SolarEnergyFlow({
               </div>
 
               {/* ================= BATTERY ================= */}
-              {project?.project_data?.[0]?.epm_type !== 1 && (
+              {project?.project_data?.[0]?.epm_type !== 1 && batteryPercent > 0 && (
                 <div
                   style={{
                     position: "absolute",
@@ -973,7 +973,7 @@ export default function SolarEnergyFlow({
               </div>
 
               {/* ================= GRID LOAD ================= */}
-              {project?.project_data?.[0]?.epm_type !== 1 && (
+              {project?.project_data?.[0]?.epm_type !== 1 && batteryPercent > 0 && (
                 <div
                   style={{
                     position: "absolute",
@@ -1136,7 +1136,7 @@ export default function SolarEnergyFlow({
                       color: colors.text,
                     }}
                   >
-                    {project?.project_data?.[0]?.epm_type !== 1
+                    {project?.project_data?.[0]?.epm_type !== 1 && batteryPercent > 0
                       ? lang("animated.backupload")
                       : lang("animated.consumed", "Consumed")}
                   </div>
@@ -1250,7 +1250,7 @@ export default function SolarEnergyFlow({
                     )}
                 </g>
 
-                {project?.project_data?.[0]?.epm_type !== 1 && (
+                {project?.project_data?.[0]?.epm_type !== 1 && batteryPercent > 0 && (
                   <g
                     transform={
                       screenSize === "tablet"
@@ -1283,7 +1283,7 @@ export default function SolarEnergyFlow({
                   </g>
                 )}
 
-                {project?.project_data?.[0]?.epm_type !== 1 && (
+                {project?.project_data?.[0]?.epm_type !== 1 && batteryPercent > 0 && (
                   <g
                     transform={
                       screenSize === "tablet"
