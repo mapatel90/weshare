@@ -557,3 +557,14 @@ model project_status {
   name                String?
   is_deleted          Int                    @default(0)
 }
+
+model email_template {
+  id          Int      @id @default(autoincrement())
+  title       String   @db.VarChar(255)
+  slug        String   @db.VarChar(255)
+  content_en  String?
+  content_vi  String?
+  subject     String   @db.VarChar(255)
+  created_by  Int?
+  created_at  DateTime @default(now())
+}

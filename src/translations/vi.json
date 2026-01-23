@@ -343,6 +343,7 @@
     "kilowattRequired": "Kilowatt là bắt buộc"
   },
   "menu": {
+    "email_template": "Mẫu Email",
     "invoice": "Hóa đơn",
     "dashboards": "Bảng điều khiển",
     "dashboard": "Bảng điều khiển",
@@ -864,6 +865,9 @@
     "required": "Bắt buộc"
   },
   "email": {
+    "createtemplate": "Tạo mẫu",
+    "addTemplate": "Thêm mẫu",
+    "templates": "Mẫu Email",
     "emailReports": "Báo cáo Email",
     "emailCampaignReports": "Báo cáo chiến dịch Email",
     "sentEmails": "Email đã gửi",

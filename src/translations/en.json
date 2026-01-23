@@ -360,6 +360,7 @@
     "kilowattRequired": "Kilowatt is required"
   },
   "menu": {
+    "email_template": "Email Templates",
     "dashboards": "Dashboards",
     "dashboard": "Dashboard",
     "analytics": "Analytics",
@@ -891,6 +892,9 @@
     "required": "Required"
   },
   "email": {
+    "createtemplate": "Create Template",
+    "addTemplate": "Add Template",
+    "templates": "Email Templates",
     "emailReports": "Email Reports",
     "emailCampaignReports": "Email Campaign Reports",
     "sentEmails": "Sent Emails",

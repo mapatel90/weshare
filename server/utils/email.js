@@ -4,6 +4,64 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 /**
+ * Replace placeholders in email template with actual values
+ * @param {string} template - Template string with placeholders
+ * @param {Object} values - Object with actual values
+ * @returns {string} - Template with replaced values
+ */
+export const replacePlaceholders = (template, values = {}) => {
+  if (!template) return "";
+  
+  let result = template;
+  Object.entries(values).forEach(([key, value]) => {
+    const placeholder = `[${key}]`;
+    const regex = new RegExp(placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+    result = result.replace(regex, value || "");
+  });
+  
+  return result;
+};
+
+/**
+ * Send email using template from database
+ * @param {Object} options - Email options
+ * @param {string} options.to - Recipient email
+ * @param {string} options.templateSlug - Template slug to fetch from database
+ * @param {Object} options.templateData - Data to replace in template
+ * @param {string} options.language - Language (en or vi), defaults to en
+ * @returns {Promise<Object>} Result with success status
+ */
+export const sendEmailUsingTemplate = async ({ to, templateSlug, templateData = {}, language = 'en' }) => {
+  try {
+    // Fetch template from database
+    const template = await prisma.email_template.findFirst({
+      where: { slug: templateSlug }
+    });
+
+    if (!template) {
+      console.error(`Email template not found: ${templateSlug}`);
+      return { success: false, error: 'Template not found' };
+    }
+
+    // Get content based on language
+    const contentField = language === 'vi' ? 'content_vi' : 'content_en';
+    const content = template[contentField] || template.content_en;
+    const subject = replacePlaceholders(template.subject, templateData);
+    const html = replacePlaceholders(content, templateData);
+
+    // Send email
+    return await sendEmail({
+      to,
+      subject,
+      html,
+    });
+  } catch (error) {
+    console.error('Error sending templated email:', error);
+    return { success: false, error: error.message };
+  }
+};
+
+/**
  * Fetch SMTP settings from database
  * @returns {Promise<Object>} SMTP configuration object
  */
