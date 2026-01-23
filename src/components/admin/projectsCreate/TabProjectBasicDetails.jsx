@@ -56,11 +56,11 @@ const TabProjectBasicDetails = ({ setFormData, formData, error, setError }) => {
                 if (res?.success && Array.isArray(res.data)) {
                     setProjectStatuses(res.data)
                     setFormData(prev => {
-                        if (prev.status !== undefined && prev.status !== null && prev.status !== '') {
+                        if (prev.project_status_id !== undefined && prev.project_status_id !== null && prev.project_status_id !== '') {
                             return prev
                         }
                         const firstId = res.data?.[0]?.id
-                        return firstId ? { ...prev, status: firstId } : prev
+                        return firstId ? { ...prev, project_status_id: firstId } : prev
                     })
                 }
             } catch (err) {
@@ -81,8 +81,8 @@ const TabProjectBasicDetails = ({ setFormData, formData, error, setError }) => {
         if (name === 'project_name') {
             const slug = generateSlug(value)
             setFormData(prev => ({ ...prev, [name]: value, project_slug: slug }))
-        } else if (name === 'status') {
-            setFormData(prev => ({ ...prev, status: value === '' ? '' : Number(value) }))
+        } else if (name === 'project_status_id') {
+            setFormData(prev => ({ ...prev, project_status_id: value === '' ? '' : Number(value) }))
         } else {
             setFormData(prev => ({ ...prev, [name]: value }))
         }
@@ -97,7 +97,7 @@ const TabProjectBasicDetails = ({ setFormData, formData, error, setError }) => {
                     isValid = value === '' || numberRegex.test(value)
                 } else if (name === 'lease_term') {
                     isValid = value !== '' && intRegex.test(value)
-                } else if (name === 'status') {
+                } else if (name === 'project_status_id') {
                     isValid = value !== ''
                 } else {
                     isValid = Boolean(value)
@@ -363,8 +363,8 @@ const TabProjectBasicDetails = ({ setFormData, formData, error, setError }) => {
                 weshare_price_kwh: formData.weshare_price_kwh && formData.weshare_price_kwh !== '' ? parseFloat(formData.weshare_price_kwh) : null,
                 project_close_date: formData.project_close_date || null,
                 project_location: formData.project_location || '',
-                status: formData.status !== '' && formData.status !== undefined && formData.status !== null
-                    ? Number(formData.status)
+                project_status_id: formData.project_status_id !== '' && formData.project_status_id !== undefined && formData.project_status_id !== null
+                    ? Number(formData.project_status_id)
                     : (projectStatuses?.[0]?.id ?? 1)
             };
 

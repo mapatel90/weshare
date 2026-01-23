@@ -214,7 +214,7 @@ async function main() {
   const projectStatuses = [
     { id: 1, name: 'Pending', is_deleted: 0 },
     { id: 2, name: 'Upcoming', is_deleted: 0 },
-    { id: 3, name: 'Under installation', is_deleted: 0 },
+    { id: 3, name: 'Running', is_deleted: 0 },
   ];
 
   for (const status of projectStatuses) {

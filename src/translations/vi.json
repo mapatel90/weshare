@@ -1640,5 +1640,10 @@
     "readOnly": "Chỉ đọc",
     "unreadonly": "Bỏ chỉ đọc",
     "allModules": "Tất cả các loại mô-đun"
+  },
+  "project_status":{
+    "upcoming": "Sắp diễn ra",
+    "running": "Đang chạy",
+    "pending": "Đang chờ"
   }
 }
