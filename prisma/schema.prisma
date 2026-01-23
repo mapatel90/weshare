@@ -37,7 +37,6 @@ model cities {
 
 model contact_us {
   id           Int      @id @default(autoincrement())
-  created_by   Int?
   full_name    String   @db.VarChar(255)
   email        String   @db.VarChar(255)
   phone_number String?  @db.VarChar(20)
@@ -103,7 +102,6 @@ model interested_investors {
 
 model inverter_data {
   id                  Int       @id @default(autoincrement())
-  created_by          Int?
   project_id          Int
   project_inverter_id Int?
   date                DateTime?
@@ -198,7 +196,6 @@ model invoice_items {
 
 model lease_requests {
   id           Int      @id @default(autoincrement())
-  created_by   Int?
   full_name    String   @db.VarChar(255)
   email        String   @db.VarChar(255)
   phone_number String?  @db.VarChar(20)
@@ -258,7 +255,6 @@ model payments {
 model project_data {
   id         Int      @id @default(autoincrement())
   project_id Int
-  created_by Int?
   wind_spd             String?                @db.VarChar(255)
   wind_dir             String?                @db.VarChar(255)
   cond_txtd            String?                @db.VarChar(255)
@@ -299,7 +295,6 @@ model project_data {
 
 model project_energy_data {
   id         Int      @id @default(autoincrement())
-  created_by Int?
   project_id Int
   date       DateTime
   time       String
@@ -314,7 +309,6 @@ model project_energy_data {
 
 model project_energy_days_data {
   id         Int      @id @default(autoincrement())
-  created_by Int?
   project_id Int
   date       DateTime @db.Date
   energy     Float
