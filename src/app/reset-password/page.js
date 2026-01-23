@@ -4,11 +4,13 @@ import React, { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import ResetPasswordForm from '@/components/authentication/ResetPasswordForm';
 import { CircularProgress, Box, Card, CardContent, Typography } from '@mui/material';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { usePageTitle } from '@/contexts/PageTitleContext';
 
 const ResetPasswordContent = () => {
     const searchParams = useSearchParams();
     const token = searchParams.get('token');
+    const { lang } = useLanguage();
 
     usePageTitle('page_title.resetPassword');
 
@@ -37,7 +39,7 @@ const ResetPasswordContent = () => {
                     }}
                 />
                 <Typography variant="h5" fontWeight={600}>
-                    Create New Password
+                    {lang('authentication.createNewPassword')}
                 </Typography>
             </Box>
 

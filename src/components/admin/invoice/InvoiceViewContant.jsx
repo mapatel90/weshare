@@ -6,6 +6,7 @@ import { usePriceWithCurrency } from "@/hooks/usePriceWithCurrency";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import { showSuccessToast } from "@/utils/topTost";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const InvoiceViewContant = ({ invoiceId }) => {
   const [invoiceData, setInvoiceData] = useState("");
@@ -23,6 +24,7 @@ const InvoiceViewContant = ({ invoiceId }) => {
   const priceWithCurrency = usePriceWithCurrency();
   const { user } = useAuth();
   const router = useRouter();
+  const { lang } = useLanguage();
 
   useEffect(() => {
     const fetchTaxes = async () => {
@@ -293,18 +295,8 @@ const InvoiceViewContant = ({ invoiceId }) => {
 
   return (
       <div className="bg-white rounded shadow p-4">
-        {error && (
-          <div className="alert alert-danger mb-3" role="alert">
-            {error}
-          </div>
-        )}
-        {successMessage && (
-          <div className="alert alert-success mb-3" role="alert">
-            {successMessage}
-          </div>
-        )}
         <div id="invoice-content-body">
-        <h2 className="h4 fw-semibold mb-4">Invoice</h2>
+        <h2 className="h4 fw-semibold mb-4">{lang("menu.invoice")}</h2>
         <div className="border rounded p-4 mb-4">
           <div className="d-flex flex-column flex-md-row justify-content-between align-items-center mb-3">
             <div>
@@ -325,13 +317,13 @@ const InvoiceViewContant = ({ invoiceId }) => {
 
         <div className="d-flex flex-column flex-md-row justify-content-between mb-3">
           <div>
-            <div className="fw-bold h5 mb-2">INVOICE</div>
-            <div style={{ color: '#374151' }}>Invoice : <span className="fw-semibold">{invoiceDisplay}</span></div>
-            <div style={{ color: '#374151' }}>Created: <span className="fw-semibold">{invoice?.created || ""}</span></div>
-            <div style={{ color: '#374151' }}>Due: <span className="fw-semibold">{invoice?.due || ""}</span></div>
+            <div className="fw-bold h5 mb-2">{lang("invoice.invoice")}</div>
+            <div style={{ color: '#374151' }}>{lang("payments.invoice")}: <span className="fw-semibold">{invoiceDisplay}</span></div>
+            <div style={{ color: '#374151' }}>{lang("usersView.created")}: <span className="fw-semibold">{invoice?.created || ""}</span></div>
+            <div style={{ color: '#374151' }}>{lang("common.due")}: <span className="fw-semibold">{invoice?.due || ""}</span></div>
           </div>
           <div className="text-end mt-3 mt-md-0">
-            <div className="text-muted">Invoiced To:</div>
+            <div className="text-muted">{lang("invoice.invoiceto")}:</div>
             <div className="fw-bold">{client?.name || ""}</div>
             <div className="text-muted">{client?.email || ""}</div>
             <div className="text-muted">{client?.address || ""}</div>
@@ -342,10 +334,10 @@ const InvoiceViewContant = ({ invoiceId }) => {
           <table className="table table-sm mb-0">
             <thead style={{ backgroundColor: '#f3f4f6' }}>
               <tr>
-                <th className="px-3 py-2 text-start fw-semibold">ITEM</th>
-                <th className="px-3 py-2 text-start fw-semibold">UNIT(KWH)</th>
-                <th className="px-3 py-2 text-start fw-semibold">RATE(PER KWH)</th>
-                <th className="px-3 py-2 text-start fw-semibold">ITEM TOTAL</th>
+                <th className="px-3 py-2 text-start fw-semibold">{lang("invoice.item")}</th>
+                <th className="px-3 py-2 text-start fw-semibold">{lang("common.unit(kwh)")}</th>
+                <th className="px-3 py-2 text-start fw-semibold">{lang("common.rate(perkwh)")}</th>
+                <th className="px-3 py-2 text-start fw-semibold">{lang("common.itemtotal")}</th>
               </tr>
             </thead>
             <tbody>
@@ -370,13 +362,13 @@ const InvoiceViewContant = ({ invoiceId }) => {
             <div className="col-12 col-md-6">
               <div className="border rounded-3 p-3 shadow-sm" style={{ background: '#f9fafb', height: '100%' }}>
                 <div className="mb-3">
-                  <div className="fw-bold mb-2" style={{ color: '#374151', fontSize: '14px' }}>Notes:</div>
+                  <div className="fw-bold mb-2" style={{ color: '#374151', fontSize: '14px' }}>{lang("menu.notes")}:</div>
                   <div className="text-muted" style={{ fontSize: '13px', lineHeight: '1.6' }}>
                     {invoiceData?.notes || 'No additional notes'}
                   </div>
                 </div>
                 <div>
-                  <div className="fw-bold mb-2" style={{ color: '#374151', fontSize: '14px' }}>Terms & Conditions:</div>
+                  <div className="fw-bold mb-2" style={{ color: '#374151', fontSize: '14px' }}>{lang("authentication.termsConditions")}:</div>
                   <div className="text-muted" style={{ fontSize: '13px', lineHeight: '1.6' }}>
                     {invoiceData?.terms_and_conditions || 'No terms and conditions provided'}
                   </div>
@@ -389,15 +381,15 @@ const InvoiceViewContant = ({ invoiceId }) => {
               <div className="border rounded-3 p-3 p-md-4 shadow-sm" style={{ background: '#f9fafb' }}>
                 <div className="d-flex flex-column gap-2">
                   <div className="d-flex justify-content-between align-items-center">
-                    <span className="text-muted">Subtotal</span>
+                    <span className="text-muted">{lang("common.subtotal")}</span>
                     <span className="fw-semibold" style={{ color: '#111827' }}>{summary?.summary || ''}</span>
                   </div>
                   <div className="d-flex justify-content-between align-items-center">
-                    <span className="text-muted">Tax {getTaxDisplay()}</span>
+                    <span className="text-muted">{lang("common.tax")} {getTaxDisplay()}</span>
                     <span className="fw-semibold" style={{ color: '#b91c1c' }}>{summary?.tax_amount || ''}</span>
                   </div>
                   <div className="border-top pt-3 mt-2 d-flex justify-content-between align-items-center">
-                    <span className="fw-bold" style={{ color: '#111827' }}>Total Due</span>
+                    <span className="fw-bold" style={{ color: '#111827' }}>{lang("common.totaldue")}</span>
                     <span className="fw-bold h5 mb-0" style={{ color: '#1d4ed8' }}>{summary?.total || ''}</span>
                   </div>
                 </div>
@@ -412,7 +404,7 @@ const InvoiceViewContant = ({ invoiceId }) => {
             type="button"
             onClick={handleDownloadPDF}
           >
-            Download PDF
+            {lang("common.downloadPdf")}
           </button>
           {!hasPayment && invoiceData?.status !== 1 && (
           <button
@@ -421,7 +413,7 @@ const InvoiceViewContant = ({ invoiceId }) => {
             onClick={() => setModalOpen(true)}
             disabled={submitting}
           >
-            {submitting ? "Processing..." : "Make a Payment"}
+            {submitting ? lang("common.processing") : lang("common.makePayment")}
           </button>
           )}
         </div>
@@ -431,6 +423,7 @@ const InvoiceViewContant = ({ invoiceId }) => {
           invoiceNumber={invoiceDisplay || ""}
           totalAmount={summary?.total || ""}
           onSubmit={handleModalSubmit}
+          lang={lang}
         />
       </div>
   );

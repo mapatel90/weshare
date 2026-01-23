@@ -303,7 +303,7 @@ const ElectricityCostOverviewChart = ({
                                 tickFormatter={(v) => `${formatShort(v)}`}
                                 tick={{ fill: isDark ? '#cbd5f5' : '#374151' }}
                                 label={{
-                                    value: 'Cost (VND)',
+                                    value: lang('projects.costVND', 'Cost (VND)'),
                                     angle: -90,
                                     dx: -30,
                                     position: 'insideLeft',
@@ -328,19 +328,19 @@ const ElectricityCostOverviewChart = ({
 
                             <Bar
                                 dataKey="evn"
-                                name="EVN Cost"
+                                name= {lang('reports.evnCost', 'EVN Cost')}
                                 fill="#2563eb"
                                 barSize={12}
                             />
                             <Bar
                                 dataKey="weshare"
-                                name="WeShare Cost"
+                                name= {lang('reports.weshareCost', 'WeShare Cost')}
                                 fill="#f97316"
                                 barSize={12}
                             />
                             <Bar
                                 dataKey="saving"
-                                name="Saving Cost"
+                                name={lang('reports.savingCost', 'Saving Cost')}
                                 fill="#fbbf24"
                                 barSize={12}
                             />

@@ -132,6 +132,13 @@ export const menuList = [
   },
   {
     id: 11,
+    name: "notifications",
+    path: "/admin/notification/list",
+    icon: "feather-tag",
+    dropdownMenu: false,
+  },
+  {
+    id: 12,
     name: "Reports",
     path: "#",
     icon: "feather-file-text",
@@ -169,7 +176,7 @@ export const menuList = [
     ],
   },
   {
-    id: 11,
+    id: 13,
     name: "settings",
     path: "#",
     icon: "feather-settings",

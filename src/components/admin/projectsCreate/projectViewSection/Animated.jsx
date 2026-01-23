@@ -193,14 +193,14 @@ export default function SolarEnergyFlow({
                 strokeWidth="2"
                 fill="none"
               />
-              {(project?.project_data?.[0]?.epm_type !== 1
+              {(project?.project_data?.[0]?.epm_type !== 1 && batteryPercent > 0
                 ? project?.project_data?.[0]?.generator_power > 0
                 : project?.project_data?.[0]?.family_load_power > 0) && (
                   <Arrow path="#consumePath" color="#FB923C" />
                 )}
             </g>
 
-            {project?.project_data?.[0]?.epm_type !== 1 && (
+            {project?.project_data?.[0]?.epm_type !== 1 && batteryPercent > 0 && (
               <g
                 transform={
                   isVerySmallScreen
@@ -223,7 +223,7 @@ export default function SolarEnergyFlow({
               </g>
             )}
 
-            {project?.project_data?.[0]?.epm_type !== 1 && (
+            {project?.project_data?.[0]?.epm_type !== 1 && batteryPercent > 0 && (
               <g
                 transform={
                   isVerySmallScreen
@@ -301,7 +301,7 @@ export default function SolarEnergyFlow({
           </div>
 
           {/* Battery */}
-          {project?.project_data?.[0]?.epm_type !== 1 && (
+          {project?.project_data?.[0]?.epm_type !== 1 && batteryPercent > 0 && (
             <div
               style={{
                 position: "absolute",
@@ -440,7 +440,7 @@ export default function SolarEnergyFlow({
           </div>
 
           {/* Grid Load */}
-          {project?.project_data?.[0]?.epm_type !== 1 && (
+          {project?.project_data?.[0]?.epm_type !== 1 && batteryPercent > 0 && (
             <div
               style={{
                 position: "absolute",
@@ -555,7 +555,7 @@ export default function SolarEnergyFlow({
                 }}
               />
               <div style={{ fontSize: 10, color: "#666", fontWeight: "bold" }}>
-                {project?.project_data?.[0]?.epm_type !== 1
+                {project?.project_data?.[0]?.epm_type !== 1 && batteryPercent > 0
                   ? project?.project_data?.[0]?.generator_power || 0
                   : project?.project_data?.[0]?.family_load_power || 0}{" "}
                 kw
@@ -572,7 +572,7 @@ export default function SolarEnergyFlow({
                 fontWeight: 600,
               }}
             >
-              {project?.project_data?.[0]?.epm_type !== 1
+              {project?.project_data?.[0]?.epm_type !== 1 && batteryPercent > 0
                 ? lang("animated.backupload")
                 : lang("animated.consumed", "Consumed")}
             </div>
@@ -722,7 +722,7 @@ export default function SolarEnergyFlow({
               </div>
 
               {/* ================= BATTERY ================= */}
-              {project?.project_data?.[0]?.epm_type !== 1 && (
+              {project?.project_data?.[0]?.epm_type !== 1 && batteryPercent > 0 && (
                 <div
                   style={{
                     position: "absolute",
@@ -973,7 +973,7 @@ export default function SolarEnergyFlow({
               </div>
 
               {/* ================= GRID LOAD ================= */}
-              {project?.project_data?.[0]?.epm_type !== 1 && (
+              {project?.project_data?.[0]?.epm_type !== 1 && batteryPercent > 0 && (
                 <div
                   style={{
                     position: "absolute",
@@ -1121,7 +1121,7 @@ export default function SolarEnergyFlow({
                       fontWeight: "bold",
                     }}
                   >
-                    {project?.project_data?.[0]?.epm_type !== 1
+                    {project?.project_data?.[0]?.epm_type !== 1 && batteryPercent > 0
                       ? project?.project_data?.[0]?.generator_power || 0
                       : project?.project_data?.[0]?.family_load_power || 0}{" "}
                     kw
@@ -1136,7 +1136,7 @@ export default function SolarEnergyFlow({
                       color: colors.text,
                     }}
                   >
-                    {project?.project_data?.[0]?.epm_type !== 1
+                    {project?.project_data?.[0]?.epm_type !== 1 && batteryPercent > 0
                       ? lang("animated.backupload")
                       : lang("animated.consumed", "Consumed")}
                   </div>
@@ -1147,7 +1147,7 @@ export default function SolarEnergyFlow({
                     }}
                   >
                     {lang("animated.todayconsumed", "Today Consumed")} :{" "}
-                    {project?.project_data?.[0]?.epm_type !== 1
+                    {project?.project_data?.[0]?.epm_type !== 1 && batteryPercent > 0
                       ? project?.project_data?.[0]?.generator_today_energy || 0
                       : project?.project_data?.[0]?.home_load_today_energy ||
                       0}{" "}
@@ -1239,7 +1239,7 @@ export default function SolarEnergyFlow({
                     strokeWidth="2"
                     fill="none"
                   />
-                  {(project?.project_data?.[0]?.epm_type !== 1
+                  {(project?.project_data?.[0]?.epm_type !== 1 && batteryPercent > 0
                     ? project?.project_data?.[0]?.generator_power > 0
                     : project?.project_data?.[0]?.family_load_power > 0) && (
                       <Arrow
@@ -1250,7 +1250,7 @@ export default function SolarEnergyFlow({
                     )}
                 </g>
 
-                {project?.project_data?.[0]?.epm_type !== 1 && (
+                {project?.project_data?.[0]?.epm_type !== 1 && batteryPercent > 0 && (
                   <g
                     transform={
                       screenSize === "tablet"
@@ -1283,7 +1283,7 @@ export default function SolarEnergyFlow({
                   </g>
                 )}
 
-                {project?.project_data?.[0]?.epm_type !== 1 && (
+                {project?.project_data?.[0]?.epm_type !== 1 && batteryPercent > 0 && (
                   <g
                     transform={
                       screenSize === "tablet"
@@ -1406,7 +1406,7 @@ export default function SolarEnergyFlow({
               {lang("inverter.noinverterfound", "No inverters found")}
             </div>
           ) : (
-            sortByNameAsc( displayInverters,displayInverters[0]?.inverter_name ? "inverter_name" : "name").map((inverter) => (
+            sortByNameAsc(displayInverters, displayInverters[0]?.inverter_name ? "inverter_name" : "name").map((inverter) => (
               <div
                 key={inverter.id}
                 style={{
@@ -1463,19 +1463,25 @@ export default function SolarEnergyFlow({
                           ? "#dcfce7"
                           : "#fee2e2",
                       color:
-                        inverter?.inverter?.status === 1 ||
-                          inverter.status === 1
-                          ? "#166534"
-                          : "#991b1b",
+                        inverter?.inverter?.status === 1 || inverter?.status === 1
+                          ? "#166534"        // green (Online)
+                          : inverter?.status === 3
+                            ? "#f97316"      // orange (Alarm)
+                            : "#991b1b",
                       fontWeight: 600,
                       fontSize: screenSize === "tablet" ? "8px" : "10px",
                       whiteSpace: "nowrap",
                       marginLeft: "8px",
                     }}
                   >
-                    {inverter?.inverter?.status === 1 || inverter.status === 1
-                      ? lang("common.online", "Online")
-                      : lang("common.offline", "Offline")}
+                    {inverter?.status === 2 && ((inverter?.state_exception_flag ?? inverter?.raw?.state_exception_flag) === 1)
+                      ? lang("common.abnormal_offline", "Abnormal Offline")
+                      : inverter?.status === 1
+                        ? lang("common.online", "Online")
+                        : inverter?.status === 3
+                          ? lang("common.alarm", "Alarm")
+                          : lang("common.offline", "Offline")
+                    }
                   </span>
                 </div>
 

@@ -327,13 +327,13 @@ const InvoicePage = ({ invoiceId }) => {
 
         <div className="flex flex-col md:flex-row md:justify-between mb-4">
           <div>
-            <div className="font-bold text-lg mb-2">INVOICE</div>
-            <div className="text-gray-700">Invoice : <span className="font-semibold">{invoiceDisplay}</span></div>
-            <div className="text-gray-700">Created: <span className="font-semibold">{invoice?.created || ""}</span></div>
-            <div className="text-gray-700">Due: <span className="font-semibold">{invoice?.due || ""}</span></div>
+            <div className="font-bold text-lg mb-2">{lang("invoice.invoice")}</div>
+            <div className="text-gray-700">{lang("payments.invoice")}: <span className="font-semibold">{invoiceDisplay}</span></div>
+            <div className="text-gray-700">{lang("usersView.created")}: <span className="font-semibold">{invoice?.created || ""}</span></div>
+            <div className="text-gray-700">{lang("common.due")}: <span className="font-semibold">{invoice?.due || ""}</span></div>
           </div>
           <div className="text-right mt-4 md:mt-0">
-            <div className="text-gray-500">Invoiced To:</div>
+            <div className="text-gray-500">{lang("invoice.invoiceto")}</div>
             <div className="font-bold">{client?.name || ""}</div>
             <div className="text-gray-500">{client?.email || ""}</div>
             <div className="text-gray-500">{client?.address || ""}</div>
@@ -344,10 +344,10 @@ const InvoicePage = ({ invoiceId }) => {
           <table className="min-w-full text-sm">
             <thead className="bg-gray-100">
               <tr>
-                <th className="px-4 py-3 text-left font-semibold">ITEM</th>
-                <th className="px-4 py-3 text-left font-semibold">UNIT(KWH)</th>
-                <th className="px-4 py-3 text-left font-semibold">RATE(PER KWH)</th>
-                <th className="px-4 py-3 text-left font-semibold">ITEM TOTAL</th>
+                <th className="px-4 py-3 text-left font-semibold">{lang("invoice.item")}</th>
+                <th className="px-4 py-3 text-left font-semibold">{lang("common.unit(kwh)")}</th>
+                <th className="px-4 py-3 text-left font-semibold">{lang("common.rate(perkwh)")}</th>
+                <th className="px-4 py-3 text-left font-semibold">{lang("common.itemtotal")}</th>
               </tr>
             </thead>
             <tbody>
@@ -371,13 +371,13 @@ const InvoicePage = ({ invoiceId }) => {
             {/* Left Column - Notes and Terms */}
             <div className="border rounded-lg p-4 shadow-sm bg-gray-50">
               <div className="mb-4">
-                <div className="font-bold mb-2 text-gray-700 text-sm">Notes:</div>
+                <div className="font-bold mb-2 text-gray-700 text-sm">{lang("menu.notes")}:</div>
                 <div className="text-gray-500 text-xs leading-relaxed">
                   {invoiceData?.notes || 'No additional notes'}
                 </div>
               </div>
               <div>
-                <div className="font-bold mb-2 text-gray-700 text-sm">Terms & Conditions:</div>
+                <div className="font-bold mb-2 text-gray-700 text-sm">{lang("authentication.termsConditions")}:</div>
                 <div className="text-gray-500 text-xs leading-relaxed">
                   {invoiceData?.terms_and_conditions || 'No terms and conditions provided'}
                 </div>
@@ -388,15 +388,15 @@ const InvoicePage = ({ invoiceId }) => {
             <div className="border rounded-lg p-4 md:p-6 shadow-sm bg-gray-50">
               <div className="flex flex-col gap-2">
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-500">Subtotal</span>
+                  <span className="text-gray-500">{lang("common.subtotal")}</span>
                   <span className="font-semibold text-gray-900">{summary?.summary || ""}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-500">Tax {getTaxDisplay()}</span>
+                  <span className="text-gray-500">{lang("common.tax")} {getTaxDisplay()}</span>
                   <span className="font-semibold text-red-700">{summary?.tax_amount || ""}</span>
                 </div>
                 <div className="border-t pt-3 mt-2 flex justify-between items-center">
-                  <span className="font-bold text-gray-900">Total Due</span>
+                  <span className="font-bold text-gray-900">{lang("common.totaldue")}</span>
                   <span className="font-bold text-lg text-blue-700">{summary?.total || ""}</span>
                 </div>
               </div>
@@ -410,7 +410,7 @@ const InvoicePage = ({ invoiceId }) => {
             type="button"
             onClick={handleDownloadPDF}
           >
-            Download PDF
+            {lang("common.downloadPdf")}
           </button>
           {!hasPayment && invoice?.status !== 1 && (
             <button
@@ -418,7 +418,7 @@ const InvoicePage = ({ invoiceId }) => {
               type="button"
               onClick={() => setModalOpen(true)}
             >
-              Make a Payment
+              {lang("common.makePayment")}
             </button>
           )}
         </div>

@@ -436,7 +436,7 @@ const InverterEvnReport = () => {
               isSubmitDisabled ? "opacity-50 cursor-not-allowed" : ""
             }`}
           >
-            Submit
+            {lang("common.submit")}
           </button>
         </div>
 

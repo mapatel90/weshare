@@ -60,7 +60,7 @@ const AllInvestor = ({ title }) => {
           ) : error ? (
             <div className="p-4 text-center text-danger">{error}</div>
           ) : investors.length === 0 ? (
-            <div className="p-4 text-center text-muted">No investors found</div>
+            <div className="p-4 text-center text-muted">{lang("investor.noInvestorsFound", "No investors found")}</div>
           ) : (
             <div className="table-responsive">
               <table className="table table-hover mb-0">
@@ -94,7 +94,7 @@ const AllInvestor = ({ title }) => {
                               color: isActive ? "#15803d" : "#b91c1c",
                             }}
                           >
-                            {isActive ? "Active" : "Inactive"}
+                            {isActive ? lang("common.active", "Active") : lang("common.inactive", "Inactive")}
                           </span>
                         </td>
                       </tr>

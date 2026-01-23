@@ -262,10 +262,10 @@ export default function SolarPlantOverviewCard() {
           >
             <StatCard
               icon={Gauge}
-              title={lang("projectView.projectInformation.capacitsy", "Power")}
+              title={lang("common.power", "Power")}
               value={formatEnergyUnit(total_power)}
               subtitle={
-                lang("reports.capacityperKWhs", "Capacity") +
+                lang("dashboard.capacity", "Capacity") +
                 ": " +
                 (total_capacity ? total_capacity.toFixed(2) : "0") +
                 " kWh"
@@ -279,17 +279,17 @@ export default function SolarPlantOverviewCard() {
               title={lang("reports.dailyYield", "Daily Yield")}
               value={formatEnergyUnit(daily_energy)}
               subtitle={
-                "Today Earnings: " + formatPrice(daily_revenue)
+                lang("common.todayearnings", "Today Earnings") + ": " + formatPrice(daily_revenue)
               }
               color="linear-gradient(to bottom right, #3b82f6, #2563eb)"
               isDark={isDark}
             />
             <StatCard
               icon={CalendarCog}
-              title={lang("reports.monthlyYield", "Monthly Yield")}
+              title={lang("dashboard.monthly_yield", "Monthly Yield")}
               value={formatEnergyUnit(monthly_energy)}
               subtitle={
-                "Monthly Earning: " + formatPrice(monthly_revenue)
+                lang("common.monthearnings", "Month Earnings") + ": " + formatPrice(monthly_revenue)
               }
               color="linear-gradient(to bottom right, #a855f7, #ec4899)"
               trend={projects?.revenue_trend ?? null}
@@ -300,7 +300,7 @@ export default function SolarPlantOverviewCard() {
               title={lang("reports.totalYield", "Total Yield")}
               value={formatEnergyUnit(total_energy)}
               subtitle={
-                "Total Earning: " + formatPrice(total_revenue)
+                lang("common.totalearnings", "Total Earnings") + ": " + formatPrice(total_revenue)
               }
               color="linear-gradient(to bottom right, #06b6d4, #0891b2)"
               trend={null}

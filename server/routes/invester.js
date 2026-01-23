@@ -2,6 +2,8 @@ import express from "express";
 import prisma from "../utils/prisma.js";
 import { authenticateToken } from "../middleware/auth.js";
 import { createNotification } from "../utils/notifications.js";
+import { getUserLanguage, t } from "../utils/i18n.js";
+import { getUserFullName } from "../utils/common.js";
 
 const router = express.Router();
 
@@ -193,11 +195,35 @@ router.post("/:id/mark-investor", authenticateToken, async (req, res) => {
       data: { investor_id: investorId },
     });
 
+    // Create notification
+    const lang = await getUserLanguage(investor?.user_id);
+    const assigned_by = await getUserFullName(1);
+
+    const notification_title = t(lang, 'notification_msg.investor_marked_title', {
+      project_name: updated.project_name,
+    });
+
+    const notification_message = t(lang, 'notification_msg.investor_marked_message', {
+      project_name: updated.project_name,
+      assigned_by: assigned_by,
+    });
+
+    if (updated && investor?.user_id) {
+      await createNotification({
+        userId: investor?.user_id,
+        title: notification_title,
+        message: notification_message,
+        moduleType: 'projects',
+        moduleId: projectId,
+        actionUrl: `/projects/${updated.id}/investors`,
+        created_by: 1,
+      });
+    }
+
     return res.json({ success: true, data: updated, message: "Investor marked successfully" });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ success: false, message: error.message });
   }
 });
-
 export default router;
