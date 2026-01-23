@@ -152,12 +152,12 @@ const ProjectEnvReport = () => {
     const columns = useMemo(() => [
         {
             accessorKey: 'projects.project_name',
-            header: 'Project Name',
+            header: lang('projects.projectName', 'Project Name'),
             cell: ({ row }) => row.original.projects?.project_name || 'N/A',
         },
         {
             accessorKey: 'date',
-            header: 'Date',
+            header: lang('common.date', 'Date'),
             cell: ({ row }) => {
                 const date = row.original.date;
                 if (!date) return 'N/A';
@@ -170,22 +170,22 @@ const ProjectEnvReport = () => {
         },
         {
             accessorKey: 'time',
-            header: 'Time',
+            header: lang('common.time', 'Time'),
             cell: ({ row }) => row.original.time || 'N/A',
         },
         {
             accessorKey: 'pv',
-            header: 'PV',
+            header: lang('animated.pv', 'PV'),
             cell: ({ row }) => row.original.pv || '0',
         },
         {
             accessorKey: 'grid',
-            header: 'Grid',
+            header: lang('animated.grid', 'Grid'),
             cell: ({ row }) => row.original.grid || '0',
         },
         {
             accessorKey: 'load',
-            header: 'Load',
+            header: lang('animated.load', 'Load'),
             cell: ({ row }) => row.original.load || '0',
         },
     ], []);
@@ -296,7 +296,7 @@ const ProjectEnvReport = () => {
                             value={projectFilter}
                             onChange={(e) => setProjectFilter(e.target.value)}
                         >
-                            <option value="">All Projects</option>
+                            <option value="">{lang("dashboard.all_project", "All Projects")}</option>
                             {projects.map((p, index) => (
                                 <option key={p?.id ?? index} value={p?.id}>
                                     {p?.project_name}
@@ -325,7 +325,7 @@ const ProjectEnvReport = () => {
                             disabled={isSubmitDisabled}
                             className={`theme-btn-blue-color border rounded-md px-4 py-2 text-sm ${isSubmitDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
                         >
-                            Submit
+                            {lang("common.submit")}
                         </button>
                     </div>
                     <button

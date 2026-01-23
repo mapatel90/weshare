@@ -66,7 +66,8 @@
     "fullScreen": "Toàn màn hình",
     "changepassword": "Đổi mật khẩu",
     "statsOverview": "Tổng quan thống kê",
-    "statsDescription": "Tổng quan về Thống kê"
+    "statsDescription": "Tổng quan về Thống kê",
+    "plantoverview": "Tổng quan về nhà máy năng lượng mặt trời"
   },
   "navigation": {
     "navigation": "Điều hướng",
@@ -99,6 +100,7 @@
     "inverter": "biến tần"
   },
   "authentication": {
+    "createNewPassword": "Tạo mật khẩu mới",
     "login": "Đăng nhập",
     "loginIntoYourAccount": "Đăng nhập vào tài khoản của bạn",
     "loginAsOfftaker": "Đăng nhập là người nhận hàng",
@@ -126,6 +128,8 @@
     "enterEmailForReset": "Nhập email của bạn và liên kết đặt lại sẽ được gửi cho bạn, hãy truy cập các đề xuất tốt nhất cho bạn.",
     "enterUsernameForReset": "Nhập tên người dùng của bạn và chúng tôi sẽ gửi liên kết đặt lại mật khẩu đến địa chỉ email đã đăng ký của bạn.",
     "resetNow": "Đặt lại ngay",
+    "enterNewPassword": "Nhập mật khẩu mới của bạn",
+    "forAccount": "Cho tài khoản",
     "enterEmail": "Nhập địa chỉ email của bạn",
     "enterUsername": "Nhập tên người dùng của bạn",
     "sendResetLink": "Gửi liên kết đặt lại",
@@ -156,6 +160,18 @@
     "welcomeBack": "Chào mừng bạn trở lại Đăng nhập vào tài khoản quản trị của bạn"
   },
   "common": {
+    "pendingVerification": "Đang chờ xác minh",
+    "rate": "Tỷ lệ",
+    "savings": "Tiết kiệm",
+    "weshare": "WeShare",
+    "env": "ENV",
+    "capital": "Vốn",
+    "Recovered": "Đã phục hồi",
+    "partyName": "Tên bên",
+    "todayearnings": "Thu nhập hôm nay",
+    "monthearnings": "Thu nhập tháng",
+    "totalearnings": "Tổng thu nhập",
+    "power": "Quyền lực",
     "action": "Hành động",
     "makePayment": "Thực hiện thanh toán",
     "downloadPdf": "Tải xuống PDF",
@@ -868,6 +884,14 @@
     "deliveryRate": "Tỷ lệ giao hàng"
   },
   "projects": {
+    "costVND": "Chi phí (VND)",
+    "solisPlantIdPlaceholder": "Nhập mã nhà máy Solis",
+    "solisPlantId": "Mã nhà máy Solis",
+    "gallery": "Thư viện dự án",
+    "projectSlugPlaceholder": "Slug dự án",
+    "solisStatus": "Trạng thái Solis",
+    "allSolisStatus": "Tất cả trạng thái Solis",
+    "noProjects": "Không có dự án nào.",
     "remaining": "Còn lại",
     "deadline": "Hạn chót",
     "progress": "Tiến độ",
@@ -1053,6 +1077,7 @@
     }
   },
   "inverter": {
+    "project_inverter": "Biến tần dự án",
     "inverterdetails": "Chi tiết biến tần",
     "inverter": "biến tần",
     "addInverter": "Thêm bộ biến tần",
@@ -1125,7 +1150,7 @@
     "errorOccurred": "Đã xảy ra lỗi. Vui lòng thử lại.",
     "invoice": "Hóa đơn",
     "selectInvoice": "Chọn hóa đơn",
-    "offtaker": "Offtaker",
+    "offtaker": "người cung cấp",
     "selectOfftaker": "Chọn Offtaker",
     "amount": "Số tiền",
     "status": "Trạng thái",
@@ -1194,7 +1219,7 @@
     "invoiceUpdatedSuccessfully": "Cập nhật hóa đơn thành công",
     "invoiceDeletedSuccessfully": "Xóa hóa đơn thành công",
     "project": "Dự án",
-    "offtaker": "Offtaker",
+    "offtaker": "người cung cấp",
     "totalUnit": "Tổng đơn vị",
     "status": "Trạng thái",
     "actions": "Hành động",
@@ -1439,7 +1464,8 @@
     "notes": "Ghi chú",
     "deleted": "Nhà đầu tư đã được xóa thành công",
     "updated": "Nhà đầu tư đã được cập nhật thành công",
-    "editInvestor": "Chỉnh sửa nhà đầu tư"
+    "editInvestor": "Chỉnh sửa nhà đầu tư",
+    "noInvestorsFound": "Không tìm thấy nhà đầu tư nào"
   },
   "contract": {
     "contract_summary": "Tóm tắt hợp đồng",
@@ -1488,6 +1514,8 @@
     "enterMeterUrl": "Nhập Url đồng hồ đo"
   },
   "reports": {
+    "capacityPrice": "Giá công suất",
+    "noReportsFound": "Không tìm thấy báo cáo nào",
     "reports": "Báo cáo",
     "allreports": "Tất cả báo cáo",
     "allprojects": "Tất cả dự án",
@@ -1541,7 +1569,9 @@
       "tree_planted": "Cây trồng"
     },
     "energyProduction": {
-      "energy_production": "Tổng quan về sản xuất năng lượng"
+      "energy_production": "Tổng quan về sản xuất năng lượng",
+      "monthly_energy_production": "Tổng quan về sản xuất chi phí điện",
+      "yearly_energy_production": "Chi phí điện hàng tháng (VND)"
     }
   },
   "projecttablelabel": {

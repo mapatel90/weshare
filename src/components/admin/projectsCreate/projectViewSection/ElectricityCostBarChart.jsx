@@ -130,7 +130,7 @@ const ElectricityCostBarChart = ({
                             domain={[0, roundedMax]}
                             ticks={ticks}
                             label={{
-                                value: 'Cost (VND)',
+                                value: lang('projects.costVND', 'Cost (VND)'),
                                 angle: -90,
                                 position: 'insideLeft',
                                 offset: 10,
@@ -161,7 +161,7 @@ const ElectricityCostBarChart = ({
                         {/* EVN bar */}
                         <Bar
                             dataKey="evn"
-                            name="EVN"
+                            name={lang('common.env', 'EVN')}
                             fill={isDark ? '#2563eb' : '#2563eb'}
                             barSize={isMobile ? 8 : isTablet ? 10 : 12}
                         />
@@ -169,7 +169,7 @@ const ElectricityCostBarChart = ({
                         {/* WeShare bar */}
                         <Bar
                             dataKey="weshare"
-                            name="WeShare"
+                            name={lang('common.weshare', 'WeShare')}
                             fill={isDark ? '#f97316' : '#f97316'}
                             barSize={isMobile ? 8 : isTablet ? 10 : 12}
                         />
@@ -177,7 +177,7 @@ const ElectricityCostBarChart = ({
                         {/* Saving bar */}
                         <Bar
                             dataKey="saving"
-                            name="Saving"
+                            name={lang('common.savings', 'Savings')}
                             fill={isDark ? '#fbbf24' : '#fbbf24'}
                             barSize={12}
                         />

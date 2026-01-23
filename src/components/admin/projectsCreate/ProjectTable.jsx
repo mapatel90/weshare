@@ -272,7 +272,7 @@ const ProjectTable = () => {
     },
     {
       accessorKey: "solis_status",
-      header: () => "Solis Status",
+      header: () => lang("projects.solisStatus", "Solis Status"),
       cell: ({ row }) => {
         const detail = row.original.solisStationDetail;
 
@@ -280,13 +280,13 @@ const ProjectTable = () => {
         let color = "secondary";
 
         if (detail === 1) {
-          label = "Online";
+          label = lang("common.online", "Online");
           color = "success";
         } else if (detail === 2) {
-          label = "Offline";
+          label = lang("common.offline", "Offline");
           color = "danger";
         } else if (detail === 3) {
-          label = "Alarm";
+          label = lang("common.alarm", "Alarm");
           color = "warning";
         }
 
@@ -461,7 +461,7 @@ const ProjectTable = () => {
             onChange={(e) => setOfftakerFilter(e.target.value)}
             className="theme-btn-blue-color border rounded-md px-3 py-2 mx-2 text-sm"
           >
-            <option value="">{lang("projects.allOfftakers", "All Offtakers")}</option>
+            <option value="">{lang("invoice.allOfftaker", "All Offtakers")}</option>
             {offtakerList.map((o) => (
               <option key={o.id} value={o.id}>
                 {o.full_name || `Offtaker ${o.id}`}
@@ -487,7 +487,7 @@ const ProjectTable = () => {
             disabled={loadingStatuses}
           >
             <option value="">
-              {lang("projects.allStatus", "All Status")}
+              {lang("invoice.allStatus", "All Status")}
             </option>
             {projectStatusList.map((s) => (
               <option key={s.id} value={s.id}>

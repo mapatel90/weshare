@@ -5,6 +5,7 @@ import { fileType } from '../../leads/LeadsHeader'
 import ProjectsStatistics from '../../widgetsStatistics/ProjectsStatistics'
 import Link from 'next/link'
 import { Button } from '@mui/material'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 const options = [
   { label: "Alls", color: "bg-primary" },
@@ -17,6 +18,7 @@ const options = [
   { label: "My Projects", color: "bg-warning" }
 ];
 const ProjectsListHeader = () => {
+  const { lang } = useLanguage();
   return (
     <>
       <div className="d-flex align-items-center gap-2 page-header-right-items-wrapper">
@@ -51,7 +53,7 @@ const ProjectsListHeader = () => {
           startIcon={<FiPlus size={16} />}
           className="common-orange-color"
         >
-          Create Project
+          {lang('projects.createproject', 'Create Project')}
         </Button>
       </div>
       <div id="collapseOne" className="accordion-collapse collapse page-header-collapse">

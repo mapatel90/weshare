@@ -59,7 +59,7 @@ const AllProjects = ({ title }) => {
           ) : error ? (
             <div className="p-4 text-center text-danger">{error}</div>
           ) : projects.length === 0 ? (
-            <div className="p-4 text-center text-muted">No projects found</div>
+            <div className="p-4 text-center text-muted">{lang("projects.noProjects", "No projects available.")}</div>
           ) : (
             <div className="table-responsive">
               <table className="table table-hover mb-0">
@@ -96,7 +96,7 @@ const AllProjects = ({ title }) => {
                               color: status === 1 ? "#15803d" : "#b91c1c",
                             }}
                           >
-                            {status === 1 ? "Active" : "Inactive"}
+                            {status === 1 ? lang("common.active", "Active") : lang("common.inactive", "Inactive")}
                           </span>
                         </td>
                       </tr>

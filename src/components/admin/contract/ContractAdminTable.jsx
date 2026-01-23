@@ -163,7 +163,7 @@ const ContractAdminTable = () => {
     },
     {
       accessorKey: "project_name",
-      header: () => lang("contract.project", "Project"),
+      header: () => lang("home.exchangeHub.project", "Project"),
       cell: (info) => {
         const row = info.row?.original || {};
         const projectName = row.projects?.project_name ? row.projects?.project_name : "-";
@@ -184,7 +184,7 @@ const ContractAdminTable = () => {
     },
     {
       accessorKey: "contractType",
-      header: () => lang("contract.type", "Type"),
+      header: () => lang("menu.type", "Type"),
       cell: (info) => {
         const row = info.row?.original || {};
         let typeLabel = "-";
@@ -210,7 +210,7 @@ const ContractAdminTable = () => {
     },
     {
       accessorKey: "partyName",
-      header: () => lang("contract.partyName", "Party Name"),
+      header: () => lang("common.partyName", "Party Name"),
       cell: (info) => {
         const row = info.row?.original || {};
         const name =
@@ -331,10 +331,10 @@ const ContractAdminTable = () => {
             onChange={(e) => setStatusFilter(e.target.value)}
             className="theme-btn-blue-color border rounded-md px-3 py-2 me-2 text-sm"
           >
-            <option value="">{lang("common.allStatus", "All Status")}</option>
+            <option value="">{lang("invoice.allStatus", "All Status")}</option>
             <option value="0">{lang("common.pending", "Pending")}</option>
-            <option value="1">{lang("common.actives", "Approved")}</option>
-            <option value="2">{lang("common.inactives", "Rejected")}</option>
+            <option value="1">{lang("common.approved", "Approved")}</option>
+            <option value="2">{lang("common.rejected", "Rejected")}</option>
           </select>
 
           <select
@@ -342,7 +342,7 @@ const ContractAdminTable = () => {
             onChange={(e) => setOfftakerFilter(e.target.value)}
             className="theme-btn-blue-color border rounded-md px-3 py-2 me-2 text-sm"
           >
-            <option value="">{lang("contract.allOfftakers", "All Offtakers")}</option>
+            <option value="">{lang("invoice.allOfftaker", "All Offtakers")}</option>
             {offtakerList.map((o) => (
               <option key={o.id} value={o.id}>
                 {o.full_name}
@@ -355,7 +355,7 @@ const ContractAdminTable = () => {
             onChange={(e) => setInvestorFilter(e.target.value)}
             className="theme-btn-blue-color border rounded-md px-3 py-2 me-2 text-sm"
           >
-            <option value="">{lang("contract.allInvestors", "All Investors")}</option>
+            <option value="">{lang("reports.allinvestors", "All Investors")}</option>
             {investorList.map((inv) => (
               <option key={inv.id} value={inv.id}>
                 {inv.full_name}

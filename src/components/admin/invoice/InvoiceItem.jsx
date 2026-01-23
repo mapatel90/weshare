@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import { FiTrash2 } from "react-icons/fi";
 
-const InvoiceItem = ({ index, item, onChange, onRemove, isDark = false, priceWithCurrency }) => {
+const InvoiceItem = ({ index, item, onChange, onRemove, isDark = false, priceWithCurrency, lang }) => {
 	
 	const amount = useMemo(() => {
 		const qty = Number(item.unit) || 0;
@@ -38,7 +38,7 @@ const InvoiceItem = ({ index, item, onChange, onRemove, isDark = false, priceWit
 			}}
 		>
 			<TextField
-				placeholder="Item name"
+				placeholder={lang("invoice.items", "Item name")}
 				value={item.item}
 				onChange={handleField("item")}
 				multiline
@@ -62,7 +62,7 @@ const InvoiceItem = ({ index, item, onChange, onRemove, isDark = false, priceWit
 			/>
 
 			<TextField
-				placeholder="Item description"
+				placeholder={lang("common.description") || "Description"}
 				value={item.description}
 				onChange={handleField("description")}
 				multiline

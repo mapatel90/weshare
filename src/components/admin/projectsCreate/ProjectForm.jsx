@@ -127,7 +127,7 @@ const ProjectForm = ({
             <div className="col-md-6 mb-3">
               <TextField
                 fullWidth
-                label={`${lang("projects.projectSlug", "Project Slug")} *`}
+                label={`${lang("projects.projectSlugPlaceholder", "Project Slug")} *`}
                 name="project_slug"
                 value={formData.project_slug || ""}
                 onChange={handleInputChange}

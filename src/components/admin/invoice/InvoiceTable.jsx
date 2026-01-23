@@ -239,7 +239,7 @@ const InvoiceTable = () => {
     {
       id: "offtaker_name",
       accessorFn: (row) => row?.users?.full_name || "",
-      header: () => lang("invoice.offtaker"),
+      header: () => lang("payments.offtaker"),
       cell: ({ row }) => row.getValue("offtaker_name") || "-",
     },
     {
