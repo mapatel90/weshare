@@ -78,20 +78,6 @@ const ProjectTable = () => {
     pages: 0,
   });
 
-  // Helper to call server cron -> /stationdetail
-  const fetchStationDetail = async (plantId) => {
-    try {
-      const res = await apiPost("/api/cron/stationdetail", { id: plantId });
-      if (!res || res.error) {
-        throw new Error(res.error || "Failed to fetch station detail");
-      }
-      return res.solisData?.data?.state ?? res;
-    } catch (err) {
-      console.error("fetchStationDetail error:", err);
-      return null;
-    }
-  };
-
   const fetchProjects = async () => {
     try {
       setLoading(true);
@@ -123,20 +109,9 @@ const ProjectTable = () => {
       if (res?.success) {
         const projects = Array.isArray(res.data) ? res.data : [];
 
-        // Fetch station details for projects with solis_plant_id
-        const projectsWithDetails = await Promise.all(
-          projects.map(async (p) => {
-            if (p?.solis_plant_id) {
-              const detail = await fetchStationDetail(p.solis_plant_id);
-              return { ...p, solisStationDetail: detail };
-            }
-            return p;
-          })
-        );
-
         // Fetch inverter counts
         const countsRes = await apiGet("/api/projectInverters/counts");
-        const projectsWithCounts = projectsWithDetails.map((p) => {
+        const projectsWithCounts = projects.map((p) => {
           const count = countsRes?.data?.find((c) => c.project_id === p.id);
           return { ...p, inverterCount: count ? `${count.active}/${count.total}` : "0/0" };
         });
@@ -202,7 +177,7 @@ const ProjectTable = () => {
   const filteredData = useMemo(() => {
     return data.filter((d) => {
       if (solisStatusFilter) {
-        const status = d.solisStationDetail;
+        const status = d?.project_data?.[0]?.project_solis_status;
         if (solisStatusFilter === "online" && status !== 1) return false;
         if (solisStatusFilter === "offline" && status !== 2) return false;
         if (solisStatusFilter === "alarm" && status !== 3) return false;
@@ -264,7 +239,7 @@ const ProjectTable = () => {
         if (!solis_plant_id) return "-";
 
         return (
-          <span className="d-inline-flex align-items-center gap-1">
+          <span className="gap-1 d-inline-flex align-items-center">
             {solis_plant_id}
           </span>
         );
@@ -274,8 +249,7 @@ const ProjectTable = () => {
       accessorKey: "solis_status",
       header: () => lang("projects.solisStatus", "Solis Status"),
       cell: ({ row }) => {
-        const detail = row.original.solisStationDetail;
-
+        const detail = row?.original?.project_data?.[0]?.project_solis_status;
         let label = "-";
         let color = "secondary";
 
@@ -322,7 +296,7 @@ const ProjectTable = () => {
               href={location}
               target="_blank"
               rel="noopener noreferrer"
-              className="d-inline-flex align-items-center gap-1 text-primary"
+              className="gap-1 d-inline-flex align-items-center text-primary"
               onClick={(e) => e.stopPropagation()}
               style={{ textDecoration: "none" }}
             >
@@ -336,7 +310,7 @@ const ProjectTable = () => {
         }
 
         return (
-          <span className="d-inline-flex align-items-center gap-1">
+          <span className="gap-1 d-inline-flex align-items-center">
             <FiMapPin size={16} className="text-muted" />
             {location}
           </span>
@@ -354,7 +328,7 @@ const ProjectTable = () => {
         const label = statusObj?.name || "-";
 
         return (
-          <div className="d-flex align-items-center gap-2">
+          <div className="gap-2 d-flex align-items-center">
             <div style={{ minWidth: 140 }} onClick={(e) => e.stopPropagation()}>
               <StatusDropdown
                 value={statusValue}
@@ -419,7 +393,7 @@ const ProjectTable = () => {
           },
         ];
         return (
-          <div className="hstack gap-2 justify-content-start">
+          <div className="gap-2 hstack justify-content-start">
             <a
               href={`/admin/projects/view/${id}`}
               className="avatar-text avatar-md"
@@ -439,14 +413,14 @@ const ProjectTable = () => {
   ];
 
   return (
-    <div className="p-6 bg-white rounded-3xl shadow-md">
+    <div className="p-6 bg-white shadow-md rounded-3xl">
       {/* Filters */}
-      <div className="d-flex items-center justify-content-between gap-2 mb-4 mt-4 w-full flex-wrap">
+      <div className="flex-wrap items-center w-full gap-2 mt-4 mb-4 d-flex justify-content-between">
         <div className="filter-button">
           <select
             value={projectFilter}
             onChange={(e) => setProjectFilter(e.target.value)}
-            className="theme-btn-blue-color border rounded-md px-3 py-2 mx-2 text-sm"
+            className="px-3 py-2 mx-2 text-sm border rounded-md theme-btn-blue-color"
           >
             <option value="">{lang("reports.allprojects", "All Projects")}</option>
             {projectList.map((p) => (
@@ -459,7 +433,7 @@ const ProjectTable = () => {
           <select
             value={offtakerFilter}
             onChange={(e) => setOfftakerFilter(e.target.value)}
-            className="theme-btn-blue-color border rounded-md px-3 py-2 mx-2 text-sm"
+            className="px-3 py-2 mx-2 text-sm border rounded-md theme-btn-blue-color"
           >
             <option value="">{lang("invoice.allOfftaker", "All Offtakers")}</option>
             {offtakerList.map((o) => (
@@ -472,7 +446,7 @@ const ProjectTable = () => {
           <select
             value={solisStatusFilter}
             onChange={(e) => setSolisStatusFilter(e.target.value)}
-            className="theme-btn-blue-color border rounded-md px-3 py-2 me-2 text-sm"
+            className="px-3 py-2 text-sm border rounded-md theme-btn-blue-color me-2"
           >
             <option value="">{lang("projects.allSolisStatus", "All Solis Status")}</option>
             <option value="online">Online</option>
@@ -483,7 +457,7 @@ const ProjectTable = () => {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="theme-btn-blue-color border rounded-md px-3 py-2 me-2 text-sm"
+            className="px-3 py-2 text-sm border rounded-md theme-btn-blue-color me-2"
             disabled={loadingStatuses}
           >
             <option value="">
@@ -499,9 +473,9 @@ const ProjectTable = () => {
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto relative">
+      <div className="relative overflow-x-auto">
         {!hasLoadedOnce && loading && (
-          <div className="text-center py-6 text-gray-600">
+          <div className="py-6 text-center text-gray-600">
             {lang("common.loading", "Loading...")}
           </div>
         )}
@@ -520,7 +494,7 @@ const ProjectTable = () => {
               emptyMessage={lang("common.noData", "No Data")}
             />
             {loading && (
-              <div className="absolute inset-0 bg-white/70 flex items-center justify-center text-gray-600">
+              <div className="absolute inset-0 flex items-center justify-center text-gray-600 bg-white/70">
                 Refreshing...
               </div>
             )}

@@ -287,6 +287,7 @@ model project_data {
   power_station_num_tree Float                @default(0)
   power_station_avoided_co2 Float             @default(0)
   power_station_avoided_tce Float             @default(0)
+  project_solis_status  Int?                  @default(0)
   created_at DateTime @default(now())
   
 
