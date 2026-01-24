@@ -7,6 +7,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import PaymentModal from "@/components/portal/billings/PaymentModal";
 import { showSuccessToast } from "@/utils/topTost";
 import { useLanguage } from "@/contexts/LanguageContext";
+import Project from "@/components/widgetsList/Project";
 
 const InvoicePage = ({ invoiceId }) => {
   const { user } = useAuth();
@@ -156,6 +157,7 @@ const InvoicePage = ({ invoiceId }) => {
               created: formatDate(apiInv?.invoice_date),
               due: formatDate(apiInv?.due_date),
               status: apiInv?.status,
+              project: apiInv?.projects?.project_name || "—",
             },
             client: {
               name: apiInv?.users?.full_name || "—",
@@ -305,13 +307,13 @@ const InvoicePage = ({ invoiceId }) => {
   };
 
   return (
-      <div className="w-full bg-white rounded-xl shadow-md p-8">
+      <div className="w-full p-8 bg-white shadow-md rounded-xl">
         <div id="invoice-content">
-          <div className="border rounded-lg p-6 mb-8">
-          <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-4">
+          <div className="p-6 mb-8 border rounded-lg">
+          <div className="flex flex-col mb-4 md:flex-row md:justify-between md:items-center">
             <div>
-              <div className="text-2xl font-bold theme-org-color mb-1">{company?.name || ""}</div>
-              <div className="text-gray-500 text-sm">
+              <div className="mb-1 text-2xl font-bold theme-org-color">{company?.name || ""}</div>
+              <div className="text-sm text-gray-500">
                 {company?.address && <div>{company.address}</div>}
                 {(company?.country || company?.state || company?.city) && (
                   <div>{[company.country, company.state, company.city].filter(Boolean).join(", ")}</div>
@@ -320,19 +322,20 @@ const InvoicePage = ({ invoiceId }) => {
               </div>
             </div>
             <div className="flex items-center gap-2 mt-4 md:mt-0">
-              <img src={qrCodeSrc} alt="Finance QR Code" className="w-32 h-32 object-contain" />
+              <img src={qrCodeSrc} alt="Finance QR Code" className="object-contain w-32 h-32" />
             </div>
           </div>
         </div>
 
-        <div className="flex flex-col md:flex-row md:justify-between mb-4">
+        <div className="flex flex-col mb-4 md:flex-row md:justify-between">
           <div>
-            <div className="font-bold text-lg mb-2">{lang("invoice.invoice")}</div>
+            <div className="mb-2 text-lg font-bold">{lang("invoice.invoice")}</div>
             <div className="text-gray-700">{lang("payments.invoice")}: <span className="font-semibold">{invoiceDisplay}</span></div>
             <div className="text-gray-700">{lang("usersView.created")}: <span className="font-semibold">{invoice?.created || ""}</span></div>
             <div className="text-gray-700">{lang("common.due")}: <span className="font-semibold">{invoice?.due || ""}</span></div>
+            <div className="text-gray-700">{lang("invoice.project")}: <span className="font-semibold">{invoice?.project || ""}</span></div>
           </div>
-          <div className="text-right mt-4 md:mt-0">
+          <div className="mt-4 text-right md:mt-0">
             <div className="text-gray-500">{lang("invoice.invoiceto")}</div>
             <div className="font-bold">{client?.name || ""}</div>
             <div className="text-gray-500">{client?.email || ""}</div>
@@ -340,14 +343,14 @@ const InvoicePage = ({ invoiceId }) => {
           </div>
         </div>
 
-        <div className="overflow-x-auto rounded-lg border mb-8">
+        <div className="mb-8 overflow-x-auto border rounded-lg">
           <table className="min-w-full text-sm">
             <thead className="bg-gray-100">
               <tr>
-                <th className="px-4 py-3 text-left font-semibold">{lang("invoice.item")}</th>
-                <th className="px-4 py-3 text-left font-semibold">{lang("common.unit(kwh)")}</th>
-                <th className="px-4 py-3 text-left font-semibold">{lang("common.rate(perkwh)")}</th>
-                <th className="px-4 py-3 text-left font-semibold">{lang("common.itemtotal")}</th>
+                <th className="px-4 py-3 font-semibold text-left">{lang("invoice.item")}</th>
+                <th className="px-4 py-3 font-semibold text-left">{lang("common.unit(kwh)")}</th>
+                <th className="px-4 py-3 font-semibold text-left">{lang("common.rate(perkwh)")}</th>
+                <th className="px-4 py-3 font-semibold text-left">{lang("common.itemtotal")}</th>
               </tr>
             </thead>
             <tbody>
@@ -355,11 +358,11 @@ const InvoicePage = ({ invoiceId }) => {
                 <tr key={item.id} className={idx % 2 ? "bg-white" : "bg-gray-50"}>
                   <td className="px-4 py-2 whitespace-nowrap">
                     <div className="font-semibold">{item.title}</div>
-                    <div className="text-gray-500 text-xs">{item.desc}</div>
+                    <div className="text-xs text-gray-500">{item.desc}</div>
                   </td>
                   <td className="px-4 py-2 whitespace-nowrap">{item.unit}</td>
                   <td className="px-4 py-2 whitespace-nowrap">{item.price}</td>
-                  <td className="px-4 py-2 whitespace-nowrap font-bold">{item.subtotal}</td>
+                  <td className="px-4 py-2 font-bold whitespace-nowrap">{item.subtotal}</td>
                 </tr>
               ))}
             </tbody>
@@ -367,37 +370,37 @@ const InvoicePage = ({ invoiceId }) => {
         </div>
 
         <div className="mt-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             {/* Left Column - Notes and Terms */}
-            <div className="border rounded-lg p-4 shadow-sm bg-gray-50">
+            <div className="p-4 border rounded-lg shadow-sm bg-gray-50">
               <div className="mb-4">
-                <div className="font-bold mb-2 text-gray-700 text-sm">{lang("menu.notes")}:</div>
-                <div className="text-gray-500 text-xs leading-relaxed">
+                <div className="mb-2 text-sm font-bold text-gray-700">{lang("menu.notes")}:</div>
+                <div className="text-xs leading-relaxed text-gray-500">
                   {invoiceData?.notes || 'No additional notes'}
                 </div>
               </div>
               <div>
-                <div className="font-bold mb-2 text-gray-700 text-sm">{lang("authentication.termsConditions")}:</div>
-                <div className="text-gray-500 text-xs leading-relaxed">
+                <div className="mb-2 text-sm font-bold text-gray-700">{lang("authentication.termsConditions")}:</div>
+                <div className="text-xs leading-relaxed text-gray-500">
                   {invoiceData?.terms_and_conditions || 'No terms and conditions provided'}
                 </div>
               </div>
             </div>
 
             {/* Right Column - Totals */}
-            <div className="border rounded-lg p-4 md:p-6 shadow-sm bg-gray-50">
+            <div className="p-4 border rounded-lg shadow-sm md:p-6 bg-gray-50">
               <div className="flex flex-col gap-2">
-                <div className="flex justify-between items-center">
+                <div className="flex items-center justify-between">
                   <span className="text-gray-500">{lang("common.subtotal")}</span>
                   <span className="font-semibold text-gray-900">{summary?.summary || ""}</span>
                 </div>
-                <div className="flex justify-between items-center">
+                <div className="flex items-center justify-between">
                   <span className="text-gray-500">{lang("common.tax")} {getTaxDisplay()}</span>
                   <span className="font-semibold text-red-700">{summary?.tax_amount || ""}</span>
                 </div>
-                <div className="border-t pt-3 mt-2 flex justify-between items-center">
+                <div className="flex items-center justify-between pt-3 mt-2 border-t">
                   <span className="font-bold text-gray-900">{lang("common.totaldue")}</span>
-                  <span className="font-bold text-lg text-blue-700">{summary?.total || ""}</span>
+                  <span className="text-lg font-bold text-blue-700">{summary?.total || ""}</span>
                 </div>
               </div>
             </div>
@@ -406,7 +409,7 @@ const InvoicePage = ({ invoiceId }) => {
         </div>
         <div className="flex justify-end gap-2 mt-4">
           <button
-            className="bg-gray-600 text-white font-bold py-2 px-6 rounded shadow hover:bg-gray-700"
+            className="px-6 py-2 font-bold text-white bg-gray-600 rounded shadow hover:bg-gray-700"
             type="button"
             onClick={handleDownloadPDF}
           >
@@ -414,7 +417,7 @@ const InvoicePage = ({ invoiceId }) => {
           </button>
           {!hasPayment && invoice?.status !== 1 && (
             <button
-              className="theme-btn-org-color text-white font-bold py-2 px-6 rounded shadow"
+              className="px-6 py-2 font-bold text-white rounded shadow theme-btn-org-color"
               type="button"
               onClick={() => setModalOpen(true)}
             >
