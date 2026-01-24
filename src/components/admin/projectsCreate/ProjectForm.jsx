@@ -783,14 +783,14 @@ const ProjectForm = ({
               </div>
 
               <div className="col-md-3 mb-3">
-                <FormControl fullWidth error={!!error.status}>
+                <FormControl fullWidth error={!!error.project_status_id}>
                   <InputLabel id="status-select-label">
                     {lang("projects.status", "Status")}
                   </InputLabel>
                   <Select
                     labelId="status-select-label"
-                    name="status"
-                    value={formData.status ?? ""}
+                    name="project_status_id"
+                    value={formData.project_status_id ?? ""}
                     label={lang("projects.status", "Status")}
                     onChange={handleInputChange}
                     disabled={loadingStatuses}
@@ -804,8 +804,8 @@ const ProjectForm = ({
                       </MenuItem>
                     ))}
                   </Select>
-                  {error.status && (
-                    <FormHelperText>{error.status}</FormHelperText>
+                  {error.project_status_id && (
+                    <FormHelperText>{error.project_status_id}</FormHelperText>
                   )}
                 </FormControl>
               </div>

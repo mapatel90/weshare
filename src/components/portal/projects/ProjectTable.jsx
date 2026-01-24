@@ -16,6 +16,7 @@ import { getPrimaryProjectImage } from "@/utils/projectUtils";
 import { apiGet } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
+import { PROJECT_STATUS } from "@/constants/project_status";
 
 const statusDictionary = {
   0: "Under Installation",
@@ -63,22 +64,24 @@ const normalizeApiProject = (project) => {
   const coverImage = getPrimaryProjectImage(project);
   const normalizedCover = coverImage ? getFullImageUrl(coverImage) : null;
 
-  const statusString =
-    statusDictionary[project?.status] ?? project?.status ?? lang("home.exchangeHub.upcoming", "Upcoming");
-  // map display status to numeric filter codes: Upcoming => 1, Under Installation => 0
-  const statusCode =
-    statusString === "Upcoming"
-      ? 1
-      : statusString === "Under Installation"
-      ? 0
-      : project?.status ?? null;
+  const status_id = project?.project_status_id ?? null;
+  const STATUS_LABELS = {
+    [PROJECT_STATUS.PENDING]: "Pending",
+    [PROJECT_STATUS.UPCOMING]: "Upcoming",
+    [PROJECT_STATUS.RUNNING]: "Running",
+  };
+
+  const statusLabel = STATUS_LABELS[status_id] || "Unknown";
+
+
   return {
     projectId: project?.id ?? null,
     displayId: project?.id ? `#${project.id}` : project?.project_code ?? "—",
     project_image: normalizedCover,
     projectName: project?.project_name ?? "—",
-    status: statusString,
-    statusCode,
+    project_status_id: status_id,
+    status: statusLabel,
+    statusCode: status_id,
     expectedROI: formatPercent(project?.expected_roi ?? project?.roi),
     targetInvestment: formatCurrency(
       project?.asking_price ?? project?.asking_price
@@ -175,18 +178,19 @@ const SolarProjectTable = () => {
     };
   }, [dateDropdownOpen, statusDropdownOpen]);
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "Upcoming":
-        return "bg-amber-100 text-amber-700 border border-amber-300";
-      case "Under Installation":
-        return "bg-green-100 text-green-700 border border-green-300";
-      case "Completed":
-        return "bg-blue-100 text-blue-700 border border-blue-300";
+  const getStatusColor = (statusId) => {
+    switch (statusId) {
+      case PROJECT_STATUS.PENDING:
+        return "bg-gray-100 text-gray-700 border-gray-300";
+      case PROJECT_STATUS.UPCOMING:
+        return "bg-amber-100 text-amber-700 border-amber-300";
+      case PROJECT_STATUS.RUNNING:
+        return "bg-green-100 text-green-700 border-green-300";
       default:
-        return "bg-gray-100 text-gray-700 border border-gray-300";
+        return "bg-gray-100 text-gray-700 border-gray-300";
     }
   };
+
 
   const filteredProjects = useMemo(() => {
     const term = searchTerm.toLowerCase();
@@ -373,11 +377,10 @@ const SolarProjectTable = () => {
       <div className="flex items-center gap-1">
         {label}
         <ChevronDown
-          className={`w-3 h-3 transition-transform ${
-            sortConfig.key === sortKey && sortConfig.direction === "desc"
-              ? "rotate-180"
-              : ""
-          }`}
+          className={`w-3 h-3 transition-transform ${sortConfig.key === sortKey && sortConfig.direction === "desc"
+            ? "rotate-180"
+            : ""
+            }`}
         />
       </div>
     </th>
@@ -414,7 +417,7 @@ const SolarProjectTable = () => {
           {/* Filters */}
           <div className="p-6 border-b border-gray-200">
             <div className="flex flex-wrap gap-3">
-                  <div className="flex-1 min-w-[250px] relative">
+              <div className="flex-1 min-w-[250px] relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
                   type="text"
@@ -540,42 +543,53 @@ const SolarProjectTable = () => {
                           setStatusDropdownOpen(false);
                           setCurrentPage(1);
                         }}
-                        className={`w-full text-left px-3 py-2 text-sm ${
-                          statusFilter === "All"
-                            ? "bg-slate-100"
-                            : "hover:bg-gray-50"
-                        }`}
+                        className={`w-full text-left px-3 py-2 text-sm ${statusFilter === "All"
+                          ? "bg-slate-100"
+                          : "hover:bg-gray-50"
+                          }`}
                       >
                         {lang("common.all", "All")}
                       </button>
+
                       <button
                         onClick={() => {
-                          setStatusFilter(1);
+                          setStatusFilter(PROJECT_STATUS.PENDING);
                           setStatusDropdownOpen(false);
                           setCurrentPage(1);
                         }}
-                        className={`w-full text-left px-3 py-2 text-sm ${
-                          statusFilter == 1
-                            ? "bg-slate-100"
-                            : "hover:bg-gray-50"
-                        }`}
+                        className={`w-full text-left px-3 py-2 text-sm ${statusFilter === PROJECT_STATUS.PENDING
+                          ? "bg-slate-100"
+                          : "hover:bg-gray-50"
+                          }`}
                       >
-                        {lang("home.exchangeHub.upcoming", "Upcoming")}
+                        {lang("project_status.pending", "Pending")}
                       </button>
                       <button
                         onClick={() => {
-                          setStatusFilter(0);
+                          setStatusFilter(PROJECT_STATUS.UPCOMING);
                           setStatusDropdownOpen(false);
                           setCurrentPage(1);
                         }}
-                        className={`w-full text-left px-3 py-2 text-sm ${
-                          statusFilter == 0
-                            ? "bg-slate-100"
-                            : "hover:bg-gray-50"
-                        }`}
+                        className={`w-full text-left px-3 py-2 text-sm ${statusFilter === PROJECT_STATUS.UPCOMING
+                          ? "bg-slate-100"
+                          : "hover:bg-gray-50"
+                          }`}
                       >
-                        {lang("projects.under_installation", "Under Installation")}
-                      </button> 
+                        {lang("project_status.upcoming", "Upcoming")}
+                      </button>
+                      <button
+                        onClick={() => {
+                          setStatusFilter(PROJECT_STATUS.RUNNING);
+                          setStatusDropdownOpen(false);
+                          setCurrentPage(1);
+                        }}
+                        className={`w-full text-left px-3 py-2 text-sm ${statusFilter === PROJECT_STATUS.RUNNING
+                          ? "bg-slate-100"
+                          : "hover:bg-gray-50"
+                          }`}
+                      >
+                        {lang("project_status.running", "Running")}
+                      </button>
                     </div>
                   )}
                 </div>
@@ -655,7 +669,7 @@ const SolarProjectTable = () => {
                         </div>
                         <div className="bg-gray-50 rounded-lg p-2 text-center">
                           <div className="text-base font-bold text-amber-600">
-                            {project.expectedGeneration} 
+                            {project.expectedGeneration}
                           </div>
                           <div className="text-xs text-gray-500">
                             {lang("home.exchangeHub.expectedGeneration", "Expected Generation (kWh)")}

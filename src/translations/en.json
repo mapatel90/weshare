@@ -360,6 +360,7 @@
     "kilowattRequired": "Kilowatt is required"
   },
   "menu": {
+    "email_template": "Email Templates",
     "dashboards": "Dashboards",
     "dashboard": "Dashboard",
     "analytics": "Analytics",
@@ -891,6 +892,9 @@
     "required": "Required"
   },
   "email": {
+    "createtemplate": "Create Template",
+    "addTemplate": "Add Template",
+    "templates": "Email Templates",
     "emailReports": "Email Reports",
     "emailCampaignReports": "Email Campaign Reports",
     "sentEmails": "Sent Emails",
@@ -1664,7 +1668,7 @@
     "billings": "Billings"
   },
   "notification_msg": {
-    "project_created_title":"Project Create",
+    "project_created_title": "Project Create",
     "project_created": "New project \"{{project_name}}\" created by \"{{created_by}}\".",
     "invoice_created": "New invoice \"{{invoice_number}}\" created by \"{{created_by}}\".",
     "payment_made": "Payment of \"{{amount}}\" made by \"{{created_by}}\" for invoice \"{{invoice_number}}\".",
@@ -1679,12 +1683,17 @@
     "investor_marked_title": "Investor Assigned",
     "investor_marked_message": "You have been assigned as an investor for the project \"{{project_name}}\" by \"{{assigned_by}}\"."
   },
-   "notification": {
+  "notification": {
     "title": "Notifications",
     "noNotifications": "No notifications available.",
     "module": "Module",
     "unreadonly": "Unread Only",
     "readonly": "Read Only",
     "allModules": "All Modules Types"
-   }
+  },
+  "project_status": {
+    "upcoming": "Upcoming",
+    "running": "Running",
+    "pending": "Pending"
+  }
 }

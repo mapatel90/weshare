@@ -13,15 +13,7 @@ import { getFullImageUrl } from "@/utils/common";
 import { getPrimaryProjectImage } from "@/utils/projectUtils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  TextField,
-  Box,
-} from "@mui/material";
+import InvestDialog from "./InvestDialog";
 
 // Dynamically import ApexCharts to avoid SSR issues
 const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
@@ -884,101 +876,21 @@ const ProjectDetail = ({ projectId }) => {
       </section>
 
       {/* Invest Modal (MUI Dialog styled like ContactUsTable) */}
-      <Dialog
+      <InvestDialog
         open={!!showInvestModal}
         onClose={closeInvestModal}
-        maxWidth="sm"
-        fullWidth
-        PaperProps={{
-          sx: {
-            borderRadius: 3,
-            boxShadow: "0 8px 28px rgba(0,0,0,0.15)",
-          },
-        }}
-      >
-        <DialogTitle
-          sx={{
-            fontWeight: 700,
-            fontSize: "1.1rem",
-            borderBottom: "1px solid #e0e0e0",
-            pb: 1,
-          }}
-        >
-          {lang("home.exchangeHub.investNow") || "Invest Now"}
-        </DialogTitle>
-
-        <form onSubmit={handleInvestSubmit}>
-          <DialogContent
-            dividers
-            sx={{
-              background: "#fafafa",
-              px: 3,
-              py: 3,
-              display: "grid",
-              gap: 2,
-            }}
-          >
-            <TextField
-              label={lang("contactUs.fullNameTable") || "Full Name"}
-              value={investFullName}
-              onChange={(e) => setInvestFullName(e.target.value)}
-              required
-              fullWidth
-            />
-
-            <TextField
-              label={lang("contactUs.emailTable") || "Email"}
-              type="email"
-              value={investEmail}
-              onChange={(e) => setInvestEmail(e.target.value)}
-              required
-              fullWidth
-            />
-
-            <TextField
-              label={lang("contactUs.phoneTable") || "Phone"}
-              value={investPhone}
-              onChange={(e) => setInvestPhone(e.target.value)}
-              required
-              fullWidth
-            />
-
-            <TextField
-              label={lang("home.exchangeHub.notes") || "Notes"}
-              value={investNotes}
-              onChange={(e) => setInvestNotes(e.target.value)}
-              multiline
-              rows={3}
-              fullWidth
-            />
-          </DialogContent>
-
-          <DialogActions
-            sx={{ px: 3, py: 1.5, borderTop: "1px solid #e0e0e0" }}
-          >
-            <Button
-              onClick={closeInvestModal}
-              className="custom-orange-outline"
-              variant="outlined"
-              disabled={submittingInvest}
-              sx={{ borderRadius: 2, textTransform: "none" }}
-            >
-              {lang("common.cancel") || "Cancel"}
-            </Button>
-            <Button
-              type="submit"
-              className="common-grey-color"
-              variant="contained"
-              disabled={submittingInvest}
-              sx={{ borderRadius: 2, textTransform: "none" }}
-            >
-              {submittingInvest
-                ? lang("home.exchangeHub.submitting") || "Submitting..."
-                : lang("home.exchangeHub.submit") || "Submit"}
-            </Button>
-          </DialogActions>
-        </form>
-      </Dialog>
+        lang={lang}
+        submitting={submittingInvest}
+        fullName={investFullName}
+        setFullName={setInvestFullName}
+        email={investEmail}
+        setEmail={setInvestEmail}
+        phone={investPhone}
+        setPhone={setInvestPhone}
+        notes={investNotes}
+        setNotes={setInvestNotes}
+        onSubmit={handleInvestSubmit}
+      />
     </main>
   );
 };

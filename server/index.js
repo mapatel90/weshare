@@ -31,6 +31,7 @@ import cronRoutes from "./routes/cron.js";
 import inverterDataRoutes from "./routes/inverterData.js";
 import uploadRoutes from "./routes/upload.js";
 import notificationRoutes from "./routes/notifications.js";
+import emailTemplateRoutes from "./routes/emailTemplate.js";
 
 // Load environment variables
 const __filename = fileURLToPath(import.meta.url);
@@ -116,6 +117,7 @@ app.use("/api/cron", cronRoutes);
 app.use("/api/inverter-data", inverterDataRoutes);
 app.use("/api/projectInverters", projectInvertersRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/email-templates", emailTemplateRoutes);
 
 // 404 handler
 app.use((req, res) => {

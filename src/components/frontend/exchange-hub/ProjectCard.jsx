@@ -1,15 +1,29 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useLanguage } from '@/contexts/LanguageContext'
 import './styles/exchange-hub-custom.css'
 import './styles/responsive.css'
-import { getFullImageUrl } from '@/utils/common'
+import { formatEnergyUnit, formatShort, getFullImageUrl, getTimeLeft } from '@/utils/common'
 import { getPrimaryProjectImage } from '@/utils/projectUtils'
+import { PROJECT_STATUS } from '@/constants/project_status'
+import { useAuth } from '@/contexts/AuthContext'
+import InvestDialog from './InvestDialog'
+import { apiPost } from '@/lib/api'
+import { showSuccessToast } from '@/utils/topTost'
+
 
 const ProjectCard = ({ project, activeTab }) => {
     const { lang } = useLanguage()
     const router = useRouter()
+    const { user, logout, loading: authLoading } = useAuth()
+    // Added missing states for invest modal & form
+    const [showInvestModal, setShowInvestModal] = useState(false);
+    const [investFullName, setInvestFullName] = useState("");
+    const [investEmail, setInvestEmail] = useState("");
+    const [investPhone, setInvestPhone] = useState("");
+    const [investNotes, setInvestNotes] = useState("");
+    const [submittingInvest, setSubmittingInvest] = useState(false);
 
     // Safety check
     if (!project) {
@@ -17,24 +31,43 @@ const ProjectCard = ({ project, activeTab }) => {
         return null
     }
 
+    const hasAlreadyInvested = project?.interested_investors?.some(
+        (investor) => investor?.user_id === user?.id
+    );
+
     // Determine reliability badge based on ROI
     const getReliabilityBadge = () => {
-        const roi = parseFloat(project.investor_profit || 0)
-        if (roi >= 12) return {
-            text: lang('home.exchangeHub.highReliability') || 'High Reliability',
-            icon: '🟢',
-            class: 'badge-high'
+        const status = project?.project_status_id;
+
+        if (status === PROJECT_STATUS.UPCOMING) {
+            return {
+                text: lang('project_status.upcoming') || 'Upcoming',
+                icon: '🟡',
+                class: 'badge-upcoming'
+            };
         }
-        if (roi >= 8) return {
-            text: lang('home.exchangeHub.moderateReliability') || 'Moderate Reliability',
-            icon: '🟡',
-            class: 'badge-moderate'
+
+        if (status === PROJECT_STATUS.RUNNING) {
+            return {
+                text: lang('project_status.running') || 'Running',
+                icon: '🟢',
+                class: 'badge-running'
+            };
         }
+
+        if (status === PROJECT_STATUS.PENDING) {
+            return {
+                text: lang('project_status.pending') || 'Pending',
+                icon: '🔵',
+                class: 'badge-pending'
+            };
+        }
+
         return {
-            text: lang('home.exchangeHub.premiumReliability') || 'Premium Reliability',
-            icon: '🔵',
-            class: 'badge-premium'
-        }
+            text: 'Unknown',
+            icon: '⚪',
+            class: 'badge-default'
+        };
     }
 
     const badge = getReliabilityBadge()
@@ -46,14 +79,73 @@ const ProjectCard = ({ project, activeTab }) => {
     }
 
     // Calculate accumulative generation with fallback
-    const accumulative = project.accumulative_generation ||
-        (parseFloat(project.project_size || 0) * 1500).toFixed(0)
+    const accumulative = formatEnergyUnit(project.project_size) || 0
 
     const getDefaultImageUrl = () => {
         const cover = getPrimaryProjectImage(project)
         if (!cover) return getFullImageUrl('/uploads/general/noimage_2.png')
         return getFullImageUrl(cover) || getFullImageUrl('/uploads/general/noimage_2.png')
     }
+
+    // Populate form when modal opens or when user changes
+    useEffect(() => {
+        if (!showInvestModal || !user) return;
+
+        const fullName =
+            user.full_name ||
+            user.fullName ||
+            user.name ||
+            (user.first_name && user.last_name
+                ? `${user.first_name} ${user.last_name}`
+                : "") ||
+            "";
+
+        setInvestFullName(fullName);
+        setInvestEmail(user.email || user.userEmail || "");
+        setInvestPhone(user.phone || user.mobile || user.contact_number || "");
+        setInvestNotes(""); // leave empty by default
+    }, [showInvestModal, user]);
+
+    const handleInvestClick = () => {
+        setShowInvestModal(true);
+    };
+
+    const closeInvestModal = () => {
+        if (submittingInvest) return;
+        setShowInvestModal(false);
+    };
+
+    const handleInvestSubmit = async (e) => {
+        e.preventDefault();
+        if (!project) return;
+        setSubmittingInvest(true);
+        try {
+            const payload = {
+                projectId: project.id,
+                userId: user?.id ?? null,
+                fullName: investFullName,
+                email: investEmail,
+                phoneNumber: investPhone,
+                notes: investNotes,
+                created_by: user?.id,
+            };
+
+            const res = await apiPost("/api/investors", payload);
+
+            if (res && res.success) {
+                showSuccessToast("Investment intent submitted successfully");
+                router.refresh();
+                setShowInvestModal(false);
+            } else {
+                throw new Error(res?.message || "Submission failed");
+            }
+
+            setSubmittingInvest(false);
+        } catch (err) {
+            console.error("Error submitting investment:", err);
+            setSubmittingInvest(false);
+        }
+    };
 
     // Different card design for lease vs resale
     if (activeTab === 'lease') {
@@ -72,9 +164,9 @@ const ProjectCard = ({ project, activeTab }) => {
                         />
                         {/* Reliability Badge */}
                         <div className={`upcoming-badge ${badge.class}`} style={{ backgroundColor: '#FFF3DF', margin: '2%' }}>
-                            {/* <span className="badge-icon">{badge.icon}</span> */}
-                            {/* {badge.text} */}
-                            Upcoming
+                            <span className="badge-icon">{badge.icon}</span>
+                            {badge.text}
+                            {/* Upcoming */}
                         </div>
                     </div>
 
@@ -115,12 +207,12 @@ const ProjectCard = ({ project, activeTab }) => {
                         {/* Stats - 3 Columns */}
                         <div className="stats-image">
                             <div className="stat-image">
-                                <h4>${formatNumber(project.asking_price || project.target_investment || 1450000)}</h4>
+                                <h4>{formatShort(project.asking_price || project.target_investment || 1450000).toLocaleString()}</h4>
                                 <p>{lang('home.exchangeHub.targetInvestment') || 'Target Investment'}</p>
                             </div>
                             <div className="stat-image">
                                 <h4 className="text-secondary-color">
-                                    {formatNumber(accumulative || (parseFloat(project.project_size || 1800) * 1000))} kWh/year
+                                    {accumulative ? accumulative : project?.project_size}
                                 </h4>
                                 <p>{lang('home.exchangeHub.expectedGeneration') || 'Expected Generation'}</p>
                             </div>
@@ -150,7 +242,7 @@ const ProjectCard = ({ project, activeTab }) => {
                                     {lang('home.exchangeHub.fundProgress') || 'Fund Progress'}: <strong className="text-secondary-color">{project?.fund_progress || '45'}%</strong>
                                 </span>
                                 <span className="time-left">
-                                    {lang('home.exchangeHub.timeLeft') || 'Time left'}: {project?.time_left || '3 Month'}
+                                    {lang('home.exchangeHub.timeLeft') || 'Time left'}: {getTimeLeft(project?.project_close_date)}
                                 </span>
                             </div>
                             <div className="progress-bar-container">
@@ -168,9 +260,28 @@ const ProjectCard = ({ project, activeTab }) => {
 
                         {/* Action Buttons */}
                         <div className="buttons-image">
-                            <button className="btn btn-primary-custom" style={{ padding: '14px 0px' }}>
-                                {lang('home.exchangeHub.investEarly') || 'Invest Early'}
-                            </button>
+                            {project?.project_status_id === PROJECT_STATUS.UPCOMING && !hasAlreadyInvested && getTimeLeft(project?.project_close_date) !== 'Expired' ? (
+                                <button className="btn btn-primary-custom" style={{ padding: '14px 0px' }} onClick={handleInvestClick}>
+                                    {lang('home.exchangeHub.investEarly') || 'Invest Early'}
+                                </button>
+                            ) : null}
+                            {/* Invest Dialog */}
+                            <InvestDialog
+                                open={!!showInvestModal}
+                                onClose={closeInvestModal}
+                                lang={lang}
+                                submitting={submittingInvest}
+                                fullName={investFullName}
+                                setFullName={setInvestFullName}
+                                email={investEmail}
+                                setEmail={setInvestEmail}
+                                phone={investPhone}
+                                setPhone={setInvestPhone}
+                                notes={investNotes}
+                                setNotes={setInvestNotes}
+                                onSubmit={handleInvestSubmit}
+                            />
+
                             <button
                                 className="btn btn-secondary-custom"
                                 onClick={() => router.push(`/frontend/exchange-hub/${project.project_slug}`)}

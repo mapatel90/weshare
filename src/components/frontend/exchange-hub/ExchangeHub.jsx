@@ -9,6 +9,7 @@ import ProjectCard from './ProjectCard'
 import './styles/exchange-hub-custom.css'
 import { useAuth } from '@/contexts/AuthContext'
 import { useRouter } from 'next/navigation'
+import { PROJECT_STATUS } from '@/constants/project_status'
 
 const ExchangeHub = () => {
   const [activeTab, setActiveTab] = useState('lease')
@@ -69,7 +70,7 @@ const ExchangeHub = () => {
   const fetchProjects = async (pageNum = 1, reset = false) => {
     try {
       setLoading(true)
-      const response = await apiGet(`/api/projects?page=${pageNum}&limit=50&status=1`, { showLoader: false })
+      const response = await apiGet(`/api/projects?page=${pageNum}&limit=50&status=${PROJECT_STATUS.UPCOMING},${PROJECT_STATUS.RUNNING}`, { showLoader: false })
 
       if (response?.success) {
         // API now returns data in "data" (array) plus projectList/offtakerList helpers
@@ -183,7 +184,7 @@ const ExchangeHub = () => {
 
   // Show loader while checking authentication
   // if (authLoading) {
-  
+
   // }
 
   return (
@@ -208,7 +209,7 @@ const ExchangeHub = () => {
                   href="#"
                   className="filterBtn normalBtn"
                   onClick={(e) => { e.preventDefault(); setShowFilters(!showFilters) }}
-                  style={{gap:0}}
+                  style={{ gap: 0 }}
                 >
                   <img src="/images/icons/Filter-icon.svg" alt="filter" className="me-3" onError={(e) => e.target.style.display = 'none'} />
                   {lang('home.exchangeHub.filter')}
@@ -224,8 +225,8 @@ const ExchangeHub = () => {
                     {lang('home.exchangeHub.sortBy')}
                   </button>
                   <ul className="dropdown-menu w-100">
-                    <li><button className={`dropdown-item ${sortBy === 'roi-high' ? 'active' : ''}`} style={{width:'90%'}} type="button" onClick={() => setSortBy('roi-high')}>{lang('home.exchangeHub.sortRoiHigh')}</button></li>
-                    <li><button className={`dropdown-item ${sortBy === 'roi-low' ? 'active' : ''}`} style={{width:'90%'}} type="button" onClick={() => setSortBy('roi-low')}>{lang('home.exchangeHub.sortRoiLow')}</button></li>
+                    <li><button className={`dropdown-item ${sortBy === 'roi-high' ? 'active' : ''}`} style={{ width: '90%' }} type="button" onClick={() => setSortBy('roi-high')}>{lang('home.exchangeHub.sortRoiHigh')}</button></li>
+                    <li><button className={`dropdown-item ${sortBy === 'roi-low' ? 'active' : ''}`} style={{ width: '90%' }} type="button" onClick={() => setSortBy('roi-low')}>{lang('home.exchangeHub.sortRoiLow')}</button></li>
                     {/* <li><hr className="dropdown-divider" /></li>
                     <li><button className={`dropdown-item ${sortBy === 'price-low' ? 'active' : ''}`} type="button" onClick={() => setSortBy('price-low')}>{lang('home.exchangeHub.sortPriceLow')}</button></li>
                     <li><button className={`dropdown-item ${sortBy === 'price-high' ? 'active' : ''}`} type="button" onClick={() => setSortBy('price-high')}>{lang('home.exchangeHub.sortPriceHigh')}</button></li>

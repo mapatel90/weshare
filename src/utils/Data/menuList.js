@@ -139,6 +139,13 @@ export const menuList = [
   },
   {
     id: 12,
+    name: "Email Templates",
+    path: "/admin/email_template/list",
+    icon: "feather-mail",
+    dropdownMenu: false,
+  },
+  {
+    id: 13,
     name: "Reports",
     path: "#",
     icon: "feather-file-text",
@@ -176,7 +183,7 @@ export const menuList = [
     ],
   },
   {
-    id: 13,
+    id: 14,
     name: "settings",
     path: "#",
     icon: "feather-settings",
@@ -187,14 +194,14 @@ export const menuList = [
         path: "/admin/settings/ganeral",
         subdropdownMenu: false,
       },
+      // {
+      //   id: 2,
+      //   name: "seo",
+      //   path: "/admin/settings/seo",
+      //   subdropdownMenu: false,
+      // },
       {
         id: 2,
-        name: "seo",
-        path: "/admin/settings/seo",
-        subdropdownMenu: false,
-      },
-      {
-        id: 3,
         name: "Roles Management",
         path: "/admin/settings/role",
         subdropdownMenu: false,
@@ -206,7 +213,7 @@ export const menuList = [
       //     subdropdownMenu: false
       // },
       {
-        id: 5,
+        id: 3,
         name: "SMTP",
         path: "/admin/settings/smtp",
         subdropdownMenu: false,
@@ -230,23 +237,23 @@ export const menuList = [
       //     subdropdownMenu: false
       // },
       {
-        id: 9,
+        id: 4,
         name: "Finance",
         path: "/admin/settings/finance",
         subdropdownMenu: false,
       },
-      {
-        id: 10,
-        name: "Gateways",
-        path: "/admin/settings/gateways",
-        subdropdownMenu: false,
-      },
-      {
-        id: 11,
-        name: "Customers",
-        path: "/admin/settings/customers",
-        subdropdownMenu: false,
-      },
+      // {
+      //   id: 10,
+      //   name: "Gateways",
+      //   path: "/admin/settings/gateways",
+      //   subdropdownMenu: false,
+      // },
+      // {
+      //   id: 11,
+      //   name: "Customers",
+      //   path: "/admin/settings/customers",
+      //   subdropdownMenu: false,
+      // },
       // {
       //   id: 12,
       //   name: "Localization",

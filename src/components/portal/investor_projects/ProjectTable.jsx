@@ -15,11 +15,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import { getPrimaryProjectImage } from "@/utils/projectUtils";
 import { getFullImageUrl } from "@/utils/common";
+import { PROJECT_STATUS } from "@/constants/project_status";
+import { useLanguage } from "@/contexts/LanguageContext";
 
-const statusDictionary = {
-  0: "Under Installation",
-  1: "Upcoming",
-};
 
 const formatCurrency = (value) => {
   if (value === null || value === undefined || value === "") return "—";
@@ -59,15 +57,15 @@ const normalizeApiProject = (project) => {
     return Number.isNaN(t) ? 0 : t;
   };
 
-  const statusString =
-    statusDictionary[project.projects?.status] ?? project?.status ?? "Upcoming";
-  // map display status to numeric filter codes: Upcoming => 1, Under Installation => 0
-  const statusCode =
-    statusString === "Upcoming"
-      ? 1
-      : statusString === "Under Installation"
-        ? 0
-        : project?.status ?? null;
+  const status_id = project?.projects.project_status_id ?? null;
+
+  const STATUS_LABELS = {
+    [PROJECT_STATUS.PENDING]: "Pending",
+    [PROJECT_STATUS.UPCOMING]: "Upcoming",
+    [PROJECT_STATUS.RUNNING]: "Running",
+  };
+
+  const statusLabel = STATUS_LABELS[status_id] || "Unknown";
 
   const rawCoverImage =
     getPrimaryProjectImage(project.projects || project) || "";
@@ -79,8 +77,9 @@ const normalizeApiProject = (project) => {
     id: project.projects?.id ? `#${project.projects.id}` : project.projects?.project_code ?? "—",
     project_image: coverImage,
     projectName: project.projects?.project_name ?? "—",
-    status: statusString,
-    statusCode,
+    project_status_id: status_id,
+    status: statusLabel,
+    statusCode: status_id,
     expectedROI: formatPercent(project.projects?.expected_roi ?? project.projects?.roi),
     targetInvestment: formatCurrency(project.projects?.asking_price ?? project.projects?.asking_price),
     paybackPeriod: project.projects?.lease_term ? String(project.projects.lease_term) : "—",
@@ -99,6 +98,7 @@ const normalizeApiProject = (project) => {
 const ProjectTable = () => {
   const { user } = useAuth();
   const router = useRouter();
+  const { lang } = useLanguage();
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [entriesPerPage, setEntriesPerPage] = useState(5);
@@ -164,16 +164,16 @@ const ProjectTable = () => {
     };
   }, [dateDropdownOpen, statusDropdownOpen]);
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "Upcoming":
-        return "bg-amber-100 text-amber-700 border border-amber-300";
-      case "Under Installation":
-        return "bg-green-100 text-green-700 border border-green-300";
-      case "Completed":
-        return "bg-blue-100 text-blue-700 border border-blue-300";
+  const getStatusColor = (status_id) => {
+    switch (status_id) {
+      case PROJECT_STATUS.PENDING:
+        return "bg-gray-100 text-gray-700 border-gray-300";
+      case PROJECT_STATUS.UPCOMING:
+        return "bg-amber-100 text-amber-700 border-amber-300";
+      case PROJECT_STATUS.RUNNING:
+        return "bg-green-100 text-green-700 border-green-300";
       default:
-        return "bg-gray-100 text-gray-700 border border-gray-300";
+        return "bg-gray-100 text-gray-700 border-gray-300";
     }
   };
 
@@ -499,30 +499,32 @@ const ProjectTable = () => {
                       </button>
                       <button
                         onClick={() => {
-                          setStatusFilter(1);
+                          setStatusFilter(PROJECT_STATUS.UPCOMING);
                           setStatusDropdownOpen(false);
                           setCurrentPage(1);
                         }}
-                        className={`w-full text-left px-3 py-2 text-sm ${statusFilter == 1
-                          ? "bg-slate-100"
-                          : "hover:bg-gray-50"
+                        className={`w-full text-left px-3 py-2 text-sm ${statusFilter === PROJECT_STATUS.UPCOMING
+                            ? "bg-slate-100"
+                            : "hover:bg-gray-50"
                           }`}
                       >
-                        Upcoming
+                        {lang("home.exchangeHub.upcoming", "Upcoming")}
                       </button>
+
                       <button
                         onClick={() => {
-                          setStatusFilter(0);
+                          setStatusFilter(PROJECT_STATUS.PENDING); // or UNDER_INSTALLATION if you rename
                           setStatusDropdownOpen(false);
                           setCurrentPage(1);
                         }}
-                        className={`w-full text-left px-3 py-2 text-sm ${statusFilter == 0
-                          ? "bg-slate-100"
-                          : "hover:bg-gray-50"
+                        className={`w-full text-left px-3 py-2 text-sm ${statusFilter === PROJECT_STATUS.PENDING
+                            ? "bg-slate-100"
+                            : "hover:bg-gray-50"
                           }`}
                       >
-                        Under Installation
+                        {lang("projects.under_installation", "Under Installation")}
                       </button>
+
                     </div>
                   )}
                 </div>
