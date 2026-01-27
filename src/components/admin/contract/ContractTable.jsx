@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { apiGet, apiPost, apiPut, apiDelete, apiUpload } from "@/lib/api";
 import Table from "@/components/shared/table/Table";
-import { FiEdit3, FiTrash2, FiX } from "react-icons/fi";
+import { FiArrowRight, FiEdit3, FiSave, FiTrash2, FiX } from "react-icons/fi";
 import Swal from "sweetalert2";
 import { showSuccessToast, showErrorToast } from "@/utils/topTost";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -11,7 +11,7 @@ import {
 import ContractModal from "./ContractModal";
 import { useAuth } from "@/contexts/AuthContext";
 
-const Contract = ({ projectId, handleCloseForm }) => {
+const Contract = ({ projectId, handleCloseForm, handleSaveAction }) => {
   const { lang } = useLanguage();
   const { user } = useAuth();
   const [showModal, setShowModal] = useState(false);
@@ -49,7 +49,7 @@ const Contract = ({ projectId, handleCloseForm }) => {
       setAllowAdd(true);
       return;
     }
-    
+
     // Find interested_investors that belong to this project
     const invIdsForProject = Array.isArray(investorList)
       ? investorList
@@ -92,8 +92,8 @@ const Contract = ({ projectId, handleCloseForm }) => {
       if (res?.success) {
         const all = Array.isArray(res.data) ? res.data : [];
         const filtered = projectId
-        ? all.filter((item) => Number(item.project_id) === Number(projectId))
-        : all;
+          ? all.filter((item) => Number(item.project_id) === Number(projectId))
+          : all;
         setContracts(filtered);
       } else {
         setContracts([]);
@@ -459,6 +459,13 @@ const Contract = ({ projectId, handleCloseForm }) => {
     },
   ];
 
+  const handleSaveActionLocal = async (action) => {
+    const success = await saveMeterData();
+    if (success) {
+      handleSaveAction(action);
+    }
+  };
+
   return (
     <div className="contract-management">
       <div className="d-flex justify-content-between align-items-center mb-3">
@@ -533,6 +540,21 @@ const Contract = ({ projectId, handleCloseForm }) => {
           {loading.form
             ? lang("common.saving", "Saving")
             : lang("common.close", "close")}
+        </Button>
+        <Button
+          type="button"
+          variant="outlined"
+          disabled={loading.form}
+          onClick={() => handleSaveAction('saveNext')}
+          style={{
+            marginTop: "2px",
+            marginBottom: "2px",
+          }}
+        >
+          {loading.form
+            ? lang("common.saving", "Saving")
+            : lang("projects.saveNext", "Next")}
+          <FiArrowRight />
         </Button>
       </div>
     </div>

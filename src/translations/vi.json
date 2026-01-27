@@ -1485,7 +1485,11 @@
     "deleted": "Nhà đầu tư đã được xóa thành công",
     "updated": "Nhà đầu tư đã được cập nhật thành công",
     "editInvestor": "Chỉnh sửa nhà đầu tư",
-    "noInvestorsFound": "Không tìm thấy nhà đầu tư nào"
+    "noInvestorsFound": "Không tìm thấy nhà đầu tư nào",
+    "full_name_required": "Họ và tên là bắt buộc",
+    "email_required": "Email là bắt buộc",
+    "phone_number_required": "Số điện thoại là bắt buộc"
+
   },
   "contract": {
     "contract_summary": "Tóm tắt hợp đồng",
@@ -1657,9 +1661,26 @@
     "unreadonly": "Bỏ chỉ đọc",
     "allModules": "Tất cả các loại mô-đun"
   },
-  "project_status":{
+  "project_status": {
     "upcoming": "Sắp diễn ra",
     "running": "Đang chạy",
     "pending": "Đang chờ"
+  },
+  "project_documents": {
+    "title": "Tiêu đề",
+    "amount": "Số tiền",
+    "notes": "Ghi chú",
+    "addDocument": "Thêm tài liệu",
+    "editDocument": "Chỉnh sửa tài liệu",
+    "documentName": "Tên tài liệu",
+    "documentNamePlaceholder": "Nhập tên tài liệu",
+    "documentFile": "Tệp tài liệu",
+    "uploadFile": "Tải tệp lên",
+    "selectFile": "Chọn tệp",
+    "documentCreatedSuccessfully": "Tài liệu đã được tạo thành công",
+    "documentUpdatedSuccessfully": "Tài liệu đã được cập nhật thành công",
+    "documentDeletedSuccessfully": "Tài liệu đã được xóa thành công",
+    "noDocumentsFound": "Không tìm thấy tài liệu cho dự án này"
   }
+
 }

@@ -37,7 +37,6 @@ model cities {
 
 model contact_us {
   id           Int      @id @default(autoincrement())
-  created_by   Int?
   full_name    String   @db.VarChar(255)
   email        String   @db.VarChar(255)
   phone_number String?  @db.VarChar(20)
@@ -103,7 +102,6 @@ model interested_investors {
 
 model inverter_data {
   id                  Int       @id @default(autoincrement())
-  created_by          Int?
   project_id          Int
   project_inverter_id Int?
   date                DateTime?
@@ -179,7 +177,8 @@ model invoices {
   users       users    @relation(fields: [offtaker_id], references: [id])
   projects    projects @relation(fields: [project_id], references: [id])
   invoice_items invoice_items[]
-  payments payments[]
+  payments  payments[]
+  payouts   payouts[]
 }
 
 model invoice_items {
@@ -198,7 +197,6 @@ model invoice_items {
 
 model lease_requests {
   id           Int      @id @default(autoincrement())
-  created_by   Int?
   full_name    String   @db.VarChar(255)
   email        String   @db.VarChar(255)
   phone_number String?  @db.VarChar(20)
@@ -258,7 +256,6 @@ model payments {
 model project_data {
   id         Int      @id @default(autoincrement())
   project_id Int
-  created_by Int?
   wind_spd             String?                @db.VarChar(255)
   wind_dir             String?                @db.VarChar(255)
   cond_txtd            String?                @db.VarChar(255)
@@ -291,6 +288,7 @@ model project_data {
   power_station_num_tree Float                @default(0)
   power_station_avoided_co2 Float             @default(0)
   power_station_avoided_tce Float             @default(0)
+  project_solis_status  Int?                  @default(0)
   created_at DateTime @default(now())
   
 
@@ -299,7 +297,6 @@ model project_data {
 
 model project_energy_data {
   id         Int      @id @default(autoincrement())
-  created_by Int?
   project_id Int
   date       DateTime
   time       String
@@ -314,7 +311,6 @@ model project_energy_data {
 
 model project_energy_days_data {
   id         Int      @id @default(autoincrement())
-  created_by Int?
   project_id Int
   date       DateTime @db.Date
   energy     Float
@@ -360,7 +356,7 @@ model project_inverters {
   year_energy            Float?                 @default(0)
   total_energy           Float?                 @default(0)
   status                 Int       @default(0)
-  state_exception_flag   Int       @default(0)
+  state_exception_flag   Int?       @default(0)
   is_deleted             Int       @default(0)
   created_at             DateTime  @default(now())
   updated_at             DateTime  @default(now())
@@ -431,10 +427,13 @@ model projects {
   project_types        project_types          @relation(fields: [project_type_id], references: [id])
   states               states?                @relation(fields: [state_id], references: [id])
   project_status       project_status?        @relation(fields: [project_status_id], references: [id])
+  investor             users?                 @relation("ProjectInvestor", fields: [investor_id], references: [id])
   testimonials         testimonials[]
   project_data         project_data[]
   project_energy_data  project_energy_data[]
   project_energy_days_data project_energy_days_data[]
+  payouts              payouts[]
+  project_documents    project_documents[]
 }
 
 model roles {
@@ -524,6 +523,8 @@ model users {
   states               states?                @relation(fields: [state_id], references: [id])
   notifications        notifications[]        @relation("NotificationUser")
   created_notifications notifications[]       @relation("NotificationCreator")
+  payouts              payouts[]
+  investor_projects     projects[] @relation("ProjectInvestor")
 }
 
 model taxes {
@@ -561,6 +562,19 @@ model project_status {
   projects   projects[]
 }
 
+model project_documents {
+  id            Int       @id @default(autoincrement())
+  project_id    Int? 
+  title         String?    @db.VarChar(255)
+  amount        Float?     @default(0)
+  notes         String?    @db.VarChar(255)
+  document      String?     @db.VarChar(500)
+  created_by    Int?        @default(0)
+  created_at    DateTime?   @default(now())
+
+  projects      projects? @relation(fields: [project_id], references: [id])
+}
+
 model email_template {
   id          Int      @id @default(autoincrement())
   title       String   @db.VarChar(255)
@@ -570,4 +584,26 @@ model email_template {
   subject     String   @db.VarChar(255)
   created_by  Int?
   created_at  DateTime @default(now())
+}
+
+
+model payouts {
+  id              Int      @id @default(autoincrement())
+  payout_number   String    @db.VarChar(255)
+  payout_prefix   String    @db.VarChar(255)
+  invoice_id      Int
+  investor_id     Int
+  project_id      Int
+  invoice_amount  Float     @default(0)
+  investor_percent Float    @default(0)
+  payout_amount   Float     @default(0)
+
+  status          String   @default("pending") 
+  transaction_id  String? // bank txn id / stripe id
+  payout_date     DateTime?
+  created_at      DateTime @default(now())
+
+  invoices  invoices    @relation(fields: [invoice_id], references: [id])
+  users     users       @relation(fields: [investor_id], references: [id])
+  projects  projects    @relation(fields: [project_id], references: [id])
 }
