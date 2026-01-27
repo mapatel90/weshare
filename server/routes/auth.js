@@ -58,7 +58,8 @@ router.post('/register', async (req, res) => {
       state_id,
       country_id,
       zipcode,
-      termsAccepted
+      termsAccepted,
+      language
     } = req.body;
 
     // Validate required fields
@@ -113,7 +114,8 @@ router.post('/register', async (req, res) => {
         email_verify_token: verificationToken,
         email_verify_expires: tokenExpiry,
         status: 0, // Inactive until email verified
-        terms_accepted: termsAccepted || 0
+        terms_accepted: termsAccepted || 0,
+        language: language || 'en'
       },
       select: {
         id: true,
@@ -128,40 +130,87 @@ router.post('/register', async (req, res) => {
       }
     });
 
-    // Send verification email (don't block registration if email fails)
-    sendEmailVerificationEmail(newUser.email, newUser.full_name, verificationToken)
-      .then(() => {
-        console.log(`✅ Verification email sent to ${newUser.email}`);
-      })
-      .catch((error) => {
-        console.error('❌ Failed to send verification email:', error.message);
-      });
+    // Send welcome email using template for Offtakers (role_id = 3)
+    if (role_id === 3) {
+      const verifyLink = `${process.env.FRONTEND_URL || ''}/verify-email/${verificationToken}`;
+      const loginUrl = `${process.env.FRONTEND_URL || ''}/offtaker/login`;
+      
+      const templateData = {
+        user_name: newUser.full_name,
+        user_email: newUser.email,
+        account_type: 'Offtaker',
+        site_url: process.env.FRONTEND_URL || '',
+        company_name: 'WeShare Energy',
+        company_logo: `${process.env.NEXT_PUBLIC_URL || ''}/images/main_logo.png`,
+        support_email: 'support@weshare.com',
+        support_phone: '+1 (555) 123-4567',
+        support_hours: 'Mon–Fri, 9am–6pm GMT',
+        current_date: new Date().toLocaleDateString(),
+        verify_link: verifyLink,
+        login_url: loginUrl,
+      };
+      console.log("templateData", templateData);
 
-    // Send welcome email using template (don't block registration if email fails)
-    const templateData = {
-      user_name: newUser.full_name,
-      user_email: newUser.email,
-      site_url: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
-      company_name: 'WeShare Energy',
-      current_date: new Date().toLocaleDateString(),
-    };
-
-    sendEmailUsingTemplate({
-      to: newUser.email,
-      templateSlug: 'test_123',
-      templateData,
-      language: 'en'
-    })
-      .then((result) => {
-        if (result.success) {
-          console.log(`✅ Welcome email sent to ${newUser.email}`);
-        } else {
-          console.warn(`⚠️ Could not send welcome email: ${result.error}`);
-        }
+      sendEmailUsingTemplate({
+        to: newUser.email,
+        templateSlug: 'offtaker_sign_up',
+        templateData,
+        language: language || 'en'
       })
-      .catch((error) => {
-        console.error('❌ Failed to send welcome email:', error.message);
-      });
+        .then((result) => {
+          if (result.success) {
+            console.log(`✅ Welcome email sent to ${newUser.email}`);
+          } else {
+            console.warn(`⚠️ Could not send welcome email: ${result.error}`);
+          }
+        })
+        .catch((error) => {
+          console.error('❌ Failed to send welcome email:', error.message);
+        });
+    } else if (role_id === 4) {
+      // Send welcome email for Investors (role_id = 4)
+      const loginUrl = `${process.env.FRONTEND_URL || ''}/investor/login`;
+      
+      const templateData = {
+        user_name: newUser.full_name,
+        user_email: newUser.email,
+        account_type: 'Investor',
+        site_url: process.env.FRONTEND_URL || '',
+        company_name: 'WeShare Energy',
+        company_logo: `${process.env.NEXT_PUBLIC_URL || ''}/images/main_logo.png`,
+        support_email: 'support@weshare.com',
+        support_phone: '+1 (555) 123-4567',
+        support_hours: 'Mon–Fri, 9am–6pm GMT',
+        current_date: new Date().toLocaleDateString(),
+        login_url: loginUrl,
+      };
+
+      sendEmailUsingTemplate({
+        to: newUser.email,
+        templateSlug: 'investor_sign_up',
+        templateData,
+        language: language || 'en'
+      })
+        .then((result) => {
+          if (result.success) {
+            console.log(`✅ Welcome email sent to ${newUser.email}`);
+          } else {
+            console.warn(`⚠️ Could not send welcome email: ${result.error}`);
+          }
+        })
+        .catch((error) => {
+          console.error('❌ Failed to send welcome email:', error.message);
+        });
+    } else {
+      // Send verification email for other roles (don't block registration if email fails)
+      sendEmailVerificationEmail(newUser.email, newUser.full_name, verificationToken, language || 'en')
+        .then(() => {
+          console.log(`✅ Verification email sent to ${newUser.email}`);
+        })
+        .catch((error) => {
+          console.error('❌ Failed to send verification email:', error.message);
+        });
+    }
 
     res.status(201).json({
       success: true,

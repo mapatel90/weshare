@@ -138,7 +138,8 @@ const RegisterForm = ({loginPath}) => {
                 email,
                 password,
                 role_id: parseInt(userType),
-                termsAccepted: agreeTerms ? 1 : 0
+                termsAccepted: agreeTerms ? 1 : 0,
+                language: 'vi'
             })
 
             if (!data.success) {

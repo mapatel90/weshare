@@ -6,10 +6,8 @@ import { apiGet, apiDelete } from "@/lib/api";
 import { showSuccessToast, showErrorToast } from "@/utils/topTost";
 import Swal from "sweetalert2";
 import { FiEdit3, FiTrash2 } from "react-icons/fi";
-import {
-  IconButton,
-  Stack,
-} from "@mui/material";
+import { IconButton, Stack } from "@mui/material";
+import Link from "next/link";
 
 const EmailTemplateTable = () => {
   const { lang } = useLanguage();
@@ -64,7 +62,7 @@ const EmailTemplateTable = () => {
       const res = await apiDelete(`/api/email-templates/${id}`);
       if (res?.success) {
         showSuccessToast(
-          lang("common.deletedSuccessfully") || "Deleted successfully"
+          lang("common.deletedSuccessfully") || "Deleted successfully",
         );
         fetchTemplates();
       } else {
@@ -79,7 +77,7 @@ const EmailTemplateTable = () => {
   const handleEdit = (item) => {
     if (typeof window !== "undefined") {
       window.dispatchEvent(
-        new CustomEvent("emailTemplate:open-edit", { detail: { item } })
+        new CustomEvent("emailTemplate:open-edit", { detail: { item } }),
       );
     }
   };
@@ -88,11 +86,11 @@ const EmailTemplateTable = () => {
     () => [
       {
         accessorKey: "title",
-        header: () => lang("email.title") || "Title",
+        header: () => lang("common.title") || "Title",
       },
       {
         accessorKey: "slug",
-        header: () => lang("email.slug") || "Slug",
+        header: () => lang("news.slug") || "Slug",
         cell: ({ row }) => (
           <code style={{ fontSize: "0.85rem", color: "#666" }}>
             {row.original.slug}
@@ -101,7 +99,7 @@ const EmailTemplateTable = () => {
       },
       {
         accessorKey: "subject",
-        header: () => lang("email.subject") || "Subject",
+        header: () => lang("contactUs.subject") || "Subject",
         cell: ({ row }) => {
           const text = row.original.subject || "";
           return text.length > 50 ? `${text.slice(0, 50)}…` : text;
@@ -123,21 +121,23 @@ const EmailTemplateTable = () => {
         meta: { disableSort: true },
         cell: ({ row }) => (
           <Stack direction="row" spacing={1} sx={{ flexWrap: "nowrap" }}>
-            <IconButton
-              size="small"
-              onClick={() => handleEdit(row.original)}
-              sx={{
-                color: "#1976d2",
-                transition: "transform 0.2s ease",
-                "&:hover": {
-                  backgroundColor: "rgba(25, 118, 210, 0.08)",
-                  transform: "scale(1.1)",
-                },
-              }}
-              title={lang("common.edit") || "Edit"}
-            >
-              <FiEdit3 size={18} />
-            </IconButton>
+            <Link href={`/admin/email_template/edit/${row.original.id}`}>
+              <IconButton
+                size="small"
+                onClick={() => handleEdit(row.original.id)}
+                sx={{
+                  color: "#1976d2",
+                  transition: "transform 0.2s ease",
+                  "&:hover": {
+                    backgroundColor: "rgba(25, 118, 210, 0.08)",
+                    transform: "scale(1.1)",
+                  },
+                }}
+                title={lang("common.edit") || "Edit"}
+              >
+                <FiEdit3 size={18} />
+              </IconButton>
+            </Link>
             <IconButton
               size="small"
               onClick={() => handleDelete(row.original.id)}
@@ -157,7 +157,7 @@ const EmailTemplateTable = () => {
         ),
       },
     ],
-    [lang]
+    [lang],
   );
 
   return <Table data={templateData} columns={columns} loading={loading} />;

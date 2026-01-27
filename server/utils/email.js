@@ -45,15 +45,23 @@ export const sendEmailUsingTemplate = async ({ to, templateSlug, templateData = 
 
     // Get content based on language
     const contentField = language === 'vi' ? 'content_vi' : 'content_en';
-    const content = template[contentField] || template.content_en;
+
+    const rawContent = replacePlaceholders(template[contentField] || template.content_en, templateData);
+
+    // const content = template[contentField] || template.content_en;
     const subject = replacePlaceholders(template.subject, templateData);
-    const html = replacePlaceholders(content, templateData);
+    // const html = replacePlaceholders(content, templateData);
+
+    const finalHtml = buildEmailLayout({
+      bodyContent: rawContent,
+      templateData
+    });
 
     // Send email
     return await sendEmail({
       to,
       subject,
-      html,
+      html: finalHtml,
     });
   } catch (error) {
     console.error('Error sending templated email:', error);
@@ -202,6 +210,76 @@ export const sendEmail = async ({ to, subject, html, text, customSmtp = null }) 
     return { success: false, error: error.message };
   }
 };
+
+export const buildEmailLayout = ({ bodyContent, templateData }) => {
+  return `
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>${templateData.company_name}</title>
+  </head>
+  <body style="margin:0; padding:0; background-color:#f4f6f8; font-family: Arial, sans-serif;">
+    
+    <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f6f8; padding:30px 0;">
+      <tr>
+        <td align="center">
+          
+          <!-- Main Container -->
+          <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff; border-radius:10px; overflow:hidden; box-shadow:0 4px 12px rgba(0,0,0,0.06);">
+            
+            <!-- Header -->
+            <tr>
+              <td style="background:#f4f2f0; padding:30px; text-align:center;">
+                ${templateData.company_logo ? `<img src="${templateData.company_logo}" alt="${templateData.company_name}" style="max-width:180px; height:auto; display:block; margin:0 auto;" />` : `<h1 style="color:#ffffff; margin:0; font-size:22px; letter-spacing:0.5px;">${templateData.company_name}</h1>`}
+              </td>
+            </tr>
+
+            <!-- Body Content -->
+            <tr>
+              <td style="padding:35px 30px; color:#333333; font-size:15px; line-height:1.7;">
+                ${bodyContent}
+              </td>
+            </tr>
+
+            <!-- Footer -->
+            <tr>
+              <td style="background:#696969; padding:25px 30px; font-family:Arial, sans-serif;">
+
+                <table width="100%" cellpadding="0" cellspacing="0">
+                  <tr>
+                    <!-- Left Side -->
+                    <td align="left" style="font-size:13px; color:#ffffff; line-height:1.6;">
+                      <strong style="font-size:14px;">Need help?</strong><br/>
+                      📧 <a href="mailto:${templateData.support_email}" style="color:#ffffff; text-decoration:none;">${templateData.support_email}</a><br/>
+                      📞 ${templateData.support_phone}<br/>
+                      🕒 ${templateData.support_hours}
+                    </td>
+
+                    <!-- Right Side -->
+                    <td align="right" style="font-size:13px; color:#ffffff; line-height:1.6;">
+                      <a href="${templateData.site_url}" style="color:#ffffff; text-decoration:none;">Visit Website</a><br/>
+                      <span style="font-size:12px; color:#ffffff;">
+                        © ${new Date().getFullYear()} ${templateData.company_name}
+                      </span>
+                    </td>
+                  </tr>
+                </table>
+
+              </td>
+            </tr>
+
+          </table>
+
+        </td>
+      </tr>
+    </table>
+  </body>
+  </html>
+  `;
+};
+
 
 // Send password reset email
 export const sendPasswordResetEmail = async (email, resetToken) => {
