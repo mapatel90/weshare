@@ -208,6 +208,8 @@ router.get("/", authenticateToken, async (req, res) => {
             select: {
               id: true,
               project_name: true,
+              weshare_profit: true,
+              investor_profit: true,
             },
           },
           users: {

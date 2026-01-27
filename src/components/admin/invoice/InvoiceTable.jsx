@@ -16,7 +16,6 @@ const InvoiceTable = () => {
   const { lang } = useLanguage();
   const router = useRouter();
   const [invoicesData, setInvoicesData] = useState([]);
-  console.log("Invoices Data:", invoicesData);
   const [taxesData, setTaxesData] = useState([]);
   const priceWithCurrency = usePriceWithCurrency();
 
@@ -152,8 +151,6 @@ const InvoiceTable = () => {
     return () => window.removeEventListener("invoice:saved", onSaved);
   }, []);
 
-  console.log("Invoices Data:", invoicesData);
-  console.log("Pagination State:", projectFilter, offtakerFilter, searchTerm, pageIndex, pageSize, pagination);
   useEffect(() => {
     fetchInvoices();
   }, [projectFilter, offtakerFilter, searchTerm, pageIndex, pageSize]);
@@ -271,16 +268,28 @@ const InvoiceTable = () => {
       header: () => lang("invoice.totalUnit"),
       cell: ({ getValue }) => priceWithCurrency(getValue()),
     },
-    // {
-    //   accessorKey: "start_time",
-    //   header: () => "Start Time",
-    //   cell: ({ row }) => formatTime(row.original.start_time),
-    // },
-    // {
-    //   accessorKey: "end_time",
-    //   header: () => "End Time",
-    //   cell: ({ row }) => formatTime(row.original.end_time),
-    // },
+    {
+      id: "weshare_profite",
+      header: () => lang("invoice.weshare_profite"),
+      cell: ({ row }) => {
+        const data = row.original; // always fresh row
+        const weshareProfite = data?.projects?.weshare_profit || 0;
+        const totalAmount = data?.total_amount || 0;
+        const weshareAmount = (totalAmount * weshareProfite) / 100;
+        return priceWithCurrency(weshareAmount);
+      }
+    },
+    {
+      id: "investor_profit",
+      header: () => lang("invoice.offtaker_profite"),
+      cell: ({ row }) => {
+        const data = row.original; // always fresh row
+        const offtakerProfite = data?.projects?.investor_profit || 0;
+        const totalAmount = data?.total_amount || 0;
+        const offtakerAmount = (totalAmount * offtakerProfite) / 100;
+        return priceWithCurrency(offtakerAmount);
+      }
+    },
     {
       accessorKey: "status",
       header: () => lang("invoice.status"),
@@ -387,13 +396,13 @@ const InvoiceTable = () => {
   ];
 
   return (
-    <div className="p-6 bg-white rounded-3xl shadow-md">
-      <div className="d-flex items-center justify-content-between gap-2 mb-4 mt-4 w-full flex-wrap">
+    <div className="p-6 bg-white shadow-md rounded-3xl">
+      <div className="flex-wrap items-center w-full gap-2 mt-4 mb-4 d-flex justify-content-between">
         <div className="filter-button">
           <select
             value={projectFilter}
             onChange={(e) => setProjectFilter(e.target.value)}
-            className="theme-btn-blue-color border rounded-md px-3 py-2 mx-2 text-sm"
+            className="px-3 py-2 mx-2 text-sm border rounded-md theme-btn-blue-color"
           >
             <option value="">{lang("reports.allprojects") || "All Projects"}</option>
             {projectList.map((p) => (
@@ -406,7 +415,7 @@ const InvoiceTable = () => {
           <select
             value={offtakerFilter}
             onChange={(e) => setOfftakerFilter(e.target.value)}
-            className="theme-btn-blue-color border rounded-md px-3 py-2 me-2 text-sm"
+            className="px-3 py-2 text-sm border rounded-md theme-btn-blue-color me-2"
           >
             <option value="">{lang("invoice.allOfftaker") || "All Offtakers"}</option>
             {offtakerList.map((o) => (
@@ -418,9 +427,9 @@ const InvoiceTable = () => {
         </div>
       </div>
 
-      <div className="overflow-x-auto relative">
+      <div className="relative overflow-x-auto">
         {!hasLoadedOnce && loading && (
-          <div className="text-center py-6 text-gray-600">Loading...</div>
+          <div className="py-6 text-center text-gray-600">Loading...</div>
         )}
 
         {hasLoadedOnce && (
@@ -437,7 +446,7 @@ const InvoiceTable = () => {
               initialPageSize={pageSize}
             />
             {loading && (
-              <div className="absolute inset-0 bg-white/70 flex items-center justify-center text-gray-600">
+              <div className="absolute inset-0 flex items-center justify-center text-gray-600 bg-white/70">
                 Refreshing...
               </div>
             )}

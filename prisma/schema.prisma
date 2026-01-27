@@ -177,7 +177,8 @@ model invoices {
   users       users    @relation(fields: [offtaker_id], references: [id])
   projects    projects @relation(fields: [project_id], references: [id])
   invoice_items invoice_items[]
-  payments payments[]
+  payments  payments[]
+  payouts   payouts[]
 }
 
 model invoice_items {
@@ -426,10 +427,12 @@ model projects {
   project_types        project_types          @relation(fields: [project_type_id], references: [id])
   states               states?                @relation(fields: [state_id], references: [id])
   project_status       project_status?        @relation(fields: [project_status_id], references: [id])
+  investor             users?                 @relation("ProjectInvestor", fields: [investor_id], references: [id])
   testimonials         testimonials[]
   project_data         project_data[]
   project_energy_data  project_energy_data[]
   project_energy_days_data project_energy_days_data[]
+  payouts              payouts[]
 }
 
 model roles {
@@ -519,6 +522,8 @@ model users {
   states               states?                @relation(fields: [state_id], references: [id])
   notifications        notifications[]        @relation("NotificationUser")
   created_notifications notifications[]       @relation("NotificationCreator")
+  payouts              payouts[]
+  investor_projects     projects[] @relation("ProjectInvestor")
 }
 
 model taxes {
@@ -565,4 +570,26 @@ model email_template {
   subject     String   @db.VarChar(255)
   created_by  Int?
   created_at  DateTime @default(now())
+}
+
+
+model payouts {
+  id              Int      @id @default(autoincrement())
+  payout_number   String    @db.VarChar(255)
+  payout_prefix   String    @db.VarChar(255)
+  invoice_id      Int
+  investor_id     Int
+  project_id      Int
+  invoice_amount  Float     @default(0)
+  investor_percent Float    @default(0)
+  payout_amount   Float     @default(0)
+
+  status          String   @default("pending") 
+  transaction_id  String? // bank txn id / stripe id
+  payout_date     DateTime?
+  created_at      DateTime @default(now())
+
+  invoices  invoices    @relation(fields: [invoice_id], references: [id])
+  users     users       @relation(fields: [investor_id], references: [id])
+  projects  projects    @relation(fields: [project_id], references: [id])
 }
