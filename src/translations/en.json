@@ -1265,6 +1265,8 @@
     "subtotal": "Subtotal",
     "tax": "Tax",
     "total": "Total",
+    "weshare_profite": "Weshare Profite",
+    "offtaker_profite": "Offtaker Profite",
     "createInvoice": "Create Invoice",
     "updateInvoice": "Update Invoice",
     "invoiceCreatedSuccessfully": "Invoice Created Successfully",
