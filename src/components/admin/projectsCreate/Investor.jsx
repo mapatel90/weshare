@@ -16,9 +16,11 @@ import {
   Box,
   IconButton,
   Typography,
+  Autocomplete,
 } from "@mui/material";
 import { Close as CloseIcon } from "@mui/icons-material";
 import { useAuth } from "@/contexts/AuthContext";
+import { ROLES } from "@/constants/roles";
 
 const Investor = ({ projectId, onInvestorMarked, handleSaveAction }) => {
   const { lang } = useLanguage();
@@ -37,18 +39,23 @@ const Investor = ({ projectId, onInvestorMarked, handleSaveAction }) => {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [notes, setNotes] = useState("");
   const [status, setStatus] = useState(1);
+  const [userOptions, setUserOptions] = useState([]);
+  const [selectedUser, setSelectedUser] = useState(null);
 
   useEffect(() => {
     fetchInvestors();
+    fetchUsers();
   }, [projectId]);
+
+  useEffect(() => {
+    if (showModal) fetchUsers();
+  }, [showModal]);
 
   const fetchInvestors = async () => {
     try {
-      // Call the router from invester.js which returns { success: true, data: [...], total, ... }
       const res = await apiGet('/api/investors');
       if (res?.success) {
         const all = Array.isArray(res.data) ? res.data : [];
-        // ensure only given projectId rows are shown (server may already filter, but keep client-side safeguard)
         const filtered = projectId ? all.filter(item => Number(item.project_id) === Number(projectId)) : all;
         setInvestors(filtered);
       } else {
@@ -57,6 +64,17 @@ const Investor = ({ projectId, onInvestorMarked, handleSaveAction }) => {
     } catch (e) {
       // noop
       setInvestors([]);
+    }
+  };
+
+  const fetchUsers = async (search = "") => {
+    try {
+      const res = await apiGet(`/api/users?search=${search}&limit=10&role=${ROLES.INVESTOR}`);
+      if (res?.success) {
+        setUserOptions(res.data?.users || []);
+      }
+    } catch (e) {
+      console.log(e);
     }
   };
 
@@ -69,6 +87,7 @@ const Investor = ({ projectId, onInvestorMarked, handleSaveAction }) => {
     setNotes("");
     setStatus(1);
     setShowModal(true);
+    setSelectedUser(null);
   };
 
   const openEdit = (row) => {
@@ -89,20 +108,33 @@ const Investor = ({ projectId, onInvestorMarked, handleSaveAction }) => {
 
   const handleSave = async (e) => {
     e.preventDefault();
-    if (!fullName || !email) {
-      showErrorToast(lang("investor.nameEmailRequired", "Name and email are required"));
+    if (!fullName) {
+      showErrorToast(lang("investor.full_name_required", "Full Name are required"));
       return;
     }
+
+    if (!email) {
+      showErrorToast(lang("investor.email_required", "Email are required"));
+      return;
+    }
+
+    if (!phoneNumber) {
+      showErrorToast(lang("investor.phone_number_required", "Phone number are required"));
+      return;
+    }
+
     if (!validateEmail(email)) {
       showErrorToast(lang("investor.invalidEmail", "Invalid email"));
       return;
     }
 
+
     setLoading(true);
     try {
       let res;
       const payload = {
-        projectId: projectId ?? null,
+        projectId: Number(projectId) ?? null,
+        userId: selectedUser?.id || null,
         fullName,
         email,
         phoneNumber: phoneNumber || null,
@@ -124,6 +156,7 @@ const Investor = ({ projectId, onInvestorMarked, handleSaveAction }) => {
       if (res?.success) {
         closeModal();
         fetchInvestors();
+        fetchUsers();
       }
     } catch (err) {
       showErrorToast(err.message || lang("common.error", "Error"));
@@ -184,6 +217,7 @@ const Investor = ({ projectId, onInvestorMarked, handleSaveAction }) => {
       showErrorToast(err.message || lang("common.error", "Error"));
     }
   };
+
 
   const columns = [
     {
@@ -277,12 +311,12 @@ const Investor = ({ projectId, onInvestorMarked, handleSaveAction }) => {
 
   return (
     <div className="investor-management">
-      {/* <div className="d-flex justify-content-between align-items-center mb-3">
+      <div className="d-flex justify-content-between align-items-center mb-3">
         <h6 className="fw-bold mb-0">{lang("investor.investors", "Investors")}</h6>
         <Button variant="contained" onClick={openAdd} className="common-grey-color">
           + {lang("investor.addInvestor", "Add Investor")}
         </Button>
-      </div> */}
+      </div>
 
       <Dialog open={showModal} onClose={closeModal} maxWidth="sm" fullWidth>
         <form onSubmit={handleSave}>
@@ -297,7 +331,34 @@ const Investor = ({ projectId, onInvestorMarked, handleSaveAction }) => {
 
           <DialogContent>
             <Box sx={{ display: "flex", flexDirection: "column", gap: 2, pt: 1 }}>
-              <TextField label={lang("investor.fullName", "Full Name")} value={fullName} onChange={e => setFullName(e.target.value)} required fullWidth />
+              <Autocomplete
+                options={userOptions}
+                getOptionLabel={(option) =>
+                  `${option.full_name || ""} (${option.email || ""})`
+                }
+                value={selectedUser}
+                onChange={(event, newValue) => {
+                  setSelectedUser(newValue);
+
+                  if (newValue) {
+                    setFullName(newValue.full_name || "");
+                    setEmail(newValue.email || "");
+                    setPhoneNumber(newValue.phone_number || "");
+                  }
+                }}
+                onInputChange={(e, value) => {
+                  fetchUsers(value);
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label={lang("investor.selectFromUsers", "Select From Users")}
+                    fullWidth
+                  />
+                )}
+              />
+
+              <TextField label={lang("investor.fullName", "Full Names")} value={fullName} onChange={e => setFullName(e.target.value)} required fullWidth />
               <TextField label={lang("investor.email", "Email")} value={email} onChange={e => setEmail(e.target.value)} required fullWidth />
               <TextField label={lang("investor.phone", "Phone Number")} value={phoneNumber} onChange={e => setPhoneNumber(e.target.value)} fullWidth />
               <TextField label={lang("investor.notes", "Notes")} value={notes} onChange={e => setNotes(e.target.value)} fullWidth multiline minRows={3} />

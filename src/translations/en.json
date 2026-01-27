@@ -1521,7 +1521,10 @@
     "deleted": "Investor Deleted Successfully",
     "updated": "Investor Updated Successfully",
     "editInvestor": "Edit Investor",
-    "noInvestorsFound": "No investors found"
+    "noInvestorsFound": "No investors found",
+    "full_name_required": "Full name is required",
+    "email_required": "Email is required",
+    "phone_number_required": "Phone number is required"
   },
   "contract": {
     "contract_summary": "Contract Summary",
