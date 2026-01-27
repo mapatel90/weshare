@@ -10,6 +10,7 @@ import dayjs from "dayjs";
 import { createNotification } from "../utils/notifications.js";
 import { getUserLanguage, t } from '../utils/i18n.js';
 import { getUserFullName } from "../utils/common.js";
+import { sendEmailUsingTemplate } from "../utils/email.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -306,6 +307,34 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
         moduleId: project?.id,
         actionUrl: `projects/view/${project.id}`,
         created_by: parseInt(created_by),
+      });
+    }
+
+    // Send email notification for new project creation
+    if (project && project.offtaker?.email) {
+      const templateData = {
+        user_name: project.offtaker.full_name || 'User',
+        user_email: project.offtaker.email || '',
+        user_phone: project.offtaker.phone_number || '',
+        project_name: project.project_name || '',
+        project_code: project.product_code || '',
+        project_description: project.project_description || '',
+        company_name: 'WeShare Energy',
+        address_1: project.address_1 || '',
+        zipcode: project.zipcode || '',
+        current_date: new Date().toLocaleDateString(),
+        site_url: process.env.SITE_URL || 'https://weshare.com',
+      };
+
+      sendEmailUsingTemplate({
+        to: project.offtaker.email,
+        templateSlug: 'project-mail',
+        templateData,
+        language: 'vi'
+      }).then(() => {
+        console.log('Project creation email sent successfully to:', project.offtaker.email);
+      }).catch((err) => {
+        console.error('Failed to send project creation email:', err);
       });
     }
 

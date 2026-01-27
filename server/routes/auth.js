@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import prisma from '../utils/prisma.js';
 import redis from '../utils/redis.js';
-import { sendPasswordResetEmail, sendPasswordResetConfirmationEmail, sendEmailVerificationEmail } from '../utils/email.js';
+import { sendPasswordResetEmail, sendPasswordResetConfirmationEmail, sendEmailVerificationEmail, sendEmailUsingTemplate } from '../utils/email.js';
 
 const router = express.Router();
 
@@ -135,6 +135,32 @@ router.post('/register', async (req, res) => {
       })
       .catch((error) => {
         console.error('❌ Failed to send verification email:', error.message);
+      });
+
+    // Send welcome email using template (don't block registration if email fails)
+    const templateData = {
+      user_name: newUser.full_name,
+      user_email: newUser.email,
+      site_url: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
+      company_name: 'WeShare Energy',
+      current_date: new Date().toLocaleDateString(),
+    };
+
+    sendEmailUsingTemplate({
+      to: newUser.email,
+      templateSlug: 'test_123',
+      templateData,
+      language: 'en'
+    })
+      .then((result) => {
+        if (result.success) {
+          console.log(`✅ Welcome email sent to ${newUser.email}`);
+        } else {
+          console.warn(`⚠️ Could not send welcome email: ${result.error}`);
+        }
+      })
+      .catch((error) => {
+        console.error('❌ Failed to send welcome email:', error.message);
       });
 
     res.status(201).json({
