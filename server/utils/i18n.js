@@ -16,7 +16,7 @@ export const t = (lang, key, vars = {}) => {
 
 
 export const getUserLanguage = async (userId) => {
-  if (!userId) return DEFAULT_LANGUAGE;
+  if (!userId) return process.env.DEFAULT_LANGUAGE;
 
   try {
     const user = await prisma.users.findUnique({
@@ -31,6 +31,6 @@ export const getUserLanguage = async (userId) => {
     return user?.language || "en";
   } catch (error) {
     console.error('getUserLanguage error:', error);
-    return DEFAULT_LANGUAGE;
+    return process.env.DEFAULT_LANGUAGE;
   }
 };
