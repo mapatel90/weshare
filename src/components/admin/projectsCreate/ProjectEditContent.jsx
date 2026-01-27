@@ -13,6 +13,7 @@ import { generateSlug, checkProjectNameExists } from '@/utils/projectUtils'
 import { getFullImageUrl } from '@/utils/common'
 import ProjectForm from './ProjectForm'
 import MeterView from '../meter/MeterView'
+import DocumentTab from './document/DocumentTab'
 
 const MAX_PROJECT_IMAGES = 10
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024
@@ -73,7 +74,8 @@ const ProjectEditContent = ({ projectId }) => {
         { name: lang('meter.meter', 'Meter'), key: 'meter' },
         { name: lang('inverter.inverter', 'Inverter'), key: 'inverter' },
         { name: lang('home.exchangeHub.investor', 'Investor'), key: 'investor' },
-        { name: lang('contract.contract', 'Contract'), key: 'contract' }
+        { name: lang('contract.contract', 'Contract'), key: 'contract' },
+        { name: lang('contract.document', 'Document'), key: 'document' }
     ];
     const [activeTab, setActiveTab] = useState('info');
 
@@ -590,10 +592,13 @@ const ProjectEditContent = ({ projectId }) => {
                             <Investor projectId={projectId} onInvestorMarked={handleInvestorMarked} handleSaveAction={handleSaveAction} />
                         )}
                         {activeTab === 'contract' && (
-                            <Contract projectId={projectId} handleCloseForm={handleCloseForm} />
+                            <Contract projectId={projectId} handleCloseForm={handleCloseForm} handleSaveAction={handleSaveAction} />
                         )}
                         {activeTab === 'meter' && (
                             <MeterView projectId={projectId} handleSaveAction={handleSaveAction} />
+                        )}
+                        {activeTab === 'document' && (
+                            <DocumentTab projectId={projectId} handleSaveAction={handleSaveAction} handleCloseForm={handleCloseForm} />
                         )}
                     </div>
                 </div>

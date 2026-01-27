@@ -1028,7 +1028,9 @@
     "projectDescriptionPlaceholder": "Enter project description",
     "optionalProjectImageUpload": "Optional project image upload",
     "clear": "Clear",
-    "apply": "Apply"
+    "apply": "Apply",
+    "documents": "Documents",
+    "projectdocumentlist": "Project Document List"
   },
   "settings": {
     "title": "Settings",
@@ -1697,5 +1699,21 @@
     "upcoming": "Upcoming",
     "running": "Running",
     "pending": "Pending"
+  },
+  "project_documents": {
+    "title": "Title",
+    "amount": "Amount",
+    "notes": "Notes",
+    "addDocument": "Add Document",
+    "editDocument": "Edit Document",
+    "documentName": "Document Name",
+    "documentNamePlaceholder": "Enter document name",
+    "documentFile": "Document File",
+    "uploadFile": "Upload File",
+    "selectFile": "Select File",
+    "documentCreatedSuccessfully": "Document created successfully",
+    "documentUpdatedSuccessfully": "Document updated successfully",
+    "documentDeletedSuccessfully": "Document deleted successfully",
+    "noDocumentsFound": "No documents found for this project"
   }
 }
