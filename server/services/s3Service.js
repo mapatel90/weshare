@@ -162,16 +162,12 @@ export const uploadToS3 = async (
     const folder = options.folder || config.folderPath || 'uploads';
     const fileKey = `${folder}/${sanitizedName}_${timestamp}${ext}`;
 
-    // Determine ACL based on file visibility
-    const ACL = config.fileVisibility === 'public' ? 'public-read' : 'private';
-
-    // Upload to S3
+    // Upload to S3 (ACL removed - bucket policy controls access)
     const uploadCommand = new PutObjectCommand({
       Bucket: config.bucketName,
       Key: fileKey,
       Body: fileBuffer,
       ContentType: mimeType,
-      ACL,
       Metadata: options.metadata || {},
     });
 
