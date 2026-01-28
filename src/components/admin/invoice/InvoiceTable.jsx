@@ -16,7 +16,6 @@ const InvoiceTable = () => {
   const { lang } = useLanguage();
   const router = useRouter();
   const [invoicesData, setInvoicesData] = useState([]);
-  const [taxesData, setTaxesData] = useState([]);
   const priceWithCurrency = usePriceWithCurrency();
 
   // Filter and pagination states
@@ -95,19 +94,6 @@ const InvoiceTable = () => {
     }
   };
 
-  const fetchTaxes = async () => {
-    try {
-      const response = await apiGet("/api/settings/taxes");
-      if (response?.success && response?.data) {
-        setTaxesData(response.data);
-      } else {
-        setTaxesData([]);
-      }
-    } catch (e) {
-      setTaxesData([]);
-    }
-  };
-
   const fetchProjects = async () => {
     try {
       const response = await apiGet("/api/projects?status=1&limit=1000");
@@ -143,7 +129,6 @@ const InvoiceTable = () => {
 
   useEffect(() => {
     fetchInvoices();
-    fetchTaxes();
     fetchProjects();
     fetchOfftakers();
     const onSaved = () => fetchInvoices();
@@ -242,11 +227,13 @@ const InvoiceTable = () => {
     {
       id: "tax_label",
       accessorFn: (row) => {
-        const taxId = row?.tax_id;
-        if (!taxId) return "";
-        const tax = taxesData.find((t) => t.id === taxId);
-        if (!tax) return "";
-        return `${tax.name || ""} (${tax.value || 0}%)`;
+        const taxName = row?.taxes?.name;
+        const taxValue = row?.taxes?.value;
+
+        if (!taxName) return "";
+        if (!taxValue) return "";
+        
+        return `${taxName || ""} (${taxValue || 0}%)`;
       },
       header: () => lang("invoice.tax"),
       cell: ({ row }) => row.getValue("tax_label") || "-",
