@@ -1493,7 +1493,7 @@ router.post('/electricity/overview-chart', async (req, res) => {
 
 router.post('/dropdown/project', authenticateToken, async (req, res) => {
   try {
-    const { offtaker_id } = req.body;
+    const { offtaker_id, project_status_id } = req.body;
 
     let where = {
       is_deleted: 0,
@@ -1501,6 +1501,10 @@ router.post('/dropdown/project', authenticateToken, async (req, res) => {
 
     if (offtaker_id) {
       where.offtaker_id = offtaker_id;
+    }
+
+    if (project_status_id) {
+      where.project_status_id = parseInt(project_status_id);
     }
 
     const projects = await prisma.projects.findMany({

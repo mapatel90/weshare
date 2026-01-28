@@ -142,26 +142,48 @@ router.put("/:id", authenticateToken, async (req, res) => {
   }
 });
 
-// Soft delete
-router.delete("/:id", authenticateToken, async (req, res) => {
+
+router.delete("/:investorUserId/:projectId", authenticateToken, async (req, res) => {
   try {
-    const id = Number(req.params.id);
+    const investor_user_id = Number(req.params.investorUserId);
+    const projectId = Number(req.params.projectId);
 
-    await prisma.projects.updateMany({
-      where: { investor_id: id },
-      data: { investor_id: null },
-    })
-
-    await prisma.interested_investors.update({
-      where: { id },
-      data: { is_deleted: 1 },
+    // Get project current assigned investor
+    const project = await prisma.projects.findUnique({
+      where: { id: projectId },
+      select: { investor_id: true },
     });
-    return res.json({ success: true, message: "Deleted (soft)" });
+
+    // Only remove from project IF this investor is the marked one
+    if (project?.investor_id === investor_user_id) {
+      await prisma.projects.update({
+        where: { id: projectId },
+        data: { investor_id: null },
+      });
+    }
+
+    // Find interested investor record
+    const investorRecord = await prisma.interested_investors.findFirst({
+      where: { user_id: investor_user_id, project_id: projectId },
+    });
+
+    if (!investorRecord) {
+      return res.status(400).json({ success: false, message: "Investor not found" });
+    }
+
+    // HARD DELETE only that record
+    await prisma.interested_investors.delete({
+      where: { id: investorRecord.id },
+    });
+
+    return res.json({ success: true, message: "Investor deleted successfully" });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ success: false, message: error.message });
   }
 });
+
+
 
 // Mark investor for project - updates project.investor_id
 router.post("/:id/mark-investor", authenticateToken, async (req, res) => {
@@ -192,7 +214,7 @@ router.post("/:id/mark-investor", authenticateToken, async (req, res) => {
     // Update project with investor_id
     const updated = await prisma.projects.update({
       where: { id: Number(projectId) },
-      data: { investor_id: investorId },
+      data: { investor_id: investor?.user_id },
     });
 
     // Create notification

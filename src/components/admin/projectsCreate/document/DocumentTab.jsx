@@ -191,7 +191,12 @@ const DocumentTab = ({ projectId, handleCloseForm }) => {
             cell: (info) => {
                 const row = info.row.original;
                 return row.document ? (
-                    <a href={row.document} target="_blank" rel="noopener noreferrer">
+                    <a
+                        href={row.document.replace('/public', '')}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        download
+                    >
                         {lang("project_documents.download", "Download")}
                     </a>
                 ) : "-";
@@ -295,7 +300,10 @@ const DocumentTab = ({ projectId, handleCloseForm }) => {
                                     const file = (e.target.files && e.target.files[0]) || null;
                                     setDocumentFile(file);
                                     if (!file) setDocumentUpload("");
+                                    setFileError("");
                                 }}
+                                error={!!fileError}
+                                helperText={fileError}
                             />
                         </Box>
                     </DialogContent>
