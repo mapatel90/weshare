@@ -160,6 +160,9 @@
     "welcomeBack": "Chào mừng bạn trở lại Đăng nhập vào tài khoản quản trị của bạn"
   },
   "common": {
+    "reset": "Đặt lại",
+    "editEmailTemplate": "Chỉnh sửa mẫu email",
+    "addEmailTemplate": "Thêm mẫu email",
     "pendingVerification": "Đang chờ xác minh",
     "rate": "Tỷ lệ",
     "savings": "Tiết kiệm",
@@ -282,6 +285,7 @@
     "reasonForRejection": "Lý do từ chối"
   },
   "messages": {
+    "cannotUndoDelete": "Bạn sẽ không thể hoàn tác điều này!",
     "success": "Thao tác thành công",
     "error": "Đã xảy ra lỗi",
     "warning": "Cảnh báo",
@@ -865,6 +869,12 @@
     "required": "Bắt buộc"
   },
   "email": {
+    "mergeFields": "Hợp nhất các trường",
+    "saveTemplate": "Lưu mẫu",
+    "content_vi": "Nội dung (tiếng Việt)",
+    "content": "Nội dung (tiếng Anh)",
+    "subjectPlaceholder": "Nhập chủ đề email",
+    "edittemplate": "Chỉnh sửa mẫu",
     "createtemplate": "Tạo mẫu",
     "addTemplate": "Thêm mẫu",
     "templates": "Mẫu Email",
@@ -1252,6 +1262,12 @@
     "searchProjectOrInvoice": "Tìm kiếm dự án hoặc hóa đơn..."
   },
   "finance": {
+    "payoutTitle": "Cài đặt thanh toán",
+    "payoutSubtitle": "Cấu hình phương thức thanh toán và chi tiết của bạn.",
+    "payoutNumberPrefix": "Tiền tố số thanh toán",
+    "payoutNumberPrefixInfo": "Tiền tố cho số hiệu thanh toán (ví dụ: ABC sẽ tạo ra PAYOUT-ABC-001)",
+    "next_payout_number": "Số thanh toán tiếp theo",
+    "next_payout_numberInfo": "Số bắt đầu cho chuỗi thanh toán",
     "title": "Tài chính chung",
     "subtitle": "Cài đặt tài chính chung",
     "decimalSeparator": "Dấu phân cách thập phân",

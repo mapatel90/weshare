@@ -75,6 +75,9 @@ const SettingsFinanceForm = () => {
     invoice_due_after_days: "",
     invoice_predefined_client_note: "",
     invoice_predefined_terms_conditions: "",
+    // Payout Settings
+    payout_number_prefix: "",
+    next_payout_number: "",
   })
 
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -106,6 +109,9 @@ const SettingsFinanceForm = () => {
       // Remove INV- prefix if it exists when loading from settings
       const cleanedInvoicePrefix = invoicePrefix.startsWith("INV-") ? invoicePrefix.substring(4) : invoicePrefix
       
+      const payoutPrefix = getSetting("payout_number_prefix", "")
+      const cleanedPayoutPrefix = payoutPrefix.startsWith("PAYOUT-") ? payoutPrefix.substring(7) : payoutPrefix
+      
       const loaded = {
         finance_currency: getSetting("finance_currency", ""),
         finance_decimal_separator: getSetting("finance_decimal_separator", "dot"),
@@ -116,7 +122,9 @@ const SettingsFinanceForm = () => {
         next_invoice_number: getSetting("next_invoice_number", ""),
         invoice_due_after_days: getSetting("invoice_due_after_days", ""),
         invoice_predefined_client_note: getSetting("invoice_predefined_client_note", ""),
-        invoice_predefined_terms_conditions: getSetting("invoice_predefined_terms_conditions", "")
+        invoice_predefined_terms_conditions: getSetting("invoice_predefined_terms_conditions", ""),
+        payout_number_prefix: cleanedPayoutPrefix,
+        next_payout_number: getSetting("next_payout_number", "")
       }
       setFormData(loaded)
 
@@ -265,12 +273,13 @@ const SettingsFinanceForm = () => {
       }
 
       // Include uploaded QR code path in form data
-      // Prepend INV- to invoice_number_prefix when sending to API
+      // Prepend INV- to invoice_number_prefix and PAYOUT- to payout_number_prefix when sending to API
       const settingsToUpdate = {
         ...formData,
         finance_qr_code: newQRCodePath,
         finance_currency: formData.finance_currency || '',
         invoice_number_prefix: formData.invoice_number_prefix ? `INV-${formData.invoice_number_prefix}` : '',
+        payout_number_prefix: formData.payout_number_prefix ? `PAYOUT-${formData.payout_number_prefix}` : '',
       }
 
       await updateSettings(settingsToUpdate)
@@ -530,6 +539,35 @@ const SettingsFinanceForm = () => {
                   onChange={(e) => handleTextareaChange('invoice_predefined_terms_conditions')({ target: { value: e.target.value } })}
                 />
                 <small className="form-text text-muted">{lang("finance.predefinedTermsConditionsInfo")}</small>
+              </div>
+
+              <hr className="my-5" />
+              <div className="mb-5">
+                <h4 className="fw-bold">{lang("finance.payoutTitle") || "Payout Settings"}</h4>
+                <div className="fs-12 text-muted">{lang("finance.payoutSubtitle") || "Configure payout number settings"}</div>
+              </div>
+              <div className="mb-5">
+                <TextField
+                  label={lang("finance.payoutNumberPrefix") || "Payout Number Prefix"}
+                  fullWidth
+                  placeholder={lang("finance.payoutNumberPrefix") || "Payout Number Prefix"}
+                  value={formData.payout_number_prefix}
+                  onChange={(e) => handleInputChange('payout_number_prefix', e.target.value)}
+                  InputProps={{ startAdornment: <InputAdornment position="start">PAYOUT-</InputAdornment> }}
+                />
+                <small className="form-text text-muted">{lang("finance.payoutNumberPrefixInfo") || "Prefix for payout numbers (e.g., ABC will generate PAYOUT-ABC-001)"}</small>
+              </div>
+              <div className="mb-5">
+                <FormControl fullWidth>
+                  <TextField
+                    label={lang("finance.next_payout_number") || "Next Payout Number"}
+                    fullWidth
+                    placeholder={lang("finance.next_payout_number") || "Next Payout Number"}
+                    value={formData.next_payout_number}
+                    onChange={(e) => handleInputChange('next_payout_number', e.target.value)}
+                  />
+                </FormControl>
+                <small className="form-text text-muted">{lang("finance.next_payout_numberInfo") || "Starting number for payout sequence"}</small>
               </div>
             </div>
           </div>

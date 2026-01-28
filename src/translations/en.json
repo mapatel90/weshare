@@ -172,6 +172,9 @@
     "welcomeBack": "Welcome back Log in to your admin account"
   },
   "common": {
+    "reset": "Reset",
+    "editEmailTemplate": "Edit Email Template",
+    "addEmailTemplate": "Add Email Template",
     "pendingVerification": "Pending Verification",
     "rate": "Rate",
     "savings": "Savings",
@@ -298,6 +301,7 @@
     "reasonForRejection": "Reason for rejection"
   },
   "messages": {
+    "cannotUndoDelete": "You won't be able to revert this!",
     "success": "Operation completed successfully",
     "error": "An error occurred",
     "warning": "Warning",
@@ -892,6 +896,12 @@
     "required": "Required"
   },
   "email": {
+    "mergeFields": "Merge Fields",
+    "saveTemplate": "Save Template",
+    "content_vi": "Content (Vietnamese)",
+    "content": "Content (English)",
+    "subjectPlaceholder": "Enter email subject",
+    "edittemplate": "Edit Template",
     "createtemplate": "Create Template",
     "addTemplate": "Add Template",
     "templates": "Email Templates",
@@ -1302,6 +1312,12 @@
     "searchProjectOrInvoice": "Search project or invoice..."
   },
   "finance": {
+    "payoutTitle": "Payout Settings",
+    "payoutSubtitle": "Configure payout number settings",
+    "payoutNumberPrefix": "Payout Number Prefix",
+    "payoutNumberPrefixInfo": "Prefix for payout numbers (e.g., ABC will generate PAYOUT-ABC-001)",
+    "next_payout_number": "Next Payout Number",
+    "next_payout_numberInfo": "Starting number for payout sequence",
     "title": "Finance General",
     "subtitle": "Financial general settings",
     "currency": "Currency",

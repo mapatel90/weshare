@@ -21,15 +21,19 @@ import { apiGet, apiPost, apiPut } from "@/lib/api";
 import { showErrorToast, showSuccessToast } from "@/utils/topTost";
 import { useAuth } from "@/contexts/AuthContext";
 import { EMAIL_PLACEHOLDERS } from "@/utils/emailPlaceholders";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { useRouter } from "next/navigation";
 
-const SettingsEmailTemplate = () => {
+const SettingsEmailTemplate = ({ Id }) => {
   const { user } = useAuth();
+  const router = useRouter();
   const [loading, setLoading] = useState(false); // saving state
   const [fetching, setFetching] = useState(false); // loading existing template
   const [isEdit, setIsEdit] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [error, setError] = useState("");
   const [focusedField, setFocusedField] = useState(null); // track which field has focus
+  const { lang } = useLanguage();
 
   const subjectInputRef = useRef(null);
   const editorEnRef = useRef(null);
@@ -97,10 +101,10 @@ const SettingsEmailTemplate = () => {
       const slugified = value
         .toLowerCase()
         .trim()
-        .replace(/[^a-z0-9\s-]/g, "")
-        .replace(/\s+/g, "-")
-        .replace(/-+/g, "-")
-        .replace(/^-|-$/g, "");
+        .replace(/[^a-z0-9\s_]/g, "")
+        .replace(/\s+/g, "_")
+        .replace(/_+/g, "_")
+        .replace(/^_|_$/g, "");
 
       setFormData((prev) => ({
         ...prev,
@@ -114,10 +118,10 @@ const SettingsEmailTemplate = () => {
       const slugified = value
         .toLowerCase()
         .trim()
-        .replace(/[^a-z0-9\s-]/g, "")
-        .replace(/\s+/g, "-")
-        .replace(/-+/g, "-")
-        .replace(/^-|-$/g, "");
+        .replace(/[^a-z0-9\s_]/g, "")
+        .replace(/\s+/g, "_")
+        .replace(/_+/g, "_")
+        .replace(/^_|_$/g, "");
 
       setFormData((prev) => ({
         ...prev,
@@ -208,22 +212,23 @@ const SettingsEmailTemplate = () => {
         created_by: user?.id || null,
       };
 
-      const res = isEdit && editingId
-        ? await apiPut(`/api/email-templates/${editingId}`, payload)
-        : await apiPost("/api/email-templates", payload);
+      const res =
+        isEdit && editingId
+          ? await apiPut(`/api/email-templates/${editingId}`, payload)
+          : await apiPost("/api/email-templates", payload);
 
       if (!res?.success) {
         throw new Error(res?.message || "Failed to save template");
       }
 
       showSuccessToast(
-        isEdit ? "Email template updated" : "Email template created"
+        isEdit ? "Email template updated" : "Email template created",
       );
 
       if (typeof window !== "undefined") {
         window.dispatchEvent(new CustomEvent("emailTemplate:saved"));
       }
-handleReset();
+      router.push("/admin/email_template/list");
     } catch (err) {
       console.error(err);
       setError(err?.message || "Failed to save template");
@@ -233,6 +238,15 @@ handleReset();
     }
   };
 
+  // Load template when Id prop is provided (from route params)
+  useEffect(() => {
+    if (Id) {
+      setIsEdit(true);
+      setEditingId(Id);
+      fetchTemplate(Id);
+    }
+  }, [Id]);
+
   useEffect(() => {
     const handleExternalOpen = (event) => {
       handleLoadTemplate(event?.detail?.item || {});
@@ -240,21 +254,18 @@ handleReset();
 
     window.addEventListener("emailTemplate:open-edit", handleExternalOpen);
     return () => {
-      window.removeEventListener(
-        "emailTemplate:open-edit",
-        handleExternalOpen
-      );
+      window.removeEventListener("emailTemplate:open-edit", handleExternalOpen);
     };
   }, []);
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box sx={{ p: 3, backgroundColor: "#fff" }}>
       <Grid container spacing={3}>
         {/* Left Side - Form */}
         <Grid item xs={12} md={8}>
           <Paper elevation={2} sx={{ p: 3 }}>
             <Typography variant="h5" gutterBottom>
-              {isEdit ? "Edit Email Template" : "Add Email Template"}
+              {isEdit ? lang("common.editEmailTemplate") : lang("common.addEmailTemplate")}
             </Typography>
             <Divider sx={{ mb: 3 }} />
 
@@ -267,7 +278,7 @@ handleReset();
 
               <Grid item xs={12} sm={6}>
                 <TextField
-                  label="Title"
+                  label={lang("common.title") || "Title"}
                   value={formData.title}
                   onChange={handleChange("title")}
                   fullWidth
@@ -278,7 +289,7 @@ handleReset();
 
               <Grid item xs={12} sm={6}>
                 <TextField
-                  label="Slug"
+                  label={lang("news.slug") || "Slug"}
                   value={formData.slug}
                   onChange={handleChange("slug")}
                   fullWidth
@@ -289,7 +300,7 @@ handleReset();
 
               <Grid item xs={12}>
                 <Typography variant="body2" className="mb-1 fw-semibold">
-                  Subject <span style={{ color: "red" }}>*</span>
+                  {lang("contactUs.subject") || "Subject"} <span style={{ color: "red" }}>*</span>
                 </Typography>
                 <TextField
                   ref={subjectInputRef}
@@ -298,14 +309,14 @@ handleReset();
                   onFocus={() => setFocusedField("subject")}
                   fullWidth
                   disabled={loading || fetching}
-                  placeholder="Enter email subject"
+                  placeholder={lang("email.subjectPlaceholder") || "Enter email subject"}
                 />
               </Grid>
 
               {/* Content EN */}
               <Grid item xs={12}>
                 <Typography variant="body2" className="mb-2 fw-semibold">
-                  Content (English)
+                  {lang("email.content") || "Content (English)"}
                 </Typography>
                 <CKEditor
                   editor={ClassicEditor}
@@ -327,7 +338,7 @@ handleReset();
               {/* Content VI */}
               <Grid item xs={12}>
                 <Typography variant="body2" className="mb-2 fw-semibold">
-                  Content (Vietnamese)
+                  {lang("email.content_vi") || "Content (Vietnamese)"}
                 </Typography>
                 <CKEditor
                   editor={ClassicEditor}
@@ -347,9 +358,15 @@ handleReset();
               </Grid>
 
               <Grid item xs={12}>
-                <Box sx={{ display: "flex", gap: 2, justifyContent: "flex-end" }}>
-                  <Button onClick={handleReset} disabled={loading} variant="outlined">
-                    Reset
+                <Box
+                  sx={{ display: "flex", gap: 2, justifyContent: "flex-end" }}
+                >
+                  <Button
+                    onClick={handleReset}
+                    disabled={loading}
+                    variant="outlined"
+                  >
+                    {lang("common.reset") || "Reset"}
                   </Button>
                   <Button
                     variant="contained"
@@ -357,7 +374,7 @@ handleReset();
                     disabled={loading}
                     startIcon={loading ? <CircularProgress size={18} /> : null}
                   >
-                    {loading ? "Saving..." : "Save Template"}
+                    {loading ? "Saving..." : (lang("email.saveTemplate") || "Save Template")}
                   </Button>
                 </Box>
               </Grid>
@@ -368,13 +385,12 @@ handleReset();
         {/* Right Side - Merge Fields */}
         <Grid item xs={12} md={4}>
           <Card elevation={2}>
-            <CardHeader 
-              title="Merge Fields" 
+            <CardHeader
+              title={lang("email.mergeFields") || "Merge Fields"}
               titleTypographyProps={{ variant: "h6" }}
             />
             <Divider />
             <CardContent>
-              
               <Grid container spacing={1}>
                 {EMAIL_PLACEHOLDERS.map((placeholder) => (
                   <Grid item xs={6} sm={6} key={placeholder.key}>
@@ -395,11 +411,13 @@ handleReset();
                         },
                       }}
                     >
-                      <Typography variant="caption" fontWeight="bold" color="primary" sx={{ display: "block", mb: 0.5 }}>
+                      <Typography
+                        variant="caption"
+                        fontWeight="bold"
+                        color="primary"
+                        sx={{ display: "block", mb: 0.5 }}
+                      >
                         {placeholder.key}
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary" sx={{ display: "block", fontSize: "0.65rem" }}>
-                        {placeholder.description}
                       </Typography>
                     </Box>
                   </Grid>
