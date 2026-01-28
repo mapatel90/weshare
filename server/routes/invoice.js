@@ -218,6 +218,12 @@ router.get("/", authenticateToken, async (req, res) => {
               full_name: true,
             },
           },
+          taxes : {
+            select : {
+              name : true,
+              value : true,
+            }
+          }
         },
       }),
       prisma.invoices.count({ where }),
