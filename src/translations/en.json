@@ -1693,6 +1693,7 @@
     "billings": "Billings"
   },
   "notification_msg": {
+    "payment_title": "Payment Alert",
     "project_created_title": "Project Create",
     "project_created": "New project \"{{project_name}}\" created by \"{{created_by}}\".",
     "invoice_created": "New invoice \"{{invoice_number}}\" created by \"{{created_by}}\".",
@@ -1706,7 +1707,11 @@
     "project_status_title": "Project \"{{project_name}}\" status updated",
     "project_status_message": "Project \"{{project_name}}\" status has been updated to \"{{status_name}}\".",
     "investor_marked_title": "Investor Assigned",
-    "investor_marked_message": "You have been assigned as an investor for the project \"{{project_name}}\" by \"{{assigned_by}}\"."
+    "investor_marked_message": "You have been assigned as an investor for the project \"{{project_name}}\" by \"{{assigned_by}}\".",
+    "payment_approved":"Great news! Your payment of {{amount}} for invoice {{invoice_number}} has been successfully processed.",
+    "invoice_title": "New Invoice Created",
+    "invoice_update_title": "Invoice Updated",
+    "invoice_updated": "The invoice \"{{invoice_number}}\" has been updated by \"{{created_by}}\"."
   },
   "notification": {
     "title": "Notifications",

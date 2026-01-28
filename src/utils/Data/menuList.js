@@ -139,13 +139,6 @@ export const menuList = [
   },
   {
     id: 12,
-    name: "Email Templates",
-    path: "/admin/email_template/list",
-    icon: "feather-mail",
-    dropdownMenu: false,
-  },
-  {
-    id: 13,
     name: "Reports",
     path: "#",
     icon: "feather-file-text",
@@ -183,7 +176,7 @@ export const menuList = [
     ],
   },
   {
-    id: 14,
+    id: 13,
     name: "settings",
     path: "#",
     icon: "feather-settings",
@@ -218,6 +211,12 @@ export const menuList = [
         path: "/admin/settings/smtp",
         subdropdownMenu: false,
       },
+      {
+        id: 4,
+        name: "Email Templates",
+        path: "/admin/email_template/list",
+        subdropdownMenu: false,
+      },
       // {
       //     id: 6,
       //     name: "Tasks",
@@ -237,7 +236,7 @@ export const menuList = [
       //     subdropdownMenu: false
       // },
       {
-        id: 4,
+        id: 5,
         name: "Finance",
         path: "/admin/settings/finance",
         subdropdownMenu: false,
@@ -267,7 +266,7 @@ export const menuList = [
       //   subdropdownMenu: false,
       // },
       {
-        id: 14,
+        id: 6,
         name: "Miscellaneous",
         path: "/admin/settings/miscellaneous",
         subdropdownMenu: false,
