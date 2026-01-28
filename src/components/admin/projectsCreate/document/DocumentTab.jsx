@@ -293,9 +293,12 @@ const DocumentTab = ({ projectId, handleCloseForm }) => {
                                 InputLabelProps={{ shrink: true }}
                                 onChange={(e) => {
                                     const file = (e.target.files && e.target.files[0]) || null;
-                                    setDocumentFile(file);
-                                    if (!file) setDocumentUpload("");
+                                    setDocumentFile(file); 
+                                    if (!file) setDocumentUpload(""); 
+                                    setFileError(""); 
                                 }}
+                                error={!!fileError}
+                                helperText={fileError}
                             />
                         </Box>
                     </DialogContent>

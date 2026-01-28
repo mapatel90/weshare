@@ -41,6 +41,12 @@ const Investor = ({ projectId, onInvestorMarked, handleSaveAction }) => {
   const [status, setStatus] = useState(1);
   const [userOptions, setUserOptions] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [errors, setErrors] = useState({
+    fullName: "",
+    email: "",
+    phoneNumber: "",
+  });
+
 
   useEffect(() => {
     fetchInvestors();
@@ -50,7 +56,7 @@ const Investor = ({ projectId, onInvestorMarked, handleSaveAction }) => {
   useEffect(() => {
     if (showModal) fetchUsers();
   }, [showModal]);
-
+  const existingInvestorUserIds = investors.map(inv => Number(inv.user_id));
   const fetchInvestors = async () => {
     try {
       const res = await apiGet('/api/investors');
@@ -71,7 +77,17 @@ const Investor = ({ projectId, onInvestorMarked, handleSaveAction }) => {
     try {
       const res = await apiGet(`/api/users?search=${search}&limit=10&role=${ROLES.INVESTOR}`);
       if (res?.success) {
-        setUserOptions(res.data?.users || []);
+        const users = res.data?.users || [];
+
+        const filteredUsers = users.filter(user => {
+          // allow current user in edit mode
+          if (modalType === "edit" && user.id === selectedUser?.id) return true;
+
+          // remove users already added to this project
+          return !existingInvestorUserIds.includes(Number(user.id));
+        });
+
+        setUserOptions(filteredUsers);
       }
     } catch (e) {
       console.log(e);
@@ -88,6 +104,11 @@ const Investor = ({ projectId, onInvestorMarked, handleSaveAction }) => {
     setStatus(1);
     setShowModal(true);
     setSelectedUser(null);
+    setErrors({
+      fullName: "",
+      email: "",
+      phoneNumber: "",
+    });
   };
 
   const openEdit = (row) => {
@@ -99,6 +120,13 @@ const Investor = ({ projectId, onInvestorMarked, handleSaveAction }) => {
     setNotes(row.notes || "");
     setStatus(row.status ?? 1);
     setShowModal(true);
+
+    setSelectedUser({
+      id: row.user_id,
+      full_name: row.full_name,
+      email: row.email,
+      phone_number: row.phone_number,
+    });
   };
 
   const closeModal = () => setShowModal(false);
@@ -108,27 +136,28 @@ const Investor = ({ projectId, onInvestorMarked, handleSaveAction }) => {
 
   const handleSave = async (e) => {
     e.preventDefault();
+
+    const newErrors = {};
+
     if (!fullName) {
-      showErrorToast(lang("investor.full_name_required", "Full Name are required"));
-      return;
+      newErrors.fullName = lang("investor.full_name_required", "Full name is required");
     }
 
     if (!email) {
-      showErrorToast(lang("investor.email_required", "Email are required"));
-      return;
+      newErrors.email = lang("investor.email_required", "Email is required");
+    } else if (!validateEmail(email)) {
+      newErrors.email = lang("investor.invalidEmail", "Invalid email");
     }
 
     if (!phoneNumber) {
-      showErrorToast(lang("investor.phone_number_required", "Phone number are required"));
-      return;
+      newErrors.phoneNumber = lang("investor.phone_number_required", "Phone number is required");
     }
 
-    if (!validateEmail(email)) {
-      showErrorToast(lang("investor.invalidEmail", "Invalid email"));
-      return;
-    }
+    setErrors(newErrors);   // ALWAYS set errors
 
+    if (Object.keys(newErrors).length > 0) return;  //  stop submit AFTER setting
 
+    // ---- API CALL CONTINUES HERE ----
     setLoading(true);
     try {
       let res;
@@ -145,18 +174,16 @@ const Investor = ({ projectId, onInvestorMarked, handleSaveAction }) => {
 
       if (modalType === "add") {
         res = await apiPost("/api/investors", payload);
-        if (res?.success) showSuccessToast(lang("investor.created", "Investor created"));
-        else showErrorToast(res.message || lang("common.error", "Error"));
       } else {
         res = await apiPut(`/api/investors/${editId}`, payload);
-        if (res?.success) showSuccessToast(lang("investor.updated", "Investor updated"));
-        else showErrorToast(res.message || lang("common.error", "Error"));
       }
 
       if (res?.success) {
+        showSuccessToast(lang("investor.saved", "Saved successfully"));
         closeModal();
         fetchInvestors();
-        fetchUsers();
+      } else {
+        showErrorToast(res.message || lang("common.error", "Error"));
       }
     } catch (err) {
       showErrorToast(err.message || lang("common.error", "Error"));
@@ -177,7 +204,7 @@ const Investor = ({ projectId, onInvestorMarked, handleSaveAction }) => {
     if (!confirm.isConfirmed) return;
 
     try {
-      const res = await apiDelete(`/api/investors/${row.id}`);
+      const res = await apiDelete(`/api/investors/${row.user_id}/${row.project_id}`);
       if (res?.success) {
         showSuccessToast(lang("investor.deleted", "Investor deleted"));
         // Notify parent if this investor was marked for the project
@@ -218,6 +245,9 @@ const Investor = ({ projectId, onInvestorMarked, handleSaveAction }) => {
     }
   };
 
+  const projectHasInvestor = investors?.some(
+    (inv) => Number(inv?.projects?.investor_id || 0) > 0
+  );
 
   const columns = [
     {
@@ -243,43 +273,45 @@ const Investor = ({ projectId, onInvestorMarked, handleSaveAction }) => {
         return String(v).length > 80 ? String(v).slice(0, 77) + "..." : v;
       },
     },
-    // {
-    //   accessorKey: "project",
-    //   header: () => lang("projects.project", "Project"),
-    //   cell: (info) => info.row.original.project?.projectName || "-",
-    // },
     {
       accessorKey: "status",
       header: () => lang("common.status", "Status"),
-      cell: (info) => {
-        const row = info.row.original;
-        const isCurrentInvestor =
-          (row?.projects?.investor_id && Number(row.projects.investor_id) === Number(row.id)) ||
-          (row?.projects?.investorId && Number(row.projects.investorId) === Number(row.id));
+      cell: ({ row }) => {
+        const data = row.original;
+        const project = data?.projects;
+
+        const investorId = Number(project?.investor_id || project?.investorId || 0);
+        const userId = Number(data?.user_id);
+
+        const isActive = investorId === userId;
+        const hasInvestor = investorId > 0;
+
+        if (isActive) {
+          return (
+            <span className="badge bg-soft-success text-success">
+              {lang("common.active", "Active")}
+            </span>
+          );
+        }
+
+        if (hasInvestor) return "-";
+
         return (
-          <div style={{ display: "flex", gap: "8px", alignItems: "center", flexWrap: "wrap" }}>
-            {isCurrentInvestor ? (
-              <span className="badge bg-soft-success text-success">
-                {lang("common.active", "Active")}
-              </span>
-            ) : (
-              <Button
-                size="small"
-                variant="contained"
-                onClick={() => handleMarkInvestor(row)}
-                sx={{
-                  backgroundColor: "#28a745",
-                  color: "#fff",
-                  padding: "4px 8px",
-                  fontSize: "12px",
-                  textTransform: "none",
-                  "&:hover": { backgroundColor: "#218838" },
-                }}
-              >
-                {lang("investor.markAsInvestor", "Mark as Investor")}
-              </Button>
-            )}
-          </div>
+          <Button
+            size="small"
+            variant="contained"
+            onClick={() => handleMarkInvestor(data)}
+            sx={{
+              backgroundColor: "#28a745",
+              color: "#fff",
+              padding: "4px 8px",
+              fontSize: "12px",
+              textTransform: "none",
+              "&:hover": { backgroundColor: "#218838" },
+            }}
+          >
+            {lang("investor.markAsInvestor", "Mark as Investor")}
+          </Button>
         );
       },
     },
@@ -313,9 +345,15 @@ const Investor = ({ projectId, onInvestorMarked, handleSaveAction }) => {
     <div className="investor-management">
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h6 className="fw-bold mb-0">{lang("investor.investors", "Investors")}</h6>
-        <Button variant="contained" onClick={openAdd} className="common-grey-color">
-          + {lang("investor.addInvestor", "Add Investor")}
-        </Button>
+        {!projectHasInvestor && (
+          <Button
+            variant="contained"
+            onClick={openAdd}
+            className="common-grey-color"
+          >
+            + {lang("investor.addInvestor", "Add Investor")}
+          </Button>
+        )}
       </div>
 
       <Dialog open={showModal} onClose={closeModal} maxWidth="sm" fullWidth>
@@ -345,6 +383,13 @@ const Investor = ({ projectId, onInvestorMarked, handleSaveAction }) => {
                     setEmail(newValue.email || "");
                     setPhoneNumber(newValue.phone_number || "");
                   }
+
+                  setErrors(prev => ({
+                    ...prev,
+                    fullName: "",
+                    email: "",
+                    phoneNumber: "",
+                  }));
                 }}
                 onInputChange={(e, value) => {
                   fetchUsers(value);
@@ -358,16 +403,57 @@ const Investor = ({ projectId, onInvestorMarked, handleSaveAction }) => {
                 )}
               />
 
-              <TextField label={lang("investor.fullName", "Full Names")} value={fullName} onChange={e => setFullName(e.target.value)} required fullWidth />
-              <TextField label={lang("investor.email", "Email")} value={email} onChange={e => setEmail(e.target.value)} required fullWidth />
-              <TextField label={lang("investor.phone", "Phone Number")} value={phoneNumber} onChange={e => setPhoneNumber(e.target.value)} fullWidth />
+              <TextField
+                label={lang("investor.fullName", "Full Name")}
+                value={fullName}
+                onChange={(e) => {
+                  setFullName(e.target.value);
+                  if (errors.fullName) {
+                    setErrors(prev => ({ ...prev, fullName: "" }));
+                  }
+                }}
+                required
+                error={!!errors.fullName}
+                helperText={errors.fullName}
+                fullWidth
+              />
+              <TextField
+                label={lang("investor.email", "Email")}
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (errors.email) {
+                    setErrors(prev => ({ ...prev, email: "" }));
+                  }
+                }}
+                required
+                error={!!errors.email}
+                helperText={errors.email}
+                fullWidth
+              />
+
+              <TextField
+                label={lang("investor.phone", "Phone Number")}
+                value={phoneNumber}
+                onChange={(e) => {
+                  setPhoneNumber(e.target.value);
+                  if (errors.phoneNumber) {
+                    setErrors(prev => ({ ...prev, phoneNumber: "" }));
+                  }
+                }}
+                required
+                error={!!errors.phoneNumber}
+                helperText={errors.phoneNumber}
+                fullWidth
+              />
+
               <TextField label={lang("investor.notes", "Notes")} value={notes} onChange={e => setNotes(e.target.value)} fullWidth multiline minRows={3} />
             </Box>
           </DialogContent>
 
           <DialogActions sx={{ px: 3, pb: 2.5 }}>
             <Button onClick={closeModal} color="error" className="custom-orange-outline">{lang("common.cancel", "Cancel")}</Button>
-            <Button type="submit" variant="contained" disabled={loading || !fullName || !email} startIcon={loading ? <CircularProgress size={16} /> : null} className="common-grey-color">
+            <Button type="submit" variant="contained" disabled={loading} startIcon={loading ? <CircularProgress size={16} /> : null} className="common-grey-color">
               {loading ? lang("common.loading", "Loading...") : lang("common.save", "Save")}
             </Button>
           </DialogActions>

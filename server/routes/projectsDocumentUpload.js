@@ -18,7 +18,7 @@ const ROOT_DIR = path.resolve(__dirname, '..', '..');
 const PUBLIC_DIR = path.join(ROOT_DIR, 'public');
 
 // Multer storage for contract documents/images
-const project_document_dir = path.join(PUBLIC_DIR, 'images', 'projects');
+const project_document_dir = path.join(ROOT_DIR, 'uploads', 'projects');
 const project_document_storage = multer.diskStorage({
     destination: (req, file, cb) => {
         fs.mkdirSync(project_document_dir, { recursive: true });
@@ -45,8 +45,9 @@ router.post("/", authenticateToken, upload.single('document'), async (req, res) 
             documentUpload,
             created_by
         } = req.body;
-        // prefer uploaded file path
-        const uploadedPath = req.file ? `/images/projects/${req.file.filename}` : (documentUpload || null);
+        // prefer uploaded file path.
+        const buildPublicImagePath = (filename) => `/uploads/projects/${filename}`;
+        const uploadedPath = req.file ? buildPublicImagePath(req.file.filename) : (documentUpload || null);
 
         if (!title) {
             return res.status(400).json({ success: false, message: 'title is required' });
