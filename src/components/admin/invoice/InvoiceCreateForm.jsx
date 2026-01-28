@@ -10,6 +10,7 @@ import useLocationData from "@/hooks/useLocationData";
 import InvoiceItem from "./InvoiceItem";
 import { usePriceWithCurrency } from "@/hooks/usePriceWithCurrency";
 import { useAuth } from "@/contexts/AuthContext";
+import { PROJECT_STATUS } from "@/constants/project_status";
 
 import {
   Box,
@@ -140,10 +141,11 @@ const InvoiceCreateForm = ({ invoiceId = null }) => {
 
   const fetchProjects = async () => {
     try {
-      const res = await apiGet("/api/projects?status=1&limit=1000");
-      const items = Array.isArray(res?.projectList) ? res.projectList : [];
-      const active = items.filter((p) => String(p?.status) === "1");
-      const mapped = active.map((p) => ({
+      const res = await apiPost("/api/projects/dropdown/project", {
+        project_status_id: PROJECT_STATUS.RUNNING,
+      });
+      const items = Array.isArray(res?.data) ? res.data : [];
+      const mapped = items.map((p) => ({
         label: p.project_name,
         value: String(p.id),
       }));

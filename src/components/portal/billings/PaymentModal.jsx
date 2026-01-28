@@ -12,27 +12,26 @@ const PaymentModal = ({
   totalAmount,
   lang,
   payments = [],
+  roles = {},
 }) => {
   const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [dragActive, setDragActive] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState(invoiceNumber || "");
   const [invoiceOptions, setInvoiceOptions] = useState([]);
+  const [errors, setErrors] = useState({}); // ✅ NEW
   const { user } = useAuth();
 
   useEffect(() => {
     if (isOpen) {
+      setImage(null);
       setImagePreview(null);
-      // If invoiceNumber is provided, find the matching option and set selectedInvoice to its ID value
+      setErrors({}); // reset errors
       if (invoiceNumber) {
         const matchingOption = invoiceOptions.find(
           (opt) => opt.label === invoiceNumber,
         );
-        if (matchingOption) {
-          setSelectedInvoice(matchingOption.value);
-        } else {
-          setSelectedInvoice("");
-        }
+        setSelectedInvoice(matchingOption ? matchingOption.value : "");
       } else {
         setSelectedInvoice("");
       }
@@ -44,29 +43,29 @@ const PaymentModal = ({
       if (!isOpen) return;
 
       try {
-        const response = await apiGet("/api/invoice?status=0");
-
+        let url = "/api/invoice?status=0";
+        
+        // Filter invoices by offtaker if user is an offtaker
+        if (user?.role === roles.OFFTAKER && user?.id) {
+          url += `&offtaker_id=${user.id}`;
+        }
+        
+        const response = await apiGet(url);
         const list = response?.data;
 
         const paidInvoiceIds = Array.isArray(payments)
           ? payments.map((p) => String(p.invoice_id))
           : [];
-        console.log("Paid Invoice IDs:", payments);
 
         if (response?.success && Array.isArray(list)) {
           const opts = list
-            // ❌ Remove invoices already used in payments
             .filter((inv) => !paidInvoiceIds.includes(String(inv.id)))
             .map((inv, idx) => {
               const id = inv?.id ?? idx;
               const label = `${inv?.invoice_prefix || ""}-${inv?.invoice_number || ""}`;
               const amount = Number(inv?.total_amount ?? inv?.sub_amount ?? 0);
 
-              return {
-                value: String(id),
-                label,
-                amount,
-              };
+              return { value: String(id), label, amount };
             });
           setInvoiceOptions(opts);
         } else {
@@ -92,39 +91,23 @@ const PaymentModal = ({
     if (file) {
       setImage(file);
       setImagePreview(URL.createObjectURL(file));
-    }
-  };
-
-  const handleFileInputChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      handleImageChange(e.target.files[0]);
-    }
-  };
-
-  const handleDragOver = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(true);
-  };
-
-  const handleDragLeave = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
-  };
-
-  const handleDrop = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      handleImageChange(e.dataTransfer.files[0]);
+      setErrors((prev) => ({ ...prev, image: "" }));
     }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
     const invoiceVal = invoiceNumber || selectedInvoice;
+    let newErrors = {};
+
+    if (!invoiceVal) newErrors.invoice = "Please select an invoice";
+    if (!displayAmount) newErrors.amount = "Amount is missing";
+    if (!image) newErrors.image = "Payment screenshot is required";
+
+    setErrors(newErrors);
+    if (Object.keys(newErrors).length > 0) return;
+
     onSubmit({ invoice_id: invoiceVal, image, amount: displayAmount });
   };
 
@@ -153,17 +136,20 @@ const PaymentModal = ({
         <h2 className="h4 fw-bold mb-3">
           {lang("payments.makePayment", "Make a Payment")}
         </h2>
+
         <form onSubmit={handleSubmit}>
+          {/* Invoice */}
           <div className="mb-3">
             <label className="form-label fw-semibold">
               {lang("invoice.invoiceNumber", "Invoice Number")}
             </label>
             <select
               value={selectedInvoice}
-              onChange={(e) => setSelectedInvoice(e.target.value)}
-              className="form-select"
-              style={{ backgroundColor: "#f3f4f6" }}
-              required
+              onChange={(e) => {
+                setSelectedInvoice(e.target.value);
+                setErrors((prev) => ({ ...prev, invoice: "" }));
+              }}
+              className={`form-select ${errors.invoice ? "is-invalid" : ""}`}
               disabled={!!invoiceNumber}
             >
               <option value="" disabled>
@@ -175,7 +161,12 @@ const PaymentModal = ({
                 </option>
               ))}
             </select>
+            {errors.invoice && (
+              <div className="text-danger small mt-1">{errors.invoice}</div>
+            )}
           </div>
+
+          {/* Amount */}
           <div className="mb-3">
             <label className="form-label fw-semibold">
               {lang("payments.totalAmount", "Total Amount")}
@@ -184,10 +175,14 @@ const PaymentModal = ({
               type="text"
               value={displayAmount}
               readOnly
-              className="form-control"
-              required
+              className={`form-control ${errors.amount ? "is-invalid" : ""}`}
             />
+            {errors.amount && (
+              <div className="text-danger small mt-1">{errors.amount}</div>
+            )}
           </div>
+
+          {/* Image Upload */}
           <div className="mb-3">
             <label className="form-label fw-semibold">
               {lang("payments.uploadScreenshot", "Upload Screenshot")}
@@ -206,28 +201,22 @@ const PaymentModal = ({
                 justifyContent: "center",
                 cursor: "pointer",
                 backgroundColor: dragActive ? "#fff5e6" : "#f3f4f6",
-                transition: "all 0.3s ease",
               }}
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-              onDrop={handleDrop}
               onClick={() =>
                 document.getElementById("file-upload-input").click()
               }
             >
               <span className="text-muted">
-                {lang(
-                  "payments.dragUploadOrClick",
-                  "Drag & Upload or Click to select",
-                )}
+                {lang("payments.dragUploadOrClick", "Drag & Upload or Click to select")}
               </span>
               <input
                 id="file-upload-input"
                 type="file"
                 accept="image/*"
-                onChange={handleFileInputChange}
+                onChange={(e) =>
+                  e.target.files && handleImageChange(e.target.files[0])
+                }
                 style={{ display: "none" }}
-                required
               />
               {image && (
                 <small className="text-success mt-2">
@@ -235,17 +224,25 @@ const PaymentModal = ({
                 </small>
               )}
             </div>
+
             {imagePreview && (
               <div className="mt-2">
                 <img
                   src={imagePreview}
                   alt="Preview"
                   className="border rounded"
-                  style={{ maxHeight: "160px", display: "block" }}
+                  style={{ maxHeight: "160px" }}
                 />
               </div>
             )}
+
+            {errors.image && (
+              <div className="text-danger small mt-1 text-center">
+                {errors.image}
+              </div>
+            )}
           </div>
+
           <div className="d-flex justify-content-end gap-2">
             <button
               type="button"

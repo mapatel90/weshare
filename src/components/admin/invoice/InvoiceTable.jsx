@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState, useMemo } from "react";
 import Table from "@/components/shared/table/Table";
-import { apiGet, apiDelete } from "@/lib/api";
+import { apiGet, apiDelete, apiPost } from "@/lib/api";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { FiEdit3, FiTrash2, FiEye, FiDownload } from "react-icons/fi";
 import { showSuccessToast } from "@/utils/topTost";
@@ -11,6 +11,7 @@ import Link from "next/link";
 import { usePriceWithCurrency } from "@/hooks/usePriceWithCurrency";
 import { Chip, IconButton, Stack } from "@mui/material";
 import { downloadInvoicePDF } from "./InvoicePdf";
+import { PROJECT_STATUS } from "@/constants/project_status";
 
 const InvoiceTable = () => {
   const { lang } = useLanguage();
@@ -61,11 +62,16 @@ const InvoiceTable = () => {
       const response = await apiGet(`/api/invoice?${params.toString()}`);
       if (response?.success && response?.data) {
         const payload = response.data;
-        const invoices = Array.isArray(payload?.invoices)
+        let invoices = Array.isArray(payload?.invoices)
           ? payload.invoices
           : Array.isArray(payload)
           ? payload
           : [];
+
+        // Filter invoices to show only those with project_status_id = 3 (RUNNING)
+        invoices = invoices.filter(
+          (invoice) => invoice?.projects?.project_status_id === PROJECT_STATUS.RUNNING
+        );
 
         setInvoicesData(invoices);
 
@@ -96,12 +102,12 @@ const InvoiceTable = () => {
 
   const fetchProjects = async () => {
     try {
-      const response = await apiGet("/api/projects?status=1&limit=1000");
-      if (response?.success && Array.isArray(response?.projectList)) {
-        const active = response.projectList.filter(
-          (p) => String(p?.status) === "1"
-        );
-        setProjectList(active);
+      const response = await apiPost("/api/projects/dropdown/project", {
+        project_status_id: PROJECT_STATUS.RUNNING,
+      });
+      if (response?.success && Array.isArray(response?.data)) {
+        console.log("Fetched projects for invoice filter:", response);
+        setProjectList(response.data);
       } else {
         setProjectList([]);
       }

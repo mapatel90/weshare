@@ -14,8 +14,6 @@ import {
   Button,
   Chip,
   IconButton,
-  Typography,
-  Stack,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -24,6 +22,7 @@ import {
 } from "@mui/material";
 import { usePriceWithCurrency } from "@/hooks/usePriceWithCurrency";
 import { useAuth } from "@/contexts/AuthContext";
+import { PROJECT_STATUS } from "@/constants/project_status";
 
 const PaymentsPage = () => {
   const { lang } = useLanguage();
@@ -131,12 +130,11 @@ const PaymentsPage = () => {
 
   const fetchProjects = async () => {
     try {
-      const response = await apiGet("/api/projects?status=1&limit=1000");
-      if (response?.success && Array.isArray(response?.projectList)) {
-        const active = response.projectList.filter(
-          (p) => String(p?.status) === "1"
-        );
-        setProjectList(active);
+      const response = await apiPost("/api/projects/dropdown/project", {
+        project_status_id: PROJECT_STATUS.RUNNING,
+      });
+      if (response?.success && Array.isArray(response?.data)) {
+        setProjectList(response.data);
       } else {
         setProjectList([]);
       }
@@ -195,7 +193,7 @@ const PaymentsPage = () => {
         offtaker_id: user?.id || null,
         amount: parseFloat(data.amount) || 0,
         ss_url: ss_url,
-        status: 0,
+        status: 1,
         created_by: user?.id || null,
       };
 

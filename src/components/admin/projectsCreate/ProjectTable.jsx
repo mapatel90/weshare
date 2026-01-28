@@ -58,14 +58,12 @@ const ProjectTable = () => {
   const [inverterCounts, setInverterCounts] = useState([]);
 
   // Filter states
-  const [projectFilter, setProjectFilter] = useState("");
   const [offtakerFilter, setOfftakerFilter] = useState("");
   const [solisStatusFilter, setSolisStatusFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
 
   // Dropdown lists
-  const [projectList, setProjectList] = useState([]);
   const [offtakerList, setOfftakerList] = useState([]);
   const [projectStatusList, setProjectStatusList] = useState([]);
   const [loadingStatuses, setLoadingStatuses] = useState(false);
@@ -87,10 +85,6 @@ const ProjectTable = () => {
         page: "1",
         downloadAll: "1",
       });
-
-      if (projectFilter) {
-        params.append("project_id", projectFilter);
-      }
 
       if (offtakerFilter) {
         params.append("offtaker_id", offtakerFilter);
@@ -117,7 +111,6 @@ const ProjectTable = () => {
         });
 
         setData(projectsWithCounts);
-        setProjectList(Array.isArray(res?.projectList) ? res.projectList : []);
         setOfftakerList(Array.isArray(res?.offtakerList) ? res.offtakerList : []);
 
         const apiTotal = res?.pagination?.total ?? projectsWithCounts.length;
@@ -167,7 +160,7 @@ const ProjectTable = () => {
     }, 120000); // 2 minutes
 
     return () => clearInterval(interval);
-  }, [projectFilter, offtakerFilter, searchTerm, statusFilter]);
+  }, [offtakerFilter, searchTerm, statusFilter]);
 
   useEffect(() => {
     fetchProjectStatuses();
@@ -417,19 +410,6 @@ const ProjectTable = () => {
       {/* Filters */}
       <div className="flex-wrap items-center w-full gap-2 mt-4 mb-4 d-flex justify-content-between">
         <div className="filter-button">
-          <select
-            value={projectFilter}
-            onChange={(e) => setProjectFilter(e.target.value)}
-            className="px-3 py-2 mx-2 text-sm border rounded-md theme-btn-blue-color"
-          >
-            <option value="">{lang("reports.allprojects", "All Projects")}</option>
-            {projectList.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.project_name || `Project ${p.id}`}
-              </option>
-            ))}
-          </select>
-
           <select
             value={offtakerFilter}
             onChange={(e) => setOfftakerFilter(e.target.value)}
