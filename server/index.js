@@ -33,6 +33,7 @@ import uploadRoutes from "./routes/upload.js";
 import notificationRoutes from "./routes/notifications.js";
 import projectsDocumentUploadRoutes from "./routes/projectsDocumentUpload.js";
 import emailTemplateRoutes from "./routes/emailTemplate.js";
+import payoutsRoutes from "./routes/payouts.js";
 
 // Load environment variables
 const __filename = fileURLToPath(import.meta.url);
@@ -120,6 +121,7 @@ app.use("/api/projectInverters", projectInvertersRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/project-documents", projectsDocumentUploadRoutes);
 app.use("/api/email-templates", emailTemplateRoutes);
+app.use("/api/payouts", payoutsRoutes);
 
 // 404 handler
 app.use((req, res) => {

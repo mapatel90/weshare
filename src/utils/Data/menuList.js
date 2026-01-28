@@ -71,6 +71,12 @@ export const menuList = [
         path: "/admin/finance/payments",
         subdropdownMenu: false,
       },
+      {
+        id: 2,
+        name: "payouts",
+        path: "/admin/finance/payouts",
+        subdropdownMenu: false,
+      },
     ],
   },
   // {
@@ -139,7 +145,7 @@ export const menuList = [
   },
   {
     id: 12,
-    name: "Email Templates",
+    name: "email templates",
     path: "/admin/email_template/list",
     icon: "feather-mail",
     dropdownMenu: false,

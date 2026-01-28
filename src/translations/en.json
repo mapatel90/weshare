@@ -67,7 +67,9 @@
     "changepassword": "Change Password",
     "statsOverview": "Stats Overview",
     "statsDescription": "Overview of Stats",
-    "plantoverview": "Solar Plant Overview"
+    "plantoverview": "Solar Plant Overview",
+    "payouts": "Payouts",
+    "email_templates": "Email Templates"
   },
   "navigation": {
     "navigation": "Navigation",
@@ -364,7 +366,6 @@
     "kilowattRequired": "Kilowatt is required"
   },
   "menu": {
-    "email_template": "Email Templates",
     "dashboards": "Dashboards",
     "dashboard": "Dashboard",
     "analytics": "Analytics",
@@ -451,7 +452,9 @@
     "conjunctionreports": "Conjunction Reports",
     "roireports": "ROI Reports",
     "cashflowreports": "Cash Flow Reports",
-    "investmentsummaryreports": "Investment Summary Reports"
+    "investmentsummaryreports": "Investment Summary Reports",
+    "emailTemplates": "Email Templates",
+    "payouts": "Payouts"
   },
   "dashboard": {
     "dashboard": "Dashboard",
@@ -1734,5 +1737,20 @@
     "documentUpdatedSuccessfully": "Document updated successfully",
     "documentDeletedSuccessfully": "Document deleted successfully",
     "noDocumentsFound": "No documents found for this project"
+  },
+  "payouts":{
+    "payouts": "Payout",
+    "payoutto": "Payout To",
+    "payout_details": "Payout Details",
+    "payout_number": "Payout Number",
+    "addPayout": "Add Payout",
+    "editPayout": "Edit Payout",
+    "investor_name": "Investor Name",
+    "payment_amount": "Payout Amount",
+    "invoice_amount": "Invoice Amount",
+    "investor_percentage": "Investor Percentage",
+    "viewPayout": "View Payout",
+    "transaction_id": "Transaction ID",
+    "payout_date": "Payout Date"
   }
 }

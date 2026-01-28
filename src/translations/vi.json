@@ -49,7 +49,9 @@
     "testimonials": "Lời chứng thực",
     "aboutUs": "Về chúng tôi",
     "howItWorks": "Cách hoạt động",
-    "home": "Trang chủ"
+    "home": "Trang chủ",
+    "payouts": "khoản thanh toán",
+    "email_templates": "Mẫu email"
   },
   "header": {
     "dashboard": "Bảng điều khiển",
@@ -347,7 +349,7 @@
     "kilowattRequired": "Kilowatt là bắt buộc"
   },
   "menu": {
-    "email_template": "Mẫu Email",
+    "emailTemplates": "Mẫu Email",
     "invoice": "Hóa đơn",
     "dashboards": "Bảng điều khiển",
     "dashboard": "Bảng điều khiển",
@@ -436,7 +438,8 @@
     "conjunctionreports": "Báo cáo kết hợp",
     "roireports": "Báo cáo ROI",
     "cashflowreports": "Báo cáo dòng tiền",
-    "investmentsummaryreports": "Báo cáo tóm tắt đầu tư"
+    "investmentsummaryreports": "Báo cáo tóm tắt đầu tư",
+    "payouts":"khoản thanh toán"
   },
   "dashboard": {
     "dashboard": "Trang tổng quan",
