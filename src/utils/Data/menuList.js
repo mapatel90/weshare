@@ -266,12 +266,12 @@ export const menuList = [
       //   path: "/admin/settings/recaptcha",
       //   subdropdownMenu: false,
       // },
-      // {
-      //   id: 14,
-      //   name: "Miscellaneous",
-      //   path: "/admin/settings/miscellaneous",
-      //   subdropdownMenu: false,
-      // },
+      {
+        id: 14,
+        name: "Miscellaneous",
+        path: "/admin/settings/miscellaneous",
+        subdropdownMenu: false,
+      },
     ],
   },
 ];
