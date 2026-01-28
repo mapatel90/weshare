@@ -210,6 +210,7 @@ router.get("/", authenticateToken, async (req, res) => {
               project_name: true,
               weshare_profit: true,
               investor_profit: true,
+              project_status_id: true,
             },
           },
           users: {
