@@ -10,6 +10,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { showSuccessToast } from "@/utils/topTost";
 import { downloadPaymentPDF } from "./PaymentPdf";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { PROJECT_STATUS } from "@/constants/project_status";
+import { ROLES } from "@/constants/roles";
 
 const statusColors = {
   Paid: "bg-green-100 text-green-700",
@@ -64,7 +66,9 @@ const Payments = () => {
       const response = await apiGet(`/api/payments?${params.toString()}`, { includeAuth: true });
 
         if (response?.success && Array.isArray(response?.data)) {
-          const formattedPayments = response.data.map((payment) => ({
+          const formattedPayments = response.data
+            .filter((payment) => payment.invoices?.projects?.project_status_id === PROJECT_STATUS.RUNNING)
+            .map((payment) => ({
             id: payment.id,
             invoice_id: payment.invoice_id,
             paymentId: payment.id,
@@ -111,16 +115,17 @@ const Payments = () => {
   useEffect(() => {
     const fetchPaymentProjects = async () => {
       try {
-        const response = await apiGet('/api/payments?page=1&pageSize=1000', { includeAuth: true });
+        const payload = {
+          project_status_id: PROJECT_STATUS.RUNNING,
+        };
+        
+        if (user?.role === ROLES.OFFTAKER) {
+          payload.offtaker_id = user.id;
+        }
+
+        const response = await apiPost("/api/projects/dropdown/project", payload, { includeAuth: true });
         if (response?.success && Array.isArray(response?.data)) {
-          const uniqueProjects = Array.from(
-            new Map(
-              response.data
-                .filter((payment) => payment.invoices?.projects)
-                .map((payment) => [payment.invoices.projects.id, payment.invoices.projects])
-            ).values()
-          );
-          setProjects(uniqueProjects);
+          setProjects(response.data);
         }
       } catch (err) {
         console.error('Error fetching payment projects:', err);
@@ -129,7 +134,7 @@ const Payments = () => {
 
     fetchPaymentProjects();
     fetchPayments();
-  }, []);
+  }, [user?.id, user?.role]);
 
   // Handle search with debounce effect
   useEffect(() => {
@@ -275,7 +280,7 @@ const Payments = () => {
               <select
                 value={selectedProject}
                 onChange={(e) => setSelectedProject(e.target.value)}
-                className="border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
+                className="border rounded-md px-3 py-2 text-sm theme-btn-blue-color focus:outline-none focus:ring-2 focus:ring-blue-200"
               >
                 <option value="">{lang("reports.allprojects", "All Projects")}</option>
                 {projects.map((project) => (
@@ -287,7 +292,7 @@ const Payments = () => {
               <select
                 value={selectedStatus}
                 onChange={(e) => setSelectedStatus(e.target.value)}
-                className="border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
+                className="border rounded-md px-3 py-2 text-sm theme-btn-blue-color focus:outline-none focus:ring-2 focus:ring-blue-200"
               >
                 <option value="">{lang("invoice.allStatus", "All Status")}</option>
                 <option value="1">{lang("invoice.paid", "Paid")}</option>
@@ -297,7 +302,7 @@ const Payments = () => {
                 type="date"
                 value={paymentDate}
                 onChange={(e) => setPaymentDate(e.target.value)}
-                className="border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
+                className="border rounded-md px-3 py-2 text-sm text-white theme-btn-blue-color focus:outline-none focus:ring-2 focus:ring-blue-200"
                 placeholder="Payment Date"
               />
             </div>
@@ -476,6 +481,7 @@ const Payments = () => {
         onSubmit={handlePaymentSubmit}
         lang={lang}
         payments={payments}
+        roles={ROLES}
       />
     </div>
   );

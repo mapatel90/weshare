@@ -34,6 +34,8 @@
     "verify:vietnam": "node scripts/verify-vietnam.js"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.967.0",
+    "@aws-sdk/s3-request-presigner": "^3.967.0",
     "@ckeditor/ckeditor5-alignment": "^47.1.0",
     "@ckeditor/ckeditor5-build-classic": "^41.4.2",
     "@ckeditor/ckeditor5-editor-classic": "^47.1.0",

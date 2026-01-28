@@ -3,11 +3,13 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { apiGet } from "@/lib/api";
+import { apiGet, apiPost } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { downloadInvoicePDF } from "@/components/admin/invoice/InvoicePdf";
 import { usePriceWithCurrency } from "@/hooks/usePriceWithCurrency";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { PROJECT_STATUS } from "@/constants/project_status";
+import { ROLES } from "@/constants/roles";
 
 const statusColors = {
   Paid: "bg-green-100 text-green-700",
@@ -81,7 +83,7 @@ const Billings = () => {
           limit: String(pageSize),
         });
 
-        if (user.role === 3) {
+        if (user.role === ROLES.OFFTAKER) {
           params.append("offtaker_id", String(user.id));
         }
 
@@ -104,7 +106,9 @@ const Billings = () => {
         const list = response?.data;
 
         if (response?.success && Array.isArray(list)) {
-          const normalized = list.map((inv, idx) => {
+          const normalized = list
+            .filter((inv) => inv?.projects?.project_status_id === PROJECT_STATUS.RUNNING)
+            .map((inv, idx) => {
             const taxId = inv?.tax_id;
             let taxDisplay = "";
             if (taxId) {
@@ -198,29 +202,23 @@ const Billings = () => {
       setProjectsLoading(true);
       setProjectsError("");
       try {
-        const params = new URLSearchParams({ page: "1", limit: "1000" });
-        if (user.role === 3) {
-          params.append("offtaker_id", String(user.id));
+        const payload = {
+          project_status_id: PROJECT_STATUS.RUNNING,
+        };
+        
+        if (user.role === ROLES.OFFTAKER) {
+          payload.offtaker_id = user.id;
         }
 
-        const response = await apiGet(`/api/invoice?${params.toString()}`, {
+        const response = await apiPost("/api/projects/dropdown/project", payload, {
           includeAuth: true,
         });
 
         const list = response?.data;
         if (response?.success && Array.isArray(list)) {
-          const map = new Map();
-          list.forEach((inv) => {
-            const pid = inv?.projects?.id;
-            const pname = inv?.projects?.project_name;
-            if (pid && pname) {
-              map.set(pid, pname);
-            }
-          });
-
-          const projectsArr = Array.from(map.entries()).map(([id, name]) => ({
-            id,
-            name,
+          const projectsArr = list.map((project) => ({
+            id: project.id,
+            name: project.project_name,
           }));
           setDropdownProjects(projectsArr);
         } else {
@@ -307,7 +305,7 @@ const Billings = () => {
           >
             <option value="">{lang("invoice.allStatus", "All Status")}</option>
             <option value="1">{lang("invoice.paid", "Paid")}</option>
-            <option value="0">{lang("invoice.unpaid", "Unpaid")}</option>
+            <option value="0">{lang("common.pending", "Pending")}</option>
           </select>
         </div>
       </div>

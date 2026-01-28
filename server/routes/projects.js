@@ -1490,7 +1490,6 @@ router.post('/electricity/overview-chart', async (req, res) => {
   }
 });
 
-
 router.post('/dropdown/project', authenticateToken, async (req, res) => {
   try {
     const { offtaker_id, project_status_id } = req.body;

@@ -219,7 +219,7 @@ router.get("/", authenticateToken, async (req, res) => {
               full_name: true,
             },
           },
-          taxes : {
+          taxes: {
             select : {
               name : true,
               value : true,
@@ -431,9 +431,11 @@ router.post("/", authenticateToken, async (req, res) => {
         created_by: creatorName,
       });
 
+      const title = t(lang, 'notification_msg.invoice_title');
+
       await createNotification({
         userId: newInvoice?.offtaker_id,
-        title: notification_message,
+        title: title,
         message: notification_message,
         moduleType: "Invoice",
         moduleId: newInvoice?.id,
@@ -589,6 +591,29 @@ router.put("/:id", authenticateToken, async (req, res) => {
 
       return inv;
     });
+
+    if (updated) {
+      const userId = req.user?.id;
+      const lang = await getUserLanguage(updated.offtaker_id);
+      const updaterName = await getUserFullName(userId);
+
+      const notification_message = t(lang, 'notification_msg.invoice_updated', {
+        invoice_number: updated.invoice_prefix + "-" + updated.invoice_number,
+        created_by: updaterName,
+      });
+
+      const title = t(lang, 'notification_msg.invoice_update_title');
+
+      await createNotification({
+        userId: updated.offtaker_id,
+        title: title,
+        message: notification_message,
+        moduleType: "Invoice",
+        moduleId: updated.id,
+        actionUrl: `/offtaker/billings/invoice/${updated.id}`,
+        created_by: parseInt(userId),
+      });
+    }
 
     return res.status(200).json({
       success: true,

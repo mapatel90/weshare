@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import Table from "@/components/shared/table/Table";
 import { apiGet, apiPost } from '@/lib/api';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { PROJECT_STATUS } from '@/constants/project_status';
 
 const ProjectEnvReport = () => {
     const PAGE_SIZE = 50;
@@ -34,7 +35,7 @@ const ProjectEnvReport = () => {
             setLoading(true);
             setError(null);
 
-            const res = await apiPost("/api/projects/dropdown/project");
+            const res = await apiPost("/api/projects/dropdown/project", { project_status_id: PROJECT_STATUS.RUNNING });
 
             if (res && res.data) {
                 setProjects(res.data);

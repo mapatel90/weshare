@@ -5,6 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Table from "@/components/shared/table/Table";
 import { formatMonthYear, formatShort } from "@/utils/common";
+import { PROJECT_STATUS } from "@/constants/project_status";
 
 const SavingReports = () => {
   const PAGE_SIZE = 50; // show 50 rows per page
@@ -37,7 +38,7 @@ const SavingReports = () => {
 
   const fetch_project_list = async () => {
     try {
-      const res = await apiPost("/api/projects/dropdown/project");
+      const res = await apiPost("/api/projects/dropdown/project", { project_status_id: PROJECT_STATUS.RUNNING });
       if (res && res.success) {
         setProjectList(res.data);
       }

@@ -7,6 +7,7 @@ import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import { uploadToS3, isS3Enabled } from '../services/s3Service.js';
 
 const router = express.Router();
 
@@ -31,21 +32,23 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-// Multer storage for user profile images
+// Multer storage for user profile images (memory storage for S3 upload)
 const userAvatarDir = path.join(PUBLIC_DIR, 'images', 'avatar');
-const avatarStorage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    fs.mkdirSync(userAvatarDir, { recursive: true });
-    cb(null, userAvatarDir);
+const avatarMemoryStorage = multer.memoryStorage();
+const uploadAvatar = multer({
+  storage: avatarMemoryStorage,
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB max
   },
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname) || '.jpg';
-    const base = path.basename(file.originalname, ext).replace(/[^a-z0-9-_]/gi, '_');
-    const ts = Date.now();
-    cb(null, `user_${base}_${ts}${ext}`);
-  },
+  fileFilter: (req, file, cb) => {
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    if (validTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Invalid file type. Only JPG, PNG, GIF, and WEBP are allowed.'));
+    }
+  }
 });
-const uploadAvatar = multer({ storage: avatarStorage });
 
 // Get all users (admin only)
 router.get('/', authenticateToken, async (req, res) => {
@@ -744,14 +747,61 @@ router.put('/profile/:id', authenticateToken, uploadAvatar.single('user_image'),
 
     // Handle user_image upload
     if (req.file) {
-      const userImagePath = `/images/avatar/${req.file.filename}`;
-      updateData.user_image = userImagePath;
+      // Check if S3 is enabled
+      const s3Enabled = await isS3Enabled();
 
-      // Delete old user image file if exists
-      if (existingUser.user_image) {
-        const oldFilePath = path.join(PUBLIC_DIR, existingUser.user_image.replace(/^\//, ''));
-        if (fs.existsSync(oldFilePath)) {
-          fs.unlinkSync(oldFilePath);
+      if (s3Enabled) {
+        try {
+          // Upload to S3
+          const s3Result = await uploadToS3(
+            req.file.buffer,
+            req.file.originalname,
+            req.file.mimetype,
+            {
+              folder: 'avatars',
+              metadata: {
+                userId: String(id),
+                uploadType: 'profile_image'
+              }
+            }
+          );
+
+          if (s3Result.success) {
+            updateData.user_image = s3Result.data.fileUrl;
+          }
+        } catch (s3Error) {
+          console.error('S3 upload error:', s3Error);
+          // Fallback to local storage if S3 fails
+          const ext = path.extname(req.file.originalname) || '.jpg';
+          const base = path.basename(req.file.originalname, ext).replace(/[^a-z0-9-_]/gi, '_');
+          const ts = Date.now();
+          const filename = `user_${base}_${ts}${ext}`;
+          const localPath = path.join(userAvatarDir, filename);
+
+          fs.mkdirSync(userAvatarDir, { recursive: true });
+          fs.writeFileSync(localPath, req.file.buffer);
+
+          updateData.user_image = `/images/avatar/${filename}`;
+        }
+      } else {
+        // S3 not enabled, use local storage
+        const ext = path.extname(req.file.originalname) || '.jpg';
+        const base = path.basename(req.file.originalname, ext).replace(/[^a-z0-9-_]/gi, '_');
+        const ts = Date.now();
+        const filename = `user_${base}_${ts}${ext}`;
+        const localPath = path.join(userAvatarDir, filename);
+
+        fs.mkdirSync(userAvatarDir, { recursive: true });
+        fs.writeFileSync(localPath, req.file.buffer);
+
+        updateData.user_image = `/images/avatar/${filename}`;
+
+        // Delete old user image file if exists
+        if (existingUser.user_image && !existingUser.user_image.startsWith('http')) {
+          const oldFilePath = path.join(PUBLIC_DIR, existingUser.user_image.replace(/^\//, ''));
+          if (fs.existsSync(oldFilePath)) {
+            fs.unlinkSync(oldFilePath);
+          }
         }
       }
     }
