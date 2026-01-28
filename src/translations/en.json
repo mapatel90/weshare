@@ -418,6 +418,7 @@
     "tags": "Tags",
     "finance": "Finance",
     "gateways": "Gateways",
+    "s3storage": "S3 Storage",
     "localization": "Localization",
     "recaptcha": "reCAPTCHA",
     "rolesmanagement": "Roles Management",
@@ -1057,7 +1058,8 @@
     "timeFormat": "Time Format",
     "currency": "Currency",
     "saveSettings": "Save Settings",
-    "settingsSaved": "Settings saved successfully"
+    "settingsSaved": "Settings saved successfully",
+    "s3storage": "S3 Storage"
   },
   "smtp": {
     "title": "SMTP Settings",

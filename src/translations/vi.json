@@ -401,6 +401,7 @@
     "tags": "Thẻ",
     "finance": "Tài chính",
     "gateways": "Cổng thanh toán",
+    "s3storage": "Lưu trữ S3",
     "localization": "Bản địa hóa",
     "recaptcha": "reCAPTCHA",
     "rolesmanagement": "Quản lý vai trò",

@@ -1,6 +1,7 @@
 import express from 'express';
 import { PrismaClient } from '@prisma/client';
 import { authenticateToken } from '../middleware/auth.js';
+import { encrypt } from '../utils/encryption.js';
 import nodemailer from 'nodemailer';
 import fs from 'fs';
 import { join, dirname } from 'path';
@@ -142,29 +143,35 @@ router.post('/bulk', authenticateToken, async (req, res) => {
     // Use transaction to update/create multiple settings
     const updatedSettings = await prisma.$transaction(async (prisma) => {
       const results = [];
-      
+
       for (const [key, value] of Object.entries(settings)) {
+        // Encrypt S3 secret key before saving
+        let valueToSave = String(value);
+        if (key === 's3_aws_secret_access_key' && value && value !== '***********') {
+          valueToSave = encrypt(value);
+        }
+
         const existing = await prisma.settings.findFirst({ where: { key } });
         let setting;
         if (existing) {
           setting = await prisma.settings.update({
             where: { id: existing.id },
-            data: { 
-              value: String(value),
+            data: {
+              value: valueToSave,
               updated_at: new Date()
             }
           });
         } else {
           setting = await prisma.settings.create({
-            data: { 
-              key, 
-              value: String(value)
+            data: {
+              key,
+              value: valueToSave
             }
           });
         }
         results.push(setting);
       }
-      
+
       return results;
     });
     
