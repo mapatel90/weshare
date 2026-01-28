@@ -2,7 +2,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import Table from "@/components/shared/table/Table";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { apiGet, apiDelete, apiUpload } from "@/lib/api";
+import { apiGet, apiPost, apiDelete, apiUpload } from "@/lib/api";
 import { showSuccessToast } from "@/utils/topTost";
 import Swal from "sweetalert2";
 import { FiEdit3, FiTrash2 } from "react-icons/fi";
@@ -26,6 +26,7 @@ import {
 import { Close as CloseIcon } from "@mui/icons-material";
 import { getFullImageUrl } from "@/utils/common";
 import { useAuth } from "@/contexts/AuthContext";
+import { PROJECT_STATUS } from "@/constants/project_status";
 
 const TestimonialTable = () => {
     const { lang } = useLanguage();
@@ -91,10 +92,10 @@ const TestimonialTable = () => {
 
     const fetchProjects = async () => {
         try {
-            const res = await apiGet("/api/projects?status=1&limit=1000");
-            const items = Array.isArray(res?.projectList) ? res.projectList : [];
-            const active = items.filter((p) => String(p?.status) === "1");
-            const mapped = active.map((p) => ({ label: p.project_name, value: String(p.id) }));
+            const res = await apiPost("/api/projects/dropdown/project", {project_status_id: PROJECT_STATUS.RUNNING});
+            const items = Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : [];
+            console.log("Fetched projects for testimonial:", items);
+            const mapped = items.map((p) => ({ label: p.project_name, value: String(p.id) }));
             setProjectOptions([{ label: lang("invoice.selectProject"), value: "" }, ...mapped]);
         } catch (_) {
             setProjectOptions([]);

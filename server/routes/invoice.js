@@ -219,7 +219,7 @@ router.get("/", authenticateToken, async (req, res) => {
               full_name: true,
             },
           },
-          taxes : {
+          taxes: {
             select : {
               name : true,
               value : true,

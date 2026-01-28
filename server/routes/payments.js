@@ -4,6 +4,7 @@ import { authenticateToken } from '../middleware/auth.js';
 import { getUserLanguage, t } from '../utils/i18n.js';
 import { getUserFullName } from "../utils/common.js";
 import { createNotification } from "../utils/notifications.js";
+import { ROLES } from '../../src/constants/roles.js';
 
 const router = express.Router();
 
@@ -117,9 +118,17 @@ router.post('/', authenticateToken, async (req, res) => {
       }
     });
 
-    if (created && created_by !== 1) {
+    if(created && parseInt(created_by) == ROLES.SUPER_ADMIN){
+      await prisma.invoices.update({
+        where: { id: created.invoice_id },
+        data: {
+          status: 1,
+        },
+      });
+    }
 
-      console.log('Creating notification for payment:', created);
+    if (created && created_by !== ROLES.SUPER_ADMIN) {
+
       const newInvoice = await prisma.invoices.findUnique({
         where: { id: created.invoice_id },
       });
@@ -144,7 +153,7 @@ router.post('/', authenticateToken, async (req, res) => {
       });
     } else {
       // For admin created payments,
-      console.log('Creating notification for offtaker');
+      
       const newInvoice = await prisma.invoices.findUnique({
         where: { id: created.invoice_id },
       });

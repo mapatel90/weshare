@@ -9,6 +9,7 @@ import { dirname } from 'path';
 import { createBulkNotifications, createNotification } from '../utils/notifications.js';
 import { getUserLanguage, t } from '../utils/i18n.js';
 import { getUserFullName } from '../utils/common.js';
+import { PROJECT_STATUS } from '../../src/constants/project_status.js';
 
 const router = express.Router();
 
@@ -242,7 +243,7 @@ router.get("/", async (req, res) => {
 
     // Fetch project list for dropdown
     const projectList = await prisma.projects.findMany({
-      where: { is_deleted: 0 },
+      where: { is_deleted: 0, project_status_id: PROJECT_STATUS.RUNNING },
       orderBy: { project_name: "asc" },
     });
 

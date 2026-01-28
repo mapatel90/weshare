@@ -4,6 +4,7 @@ import { apiGet, apiPost } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Table from "@/components/shared/table/Table";
+import { PROJECT_STATUS } from "@/constants/project_status";
 
 const InverterEnvReport = () => {
   const PAGE_SIZE = 50; // show 50 rows per page
@@ -41,7 +42,7 @@ const InverterEnvReport = () => {
       if (!user?.id) return;
 
       const res = await apiPost("/api/projects/dropdown/project", {
-        offtaker_id: user.id
+        offtaker_id: user.id, project_status_id: PROJECT_STATUS.RUNNING
       });
 
       if (res && res.success && Array.isArray(res.data)) {
