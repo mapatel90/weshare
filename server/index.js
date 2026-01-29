@@ -33,6 +33,7 @@ import uploadRoutes from "./routes/upload.js";
 import notificationRoutes from "./routes/notifications.js";
 import projectsDocumentUploadRoutes from "./routes/projectsDocumentUpload.js";
 import emailTemplateRoutes from "./routes/emailTemplate.js";
+import payoutsRoutes from "./routes/payouts.js";
 import s3SettingsRoutes from "./routes/s3Settings.js";
 import s3UploadRoutes from "./routes/s3Upload.js";
 
@@ -122,6 +123,7 @@ app.use("/api/projectInverters", projectInvertersRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/project-documents", projectsDocumentUploadRoutes);
 app.use("/api/email-templates", emailTemplateRoutes);
+app.use("/api/payouts", payoutsRoutes);
 app.use("/api/s3-settings", s3SettingsRoutes);
 app.use("/api/s3-upload", s3UploadRoutes);
 

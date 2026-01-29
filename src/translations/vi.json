@@ -49,7 +49,9 @@
     "testimonials": "Lời chứng thực",
     "aboutUs": "Về chúng tôi",
     "howItWorks": "Cách hoạt động",
-    "home": "Trang chủ"
+    "home": "Trang chủ",
+    "payouts": "khoản thanh toán",
+    "email_templates": "Mẫu email"
   },
   "header": {
     "dashboard": "Bảng điều khiển",
@@ -347,7 +349,7 @@
     "kilowattRequired": "Kilowatt là bắt buộc"
   },
   "menu": {
-    "email_template": "Mẫu Email",
+    "emailTemplates": "Mẫu Email",
     "invoice": "Hóa đơn",
     "dashboards": "Bảng điều khiển",
     "dashboard": "Bảng điều khiển",
@@ -437,7 +439,8 @@
     "conjunctionreports": "Báo cáo kết hợp",
     "roireports": "Báo cáo ROI",
     "cashflowreports": "Báo cáo dòng tiền",
-    "investmentsummaryreports": "Báo cáo tóm tắt đầu tư"
+    "investmentsummaryreports": "Báo cáo tóm tắt đầu tư",
+    "payouts":"khoản thanh toán"
   },
   "dashboard": {
     "dashboard": "Trang tổng quan",
@@ -1645,6 +1648,7 @@
     "billings": "Hóa đơn"
   },
   "notification_msg": {
+    "payment_title": "Thông báo thanh toán",
     "project_created_title": "Dự án mới đã được tạo",
     "project_created": "Dự án mới \"{{project_name}}\" được tạo bởi \"{{created_by}}\".",
     "invoice_created": "Hóa đơn mới \"{{invoice_number}}\" được tạo bởi \"{{created_by}}\".",
@@ -1658,7 +1662,11 @@
     "project_status_title": "Trạng thái dự án \"{{project_name}}\" đã được cập nhật",
     "project_status_message": "Trạng thái của dự án \"{{project_name}}\" đã được cập nhật thành \"{{status_name}}\".",
     "investor_marked_title": "Nhà đầu tư được chỉ định",
-    "investor_marked_message": "Bạn đã được chỉ định làm nhà đầu tư cho dự án \"{{project_name}}\" bởi \"{{assigned_by}}\"."
+    "investor_marked_message": "Bạn đã được chỉ định làm nhà đầu tư cho dự án \"{{project_name}}\" bởi \"{{assigned_by}}\".",
+    "payment_approved":"Thanh toán cho hóa đơn \"{{invoice_number}}\" với số tiền \"{{amount}}\" đã được thanh toán thành công.",
+    "invoice_title": "Hóa đơn mới đã được tạo",
+    "invoice_update_title": "Hóa đơn đã được cập nhật",
+    "invoice_updated": "Hóa đơn \"{{invoice_number}}\" đã được cập nhật bởi \"{{updated_by}}\"."
   },
   "notification": {
     "title": "Thông báo",

@@ -142,9 +142,12 @@ router.post('/', authenticateToken, async (req, res) => {
         amount: created?.amount,
       });
 
+
+      const title = t(lang, 'notification_msg.payment_title');
+
       await createNotification({
         userId: '1',
-        title: notification_message,
+        title: title,
         message: notification_message,
         moduleType: "Payment",
         moduleId: created?.id,
@@ -167,9 +170,11 @@ router.post('/', authenticateToken, async (req, res) => {
         amount: created?.amount,
       });
 
+      const title = t(lang, 'notification_msg.payment_title');
+
       await createNotification({
         userId: newInvoice?.offtaker_id,
-        title: notification_message,
+        title: title,
         message: notification_message,
         moduleType: "Payment",
         moduleId: created?.id,
@@ -222,10 +227,12 @@ router.patch('/:id/soft-delete', authenticateToken, async (req, res) => {
 router.put('/:id/mark-as-paid', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
+    const userId = req.user?.id;
     
     // Get the payment to find associated invoice
     const payment = await prisma.payments.findFirst({
-      where: { id: parseInt(id) }
+      where: { id: parseInt(id) },
+      include: { invoices: true }
     });
 
     if (!payment) {
@@ -243,6 +250,28 @@ router.put('/:id/mark-as-paid', authenticateToken, async (req, res) => {
       await prisma.invoices.update({
         where: { id: parseInt(payment.invoice_id) },
         data: { status: 1 }
+      });
+    }
+
+    // Send notification to offtaker
+    if (payment.offtaker_id && payment.invoices) {
+      const lang = await getUserLanguage(payment.offtaker_id);
+
+      const notification_message = t(lang, 'notification_msg.payment_approved', {
+        invoice_number: payment.invoices.invoice_prefix + "-" + payment.invoices.invoice_number,
+        amount: payment.amount,
+      });
+
+      const title = t(lang, 'notification_msg.payment_title');
+
+      await createNotification({
+        userId: payment.offtaker_id,
+        title: title,
+        message: notification_message,
+        moduleType: "Payment",
+        moduleId: payment.id,
+        actionUrl: `/offtaker/payments`,
+        created_by: userId,
       });
     }
 
