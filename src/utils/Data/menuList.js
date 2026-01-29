@@ -71,6 +71,12 @@ export const menuList = [
         path: "/admin/finance/payments",
         subdropdownMenu: false,
       },
+      {
+        id: 2,
+        name: "payouts",
+        path: "/admin/finance/payouts",
+        subdropdownMenu: false,
+      },
     ],
   },
   // {
