@@ -57,6 +57,7 @@ model contracts {
   contract_title       String                @db.VarChar(255)
   contract_description String?
   document_upload      String?               @db.VarChar(500)
+  signed_document_upload String?             @db.VarChar(500)
   contract_date        DateTime?
   status               Int                   @default(0)
   is_deleted           Int                   @default(0)
