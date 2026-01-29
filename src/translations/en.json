@@ -1261,6 +1261,7 @@
     "userRole": "User Role"
   },
   "invoice": {
+    "item": "Item",
     "invoiceto": "Invoice To",
     "invoice": "INVOICE",
     "invoices": "Invoices",
