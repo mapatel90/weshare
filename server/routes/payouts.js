@@ -9,7 +9,7 @@ const router = express.Router();
 
 router.get('/', authenticateToken, async (req, res) => {
     try {
-        const { search = '', projectId = '', status = '', page = 1, pageSize = 10 } = req.query;
+        const { search = '', projectId = '', status = '', page = 1, pageSize = 10, investorId = "" } = req.query;
         const pageNum = parseInt(page);
         const limit = parseInt(pageSize);
         const skip = (pageNum - 1) * limit;
@@ -35,10 +35,14 @@ router.get('/', authenticateToken, async (req, res) => {
         // Build status condition
         const statusCondition = status !== '' ? { status: parseInt(status) } : {};
 
+        // Build investor condition
+        const investorCondition = investorId !== "" ? { investor_id: parseInt(investorId) } : {};
+
         const whereClause = {
             ...searchCondition,
             ...projectCondition,
-            ...statusCondition
+            ...statusCondition,
+            ...investorCondition
         };
 
         // Get total count for pagination

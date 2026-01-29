@@ -8,8 +8,10 @@ import Table from "@/components/shared/table/Table";
 import { usePriceWithCurrency } from "@/hooks/usePriceWithCurrency";
 import { FiDownload, FiEye } from "react-icons/fi";
 import { downloadInvoicePDF } from "../invoice/InvoicePdf";
-import { IconButton, Stack } from "@mui/material";
+import { Autocomplete, IconButton, Stack, TextField } from "@mui/material";
 import Link from "next/link";
+import { downloadPayoutPDF } from "./PayoutPdf";
+import { ROLES } from "@/constants/roles";
 
 
 const PayoutsPage = () => {
@@ -25,6 +27,9 @@ const PayoutsPage = () => {
     const [loading, setLoading] = useState(false);
     const [pagination, setPagination] = useState({ page: 1, pageSize: pageSize, totalCount: 0, totalPages: 0 });
     const [searchTerm, setSearchTerm] = useState("");
+    const [investorList, setInvestorList] = useState([]);
+    const [investorFilter, setInvestorFilter] = useState(null);
+    const [investorSearch, setInvestorSearch] = useState("");
     const priceWithCurrency = usePriceWithCurrency();
 
 
@@ -46,6 +51,29 @@ const PayoutsPage = () => {
         }
     };
 
+    const fetchInvestors = async (search = "") => {
+        try {
+            const res = await apiPost("/api/users/dropdown/users", {
+                role_id: ROLES.INVESTOR,
+                search,
+            });
+
+            if (res?.success) {
+                setInvestorList(res.data);
+            } else {
+                setInvestorList([]);
+            }
+        } catch (err) {
+            console.error("Investor dropdown error", err);
+            setInvestorList([]);
+        }
+    };
+
+    useEffect(() => {
+
+    }, [investorSearch]);
+
+
 
     const fetchPayouts = async () => {
         try {
@@ -62,9 +90,12 @@ const PayoutsPage = () => {
             if (searchTerm) {
                 params.append("search", searchTerm);
             }
+            if (investorFilter?.id) {
+                params.append("investorId", investorFilter.id);
+            }
+
 
             const response = await apiGet(`/api/payouts?${params.toString()}`);
-            console.log("response", response);
 
             if (response?.success) {
                 setPayouts(response.data);
@@ -102,8 +133,10 @@ const PayoutsPage = () => {
     }, []);
 
     useEffect(() => {
+        fetchInvestors();
         fetchPayouts();
-    }, [projectFilter, searchTerm, pageIndex, pageSize]);
+    }, [projectFilter, searchTerm, pageIndex, pageSize, investorFilter]);
+
 
     useEffect(() => {
         // fetch payouts when pageIndex or pageSize changes (but not on filter/search change)
@@ -184,7 +217,7 @@ const PayoutsPage = () => {
                         </Link>
                         <IconButton
                             size="small"
-                            onClick={() => downloadInvoicePDF(row.original.id, priceWithCurrency)}
+                            onClick={() => downloadPayoutPDF(row.original.id, priceWithCurrency)}
                             sx={{
                                 color: "#2e7d32",
                                 transition: "transform 0.2s ease",
@@ -209,24 +242,65 @@ const PayoutsPage = () => {
         <>
             <div className="p-6 bg-white rounded-3xl shadow-md">
                 <div className="d-flex items-center justify-content-between gap-2 mb-4 mt-4 w-full flex-wrap">
-                    <div className="filter-button">
-                        <select
-                            value={projectFilter}
-                            onChange={(e) => setProjectFilter(e.target.value)}
-                            className="theme-btn-blue-color border rounded-md px-3 py-2 mx-2 text-sm"
-                        >
-                            <option value="">{lang("reports.allprojects")}</option>
-                            {projectList.map((p) => (
-                                <option
-                                    key={p.id ?? p.project_id ?? p.id}
-                                    value={p.id ?? p.project_id ?? p.id}
-                                >
-                                    {p.project_name ??
-                                        p.projectName ??
-                                        `Project ${p.id ?? p.project_id ?? ""}`}
-                                </option>
-                            ))}
-                        </select>
+                    <div style={{ display: "flex", gap: "2%" }}>
+                        <Autocomplete
+                            size="small"
+                            options={projectList}
+                            value={
+                                projectList.find(
+                                    (p) => (p.id ?? p.project_id) === projectFilter
+                                ) || null
+                            }
+                            onChange={(e, newValue) => {
+                                setPageIndex(0);
+                                setProjectFilter(newValue ? (newValue.id ?? newValue.project_id) : "");
+                            }}
+                            getOptionLabel={(option) =>
+                                option.project_name ||
+                                option.projectName ||
+                                `Project ${option.id ?? option.project_id ?? ""}`
+                            }
+                            isOptionEqualToValue={(option, value) =>
+                                (option.id ?? option.project_id) === (value.id ?? value.project_id)
+                            }
+                            renderInput={(params) => (
+                                <TextField
+                                    {...params}
+                                    label={lang("reports.allprojects")}
+                                    placeholder="Search project..."
+                                />
+                            )}
+                            sx={{ minWidth: 260 }}
+                        />
+                        <Autocomplete
+                            size="small"
+                            fullWidth
+                            options={investorList}
+                            value={investorFilter}
+                            sx={{ minWidth: 260 }}
+                            onChange={(e, newValue) => {
+                                setPageIndex(0);
+                                setInvestorFilter(newValue);   // store full object
+                            }}
+                            onInputChange={(e, value, reason) => {
+                                if (reason === "input") {
+                                    setInvestorSearch(value);
+                                }
+                                if (reason === "clear") {
+                                    setInvestorFilter(null);     // prevent reselection
+                                }
+                            }}
+                            getOptionLabel={(option) => option?.full_name || ""}
+                            isOptionEqualToValue={(option, value) => option.id === value.id}
+                            renderInput={(params) => (
+                                <TextField
+                                    {...params}
+                                    label="Investor"
+                                    placeholder="Search investor..."
+                                />
+                            )}
+                        />
+
                     </div>
                 </div>
                 <div className="overflow-x-auto relative">

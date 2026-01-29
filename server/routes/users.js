@@ -857,4 +857,43 @@ router.put('/profile/:id', authenticateToken, uploadAvatar.single('user_image'),
   }
 });
 
+
+
+router.post("/dropdown/users", authenticateToken, async (req, res) => {
+  try {
+    const { status, role_id, search } = req.body;
+    const where = { is_deleted: 0 };
+    if (search) {
+      where.OR = [
+        { full_name: { contains: search, mode: "insensitive" } },
+        { email: { contains: search, mode: "insensitive" } },
+        { phone_number: { contains: search, mode: "insensitive" } },
+      ];
+    }
+    if (status) {
+      where.status = status;
+    }
+    if (role_id) {
+      where.role_id = role_id;
+    }
+    const users = await prisma.users.findMany({
+      where,
+      select: {
+        id: true,
+        full_name: true,
+        email: true,
+      },
+      orderBy: { full_name: "asc" },
+      take: 50,
+    });
+    res.json({ success: true, data: users });
+  } catch (error) {
+    console.error("Dropdown users error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+})
+
 export default router;

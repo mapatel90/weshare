@@ -49,7 +49,8 @@
     "testimonials": "Testimonials",
     "aboutUs": "About Us",
     "howItWorks": "How It Works",
-    "home": "Home"
+    "home": "Home",
+    "payouts": "Payouts"
   },
   "header": {
     "dashboard": "Dashboard",
@@ -1711,7 +1712,7 @@
     "project_status_message": "Project \"{{project_name}}\" status has been updated to \"{{status_name}}\".",
     "investor_marked_title": "Investor Assigned",
     "investor_marked_message": "You have been assigned as an investor for the project \"{{project_name}}\" by \"{{assigned_by}}\".",
-    "payment_approved":"Great news! Your payment of {{amount}} for invoice {{invoice_number}} has been successfully processed.",
+    "payment_approved": "Great news! Your payment of {{amount}} for invoice {{invoice_number}} has been successfully processed.",
     "invoice_title": "New Invoice Created",
     "invoice_update_title": "Invoice Updated",
     "invoice_updated": "The invoice \"{{invoice_number}}\" has been updated by \"{{created_by}}\"."
@@ -1745,7 +1746,7 @@
     "documentDeletedSuccessfully": "Document deleted successfully",
     "noDocumentsFound": "No documents found for this project"
   },
-  "payouts":{
+  "payouts": {
     "payouts": "Payout",
     "payoutto": "Payout To",
     "payout_details": "Payout Details",
