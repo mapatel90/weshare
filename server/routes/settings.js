@@ -368,55 +368,6 @@ router.post('/delete-favicon', authenticateToken, async (req, res) => {
   }
 });
 
-// Upload finance QR code (accepts base64 data URL), saves under public/images/qrcodes and deletes old
-router.post('/upload-qrcode', authenticateToken, async (req, res) => {
-  try {
-    const { dataUrl, oldImagePath } = req.body || {};
-    if (!dataUrl) {
-      return res.status(400).json({ success: false, message: 'dataUrl is required' });
-    }
-
-    const qrcodeDir = join(__dirname, '../../public/images/qrcodes');
-    const publicPath = saveDataUrlToFile(dataUrl, qrcodeDir, 'finance-qr');
-
-    // Delete previous QR code if provided
-    deleteOldLogoIfSafe(oldImagePath);
-
-    return res.json({ success: true, message: 'QR code uploaded', data: { path: publicPath } });
-  } catch (error) {
-    console.error('Error uploading QR code:', error);
-    return res.status(500).json({ success: false, message: 'Error uploading QR code', error: error.message });
-  }
-});
-
-// Delete finance QR code (remove file if under /images/qrcodes and clear DB key finance_qr_code)
-router.post('/delete-qrcode', authenticateToken, async (req, res) => {
-  try {
-    const { path } = req.body || {};
-
-    // Remove file from disk if safe
-    deleteOldLogoIfSafe(path);
-
-    // Clear finance_qr_code in DB
-    const existing = await prisma.settings.findFirst({ where: { key: 'finance_qr_code' } });
-    if (existing) {
-      await prisma.settings.update({
-        where: { id: existing.id },
-        data: { value: '', updated_at: new Date() }
-      });
-    } else {
-      await prisma.settings.create({
-        data: { key: 'finance_qr_code', value: '' }
-      });
-    }
-
-    return res.json({ success: true, message: 'QR code deleted and setting cleared' });
-  } catch (error) {
-    console.error('Error deleting QR code:', error);
-    return res.status(500).json({ success: false, message: 'Error deleting QR code', error: error.message });
-  }
-});
-
 // Send test email using SMTP settings stored in DB
 router.post('/test-email', authenticateToken, async (req, res) => {
   try {

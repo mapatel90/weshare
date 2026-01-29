@@ -7,13 +7,11 @@ import PerfectScrollbar from 'react-perfect-scrollbar'
 import useSettings from '@/hooks/useSettings'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { TextField, InputAdornment, FormControl, InputLabel, Select, MenuItem, Box, Avatar, IconButton } from '@mui/material'
-import useImageUpload from '@/hooks/useImageUpload'
 import { apiPost, apiGet } from '@/lib/api'
 
 const SettingsFinanceForm = () => {
   const { lang, currentLanguage } = useLanguage()
   const { settings, loading: settingsLoading, updateSettings, getSetting } = useSettings()
-  const { handleImageUpload, uploadedImage, setUploadedImage } = useImageUpload()
   const [taxes, setTaxes] = useState([])
 
   // Yes/No options with translations - memoized to update when language changes
@@ -68,7 +66,12 @@ const SettingsFinanceForm = () => {
     finance_decimal_separator: "dot",
     finance_thousand_separator: "clone",
     finance_default_tax: "no-tax",
-    finance_qr_code: "",
+
+    // Bank details
+    bank_name: "",
+    bank_account_number: "",
+    bank_ifsc_code: "",
+
     // Invoice Settings
     invoice_number_prefix: "",
     next_invoice_number: "",
@@ -82,8 +85,7 @@ const SettingsFinanceForm = () => {
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isFormInitialized, setIsFormInitialized] = useState(false)
-  const [qrCodeLoadError, setQrCodeLoadError] = useState(false)
-
+  
   // Selected options for dropdowns (for proper display)
   const [selectedOptions, setSelectedOptions] = useState({})
 
@@ -117,7 +119,9 @@ const SettingsFinanceForm = () => {
         finance_decimal_separator: getSetting("finance_decimal_separator", "dot"),
         finance_thousand_separator: getSetting("finance_thousand_separator", "clone"),
         finance_default_tax: getSetting("finance_default_tax", "no-tax"),
-        finance_qr_code: getSetting("finance_qr_code", ""),
+        bank_name: getSetting("bank_name", ""),
+        bank_account_number: getSetting("bank_account_number", ""),
+        bank_ifsc_code: getSetting("bank_ifsc_code", ""),
         invoice_number_prefix: cleanedInvoicePrefix,
         next_invoice_number: getSetting("next_invoice_number", ""),
         invoice_due_after_days: getSetting("invoice_due_after_days", ""),
@@ -143,7 +147,7 @@ const SettingsFinanceForm = () => {
       // Initialize yes/no dropdowns
       Object.keys(loaded).forEach(key => {
         if (key.startsWith('finance_') || key.startsWith('invoice_')) {
-          if (['finance_decimal_separator', 'finance_thousand_separator', 'finance_default_tax', 'finance_qr_code',
+          if (['finance_decimal_separator', 'finance_thousand_separator', 'finance_default_tax',
             'invoice_number_prefix', 'next_invoice_number', 'invoice_due_after_days', 'invoice_predefined_client_note',
             'invoice_predefined_terms_conditions'].includes(key)) {
             return // Skip these as they have custom options
@@ -157,11 +161,6 @@ const SettingsFinanceForm = () => {
 
       setSelectedOptions(opts)
       setIsFormInitialized(true)
-
-      // Set QR code image if exists
-      if (loaded.finance_qr_code) {
-        setUploadedImage(loaded.finance_qr_code)
-      }
     }
   }, [settings, isFormInitialized, getSetting, yesNoOptions, decimalSeparator, thousandSeparator, taxOptions, currentLanguage])
 
@@ -182,7 +181,7 @@ const SettingsFinanceForm = () => {
       // No dropdown for finance_currency
       Object.keys(formData).forEach(key => {
         if (key.startsWith('finance_') || key.startsWith('invoice_')) {
-          if (['finance_decimal_separator', 'finance_thousand_separator', 'finance_default_tax', 'finance_qr_code',
+          if (['finance_decimal_separator', 'finance_thousand_separator', 'finance_default_tax',
             'invoice_number_prefix', 'next_invoice_number', 'invoice_due_after_days', 'invoice_predefined_client_note',
             'invoice_predefined_terms_conditions', 'invoice_proposal_info_format'].includes(key)) {
             return // Skip these as they have custom options
@@ -226,57 +225,16 @@ const SettingsFinanceForm = () => {
     }))
   }
 
-  // Handle QR code upload
-  const handleQRCodeChange = (e) => {
-    handleImageUpload(e)
-  }
-
-  // Remove QR code
-  const handleRemoveQRCode = async () => {
-    try {
-      const qrCodePath = formData.finance_qr_code
-      if (qrCodePath) {
-        try {
-          await apiPost('/api/settings/delete-qrcode', { path: qrCodePath })
-        } catch (err) {
-          console.error('Failed to delete QR code on server:', err)
-        }
-      }
-      setUploadedImage(null)
-      setFormData(prev => ({ ...prev, finance_qr_code: '' }))
-      setQrCodeLoadError(false)
-      try {
-        await updateSettings({ finance_qr_code: '' })
-      } catch (e) {
-        console.warn('Failed to update settings after QR code deletion', e)
-      }
-    } catch (error) {
-      console.error('Error removing QR code:', error)
-    }
-  }
-
   // Handle form submission
   const handleSave = async () => {
     try {
       setIsSubmitting(true)
 
-      let newQRCodePath = formData.finance_qr_code
-      // If a new QR code was selected (data URL), upload it now and delete old on server
-      if (uploadedImage && typeof uploadedImage === 'string' && uploadedImage.startsWith('data:')) {
-        const resp = await apiPost('/api/settings/upload-qrcode', {
-          dataUrl: uploadedImage,
-          oldImagePath: formData.finance_qr_code || null
-        })
-        if (resp?.success && resp?.data?.path) {
-          newQRCodePath = resp.data.path
-        }
-      }
+      console.log('Form Data to Save:', formData);
 
-      // Include uploaded QR code path in form data
       // Prepend INV- to invoice_number_prefix and PAYOUT- to payout_number_prefix when sending to API
       const settingsToUpdate = {
         ...formData,
-        finance_qr_code: newQRCodePath,
         finance_currency: formData.finance_currency || '',
         invoice_number_prefix: formData.invoice_number_prefix ? `INV-${formData.invoice_number_prefix}` : '',
         payout_number_prefix: formData.payout_number_prefix ? `PAYOUT-${formData.payout_number_prefix}` : '',
@@ -286,10 +244,8 @@ const SettingsFinanceForm = () => {
       // Make sure local form state reflects the saved QR code and clear temp preview
       setFormData(prev => ({
         ...prev,
-        finance_qr_code: newQRCodePath,
         finance_currency: formData.finance_currency || '',
       }))
-      setUploadedImage(null)
     } catch (error) {
       console.error('Error saving finance settings:', error)
     } finally {
@@ -308,6 +264,7 @@ const SettingsFinanceForm = () => {
         <div className="content-area-body">
           <div className="card mb-0">
             <div className="card-body">
+              {/*This is for finance details */}
               <div className="mb-5">
                 <h4 className="fw-bold">{lang("finance.title")}</h4>
                 <div className="fs-12 text-muted">{lang("finance.subtitle")}</div>
@@ -377,101 +334,55 @@ const SettingsFinanceForm = () => {
                 </FormControl>
                 <small className="form-text text-muted">{lang("finance.defaultTaxInfo")}</small>
               </div>
+              {/*This is for finance details */}
 
-              {/* QR Code Upload */}
+              {/*This is for finance bank details */}
+
               <div className="mb-5">
-                <label className="form-label fw-bold">Payment QR Code</label>
-                {uploadedImage || (formData.finance_qr_code && !qrCodeLoadError) ? (
-                  <Box
-                    sx={{
-                      position: 'relative',
-                      width: 200,
-                      height: 200,
-                      border: '1px solid #e0e0e0',
-                      borderRadius: 2,
-                      overflow: 'hidden',
-                      mt: 2
-                    }}
-                  >
-                    {/* QR Code Preview */}
-                    <Avatar
-                      src={uploadedImage || formData.finance_qr_code}
-                      alt="Payment QR Code"
-                      variant="rounded"
-                      sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                      imgProps={{
-                        onError: () => {
-                          setQrCodeLoadError(true)
-                          setFormData(prev => ({ ...prev, finance_qr_code: '' }))
-                        }
-                      }}
-                    />
-
-                    {/* Upload Overlay (click to change) */}
-                    <Box
-                      sx={{
-                        position: 'absolute',
-                        inset: 0,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        bgcolor: 'rgba(0,0,0,0.4)',
-                        opacity: 0,
-                        transition: 'opacity 0.3s',
-                        cursor: 'pointer',
-                        '&:hover': {
-                          opacity: 1
-                        }
-                      }}
-                      onClick={() => document.getElementById('upload-qrcode').click()}
-                    >
-                      <IconButton sx={{ color: '#fff' }}>
-                        <FiCamera size={24} />
-                      </IconButton>
-                    </Box>
-
-                    {/* Remove Icon (top-right) */}
-                    <IconButton
-                      onClick={handleRemoveQRCode}
-                      size="small"
-                      sx={{
-                        position: 'absolute',
-                        top: 4,
-                        right: 4,
-                        bgcolor: 'rgba(0,0,0,0.6)',
-                        color: '#fff',
-                        '&:hover': { bgcolor: 'rgba(0,0,0,0.8)' }
-                      }}
-                      aria-label="remove-qrcode"
-                    >
-                      <FiX size={16} />
-                    </IconButton>
-
-                    {/* Hidden File Input */}
-                    <input
-                      id="upload-qrcode"
-                      type="file"
-                      accept="image/*"
-                      hidden
-                      onChange={handleQRCodeChange}
-                    />
-                  </Box>
-                ) : (
-                  <div className="mt-2">
-                    <TextField
-                      fullWidth
-                      type="file"
-                      inputProps={{ accept: 'image/*' }}
-                      label="Upload QR Code"
-                      onChange={handleQRCodeChange}
-                      helperText="Upload payment QR code for invoices and payments"
-                      InputLabelProps={{ shrink: true }}
-                    />
-                  </div>
-                )}
-                <small className="form-text text-muted d-block mt-2">Upload a QR code image for payment purposes. This will be displayed on invoices.</small>
+                <h4 className="fw-bold">{lang("finance.title")}</h4>
+                <div className="fs-12 text-muted">{lang("finance.subtitle")}</div>
+              </div>
+              <div className="mb-5">
+                <FormControl fullWidth>
+                  <TextField
+                    label={lang("finance.bank_name" ) || "Bank Account Number"}
+                    fullWidth
+                    placeholder={lang("finance.bank_name")}
+                    value={formData.bank_name}
+                    onChange={(e) => handleInputChange('bank_name', e.target.value)}
+                  />
+                </FormControl>
+                <small className="form-text text-muted">{lang("finance.bank_name_info")}</small>
               </div>
 
+              <div className="mb-5">
+                <FormControl fullWidth>
+                  <TextField
+                    label={lang("finance.bank_account_number" ) || "Bank Account Number"}
+                    fullWidth
+                    placeholder={lang("finance.bank_account_number")}
+                    value={formData.bank_account_number}
+                    onChange={(e) => handleInputChange('bank_account_number', e.target.value)}
+                  />
+                </FormControl>
+                <small className="form-text text-muted">{lang("finance.bank_account_number_info")}</small>
+              </div>
+
+              <div className="mb-5">
+                <FormControl fullWidth>
+                  <TextField
+                    label={lang("finance.bank_ifsc_code" ) || "Bank IFSC Code"}
+                    fullWidth
+                    placeholder={lang("finance.bank_ifsc_code")}
+                    value={formData.bank_ifsc_code}
+                    onChange={(e) => handleInputChange('bank_ifsc_code', e.target.value)}
+                  />
+                </FormControl>
+                <small className="form-text text-muted">{lang("finance.bank_ifsc_code_info")}</small>
+              </div>
+              {/*This is for finance bank details */}
+
+              {/*This is for invoice details */}
               <hr className="my-5" />
               <div className="mb-5">
                 <h4 className="fw-bold">{lang("finance.invoiceTitle")}</h4>
@@ -540,7 +451,9 @@ const SettingsFinanceForm = () => {
                 />
                 <small className="form-text text-muted">{lang("finance.predefinedTermsConditionsInfo")}</small>
               </div>
+              {/*This is for invoice details */}
 
+              {/*This is for payout details */}
               <hr className="my-5" />
               <div className="mb-5">
                 <h4 className="fw-bold">{lang("finance.payoutTitle") || "Payout Settings"}</h4>
@@ -569,6 +482,7 @@ const SettingsFinanceForm = () => {
                 </FormControl>
                 <small className="form-text text-muted">{lang("finance.next_payout_numberInfo") || "Starting number for payout sequence"}</small>
               </div>
+              {/*This is for payout details */}
             </div>
           </div>
         </div>
