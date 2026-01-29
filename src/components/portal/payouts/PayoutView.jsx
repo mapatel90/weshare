@@ -1,128 +1,165 @@
-
 "use client";
-import React, { useState } from 'react';
 
-const mockPayouts = [
-    {
-        id: 'P001',
-        user: 'John Doe',
-        amount: 111.05,
-        date: '2025-11-01',
-        status: 'Completed',
-    },
-    {
-        id: 'P002',
-        user: 'Jane Smith',
-        amount: 320.50,
-        date: '2025-11-10',
-        status: 'Pending',
-    },
-    {
-        id: 'P003',
-        user: 'Amit Patel',
-        amount: 29.5,
-        date: '2025-11-15',
-        status: 'Completed',
-    },
-];
+import React, { useEffect, useState } from "react";
+import { apiGet } from "@/lib/api";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { usePriceWithCurrency } from "@/hooks/usePriceWithCurrency";
 
-const PayoutView = () => {
-    const [dropdownOpen, setDropdownOpen] = useState(null);
+const PayoutView = ({ payout_id }) => {
+    const { lang } = useLanguage();
+    const { user } = useAuth();
+    const [payoutData, setPayoutData] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
+    const [companySettings, setCompanySettings] = useState({});
+    const [countries, setCountries] = useState([]);
+
+
+    const priceWithCurrency = usePriceWithCurrency();
+    useEffect(() => {
+        const fetchCompanySettings = async () => {
+            try {
+                const response = await apiGet("/api/settings", { includeAuth: true });
+                if (response?.success && response?.data) {
+                    setCompanySettings(response.data);
+                }
+            } catch (err) {
+                console.error("Error fetching company settings:", err);
+            }
+        };
+        const fetchLocations = async () => {
+            try {
+                const countriesRes = await apiGet("/api/locations/countries");
+                if (countriesRes?.success && Array.isArray(countriesRes?.data)) {
+                    setCountries(countriesRes.data);
+                }
+            } catch (err) {
+                console.error("Error fetching countries:", err);
+            }
+        };
+        fetchCompanySettings();
+        fetchLocations();
+    }, []);
+
+    useEffect(() => {
+        const fetchPayout = async () => {
+            setLoading(true);
+            setError("");
+            try {
+                const response = await apiGet(`/api/payouts/${payout_id}`);
+                if (response?.success && response?.data) {
+                    setPayoutData(response.data);
+                } else {
+                    setError("Payout not found");
+                }
+            } catch (e) {
+                setError("Error fetching payout details");
+            } finally {
+                setLoading(false);
+            }
+        };
+        if (payout_id) fetchPayout();
+    }, [payout_id]);
+
+    if (loading) {
+        return <div>Loading payout details...</div>;
+    }
+    if (error) {
+        return <div className="text-red-600">{error}</div>;
+    }
+    if (!payoutData) {
+        return <div>No payout data found.</div>;
+    }
+
+    // payout data for display (customize as needed)
+    const company = {
+        name: companySettings?.site_name || "WeShare",
+        address: companySettings?.site_address || "",
+        country: countries.find(c => Number(c.id) === Number(companySettings?.site_country))?.name || "",
+        zip: companySettings?.site_zip || "",
+    };
+    const payout = payoutData;
+    const invoice = payout?.invoices || {};
+    const project = payout?.projects || {};
+    const client = payout?.users || {};
+    const summary = {
+        summary: invoice?.sub_amount,
+        tax_amount: invoice?.tax_amount,
+        total: invoice?.total_amount,
+    };
+    const invoiceDisplay = `${invoice?.invoice_prefix || ""}-${invoice?.invoice_number || ""}`;
+    const qrCodeSrc = client?.qr_code || "/images/invoice_qr.jpg";
+
     return (
-        <div className="p-6 bg-white rounded-xl shadow-md">
-            <div className="flex flex-col md:flex-row md:items-end md:justify-end mb-4 gap-2">
-                {/* Project Dropdown Filter */}
-                {/* <select
-                    className="theme-btn-blue-color border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
-                    // value={projectFilter}
-                    // onChange={e => setProjectFilter(e.target.value)}
-                >
-                    <option value="">All Projects</option>
-                    </select> */}
-                {/* {[...new Set(mockPayouts.map(payout => payout.user))].map((user) => (
-                        <option key={user} value={user}>{user}</option>
-                    ))} */}
-                <div className="flex items-end gap-2">
-                    <input
-                        type="text"
-                        placeholder="Search Name..."
-                        // value={search}
-                        // onChange={e => setSearch(e.target.value)}
-                        className="border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
-                    />
-                    <button className="theme-btn-blue-color px-4 py-2 rounded-md text-gray-700 border hover:bg-gray-200">Filter</button>
+        <div className="bg-white mt-5 rounded shadow p-4">
+            <div id="invoice-content-body">
+                <div className="d-flex flex-column flex-md-row justify-content-between mb-3">
+                    <div>
+                        <div className="fw-bold h5 mb-2">{lang("payouts.payout_details")}</div>
+                        <div style={{ color: '#374151' }}>{lang("payouts.payout_number")}: <span className="fw-semibold">{payout?.payout_prefix}-{payout?.payout_number}</span></div>
+                        <div style={{ color: '#374151' }}>{lang("projects.projectName")}: <span className="fw-semibold">{project?.project_name || ""}</span></div>
+                        <div style={{ color: '#374151' }}>{lang("common.createdAt")}: <span className="fw-semibold">{payout?.created_at ? new Date(payout.created_at).toLocaleDateString("en-CA") : ""}</span></div>
+                    </div>
+                    <div className="text-end mt-3 mt-md-0">
+                        <div className="text-muted">{lang("payouts.payoutto")}:</div>
+                        <div className="fw-bold">{client?.full_name || ""}</div>
+                        <div className="text-muted">{client?.email || ""}</div>
+                    </div>
                 </div>
-            </div>
-            <div className="overflow border">
-                <table className="min-w-full text-sm">
-                    <thead className="bg-gray-50">
-                        <tr>
-                            <th className="py-2 px-4 border-b text-uppercase">Invoice ID</th>
-                            <th className="py-2 px-4 border-b text-uppercase">User</th>
-                            <th className="py-2 px-4 border-b text-uppercase">Amount</th>
-                            <th className="py-2 px-4 border-b text-uppercase">Date</th>
-                            <th className="py-2 px-4 border-b text-uppercase">Status</th>
-                            <th className="py-2 px-4 border-b text-uppercase">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {mockPayouts.map((payout, idx) => (
-                            <tr key={payout.id} className={idx % 2 ? "bg-white" : "bg-gray-50"}>
-                                <td className="py-2 px-4 border-b">{payout.id}</td>
-                                <td className="py-2 px-4 border-b">{payout.user}</td>
-                                <td className="py-2 px-4 border-b">${payout.amount}</td>
-                                <td className="py-2 px-4 border-b">{payout.date}</td>
-                                <td className="py-2 px-4 border-b">
-                                    <span className={`px-2 py-1 rounded text-xs ${payout.status === 'Completed' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>{payout.status}</span>
-                                </td>
-                                <td className="px-2 py-2 whitespace-nowrap">
-                                    <div className="relative inline-block text-left">
-                                        <button
-                                            className="bg-transparent border-none cursor-pointer px-2 py-1 dropdown-action-btn"
-                                            onClick={() => setDropdownOpen(idx)}
-                                        >
-                                            <span className="text-2xl">&#8942;</span>
-                                        </button>
-                                        {dropdownOpen === idx && (
-                                            <>
-                                                {/* Backdrop for outside click */}
-                                                <div
-                                                    className="fixed inset-0 z-10"
-                                                    style={{ background: 'transparent' }}
-                                                    onClick={() => setDropdownOpen(null)}
-                                                />
-                                                <div className="absolute right-0 mt-2 w-32 bg-white border rounded shadow-lg z-20 dropdown-action-menu">
-                                                    <button
-                                                        className="block w-full text-left px-4 py-2 text-blue-600 hover:bg-gray-100"
-                                                        onClick={() => { handleDownload(payment.number); setDropdownOpen(null); }}
-                                                    >
-                                                        Download
-                                                    </button>
-                                                    {/* <button
-                                                            className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
-                                                            onClick={() => { handleView(payment.number); setDropdownOpen(null); }}
-                                                        >
-                                                            View
-                                                        </button> */}
-                                                </div>
-                                            </>
-                                        )}
-                                    </div>
-                                </td>
+
+                {/* Table for invoice and payout items*/}
+                <div className="table-responsive border rounded mb-4">
+                    <table className="table table-sm mb-0">
+                        <thead style={{ backgroundColor: '#f3f4f6' }}>
+                            <tr>
+                                <th className="px-3 py-2 text-start fw-semibold">{lang("payouts.payment_amount")}</th>
+                                <th className="px-3 py-2 text-start fw-semibold">{lang("payouts.transaction_id")}</th>
+                                <th className="px-3 py-2 text-start fw-semibold">{lang("payouts.payout_date")}</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-            {/* Pagination */}
-            <div className="flex items-center justify-between mt-4">
-                <div className="text-sm text-gray-500">1 - {mockPayouts.length} of {mockPayouts.length} entries</div>
-                <div className="flex gap-1">
-                    <button className="w-8 h-8 rounded bg-blue-600 text-white font-bold">1</button>
-                    <button className="w-8 h-8 rounded bg-gray-100 text-gray-700">2</button>
-                    <button className="w-8 h-8 rounded bg-gray-100 text-gray-700">3</button>
-                    <button className="w-8 h-8 rounded bg-gray-100 text-gray-700">4</button>
-                    <button className="w-8 h-8 rounded bg-gray-100 text-gray-700">5</button>
+                        </thead>
+                        <tbody>
+                            <tr style={{ backgroundColor: '#ffffff' }}>
+                                <td className="px-3 py-2 text-nowrap fw-bold">{payout.payout_amount ? priceWithCurrency(payout.payout_amount) : "-"}</td>
+                                <td className="px-3 py-2 text-nowrap">{payout.transaction_id ? payout.transaction_id : "-"}</td>
+                                <td className="px-3 py-2 text-nowrap">{payout.payout_date ? payout.payout_date : "-"}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div className="mt-4">
+                    <div className="row g-3">
+                        {/* Left Column - Notes and Terms */}
+                        <div className="col-12 col-md-6">
+                            {/* <div className="border rounded-3 p-3 shadow-sm" style={{ background: '#f9fafb', height: '100%' }}>
+                                <div className="mb-3">
+                                    <div className="fw-bold mb-2" style={{ color: '#374151', fontSize: '14px' }}>{lang("menu.notes")}:</div>
+                                    <div className="text-muted" style={{ fontSize: '13px', lineHeight: '1.6' }}>
+                                        {invoice?.notes || 'No additional notes'}
+                                    </div>
+                                </div>
+                                <div>
+                                    <div className="fw-bold mb-2" style={{ color: '#374151', fontSize: '14px' }}>{lang("authentication.termsConditions")}:</div>
+                                    <div className="text-muted" style={{ fontSize: '13px', lineHeight: '1.6' }}>
+                                        {invoice?.terms_and_conditions || 'No terms and conditions provided'}
+                                    </div>
+                                </div>
+                            </div> */}
+                        </div>
+
+                        {/* Right Column - Totals */}
+                        <div className="col-12 col-md-6">
+                            <div className="border rounded-3 p-3 p-md-4 shadow-sm" style={{ background: '#f9fafb' }}>
+                                <div className="d-flex flex-column gap-2">
+                                    <div className="d-flex justify-content-between align-items-center">
+                                        <span className="fw-bold" style={{ color: '#111827' }}>{lang("payouts.payment_amount")}</span>
+                                        <span className="fw-bold h5 mb-0" style={{ color: '#1d4ed8' }}>{priceWithCurrency(payout?.payout_amount) || ''}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

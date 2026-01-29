@@ -29,7 +29,19 @@ const PageHeaderTitle = () => {
             { name: lang("menu.contracts", "Contract"), href: "/investor/contracts" },
             { name: lang("menu.details", "Details"), href: null }
         ];
-    } else {
+    } else if (
+        parts.length >= 4 &&
+        parts[0] === "investor" &&
+        parts[1] === "payouts" &&
+        parts[2] === "view"
+    ) {
+        title = "Payout Details";
+        breadcrumb = [
+            { name: lang("menu.payouts", "Payouts"), href: "/investor/payouts" },
+            { name: lang("menu.details", "Details"), href: null }
+        ];
+    }
+    else {
         const pageKey = parts[parts.length - 1] || "dashboard";
         const pageName = lang(`menu.${pageKey}`, pageKey.replace(/-/g, " "));
         title = pageName.charAt(0).toUpperCase() + pageName.slice(1);
