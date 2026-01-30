@@ -57,6 +57,7 @@ model contracts {
   contract_title       String                @db.VarChar(255)
   contract_description String?
   document_upload      String?               @db.VarChar(500)
+  signed_document_upload String?             @db.VarChar(500)
   contract_date        DateTime?
   status               Int                   @default(0)
   is_deleted           Int                   @default(0)
@@ -164,11 +165,12 @@ model invoices {
   billing_country_id    Int?
   billing_zipcode       Int?
   sub_amount            Float     @default(0)
-  tax_id                Int?
+  tax_id                Int?      @default(0)
   tax_amount            Float     @default(0)
   total_amount          Float     @default(0)
   notes                 String?    @db.VarChar(255)
   terms_and_conditions  String?    @db.VarChar(255)
+  qr_code_url           String?    @db.VarChar(900)
   status                Int       @default(0)
   is_deleted            Int       @default(0)
   created_at            DateTime  @default(now())
@@ -387,7 +389,7 @@ model projects {
   investor_id          Int?
   project_name         String                 @db.VarChar(255)
   project_slug         String                 @db.VarChar(255)
-  project_type_id      Int
+  project_type_id      Int                    @default(0)
   product_code         String?                @db.VarChar(255)
   project_description  String?
   asking_price         String?                @db.VarChar(255)
@@ -406,8 +408,8 @@ model projects {
   state_id             Int?
   country_id           Int?
   zipcode              String?                @db.VarChar(20)
-  investor_profit      String                 @db.VarChar(255)
-  weshare_profit       String                 @db.VarChar(255)
+  investor_profit      String?                 @db.VarChar(255)
+  weshare_profit       String?                 @db.VarChar(255)
   meter_url            String?                @db.VarChar(255)
   sim_number           String?                @db.VarChar(255)
   sim_start_date       DateTime?
@@ -555,8 +557,6 @@ model notifications {
   users                users?                 @relation("NotificationUser", fields: [user_id], references: [id])
   created_users        users?                 @relation("NotificationCreator", fields: [created_by], references: [id])
 }
-
-
 model project_status {
   id                  Int                    @id @default(autoincrement())
   name                String?
@@ -588,7 +588,6 @@ model email_template {
   created_by  Int?
   created_at  DateTime @default(now())
 }
-
 
 model payouts {
   id              Int      @id @default(autoincrement())

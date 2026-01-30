@@ -1261,6 +1261,7 @@
     "userRole": "User Role"
   },
   "invoice": {
+    "item": "Item",
     "invoiceto": "Invoice To",
     "invoice": "INVOICE",
     "invoices": "Invoices",
@@ -1332,6 +1333,13 @@
     "decimalSeparator": "Decimal Separator",
     "thousandSeparator": "Thousand Separator",
     "thousandSeparatorInfo": "Thousand Separator [Ex: ./,/'/None/Space]",
+    "bank_title": "Bank Details",
+    "bank_account_number" : "Bank Account Number",
+    "bank_account_number_info": "Bank Account Number [Ex: 1234567890]",
+    "bank_acq_id" : "Bank ACQ ID",
+    "bank_acq_id_info": "Bank ACQ ID [e.g. Vietcombank]",
+    "bank_account_name" : "Bank Account Name",
+    "bank_account_name_info": "Bank Account Name [Ex: John Doe]",
     "defaultTax": "Default Tax",
     "defaultTaxInfo": "Default Tax [Ex: 5%/10%/15%]",
     "showTaxPerItem": "Show TAX per item",
