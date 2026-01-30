@@ -1725,7 +1725,9 @@
     "payment_approved": "Great news! Your payment of {{amount}} for invoice {{invoice_number}} has been successfully processed.",
     "invoice_title": "New Invoice Created",
     "invoice_update_title": "Invoice Updated",
-    "invoice_updated": "The invoice \"{{invoice_number}}\" has been updated by \"{{created_by}}\"."
+    "invoice_updated": "The invoice \"{{invoice_number}}\" has been updated by \"{{created_by}}\".",
+    "new_payout_generated": "New Payout Generated",
+    "payout_generated": "Your payout \"{{payout_prefix}}\" - \"{{payout_number}}\" has been created"
   },
   "notification": {
     "title": "Notifications",

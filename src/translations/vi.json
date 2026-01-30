@@ -1669,7 +1669,9 @@
     "payment_approved": "Thanh toán cho hóa đơn \"{{invoice_number}}\" với số tiền \"{{amount}}\" đã được thanh toán thành công.",
     "invoice_title": "Hóa đơn mới đã được tạo",
     "invoice_update_title": "Hóa đơn đã được cập nhật",
-    "invoice_updated": "Hóa đơn \"{{invoice_number}}\" đã được cập nhật bởi \"{{updated_by}}\"."
+    "invoice_updated": "Hóa đơn \"{{invoice_number}}\" đã được cập nhật bởi \"{{updated_by}}\".",
+    "new_payout_generated": "Khoản thanh toán mới đã được tạo",
+    "payout_generated": "Khoản thanh toán \"{{payout_prefix}}\" - \"{{payout_number}}\" của bạn đã được tạo"
   },
   "notification": {
     "title": "Thông báo",
