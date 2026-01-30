@@ -37,6 +37,7 @@ const PayoutsPage = () => {
     const [txId, setTxId] = useState("");
     const [selectedPayout, setSelectedPayout] = useState(null);
     const [selectedFile, setSelectedFile] = useState(null);
+    const [errors, setErrors] = useState({});
     const priceWithCurrency = usePriceWithCurrency();
 
     const fetchProjects = async () => {
@@ -156,8 +157,7 @@ const PayoutsPage = () => {
 
     const handleMarkPay = (rowData) => {
         setSelectedFile(null); // reset previous upload
-
-        if (!rowData.transaction_id) {
+        if (!rowData.transaction_id || rowData.document === null) {
             setSelectedPayout(rowData);
             setTxModalOpen(true);
             return;
@@ -166,8 +166,19 @@ const PayoutsPage = () => {
         markAsPaid(rowData.id, rowData.transaction_id);
     };
 
+    const validate = () => {
+        const newErrors = {};
+        if (selectedPayout && !selectedPayout.transaction_id) {
+            if (!txId) newErrors.transactionId = lang("payouts.transaction_id_is_required", "Transaction ID is required");
+        }
+        if (selectedFile === null) newErrors.document = lang("payouts.uploaded_image_is_required");
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
     const markAsPaid = async (id, transactionId) => {
         try {
+            if (!validate()) return;
             const formData = new FormData();
 
             if (identity) {
@@ -198,6 +209,7 @@ const PayoutsPage = () => {
         setTxId("");               // clear input
         setSelectedPayout(null);   // clear selected payout
         setSelectedFile(null);
+        setErrors({});
     };
 
     useEffect(() => {
@@ -507,15 +519,30 @@ const PayoutsPage = () => {
 
             {/* Transaction ID Modal */}
             <Dialog open={txModalOpen} onClose={handleCloseTxModal} maxWidth="xs" fullWidth>
-                <DialogTitle>{lang("payouts.enterTransactionId")}</DialogTitle>
+                <DialogTitle>{lang("payouts.add_details")}</DialogTitle>
                 <DialogContent>
-                    <TextField
-                        fullWidth
-                        label={lang("payouts.enterTransactionId", "Enter Transaction ID")}
-                        value={txId}
-                        onChange={(e) => setTxId(e.target.value)}
-                        sx={{ mt: 1 }}
-                    />
+                    {!selectedPayout?.transaction_id && (
+                        <TextField
+                            fullWidth
+                            label={lang("payouts.enterTransactionId", "Enter Transaction ID")}
+                            value={txId}
+                            onChange={(e) => {
+                                const value = e.target.value;
+                                setTxId(value);
+                                // Remove only this field's error
+                                if (value) {
+                                    setErrors((prev) => {
+                                        const updated = { ...prev };
+                                        delete updated.transactionId;
+                                        return updated;
+                                    });
+                                }
+                            }}
+                            sx={{ mt: 1 }}
+                            error={!!errors.transactionId}
+                            helperText={errors.transactionId}
+                        />
+                    )}
 
                     <TextField
                         fullWidth
@@ -524,10 +551,20 @@ const PayoutsPage = () => {
                         label={lang("projects.uploadImage")}
                         InputLabelProps={{ shrink: true }}
                         onChange={(e) => {
-                            const file = (e.target.files && e.target.files[0]) || null;
+                            const file = e.target.files?.[0] || null;
                             setSelectedFile(file);
+                            //Remove only document error
+                            if (file) {
+                                setErrors((prev) => {
+                                    const updated = { ...prev };
+                                    delete updated.document;
+                                    return updated;
+                                });
+                            }
                         }}
-                        sx={{ mt: 4 }}
+                        sx={{ mt: !selectedPayout?.transaction_id ? 3 : 1 }}
+                        error={!!errors.document}
+                        helperText={errors.document}
                     />
                     <DialogActions>
                         <Button onClick={() => handleCloseTxModal()} color="error" variant="outlined" className="custom-orange-outline">
@@ -535,7 +572,6 @@ const PayoutsPage = () => {
                         </Button>
                         <Button
                             variant="contained"
-                            disabled={!txId}
                             className="common-grey-color"
                             onClick={() => markAsPaid(selectedPayout.id, txId)}
                         >

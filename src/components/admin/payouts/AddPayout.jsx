@@ -146,21 +146,14 @@ const AddPayout = () => {
         setPayoutAmount(payout);
     };
 
-
     const validate = () => {
         const newErrors = {};
-
-        if (!projectId) newErrors.projectId = "Project is required";
-        if (!invoiceId) newErrors.invoiceId = "Invoice is required";
-        if (!invoiceAmount || invoiceAmount <= 0)
-            newErrors.invoiceAmount = "Invoice amount invalid";
-        if (!payoutAmount || payoutAmount <= 0)
-            newErrors.payoutAmount = "Payout amount invalid";
-
+        if (!projectId) newErrors.projectId = lang("payouts.project_is_required");
+        if (!invoiceId) newErrors.invoiceId = lang("payouts.invoice_is_required");
+        if (transactionId && selectedFile === null) newErrors.document = lang("payouts.uploaded_image_is_required");
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
-
 
     // ---------------------------
     // Save payout
@@ -229,7 +222,13 @@ const AddPayout = () => {
                     sx={{ mt: 1 }}
                     options={projectList}
                     value={projectList.find((p) => p.id === projectId) || null}
-                    onChange={(e, val) => handleProjectChange(val)}
+                    onChange={(e, val) => {
+                        handleProjectChange(val);
+                        setErrors((prev) => ({
+                            ...prev,
+                            projectId: "", // ya jo field clear karni ho
+                        }));
+                    }}
                     getOptionLabel={(option) => option.project_name || ""}
                     disabled={!!editData}   // only disable component in edit
                     renderInput={(params) => (
@@ -256,7 +255,13 @@ const AddPayout = () => {
                 <Autocomplete
                     options={invoiceList}
                     value={invoiceList.find((i) => i.id === invoiceId) || null}
-                    onChange={(e, val) => handleInvoiceChange(val)}
+                    onChange={(e, val) => {
+                        handleInvoiceChange(val);
+                        setErrors((prev) => ({
+                            ...prev,
+                            invoiceId: "",
+                        }));
+                    }}
                     getOptionLabel={(option) =>
                         `${option.invoice_prefix}-${option.invoice_number}`
                     }
@@ -312,7 +317,13 @@ const AddPayout = () => {
                     onChange={(e) => {
                         const file = (e.target.files && e.target.files[0]) || null;
                         setSelectedFile(file);
+                        setErrors((prev) => ({
+                            ...prev,
+                            document: "",
+                        }));
                     }}
+                    error={!!errors.document}
+                    helperText={errors.document}
                 />
 
                 {documentUrl && !selectedFile && (
