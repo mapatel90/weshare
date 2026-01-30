@@ -68,9 +68,9 @@ const SettingsFinanceForm = () => {
     finance_default_tax: "no-tax",
 
     // Bank details
-    bank_name: "",
+    bank_account_name: "",
     bank_account_number: "",
-    bank_ifsc_code: "",
+    bank_acq_id: "",
 
     // Invoice Settings
     invoice_number_prefix: "",
@@ -119,9 +119,9 @@ const SettingsFinanceForm = () => {
         finance_decimal_separator: getSetting("finance_decimal_separator", "dot"),
         finance_thousand_separator: getSetting("finance_thousand_separator", "clone"),
         finance_default_tax: getSetting("finance_default_tax", "no-tax"),
-        bank_name: getSetting("bank_name", ""),
+        bank_account_name: getSetting("bank_account_name", ""),
         bank_account_number: getSetting("bank_account_number", ""),
-        bank_ifsc_code: getSetting("bank_ifsc_code", ""),
+        bank_acq_id: getSetting("bank_acq_id", ""),
         invoice_number_prefix: cleanedInvoicePrefix,
         next_invoice_number: getSetting("next_invoice_number", ""),
         invoice_due_after_days: getSetting("invoice_due_after_days", ""),
@@ -339,20 +339,20 @@ const SettingsFinanceForm = () => {
               {/*This is for finance bank details */}
 
               <div className="mb-5">
-                <h4 className="fw-bold">{lang("finance.title")}</h4>
-                <div className="fs-12 text-muted">{lang("finance.subtitle")}</div>
+                <h4 className="fw-bold">{lang("finance.bank_title")}</h4>
+                
               </div>
               <div className="mb-5">
                 <FormControl fullWidth>
                   <TextField
-                    label={lang("finance.bank_name" ) || "Bank Account Number"}
+                    label={lang("finance.bank_account_name" ) || "Bank Account Name"}
                     fullWidth
-                    placeholder={lang("finance.bank_name")}
-                    value={formData.bank_name}
-                    onChange={(e) => handleInputChange('bank_name', e.target.value)}
+                    placeholder={lang("finance.bank_account_name")}
+                    value={formData.bank_account_name}
+                    onChange={(e) => handleInputChange('bank_account_name', e.target.value)}
                   />
                 </FormControl>
-                <small className="form-text text-muted">{lang("finance.bank_name_info")}</small>
+                <small className="form-text text-muted">{lang("finance.bank_account_name_info")}</small>
               </div>
 
               <div className="mb-5">
@@ -371,14 +371,14 @@ const SettingsFinanceForm = () => {
               <div className="mb-5">
                 <FormControl fullWidth>
                   <TextField
-                    label={lang("finance.bank_ifsc_code" ) || "Bank IFSC Code"}
+                    label={lang("finance.bank_acq_id" ) || "Bank ACQ ID"}
                     fullWidth
-                    placeholder={lang("finance.bank_ifsc_code")}
-                    value={formData.bank_ifsc_code}
-                    onChange={(e) => handleInputChange('bank_ifsc_code', e.target.value)}
+                    placeholder={lang("finance.bank_acq_id")}
+                    value={formData.bank_acq_id}
+                    onChange={(e) => handleInputChange('bank_acq_id', e.target.value)}
                   />
                 </FormControl>
-                <small className="form-text text-muted">{lang("finance.bank_ifsc_code_info")}</small>
+                <small className="form-text text-muted">{lang("finance.bank_acq_id_info")}</small>
               </div>
               {/*This is for finance bank details */}
 

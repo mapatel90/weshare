@@ -12,7 +12,7 @@ const PayoutsHeader = () => {
 
   const openAddModal = () => {
     if (typeof window !== "undefined") {
-      window.dispatchEvent(new CustomEvent("invoice:open-edit", { detail: { item: null } }));
+      window.dispatchEvent(new CustomEvent("payout:open-edit", { detail: { item: null } }));
     }
   };
 
@@ -22,7 +22,7 @@ const PayoutsHeader = () => {
         <Button
           variant="contained"
           className="common-orange-color"
-          href="/admin/finance/invoice/create"
+          onClick={openAddModal}
           startIcon={<FiPlus size={17} />}
         >
           {lang("payouts.addPayout")}

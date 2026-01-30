@@ -158,6 +158,7 @@ const InvoicePage = ({ invoiceId }) => {
               due: formatDate(apiInv?.due_date),
               status: apiInv?.status,
               project: apiInv?.projects?.project_name || "—",
+              qr_code_url: apiInv?.qr_code_url || "",
             },
             client: {
               name: apiInv?.users?.full_name || "—",
@@ -213,7 +214,7 @@ const InvoicePage = ({ invoiceId }) => {
 
   const { company, invoice, client, items, payment, summary } = invoiceData || {};
   const invoiceDisplay = `${invoice?.prefix || ""}-${invoice?.number || ""}`;
-  const qrCodeSrc = companySettings?.finance_qr_code || "/images/invoice_qr.jpg";
+  const qrCodeSrc = companySettings?.qr_code_url || "/images/invoice_qr.jpg";
 
   const getCompanyAddress = () => {
     if (!company) return "";

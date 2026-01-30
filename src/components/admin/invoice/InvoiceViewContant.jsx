@@ -153,6 +153,7 @@ const InvoiceViewContant = ({ invoiceId }) => {
               prefix: apiInv?.invoice_prefix || "",
               created: formatDate(apiInv?.invoice_date),
               due: formatDate(apiInv?.due_date),
+              qr_code_url: apiInv?.qr_code_url || "",
             },
             client: {
               name: apiInv?.users?.full_name || "—",
@@ -211,7 +212,8 @@ const InvoiceViewContant = ({ invoiceId }) => {
   const { company, invoice, client, items, payment, summary } = invoiceData || {};
   console.log(invoiceData);
   const invoiceDisplay = `${invoice?.prefix || ""}-${invoice?.number || ""}`;
-  const qrCodeSrc = companySettings?.finance_qr_code || "/images/invoice_qr.jpg";
+  console.log("Invoice Data:", invoice);
+  const qrCodeSrc = invoice?.qr_code_url || "";
 
   const getTaxDisplay = () => {
     if (!invoiceData?.summary?.tax_id || invoiceData.summary.tax_id === "0%") return "No Tax";
