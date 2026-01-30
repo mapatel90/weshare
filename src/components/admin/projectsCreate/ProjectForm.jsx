@@ -1,7 +1,8 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { FiSave, FiUpload, FiX, FiStar, FiArrowRight } from "react-icons/fi";
 import { useDropzone } from "react-dropzone";
 import { getFullImageUrl } from "@/utils/common";
+import { check_project_solis_plant_id_exists } from "@/utils/projectUtils";
 import {
   TextField,
   Select,
@@ -53,6 +54,8 @@ const ProjectForm = ({
   // i18n helper
   lang = (k, fallback) => fallback,
 }) => {
+  // Add local error state for Solis Plant ID
+  const [solisPlantIdError, setSolisPlantIdError] = useState("");
   const totalImages = (existingImages?.length || 0) + (imageQueue?.length || 0);
   const availableSlots = Math.max(maxProjectImages - totalImages, 0);
   const isGalleryFull = availableSlots <= 0;
@@ -94,6 +97,23 @@ const ProjectForm = ({
     },
     []
   );
+  // Handler for Solis Plant ID uniqueness check
+  const handleSolisPlantIdBlur = async () => {
+    const solis_plant_id = formData.solis_plant_id;
+    if (!solis_plant_id) {
+      setSolisPlantIdError("");
+      return;
+    }
+    // Exclude current project if editing
+    const projectId = formData?.id || null;
+    const exists = await check_project_solis_plant_id_exists(projectId, solis_plant_id);
+    if (exists) {
+      setSolisPlantIdError(lang("projects.solis_plant_id_exists", "Solis Plant ID already exists"));
+    } else {
+      setSolisPlantIdError("");
+    }
+  };
+
   return (
     <form id="project-form" onSubmit={handleSubmit}>
       <div className="card">
@@ -392,10 +412,13 @@ const ProjectForm = ({
                   name="solis_plant_id"
                   value={formData.solis_plant_id || ""}
                   onChange={handleInputChange}
+                  onBlur={handleSolisPlantIdBlur}
                   placeholder={lang(
                     "projects.solisPlantIdPlaceholder",
                     "Enter Solis plant id"
                   )}
+                  error={!!solisPlantIdError}
+                  helperText={solisPlantIdError}
                 />
               </div>
             </div>

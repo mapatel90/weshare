@@ -909,6 +909,7 @@
     "gallery": "Thư viện dự án",
     "projectSlugPlaceholder": "Slug dự án",
     "solisStatus": "Trạng thái Solis",
+    "solis_plant_id_exists":"Mã định danh nhà máy Solis này đã tồn tại trong một dự án khác.",
     "allSolisStatus": "Tất cả trạng thái Solis",
     "noProjects": "Không có dự án nào.",
     "remaining": "Còn lại",

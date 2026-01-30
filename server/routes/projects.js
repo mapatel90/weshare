@@ -166,6 +166,54 @@ router.post("/check-name", async (req, res) => {
   }
 });
 
+
+
+router.post("/check-plant-id", async (req, res) => {
+  try {
+    const { solis_plant_id, project_id } = req.body;
+    console.log("req.body", req.body);
+
+    if (!solis_plant_id) {
+      return res.json({ success: true, message: "Solisplant ID is required", exists: false });
+    }
+
+    // Build the query
+    const whereClause = {
+      solis_plant_id: solis_plant_id,
+      is_deleted: 0,
+    };
+
+    if (project_id) {
+      whereClause.id = {
+        not: parseInt(project_id),
+      };
+    }
+
+    const existingProject = await prisma.projects.findFirst({
+      where: whereClause,
+      select: {
+        id: true,
+        project_name: true,
+        solis_plant_id: true,
+      },
+    });
+
+    res.json({
+      success: true,
+      exists: !!existingProject,
+      project: existingProject,
+    });
+  } catch (error) {
+    console.error("Error checking project name in plant:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to check project name in plant",
+      error: error.message,
+    });
+  }
+});
+
+
 /**
  * @route   POST /api/projects
  * @desc    Create a new project

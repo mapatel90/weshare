@@ -112,3 +112,24 @@ export async function checkProjectNameExists(projectName, projectId = null) {
     return false;
   }
 }
+export async function check_project_solis_plant_id_exists(projectId = null, solis_plant_id) {
+  if (!solis_plant_id) return false;
+
+  try {
+    const response = await apiPost(
+      "/api/projects/check-plant-id",
+      {
+        solis_plant_id: solis_plant_id,
+        project_id: projectId,
+      },
+      {
+        showLoader: false,
+      }
+    );
+
+    return !!response?.exists;
+  } catch (error) {
+    console.error("Error checking project name:", error);
+    return false;
+  }
+}

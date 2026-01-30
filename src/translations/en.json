@@ -937,6 +937,7 @@
     "gallery": "Project Gallery",
     "projectSlugPlaceholder": "Project Slug",
     "solisStatus": "Solis Status",
+    "solis_plant_id_exists":"This Solis Plant ID already exists in another project.",
     "allSolisStatus": "All Solis Status",
     "noProjects": "No projects available.",
     "remaining": "Remaining",

@@ -8,7 +8,7 @@ import Table from "@/components/shared/table/Table";
 import { usePriceWithCurrency } from "@/hooks/usePriceWithCurrency";
 import { FiDownload, FiEdit, FiEye, FiTrash2 } from "react-icons/fi";
 import { downloadInvoicePDF } from "../invoice/InvoicePdf";
-import { Autocomplete, Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Stack, TextField } from "@mui/material";
+import { Autocomplete, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Stack, TextField } from "@mui/material";
 import Link from "next/link";
 import { downloadPayoutPDF } from "./PayoutPdf";
 import { ROLES } from "@/constants/roles";
@@ -310,19 +310,26 @@ const PayoutsPage = () => {
                 cell: ({ row }) => {
                     const data = row.original;
                     // Optional: hide button if already paid
-                    if (data.status === PAYOUT_STATUS.PAYOUT) return "Paid";
+                    if (data.status === PAYOUT_STATUS.PAYOUT) return <Chip
+                        label="Paid"
+                        sx={{
+                            backgroundColor: "#28a745",
+                            color: "#fff",
+                            fontWeight: "bold"
+                        }}
+                    />;
                     return (
                         <Button
                             size="small"
                             variant="contained"
                             onClick={() => handleMarkPay(data)}
                             sx={{
-                                backgroundColor: "#28a745",
+                                backgroundColor: "#da1919",
                                 color: "#fff",
                                 padding: "4px 8px",
                                 fontSize: "12px",
                                 textTransform: "none",
-                                "&:hover": { backgroundColor: "#218838" },
+                                "&:hover": { backgroundColor: "#b31515" },
                             }}
                         >
                             {lang("payouts.mark_as_pay", "Mark as pay")}
