@@ -9,6 +9,7 @@ import { apiGet, apiDelete } from '@/lib/api'
 import { useRouter } from 'next/navigation'
 import Swal from 'sweetalert2'
 import { useLanguage } from '@/contexts/LanguageContext'
+import { Button } from '@mui/material'
 
 // Role mapping
 const roleMapping = {
@@ -251,19 +252,29 @@ const UsersTable = () => {
         const user = row.original
         const roleName = user?.role?.name?.toLowerCase()
         const isInvestor = roleName === 'investor'
-        
+
         if (!isInvestor) {
           return <span className="text-muted">-</span>
         }
-        
+
         return (
-          <button
-            className="btn btn-sm btn-soft-primary"
+          <Button
+            variant="contained"
+            className="common-grey-color"
+            size='small'
+            sx={{
+              backgroundColor: "#28a745",
+              color: "#fff",
+              padding: "4px 8px",
+              fontSize: "12px",
+              textTransform: "none",
+              "&:hover": { backgroundColor: "#218838" },
+            }}
             onClick={() => handleShowQRCode(user?.qr_code, user?.full_name)}
           >
             <BsQrCode className="me-1" />
             {lang("table.qr_code")}
-          </button>
+          </Button>
         )
       },
       meta: {
@@ -295,7 +306,7 @@ const UsersTable = () => {
             <Link href={`/admin/users/edit?id=${user.id}`} className="avatar-text avatar-md">
               <FiEdit3 />
             </Link>
-            <a  className="avatar-text avatar-md" onClick={() => handleDeleteUser(user.id, `${user?.full_name}`)}>
+            <a className="avatar-text avatar-md" onClick={() => handleDeleteUser(user.id, `${user?.full_name}`)}>
               <FiTrash2 />
             </a>
           </div>
@@ -382,8 +393,8 @@ const UsersTable = () => {
               <div className="modal-body text-center p-4">
                 {selectedQRCode?.qrCode ? (
                   <div>
-                    <img 
-                      src={selectedQRCode.qrCode} 
+                    <img
+                      src={selectedQRCode.qrCode}
                       alt={`QR Code for ${selectedQRCode.userName}`}
                       className="img-fluid"
                       style={{ maxWidth: '300px', width: '100%' }}

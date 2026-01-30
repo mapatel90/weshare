@@ -220,9 +220,9 @@ router.get("/", authenticateToken, async (req, res) => {
             },
           },
           taxes: {
-            select : {
-              name : true,
-              value : true,
+            select: {
+              name: true,
+              value: true,
             }
           }
         },
@@ -369,13 +369,13 @@ router.post("/", authenticateToken, async (req, res) => {
 
     const parsedItems = Array.isArray(items)
       ? items
-          .map((it) => ({
-            item: it?.item || "",
-            description: it?.description || "",
-            unit: Number(it?.unit) || 0,
-            price: Number(it?.price) || 0,
-          }))
-          .filter((it) => it.item)
+        .map((it) => ({
+          item: it?.item || "",
+          description: it?.description || "",
+          unit: Number(it?.unit) || 0,
+          price: Number(it?.price) || 0,
+        }))
+        .filter((it) => it.item)
       : [];
 
     const itemsTotal = parsedItems.reduce(
@@ -421,28 +421,28 @@ router.post("/", authenticateToken, async (req, res) => {
         },
       });
 
-    if (newInvoice){
+      if (newInvoice) {
 
-      const lang = await getUserLanguage(newInvoice.offtaker_id);
-      const creatorName = await getUserFullName(created_by);
+        const lang = await getUserLanguage(newInvoice.offtaker_id);
+        const creatorName = await getUserFullName(created_by);
 
-      const notification_message = t(lang, 'notification_msg.invoice_created', {
-        invoice_number: newInvoice.invoice_prefix + "-" + newInvoice.invoice_number,
-        created_by: creatorName,
-      });
+        const notification_message = t(lang, 'notification_msg.invoice_created', {
+          invoice_number: newInvoice.invoice_prefix + "-" + newInvoice.invoice_number,
+          created_by: creatorName,
+        });
 
-      const title = t(lang, 'notification_msg.invoice_title');
+        const title = t(lang, 'notification_msg.invoice_title');
 
-      await createNotification({
-        userId: newInvoice?.offtaker_id,
-        title: title,
-        message: notification_message,
-        moduleType: "Invoice",
-        moduleId: newInvoice?.id,
-        actionUrl: `/offtaker/billings/invoice/${newInvoice?.id}`,
-        created_by: parseInt(created_by),
-      });
-    }
+        await createNotification({
+          userId: newInvoice?.offtaker_id,
+          title: title,
+          message: notification_message,
+          moduleType: "Invoice",
+          moduleId: newInvoice?.id,
+          actionUrl: `/offtaker/billings/invoice/${newInvoice?.id}`,
+          created_by: parseInt(created_by),
+        });
+      }
 
       if (parsedItems.length) {
         await tx.invoice_items.createMany({
@@ -520,14 +520,14 @@ router.put("/:id", authenticateToken, async (req, res) => {
 
     const parsedItems = Array.isArray(items)
       ? items
-          .map((it) => ({
-            item: it?.item || "",
-            description: it?.description || "",
-            unit: Number(it?.unit) || 0,
-            price: Number(it?.price) || 0,
-            id: it?.id,
-          }))
-          .filter((it) => it.item)
+        .map((it) => ({
+          item: it?.item || "",
+          description: it?.description || "",
+          unit: Number(it?.unit) || 0,
+          price: Number(it?.price) || 0,
+          id: it?.id,
+        }))
+        .filter((it) => it.item)
       : [];
 
     const itemsTotal = parsedItems.reduce(
@@ -639,6 +639,39 @@ router.delete("/:id", authenticateToken, async (req, res) => {
       .json({ success: true, message: "Invoice deleted successfully" });
   } catch (error) {
     console.error("Error deleting invoice:", error);
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+router.post("/dropdown", authenticateToken, async (req, res) => {
+  try {
+    const { project_id, offtaker_id, status } = req.body;
+
+    let where = {
+      is_deleted: 0,
+    };
+
+    if (project_id) {
+      where.project_id = parseInt(project_id);
+    }
+
+    if (offtaker_id) {
+      where.offtaker_id = parseInt(offtaker_id);
+    }
+
+    if (status !== undefined) {
+      where.status = parseInt(status);
+    }
+    const invoices = await prisma.invoices.findMany({
+      where: where,
+    });
+    return res.status(200).json({
+      success: true,
+      message: "Invoices fetched successfully",
+      data: invoices,
+    });
+  } catch (error) {
+    console.error("Error fetching invoices:", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
 });

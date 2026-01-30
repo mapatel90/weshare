@@ -1515,7 +1515,26 @@ router.post('/dropdown/project', authenticateToken, async (req, res) => {
       select: {
         id: true,
         project_name: true,
+        investor_profit: true,
         offtaker_id: true,
+
+        offtaker: {
+          select: {
+            id: true,
+            full_name: true,
+            email: true,
+            phone_number: true,
+          },
+        },
+
+        investor: {
+          select: {
+            id: true,
+            full_name: true,
+            email: true,
+            phone_number: true,
+          },
+        },
       },
       orderBy: {
         project_name: 'asc',

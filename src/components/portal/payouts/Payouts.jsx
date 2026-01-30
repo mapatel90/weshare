@@ -148,7 +148,7 @@ const PayoutsPage = () => {
             },
             {
                 accessorKey: "payout_amount",
-                header: () => lang("payouts.payment_amount", "Amount"),
+                header: () => lang("payouts.payout_amount", "Amount"),
                 cell: ({ getValue }) => priceWithCurrency(getValue()),
             },
             {

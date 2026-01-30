@@ -440,7 +440,7 @@
     "roireports": "Báo cáo ROI",
     "cashflowreports": "Báo cáo dòng tiền",
     "investmentsummaryreports": "Báo cáo tóm tắt đầu tư",
-    "payouts":"khoản thanh toán"
+    "payouts": "khoản thanh toán"
   },
   "dashboard": {
     "dashboard": "Trang tổng quan",
@@ -1657,7 +1657,7 @@
     "project_status_message": "Trạng thái của dự án \"{{project_name}}\" đã được cập nhật thành \"{{status_name}}\".",
     "investor_marked_title": "Nhà đầu tư được chỉ định",
     "investor_marked_message": "Bạn đã được chỉ định làm nhà đầu tư cho dự án \"{{project_name}}\" bởi \"{{assigned_by}}\".",
-    "payment_approved":"Thanh toán cho hóa đơn \"{{invoice_number}}\" với số tiền \"{{amount}}\" đã được thanh toán thành công.",
+    "payment_approved": "Thanh toán cho hóa đơn \"{{invoice_number}}\" với số tiền \"{{amount}}\" đã được thanh toán thành công.",
     "invoice_title": "Hóa đơn mới đã được tạo",
     "invoice_update_title": "Hóa đơn đã được cập nhật",
     "invoice_updated": "Hóa đơn \"{{invoice_number}}\" đã được cập nhật bởi \"{{updated_by}}\"."
@@ -1690,6 +1690,28 @@
     "documentUpdatedSuccessfully": "Tài liệu đã được cập nhật thành công",
     "documentDeletedSuccessfully": "Tài liệu đã được xóa thành công",
     "noDocumentsFound": "Không tìm thấy tài liệu cho dự án này"
+  },
+  "payouts": {
+    "payouts": "Thanh toán",
+    "payoutto": "Thanh toán cho",
+    "payout_details": "Chi tiết thanh toán",
+    "payout_number": "Số thanh toán",
+    "addPayout": "Thêm thanh toán",
+    "editPayout": "Chỉnh sửa thanh toán",
+    "investor_name": "Tên nhà đầu tư",
+    "payout_amount": "Số tiền thanh toán",
+    "invoice_amount": "Số tiền hóa đơn",
+    "investor_percentage": "Phần trăm nhà đầu tư",
+    "viewPayout": "Xem thanh toán",
+    "transaction_id": "Mã giao dịch",
+    "enterTransactionId": "Nhập mã giao dịch",
+    "payout_date": "Ngày thanh toán",
+    "uploaded_image": "Hình ảnh đã tải lên",
+    "selected_image": "Hình ảnh đã chọn",
+    "mark_as_pay": "Đánh dấu thanh toán",
+    "payoutCreatedSuccessfully": "Tạo thanh toán thành công",
+    "payoutUpdatedSuccessfully": "Cập nhật thanh toán thành công",
+    "payoutDeletedSuccessfully": "Xóa thanh toán thành công",
+    "save_mark_paid": "Lưu & Đánh dấu đã thanh toán"
   }
-
 }

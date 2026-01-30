@@ -113,7 +113,7 @@ const PayoutView = ({ payout_id }) => {
                     <table className="table table-sm mb-0">
                         <thead style={{ backgroundColor: '#f3f4f6' }}>
                             <tr>
-                                <th className="px-3 py-2 text-start fw-semibold">{lang("payouts.payment_amount")}</th>
+                                <th className="px-3 py-2 text-start fw-semibold">{lang("payouts.payout_amount")}</th>
                                 <th className="px-3 py-2 text-start fw-semibold">{lang("payouts.transaction_id")}</th>
                                 <th className="px-3 py-2 text-start fw-semibold">{lang("payouts.payout_date")}</th>
                             </tr>
@@ -153,7 +153,7 @@ const PayoutView = ({ payout_id }) => {
                             <div className="border rounded-3 p-3 p-md-4 shadow-sm" style={{ background: '#f9fafb' }}>
                                 <div className="d-flex flex-column gap-2">
                                     <div className="d-flex justify-content-between align-items-center">
-                                        <span className="fw-bold" style={{ color: '#111827' }}>{lang("payouts.payment_amount")}</span>
+                                        <span className="fw-bold" style={{ color: '#111827' }}>{lang("payouts.payout_amount")}</span>
                                         <span className="fw-bold h5 mb-0" style={{ color: '#1d4ed8' }}>{priceWithCurrency(payout?.payout_amount) || ''}</span>
                                     </div>
                                 </div>

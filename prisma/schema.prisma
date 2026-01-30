@@ -600,6 +600,7 @@ model payouts {
   invoice_amount  Float     @default(0)
   investor_percent Float    @default(0)
   payout_amount   Float     @default(0)
+  document        String?   @db.VarChar(255)
 
   status          String   @default("pending") 
   transaction_id  String? // bank txn id / stripe id

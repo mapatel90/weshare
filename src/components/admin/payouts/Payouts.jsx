@@ -2,16 +2,20 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import React, { useEffect, useMemo, useState } from "react";
-import { apiGet, apiPost } from "@/lib/api";
+import { apiDelete, apiGet, apiPost, apiUpload } from "@/lib/api";
 import { PROJECT_STATUS } from "@/constants/project_status";
 import Table from "@/components/shared/table/Table";
 import { usePriceWithCurrency } from "@/hooks/usePriceWithCurrency";
-import { FiDownload, FiEye } from "react-icons/fi";
+import { FiDownload, FiEdit, FiEye, FiTrash2 } from "react-icons/fi";
 import { downloadInvoicePDF } from "../invoice/InvoicePdf";
-import { Autocomplete, IconButton, Stack, TextField } from "@mui/material";
+import { Autocomplete, Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Stack, TextField } from "@mui/material";
 import Link from "next/link";
 import { downloadPayoutPDF } from "./PayoutPdf";
 import { ROLES } from "@/constants/roles";
+import Swal from "sweetalert2";
+import { showSuccessToast } from "@/utils/topTost";
+import { PAYOUT_STATUS } from "@/constants/payout_status";
+import { identity } from "@fullcalendar/core/internal";
 
 
 const PayoutsPage = () => {
@@ -20,18 +24,20 @@ const PayoutsPage = () => {
     const [pageIndex, setPageIndex] = useState(0); // 0-based index for Table
     const { lang } = useLanguage();
     const { user } = useAuth();
-
     const [projectList, setProjectList] = useState([]);
     const [projectFilter, setProjectFilter] = useState("");
     const [payouts, setPayouts] = useState([]);
-    const [loading, setLoading] = useState(false);
     const [pagination, setPagination] = useState({ page: 1, pageSize: pageSize, totalCount: 0, totalPages: 0 });
     const [searchTerm, setSearchTerm] = useState("");
     const [investorList, setInvestorList] = useState([]);
     const [investorFilter, setInvestorFilter] = useState(null);
     const [investorSearch, setInvestorSearch] = useState("");
+    const [documentPreview, setDocumentPreview] = useState(null);
+    const [txModalOpen, setTxModalOpen] = useState(false);
+    const [txId, setTxId] = useState("");
+    const [selectedPayout, setSelectedPayout] = useState(null);
+    const [selectedFile, setSelectedFile] = useState(null);
     const priceWithCurrency = usePriceWithCurrency();
-
 
     const fetchProjects = async () => {
         try {
@@ -70,14 +76,10 @@ const PayoutsPage = () => {
     };
 
     useEffect(() => {
-
     }, [investorSearch]);
-
-
 
     const fetchPayouts = async () => {
         try {
-            setLoading(true);
             const params = new URLSearchParams({
                 page: String(pageIndex + 1),
                 pageSize: String(pageSize),
@@ -94,7 +96,6 @@ const PayoutsPage = () => {
                 params.append("investorId", investorFilter.id);
             }
 
-
             const response = await apiGet(`/api/payouts?${params.toString()}`);
 
             if (response?.success) {
@@ -104,7 +105,6 @@ const PayoutsPage = () => {
         } catch (e) {
             console.error("Error fetching payouts:", e);
         } finally {
-            setLoading(false);
         }
     };
 
@@ -127,9 +127,91 @@ const PayoutsPage = () => {
         fetchPayouts(newPageIndex + 1, newPageSize);
     };
 
+    const handleDelete = async (id) => {
+        const result = await Swal.fire({
+            title: lang("messages.confirmDelete"),
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: lang("common.yesDelete"),
+            cancelButtonText: lang("common.cancel"),
+        });
+        if (!result.isConfirmed) return;
+        try {
+            const res = await apiDelete(`/api/payouts/delete/${id}`);
+            if (res.success) {
+                showSuccessToast(lang("payouts.payoutDeletedSuccessfully"));
+                fetchPayouts();
+            }
+        } catch (_) {
+            // Handle error (optional)
+            console.error("Error deleting payout:", _);
+        }
+    };
+
+    const handleViewDocument = (url) => {
+        setDocumentPreview(url);
+    };
+
+    const handleMarkPay = (rowData) => {
+        setSelectedFile(null); // reset previous upload
+
+        if (!rowData.transaction_id) {
+            setSelectedPayout(rowData);
+            setTxModalOpen(true);
+            return;
+        }
+
+        markAsPaid(rowData.id, rowData.transaction_id);
+    };
+
+    const markAsPaid = async (id, transactionId) => {
+        try {
+            const formData = new FormData();
+
+            if (identity) {
+                formData.append('id', id);
+            }
+            if (transactionId) {
+                formData.append("transaction_id", transactionId);
+            }
+            if (selectedFile) {
+                formData.append("document", selectedFile);
+            }
+            formData.append("mark_as_paid", "true");
+
+            const res = await apiUpload("/api/payouts/update", formData);
+            if (res?.success) {
+                showSuccessToast("Payout marked as paid");
+                handleCloseTxModal();
+                fetchPayouts();
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+
+    const handleCloseTxModal = () => {
+        setTxModalOpen(false);
+        setTxId("");               // clear input
+        setSelectedPayout(null);   // clear selected payout
+        setSelectedFile(null);
+    };
+
     useEffect(() => {
         fetchProjects();
         fetchPayouts();
+
+        // Listen for payout:refresh event to refresh the payout list
+        const handlePayoutRefresh = () => {
+            fetchPayouts();
+        };
+        window.addEventListener("payout:refresh", handlePayoutRefresh);
+        return () => {
+            window.removeEventListener("payout:refresh", handlePayoutRefresh);
+        };
     }, []);
 
     useEffect(() => {
@@ -178,7 +260,7 @@ const PayoutsPage = () => {
             },
             {
                 accessorKey: "payout_amount",
-                header: () => lang("payouts.payment_amount", "Amount"),
+                header: () => lang("payouts.payout_amount", "Amount"),
                 cell: ({ getValue }) => priceWithCurrency(getValue()),
             },
             {
@@ -192,10 +274,89 @@ const PayoutsPage = () => {
                 },
             },
             {
+                id: "document",
+                header: () => lang("payouts.uploaded_image", "Document"),
+                cell: ({ row }) => {
+                    const docUrl = row.original.document; // check DB field name
+
+                    if (!docUrl) return "N/A";
+
+                    return (
+                        <Button
+                            size="small"
+                            // variant="outlined"
+                            onClick={() => handleViewDocument(docUrl)} // direct call
+                        >
+                            {lang("navigation.view", "View")}
+                        </Button>
+                    );
+                },
+            },
+            {
+                id: "markAsPay",
+                header: () => "Payment",
+                cell: ({ row }) => {
+                    const data = row.original;
+                    // Optional: hide button if already paid
+                    if (data.status === PAYOUT_STATUS.PAYOUT) return "Paid";
+                    return (
+                        <Button
+                            size="small"
+                            variant="contained"
+                            onClick={() => handleMarkPay(data)}
+                            sx={{
+                                backgroundColor: "#28a745",
+                                color: "#fff",
+                                padding: "4px 8px",
+                                fontSize: "12px",
+                                textTransform: "none",
+                                "&:hover": { backgroundColor: "#218838" },
+                            }}
+                        >
+                            {lang("payouts.mark_as_pay", "Mark as pay")}
+                        </Button>
+                    );
+                },
+            },
+            {
                 accessorKey: "actions",
                 header: () => lang("invoice.actions"),
                 cell: ({ row }) => (
                     <Stack direction="row" spacing={1} sx={{ flexWrap: "nowrap" }}>
+                        <IconButton
+                            size="small"
+                            onClick={() => {
+                                // Dispatch event to open edit modal with payout data
+                                window.dispatchEvent(
+                                    new CustomEvent("payout:open-edit", {
+                                        detail: row.original, // WHOLE payout row send karo
+                                    })
+                                );
+                            }}
+                            sx={{
+                                color: "#ed6c02",
+                                transition: "transform 0.2s ease",
+                                "&:hover": {
+                                    backgroundColor: "rgba(237, 108, 2, 0.08)",
+                                    transform: "scale(1.1)",
+                                },
+                            }}
+                        >
+                            <FiEdit size={18} />
+                        </IconButton>
+                        <IconButton
+                            size="small"
+                            onClick={() => handleDelete(row.original.id)}
+                            sx={{
+                                color: "#d32f2f",
+                                transition: "transform 0.2s ease",
+                                "&:hover": {
+                                    backgroundColor: "rgba(211, 47, 47, 0.08)",
+                                    transform: "scale(1.1)",
+                                },
+                            }}
+                        ><FiTrash2 size={18} />
+                        </IconButton>
                         <Link
                             href={`/admin/finance/payouts/view/${row.original.id}`}
                             target="_blank"
@@ -234,7 +395,7 @@ const PayoutsPage = () => {
                 meta: {
                     disableSort: true,
                 },
-            },
+            }
         ]
         , [lang]);
 
@@ -295,7 +456,7 @@ const PayoutsPage = () => {
                             renderInput={(params) => (
                                 <TextField
                                     {...params}
-                                    label="Investor"
+                                    label={lang("authentication.becomeInvestor", "Investor")}
                                     placeholder="Search investor..."
                                 />
                             )}
@@ -304,11 +465,6 @@ const PayoutsPage = () => {
                     </div>
                 </div>
                 <div className="overflow-x-auto relative">
-                    {/* {!hasLoadedOnce && loading && (
-                        <div className="text-center py-6 text-gray-600">Loading...</div>
-                    )} */}
-
-                    {/* {error && <div className="text-red-600">Error: {error}</div>} */}
                     <>
                         {/* Keep the table mounted so search input state is retained */}
                         <Table
@@ -325,6 +481,69 @@ const PayoutsPage = () => {
                     </>
                 </div>
             </div>
+
+            {/* Upload Image Preview Modal */}
+            <Dialog
+                open={!!documentPreview}
+                onClose={() => setDocumentPreview(null)}
+                maxWidth="md"
+            >
+                <DialogTitle>{lang("payouts.uploaded_image")}</DialogTitle>
+                <DialogContent dividers sx={{ textAlign: "center" }}>
+                    {documentPreview && (
+                        <img
+                            src={documentPreview}
+                            alt="Document"
+                            style={{ maxWidth: "100%", borderRadius: 8 }}
+                        />
+                    )}
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setDocumentPreview(null)} color="primary">
+                        {lang("common.close")}
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* Transaction ID Modal */}
+            <Dialog open={txModalOpen} onClose={handleCloseTxModal} maxWidth="xs" fullWidth>
+                <DialogTitle>{lang("payouts.enterTransactionId")}</DialogTitle>
+                <DialogContent>
+                    <TextField
+                        fullWidth
+                        label={lang("payouts.enterTransactionId", "Enter Transaction ID")}
+                        value={txId}
+                        onChange={(e) => setTxId(e.target.value)}
+                        sx={{ mt: 1 }}
+                    />
+
+                    <TextField
+                        fullWidth
+                        type="file"
+                        inputProps={{ accept: "image/*" }}
+                        label={lang("projects.uploadImage")}
+                        InputLabelProps={{ shrink: true }}
+                        onChange={(e) => {
+                            const file = (e.target.files && e.target.files[0]) || null;
+                            setSelectedFile(file);
+                        }}
+                        sx={{ mt: 4 }}
+                    />
+                    <DialogActions>
+                        <Button onClick={() => handleCloseTxModal()} color="error" variant="outlined" className="custom-orange-outline">
+                            {lang("common.close")}
+                        </Button>
+                        <Button
+                            variant="contained"
+                            disabled={!txId}
+                            className="common-grey-color"
+                            onClick={() => markAsPaid(selectedPayout.id, txId)}
+                        >
+                            {lang("payouts.save_mark_paid", "Save & Mark as Paid")}
+                        </Button>
+                    </DialogActions>
+                </DialogContent>
+            </Dialog>
         </>
     );
 };

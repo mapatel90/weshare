@@ -14,8 +14,6 @@ const PayoutView = ({ payout_id }) => {
     const [error, setError] = useState("");
     const [companySettings, setCompanySettings] = useState({});
     const [countries, setCountries] = useState([]);
-
-
     const priceWithCurrency = usePriceWithCurrency();
     useEffect(() => {
         const fetchCompanySettings = async () => {
@@ -134,7 +132,7 @@ const PayoutView = ({ payout_id }) => {
                                 <th className="px-3 py-2 text-start fw-semibold">{lang("invoice.invoiceNumber")}</th>
                                 <th className="px-3 py-2 text-start fw-semibold">{lang("payouts.invoice_amount")}</th>
                                 <th className="px-3 py-2 text-start fw-semibold">{lang("payouts.investor_percentage")}</th>
-                                <th className="px-3 py-2 text-start fw-semibold">{lang("payouts.payment_amount")}</th>
+                                <th className="px-3 py-2 text-start fw-semibold">{lang("payouts.payout_amount")}</th>
                                 <th className="px-3 py-2 text-start fw-semibold">{lang("payouts.transaction_id")}</th>
                                 <th className="px-3 py-2 text-start fw-semibold">{lang("payouts.payout_date")}</th>
                             </tr>
@@ -188,7 +186,7 @@ const PayoutView = ({ payout_id }) => {
                                         <span className="fw-semibold" style={{ color: '#b91c1c' }}>{summary?.tax_amount || ''}</span>
                                     </div> */}
                                     <div className="d-flex justify-content-between align-items-center">
-                                        <span className="fw-bold" style={{ color: '#111827' }}>{lang("payouts.payment_amount")}</span>
+                                        <span className="fw-bold" style={{ color: '#111827' }}>{lang("payouts.payout_amount")}</span>
                                         <span className="fw-bold h5 mb-0" style={{ color: '#1d4ed8' }}>{priceWithCurrency(payout?.payout_amount) || ''}</span>
                                     </div>
                                 </div>

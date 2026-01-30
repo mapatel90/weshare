@@ -1754,11 +1754,19 @@
     "addPayout": "Add Payout",
     "editPayout": "Edit Payout",
     "investor_name": "Investor Name",
-    "payment_amount": "Payout Amount",
+    "payout_amount": "Payout Amount",
     "invoice_amount": "Invoice Amount",
-    "investor_percentage": "Investor Percentage",
+    "investor_percentage": "Investor %",
     "viewPayout": "View Payout",
     "transaction_id": "Transaction ID",
-    "payout_date": "Payout Date"
+    "enterTransactionId": "Enter Transaction ID",
+    "payout_date": "Payout Date",
+    "mark_as_pay": "Mark as Pay",
+    "uploaded_image": "Uploaded Image",
+    "selected_image": "Selected Image",
+    "payoutCreatedSuccessfully": "Payout Created Successfully",
+    "payoutUpdatedSuccessfully": "Payout Updated Successfully",
+    "payoutDeletedSuccessfully": "Payout Deleted Successfully",
+    "save_mark_paid": "Save & Mark as Paid"
   }
 }
