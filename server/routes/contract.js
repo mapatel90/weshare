@@ -6,9 +6,10 @@ import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
-import { createBulkNotifications, createNotification } from '../utils/notifications.js';
+import { createNotification } from '../utils/notifications.js';
 import { getUserLanguage, t } from '../utils/i18n.js';
 import { getUserFullName } from '../utils/common.js';
+import { sendEmailUsingTemplate } from '../utils/email.js';
 import { PROJECT_STATUS } from '../../src/constants/project_status.js';
 
 const router = express.Router();
@@ -62,14 +63,14 @@ router.post("/", authenticateToken, upload.single('document'), async (req, res) 
     }
 
     const created = await prisma.contracts.create({
-      data: {
-        projects: projectId ? { connect: { id: Number(projectId) } } : undefined,
-        users: offtakerId ? { connect: { id: Number(offtakerId) } } : undefined,
-        interested_investors: investorId ? { connect: { id: Number(investorId) } } : undefined, // connects to InterestedInvestor
+      data : {
+        offtaker_id: offtakerId ? Number(offtakerId) : null,
+        investor_id: investorId ? Number(investorId) : null,
+        project_id: projectId ? Number(projectId) : null,
         contract_title: contractTitle,
         contract_description: contractDescription || null,
-        document_upload: uploadedPath || null,
-        contract_date: formattedDate,
+        document_upload: uploadedPath,
+        contract_date: formattedDate ? formattedDate : null,
         status: typeof status !== 'undefined' ? Number(status) : 0,
         created_by: userId,
       },
@@ -106,6 +107,60 @@ router.post("/", authenticateToken, upload.single('document'), async (req, res) 
           actionUrl: `contracts/details/${created.id}`,
           ...notificationPayload,
         });
+
+        // Send email to offtaker
+        const offtakerUser = await prisma.users.findUnique({ where: { id: Number(offtakerId) } });
+        if (offtakerUser?.email) {
+          const contractUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/offtaker/contracts/details/${created.id}`;
+          const templateData = {
+            user_name: offtakerUser.full_name || 'User',
+            user_email: offtakerUser.email,
+            contract_title: created.contract_title,
+            project_name: created?.projects?.project_name || 'N/A',
+            system_capacity: created?.projects?.project_size || 'N/A',
+            lease_start_date: created.contract_date ? new Date(created.contract_date).toLocaleDateString() : 'N/A',
+            lease_price: created?.projects?.weshare_price_kwh || 'N/A',
+            contract_duration: created?.projects?.lease_term + ' (Years)' || 'N/A',
+            site_url: process.env.FRONTEND_URL || 'http://localhost:3000',
+            company_name: 'WeShare Energy',
+            company_logo: `${process.env.NEXT_PUBLIC_URL || ''}/images/main_logo.png`,
+            support_email: 'support@weshare.com',
+            support_phone: '+1 (555) 123-4567',
+            support_hours: 'Mon–Fri, 9am–6pm GMT',
+            current_date: new Date().toLocaleDateString(),
+            login_url: contractUrl,
+          };
+
+          // Prepare attachments
+          const attachments = [];
+          if (created.document_upload) {
+            const docPath = path.join(PUBLIC_DIR, created.document_upload.replace(/^\//, ''));
+            if (fs.existsSync(docPath)) {
+              attachments.push({
+                filename: path.basename(docPath),
+                path: docPath,
+              });
+            }
+          }
+
+          sendEmailUsingTemplate({
+            to: offtakerUser.email,
+            templateSlug: 'contract_created',
+            templateData,
+            language: offtakerUser.language || 'en',
+            attachments,
+          })
+          .then((result) => {
+            if (result.success) {
+              console.log(`✅ Contract email sent to ${offtakerUser.email}`);
+            } else {
+              console.warn(`⚠️ Could not send contract email: ${result.error}`);
+            }
+          })
+          .catch((error) => {
+            console.error('❌ Failed to send contract email:', error.message);
+          });
+        }
       }
 
       // Interested Investor notification
@@ -115,6 +170,61 @@ router.post("/", authenticateToken, upload.single('document'), async (req, res) 
           actionUrl: `contracts/details/${created.id}`,
           ...notificationPayload,
         });
+
+        // Send email to investor
+        const investor = await prisma.interested_investors.findFirst({ where: { user_id: Number(investorId),  project_id: Number(projectId), is_deleted: 0} });
+        if (investor?.email) {
+          const contractUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/investor/contracts/details/${created.id}`;
+          const templateData = {
+            user_name: investor.full_name || 'Investor',
+            user_email: investor.email,
+            contract_title: created.contract_title,
+            project_name: created?.projects?.project_name || 'N/A',
+            system_capacity: created?.projects?.project_size || 'N/A',
+            lease_start_date: created.contract_date ? new Date(created.contract_date).toLocaleDateString() : 'N/A',
+            lease_price: created?.projects?.weshare_price_kwh || 'N/A',
+            contract_duration: created?.projects?.lease_term + ' (Years)' || 'N/A',
+            signed_pdf: created.document_upload ? `${process.env.FRONTEND_URL || 'http://localhost:3000'}${created.document_upload}` : '',
+            site_url: process.env.FRONTEND_URL || 'http://localhost:3000',
+            company_name: 'WeShare Energy',
+            company_logo: `${process.env.NEXT_PUBLIC_URL || ''}/images/main_logo.png`,
+            support_email: 'support@weshare.com',
+            support_phone: '+1 (555) 123-4567',
+            support_hours: 'Mon–Fri, 9am–6pm GMT',
+            current_date: new Date().toLocaleDateString(),
+            login_url: contractUrl,
+          };
+
+          // Prepare attachments
+          const investorAttachments = [];
+          if (created.document_upload) {
+            const docPath = path.join(PUBLIC_DIR, created.document_upload.replace(/^\//, ''));
+            if (fs.existsSync(docPath)) {
+              investorAttachments.push({
+                filename: path.basename(docPath),
+                path: docPath,
+              });
+            }
+          }
+
+          sendEmailUsingTemplate({
+            to: investor.email,
+            templateSlug: 'contract_created',
+            templateData,
+            language: investor.users?.language || 'en',
+            attachments: investorAttachments,
+          })
+            .then((result) => {
+              if (result.success) {
+                console.log(`✅ Contract email sent to ${investor.email}`);
+              } else {
+                console.warn(`⚠️ Could not send contract email: ${result.error}`);
+              }
+            })
+            .catch((error) => {
+              console.error('❌ Failed to send contract email:', error.message);
+            });
+        }
       }
     }
 
@@ -234,10 +344,10 @@ router.get("/", async (req, res) => {
             states: true,
             countries: true,
             project_types: true,
+            interested_investors: true,
           },
         },
         users: true,
-        interested_investors: true,
       },
     });
 
@@ -375,11 +485,11 @@ router.put("/:id", authenticateToken, upload.single('document'), async (req, res
 });
 
 // update contract status
-router.put("/:id/status", authenticateToken, async (req, res) => {
+router.put("/:id/status", authenticateToken, upload.single('file'), async (req, res) => {
   try {
     const id = Number(req.params.id);
     const { status, reason } = req.body;
-    const existing = await prisma.contracts.findFirst({ where: { id } });
+    const existing = await prisma.contracts.findFirst({ where: { id }, include: { projects: true, users: true, interested_investors: true } });
     if (!existing || existing.is_deleted) {
       return res.status(404).json({ success: false, message: 'Contract not found' });
     }
@@ -390,6 +500,12 @@ router.put("/:id/status", authenticateToken, async (req, res) => {
     } else if (Number(status) !== 2) {
       updateData.rejectreason = null;
     }
+
+    // If approved with file, save signed document
+    if (Number(status) === 1 && req.file) {
+      updateData.signed_document_upload = `/images/contract/${req.file.filename}`;
+    }
+
     const updated = await prisma.contracts.update({
       where: { id },
       data: updateData,
@@ -407,6 +523,110 @@ router.put("/:id/status", authenticateToken, async (req, res) => {
         contract_title: existing.contract_title,
         created_by: creator_name
       });
+
+      // Send email to offtaker if exists
+      if (existing.offtaker_id) {
+        const offtakerUser = await prisma.users.findUnique({ where: { id: Number(existing.offtaker_id) } });
+        if (offtakerUser?.email) {
+          const templateData = {
+            user_name: offtakerUser.full_name || 'User',
+            user_email: offtakerUser.email,
+            project_name: existing?.projects?.project_name || 'N/A',
+            solis_id: existing?.projects?.solis_plant_id || 'N/A',
+            system_capacity: existing?.projects?.project_size || 'N/A',
+            lease_start_date: existing?.contract_date ? new Date(existing.contract_date).toLocaleDateString('en-GB') : 'N/A',
+            lease_price: existing?.projects?.weshare_price_kwh || 'N/A',
+            contract_duration: existing?.projects?.lease_term ? `${existing.projects.lease_term} Years` : 'N/A',
+            site_url: process.env.FRONTEND_URL || 'http://localhost:3000',
+            company_name: 'WeShare Energy',
+            company_logo: `${process.env.NEXT_PUBLIC_URL || ''}/images/main_logo.png`,
+            support_email: 'support@weshare.com',
+            support_phone: '+1 (555) 123-4567',
+            support_hours: 'Mon–Fri, 9am–6pm GMT',
+            current_date: new Date().toLocaleDateString(),
+          };
+
+          // Prepare attachments
+          const offtakerAttachments = [];
+          if (req.file) {
+            offtakerAttachments.push({
+              filename: req.file.filename,
+              path: path.join(PUBLIC_DIR, 'images', 'contract', req.file.filename),
+            });
+          }
+
+          sendEmailUsingTemplate({
+            to: offtakerUser.email,
+            templateSlug: 'contract_approved',
+            templateData,
+            language: offtakerUser.language || 'en',
+            attachments: offtakerAttachments,
+          })
+            .then((result) => {
+              if (result.success) {
+                console.log(`✅ Contract approval email sent to offtaker: ${offtakerUser.email}`);
+              } else {
+                console.warn(`⚠️ Could not send contract approval email: ${result.error}`);
+              }
+            })
+            .catch((error) => {
+              console.error('❌ Failed to send contract approval email:', error.message);
+            });
+        }
+      }
+
+      // Send email to investor if exists
+      if (existing.investor_id) {
+        const investor = await prisma.interested_investors.findFirst({ 
+          where: { user_id: Number(existing.investor_id), project_id: Number(existing.project_id), is_deleted: 0 } 
+        });
+        if (investor?.email) {
+          const templateData = {
+            user_name: investor.full_name || 'Investor',
+            user_email: investor.email,
+            project_name: existing?.projects?.project_name || 'N/A',
+            solis_id: existing?.projects?.solis_plant_id || 'N/A',
+            system_capacity: existing?.projects?.project_size || 'N/A',
+            lease_start_date: existing?.contract_date ? new Date(existing.contract_date).toLocaleDateString('en-GB') : 'N/A',
+            lease_price: existing?.projects?.weshare_price_kwh || 'N/A',
+            contract_duration: existing?.projects?.lease_term ? `${existing.projects.lease_term} Years` : 'N/A',
+            site_url: process.env.FRONTEND_URL || 'http://localhost:3000',
+            company_name: 'WeShare Energy',
+            company_logo: `${process.env.NEXT_PUBLIC_URL || ''}/images/main_logo.png`,
+            support_email: 'support@weshare.com',
+            support_phone: '+1 (555) 123-4567',
+            support_hours: 'Mon–Fri, 9am–6pm GMT',
+            current_date: new Date().toLocaleDateString(),
+          };
+
+          // Prepare attachments
+          const investorAttachments = [];
+          if (req.file) {
+            investorAttachments.push({
+              filename: req.file.filename,
+              path: path.join(PUBLIC_DIR, 'images', 'contract', req.file.filename),
+            });
+          }
+
+          sendEmailUsingTemplate({
+            to: investor.email,
+            templateSlug: 'contract_approved',
+            templateData,
+            language: investor.language || 'en',
+            attachments: investorAttachments,
+          })
+            .then((result) => {
+              if (result.success) {
+                console.log(`✅ Contract approval email sent to investor: ${investor.email}`);
+              } else {
+                console.warn(`⚠️ Could not send contract approval email: ${result.error}`);
+              }
+            })
+            .catch((error) => {
+              console.error('❌ Failed to send contract approval email:', error.message);
+            });
+        }
+      }
     }
 
     if (Number(status) === 2) {
@@ -415,6 +635,86 @@ router.put("/:id/status", authenticateToken, async (req, res) => {
         contract_title: existing.contract_title,
         created_by: creator_name
       });
+
+      // Send email to offtaker if exists
+      if (existing.offtaker_id) {
+        const offtakerUser = await prisma.users.findUnique({ where: { id: Number(existing.offtaker_id) } });
+        if (offtakerUser?.email) {
+          const templateData = {
+            user_name: offtakerUser.full_name || 'User',
+            user_email: offtakerUser.email,
+            contract_title: existing.contract_title || 'N/A',
+            project_name: existing?.projects?.project_name || 'N/A',
+            solis_id: existing?.projects?.solis_plant_id || 'N/A',
+            rejection_reason: existing.rejectreason || 'No reason provided',
+            site_url: process.env.FRONTEND_URL || 'http://localhost:3000',
+            company_name: 'WeShare Energy',
+            company_logo: `${process.env.NEXT_PUBLIC_URL || ''}/images/main_logo.png`,
+            support_email: 'support@weshare.com',
+            support_phone: '+1 (555) 123-4567',
+            support_hours: 'Mon–Fri, 9am–6pm GMT',
+            current_date: new Date().toLocaleDateString(),
+          };
+
+          sendEmailUsingTemplate({
+            to: offtakerUser.email,
+            templateSlug: 'contract_rejected',
+            templateData,
+            language: offtakerUser.language || 'en',
+          })
+            .then((result) => {
+              if (result.success) {
+                console.log(`✅ Contract rejection email sent to offtaker: ${offtakerUser.email}`);
+              } else {
+                console.warn(`⚠️ Could not send contract rejection email: ${result.error}`);
+              }
+            })
+            .catch((error) => {
+              console.error('❌ Failed to send contract rejection email:', error.message);
+            });
+        }
+      }
+
+      // Send email to investor if exists
+      if (existing.investor_id) {
+        const investor = await prisma.interested_investors.findFirst({ 
+          where: { user_id: Number(existing.investor_id), project_id: Number(existing.project_id), is_deleted: 0 } 
+        });
+        if (investor?.email) {
+          const templateData = {
+            user_name: investor.full_name || 'Investor',
+            user_email: investor.email,
+            contract_title: existing.contract_title || 'N/A',
+            project_name: existing?.projects?.project_name || 'N/A',
+            solis_id: existing?.projects?.solis_plant_id || 'N/A',
+            rejection_reason: existing.rejectreason || 'No reason provided',
+            site_url: process.env.FRONTEND_URL || 'http://localhost:3000',
+            company_name: 'WeShare Energy',
+            company_logo: `${process.env.NEXT_PUBLIC_URL || ''}/images/main_logo.png`,
+            support_email: 'support@weshare.com',
+            support_phone: '+1 (555) 123-4567',
+            support_hours: 'Mon–Fri, 9am–6pm GMT',
+            current_date: new Date().toLocaleDateString(),
+          };
+
+          sendEmailUsingTemplate({
+            to: investor.email,
+            templateSlug: 'contract_rejected',
+            templateData,
+            language: investor.language || 'en',
+          })
+            .then((result) => {
+              if (result.success) {
+                console.log(`✅ Contract rejection email sent to investor: ${investor.email}`);
+              } else {
+                console.warn(`⚠️ Could not send contract rejection email: ${result.error}`);
+              }
+            })
+            .catch((error) => {
+              console.error('❌ Failed to send contract rejection email:', error.message);
+            });
+        }
+      }
     }
 
     await createNotification({
@@ -423,7 +723,7 @@ router.put("/:id/status", authenticateToken, async (req, res) => {
       message: notification_message,
       moduleType: 'contract',
       moduleId: existing?.id,
-      actionUrl: `contract/view/${existing?.id}`,
+      actionUrl: `/offtaker/contract/view/${existing?.id}`,
       created_by: existing?.offtaker_id
     });
 
@@ -442,6 +742,34 @@ router.delete("/:id", authenticateToken, async (req, res) => {
     const existing = await prisma.contracts.findFirst({ where: { id } });
     if (!existing || existing.is_deleted) {
       return res.status(404).json({ success: false, message: 'Contract not found' });
+    }
+
+    // Delete the uploaded document file if it exists
+    if (existing.document_upload) {
+      try {
+        const filePath = path.join(PUBLIC_DIR, existing.document_upload.replace(/^\//, ''));
+        if (fs.existsSync(filePath)) {
+          fs.unlinkSync(filePath);
+          console.log(`Deleted file: ${filePath}`);
+        }
+      } catch (fileError) {
+        console.error('Error deleting file:', fileError);
+        // Continue with soft delete even if file deletion fails
+      }
+    }
+
+    // Delete the signed document file if it exists
+    if (existing.signed_document_upload) {
+      try {
+        const signedFilePath = path.join(PUBLIC_DIR, existing.signed_document_upload.replace(/^\//, ''));
+        if (fs.existsSync(signedFilePath)) {
+          fs.unlinkSync(signedFilePath);
+          console.log(`Deleted signed file: ${signedFilePath}`);
+        }
+      } catch (fileError) {
+        console.error('Error deleting signed file:', fileError);
+        // Continue with soft delete even if file deletion fails
+      }
     }
 
     await prisma.contracts.update({

@@ -29,6 +29,12 @@ const ContractModal = (props) => {
     setDocumentUpload,
     documentPreviewUrl,
     applyDocumentSelection,
+    titleError,
+    descriptionError,
+    documentError,
+    setTitleError,
+    setDescriptionError,
+    setDocumentError,
     contractDate,
     setContractDate,
     status,
@@ -118,7 +124,6 @@ const ContractModal = (props) => {
                     onChange={(e) => setSelectedOfftaker(e.target.value)}
                     fullWidth
                     disabled
-                    required
                   >
                     {Array.isArray(offtakerList)
                       ? offtakerList.map((o) => (
@@ -139,10 +144,10 @@ const ContractModal = (props) => {
                     value={selectedInvestor}
                     onChange={(e) => setSelectedInvestor(e.target.value)}
                     fullWidth
-                    required
+                    disabled
                   >
                     {investorList.map((item) => (
-                      <MenuItem key={item.id} value={item.id}>
+                      <MenuItem key={item.id} value={item.user_id}>
                         {item.full_name || `#${item.id}`}
                       </MenuItem>
                     ))}
@@ -160,7 +165,6 @@ const ContractModal = (props) => {
                     onChange={(e) => setSelectedOfftaker(e.target.value)}
                     fullWidth
                     disabled
-                    required
                   >
                     {Array.isArray(offtakerList)
                       ? offtakerList.map((o) => (
@@ -181,10 +185,10 @@ const ContractModal = (props) => {
                     value={selectedInvestor || ""}
                     onChange={(e) => setSelectedInvestor(e.target.value)}
                     fullWidth
-                    required
+                    disabled
                   >
                     {investorList.map((item) => (
-                      <MenuItem key={item.id} value={item.id}>
+                      <MenuItem key={item.id} value={item.user_id}>
                         {item.full_name || `#${item.id}`}
                       </MenuItem>
                     ))}
@@ -201,7 +205,6 @@ const ContractModal = (props) => {
                 value={offtakerList?.id || ""}
                 fullWidth
                 disabled
-                required
               >
                 {offtakerList && offtakerList.id ? (
                   <MenuItem key={offtakerList.id} value={offtakerList.id}>
@@ -218,10 +221,10 @@ const ContractModal = (props) => {
                 value={selectedInvestor}
                 onChange={(e) => setSelectedInvestor(e.target.value)}
                 fullWidth
-                required
+                disabled
               >
                 {investorList.map((item) => (
-                  <MenuItem key={item.id} value={item.id}>
+                  <MenuItem key={item.id} value={item.user_id}>
                     {item.full_name || `#${item.id}`}
                   </MenuItem>
                 ))}
@@ -231,14 +234,27 @@ const ContractModal = (props) => {
             <TextField
               label={lang("contract.title", "Title")}
               value={contractTitle}
-              onChange={(e) => setContractTitle(e.target.value)}
-              required
+              onChange={(e) => {
+                setContractTitle(e.target.value);
+                if (titleError && e.target.value.trim() !== "") {
+                  setTitleError && setTitleError("");
+                }
+              }}
+              error={!!titleError}
+              helperText={titleError}
               fullWidth
             />
             <TextField
               label={lang("contract.description", "Description")}
               value={contractDescription}
-              onChange={(e) => setContractDescription(e.target.value)}
+              onChange={(e) => {
+                setContractDescription(e.target.value);
+                if (descriptionError && e.target.value.trim() !== "") {
+                  setDescriptionError && setDescriptionError("");
+                }
+              }}
+              error={!!descriptionError}
+              helperText={descriptionError}
               fullWidth
               multiline
               minRows={3}
@@ -246,14 +262,19 @@ const ContractModal = (props) => {
             <TextField
               fullWidth
               type="file"
-              inputProps={{ accept: "image/*,application/pdf" }}
+              inputProps={{ accept: "application/pdf" }}
               label={lang("contract.uploadDocument") || "Upload Document"}
               InputLabelProps={{ shrink: true }}
               onChange={(e) => {
                 const file = (e.target.files && e.target.files[0]) || null;
                 applyDocumentSelection(file);
                 if (!file) setDocumentUpload("");
+                if (file) {
+                  setDocumentError && setDocumentError("");
+                }
               }}
+              error={!!documentError}
+              helperText={documentError}
             />
             {(documentPreviewUrl || documentUpload) && (
               <Box>
@@ -314,7 +335,6 @@ const ContractModal = (props) => {
           <Button
             type="submit"
             variant="contained"
-            disabled={loading || !contractTitle}
             startIcon={loading ? <CircularProgress size={16} /> : null}
             className="common-grey-color"
           >

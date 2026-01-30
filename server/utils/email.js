@@ -29,9 +29,10 @@ export const replacePlaceholders = (template, values = {}) => {
  * @param {string} options.templateSlug - Template slug to fetch from database
  * @param {Object} options.templateData - Data to replace in template
  * @param {string} options.language - Language (en or vi), defaults to en
+ * @param {Array} options.attachments - Array of attachments (optional)
  * @returns {Promise<Object>} Result with success status
  */
-export const sendEmailUsingTemplate = async ({ to, templateSlug, templateData = {}, language = 'en' }) => {
+export const sendEmailUsingTemplate = async ({ to, templateSlug, templateData = {}, language = 'en', attachments = null }) => {
   try {
     // Fetch template from database
     const template = await prisma.email_template.findFirst({
@@ -62,6 +63,7 @@ export const sendEmailUsingTemplate = async ({ to, templateSlug, templateData = 
       to,
       subject,
       html: finalHtml,
+      attachments,
     });
   } catch (error) {
     console.error('Error sending templated email:', error);
@@ -183,10 +185,11 @@ const createTransporter = async (customSettings = null) => {
  * @param {string} options.subject - Email subject
  * @param {string} options.html - HTML content
  * @param {string} options.text - Plain text content (optional)
+ * @param {Array} options.attachments - Array of attachments (optional)
  * @param {Object} options.customSmtp - Custom SMTP settings (optional)
  * @returns {Promise<Object>} Result object with success status
  */
-export const sendEmail = async ({ to, subject, html, text, customSmtp = null }) => {
+export const sendEmail = async ({ to, subject, html, text, attachments = null, customSmtp = null }) => {
   try {
     const { transporter, from } = await createTransporter(customSmtp);
 
@@ -195,6 +198,7 @@ export const sendEmail = async ({ to, subject, html, text, customSmtp = null }) 
       to: to,
       subject: subject,
       html: html,
+      attachments: attachments || [],
     };
 
     if (text) {

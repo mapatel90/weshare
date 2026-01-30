@@ -41,6 +41,7 @@ const Investor = ({ projectId, onInvestorMarked, handleSaveAction }) => {
   const [status, setStatus] = useState(1);
   const [userOptions, setUserOptions] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [selectedUserError, setSelectedUserError] = useState("");
   const [errors, setErrors] = useState({
     fullName: "",
     email: "",
@@ -104,6 +105,7 @@ const Investor = ({ projectId, onInvestorMarked, handleSaveAction }) => {
     setStatus(1);
     setShowModal(true);
     setSelectedUser(null);
+    setSelectedUserError("");
     setErrors({
       fullName: "",
       email: "",
@@ -120,6 +122,7 @@ const Investor = ({ projectId, onInvestorMarked, handleSaveAction }) => {
     setNotes(row.notes || "");
     setStatus(row.status ?? 1);
     setShowModal(true);
+    setSelectedUserError("");
 
     setSelectedUser({
       id: row.user_id,
@@ -139,6 +142,14 @@ const Investor = ({ projectId, onInvestorMarked, handleSaveAction }) => {
 
     const newErrors = {};
 
+    if (!selectedUser) {
+      setSelectedUserError(
+        lang("investor.user_required", "Please select a user")
+      );
+    } else {
+      setSelectedUserError("");
+    }
+
     if (!fullName) {
       newErrors.fullName = lang("investor.full_name_required", "Full name is required");
     }
@@ -155,7 +166,7 @@ const Investor = ({ projectId, onInvestorMarked, handleSaveAction }) => {
 
     setErrors(newErrors);   // ALWAYS set errors
 
-    if (Object.keys(newErrors).length > 0) return;  //  stop submit AFTER setting
+    if (!selectedUser || Object.keys(newErrors).length > 0) return;  //  stop submit AFTER setting
 
     // ---- API CALL CONTINUES HERE ----
     setLoading(true);
@@ -377,6 +388,7 @@ const Investor = ({ projectId, onInvestorMarked, handleSaveAction }) => {
                 value={selectedUser}
                 onChange={(event, newValue) => {
                   setSelectedUser(newValue);
+                  setSelectedUserError("");
 
                   if (newValue) {
                     setFullName(newValue.full_name || "");
@@ -398,6 +410,8 @@ const Investor = ({ projectId, onInvestorMarked, handleSaveAction }) => {
                   <TextField
                     {...params}
                     label={lang("investor.selectFromUsers", "Select From Users")}
+                    error={!!selectedUserError}
+                    helperText={selectedUserError}
                     fullWidth
                   />
                 )}
@@ -412,7 +426,6 @@ const Investor = ({ projectId, onInvestorMarked, handleSaveAction }) => {
                     setErrors(prev => ({ ...prev, fullName: "" }));
                   }
                 }}
-                required
                 error={!!errors.fullName}
                 helperText={errors.fullName}
                 fullWidth
@@ -426,7 +439,6 @@ const Investor = ({ projectId, onInvestorMarked, handleSaveAction }) => {
                     setErrors(prev => ({ ...prev, email: "" }));
                   }
                 }}
-                required
                 error={!!errors.email}
                 helperText={errors.email}
                 fullWidth
@@ -441,7 +453,6 @@ const Investor = ({ projectId, onInvestorMarked, handleSaveAction }) => {
                     setErrors(prev => ({ ...prev, phoneNumber: "" }));
                   }
                 }}
-                required
                 error={!!errors.phoneNumber}
                 helperText={errors.phoneNumber}
                 fullWidth

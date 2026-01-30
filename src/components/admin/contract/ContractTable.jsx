@@ -24,6 +24,7 @@ const Contract = ({ projectId, handleCloseForm, handleSaveAction }) => {
   const [selectedInvestor, setSelectedInvestor] = useState("");
   const [offtakerList, setOfftakerList] = useState({}); // changed to object
   const [investorList, setInvestorList] = useState([]);
+  const [projectData, setProjectData] = useState(null); // NEW: store project details
   const [showPartySelection, setShowPartySelection] = useState(true);
   const [forcedParty, setForcedParty] = useState(""); // "investor" | "offtaker" | ""
   const [offtakerDisabled, setOfftakerDisabled] = useState(false);
@@ -37,6 +38,9 @@ const Contract = ({ projectId, handleCloseForm, handleSaveAction }) => {
   const [status, setStatus] = useState(1);
   const [documentFile, setDocumentFile] = useState(null);
   const [documentPreviewUrl, setDocumentPreviewUrl] = useState("");
+  const [titleError, setTitleError] = useState("");
+  const [descriptionError, setDescriptionError] = useState("");
+  const [documentError, setDocumentError] = useState("");
 
   useEffect(() => {
     fetchContracts();
@@ -72,12 +76,27 @@ const Contract = ({ projectId, handleCloseForm, handleSaveAction }) => {
     setAllowAdd(!(investorConflict && offtakerConflict));
   }, [contracts, investorList, projectId]);
 
+  // Auto-select investor when partyType changes to "investor"
+  useEffect(() => {
+    if (partyType === "investor" && projectData && projectData.investor_id) {
+      const matchingInvestor = investorList.find(
+        (inv) => Number(inv.user_id) === Number(projectData.investor_id)
+      );
+      if (matchingInvestor) {
+        setSelectedInvestor(String(matchingInvestor.user_id));
+      }
+    }
+  }, [partyType, projectData, investorList]);
+
   // Fetch project-related offtakers and investors
   const fetchProjectParties = async () => {
     try {
       // Replace with your actual API endpoints for offtakers/investors
       const offtakerRes = await apiGet(`/api/projects/${projectId}`);
       const investorRes = await apiGet('/api/investors?projectId=' + projectId);
+      console.log('Fetched offtaker:', offtakerRes);
+      console.log('Fetched investors:', investorRes);
+      setProjectData(offtakerRes?.data || null); // Store project details
       setOfftakerList(offtakerRes?.data.offtaker || {});
       setInvestorList(investorRes?.data || []);
     } catch (e) {
@@ -89,6 +108,7 @@ const Contract = ({ projectId, handleCloseForm, handleSaveAction }) => {
   const fetchContracts = async () => {
     try {
       const res = await apiGet("/api/contracts");
+      console.log('Fetched contracts:', res);
       if (res?.success) {
         const all = Array.isArray(res.data) ? res.data : [];
         const filtered = projectId
@@ -109,6 +129,9 @@ const Contract = ({ projectId, handleCloseForm, handleSaveAction }) => {
     setContractTitle("");
     setContractDescription("");
     setDocumentUpload("");
+    setTitleError("");
+    setDescriptionError("");
+    setDocumentError("");
     if (documentPreviewUrl) {
       try { URL.revokeObjectURL(documentPreviewUrl); } catch (e) { /* ignore */ }
     }
@@ -151,6 +174,17 @@ const Contract = ({ projectId, handleCloseForm, handleSaveAction }) => {
     }
     setSelectedOfftaker("");
     setSelectedInvestor("");
+    
+    // Auto-select investor if project has investor_id and partyType is investor
+    if (projectData && projectData.investor_id) {
+      const matchingInvestor = investorList.find(
+        (inv) => Number(inv.user_id) === Number(projectData.investor_id)
+      );
+      if (matchingInvestor) {
+        setSelectedInvestor(String(matchingInvestor.user_id));
+      }
+    }
+    
     setOfftakerDisabled(false);
     setShowModal(true);
   };
@@ -161,6 +195,9 @@ const Contract = ({ projectId, handleCloseForm, handleSaveAction }) => {
     setContractTitle(row.contract_title || "");
     setContractDescription(row.contract_description || "");
     setDocumentUpload(row.document_upload || "");
+    setTitleError("");
+    setDescriptionError("");
+    setDocumentError("");
     setDocumentFile(null);
     setDocumentPreviewUrl(row.document_upload || "");
     setContractDate(
@@ -193,6 +230,7 @@ const Contract = ({ projectId, handleCloseForm, handleSaveAction }) => {
       const url = URL.createObjectURL(file);
       setDocumentPreviewUrl(url);
       setDocumentUpload("");
+      setDocumentError("");
     } else {
       setDocumentPreviewUrl(documentUpload || "");
     }
@@ -226,12 +264,34 @@ const Contract = ({ projectId, handleCloseForm, handleSaveAction }) => {
 
   const handleSave = async (e) => {
     e.preventDefault();
-    if (!contractTitle) {
-      showErrorToast(
+    setTitleError("");
+    setDescriptionError("");
+    setDocumentError("");
+
+    let hasError = false;
+
+    if (!contractTitle || contractTitle.trim() === "") {
+      setTitleError(
         lang("contract.titleRequired", "Contract title is required")
       );
-      return;
+      hasError = true;
     }
+
+    if (!contractDescription || contractDescription.trim() === "") {
+      setDescriptionError(
+        lang("contract.descriptionRequired", "Contract description is required")
+      );
+      hasError = true;
+    }
+
+    if (!documentFile && !documentUpload) {
+      setDocumentError(
+        lang("contract.documentRequired", "Contract document is required")
+      );
+      hasError = true;
+    }
+
+    if (hasError) return;
 
     setLoading(true);
     try {
@@ -363,8 +423,14 @@ const Contract = ({ projectId, handleCloseForm, handleSaveAction }) => {
         // Investor
         // If Investor exists
         if (row.investor_id) {
-          const investor = row.interested_investors; // assuming API returns row.investor object
-          name = investor?.full_name || "-";
+          // Find matching investor in interested_investors array
+          const interestedInvestors = row?.projects?.interested_investors || [];
+          if (Array.isArray(interestedInvestors)) {
+            const matchingInvestor = interestedInvestors.find(
+              (inv) => Number(inv.user_id) === Number(row.investor_id)
+            );
+            name = matchingInvestor?.full_name || "-";
+          }
         }
         // Otherwise Offtaker
         else if (row.offtakerId || row.offtaker_id) {
@@ -497,6 +563,12 @@ const Contract = ({ projectId, handleCloseForm, handleSaveAction }) => {
         setDocumentUpload={setDocumentUpload}
         documentPreviewUrl={documentPreviewUrl}
         applyDocumentSelection={applyDocumentSelection}
+        titleError={titleError}
+        descriptionError={descriptionError}
+        documentError={documentError}
+        setTitleError={setTitleError}
+        setDescriptionError={setDescriptionError}
+        setDocumentError={setDocumentError}
         contractDate={contractDate}
         setContractDate={setContractDate}
         status={status}

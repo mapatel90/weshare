@@ -98,6 +98,7 @@ const ContractAdminTable = () => {
       }
 
       const res = await apiGet(`/api/contracts?${params.toString()}`);
+      console.log("Contracts API response:", res);
       if (res?.success) {
         const mappedContracts = (Array.isArray(res.data) ? res.data : []).map(
           (item) => {
@@ -213,12 +214,18 @@ const ContractAdminTable = () => {
       header: () => lang("common.partyName", "Party Name"),
       cell: (info) => {
         const row = info.row?.original || {};
-        const name =
-          row.partyName ||
-          (row.investorId || row.investor_id
-            ? row.users?.full_name
-            : row.users?.full_name) ||
-          "-";
+        let name = row.partyName || "-";
+        if (row.investorId || row.investor_id) {
+          const interestedInvestors = row?.projects?.interested_investors || [];
+          if (Array.isArray(interestedInvestors)) {
+            const matchingInvestor = interestedInvestors.find(
+              (inv) => Number(inv.user_id) === Number(row.investorId || row.investor_id)
+            );
+            name = matchingInvestor?.full_name || "-";
+          }
+        } else if (row.offtakerId || row.offtaker_id) {
+          name = row.users?.full_name || "-";
+        }
         return (
           <div
             title={name}
@@ -235,13 +242,27 @@ const ContractAdminTable = () => {
       },
     },
     {
-      accessorKey: "documentUpload",
+      accessorKey: "document_upload",
       header: () => lang("contract.document", "Document"),
       cell: (info) => {
         const v = info.getValue();
         return v ? (
           <a href={v} target="_blank" rel="noreferrer">
-            View
+            {lang("common.view", "View")}
+          </a>
+        ) : (
+          "-"
+        );
+      },
+    },
+    {
+      accessorKey: "signed_document_upload",
+      header: () => lang("contract.signedDocument", "Signed Document"),
+      cell: (info) => {
+        const v = info.getValue();
+        return v ? (
+          <a href={v} target="_blank" rel="noreferrer">
+            {lang("common.view", "View")}
           </a>
         ) : (
           "-"

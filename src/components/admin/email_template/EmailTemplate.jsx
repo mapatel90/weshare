@@ -34,6 +34,11 @@ const SettingsEmailTemplate = ({ Id }) => {
   const [error, setError] = useState("");
   const [focusedField, setFocusedField] = useState(null); // track which field has focus
   const { lang } = useLanguage();
+  const [fieldErrors, setFieldErrors] = useState({
+    title: "",
+    slug: "",
+    subject: "",
+  });
 
   const subjectInputRef = useRef(null);
   const editorEnRef = useRef(null);
@@ -56,6 +61,7 @@ const SettingsEmailTemplate = ({ Id }) => {
       content_vi: data?.content_vi || "",
     });
     setError("");
+    setFieldErrors({ title: "", slug: "", subject: "" });
   };
 
   const fetchTemplate = async (id) => {
@@ -111,6 +117,12 @@ const SettingsEmailTemplate = ({ Id }) => {
         title: value,
         slug: slugified,
       }));
+      if (fieldErrors.title && value.trim() !== "") {
+        setFieldErrors((prev) => ({ ...prev, title: "" }));
+      }
+      if (fieldErrors.slug && slugified.trim() !== "") {
+        setFieldErrors((prev) => ({ ...prev, slug: "" }));
+      }
       return;
     }
 
@@ -127,6 +139,9 @@ const SettingsEmailTemplate = ({ Id }) => {
         ...prev,
         slug: slugified,
       }));
+      if (fieldErrors.slug && slugified.trim() !== "") {
+        setFieldErrors((prev) => ({ ...prev, slug: "" }));
+      }
       return;
     }
 
@@ -134,6 +149,9 @@ const SettingsEmailTemplate = ({ Id }) => {
       ...prev,
       [field]: value,
     }));
+    if (field === "subject" && fieldErrors.subject && value.trim() !== "") {
+      setFieldErrors((prev) => ({ ...prev, subject: "" }));
+    }
   };
 
   // Unified insert placeholder function based on focused field
@@ -197,9 +215,27 @@ const SettingsEmailTemplate = ({ Id }) => {
   };
 
   const handleSave = async () => {
-    if (!formData.title || !formData.slug || !formData.subject) {
-      setError("Title, Slug and Subject are required");
-      showErrorToast("Title, Slug and Subject are required");
+    const nextErrors = {
+      title: "",
+      slug: "",
+      subject: "",
+    };
+
+    if (!formData.title || formData.title.trim() === "") {
+      nextErrors.title = lang("email.titleRequired", "Title is required");
+    }
+
+    if (!formData.slug || formData.slug.trim() === "") {
+      nextErrors.slug = lang("email.slugRequired", "Slug is required");
+    }
+
+    if (!formData.subject || formData.subject.trim() === "") {
+      nextErrors.subject = lang("email.subjectRequired", "Subject is required");
+    }
+
+    setFieldErrors(nextErrors);
+
+    if (nextErrors.title || nextErrors.slug || nextErrors.subject) {
       return;
     }
 
@@ -270,20 +306,15 @@ const SettingsEmailTemplate = ({ Id }) => {
             <Divider sx={{ mb: 3 }} />
 
             <Grid container spacing={3}>
-              {error && (
-                <Grid item xs={12}>
-                  <div style={{ color: "red", fontSize: 14 }}>{error}</div>
-                </Grid>
-              )}
-
               <Grid item xs={12} sm={6}>
                 <TextField
                   label={lang("common.title") || "Title"}
                   value={formData.title}
                   onChange={handleChange("title")}
+                  error={!!fieldErrors.title}
+                  helperText={fieldErrors.title}
                   fullWidth
                   disabled={loading || fetching}
-                  required
                 />
               </Grid>
 
@@ -292,9 +323,10 @@ const SettingsEmailTemplate = ({ Id }) => {
                   label={lang("news.slug") || "Slug"}
                   value={formData.slug}
                   onChange={handleChange("slug")}
+                  error={!!fieldErrors.slug}
+                  helperText={fieldErrors.slug}
                   fullWidth
                   disabled={loading || fetching}
-                  required
                 />
               </Grid>
 
@@ -307,6 +339,8 @@ const SettingsEmailTemplate = ({ Id }) => {
                   value={formData.subject}
                   onChange={handleChange("subject")}
                   onFocus={() => setFocusedField("subject")}
+                  error={!!fieldErrors.subject}
+                  helperText={fieldErrors.subject}
                   fullWidth
                   disabled={loading || fetching}
                   placeholder={lang("email.subjectPlaceholder") || "Enter email subject"}
