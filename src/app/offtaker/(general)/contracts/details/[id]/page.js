@@ -6,7 +6,7 @@ const page = ({ params }) => {
   const { id } = params;
   return (
     <>
-      <DynamicTitle titleKey="contracts.viewcontract" />
+      <DynamicTitle titleKey="contract.viewcontract" />
       <>
           <ContractsDetails contractId={id} />
       </>

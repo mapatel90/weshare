@@ -39,6 +39,7 @@ const ProjectTypePage = () => {
     const [form, setForm] = useState({ name: '', status: 1 })
     const [editId, setEditId] = useState(null)
     const [loading, setLoading] = useState(false)
+    const [errors, setErrors] = useState({})
 
     const STATUS_OPTIONS = [
         { label: lang('common.active', 'Active'), value: 1 },
@@ -60,19 +61,32 @@ const ProjectTypePage = () => {
         setModalType('add')
         setForm({ name: '', status: 1 })
         setEditId(null)
+        setErrors({})
         setShowModal(true)
     }
     const openEdit = (row) => {
         setModalType('edit')
         setForm({ name: row.type_name, status: row.status })
         setEditId(row.id)
+        setErrors({})
         setShowModal(true)
     }
     const closeModal = () => setShowModal(false)
 
     const handleSave = async (e) => {
         e.preventDefault()
-        if (!form.name) return
+        
+        // Validate form
+        const newErrors = {}
+        if (!form.name || form.name.trim() === '') {
+            newErrors.name = lang('projectType.nameRequired', 'Name is required')
+        }
+        
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors)
+            return
+        }
+        
         setLoading(true)
         try {
             let res
@@ -245,8 +259,14 @@ const ProjectTypePage = () => {
                             <TextField
                                 label={lang('projectType.name', 'Name')}
                                 value={form.name}
-                                onChange={e => setForm({ ...form, name: e.target.value })}
-                                required
+                                onChange={e => {
+                                    setForm({ ...form, name: e.target.value })
+                                    if (errors.name) {
+                                        setErrors({ ...errors, name: '' })
+                                    }
+                                }}
+                                error={!!errors.name}
+                                helperText={errors.name}
                                 fullWidth
                             />
                             <FormControl fullWidth>
@@ -268,7 +288,7 @@ const ProjectTypePage = () => {
                         <Button onClick={closeModal} color="error" className="custom-orange-outline">
                             {lang('common.cancel', 'Cancel')}
                         </Button>
-                        <Button type="submit" variant="contained" disabled={loading || !form.name} className="common-grey-color">
+                        <Button type="submit" variant="contained" disabled={loading} className="common-grey-color">
                             {loading ? lang('common.loading', 'Loading...') : lang('common.save', 'Save')}
                         </Button>
                     </DialogActions>

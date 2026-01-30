@@ -349,6 +349,7 @@
     "kilowattRequired": "Kilowatt là bắt buộc"
   },
   "menu": {
+    "email_template": "Mẫu Email",
     "emailTemplates": "Mẫu Email",
     "invoice": "Hóa đơn",
     "dashboards": "Bảng điều khiển",
@@ -1502,6 +1503,7 @@
 
   },
   "contract": {
+    "signedDocument": "Tài liệu đã ký",
     "contract_summary": "Tóm tắt hợp đồng",
     "contract": "Hợp đồng",
     "no_contracts_found": "Không tìm thấy hợp đồng nào",

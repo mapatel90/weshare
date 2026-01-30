@@ -41,11 +41,15 @@ const InverterTab = ({ projectId, handleSaveAction }) => {
   const [serialNumberError, setSerialNumberError] = useState("");
   const [status, setStatus] = useState(1);
   const [editId, setEditId] = useState(null);
+  const [inverterError, setInverterError] = useState("");
   // ------- STATE: add for serial number field -------
   const [inverterName, setInverterName] = useState("");
+  const [inverterNameError, setInverterNameError] = useState("");
   const [model, setModel] = useState("");
   const [version, setVersion] = useState("");
+  const [versionError, setVersionError] = useState("");
   const [warrantyExpireDate, setWarrantyExpireDate] = useState("");
+  const [warrantyDateError, setWarrantyDateError] = useState("");
   const [hasWarranty, setHasWarranty] = useState(false);
 
   // Table state
@@ -94,10 +98,14 @@ const InverterTab = ({ projectId, handleSaveAction }) => {
     setSerialNumber(""); // <--
     setSerialNumberError("");
     setInverterName("");
+    setInverterNameError("");
     setModel("");
     setVersion("");
+    setVersionError("");
     setWarrantyExpireDate("");
+    setWarrantyDateError("");
     setHasWarranty(false);
+    setInverterError("");
     setStatus(1);
     setEditId(null);
     setShowModal(true);
@@ -110,11 +118,14 @@ const InverterTab = ({ projectId, handleSaveAction }) => {
     setKilowatt(row.kilowatt?.toString() || "");
     setSerialNumber(row.inverter_serial_number || ""); // <--
     setInverterName(row.inverter_name || "");
+    setInverterNameError("");
     setModel(row.model || "");
     setVersion(row.version || "");
+    setVersionError("");
     setWarrantyExpireDate(
       row.warranty_expire_date ? row.warranty_expire_date.split("T")[0] : ""
     );
+    setWarrantyDateError("");
     setHasWarranty(!!row.in_warranty || !!row.warranty_expire_date);
     setStatus(row.status);
     setEditId(row.id);
@@ -134,28 +145,64 @@ const InverterTab = ({ projectId, handleSaveAction }) => {
     // Reset errors
     setKilowattError("");
     setSerialNumberError("");
+    setInverterError("");
+    setInverterNameError("");
+    setVersionError("");
+    setWarrantyDateError("");
 
     // Validate required fields
-    if (!selectedInverter) return;
+    if (!selectedInverter) {
+      setInverterError(
+        lang("validation.inverterRequired", "Inverter is required")
+      );
+      return;
+    }
+
+    let hasError = false;
+
+    if (!inverterName || inverterName.trim() === "") {
+      setInverterNameError(
+        lang("validation.inverterNameRequired", "Inverter Name is required")
+      );
+      hasError = true;
+    }
+
+    if (!version || version.trim() === "") {
+      setVersionError(
+        lang("validation.versionRequired", "Version is required")
+      );
+      hasError = true;
+    }
 
     if (!kilowatt || String(kilowatt).trim() === "") {
       setKilowattError(
         lang("validation.kilowattRequired", "Kilowatt is required")
       );
-      return;
+      hasError = true;
     }
 
     if (!serialNumber || serialNumber.trim() === "") {
       setSerialNumberError(
         lang("validation.serialNumberRequired", "Serial Number is required")
       );
-      return;
+      hasError = true;
     }
 
-    if (!/^[0-9]*\.?[0-9]+$/.test(kilowatt)) {
+    if (kilowatt && !/^[0-9]*\.?[0-9]+$/.test(kilowatt)) {
       setKilowattError(
         lang("inverter.onlyNumbers", "Only numbers are allowed (e.g. 1234.56)")
       );
+      hasError = true;
+    }
+
+    if (hasWarranty && (!warrantyExpireDate || warrantyExpireDate.trim() === "")) {
+      setWarrantyDateError(
+        lang("validation.warrantyDateRequired", "Warranty Expire Date is required when warranty is checked")
+      );
+      hasError = true;
+    }
+
+    if (hasError) {
       return;
     }
 
@@ -459,7 +506,7 @@ const InverterTab = ({ projectId, handleSaveAction }) => {
               sx={{ display: "flex", flexDirection: "column", gap: 3, pt: 2 }}
             >
               {/* Dropdown for inverter */}
-              <FormControl fullWidth>
+              <FormControl fullWidth error={!!inverterError}>
                 <InputLabel id="inverter-select-label">
                   {lang("inverter.inverter", "Inverter")}
                 </InputLabel>
@@ -472,6 +519,9 @@ const InverterTab = ({ projectId, handleSaveAction }) => {
                       (i) => i.id === e.target.value
                     );
                     setSelectedInverter(inv || null);
+                    if (inv) {
+                      setInverterError("");
+                    }
                   }}
                 >
                   <MenuItem value="">
@@ -486,6 +536,9 @@ const InverterTab = ({ projectId, handleSaveAction }) => {
                     </MenuItem>
                   ))}
                 </Select>
+                {inverterError && (
+                  <FormHelperText>{inverterError}</FormHelperText>
+                )}
               </FormControl>
               {/* Show after select */}
               {selectedInverter && (
@@ -493,13 +546,27 @@ const InverterTab = ({ projectId, handleSaveAction }) => {
                   <TextField
                     label={lang("inverter.inverterName", "Inverter Name")}
                     value={inverterName}
-                    onChange={(e) => setInverterName(e.target.value)}
+                    onChange={(e) => {
+                      setInverterName(e.target.value);
+                      if (inverterNameError && e.target.value.trim() !== "") {
+                        setInverterNameError("");
+                      }
+                    }}
+                    error={!!inverterNameError}
+                    helperText={inverterNameError}
                     fullWidth
                   />
                   <TextField
                     label={lang("inverter.version", "Version")}
                     value={version}
-                    onChange={(e) => setVersion(e.target.value)}
+                    onChange={(e) => {
+                      setVersion(e.target.value);
+                      if (versionError && e.target.value.trim() !== "") {
+                        setVersionError("");
+                      }
+                    }}
+                    error={!!versionError}
+                    helperText={versionError}
                     fullWidth
                   />
                   <TextField
@@ -554,7 +621,13 @@ const InverterTab = ({ projectId, handleSaveAction }) => {
                       type="checkbox"
                       id="warranty-check"
                       checked={hasWarranty}
-                      onChange={(e) => setHasWarranty(e.target.checked)}
+                      onChange={(e) => {
+                        const checked = e.target.checked;
+                        setHasWarranty(checked);
+                        if (!checked) {
+                          setWarrantyDateError("");
+                        }
+                      }}
                       style={{ width: "18px", height: "18px", cursor: "pointer" }}
                     />
                     <label htmlFor="warranty-check" style={{ cursor: "pointer", marginBottom: 0 }}>
@@ -566,7 +639,14 @@ const InverterTab = ({ projectId, handleSaveAction }) => {
                       label={lang("inverter.warrantyExpireDate", "Warranty Expire Date")}
                       type="date"
                       value={warrantyExpireDate}
-                      onChange={(e) => setWarrantyExpireDate(e.target.value)}
+                      onChange={(e) => {
+                        setWarrantyExpireDate(e.target.value);
+                        if (warrantyDateError && e.target.value.trim() !== "") {
+                          setWarrantyDateError("");
+                        }
+                      }}
+                      error={!!warrantyDateError}
+                      helperText={warrantyDateError}
                       fullWidth
                       InputLabelProps={{
                         shrink: true,

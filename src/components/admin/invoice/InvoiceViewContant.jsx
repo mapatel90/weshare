@@ -209,6 +209,7 @@ const InvoiceViewContant = ({ invoiceId }) => {
   }, [invoiceId, companySettings, countries, states, cities]);
 
   const { company, invoice, client, items, payment, summary } = invoiceData || {};
+  console.log(invoiceData);
   const invoiceDisplay = `${invoice?.prefix || ""}-${invoice?.number || ""}`;
   const qrCodeSrc = companySettings?.finance_qr_code || "/images/invoice_qr.jpg";
 

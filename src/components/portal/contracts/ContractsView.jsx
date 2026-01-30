@@ -24,19 +24,9 @@ const ContractsView = () => {
         try {
             let contractsData = [];
             if (parts[0] === "investor") {
-                const investorRes = await apiGet("/api/investors/?userId=" + user.id);
-                if (investorRes?.success && Array.isArray(investorRes.data) && investorRes.data.length) {
-                    // Get all investor ids
-                    const investorIds = investorRes.data.map(inv => inv.id);
-                    // Fetch contracts for each investorId and combine results
-                    let allContracts = [];
-                    for (const investorId of investorIds) {
-                        const contractsRes = await apiGet("/api/contracts?investorId=" + investorId);
-                        if (contractsRes?.success && Array.isArray(contractsRes.data)) {
-                            allContracts = allContracts.concat(contractsRes.data);
-                        }
-                    }
-                    contractsData = allContracts;
+                const res = await apiGet("/api/contracts?investorId=" + user.id);
+                if (res?.success) {
+                    contractsData = Array.isArray(res.data) ? res.data : [];
                 }
             } else {
                 const res = await apiGet("/api/contracts?offtakerId=" + user.id);

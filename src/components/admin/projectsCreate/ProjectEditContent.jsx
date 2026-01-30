@@ -119,7 +119,7 @@ const ProjectEditContent = ({ projectId }) => {
         if (!investor?.id) return
         setFormData(prev => ({
             ...prev,
-            investorId: String(investor.id),
+            investorId: String(investor.user_id),
             investorName: investor.full_name || ''
         }))
     }, [])
@@ -252,14 +252,16 @@ const ProjectEditContent = ({ projectId }) => {
                 const res = await apiGet(`/api/projects/${projectId}`)
                 if (res?.success && res.data) {
                     const p = res.data
+                    console.log('Loaded project data:', p)
 
                     // Try to get investor name from matched investor in interested_investors array
                     let investorName = '';
                     if (p.investor_id) {
                         if (Array.isArray(p.interested_investors)) {
                             const matchedInvestor = p.interested_investors.find(
-                                inv => String(inv.id) === String(p.investor_id)
+                                inv => String(inv.user_id) === String(p.investor_id)
                             );
+                            console.log('Matched investor:', matchedInvestor);
                             investorName = matchedInvestor ? matchedInvestor.full_name : '';
                         }
                     }

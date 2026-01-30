@@ -4,6 +4,7 @@ import { useParams } from "next/navigation";
 import { apiGet } from "@/lib/api";
 import { showErrorToast } from "@/utils/topTost";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { PROJECT_STATUS } from "@/constants/project_status";
 
 const ContractDetails = () => {
   const { lang } = useLanguage();
@@ -20,6 +21,7 @@ const ContractDetails = () => {
       try {
         const res = await apiGet("/api/contracts?id=" + contractId);
         if (res?.success && res?.data) {
+          console.log("Fetched contract data:", res.data);
           const payload = Array.isArray(res.data) ? res.data[0] : res.data;
           setData(payload || null);
         } else {
@@ -49,8 +51,12 @@ const ContractDetails = () => {
 
   const project = data?.projects || {};
   const projectName = project?.project_name || "-";
-  const projectStatus = project?.status === 1 ? "Active" : project?.status === 0 ? "Inactive" : "-";
-  const projectType = project?.project_type?.name || "-";
+  const projectStatusId = project?.project_status_id;
+  const projectStatus = 
+    projectStatusId === PROJECT_STATUS.PENDING ? lang("common.pending", "Pending") :
+    projectStatusId === PROJECT_STATUS.UPCOMING ? lang("common.upcoming", "Upcoming") :
+    projectStatusId === PROJECT_STATUS.RUNNING ? lang("common.running", "Running") : "-";
+  const projectType = project?.project_types?.type_name || "-";
   const weshareProfile = project?.weshare_profit || "-";
   const meterUrl = project?.meter_url || "-";
   const simNumber = project?.sim_number || "-";

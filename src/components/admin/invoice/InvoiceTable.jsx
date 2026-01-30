@@ -62,6 +62,7 @@ const InvoiceTable = () => {
       const response = await apiGet(`/api/invoice?${params.toString()}`);
       if (response?.success && response?.data) {
         const payload = response.data;
+        console.log("Fetched invoices:", payload);
         let invoices = Array.isArray(payload?.invoices)
           ? payload.invoices
           : Array.isArray(payload)

@@ -367,6 +367,7 @@
     "kilowattRequired": "Kilowatt is required"
   },
   "menu": {
+    "email_template": "Email Template",
     "dashboards": "Dashboards",
     "dashboard": "Dashboard",
     "analytics": "Analytics",
@@ -1558,6 +1559,7 @@
     "phone_number_required": "Phone number is required"
   },
   "contract": {
+    "signedDocument": "Signed Document",
     "contract_summary": "Contract Summary",
     "contract": "Contract",
     "no_contracts_found": "No contracts found",
