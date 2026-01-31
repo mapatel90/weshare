@@ -259,19 +259,28 @@ router.post("/create", authenticateToken, uploadPayoutDoc.single('document'), as
         // const newNumber = String(Number(next_payout_number) + 1).padStart(3, "0");
         // await settingsService.set("next_payout_number", newNumber);
 
-        // // Notification
-        // await prisma.notifications.create({
-        //     data: {
-        //         user_id: investor_id,
-        //         title: "New Payout Generated",
-        //         message: `Your payout ${payout.payout_prefix}-${payout.payout_number} has been created`,
-        //         module_type: "payouts",
-        //         module_id: payout.id,
-        //         action_url: `/investor/payout/${payout.id}`,
-        //         is_read: 0,
-        //         created_at: new Date(),
-        //     },
-        // });
+        const lang = await getUserLanguage(investor_id);
+        const creatorName = await getUserFullName(1);
+
+        const notification_message = t(lang, 'notification_msg.payout_generated', {
+            payout_prefix: payout.payout_prefix + "-" + payout.payout_number,
+        });
+
+        const title = t(lang, 'notification_msg.new_payout_generated');
+
+        // Create Notification
+        await prisma.notifications.create({
+            data: {
+                user_id: investor_id,
+                title: title,
+                message: notification_message,
+                module_type: "payouts",
+                module_id: payout.id,
+                action_url: `/investor/payout/${payout.id}`,
+                is_read: 0,
+                created_at: new Date(),
+            },
+        });
 
         return res.json({
             success: true,
@@ -308,6 +317,23 @@ router.post("/update", authenticateToken, uploadPayoutDoc.single('document'), as
             const s3Enabled = await isS3Enabled();
             if (s3Enabled) {
                 try {
+                    if (payout.document) {
+                        try {
+                            let fileKey = payout.document;
+
+                            // If DB stores FULL URL → extract key
+                            if (fileKey.startsWith("http")) {
+                                const url = new URL(fileKey);
+                                fileKey = decodeURIComponent(url.pathname.substring(1));
+                            }
+
+                            await deleteFromS3(fileKey);
+                            console.log("Old S3 payout deleted:", fileKey);
+                        } catch (s3Err) {
+                            console.error("old S3 payout delete failed:", s3Err.message);
+                        }
+                    }
+
                     const s3Result = await uploadToS3(
                         req.file.buffer,
                         req.file.originalname,
@@ -340,26 +366,34 @@ router.post("/update", authenticateToken, uploadPayoutDoc.single('document'), as
             }
         }
 
+        const updateData = {};
+
+        if (transaction_id) {
+            updateData.transaction_id = transaction_id;
+        }
+
+        if (documentUrl) {
+            updateData.document = documentUrl;
+        }
+
+        if (mark_as_paid === "true" || mark_as_paid === true) {
+            updateData.payout_date = getDateTimeInTZ("Asia/Ho_Chi_Minh");
+            updateData.status = PAYOUT_STATUS.PAYOUT;
+        }
+
         // Update payout
-        const updated = await prisma.payouts.update({
+        const updatedPayout = await prisma.payouts.update({
             where: { id: Number(id) },
-            data: {
-                transaction_id,
-                document: documentUrl,
+            data: updateData,
+            include: {
+                invoices: true,
+                projects: true,
+                users: true,
             },
         });
 
-        if (mark_as_paid === "true" || mark_as_paid === true) {
-            await prisma.payouts.update({
-                where: { id: Number(id) },
-                data: {
-                    payout_date: getDateTimeInTZ("Asia/Ho_Chi_Minh"),
-                    status: PAYOUT_STATUS.PAYOUT,
-                },
-            });
-        }
 
-        return res.json({ success: true, message: "Payout updated successfully", data: updated });
+        return res.json({ success: true, message: "Payout updated successfully", data: updatedPayout });
     } catch (error) {
         console.error("Update payout error:", error);
         return res.status(500).json({ success: false, message: "Internal server error", error: error.message });
@@ -416,104 +450,6 @@ router.delete("/delete/:id", authenticateToken, async (req, res) => {
         return res.status(500).json({ success: false, message: "Server error" });
     }
 });
-
-// mark as paid
-router.post('/mark-as-paid/:id', authenticateToken, uploadPayoutDoc.single('document'), async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { transaction_id } = req.body;
-
-        const payoutId = parseInt(id);
-        if (!payoutId) {
-            return res.status(400).json({ success: false, message: "Invalid payout ID" });
-        }
-
-        // Get existing payout
-        const payout = await prisma.payouts.findUnique({
-            where: { id: payoutId },
-        });
-
-        if (!payout) {
-            return res.status(404).json({ success: false, message: "Payout not found" });
-        }
-
-        let documentUrl = payout.document;
-
-        // If new file uploaded
-        if (req.file) {
-            const s3Enabled = await isS3Enabled();
-
-            if (s3Enabled) {
-                try {
-                    // Upload new file
-                    const s3Result = await uploadToS3(
-                        req.file.buffer,
-                        req.file.originalname,
-                        req.file.mimetype,
-                        {
-                            folder: "payouts",
-                            metadata: {
-                                payoutId: String(payoutId),
-                                uploadType: "payout_document_update",
-                            },
-                        }
-                    );
-
-                    if (s3Result.success) {
-                        const newFileUrl = s3Result.data.fileUrl;
-                        const newFileKey = s3Result.data.fileKey;
-
-                        // 🔥 Delete old S3 file if exists
-                        if (payout.document_key) {
-                            await deleteFromS3(payout.document_key);
-                        }
-
-                        documentUrl = newFileUrl;
-
-                        // Save key also (important for future delete)
-                        await prisma.payouts.update({
-                            where: { id: payoutId },
-                            data: { document_key: newFileKey },
-                        });
-                    }
-                } catch (err) {
-                    console.error("S3 upload error:", err);
-                }
-            } else {
-                //  Local storage fallback
-                const ext = path.extname(req.file.originalname) || ".jpg";
-                const base = path
-                    .basename(req.file.originalname, ext)
-                    .replace(/[^a-z0-9-_]/gi, "_");
-                const ts = Date.now();
-                const filename = `payout_${base}_${ts}${ext}`;
-                const localDir = path.join(__dirname, "../../public/uploads/payouts");
-                fs.mkdirSync(localDir, { recursive: true });
-                const localPath = path.join(localDir, filename);
-                fs.writeFileSync(localPath, req.file.buffer);
-                documentUrl = `/uploads/payouts/${filename}`;
-            }
-        }
-
-        //  Final update
-        const updated = await prisma.payouts.update({
-            where: { id: payoutId },
-            data: {
-                payout_date: getDateTimeInTZ("Asia/Ho_Chi_Minh"),
-                status: PAYOUT_STATUS.PAYOUT,
-                transaction_id,
-                document: documentUrl,
-            },
-        });
-
-        res.json({ success: true, data: updated });
-    } catch (error) {
-        console.error("Mark as paid error:", error);
-        res.status(500).json({ success: false, message: "Internal server error", error: error.message });
-    }
-}
-);
-
 
 
 export default router;

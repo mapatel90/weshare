@@ -7,8 +7,7 @@ import { PROJECT_STATUS } from "@/constants/project_status";
 import Table from "@/components/shared/table/Table";
 import { usePriceWithCurrency } from "@/hooks/usePriceWithCurrency";
 import { FiDownload, FiEdit, FiEye, FiTrash2 } from "react-icons/fi";
-import { downloadInvoicePDF } from "../invoice/InvoicePdf";
-import { Autocomplete, Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Stack, TextField } from "@mui/material";
+import { Autocomplete, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Stack, TextField } from "@mui/material";
 import Link from "next/link";
 import { downloadPayoutPDF } from "./PayoutPdf";
 import { ROLES } from "@/constants/roles";
@@ -16,6 +15,7 @@ import Swal from "sweetalert2";
 import { showSuccessToast } from "@/utils/topTost";
 import { PAYOUT_STATUS } from "@/constants/payout_status";
 import { identity } from "@fullcalendar/core/internal";
+import TransactionDialog from "./TransactionDialog";
 
 
 const PayoutsPage = () => {
@@ -37,6 +37,7 @@ const PayoutsPage = () => {
     const [txId, setTxId] = useState("");
     const [selectedPayout, setSelectedPayout] = useState(null);
     const [selectedFile, setSelectedFile] = useState(null);
+    const [errors, setErrors] = useState({});
     const priceWithCurrency = usePriceWithCurrency();
 
     const fetchProjects = async () => {
@@ -156,18 +157,23 @@ const PayoutsPage = () => {
 
     const handleMarkPay = (rowData) => {
         setSelectedFile(null); // reset previous upload
+        setSelectedPayout(rowData);
+        setTxModalOpen(true);
+    };
 
-        if (!rowData.transaction_id) {
-            setSelectedPayout(rowData);
-            setTxModalOpen(true);
-            return;
+    const validate = () => {
+        const newErrors = {};
+        if (selectedPayout && !selectedPayout.transaction_id) {
+            if (!txId) newErrors.transactionId = lang("payouts.transaction_id_is_required", "Transaction ID is required");
         }
-
-        markAsPaid(rowData.id, rowData.transaction_id);
+        if (selectedFile === null) newErrors.document = lang("payouts.uploaded_image_is_required");
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
     };
 
     const markAsPaid = async (id, transactionId) => {
         try {
+            if (!validate()) return;
             const formData = new FormData();
 
             if (identity) {
@@ -198,6 +204,7 @@ const PayoutsPage = () => {
         setTxId("");               // clear input
         setSelectedPayout(null);   // clear selected payout
         setSelectedFile(null);
+        setErrors({});
     };
 
     useEffect(() => {
@@ -297,20 +304,26 @@ const PayoutsPage = () => {
                 header: () => "Payment",
                 cell: ({ row }) => {
                     const data = row.original;
-                    // Optional: hide button if already paid
-                    if (data.status === PAYOUT_STATUS.PAYOUT) return "Paid";
+                    if (data.status === PAYOUT_STATUS.PAYOUT) return <Chip
+                        label="Paid"
+                        sx={{
+                            backgroundColor: "#28a745",
+                            color: "#fff",
+                            fontWeight: "bold"
+                        }}
+                    />;
                     return (
                         <Button
                             size="small"
                             variant="contained"
                             onClick={() => handleMarkPay(data)}
                             sx={{
-                                backgroundColor: "#28a745",
+                                backgroundColor: "#da1919",
                                 color: "#fff",
                                 padding: "4px 8px",
                                 fontSize: "12px",
                                 textTransform: "none",
-                                "&:hover": { backgroundColor: "#218838" },
+                                "&:hover": { backgroundColor: "#b31515" },
                             }}
                         >
                             {lang("payouts.mark_as_pay", "Mark as pay")}
@@ -506,44 +519,18 @@ const PayoutsPage = () => {
             </Dialog>
 
             {/* Transaction ID Modal */}
-            <Dialog open={txModalOpen} onClose={handleCloseTxModal} maxWidth="xs" fullWidth>
-                <DialogTitle>{lang("payouts.enterTransactionId")}</DialogTitle>
-                <DialogContent>
-                    <TextField
-                        fullWidth
-                        label={lang("payouts.enterTransactionId", "Enter Transaction ID")}
-                        value={txId}
-                        onChange={(e) => setTxId(e.target.value)}
-                        sx={{ mt: 1 }}
-                    />
-
-                    <TextField
-                        fullWidth
-                        type="file"
-                        inputProps={{ accept: "image/*" }}
-                        label={lang("projects.uploadImage")}
-                        InputLabelProps={{ shrink: true }}
-                        onChange={(e) => {
-                            const file = (e.target.files && e.target.files[0]) || null;
-                            setSelectedFile(file);
-                        }}
-                        sx={{ mt: 4 }}
-                    />
-                    <DialogActions>
-                        <Button onClick={() => handleCloseTxModal()} color="error" variant="outlined" className="custom-orange-outline">
-                            {lang("common.close")}
-                        </Button>
-                        <Button
-                            variant="contained"
-                            disabled={!txId}
-                            className="common-grey-color"
-                            onClick={() => markAsPaid(selectedPayout.id, txId)}
-                        >
-                            {lang("payouts.save_mark_paid", "Save & Mark as Paid")}
-                        </Button>
-                    </DialogActions>
-                </DialogContent>
-            </Dialog>
+            <TransactionDialog
+                open={txModalOpen}
+                onClose={handleCloseTxModal}
+                onSubmit={() => markAsPaid(selectedPayout?.id, txId)}
+                txId={txId}
+                setTxId={setTxId}
+                selectedFile={selectedFile}
+                setSelectedFile={setSelectedFile}
+                errors={errors}
+                lang={lang}
+                showTxId={!selectedPayout?.transaction_id}
+            />
         </>
     );
 };

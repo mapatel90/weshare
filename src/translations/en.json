@@ -937,6 +937,7 @@
     "gallery": "Project Gallery",
     "projectSlugPlaceholder": "Project Slug",
     "solisStatus": "Solis Status",
+    "solis_plant_id_exists":"This Solis Plant ID already exists in another project.",
     "allSolisStatus": "All Solis Status",
     "noProjects": "No projects available.",
     "remaining": "Remaining",
@@ -1725,7 +1726,9 @@
     "payment_approved": "Great news! Your payment of {{amount}} for invoice {{invoice_number}} has been successfully processed.",
     "invoice_title": "New Invoice Created",
     "invoice_update_title": "Invoice Updated",
-    "invoice_updated": "The invoice \"{{invoice_number}}\" has been updated by \"{{created_by}}\"."
+    "invoice_updated": "The invoice \"{{invoice_number}}\" has been updated by \"{{created_by}}\".",
+    "new_payout_generated": "New Payout Generated",
+    "payout_generated": "Your payout \"{{payout_prefix}}\" - \"{{payout_number}}\" has been created"
   },
   "notification": {
     "title": "Notifications",
@@ -1777,6 +1780,13 @@
     "payoutCreatedSuccessfully": "Payout Created Successfully",
     "payoutUpdatedSuccessfully": "Payout Updated Successfully",
     "payoutDeletedSuccessfully": "Payout Deleted Successfully",
-    "save_mark_paid": "Save & Mark as Paid"
+    "save_mark_paid": "Save & Mark as Paid",
+    "project_is_required": "Project is required",
+    "invoice_is_required": "Invoice is required",
+    "amount_is_required": "Amount is required",
+    "uploaded_image_is_required": "Please upload document image",
+    "add_details": "Add Details",
+    "transaction_id_is_required": "Transaction ID is required",
+    "payout_paid": "Payout Marked as Payed"
   }
 }

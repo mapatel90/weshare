@@ -909,6 +909,7 @@
     "gallery": "Thư viện dự án",
     "projectSlugPlaceholder": "Slug dự án",
     "solisStatus": "Trạng thái Solis",
+    "solis_plant_id_exists":"Mã định danh nhà máy Solis này đã tồn tại trong một dự án khác.",
     "allSolisStatus": "Tất cả trạng thái Solis",
     "noProjects": "Không có dự án nào.",
     "remaining": "Còn lại",
@@ -1280,11 +1281,11 @@
     "thousandSeparator": "Dấu phân cách hàng nghìn",
     "thousandSeparatorInfo": "Dấu phân cách hàng nghìn [Ví dụ: ./,/'/Không/Cách]",
     "bank_title": "Cài đặt ngân hàng",
-    "bank_account_number" : "Số tài khoản ngân hàng",
+    "bank_account_number": "Số tài khoản ngân hàng",
     "bank_account_number_info": "Số tài khoản ngân hàng [Ví dụ: 1234567890]",
-    "bank_acq_id" : "Mã ACQ ngân hàng",
+    "bank_acq_id": "Mã ACQ ngân hàng",
     "bank_acq_id_info": "Mã ACQ ngân hàng [Ví dụ: Vietcombank]",
-    "bank_account_name" : "Tên tài khoản ngân hàng",
+    "bank_account_name": "Tên tài khoản ngân hàng",
     "bank_account_name_info": "Tên tài khoản ngân hàng [Ví dụ: John Doe]",
     "defaultTax": "Thuế mặc định",
     "defaultTaxInfo": "Thuế mặc định [Ví dụ: 5%/10%/15%]",
@@ -1669,7 +1670,9 @@
     "payment_approved": "Thanh toán cho hóa đơn \"{{invoice_number}}\" với số tiền \"{{amount}}\" đã được thanh toán thành công.",
     "invoice_title": "Hóa đơn mới đã được tạo",
     "invoice_update_title": "Hóa đơn đã được cập nhật",
-    "invoice_updated": "Hóa đơn \"{{invoice_number}}\" đã được cập nhật bởi \"{{updated_by}}\"."
+    "invoice_updated": "Hóa đơn \"{{invoice_number}}\" đã được cập nhật bởi \"{{updated_by}}\".",
+    "new_payout_generated": "Khoản thanh toán mới đã được tạo",
+    "payout_generated": "Khoản thanh toán \"{{payout_prefix}}\" - \"{{payout_number}}\" của bạn đã được tạo"
   },
   "notification": {
     "title": "Thông báo",
@@ -1721,6 +1724,13 @@
     "payoutCreatedSuccessfully": "Tạo thanh toán thành công",
     "payoutUpdatedSuccessfully": "Cập nhật thanh toán thành công",
     "payoutDeletedSuccessfully": "Xóa thanh toán thành công",
-    "save_mark_paid": "Lưu & Đánh dấu đã thanh toán"
+    "save_mark_paid": "Lưu & Đánh dấu đã thanh toán",
+    "project_is_required": "Dự án là bắt buộc",
+    "invoice_is_required": "Hóa đơn là bắt buộc",
+    "amount_is_required": "Số tiền là bắt buộc",
+    "uploaded_image_is_required": "Vui lòng tải lên hình ảnh tài liệu",
+    "add_details": "Thêm chi tiết",
+    "transaction_id_is_required": "Mã giao dịch là bắt buộc",
+    "payout_paid":"Khoản thanh toán đã được đánh dấu là đã thanh toán"
   }
 }
