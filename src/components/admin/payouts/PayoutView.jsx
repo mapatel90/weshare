@@ -1,10 +1,14 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { apiGet } from "@/lib/api";
+import { apiGet, apiUpload } from "@/lib/api";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePriceWithCurrency } from "@/hooks/usePriceWithCurrency";
+import TransactionDialog from "./TransactionDialog";
+import { PAYOUT_STATUS } from "@/constants/payout_status";
+import { showSuccessToast } from "@/utils/topTost";
+import { downloadPayoutPDF } from "./PayoutPdf";
 
 const PayoutView = ({ payout_id }) => {
     const { lang } = useLanguage();
@@ -13,8 +17,65 @@ const PayoutView = ({ payout_id }) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [companySettings, setCompanySettings] = useState({});
-    const [countries, setCountries] = useState([]);
+    const [txModalOpen, setTxModalOpen] = useState(false);
+    const [txId, setTxId] = useState("");
+    const [selectedFile, setSelectedFile] = useState(null);
+    const [errors, setErrors] = useState({});
     const priceWithCurrency = usePriceWithCurrency();
+
+    // Handler to open modal
+    const handleOpenTxModal = () => {
+        setTxModalOpen(true);
+    };
+    const handleCloseTxModal = () => {
+        setTxModalOpen(false);
+        setTxId("");
+        setSelectedFile(null);
+        setErrors({});
+    };
+
+    // Validation logic
+    const validate = () => {
+        const newErrors = {};
+        if (!payoutData?.transaction_id && !txId) newErrors.transactionId = lang("payouts.transaction_id_is_required", "Transaction ID is required");
+        if (!selectedFile) newErrors.document = lang("payouts.uploaded_image_is_required");
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
+    // Mark as paid handler (dummy, should be replaced with actual API call)
+    const markAsPaid = async (id, transactionId) => {
+        try {
+            if (!validate()) return;
+            const formData = new FormData();
+            formData.append('id', id);
+
+            if (transactionId) {
+                formData.append("transaction_id", transactionId);
+            }
+            if (selectedFile) {
+                formData.append("document", selectedFile);
+            }
+            formData.append("mark_as_paid", "true");
+
+            const res = await apiUpload("/api/payouts/update", formData);
+
+            if (res?.success) {
+                showSuccessToast(lang("payouts.payout_paid", "Payout marked as paid"));
+
+                setPayoutData(prev => ({
+                    ...prev,
+                    status: PAYOUT_STATUS.PAYOUT,
+                    transaction_id: transactionId || prev.transaction_id,
+                    payout_date: new Date().toISOString().split("T")[0]
+                }));
+
+                handleCloseTxModal();
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    };
     useEffect(() => {
         const fetchCompanySettings = async () => {
             try {
@@ -26,18 +87,7 @@ const PayoutView = ({ payout_id }) => {
                 console.error("Error fetching company settings:", err);
             }
         };
-        const fetchLocations = async () => {
-            try {
-                const countriesRes = await apiGet("/api/locations/countries");
-                if (countriesRes?.success && Array.isArray(countriesRes?.data)) {
-                    setCountries(countriesRes.data);
-                }
-            } catch (err) {
-                console.error("Error fetching countries:", err);
-            }
-        };
         fetchCompanySettings();
-        fetchLocations();
     }, []);
 
     useEffect(() => {
@@ -74,18 +124,13 @@ const PayoutView = ({ payout_id }) => {
     const company = {
         name: companySettings?.site_name || "WeShare",
         address: companySettings?.site_address || "",
-        country: countries.find(c => Number(c.id) === Number(companySettings?.site_country))?.name || "",
+        country: companySettings?.site_country_name,
         zip: companySettings?.site_zip || "",
     };
     const payout = payoutData;
     const invoice = payout?.invoices || {};
     const project = payout?.projects || {};
     const client = payout?.users || {};
-    const summary = {
-        summary: invoice?.sub_amount,
-        tax_amount: invoice?.tax_amount,
-        total: invoice?.total_amount,
-    };
     const invoiceDisplay = `${invoice?.invoice_prefix || ""}-${invoice?.invoice_number || ""}`;
     const qrCodeSrc = client?.qr_code || "/images/invoice_qr.jpg";
 
@@ -138,7 +183,7 @@ const PayoutView = ({ payout_id }) => {
                             </tr>
                         </thead>
                         <tbody>
-                            <tr style={{ backgroundColor: '#ffffff' }}>
+                            <tr>
                                 <td className="px-3 py-2 text-nowrap">
                                     <div className="fw-semibold">{invoice.invoice_prefix}-{invoice.invoice_number}</div>
                                     {/* <div className="text-muted" style={{ fontSize: '0.75rem' }}>{invoice.desc}</div> */}
@@ -147,7 +192,7 @@ const PayoutView = ({ payout_id }) => {
                                 <td className="px-3 py-2 text-nowrap fw-bold">{payout.investor_percent ? payout.investor_percent + "%" : "-"}</td>
                                 <td className="px-3 py-2 text-nowrap fw-bold">{payout.payout_amount ? priceWithCurrency(payout.payout_amount) : "-"}</td>
                                 <td className="px-3 py-2 text-nowrap">{payout.transaction_id ? payout.transaction_id : "-"}</td>
-                                <td className="px-3 py-2 text-nowrap">{payout.payout_date ? payout.payout_date : "-"}</td>
+                                <td className="px-3 py-2 text-nowrap">{payout?.payout_date ? new Date(payout.payout_date).toLocaleDateString("en-CA") : "-"}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -195,6 +240,38 @@ const PayoutView = ({ payout_id }) => {
                     </div>
                 </div>
             </div>
+            <div className="d-flex justify-content-end gap-2 mt-3">
+                <button
+                    className="btn btn-secondary fw-bold px-4 py-2 rounded shadow"
+                    type="button"
+                    onClick={() => downloadPayoutPDF(payoutData.id, priceWithCurrency)}
+                >
+                    {lang("common.downloadPdf")}
+                </button>
+                {payout?.status === PAYOUT_STATUS.PENDING && (
+                    <button
+                        className="btn text-white fw-bold px-4 py-2 rounded shadow common-orange-color"
+                        type="button"
+                        onClick={handleOpenTxModal}
+                    >
+                        {lang("common.makePayment")}
+                    </button>
+                )}
+            </div>
+
+            {/* Transaction ID & Document Upload Modal */}
+            <TransactionDialog
+                open={txModalOpen}
+                onClose={handleCloseTxModal}
+                onSubmit={() => markAsPaid(payoutData.id, txId)}
+                txId={txId}
+                setTxId={setTxId}
+                selectedFile={selectedFile}
+                setSelectedFile={setSelectedFile}
+                errors={errors}
+                lang={lang}
+                showTxId={!payoutData?.transaction_id}
+            />
         </div>
     );
 };

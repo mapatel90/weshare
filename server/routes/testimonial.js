@@ -4,6 +4,7 @@ import { authenticateToken } from '../middleware/auth.js';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import { uploadToS3, isS3Enabled, deleteFromS3 } from '../services/s3Service.js';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 
@@ -14,29 +15,60 @@ const __dirname = dirname(__filename);
 const ROOT_DIR = path.resolve(__dirname, '..', '..');
 const PUBLIC_DIR = path.join(ROOT_DIR, 'public');
 
-// Multer storage for testimonial images
+// Multer memory storage for S3-friendly uploads; local fallback will write files from buffer
 const testimonialImagesDir = path.join(PUBLIC_DIR, 'images', 'testimonial');
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        fs.mkdirSync(testimonialImagesDir, { recursive: true });
-        cb(null, testimonialImagesDir);
-    },
-    filename: (req, file, cb) => {
-        const ext = path.extname(file.originalname) || '.jpg';
-        const base = path.basename(file.originalname, ext).replace(/[^a-z0-9-_]/gi, '_');
-        const ts = Date.now();
-        cb(null, `${base}_${ts}${ext}`);
-    },
+const testimonialMemoryStorage = multer.memoryStorage();
+const upload = multer({
+    storage: testimonialMemoryStorage,
+    limits: { fileSize: 5 * 1024 * 1024 },
+    fileFilter: (req, file, cb) => {
+        const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+        if (validTypes.includes(file.mimetype)) {
+            cb(null, true);
+        } else {
+            cb(new Error('Invalid file type.'));
+        }
+    }
 });
-const upload = multer({ storage });
 
 router.post('/', authenticateToken, upload.single('image'), async (req, res) => {
     try {
         const { project, offtaker, description, review_status } = req.body;
         const userId = req.user?.id; // Get user ID from authenticated token
 
-        // Prefer uploaded file path; fallback to provided string
-        const uploadedPath = req.file ? `/images/testimonial/${req.file.filename}` : (req.body.image || null);
+        let uploadedPath = req.body.image || null;
+
+        if (req.file) {
+            const s3Enabled = await isS3Enabled();
+            if (s3Enabled) {
+                try {
+                    const s3Result = await uploadToS3(
+                        req.file.buffer,
+                        req.file.originalname,
+                        req.file.mimetype,
+                        {
+                            folder: 'testimonial',
+                            metadata: {
+                                projectId: String(project || ''),
+                                offtakerId: String(offtaker || ''),
+                                uploadType: 'testimonial_image'
+                            }
+                        }
+                    );
+                    if (s3Result && s3Result.success) {
+                        uploadedPath = s3Result.data.fileUrl;
+                    } else {
+                        console.error('S3 upload failed:', s3Result);
+                        return res.status(500).json({ error: 'S3 upload failed' });
+                    }
+                } catch (err) {
+                    console.error('S3 upload error:', err);
+                    return res.status(500).json({ error: 'S3 upload failed' });
+                }
+            } else {
+                return res.status(500).json({ error: 'S3 is disabled' });
+            }
+        }
 
         if (!project || !offtaker || !uploadedPath || !description || !review_status) {
             return res.status(400).json({ error: 'All fields are required' });
@@ -86,24 +118,52 @@ router.put('/:id', authenticateToken, upload.single('image'), async (req, res) =
             return res.status(400).json({ error: 'All fields are required' });
         }
 
-        // Determine new image path if uploaded
         let newImagePath = null;
-        if (req.file) {
-            newImagePath = `/images/testimonial/${req.file.filename}`;
-        }
 
-        // If a new image uploaded, best-effort delete old one
-        if (newImagePath) {
-            try {
-                const existing = await prisma.testimonials.findFirst({ where: { id: Number(id) } });
-                const oldPath = existing?.image
-                    ? path.join(PUBLIC_DIR, existing.image.replace(/^\//, ''))
-                    : null;
-                if (oldPath && fs.existsSync(oldPath)) {
-                    fs.unlinkSync(oldPath);
+        if (req.file) {
+            const s3Enabled = await isS3Enabled();
+            if (s3Enabled) {
+                try {
+                    const s3Result = await uploadToS3(
+                        req.file.buffer,
+                        req.file.originalname,
+                        req.file.mimetype,
+                        {
+                            folder: 'testimonial',
+                            metadata: {
+                                testimonialId: String(id),
+                                uploadType: 'testimonial_image_update'
+                            }
+                        }
+                    );
+                    if (s3Result && s3Result.success) {
+                        newImagePath = s3Result.data.fileUrl;
+
+                        // Attempt to delete old S3 file if previous image was a remote URL
+                        try {
+                            const existing = await prisma.testimonials.findFirst({ where: { id: Number(id) } });
+                            if (existing?.image && existing.image.startsWith('http')) {
+                                try {
+                                    const url = new URL(existing.image);
+                                    const key = decodeURIComponent(url.pathname.substring(1));
+                                    await deleteFromS3(key);
+                                } catch (delErr) {
+                                    console.error('Failed deleting old S3 testimonial image:', delErr.message || delErr);
+                                }
+                            }
+                        } catch (e) {
+                            // ignore
+                        }
+                    } else {
+                        console.error('S3 upload failed:', s3Result);
+                        return res.status(500).json({ error: 'S3 upload failed' });
+                    }
+                } catch (err) {
+                    console.error('S3 upload error:', err);
+                    return res.status(500).json({ error: 'S3 upload failed' });
                 }
-            } catch (e) {
-                // ignore
+            } else {
+                return res.status(500).json({ error: 'S3 is disabled' });
             }
         }
 
@@ -129,21 +189,34 @@ router.delete('/:id', authenticateToken, async (req, res) => {
     try {
         const { id } = req.params;
         const existing = await prisma.testimonials.findFirst({ where: { id: Number(id) } });
-        await prisma.testimonial.update({
-            where: { id: Number(id) },
-            data: { is_deleted: 1 }
-        });
-        // best-effort delete image file when soft deleting
+
+        // best-effort delete remote S3 or local image when soft deleting
         try {
-            const oldPath = existing?.image
-                ? path.join(PUBLIC_DIR, existing.image.replace(/^\//, ''))
-                : null;
-            if (oldPath && fs.existsSync(oldPath)) {
-                fs.unlinkSync(oldPath);
+            if (existing?.image) {
+                if (existing.image.startsWith('http')) {
+                    try {
+                        const url = new URL(existing.image);
+                        const key = decodeURIComponent(url.pathname.substring(1));
+                        await deleteFromS3(key);
+                    } catch (s3Err) {
+                        console.error('S3 delete failed:', s3Err.message || s3Err);
+                    }
+                } else {
+                    const oldPath = path.join(PUBLIC_DIR, existing.image.replace(/^\//, ''));
+                    if (fs.existsSync(oldPath)) {
+                        fs.unlinkSync(oldPath);
+                    }
+                }
             }
         } catch (e) {
             // ignore
         }
+
+        await prisma.testimonials.update({
+            where: { id: Number(id) },
+            data: { is_deleted: 1 }
+        });
+
         res.status(200).json({ message: 'Testimonial deleted successfully' });
     } catch (error) {
         console.error('Error deleting testimonial:', error);

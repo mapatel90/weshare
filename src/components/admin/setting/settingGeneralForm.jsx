@@ -2,15 +2,12 @@
 import React, { useState, useEffect, useRef } from "react";
 import PageHeaderSetting from "@/components/shared/pageHeader/PageHeaderSetting";
 import Footer from "@/components/shared/Footer";
-import TextAreaTopLabel from "@/components/shared/TextAreaTopLabel";
 import { FiCamera } from "react-icons/fi";
 import { FiX } from "react-icons/fi";
 import useImageUpload from "@/hooks/useImageUpload";
 import useSettings from "@/hooks/useSettings";
 import useLocationData from "@/hooks/useLocationData";
 import PerfectScrollbar from "react-perfect-scrollbar";
-import InputTopLabel from "@/components/shared/InputTopLabel";
-import SelectTopLabel from "@/components/shared/SelectTopLabel";
 import { showErrorToast } from "@/utils/topTost";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -331,6 +328,10 @@ const SettingGeneralForm = () => {
         });
         if (resp?.success && resp?.data?.path) {
           newImagePath = resp.data.path;
+        } else {
+          showErrorToast(resp?.message || "Logo upload failed");
+          setIsSubmitting(false);
+          return;
         }
       }
 
@@ -347,6 +348,10 @@ const SettingGeneralForm = () => {
         });
         if (resp?.success && resp?.data?.path) {
           newFaviconPath = resp.data.path;
+        } else {
+          showErrorToast(resp?.message || "Favicon upload failed");
+          setIsSubmitting(false);
+          return;
         }
       }
 

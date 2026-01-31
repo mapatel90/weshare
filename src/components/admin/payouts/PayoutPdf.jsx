@@ -132,7 +132,7 @@ export const downloadPayoutPDF = async (payout_id, priceWithCurrency) => {
                             <td style="border:1px solid #ddd; padding:8px;">${payout.investor_percent || 0}%</td>
                             <td style="border:1px solid #ddd; padding:8px;"><b>${priceWithCurrency(payout.payout_amount)}</b></td>
                             <td style="border:1px solid #ddd; padding:8px;">${payout.transaction_id || "-"}</td>
-                            <td style="border:1px solid #ddd; padding:8px;">${payout.payout_date ? payout.payout_date : "-"}</td>
+                            <td style="border:1px solid #ddd; padding:8px;">${payout?.payout_date ? new Date(payout.payout_date).toLocaleDateString("en-CA") : "-"}</td>
                         </tr>
                     </tbody>
                 </table>

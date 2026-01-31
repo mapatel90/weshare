@@ -366,26 +366,34 @@ router.post("/update", authenticateToken, uploadPayoutDoc.single('document'), as
             }
         }
 
+        const updateData = {};
+
+        if (transaction_id) {
+            updateData.transaction_id = transaction_id;
+        }
+
+        if (documentUrl) {
+            updateData.document = documentUrl;
+        }
+
+        if (mark_as_paid === "true" || mark_as_paid === true) {
+            updateData.payout_date = getDateTimeInTZ("Asia/Ho_Chi_Minh");
+            updateData.status = PAYOUT_STATUS.PAYOUT;
+        }
+
         // Update payout
-        const updated = await prisma.payouts.update({
+        const updatedPayout = await prisma.payouts.update({
             where: { id: Number(id) },
-            data: {
-                transaction_id,
-                document: documentUrl,
+            data: updateData,
+            include: {
+                invoices: true,
+                projects: true,
+                users: true,
             },
         });
 
-        if (mark_as_paid === "true" || mark_as_paid === true) {
-            await prisma.payouts.update({
-                where: { id: Number(id) },
-                data: {
-                    payout_date: getDateTimeInTZ("Asia/Ho_Chi_Minh"),
-                    status: PAYOUT_STATUS.PAYOUT,
-                },
-            });
-        }
 
-        return res.json({ success: true, message: "Payout updated successfully", data: updated });
+        return res.json({ success: true, message: "Payout updated successfully", data: updatedPayout });
     } catch (error) {
         console.error("Update payout error:", error);
         return res.status(500).json({ success: false, message: "Internal server error", error: error.message });

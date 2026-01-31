@@ -11,6 +11,7 @@ import { createNotification } from "../utils/notifications.js";
 import { getUserLanguage, t } from '../utils/i18n.js';
 import { getUserFullName } from "../utils/common.js";
 import { sendEmailUsingTemplate } from "../utils/email.js";
+import { uploadToS3, deleteFromS3, isS3Enabled } from '../services/s3Service.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -26,20 +27,11 @@ const PROJECT_IMAGES_DIR = path.join(ROOT_DIR, "uploads", "projects");
 
 fs.mkdirSync(PROJECT_IMAGES_DIR, { recursive: true });
 
-const projectImageStorage = multer.diskStorage({
-  destination: (_req, _file, cb) => {
-    cb(null, PROJECT_IMAGES_DIR);
-  },
-  filename: (_req, file, cb) => {
-    const timestamp = Date.now();
-    const random = Math.round(Math.random() * 1e9);
-    const ext = path.extname(file.originalname) || "";
-    cb(null, `project_${timestamp}_${random}${ext}`);
-  },
-});
+// Use memory storage for S3 upload compatibility
+const projectImageMemoryStorage = multer.memoryStorage();
 
 const projectImageUpload = multer({
-  storage: projectImageStorage,
+  storage: projectImageMemoryStorage,
   limits: { fileSize: MAX_IMAGE_SIZE, files: PROJECT_IMAGE_LIMIT },
   fileFilter: (_req, file, cb) => {
     if (file.mimetype && file.mimetype.startsWith("image/")) {
@@ -165,6 +157,54 @@ router.post("/check-name", async (req, res) => {
     });
   }
 });
+
+
+
+router.post("/check-plant-id", async (req, res) => {
+  try {
+    const { solis_plant_id, project_id } = req.body;
+    console.log("req.body", req.body);
+
+    if (!solis_plant_id) {
+      return res.json({ success: true, message: "Solisplant ID is required", exists: false });
+    }
+
+    // Build the query
+    const whereClause = {
+      solis_plant_id: solis_plant_id,
+      is_deleted: 0,
+    };
+
+    if (project_id) {
+      whereClause.id = {
+        not: parseInt(project_id),
+      };
+    }
+
+    const existingProject = await prisma.projects.findFirst({
+      where: whereClause,
+      select: {
+        id: true,
+        project_name: true,
+        solis_plant_id: true,
+      },
+    });
+
+    res.json({
+      success: true,
+      exists: !!existingProject,
+      project: existingProject,
+    });
+  } catch (error) {
+    console.error("Error checking project name in plant:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to check project name in plant",
+      error: error.message,
+    });
+  }
+});
+
 
 /**
  * @route   POST /api/projects
@@ -397,11 +437,24 @@ router.post(
         });
       }
 
+      const project = await prisma.projects.findUnique({
+        where: { id: projectId },
+        select: { project_name: true },
+      });
+
+      if (!project) {
+        files.forEach((file) => removePhysicalFile(file.path));
+        return res
+          .status(404)
+          .json({ success: false, message: "Project not found" });
+      }
+
+      const s3Folder = `project-images/${projectId}`;
+      console.log('S3 Folder for upload:', s3Folder);
+
       const currentCount = await prisma.project_images.count({
         where: { project_id: projectId },
       });
-
-      console.log("currentCount", currentCount);
 
       if (currentCount + files.length > PROJECT_IMAGE_LIMIT) {
         files.forEach((file) => removePhysicalFile(file.path));
@@ -424,9 +477,61 @@ router.post(
           ? parseInt(defaultIndexRaw, 10)
           : null;
 
-      const insertPayload = files.map((file, index) => ({
+      // Upload images to S3 or local storage
+      const s3Enabled = await isS3Enabled();
+      const uploadedPaths = [];
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        let imagePath = null;
+
+        if (s3Enabled) {
+          try {
+            const safeProjectName = String(project.project_name || "")
+            .replace(/[^\x20-\x7E]/g, "") // remove non-ASCII
+            .replace(/[\r\n]/g, "")       // remove line breaks
+            .trim();
+
+            const s3Result = await uploadToS3(
+              file.buffer,
+              file.originalname,
+              file.mimetype,
+              {
+                folder: s3Folder,
+                metadata: {
+                  projectId: String(projectId),
+                  projectName: safeProjectName,
+                  uploadType: 'project_gallery_image',
+                  imageIndex: String(i)
+                }
+              }
+            );
+            console.log('S3 upload result:', s3Result);
+            if (s3Result.success) {
+              imagePath = s3Result.data.fileUrl;
+            }
+          } catch (err) {
+            console.error('S3 upload error:', err);
+          }
+        }
+
+        // Local fallback
+        if (!imagePath) {
+          const timestamp = Date.now();
+          const random = Math.round(Math.random() * 1e9);
+          const ext = path.extname(file.originalname) || '.jpg';
+          const filename = `project_${timestamp}_${random}${ext}`;
+          const localPath = path.join(PROJECT_IMAGES_DIR, filename);
+          fs.writeFileSync(localPath, file.buffer);
+          imagePath = buildPublicImagePath(filename);
+        }
+
+        uploadedPaths.push(imagePath);
+      }
+
+      const insertPayload = uploadedPaths.map((imagePath, index) => ({
         project_id: projectId,
-        path: buildPublicImagePath(path.basename(file.path)),
+        path: imagePath,
         // If a default already exists for the project, all new images are non-default.
         // Otherwise, if client provided default_index use that index, else fall back to first file.
         default: hasDefault
@@ -592,7 +697,26 @@ router.delete(
         where: { id: imageRecord.id },
       });
 
-      removePhysicalFile(getAbsoluteImagePath(imageRecord.path));
+      // Delete from S3 or local storage
+      if (imageRecord.path) {
+        try {
+          let fileKey = imageRecord.path;
+          if (fileKey.startsWith('http')) {
+            const url = new URL(fileKey);
+            fileKey = url.pathname.substring(1);
+          }
+          await deleteFromS3(fileKey);
+          console.log('S3 image file deleted:', fileKey);
+        } catch (fileError) {
+          console.error('Failed to delete image from S3:', fileError);
+          // Fallback: try local delete
+          try {
+            removePhysicalFile(getAbsoluteImagePath(imageRecord.path));
+          } catch (localErr) {
+            console.error('Failed to delete local image:', localErr);
+          }
+        }
+      }
 
       if (imageRecord.default === 1) {
         const nextImage = await prisma.project_images.findFirst({

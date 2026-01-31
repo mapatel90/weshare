@@ -909,6 +909,7 @@
     "gallery": "Thư viện dự án",
     "projectSlugPlaceholder": "Slug dự án",
     "solisStatus": "Trạng thái Solis",
+    "solis_plant_id_exists":"Mã định danh nhà máy Solis này đã tồn tại trong một dự án khác.",
     "allSolisStatus": "Tất cả trạng thái Solis",
     "noProjects": "Không có dự án nào.",
     "remaining": "Còn lại",
@@ -1729,6 +1730,7 @@
     "amount_is_required": "Số tiền là bắt buộc",
     "uploaded_image_is_required": "Vui lòng tải lên hình ảnh tài liệu",
     "add_details": "Thêm chi tiết",
-    "transaction_id_is_required": "Mã giao dịch là bắt buộc"
+    "transaction_id_is_required": "Mã giao dịch là bắt buộc",
+    "payout_paid":"Khoản thanh toán đã được đánh dấu là đã thanh toán"
   }
 }
