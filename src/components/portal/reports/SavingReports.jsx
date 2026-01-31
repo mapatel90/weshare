@@ -15,6 +15,8 @@ const SavingReports = () => {
   const [reportsData, setReportsData] = useState([]);
   const [projectFilter, setProjectFilter] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
   const [error, setError] = useState(null);
   const [pagination, setPagination] = useState({
     page: 1,

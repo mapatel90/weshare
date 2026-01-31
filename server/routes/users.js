@@ -618,6 +618,18 @@ router.delete('/:id', authenticateToken, async (req, res) => {
       });
     }
 
+    // Delete QR code from S3 if it exists and is an S3 URL
+    if (existingUser.qr_code && existingUser.qr_code.startsWith('http')) {
+      try {
+        const url = new URL(existingUser.qr_code);
+        const key = decodeURIComponent(url.pathname.substring(1));
+        await deleteFromS3(key);
+        console.log('S3 QR code deleted:', key);
+      } catch (s3Error) {
+        console.error('Failed to delete QR code from S3:', s3Error);
+      }
+    }
+
     // Delete user
     await prisma.users.update({
       where: { id: parseInt(id) },

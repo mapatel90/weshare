@@ -214,14 +214,23 @@ router.delete("/:id", authenticateToken, async (req, res) => {
       });
     }
 
-    // Best-effort file cleanup on delete
-    const oldPath = existing.image ? path.join(PUBLIC_DIR, existing.image.replace(/^\//, '')) : null;
-    if (oldPath && fs.existsSync(oldPath)) {
-      try {
-        fs.unlinkSync(oldPath);
-      } catch (cleanupErr) {
-        console.warn("Failed to remove news image during delete:", cleanupErr);
+    // Best-effort file cleanup on delete (S3 or local)
+    try {
+      if (existing?.image) {
+        if (existing.image.startsWith('http')) {
+          try {
+            const url = new URL(existing.image);
+            const key = decodeURIComponent(url.pathname.substring(1));
+            await deleteFromS3(key);
+          } catch (s3Err) {
+            console.warn('Failed to delete news image from S3:', s3Err.message || s3Err);
+          }
+        } else {
+          console.warn('Local news image deletion not implemented:', existing.image);
+        }
       }
+    } catch (e) {
+      // ignore cleanup errors
     }
 
     await prisma.news.update({

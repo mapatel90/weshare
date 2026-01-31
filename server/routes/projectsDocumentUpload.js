@@ -278,16 +278,6 @@ router.delete("/:id", authenticateToken, async (req, res) => {
                 console.log('S3 document file deleted:', fileKey);
             } catch (fileError) {
                 console.error('Failed to delete document from S3:', fileError);
-                // Fallback: try local delete
-                try {
-                    const localPath = path.join(PUBLIC_DIR, existing.document.replace(/^\//, ''));
-                    if (fs.existsSync(localPath)) {
-                        fs.unlinkSync(localPath);
-                        console.log(`Deleted local file: ${localPath}`);
-                    }
-                } catch (localErr) {
-                    console.error('Failed to delete local document:', localErr);
-                }
             }
         }
         

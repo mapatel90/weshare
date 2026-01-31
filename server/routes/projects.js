@@ -1230,14 +1230,26 @@ router.delete("/:id", authenticateToken, async (req, res) => {
     });
 
     images.forEach((img) => {
-      try {
-        removePhysicalFile(getAbsoluteImagePath(img.path));
-      } catch (e) {
-        console.warn(
-          "Failed removing physical file for image:",
-          img.path,
-          e.message
-        );
+      if (img.path) {
+        try {
+          // Check if it's an S3 URL
+          if (img.path.startsWith('http')) {
+            const url = new URL(img.path);
+            const key = decodeURIComponent(url.pathname.substring(1));
+            deleteFromS3(key)
+              .then(() => console.log('S3 image deleted:', key))
+              .catch((err) => console.error('Failed to delete S3 image:', err));
+          } else {
+            // Local file deletion
+            removePhysicalFile(getAbsoluteImagePath(img.path));
+          }
+        } catch (e) {
+          console.warn(
+            "Failed removing physical file for image:",
+            img.path,
+            e.message
+          );
+        }
       }
     });
 
