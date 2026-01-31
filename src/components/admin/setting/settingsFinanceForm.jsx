@@ -74,13 +74,11 @@ const SettingsFinanceForm = () => {
 
     // Invoice Settings
     invoice_number_prefix: "",
-    next_invoice_number: "",
     invoice_due_after_days: "",
     invoice_predefined_client_note: "",
     invoice_predefined_terms_conditions: "",
     // Payout Settings
-    payout_number_prefix: "",
-    next_payout_number: "",
+    payout_number_prefix: ""
   })
 
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -108,11 +106,7 @@ const SettingsFinanceForm = () => {
   useEffect(() => {
     if (settings && !isFormInitialized && Object.keys(settings).length > 0) {
       const invoicePrefix = getSetting("invoice_number_prefix", "")
-      // Remove INV- prefix if it exists when loading from settings
-      const cleanedInvoicePrefix = invoicePrefix.startsWith("INV-") ? invoicePrefix.substring(4) : invoicePrefix
-      
       const payoutPrefix = getSetting("payout_number_prefix", "")
-      const cleanedPayoutPrefix = payoutPrefix.startsWith("PAYOUT-") ? payoutPrefix.substring(7) : payoutPrefix
       
       const loaded = {
         finance_currency: getSetting("finance_currency", ""),
@@ -122,13 +116,11 @@ const SettingsFinanceForm = () => {
         bank_account_name: getSetting("bank_account_name", ""),
         bank_account_number: getSetting("bank_account_number", ""),
         bank_acq_id: getSetting("bank_acq_id", ""),
-        invoice_number_prefix: cleanedInvoicePrefix,
-        next_invoice_number: getSetting("next_invoice_number", ""),
+        invoice_number_prefix: invoicePrefix,
         invoice_due_after_days: getSetting("invoice_due_after_days", ""),
         invoice_predefined_client_note: getSetting("invoice_predefined_client_note", ""),
         invoice_predefined_terms_conditions: getSetting("invoice_predefined_terms_conditions", ""),
-        payout_number_prefix: cleanedPayoutPrefix,
-        next_payout_number: getSetting("next_payout_number", "")
+        payout_number_prefix: payoutPrefix,
       }
       setFormData(loaded)
 
@@ -148,7 +140,7 @@ const SettingsFinanceForm = () => {
       Object.keys(loaded).forEach(key => {
         if (key.startsWith('finance_') || key.startsWith('invoice_')) {
           if (['finance_decimal_separator', 'finance_thousand_separator', 'finance_default_tax',
-            'invoice_number_prefix', 'next_invoice_number', 'invoice_due_after_days', 'invoice_predefined_client_note',
+            'invoice_number_prefix', 'invoice_due_after_days', 'invoice_predefined_client_note',
             'invoice_predefined_terms_conditions'].includes(key)) {
             return // Skip these as they have custom options
           }
@@ -182,7 +174,7 @@ const SettingsFinanceForm = () => {
       Object.keys(formData).forEach(key => {
         if (key.startsWith('finance_') || key.startsWith('invoice_')) {
           if (['finance_decimal_separator', 'finance_thousand_separator', 'finance_default_tax',
-            'invoice_number_prefix', 'next_invoice_number', 'invoice_due_after_days', 'invoice_predefined_client_note',
+            'invoice_number_prefix', 'invoice_due_after_days', 'invoice_predefined_client_note',
             'invoice_predefined_terms_conditions', 'invoice_proposal_info_format'].includes(key)) {
             return // Skip these as they have custom options
           }
@@ -236,8 +228,8 @@ const SettingsFinanceForm = () => {
       const settingsToUpdate = {
         ...formData,
         finance_currency: formData.finance_currency || '',
-        invoice_number_prefix: formData.invoice_number_prefix ? `INV-${formData.invoice_number_prefix}` : '',
-        payout_number_prefix: formData.payout_number_prefix ? `PAYOUT-${formData.payout_number_prefix}` : '',
+        invoice_number_prefix: formData.invoice_number_prefix || '',
+        payout_number_prefix: formData.payout_number_prefix || '',
       }
 
       await updateSettings(settingsToUpdate)
@@ -262,7 +254,7 @@ const SettingsFinanceForm = () => {
           showSaveButton={true}
         />
         <div className="content-area-body">
-          <div className="card mb-0">
+          <div className="mb-0 card">
             <div className="card-body">
               {/*This is for finance details */}
               <div className="mb-5">
@@ -396,21 +388,8 @@ const SettingsFinanceForm = () => {
                   placeholder={lang("finance.invoiceNumberPrefix")}
                   value={formData.invoice_number_prefix}
                   onChange={(e) => handleInputChange('invoice_number_prefix', e.target.value)}
-                  InputProps={{ startAdornment: <InputAdornment position="start">INV-</InputAdornment> }}
                 />
                 <small className="form-text text-muted">{lang("finance.invoiceNumberPrefixInfo")}</small>
-              </div>
-              <div className="mb-5">
-                <FormControl fullWidth>
-                  <TextField
-                    label={lang("finance.next_invoice_number")}
-                    fullWidth
-                    placeholder={lang("finance.next_invoice_number")}
-                    value={formData.next_invoice_number}
-                    onChange={(e) => handleInputChange('next_invoice_number', e.target.value)}
-                  />
-                </FormControl>
-                <small className="form-text text-muted">{lang("finance.currencyInfo")}</small>
               </div>
               <div className="mb-5">
                 {/* <label className="form-label">{lang("finance.invoiceDueAfterDays")}</label> */}
@@ -466,21 +445,8 @@ const SettingsFinanceForm = () => {
                   placeholder={lang("finance.payoutNumberPrefix") || "Payout Number Prefix"}
                   value={formData.payout_number_prefix}
                   onChange={(e) => handleInputChange('payout_number_prefix', e.target.value)}
-                  InputProps={{ startAdornment: <InputAdornment position="start">PAYOUT-</InputAdornment> }}
                 />
                 <small className="form-text text-muted">{lang("finance.payoutNumberPrefixInfo") || "Prefix for payout numbers (e.g., ABC will generate PAYOUT-ABC-001)"}</small>
-              </div>
-              <div className="mb-5">
-                <FormControl fullWidth>
-                  <TextField
-                    label={lang("finance.next_payout_number") || "Next Payout Number"}
-                    fullWidth
-                    placeholder={lang("finance.next_payout_number") || "Next Payout Number"}
-                    value={formData.next_payout_number}
-                    onChange={(e) => handleInputChange('next_payout_number', e.target.value)}
-                  />
-                </FormControl>
-                <small className="form-text text-muted">{lang("finance.next_payout_numberInfo") || "Starting number for payout sequence"}</small>
               </div>
               {/*This is for payout details */}
             </div>
