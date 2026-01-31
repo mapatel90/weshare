@@ -1786,6 +1786,7 @@
     "amount_is_required": "Amount is required",
     "uploaded_image_is_required": "Please upload document image",
     "add_details": "Add Details",
-    "transaction_id_is_required": "Transaction ID is required"
+    "transaction_id_is_required": "Transaction ID is required",
+    "payout_paid": "Payout Marked as Payed"
   }
 }

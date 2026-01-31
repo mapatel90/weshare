@@ -56,29 +56,64 @@ const deleteOldLogoIfSafe = (publicPath) => {
 };
 
 // Get all settings
-router.get('/', async (req, res) => {
+router.get("/", async (req, res) => {
   try {
-    const settings = await prisma.settings.findMany();
-    
-    // Convert array to object for easier access
+    const settings = await prisma.$queryRaw`
+      SELECT 
+        s.key,
+        s.value,
+
+        CASE WHEN s.key = 'site_country' THEN c.name END AS site_country_name,
+        CASE WHEN s.key = 'site_state'   THEN st.name END AS site_state_name,
+        CASE WHEN s.key = 'site_city'    THEN ct.name END AS site_city_name
+
+      FROM settings s
+
+      LEFT JOIN countries c 
+        ON s.key = 'site_country'
+        AND c.id = CASE WHEN s.value ~ '^[0-9]+$' THEN CAST(s.value AS INTEGER) END
+
+      LEFT JOIN states st 
+        ON s.key = 'site_state'
+        AND st.id = CASE WHEN s.value ~ '^[0-9]+$' THEN CAST(s.value AS INTEGER) END
+
+      LEFT JOIN cities ct 
+        ON s.key = 'site_city'
+        AND ct.id = CASE WHEN s.value ~ '^[0-9]+$' THEN CAST(s.value AS INTEGER) END
+    `;
+
     const settingsObj = {};
-    settings.forEach(setting => {
-      settingsObj[setting.key] = setting.value;
+
+    settings.forEach(row => {
+      // original value
+      settingsObj[row.key] = row.value;
+
+      // name fields (only if exist)
+      if (row.site_country_name)
+        settingsObj.site_country_name = row.site_country_name;
+
+      if (row.site_state_name)
+        settingsObj.site_state_name = row.site_state_name;
+
+      if (row.site_city_name)
+        settingsObj.site_city_name = row.site_city_name;
     });
-    
+
     res.json({
       success: true,
       data: settingsObj
     });
+
   } catch (error) {
-    console.error('Error fetching settings:', error);
+    console.error("Error fetching settings:", error);
     res.status(500).json({
       success: false,
-      message: 'Error fetching settings',
+      message: "Error fetching settings",
       error: error.message
     });
   }
 });
+
 
 // get taxes data (must come before /:key route to avoid route collision)
 router.get('/taxes', authenticateToken, async (req, res) => {
@@ -99,18 +134,18 @@ router.get('/taxes', authenticateToken, async (req, res) => {
 router.get('/:key', async (req, res) => {
   try {
     const { key } = req.params;
-    
+
     const setting = await prisma.settings.findFirst({
       where: { key }
     });
-    
+
     if (!setting) {
       return res.status(404).json({
         success: false,
         message: 'Setting not found'
       });
     }
-    
+
     res.json({
       success: true,
       data: {
@@ -132,14 +167,14 @@ router.get('/:key', async (req, res) => {
 router.post('/bulk', authenticateToken, async (req, res) => {
   try {
     const settings = req.body;
-    
+
     if (!settings || typeof settings !== 'object') {
       return res.status(400).json({
         success: false,
         message: 'Invalid settings data provided'
       });
     }
-    
+
     // Use transaction to update/create multiple settings
     const updatedSettings = await prisma.$transaction(async (prisma) => {
       const results = [];
@@ -174,7 +209,7 @@ router.post('/bulk', authenticateToken, async (req, res) => {
 
       return results;
     });
-    
+
     res.json({
       success: true,
       message: 'Settings updated successfully',
@@ -194,33 +229,33 @@ router.post('/bulk', authenticateToken, async (req, res) => {
 router.post('/', authenticateToken, async (req, res) => {
   try {
     const { key, value } = req.body;
-    
+
     if (!key || value === undefined) {
       return res.status(400).json({
         success: false,
         message: 'Key and value are required'
       });
     }
-    
+
     const existing = await prisma.settings.findFirst({ where: { key } });
     let setting;
     if (existing) {
       setting = await prisma.settings.update({
         where: { id: existing.id },
-        data: { 
+        data: {
           value: String(value),
           updated_at: new Date()
         }
       });
     } else {
       setting = await prisma.settings.create({
-        data: { 
-          key, 
+        data: {
+          key,
           value: String(value)
         }
       });
     }
-    
+
     res.json({
       success: true,
       message: 'Setting updated successfully',
@@ -240,22 +275,22 @@ router.post('/', authenticateToken, async (req, res) => {
 router.delete('/:key', authenticateToken, async (req, res) => {
   try {
     const { key } = req.params;
-    
+
     const setting = await prisma.settings.findFirst({
       where: { key }
     });
-    
+
     if (!setting) {
       return res.status(404).json({
         success: false,
         message: 'Setting not found'
       });
     }
-    
+
     await prisma.settings.delete({
       where: { key }
     });
-    
+
     res.json({
       success: true,
       message: 'Setting deleted successfully'

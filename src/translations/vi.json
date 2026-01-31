@@ -1730,6 +1730,7 @@
     "amount_is_required": "Số tiền là bắt buộc",
     "uploaded_image_is_required": "Vui lòng tải lên hình ảnh tài liệu",
     "add_details": "Thêm chi tiết",
-    "transaction_id_is_required": "Mã giao dịch là bắt buộc"
+    "transaction_id_is_required": "Mã giao dịch là bắt buộc",
+    "payout_paid":"Khoản thanh toán đã được đánh dấu là đã thanh toán"
   }
 }
