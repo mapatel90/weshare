@@ -125,25 +125,44 @@ model inverter_type {
   type       String @db.VarChar(255)
   status     Int    @default(1)
   is_deleted Int    @default(0)
-  inverters  inverters[]
+
+  inverters inverters[]
 }
 
 model inverters {
-  id                Int                 @id @default(autoincrement())
-  created_by        Int?
-  inverter_type_id  Int
-  company_name      String              @db.VarChar(255)
-  inverter_name     String              @db.VarChar(255)
-  api_url           String?             @db.VarChar(1000)
-  api_key           String              @db.VarChar(1000)
-  secret_key        String              @db.VarChar(1000)
-  status            Int                 @default(1)
-  api_status        Int                 @default(1)
-  is_deleted        Int                 @default(0)
-  created_at        DateTime            @default(now())
-  updated_at        DateTime            @default(now())
-  inverter_type     inverter_type       @relation(fields: [inverter_type_id], references: [id])
+  id               Int    @id @default(autoincrement())
+  created_by       Int?
+  inverter_type_id Int?
+  company_id       Int?
+  phase_name       String? @db.VarChar(255)
+  status           Int?          @default(1)
+  is_deleted Int? @default(0)
+  created_at DateTime? @default(now())
+  updated_at DateTime? @default(now())
+
+  inverter_type          inverter_type?       @relation(fields: [inverter_type_id], references: [id])
+  inverter_company       inverter_company?    @relation(fields: [company_id], references: [id])
+
   project_inverters project_inverters[]
+}
+
+model inverter_company {
+  id           Int    @id @default(autoincrement())
+  created_by   Int?
+  company_name String @db.VarChar(255)
+
+  api_url    String? @db.VarChar(1000)
+  api_key    String?  @db.VarChar(1000)
+  secret_key String?  @db.VarChar(1000)
+
+  status     Int? @default(1)
+  api_status Int? @default(1)
+  is_deleted Int? @default(0)
+
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+
+  inverters inverters[]
 }
 
 model invoices {

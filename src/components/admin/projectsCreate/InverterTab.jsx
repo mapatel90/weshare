@@ -59,6 +59,7 @@ const InverterTab = ({ projectId, handleSaveAction }) => {
 
   useEffect(() => {
     apiGet("/api/inverters?status=1&limit=100").then((res) => {
+
       if (res?.success) setInverterList(res.data.inverters);
     });
   }, []);
@@ -313,12 +314,11 @@ const InverterTab = ({ projectId, handleSaveAction }) => {
       header: () => lang("inverter.type", "Inverter Type"),
       cell: (info) => {
         const row = info.row.original;
-        const name = row.inverters?.inverter_name || "-";
         const type =
           row.inverters?.inverter_type?.type ||
           inverterTypesMap[row.inverters?.inverter_type_id] ||
           "";
-        return type ? `${name} (${type})` : name;
+        return type ? `${type}` : name;
       },
     },
     {
@@ -529,9 +529,10 @@ const InverterTab = ({ projectId, handleSaveAction }) => {
                   </MenuItem>
                   {inverterList.map((inv) => (
                     <MenuItem key={inv.id} value={inv.id}>
-                      {inv.inverter_name +
+                      {console.log("inv", inv)}
+                      {inv.inverter_type_name +
                         ` - ` +
-                        inv.inverter_type_id +
+                        inv.phase_name +
                         (inv.company_name ? ` (${inv.company_name})` : "")}
                     </MenuItem>
                   ))}

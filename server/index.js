@@ -36,6 +36,7 @@ import emailTemplateRoutes from "./routes/emailTemplate.js";
 import payoutsRoutes from "./routes/payouts.js";
 import s3SettingsRoutes from "./routes/s3Settings.js";
 import s3UploadRoutes from "./routes/s3Upload.js";
+import inverterCompanyRoutes from "./routes/inverterCompany.js";
 
 // Load environment variables
 const __filename = fileURLToPath(import.meta.url);
@@ -102,6 +103,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/roles", roleRoutes);
 app.use("/api/locations", locationRoutes);
 app.use("/api/inverterTypes", inverterTypeRoutes);
+app.use("/api/inverter-company", inverterCompanyRoutes);
 app.use("/api/inverters", inverterRoutes);
 app.use("/api/settings", settingsRoutes);
 app.use("/api/projects", projectsRouter);
