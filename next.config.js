@@ -6,6 +6,7 @@ const nextConfig = {
       "127.0.0.1",
       "api.weshare-energy.com",
       "weshare-energy.com",
+      "weshare-uploads.s3.ap-southeast-1.amazonaws.com",
     ],
     remotePatterns: [
       // LOCAL backend
@@ -44,6 +45,12 @@ const nextConfig = {
         protocol: "https",
         hostname: "weshare-energy.com",
         pathname: "/images/**",
+      },
+      // AWS S3 uploads
+      {
+        protocol: "https",
+        hostname: "weshare-uploads.s3.ap-southeast-1.amazonaws.com",
+        pathname: "/project-images/**",
       },
     ],
   },

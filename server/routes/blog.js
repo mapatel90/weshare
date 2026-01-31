@@ -4,6 +4,7 @@ import { authenticateToken } from '../middleware/auth.js';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import { uploadToS3, isS3Enabled, deleteFromS3 } from '../services/s3Service.js';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 
@@ -14,29 +15,51 @@ const __dirname = dirname(__filename);
 const ROOT_DIR = path.resolve(__dirname, '..', '..');
 const PUBLIC_DIR = path.join(ROOT_DIR, 'public');
 
-// Multer storage for blog images
+// Multer memory storage for S3-friendly uploads; local fallback writes from buffer
 const blogImagesDir = path.join(PUBLIC_DIR, 'images', 'blog');
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    fs.mkdirSync(blogImagesDir, { recursive: true });
-    cb(null, blogImagesDir);
-  },
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname) || '.jpg';
-    const base = path.basename(file.originalname, ext).replace(/[^a-z0-9-_]/gi, '_');
-    const ts = Date.now();
-    cb(null, `${base}_${ts}${ext}`);
-  },
+const blogMemoryStorage = multer.memoryStorage();
+const upload = multer({
+  storage: blogMemoryStorage,
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    if (validTypes.includes(file.mimetype)) cb(null, true);
+    else cb(new Error('Invalid file type'));
+  }
 });
-const upload = multer({ storage });
 
 router.post("/", authenticateToken, upload.single('blog_image'), async (req, res) => {
   try {
     const { blog_title, blog_date, blog_description, blog_slug } = req.body;
     const userId = req.user?.id; // Get user ID from authenticated token
     
-    // Prefer uploaded file
-    const uploadedPath = req.file ? `/images/blog/${req.file.filename}` : (req.body.blog_image || null);
+    // Prefer uploaded file (S3 or local) or provided URL
+    let uploadedPath = req.body.blog_image || null;
+
+    if (req.file) {
+      const s3Enabled = await isS3Enabled();
+      if (s3Enabled) {
+        try {
+          const s3Result = await uploadToS3(
+            req.file.buffer,
+            req.file.originalname,
+            req.file.mimetype,
+            { folder: 'blog', metadata: { uploadType: 'blog_image' } }
+          );
+          if (s3Result && s3Result.success) {
+            uploadedPath = s3Result.data.fileUrl;
+          } else {
+            console.error('S3 upload failed:', s3Result);
+            return res.status(500).json({ success: false, message: 'S3 upload failed' });
+          }
+        } catch (err) {
+          console.error('S3 upload error:', err);
+          return res.status(500).json({ success: false, message: 'S3 upload failed' });
+        }
+      } else {
+        return res.status(500).json({ success: false, message: 'S3 is disabled' });
+      }
+    }
 
     // Basic validation
     if (!blog_title || !blog_date || !uploadedPath || !blog_description || !blog_slug) {
@@ -149,14 +172,23 @@ router.delete("/:id", authenticateToken, async (req, res) => {
       return res.status(404).json({ success: false, message: "Blog not found." });
     }
 
-    // Best-effort file cleanup on delete
-    const oldPath = existing.image ? path.join(PUBLIC_DIR, existing.image.replace(/^\//, '')) : null;
-    if (oldPath && fs.existsSync(oldPath)) {
-      try {
-        fs.unlinkSync(oldPath);
-      } catch (cleanupErr) {
-        console.warn("Failed to remove blog image during delete:", cleanupErr);
+    // Best-effort file cleanup on delete (S3 or local)
+    try {
+      if (existing?.image) {
+        if (existing.image.startsWith('http')) {
+          try {
+            const url = new URL(existing.image);
+            const key = decodeURIComponent(url.pathname.substring(1));
+            await deleteFromS3(key);
+          } catch (s3Err) {
+            console.warn('Failed to delete blog image from S3:', s3Err.message || s3Err);
+          }
+        } else {
+          console.warn('Local blog image deletion not implemented:', existing.image);
+        }
       }
+    } catch (e) {
+      // ignore
     }
 
     await prisma.blogs.update({ where: { id: parsedId }, data: { is_deleted: 1 } });
@@ -177,24 +209,46 @@ router.put("/:id", authenticateToken, upload.single('blog_image'), async (req, r
       return res.status(400).json({ success: false, message: "Invalid date format." });
     }
 
-    // Determine new image path if uploaded
+    // Determine new image path if uploaded (S3 or local)
     let newImagePath = null;
     if (req.file) {
-      newImagePath = `/images/blog/${req.file.filename}`;
-    }
+      const s3Enabled = await isS3Enabled();
+      if (s3Enabled) {
+        try {
+          const s3Result = await uploadToS3(
+            req.file.buffer,
+            req.file.originalname,
+            req.file.mimetype,
+            { folder: 'blog', metadata: { uploadType: 'blog_image_update', blogId: String(id) } }
+          );
+          if (s3Result && s3Result.success) {
+            newImagePath = s3Result.data.fileUrl;
 
-    // If new image uploaded, remove old file (best-effort)
-    if (newImagePath) {
-      try {
-        const existing = await prisma.blogs.findFirst({ where: { id: parseInt(id) } });
-        const oldPath = existing?.image
-          ? path.join(PUBLIC_DIR, existing.image.replace(/^\//, ''))
-          : null;
-        if (oldPath && fs.existsSync(oldPath)) {
-          fs.unlinkSync(oldPath);
+            // delete old S3 file if previous image was remote
+            try {
+              const existing = await prisma.blogs.findFirst({ where: { id: parseInt(id) } });
+              if (existing?.image && existing.image.startsWith('http')) {
+                try {
+                  const url = new URL(existing.image);
+                  const key = decodeURIComponent(url.pathname.substring(1));
+                  await deleteFromS3(key);
+                } catch (delErr) {
+                  console.error('Failed deleting old S3 blog image:', delErr.message || delErr);
+                }
+              }
+            } catch (e) {
+              // ignore
+            }
+          } else {
+            console.error('S3 upload failed:', s3Result);
+            return res.status(500).json({ success: false, message: 'S3 upload failed' });
+          }
+        } catch (err) {
+          console.error('S3 upload error:', err);
+          return res.status(500).json({ success: false, message: 'S3 upload failed' });
         }
-      } catch (e) {
-        // best effort
+      } else {
+        return res.status(500).json({ success: false, message: 'S3 is disabled' });
       }
     }
 

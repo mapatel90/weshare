@@ -11,6 +11,7 @@ import { getUserLanguage, t } from '../utils/i18n.js';
 import { getUserFullName } from '../utils/common.js';
 import { sendEmailUsingTemplate } from '../utils/email.js';
 import { PROJECT_STATUS } from '../../src/constants/project_status.js';
+import { uploadToS3, deleteFromS3, isS3Enabled } from '../services/s3Service.js';
 
 const router = express.Router();
 
@@ -19,21 +20,20 @@ const __dirname = dirname(__filename);
 const ROOT_DIR = path.resolve(__dirname, '..', '..');
 const PUBLIC_DIR = path.join(ROOT_DIR, 'public');
 
-// Multer storage for contract documents/images
-const contractsDir = path.join(PUBLIC_DIR, 'images', 'contract');
-const contractStorage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    fs.mkdirSync(contractsDir, { recursive: true });
-    cb(null, contractsDir);
-  },
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname) || '.jpg';
-    const base = path.basename(file.originalname, ext).replace(/[^a-z0-9-_]/gi, '_');
-    const ts = Date.now();
-    cb(null, `${base}_${ts}${ext}`);
-  },
+// Multer memory storage for contract documents/images (for S3 upload)
+const contractMemoryStorage = multer.memoryStorage();
+const upload = multer({
+  storage: contractMemoryStorage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+  fileFilter: (req, file, cb) => {
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'];
+    if (validTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Invalid file type.'));
+    }
+  }
 });
-const upload = multer({ storage: contractStorage });
 
 // Create contract (supports multipart file 'document' OR a direct document path in body)
 router.post("/", authenticateToken, upload.single('document'), async (req, res) => {
@@ -50,8 +50,36 @@ router.post("/", authenticateToken, upload.single('document'), async (req, res) 
     } = req.body;
     const userId = req.user?.id; // Get user ID from authenticated token
 
-    // prefer uploaded file path
-    const uploadedPath = req.file ? `/images/contract/${req.file.filename}` : (documentUpload || null);
+    // Handle document upload (image/pdf) with S3
+    let uploadedPath = null;
+    if (req.file) {
+      const s3Enabled = await isS3Enabled();
+      if (s3Enabled) {
+        try {
+          const s3Result = await uploadToS3(
+            req.file.buffer,
+            req.file.originalname,
+            req.file.mimetype,
+            {
+              folder: 'contracts',
+              metadata: {
+                projectId: String(projectId || ''),
+                uploadType: 'contract_document'
+              }
+            }
+          );
+          if (s3Result.success) {
+            uploadedPath = s3Result.data.fileUrl;
+          }
+        } catch (err) {
+          console.error('S3 upload error:', err);
+        }
+      } else {
+        return res.status(500).json({ success: false, message: 'S3 is disabled' });
+      }
+    } else if (documentUpload) {
+      uploadedPath = documentUpload;
+    }
 
     if (!contractTitle) {
       return res.status(400).json({ success: false, message: 'contractTitle is required' });
@@ -435,17 +463,49 @@ router.put("/:id", authenticateToken, upload.single('document'), async (req, res
       return res.status(404).json({ success: false, message: 'Contract not found' });
     }
 
-    // If a new file was uploaded, set new path and remove old file (best-effort)
+    // Handle document upload (image/pdf) with S3
     let newDocumentPath = null;
     if (req.file) {
-      newDocumentPath = `/images/contract/${req.file.filename}`;
-      try {
-        const oldPath = existing?.documentUpload
-          ? path.join(PUBLIC_DIR, existing.documentUpload.replace(/^\//, ''))
-          : null;
-        if (oldPath && fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
-      } catch (e) {
-        // ignore errors removing old file
+      const s3Enabled = await isS3Enabled();
+      if (s3Enabled) {
+        try {
+          // Delete old file from S3 if exists
+          if (existing.document_upload) {
+            try {
+              let fileKey = existing.document_upload;
+              if (fileKey.startsWith('http')) {
+                const url = new URL(fileKey);
+                fileKey = url.pathname.substring(1);
+              }
+              await deleteFromS3(fileKey);
+              console.log('Old S3 file deleted:', fileKey);
+            } catch (s3Err) {
+              console.error('S3 delete failed:', s3Err.message);
+            }
+          }
+          
+          // Upload new file to S3
+          const s3Result = await uploadToS3(
+            req.file.buffer,
+            req.file.originalname,
+            req.file.mimetype,
+            {
+              folder: 'contracts',
+              metadata: {
+                projectId: String(projectId || ''),
+                uploadType: 'contract_document'
+              }
+            }
+          );
+          if (s3Result.success) {
+            newDocumentPath = s3Result.data.fileUrl;
+          }
+        } catch (err) {
+          console.error('S3 upload error:', err);
+        }
+      } else {
+        // Local fallback
+        return res.status(500).json({ success: false, message: 'S3 is disabled' });
       }
     }
 
@@ -503,7 +563,44 @@ router.put("/:id/status", authenticateToken, upload.single('file'), async (req, 
 
     // If approved with file, save signed document
     if (Number(status) === 1 && req.file) {
-      updateData.signed_document_upload = `/images/contract/${req.file.filename}`;
+      const s3Enabled = await isS3Enabled();
+      if (s3Enabled) {
+        try {
+          // Delete old signed document from S3 if exists
+          if (existing.signed_document_upload) {
+            try {
+              let fileKey = existing.signed_document_upload;
+              if (fileKey.startsWith('http')) {
+                const url = new URL(fileKey);
+                fileKey = url.pathname.substring(1);
+              }
+              await deleteFromS3(fileKey);
+            } catch (s3Err) {
+              console.error('S3 delete failed:', s3Err.message);
+            }
+          }
+          
+          const s3Result = await uploadToS3(
+            req.file.buffer,
+            req.file.originalname,
+            req.file.mimetype,
+            {
+              folder: 'contracts/signed',
+              metadata: {
+                contractId: String(id),
+                uploadType: 'signed_contract_document'
+              }
+            }
+          );
+          if (s3Result.success) {
+            updateData.signed_document_upload = s3Result.data.fileUrl;
+          }
+        } catch (err) {
+          console.error('S3 upload error:', err);
+        }
+      } else {
+        return res.status(500).json({ success: false, message: 'S3 is disabled' });
+      }
     }
 
     const updated = await prisma.contracts.update({
@@ -747,28 +844,30 @@ router.delete("/:id", authenticateToken, async (req, res) => {
     // Delete the uploaded document file if it exists
     if (existing.document_upload) {
       try {
-        const filePath = path.join(PUBLIC_DIR, existing.document_upload.replace(/^\//, ''));
-        if (fs.existsSync(filePath)) {
-          fs.unlinkSync(filePath);
-          console.log(`Deleted file: ${filePath}`);
+        let fileKey = existing.document_upload;
+        if (fileKey.startsWith('http')) {
+          const url = new URL(fileKey);
+          fileKey = url.pathname.substring(1);
         }
+        await deleteFromS3(fileKey);
+        console.log('S3 document file deleted:', fileKey);
       } catch (fileError) {
-        console.error('Error deleting file:', fileError);
-        // Continue with soft delete even if file deletion fails
+        console.error('Failed to delete document from S3:', fileError);
       }
     }
 
     // Delete the signed document file if it exists
     if (existing.signed_document_upload) {
       try {
-        const signedFilePath = path.join(PUBLIC_DIR, existing.signed_document_upload.replace(/^\//, ''));
-        if (fs.existsSync(signedFilePath)) {
-          fs.unlinkSync(signedFilePath);
-          console.log(`Deleted signed file: ${signedFilePath}`);
+        let fileKey = existing.signed_document_upload;
+        if (fileKey.startsWith('http')) {
+          const url = new URL(fileKey);
+          fileKey = url.pathname.substring(1);
         }
+        await deleteFromS3(fileKey);
+        console.log('S3 signed document file deleted:', fileKey);
       } catch (fileError) {
-        console.error('Error deleting signed file:', fileError);
-        // Continue with soft delete even if file deletion fails
+        console.error('Failed to delete signed document from S3:', fileError);
       }
     }
 
