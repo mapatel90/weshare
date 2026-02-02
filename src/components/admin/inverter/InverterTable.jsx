@@ -41,13 +41,12 @@ const InverterTable = () => {
   const [companyName, setCompanyName] = useState(""); // keep for compatibility, but use selectedCompany
   const [companyOptions, setCompanyOptions] = useState([]);
   const [selectedCompany, setSelectedCompany] = useState(null);
-  const [phase_name, setphaseName] = useState("");
+  const [title, setTitle] = useState("");
   const [apiKey, setApiKey] = useState("");
   const [secretKey, setSecretKey] = useState("");
   const [apiUrlName, setApiUrlName] = useState(""); // <-- added state
   const [companyId, setCompanyId] = useState("");
   const [typeId, setTypeId] = useState("");
-  const [phaseName, setPhaseName] = useState("");
 
   const [editingId, setEditingId] = useState(null);
   const [errors, setErrors] = useState({});
@@ -60,7 +59,7 @@ const InverterTable = () => {
   const resetForm = () => {
     setCompanyName("");
     setSelectedCompany(null);
-    setphaseName("");
+    setTitle("");
     setApiKey("");
     setSecretKey("");
     setApiUrlName(""); // <-- reset new field
@@ -195,7 +194,7 @@ const InverterTable = () => {
   const handleAdd = async () => {
     const newErrors = {
       company_id: !companyId ? lang("validation.companyNameRequired") : "",
-      phase_name: !phase_name ? lang("validation.phase_name_required") : "",
+      title: !title ? lang("inverter.title_required") : "",
       typeId: !typeId ? lang("validation.typeRequired") : "",
     };
     const newStatusError = !status && status !== 0 ? lang("validation.statusRequired") : "";
@@ -206,7 +205,7 @@ const InverterTable = () => {
       setSubmitting(true);
       const payload = {
         company_id: parseInt(companyId) || "",
-        phase_name: phase_name,
+        title: title,
         inverter_type_id: parseInt(typeId),
         status: parseInt(status),
         created_by: user?.id ? parseInt(user.id) : null,
@@ -249,9 +248,9 @@ const InverterTable = () => {
       setEditingId(item.id || null);
       setCompanyId(String(item.company_id || ""));
       setTypeId(String(item.inverter_type_id || ""));
-      setPhaseName(item.phase_name || "");
+      setTitle(item.title || "");
       setCompanyName(item.company_name || "");
-      setphaseName(item.phase_name || "");
+      setTitle(item.title || "");
       setErrors({});
       setPendingEdit(item);
       setStatus(item.status !== undefined && item.status !== null ? String(item.status) : "");
@@ -278,7 +277,7 @@ const InverterTable = () => {
 
   const columns = [
     { accessorKey: "company_name", header: () => lang("inverter.companyName") },
-    { accessorKey: "phase_name", header: () => lang("inverter.phase_name") },
+    { accessorKey: "title", header: () => lang("common.title") },
     { accessorKey: "inverter_type_name", header: () => lang("inverter.type") },
     {
       accessorKey: "status",
@@ -462,16 +461,16 @@ const InverterTable = () => {
             </FormControl>
 
             <TextField
-              label={lang("inverter.phase_name")}
-              placeholder={lang("inverter.phase_name_placeholder")}
-              value={phase_name}
+              label={lang("inverter.title")}
+              placeholder={lang("inverter.title_placeholder")}
+              value={title}
               onChange={(e) => {
-                setphaseName(e.target.value);
-                if (errors.phase_name)
-                  setErrors((prev) => ({ ...prev, phase_name: "" }));
+                setTitle(e.target.value);
+                if (errors.title)
+                  setErrors((prev) => ({ ...prev, title: "" }));
               }}
-              error={!!errors.phase_name}
-              helperText={errors.phase_name}
+              error={!!errors.title}
+              helperText={errors.title}
               fullWidth
             />
 

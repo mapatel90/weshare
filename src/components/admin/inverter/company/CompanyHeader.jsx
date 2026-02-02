@@ -26,7 +26,7 @@ const CompanyHeader = () => {
         onClick={openAddModal}
         startIcon={<FiPlus size={17} />}
       >
-        {lang("inverter.add_company")}
+        {lang("company.addCompany")}
       </Button>
     </div>
   );

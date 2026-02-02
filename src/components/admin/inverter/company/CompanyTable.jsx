@@ -212,9 +212,9 @@ const CompanyTable = () => {
 
 
   const columns = [
-    { accessorKey: "company_name", header: () => lang("inverter.companyName") },
+    { accessorKey: "company_name", header: () => lang("company.companyName") },
     { accessorKey: "api_key", header: () => lang("inverter.apiKey") },
-    { accessorKey: "api_url", header: () => lang("inverter.apiUrlName") }, // <-- added column
+    { accessorKey: "api_url", header: () => lang("inverter.apiUrlName") }, 
     { accessorKey: "secret_key", header: () => lang("inverter.secretKey") },
     {
       accessorKey: "status",
@@ -324,8 +324,8 @@ const CompanyTable = () => {
         >
           <Typography variant="h6" component="span">
             {modalMode === "edit"
-              ? lang("inverter.edit_company")
-              : lang("inverter.add_company")}
+              ? lang("company.editCompany")
+              : lang("company.addCompany")}
           </Typography>
           <IconButton
             aria-label="close"
@@ -340,8 +340,8 @@ const CompanyTable = () => {
         <DialogContent>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 3, pt: 2 }}>
             <TextField
-              label={lang("inverter.companyName")}
-              placeholder={lang("inverter.companyNamePlaceholder")}
+              label={lang("company.companyName")}
+              placeholder={lang("company.companyNamePlaceholder")}
               value={companyName}
               onChange={(e) => {
                 setCompanyName(e.target.value);

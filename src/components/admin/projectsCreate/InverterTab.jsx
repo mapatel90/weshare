@@ -533,7 +533,7 @@ const InverterTab = ({ projectId, handleSaveAction }) => {
                       {console.log("inv", inv)}
                       {inv.inverter_type_name +
                         ` - ` +
-                        inv.phase_name +
+                        inv.title +
                         (inv.company_name ? ` (${inv.company_name})` : "")}
                     </MenuItem>
                   ))}

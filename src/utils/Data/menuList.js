@@ -47,7 +47,7 @@ export const menuList = [
       },
       {
         id: 2,
-        name: "Company",
+        name: "company",
         path: "/admin/inverter/company",
         subdropdownMenu: false,
       },
