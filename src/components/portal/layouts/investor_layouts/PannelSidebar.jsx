@@ -57,7 +57,7 @@ function PannelSidebar({ activeMenu, setActiveMenu }) {
                     </div>
                     <div className={`submenu${activeMenu === 'reports' ? ' show' : ''}`}>
                         <Link href="/investor/reports/roi-reports/" className="menu-item">ROI Reports</Link>
-                        <Link href="/investor/reports/cash-flow-reports/" className="menu-item">Cash Flow Reports</Link>
+                        {/* <Link href="/investor/reports/cash-flow-reports/" className="menu-item">Cash Flow Reports</Link> */}
                         <Link href="/investor/reports/investment-summary-reports/" className="menu-item">Investment Summary</Link>
                     </div>
                 </div>

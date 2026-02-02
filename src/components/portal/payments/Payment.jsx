@@ -12,6 +12,7 @@ import { downloadPaymentPDF } from "./PaymentPdf";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { PROJECT_STATUS } from "@/constants/project_status";
 import { ROLES } from "@/constants/roles";
+import { Autocomplete, TextField } from "@mui/material";
 
 const statusColors = {
   Paid: "bg-green-100 text-green-700",
@@ -41,20 +42,26 @@ const Payments = () => {
   const { lang } = useLanguage();
 
   // Fetch payments from API with server-side search, date filters, and pagination
-  const fetchPayments = async (searchQuery = search, paymentDateVal = paymentDate, projectId = selectedProject, status = selectedStatus, page = currentPage) => {
+  const fetchPayments = async (
+    searchQuery = search,
+    paymentDateVal = paymentDate,
+    projectId = selectedProject,
+    status = selectedStatus,
+    page = currentPage,
+  ) => {
     try {
       setLoading(true);
-      
+
       const params = new URLSearchParams({
         search: searchQuery,
         page: page.toString(),
-        pageSize: pageSize.toString()
+        pageSize: pageSize.toString(),
       });
-      
+
       if (paymentDateVal) {
         params.append("paymentDate", paymentDateVal);
       }
-      
+
       if (projectId) {
         params.append("projectId", projectId);
       }
@@ -62,13 +69,19 @@ const Payments = () => {
       if (status) {
         params.append("status", status);
       }
-      
-      const response = await apiGet(`/api/payments?${params.toString()}`, { includeAuth: true });
 
-        if (response?.success && Array.isArray(response?.data)) {
-          const formattedPayments = response.data
-            .filter((payment) => payment.invoices?.projects?.project_status_id === PROJECT_STATUS.RUNNING)
-            .map((payment) => ({
+      const response = await apiGet(`/api/payments?${params.toString()}`, {
+        includeAuth: true,
+      });
+
+      if (response?.success && Array.isArray(response?.data)) {
+        const formattedPayments = response.data
+          .filter(
+            (payment) =>
+              payment.invoices?.projects?.project_status_id ===
+              PROJECT_STATUS.RUNNING,
+          )
+          .map((payment) => ({
             id: payment.id,
             invoice_id: payment.invoice_id,
             paymentId: payment.id,
@@ -80,7 +93,7 @@ const Payments = () => {
               : "N/A",
             invoiceDate: payment.invoices?.invoice_date
               ? new Date(payment.invoices.invoice_date).toLocaleDateString(
-                  "en-US"
+                  "en-US",
                 )
               : "N/A",
             dueDate: payment.invoices?.due_date
@@ -91,26 +104,26 @@ const Payments = () => {
             ss_url: payment.ss_url || "",
             download: true,
           }));
-          setPayments(formattedPayments);
-          setError("");
-          
-          // Update pagination info
-          if (response.pagination) {
-            setTotalCount(response.pagination.totalCount);
-            setTotalPages(response.pagination.totalPages);
-          }
-        } else {
-          setError("Failed to load payments");
-          setPayments([]);
+        setPayments(formattedPayments);
+        setError("");
+
+        // Update pagination info
+        if (response.pagination) {
+          setTotalCount(response.pagination.totalCount);
+          setTotalPages(response.pagination.totalPages);
         }
-      } catch (err) {
-        console.error("Error fetching payments:", err);
-        setError("Unable to fetch payments");
+      } else {
+        setError("Failed to load payments");
         setPayments([]);
-      } finally {
-        setLoading(false);
       }
-    };
+    } catch (err) {
+      console.error("Error fetching payments:", err);
+      setError("Unable to fetch payments");
+      setPayments([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     const fetchPaymentProjects = async () => {
@@ -118,17 +131,21 @@ const Payments = () => {
         const payload = {
           project_status_id: PROJECT_STATUS.RUNNING,
         };
-        
+
         if (user?.role === ROLES.OFFTAKER) {
           payload.offtaker_id = user.id;
         }
 
-        const response = await apiPost("/api/projects/dropdown/project", payload, { includeAuth: true });
+        const response = await apiPost(
+          "/api/projects/dropdown/project",
+          payload,
+          { includeAuth: true },
+        );
         if (response?.success && Array.isArray(response?.data)) {
           setProjects(response.data);
         }
       } catch (err) {
-        console.error('Error fetching payment projects:', err);
+        console.error("Error fetching payment projects:", err);
       }
     };
 
@@ -169,7 +186,13 @@ const Payments = () => {
   // Handle page change
   useEffect(() => {
     if (currentPage > 1) {
-      fetchPayments(search, paymentDate, selectedProject, selectedStatus, currentPage);
+      fetchPayments(
+        search,
+        paymentDate,
+        selectedProject,
+        selectedStatus,
+        currentPage,
+      );
     }
   }, [currentPage]);
 
@@ -184,11 +207,11 @@ const Payments = () => {
     const maxVisible = 5;
     let start = Math.max(1, currentPage - 2);
     let end = Math.min(totalPages, start + maxVisible - 1);
-    
+
     if (end - start < maxVisible - 1) {
       start = Math.max(1, end - maxVisible + 1);
     }
-    
+
     for (let i = start; i <= end; i++) {
       pages.push(i);
     }
@@ -234,7 +257,7 @@ const Payments = () => {
         amount: parseFloat(data.amount) || 0,
         ss_url: ss_url,
         status: 0, // Paid status
-        created_by: user?.id || null
+        created_by: user?.id || null,
       };
 
       const response = await apiPost("/api/payments", paymentData);
@@ -246,7 +269,6 @@ const Payments = () => {
         setModalOpen(false);
       }
 
-      
       // Refresh payments list
       await fetchPayments();
     } catch (err) {
@@ -259,7 +281,6 @@ const Payments = () => {
 
   return (
     <div className="p-6 bg-white rounded-xl shadow-md">
-
       {loading && (
         <div className="text-center py-8">
           <p className="text-gray-500">Loading payments...</p>
@@ -272,38 +293,83 @@ const Payments = () => {
             <div className="flex items-center gap-2 flex-wrap">
               <input
                 type="text"
-                placeholder={lang("payments.searchPlaceholder", "Search project or invoice...")}
+                placeholder={lang(
+                  "payments.searchPlaceholder",
+                  "Search project or invoice...",
+                )}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
               />
-              <select
-                value={selectedProject}
-                onChange={(e) => setSelectedProject(e.target.value)}
-                className="border rounded-md px-3 py-2 text-sm theme-btn-blue-color focus:outline-none focus:ring-2 focus:ring-blue-200"
-              >
-                <option value="">{lang("reports.allprojects", "All Projects")}</option>
-                {projects.map((project) => (
-                  <option key={project.id} value={project.id}>
-                    {project.project_name}
-                  </option>
-                ))}
-              </select>
-              <select
-                value={selectedStatus}
-                onChange={(e) => setSelectedStatus(e.target.value)}
-                className="border rounded-md px-3 py-2 text-sm theme-btn-blue-color focus:outline-none focus:ring-2 focus:ring-blue-200"
-              >
-                <option value="">{lang("invoice.allStatus", "All Status")}</option>
-                <option value="1">{lang("invoice.paid", "Paid")}</option>
-                <option value="0">{lang("common.pending", "Pending")}</option>
-              </select>
-              <input
+              <Autocomplete
+                size="small"
+                options={projects}
+                value={projects.find((p) => p.id === selectedProject) || null}
+                onChange={(e, newValue) =>
+                  setSelectedProject(newValue ? newValue.id : "")
+                }
+                getOptionLabel={(option) => option.project_name || ""}
+                isOptionEqualToValue={(option, value) => option.id === value.id}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label={lang("reports.allprojects", "All Projects")}
+                    placeholder="Search project..."
+                  />
+                )}
+                sx={{ minWidth: 260 }}
+              />
+              <Autocomplete
+                size="small"
+                options={[
+                  { value: "1", label: lang("invoice.paid", "Paid") },
+                  { value: "0", label: lang("common.pending", "Pending") },
+                ]}
+                value={
+                  [
+                    { value: "1", label: lang("invoice.paid", "Paid") },
+                    { value: "0", label: lang("common.pending", "Pending") },
+                  ].find((s) => s.value === selectedStatus) || null
+                }
+                onChange={(e, newValue) =>
+                  setSelectedStatus(newValue ? newValue.value : "")
+                }
+                getOptionLabel={(option) => option.label || ""}
+                isOptionEqualToValue={(option, value) =>
+                  option.value === value.value
+                }
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label={lang("invoice.allStatus", "All Status")}
+                    placeholder="Select status..."
+                  />
+                )}
+                sx={{ minWidth: 200 }}
+              />
+              {/* <input
                 type="date"
                 value={paymentDate}
                 onChange={(e) => setPaymentDate(e.target.value)}
-                className="border rounded-md px-3 py-2 text-sm text-white theme-btn-blue-color focus:outline-none focus:ring-2 focus:ring-blue-200"
+                className="border rounded-md px-3 py-2 text-sm text-balck focus:outline-none focus:ring-2 focus:ring-blue-200"
                 placeholder="Payment Date"
+              /> */}
+              <TextField
+                size="small"
+                type="date"
+                label="Payment Date"
+                value={paymentDate}
+                onChange={(e) => setPaymentDate(e.target.value)}
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                sx={{
+                  minWidth: 200,
+                  "& .MuiOutlinedInput-root": {
+                    borderRadius: "8px",
+                    backgroundColor: "#fff",
+                  },
+                }}
               />
             </div>
             <button
@@ -322,8 +388,12 @@ const Payments = () => {
                   <th className="px-4 py-3 text-left font-semibold">
                     {lang("projects.projectName", "Project Name")}
                   </th>
-                  <th className="px-4 py-3 text-left font-semibold">{lang("payments.invoice", "Invoice")}</th>
-                  <th className="px-2 py-3 text-left font-semibold">{lang("payments.amount", "Amount")}</th>
+                  <th className="px-4 py-3 text-left font-semibold">
+                    {lang("payments.invoice", "Invoice")}
+                  </th>
+                  <th className="px-2 py-3 text-left font-semibold">
+                    {lang("payments.amount", "Amount")}
+                  </th>
                   <th className="px-2 py-3 text-left font-semibold">
                     {lang("invoice.invoiceDate", "Invoice Date")}
                   </th>
@@ -333,9 +403,15 @@ const Payments = () => {
                   <th className="px-2 py-3 text-left font-semibold">
                     {lang("payments.paymentDate", "Payment Date")}
                   </th>
-                  <th className="px-2 py-3 text-left font-semibold">{lang("common.status", "Status")}</th>
-                  <th className="px-2 py-3 text-center">{lang("payments.screenshot", "Screenshot")}</th>
-                  <th className="px-2 py-3 text-left font-semibold">{lang("common.actions", "Actions")}</th>
+                  <th className="px-2 py-3 text-left font-semibold">
+                    {lang("common.status", "Status")}
+                  </th>
+                  <th className="px-2 py-3 text-center">
+                    {lang("payments.screenshot", "Screenshot")}
+                  </th>
+                  <th className="px-2 py-3 text-left font-semibold">
+                    {lang("common.actions", "Actions")}
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -418,7 +494,9 @@ const Payments = () => {
                             )}
                           </div>
                         ) : (
-                          <span className="text-gray-400">{lang("common.download", "Download")}</span>
+                          <span className="text-gray-400">
+                            {lang("common.download", "Download")}
+                          </span>
                         )}
                       </td>
                     </tr>
@@ -440,10 +518,12 @@ const Payments = () => {
           {/* Pagination */}
           <div className="flex items-center justify-between mt-4">
             <div className="text-sm text-gray-500">
-              {totalCount > 0 ? ((currentPage - 1) * pageSize + 1) : 0} - {Math.min(currentPage * pageSize, totalCount)} of {totalCount} entries
+              {totalCount > 0 ? (currentPage - 1) * pageSize + 1 : 0} -{" "}
+              {Math.min(currentPage * pageSize, totalCount)} of {totalCount}{" "}
+              entries
             </div>
             <div className="flex gap-1 items-center">
-              <button 
+              <button
                 className="px-3 h-8 rounded bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
@@ -451,19 +531,19 @@ const Payments = () => {
                 {lang("common.prev", "Prev")}
               </button>
               {getPageNumbers().map((page) => (
-                <button 
+                <button
                   key={page}
                   className={`w-8 h-8 rounded font-bold ${
-                    currentPage === page 
-                      ? 'bg-blue-600 text-white' 
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    currentPage === page
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                   }`}
                   onClick={() => handlePageChange(page)}
                 >
                   {page}
                 </button>
               ))}
-              <button 
+              <button
                 className="px-3 h-8 rounded bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage === totalPages}

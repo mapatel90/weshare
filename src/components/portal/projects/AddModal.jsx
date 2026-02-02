@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { apiPost, apiGet, apiUpload } from "@/lib/api";
 import { showSuccessToast, showErrorToast } from "@/utils/topTost";
 import { generateSlug, checkProjectNameExists } from "@/utils/projectUtils";
@@ -12,6 +12,7 @@ export default function AddModal({ open, onClose }) {
   const isOpen = isControlled ? open : internalOpen;
   const { user } = useAuth() || {};
   const { lang } = useLanguage();
+  const fileInputRef = useRef(null);
 
   // form state (match TabProjectBasicDetails / API fields)
   const [name, setName] = useState("");
@@ -32,8 +33,8 @@ export default function AddModal({ open, onClose }) {
   const [leaseTerm, setLeaseTerm] = useState("");
   const [productCode, setProductCode] = useState("");
   const [projectDescription, setProjectDescription] = useState("");
-  const [imagePreview, setImagePreview] = useState(null);
-  const [queuedImageFile, setQueuedImageFile] = useState(null);
+  const [imagePreviews, setImagePreviews] = useState([]);
+  const [queuedImageFiles, setQueuedImageFiles] = useState([]);
   const [projectSize, setProjectSize] = useState("");
   const [projectCloseDate, setProjectCloseDate] = useState("");
   const [projectLocation, setProjectLocation] = useState("");
@@ -43,6 +44,11 @@ export default function AddModal({ open, onClose }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [fieldErrors, setFieldErrors] = useState({}); // field-level validation errors
+  
+  // Dropdown lists for address
+  const [countryList, setCountryList] = useState([]);
+  const [stateList, setStateList] = useState([]);
+  const [cityList, setCityList] = useState([]);
 
   const openModal = () => {
     if (!isControlled) setInternalOpen(true);
@@ -53,11 +59,15 @@ export default function AddModal({ open, onClose }) {
     setFieldErrors({});
     setError("");
     onClose?.();
-    if (imagePreview) {
-      URL.revokeObjectURL(imagePreview);
+    imagePreviews.forEach((preview) => {
+      URL.revokeObjectURL(preview);
+    });
+    setImagePreviews([]);
+    setQueuedImageFiles([]);
+    // Reset file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
     }
-    setImagePreview(null);
-    setQueuedImageFile(null);
   };
   
   // auto-generate slug from name
@@ -109,6 +119,74 @@ export default function AddModal({ open, onClose }) {
     loadTypes();
   }, []);
 
+  // Fetch countries on mount
+  useEffect(() => {
+    const fetchCountries = async () => {
+      try {
+        const res = await apiGet("/api/locations/countries");
+        if (res?.success) setCountryList(res.data || []);
+      } catch (e) {
+        console.error("Failed to fetch countries:", e);
+      }
+    };
+    fetchCountries();
+  }, []);
+
+  // Fetch states when country changes
+  useEffect(() => {
+    const fetchStates = async () => {
+      if (!countryId) {
+        setStateList([]);
+        setStateId("");
+        setCityList([]);
+        setCityId("");
+        return;
+      }
+      try {
+        const res = await apiGet(`/api/locations/countries/${countryId}/states`);
+        if (res?.success) setStateList(res.data || []);
+      } catch (e) {
+        console.error("Failed to fetch states:", e);
+      }
+    };
+    fetchStates();
+  }, [countryId]);
+
+  // Fetch cities when state changes
+  useEffect(() => {
+    const fetchCities = async () => {
+      if (!stateId) {
+        setCityList([]);
+        setCityId("");
+        return;
+      }
+      try {
+        const res = await apiGet(`/api/locations/states/${stateId}/cities`);
+        if (res?.success) setCityList(res.data || []);
+      } catch (e) {
+        console.error("Failed to fetch cities:", e);
+      }
+    };
+    fetchCities();
+  }, [stateId]);
+
+  // Pre-fill user address when user is loaded
+  useEffect(() => {
+    if (!user) return;
+    
+    try {
+      const userData = user?.user || user;
+      if (userData.address_1) setaddress_1(userData.address_1);
+      if (userData.address_2) setaddress_2(userData.address_2);
+      if (userData.country_id) setCountryId(String(userData.country_id));
+      if (userData.state_id) setStateId(String(userData.state_id));
+      if (userData.city_id) setCityId(String(userData.city_id));
+      if (userData.zipcode) setZipcode(userData.zipcode);
+    } catch (err) {
+      console.error("Error pre-filling user address:", err);
+    }
+  }, [user]);
+
   // If logged-in user is an offtaker (role 3), default offtakerId to their id and keep it in sync
   useEffect(() => {
     try {
@@ -123,34 +201,55 @@ export default function AddModal({ open, onClose }) {
   }, [user]);
 
   function handleImageFileChange(e) {
-    const file = e?.target?.files?.[0];
-    if (!file) return;
+    const files = e?.target?.files;
+    if (!files || files.length === 0) return;
 
-    if (!file.type.startsWith("image/")) {
-      showErrorToast("Please select a valid image file");
-      return;
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      showErrorToast("Image must be less than 5MB");
-      return;
+    const newFiles = Array.from(files);
+    const newPreviews = [];
+    const validFiles = [];
+
+    for (const file of newFiles) {
+      if (!file.type.startsWith("image/")) {
+        showErrorToast(`${file.name} is not a valid image file`);
+        continue;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        showErrorToast(`${file.name} must be less than 5MB`);
+        continue;
+      }
+
+      const previewUrl = URL.createObjectURL(file);
+      newPreviews.push(previewUrl);
+      validFiles.push(file);
     }
 
-    if (imagePreview) {
-      URL.revokeObjectURL(imagePreview);
-    }
+    // Append to existing files and previews
+    setQueuedImageFiles((prevFiles) => [...prevFiles, ...validFiles]);
+    setImagePreviews((prevPreviews) => [...prevPreviews, ...newPreviews]);
+  }
 
-    const previewUrl = URL.createObjectURL(file);
-    setImagePreview(previewUrl);
-    setQueuedImageFile(file);
+  // Function to remove a specific image
+  function handleRemoveImage(index) {
+    setImagePreviews((prevPreviews) => {
+      const newPreviews = [...prevPreviews];
+      URL.revokeObjectURL(newPreviews[index]);
+      newPreviews.splice(index, 1);
+      return newPreviews;
+    });
+    setQueuedImageFiles((prevFiles) => {
+      const newFiles = [...prevFiles];
+      newFiles.splice(index, 1);
+      return newFiles;
+    });
   }
 
   useEffect(() => {
     return () => {
-      if (imagePreview) {
-        URL.revokeObjectURL(imagePreview);
-      }
+      imagePreviews.forEach((preview) => {
+        URL.revokeObjectURL(preview);
+      });
     };
-  }, [imagePreview]);
+  }, [imagePreviews]);
 
   // single source of validation — returns errors object and updates state
   function validateBeforeSubmit() {
@@ -160,14 +259,13 @@ export default function AddModal({ open, onClose }) {
     if (!name || name.trim() === "") errors.name = "Project name is required";
     if (!selectedProjectTypeId || selectedProjectTypeId === "")
       errors.selectedProjectTypeId = "Project type is required";
-    if (!productCode || productCode.trim() === "") errors.productCode = "Project ID / Code is required";
+    if (!projectDescription || projectDescription.trim() === "") errors.projectDescription = "Description is required";
     if (!askingPrice || askingPrice.trim() === "") errors.askingPrice = "Target Investment Amount is required";
     if (!leaseTerm || leaseTerm.trim() === "") errors.leaseTerm = "Lease Term is required";
     if (!projectSize || projectSize.trim() === "") errors.projectSize = "Installed Capacity is required";
     if (!projectLocation || projectLocation.trim() === "") errors.projectLocation = "Location is required";
     if (!startDate || startDate.trim() === "") errors.startDate = "Project Start Date is required";
     if (!projectCloseDate || projectCloseDate.trim() === "") errors.projectCloseDate = "Project End Date is required";
-    if (!projectDescription || projectDescription.trim() === "") errors.projectDescription = "Description is required";
 
     // Numeric validation
     const numberRegex = /^[0-9]*\.?[0-9]*$/;
@@ -238,10 +336,12 @@ export default function AddModal({ open, onClose }) {
         throw new Error(res?.message || "Failed to create project");
       }
 
-      if (queuedImageFile && res?.data?.id) {
+      if (queuedImageFiles.length > 0 && res?.data?.id) {
         try {
           const formData = new FormData();
-          formData.append("images", queuedImageFile);
+          queuedImageFiles.forEach((file) => {
+            formData.append("images", file);
+          });
           await apiUpload(`/api/projects/${res.data.id}/images`, formData);
         } catch (uploadErr) {
           console.error("Project image upload error:", uploadErr);
@@ -271,8 +371,8 @@ export default function AddModal({ open, onClose }) {
       setLeaseTerm("");
       setProductCode("");
       setProjectDescription("");
-      setQueuedImageFile(null);
-      setImagePreview(null);
+      setQueuedImageFiles([]);
+      setImagePreviews([]);
       setProjectSize("");
       setProjectCloseDate("");
       setProjectLocation("");
@@ -422,27 +522,128 @@ export default function AddModal({ open, onClose }) {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                <div className="flex flex-col" data-field="productCode">
+              <div className="flex flex-col mt-4" data-field="projectDescription">
+                <label className="mb-1 font-medium text-sm text-black">
+                  {lang("news.description", "Description")}
+                </label>
+                <textarea
+                  value={projectDescription}
+                  onChange={(e) => {
+                    setProjectDescription(e.target.value);
+                    if (fieldErrors.projectDescription) {
+                      setFieldErrors((prev) => {
+                        const newErrors = { ...prev };
+                        delete newErrors.projectDescription;
+                        return newErrors;
+                      });
+                    }
+                  }}
+                  className={`input-field ${fieldErrors.projectDescription ? "border-red-500" : ""}`}
+                  rows="4"
+                  placeholder={lang("projects.projectDescriptionPlaceholder", "Enter project description")}
+                ></textarea>
+                {fieldErrors.projectDescription && <div className="text-red-600 text-sm mt-1">{fieldErrors.projectDescription}</div>}
+              </div>
+            </div>
+
+            {/* Address Information Section */}
+            <div className="border rounded-lg p-4 shadow-sm bg-white">
+              <h3 className="font-semibold mb-2 text-lg text-black">
+                {lang("projects.addressInformation", "Address Information")}
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="flex flex-col">
                   <label className="mb-1 font-medium text-sm text-black">
-                    {lang("projects.projectIdCode", "Project ID / Code")}
+                    {lang("projects.addressLine1", "Address Line 1")}
                   </label>
                   <input
-                    value={productCode}
-                    onChange={(e) => {
-                      setProductCode(e.target.value);
-                      if (fieldErrors.productCode) {
-                        setFieldErrors((prev) => {
-                          const newErrors = { ...prev };
-                          delete newErrors.productCode;
-                          return newErrors;
-                        });
-                      }
-                    }}
-                    className={`input-field ${fieldErrors.productCode ? "border-red-500" : ""}`}
-                    placeholder="#P15001"
+                    value={address_1}
+                    onChange={(e) => setaddress_1(e.target.value)}
+                    className="input-field"
+                    placeholder={lang("projects.addressLine1", "Address Line 1")}
                   />
-                  {fieldErrors.productCode && <div className="text-red-600 text-sm mt-1">{fieldErrors.productCode}</div>}
+                </div>
+
+                <div className="flex flex-col">
+                  <label className="mb-1 font-medium text-sm text-black">
+                    {lang("projects.addressLine2", "Address Line 2")}
+                  </label>
+                  <input
+                    value={address_2}
+                    onChange={(e) => setaddress_2(e.target.value)}
+                    className="input-field"
+                    placeholder={lang("projects.addressLine2", "Address Line 2")}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
+                <div className="flex flex-col">
+                  <label className="mb-1 font-medium text-sm text-black">
+                    {lang("projects.country", "Country")}
+                  </label>
+                  <select
+                    value={countryId}
+                    onChange={(e) => setCountryId(e.target.value)}
+                    className="input-field"
+                  >
+                    <option value="">{lang("projects.selectCountry", "Select Country")}</option>
+                    {countryList.map((country) => (
+                      <option key={country.id} value={country.id}>
+                        {country.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="flex flex-col">
+                  <label className="mb-1 font-medium text-sm text-black">
+                    {lang("projects.state", "State")}
+                  </label>
+                  <select
+                    value={stateId}
+                    onChange={(e) => setStateId(e.target.value)}
+                    className="input-field"
+                    disabled={!countryId}
+                  >
+                    <option value="">{lang("projects.selectState", "Select State")}</option>
+                    {stateList.map((state) => (
+                      <option key={state.id} value={state.id}>
+                        {state.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="flex flex-col">
+                  <label className="mb-1 font-medium text-sm text-black">
+                    {lang("projects.city", "City")}
+                  </label>
+                  <select
+                    value={cityId}
+                    onChange={(e) => setCityId(e.target.value)}
+                    className="input-field"
+                    disabled={!stateId}
+                  >
+                    <option value="">{lang("projects.selectCity", "Select City")}</option>
+                    {cityList.map((city) => (
+                      <option key={city.id} value={city.id}>
+                        {city.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="flex flex-col">
+                  <label className="mb-1 font-medium text-sm text-black">
+                    {lang("projects.zipcode", "Zipcode")}
+                  </label>
+                  <input
+                    value={zipcode}
+                    onChange={(e) => setZipcode(e.target.value)}
+                    className="input-field"
+                    placeholder={lang("projects.zipcode", "Zipcode")}
+                  />
                 </div>
               </div>
             </div>
@@ -603,52 +804,43 @@ export default function AddModal({ open, onClose }) {
                 </div>
               </div>
 
-              <div className="flex flex-col mt-4" data-field="projectDescription">
-                <label className="mb-1 font-medium text-sm text-black">
-                  {lang("news.description", "Description")}
-                </label>
-                <textarea
-                  value={projectDescription}
-                  onChange={(e) => {
-                    setProjectDescription(e.target.value);
-                    if (fieldErrors.projectDescription) {
-                      setFieldErrors((prev) => {
-                        const newErrors = { ...prev };
-                        delete newErrors.projectDescription;
-                        return newErrors;
-                      });
-                    }
-                  }}
-                  className={`input-field ${fieldErrors.projectDescription ? "border-red-500" : ""}`}
-                  rows="4"
-                  placeholder={lang("projects.projectDescriptionPlaceholder", "Enter project description")}
-                ></textarea>
-                {fieldErrors.projectDescription && <div className="text-red-600 text-sm mt-1">{fieldErrors.projectDescription}</div>}
-              </div>
-
               <label className="mb-1 font-medium text-sm mt-4 text-black">
                 {lang("dashboard.uploadDocuments", "Upload Documents / Image")}
               </label>
               <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center text-gray-500 text-sm">
                 <input
+                  ref={fileInputRef}
                   type="file"
                   accept="image/*"
+                  multiple
                   onChange={handleImageFileChange}
                 />
                 <div className="mt-2 text-xs text-gray-600">
-                  {lang("projects.optionalProjectImageUpload", "Optional project image upload")}
+                  {lang("projects.optionalProjectImageUpload", "Optional project image upload (multiple files allowed)")}
                 </div>
-                {imagePreview && (
-                  <div className="mt-2">
-                    <img
-                      src={imagePreview}
-                      alt="preview"
-                      style={{
-                        maxWidth: 120,
-                        maxHeight: 80,
-                        objectFit: "contain",
-                      }}
-                    />
+                {imagePreviews.length > 0 && (
+                  <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4">
+                    {imagePreviews.map((preview, index) => (
+                      <div key={index} className="relative">
+                        <img
+                          src={preview}
+                          alt={`preview-${index}`}
+                          style={{
+                            width: "100%",
+                            height: "100px",
+                            objectFit: "cover",
+                            borderRadius: "4px",
+                          }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveImage(index)}
+                          className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>
