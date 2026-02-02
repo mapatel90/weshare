@@ -305,7 +305,7 @@ const Investor = ({ projectId, onInvestorMarked, handleSaveAction }) => {
           );
         }
 
-        if (hasInvestor) return "-";
+        // if (hasInvestor) return "-";
 
         return (
           <Button
