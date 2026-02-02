@@ -688,6 +688,8 @@
       "signIn": "Đăng nhập"
     },
     "projects": {
+      "statusRequiresOfftaker": "Dự án phải được gán cho người nhận hàng trước khi đặt trạng thái thành Đang chạy.",
+      "statusRequiresInvestor": "Dự án phải được gán cho nhà đầu tư trước khi đặt trạng thái thành Đang chạy.",
       "title": "Dự án nổi bật",
       "subtitle": "Khám phá các dự án năng lượng mặt trời hàng đầu",
       "viewDetails": "Xem chi tiết",
