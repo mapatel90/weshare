@@ -1585,6 +1585,8 @@
     "deleted": "Contract Deleted Successfully",
     "updated": "Contract Updated Successfully",
     "created": "Contract Created Successfully",
+    "cancelled": "Contract Cancelled Successfully",
+    "cancel": "Cancel Contract",
     "title": "Title",
     "description": "Description",
     "document": "Document",

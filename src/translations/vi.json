@@ -1526,6 +1526,7 @@
     "deleted": "Hợp đồng đã được xóa thành công",
     "updated": "Hợp đồng đã được cập nhật thành công",
     "created": "Hợp đồng đã được tạo thành công",
+    "cancelled": "Hợp đồng đã được hủy thành công",
     "title": "tiêu đề",
     "description": "Sự miêu tả",
     "document": "Tài liệu",
