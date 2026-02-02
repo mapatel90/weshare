@@ -11,6 +11,7 @@ import PaymentModal from "@/components/portal/billings/PaymentModal";
 import { downloadPaymentPDF } from "@/components/portal/payments/PaymentPdf";
 import Dropdown from "@/components/shared/Dropdown";
 import {
+  Autocomplete,
   Button,
   Chip,
   IconButton,
@@ -19,6 +20,7 @@ import {
   DialogContent,
   DialogActions,
   Box,
+  TextField,
 } from "@mui/material";
 import { usePriceWithCurrency } from "@/hooks/usePriceWithCurrency";
 import { useAuth } from "@/contexts/AuthContext";
@@ -411,44 +413,74 @@ const PaymentsPage = () => {
         <div className="row">
           <div className="p-6 bg-white rounded-3xl shadow-md">
             <div className="d-flex items-center justify-content-between gap-2 mb-4 mt-4 w-full flex-wrap">
-              <div className="filter-button">
-                <select
-                  value={projectFilter}
-                  onChange={(e) => setProjectFilter(e.target.value)}
-                  className="theme-btn-blue-color border rounded-md px-3 py-2 mx-2 text-sm"
-                >
-                  <option value="">
-                    {lang("reports.allprojects", "All Projects")}
-                  </option>
-                  {projectList.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.project_name}
-                    </option>
-                  ))}
-                </select>
+              <div className="filter-button" style={{ display: "flex", gap: "2%" }}>
+                <Autocomplete
+                  size="small"
+                  options={projectList}
+                  value={
+                    projectList.find(
+                      (p) => (p.id ?? p.project_id) === projectFilter
+                    ) || null
+                  }
+                  onChange={(e, newValue) => {
+                    setPageIndex(0);
+                    setProjectFilter(newValue ? (newValue.id ?? newValue.project_id) : "");
+                  }}
+                  getOptionLabel={(option) =>
+                    option.project_name ||
+                    option.projectName ||
+                    `Project ${option.id ?? option.project_id ?? ""}`
+                  }
+                  isOptionEqualToValue={(option, value) =>
+                    (option.id ?? option.project_id) === (value.id ?? value.project_id)
+                  }
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label={lang("reports.allprojects")}
+                      placeholder="Search project..."
+                    />
+                  )}
+                  sx={{ minWidth: 260 }}
+                />
 
-                <select
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                  className="theme-btn-blue-color border rounded-md px-3 py-2 me-2 text-sm"
-                >
-                  <option value="">
-                    {lang("invoice.allStatus", "All Status")}
-                  </option>
-                  <option value="1">
-                    {lang("invoice.paid", "Paid")}
-                  </option>
-                  <option value="0">
-                    {lang("common.pending", "Pending")}
-                  </option>
-                </select>
+                <Autocomplete
+                  size="small"
+                  options={[
+                    { value: "1", label: lang("invoice.paid", "Paid") },
+                    { value: "0", label: lang("common.pending", "Pending") },
+                  ]}
+                  value={
+                    statusFilter === ""
+                      ? null
+                      : statusFilter === "1"
+                      ? { value: "1", label: lang("invoice.paid", "Paid") }
+                      : { value: "0", label: lang("common.pending", "Pending") }
+                  }
+                  onChange={(e, newValue) => {
+                    setPageIndex(0);
+                    setStatusFilter(newValue?.value || "");
+                  }}
+                  getOptionLabel={(option) => option?.label || ""}
+                  isOptionEqualToValue={(option, value) => option?.value === value?.value}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label={lang("payments.status", "Status")}
+                      placeholder="Search status..."
+                    />
+                  )}
+                  sx={{ minWidth: 200 }}
+                  clearOnEscape
+                />
 
-                <input
+                <TextField
                   type="date"
                   value={paymentDateFilter}
                   onChange={(e) => setPaymentDateFilter(e.target.value)}
-                  className="theme-btn-blue-color border rounded-md px-3 py-2 me-2 text-sm"
-                  placeholder="Payment Date"
+                  size="small"
+                  InputLabelProps={{ shrink: true }}
+                  sx={{ minWidth: 180 }}
                 />
               </div>
             </div>

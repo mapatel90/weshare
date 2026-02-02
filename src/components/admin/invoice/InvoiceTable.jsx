@@ -9,7 +9,7 @@ import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { usePriceWithCurrency } from "@/hooks/usePriceWithCurrency";
-import { Chip, IconButton, Stack } from "@mui/material";
+import { Autocomplete, Chip, IconButton, Stack, TextField } from "@mui/material";
 import { downloadInvoicePDF } from "./InvoicePdf";
 import { PROJECT_STATUS } from "@/constants/project_status";
 
@@ -392,32 +392,59 @@ const InvoiceTable = () => {
   return (
     <div className="p-6 bg-white shadow-md rounded-3xl">
       <div className="flex-wrap items-center w-full gap-2 mt-4 mb-4 d-flex justify-content-between">
-        <div className="filter-button">
-          <select
-            value={projectFilter}
-            onChange={(e) => setProjectFilter(e.target.value)}
-            className="px-3 py-2 mx-2 text-sm border rounded-md theme-btn-blue-color"
-          >
-            <option value="">{lang("reports.allprojects") || "All Projects"}</option>
-            {projectList.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.project_name}
-              </option>
-            ))}
-          </select>
+        <div className="filter-button" style={{ display: "flex", gap: "2%" }}>
+          <Autocomplete
+            size="small"
+            options={projectList}
+            value={
+              projectList.find(
+                (p) => (p.id ?? p.project_id) === projectFilter
+              ) || null
+            }
+            onChange={(e, newValue) => {
+              setPageIndex(0);
+              setProjectFilter(newValue ? (newValue.id ?? newValue.project_id) : "");
+            }}
+            getOptionLabel={(option) =>
+              option.project_name ||
+              option.projectName ||
+              `Project ${option.id ?? option.project_id ?? ""}`
+            }
+            isOptionEqualToValue={(option, value) =>
+              (option.id ?? option.project_id) === (value.id ?? value.project_id)
+            }
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label={lang("reports.allprojects")}
+                placeholder="Search project..."
+              />
+            )}
+            sx={{ minWidth: 260 }}
+          />
 
-          <select
-            value={offtakerFilter}
-            onChange={(e) => setOfftakerFilter(e.target.value)}
-            className="px-3 py-2 text-sm border rounded-md theme-btn-blue-color me-2"
-          >
-            <option value="">{lang("invoice.allOfftaker") || "All Offtakers"}</option>
-            {offtakerList.map((o) => (
-              <option key={o.id} value={o.id}>
-                {o.full_name}
-              </option>
-            ))}
-          </select>
+          <Autocomplete
+            size="small"
+            fullWidth
+            options={offtakerList}
+            value={
+              offtakerList.find((o) => o.id === offtakerFilter) || null
+            }
+            onChange={(e, newValue) => {
+              setPageIndex(0);
+              setOfftakerFilter(newValue ? newValue.id : "");
+            }}
+            getOptionLabel={(option) => option?.full_name || ""}
+            isOptionEqualToValue={(option, value) => option.id === value.id}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label={lang("invoice.allOfftaker") || "All Offtakers"}
+                placeholder="Search offtaker..."
+              />
+            )}
+            sx={{ minWidth: 260 }}
+          />
         </div>
       </div>
 

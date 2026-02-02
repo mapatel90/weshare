@@ -5,6 +5,7 @@ import Table from "@/components/shared/table/Table";
 import { apiGet, apiPost } from '@/lib/api';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { PROJECT_STATUS } from '@/constants/project_status';
+import { Autocomplete, TextField } from '@mui/material';
 
 const ProjectEnvReport = () => {
     const PAGE_SIZE = 50;
@@ -290,20 +291,30 @@ const ProjectEnvReport = () => {
         <>
             <div className="p-6 bg-white rounded-3xl shadow-md">
                 <div className="d-flex items-center justify-content-between gap-2 mb-4 mt-4 w-full flex-wrap">
-                    <div className="filter-button">
-                        <select
-                            id="projectFilter"
-                            className="theme-btn-blue-color border  rounded-md px-3 me-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
-                            value={projectFilter}
-                            onChange={(e) => setProjectFilter(e.target.value)}
-                        >
-                            <option value="">{lang("dashboard.all_project", "All Projects")}</option>
-                            {projects.map((p, index) => (
-                                <option key={p?.id ?? index} value={p?.id}>
-                                    {p?.project_name}
-                                </option>
-                            ))}
-                        </select>
+                    <div
+                        className="filter-button"
+                        style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "nowrap" }}
+                    >
+                        <Autocomplete
+                            size="small"
+                            options={projects}
+                            value={
+                                projects.find((p) => String(p?.id) === String(projectFilter)) || null
+                            }
+                            onChange={(e, newValue) => {
+                                setProjectFilter(newValue ? String(newValue.id) : "");
+                            }}
+                            getOptionLabel={(option) => option?.project_name || ""}
+                            isOptionEqualToValue={(option, value) => String(option.id) === String(value.id)}
+                            renderInput={(params) => (
+                                <TextField
+                                    {...params}
+                                    label={lang("dashboard.all_project", "All Projects")}
+                                    placeholder={lang("dashboard.all_project", "All Projects")}
+                                />
+                            )}
+                            sx={{ minWidth: 260, mr: 2 }}
+                        />
 
                         <input
                             type="date"
@@ -311,6 +322,7 @@ const ProjectEnvReport = () => {
                             onChange={(e) => setStartDate(e.target.value)}
                             className="theme-btn-blue-color border rounded-md px-3 py-2 me-2 text-sm"
                             placeholder={lang("common.startDate") || "Start Date"}
+                            style={{ minWidth: 170 }}
                         />
 
                         <input
@@ -320,6 +332,7 @@ const ProjectEnvReport = () => {
                             min={startDate || undefined}
                             className="theme-btn-blue-color border rounded-md px-3 py-2 me-2 text-sm"
                             placeholder={lang("common.endDate") || "End Date"}
+                            style={{ minWidth: 170 }}
                         />
                         <button
                             onClick={handleSubmit}

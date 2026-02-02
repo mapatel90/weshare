@@ -5,6 +5,7 @@ import Table from "@/components/shared/table/Table";
 import { apiGet } from "@/lib/api";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { formatEnergyUnit, sortByNameAsc } from "@/utils/common";
+import { Autocomplete, TextField } from "@mui/material";
 
 const InverterEvnReport = () => {
   const PAGE_SIZE = 50; // default rows per table page
@@ -379,38 +380,65 @@ const InverterEvnReport = () => {
   return (
     <div className="p-6 bg-white rounded-3xl shadow-md">
       <div className="d-flex items-center justify-content-between gap-2 mb-4 mt-4 w-full flex-wrap">
-        <div className="filter-button">
-          <select
-            value={projectFilter}
-            onChange={(e) => setProjectFilter(e.target.value)}
-            className="theme-btn-blue-color border rounded-md px-3 py-2 mx-2 text-sm"
-          >
-            <option value="">{lang("reports.allprojects")}</option>
-            {projectList.map((p) => (
-              <option
-                key={p.id ?? p.project_id ?? p.id}
-                value={p.id ?? p.project_id ?? p.id}
-              >
-                {p.project_name ??
-                  p.projectName ??
-                  `Project ${p.id ?? p.project_id ?? ""}`}
-              </option>
-            ))}
-          </select>
+        <div
+          className="filter-button"
+          style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "nowrap" }}
+        >
+          <Autocomplete
+            size="small"
+            options={projectList}
+            value={
+              projectList.find(
+                (p) => String(p.id ?? p.project_id) === String(projectFilter)
+              ) || null
+            }
+            onChange={(e, newValue) => {
+              setProjectFilter(newValue ? String(newValue.id ?? newValue.project_id) : "");
+            }}
+            getOptionLabel={(option) =>
+              option.project_name ||
+              option.projectName ||
+              `Project ${option.id ?? option.project_id ?? ""}`
+            }
+            isOptionEqualToValue={(option, value) =>
+              String(option.id ?? option.project_id) ===
+              String(value.id ?? value.project_id)
+            }
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label={lang("reports.allprojects")}
+                placeholder={lang("reports.allprojects")}
+              />
+            )}
+            sx={{ minWidth: 260, mr: 2 }}
+          />
 
-          <select
-            value={inverterFilter}
-            onChange={(e) => setInverterFilter(e.target.value)}
-            className="theme-btn-blue-color border rounded-md px-3 py-2 me-2 text-sm"
+          <Autocomplete
+            size="small"
+            options={sortByNameAsc(filteredInverterList, "name")}
+            value={
+              sortByNameAsc(filteredInverterList, "name").find(
+                (i) => String(i.id) === String(inverterFilter)
+              ) || null
+            }
+            onChange={(e, newValue) => {
+              setInverterFilter(newValue ? String(newValue.id) : "");
+            }}
+            getOptionLabel={(option) => option?.name || ""}
+            isOptionEqualToValue={(option, value) =>
+              String(option.id) === String(value.id)
+            }
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label={lang("reports.allinverters")}
+                placeholder={lang("reports.allinverters")}
+              />
+            )}
+            sx={{ minWidth: 260, mr: 2 }}
             disabled={!projectFilter}
-          >
-            <option value="">{lang("reports.allinverters")}</option>
-            {sortByNameAsc(filteredInverterList, "name").map((i) => (
-              <option key={i.id} value={i.id}>
-                {i.name}
-              </option>
-            ))}
-          </select>
+          />
 
           <input
             type="date"
@@ -418,6 +446,7 @@ const InverterEvnReport = () => {
             onChange={(e) => setStartDate(e.target.value)}
             className="theme-btn-blue-color border rounded-md px-3 py-2 me-2 text-sm"
             placeholder={lang("common.startDate") || "Start Date"}
+            style={{ minWidth: 170 }}
           />
 
           <input
@@ -427,6 +456,7 @@ const InverterEvnReport = () => {
             min={startDate || undefined}
             className="theme-btn-blue-color border rounded-md px-3 py-2 me-2 text-sm"
             placeholder={lang("common.endDate") || "End Date"}
+            style={{ minWidth: 170 }}
           />
 
           <button

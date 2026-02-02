@@ -8,7 +8,7 @@ import { FiTrash2, FiCheckCircle } from "react-icons/fi";
 import { showSuccessToast } from "@/utils/topTost";
 import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
-import { Chip, IconButton, Stack, Box } from "@mui/material";
+import { Chip, IconButton, Stack, Box, Autocomplete, TextField } from "@mui/material";
 
 const NotificationTable = () => {
   const { lang } = useLanguage();
@@ -36,7 +36,7 @@ const NotificationTable = () => {
     { value: "invoice", label: "Invoice" },
     { value: "payment", label: "Payment" },
     { value: "contract", label: "Contract" },
-    { value: "project", label: "Project" },
+    { value: "projects", label: "Project" },
     { value: "reminder", label: "Reminder" },
   ];
 
@@ -338,30 +338,57 @@ const NotificationTable = () => {
 
   return (
     <div className="p-6 bg-white rounded-3xl shadow-md">
-      <div className="d-flex justify-content-between mb-4 mt-4 flex-wrap">
-        <div className="filter-button d-flex">
-          <select
-            value={moduleTypeFilter}
-            onChange={(e) => setModuleTypeFilter(e.target.value)}
-            className="theme-btn-blue-color border rounded px-3 py-2 text-sm me-2"
-          >
-            <option value="">{lang("notification.allModules")}</option>
-            {moduleTypes.map((m) => (
-              <option key={m.value} value={m.value}>
-                {m.label}
-              </option>
-            ))}
-          </select>
+      <div className="d-flex justify-content-between mb-4 mt-4">
+        <div className="filter-button" style={{ display: "flex", gap: "1.5%", alignItems: "center" }}>
+          <Autocomplete
+            size="small"
+            options={moduleTypes}
+            value={
+              moduleTypes.find((m) => m.value === moduleTypeFilter) || null
+            }
+            onChange={(e, newValue) => {
+              setModuleTypeFilter(newValue?.value || "");
+            }}
+            getOptionLabel={(option) => option?.label || ""}
+            isOptionEqualToValue={(option, value) => option.value === value.value}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label={lang("notification.module")}
+                placeholder="Search module..."
+              />
+            )}
+            sx={{ minWidth: 150, flex: "0 0 auto" }}
+          />
 
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="theme-btn-blue-color border rounded px-3 py-2 text-sm"
-          >
-            <option value="">{lang("invoice.allStatus")}</option>
-            <option value="unread">{lang("notification.unreadonly")}</option>
-            <option value="read">{lang("notification.readonly")}</option>
-          </select>
+          <Autocomplete
+            size="small"
+            options={[
+              { value: "unread", label: lang("notification.unreadonly") },
+              { value: "read", label: lang("notification.readonly") },
+            ]}
+            value={
+              statusFilter === ""
+                ? null
+                : statusFilter === "unread"
+                ? { value: "unread", label: lang("notification.unreadonly") }
+                : { value: "read", label: lang("notification.readonly") }
+            }
+            onChange={(e, newValue) => {
+              setStatusFilter(newValue?.value || "");
+            }}
+            getOptionLabel={(option) => option?.label || ""}
+            isOptionEqualToValue={(option, value) => option?.value === value?.value}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label={lang("common.status")}
+                placeholder="Search status..."
+              />
+            )}
+            sx={{ minWidth: 160, flex: "0 0 auto" }}
+            clearOnEscape
+          />
         </div>
       </div>
 
