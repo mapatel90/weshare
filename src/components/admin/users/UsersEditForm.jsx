@@ -15,10 +15,8 @@ const UsersEditForm = () => {
 
   const [loading, setLoading] = useState(false)
   const [loadingUser, setLoadingUser] = useState(true)
-  const [formData, setFormData] = useState({})
-  const [errors, setErrors] = useState({})
+  const [formData, setFormData] = useState({}) 
   const [originalUsername, setOriginalUsername] = useState('')
-  const [usernameChecking, setUsernameChecking] = useState(false)
   const [roles, setRoles] = useState([])
   const [loadingRoles, setLoadingRoles] = useState(false)
 

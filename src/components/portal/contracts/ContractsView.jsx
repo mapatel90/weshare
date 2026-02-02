@@ -91,22 +91,22 @@ const ContractsView = () => {
         const initials = getInitials(title);
 
         return (
-            <div className="bg-white rounded-2xl shadow border border-gray-100 flex flex-row items-center w-fullmax-w-md mx-auto p-6 min-h-[110px]">
-                <div className="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-lg mr-4">
+            <div className="bg-white rounded-2xl shadow border border-gray-100 flex flex-row items-center p-6 w-full h-[140px]">
+                <div className="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-lg mr-4 flex-shrink-0">
                     {initials}
                 </div>
-                <div className="flex-1 min-w-0">
+                <div className="flex-1 min-w-0 overflow-hidden">
                     <div className="font-semibold text-lg text-gray-900 truncate">{title}</div>
                     <div className="text-xs text-gray-400 mt-1">{date}</div>
-                    <div className="text-sm text-gray-600 mt-2 truncate">{description}</div>
+                    <div className="text-sm text-gray-600 mt-2 line-clamp-2">{description}</div>
                 </div>
-                <div className="flex flex-col items-end justify-between h-full ml-4">
+                <div className="flex flex-col items-end justify-between h-full ml-4 flex-shrink-0">
                       {parts[0] === "investor" ? (
                         <a
                         href={`/investor/contracts/details/${contract.id}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="border border-gray-300 rounded px-3 py-1 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                        className="border border-gray-300 rounded px-3 py-1 text-sm font-medium text-gray-700 hover:bg-gray-50 whitespace-nowrap"
                         >
                         {lang("navigation.view")}
                         </a>
@@ -115,7 +115,7 @@ const ContractsView = () => {
                         href={`/offtaker/contracts/details/${contract.id}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="border border-gray-300 rounded px-3 py-1 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                        className="border border-gray-300 rounded px-3 py-1 text-sm font-medium text-gray-700 hover:bg-gray-50 whitespace-nowrap"
                         >
                         {lang("navigation.view")}
                         </a>
@@ -131,9 +131,9 @@ const ContractsView = () => {
                 <div className="bg-white rounded-xl shadow-md overflow-hidden">
                     {/* Filters */}
                     <div className="p-6 border-b border-gray-200">
-                        <div className="flex flex-wrap gap-3 items-center">
+                        <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
                             {/* Search Input */}
-                            <div className="flex-1 min-w-[250px] relative">
+                            <div className="w-full sm:flex-1 relative">
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                                 <input
                                     type="text"
@@ -146,11 +146,11 @@ const ContractsView = () => {
                             </div>
 
                             {/* Sort Dropdown */}
-                            <div className="relative date-filter-dropdown ">
+                            <div className="w-full sm:w-auto relative date-filter-dropdown">
                                 <select
                                     value={sortOption}
                                     onChange={e => setSortOption(e.target.value)}
-                                    className="flex items-center gap-2 px-4 py-2.5 bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition-colors"
+                                    className="w-full sm:w-auto flex items-center gap-2 px-4 py-2.5 bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition-colors"
                                     style={{ minWidth: 140 }}
                                 >
                                     <option value="newest">{lang("common.Newest")}</option>
@@ -165,7 +165,7 @@ const ContractsView = () => {
                             {isLoading ? (
                                 <div className="text-center text-sm text-gray-500 py-8">{lang("common.loading")}</div>
                             ) : filteredContracts.length ? (
-                                <div className="flex flex-wrap gap-6 float-left pb-6">
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-6">
                                     {filteredContracts.map((contract) => (
                                         <ContractCard key={contract.id} contract={contract} />
                                     ))}

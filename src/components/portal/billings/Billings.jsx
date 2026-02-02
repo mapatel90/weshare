@@ -10,6 +10,7 @@ import { usePriceWithCurrency } from "@/hooks/usePriceWithCurrency";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { PROJECT_STATUS } from "@/constants/project_status";
 import { ROLES } from "@/constants/roles";
+import { Autocomplete, TextField } from "@mui/material";
 
 const statusColors = {
   Paid: "bg-green-100 text-green-700",
@@ -270,19 +271,23 @@ const Billings = () => {
       <div className="flex flex-col gap-2 mb-4 md:flex-row md:items-center md:justify-between">
         {/* Project Dropdown Filter */}
         <div className="flex flex-col gap-1">
-          <select
-            className="px-3 py-2 text-sm border rounded-md theme-btn-blue-color focus:outline-none focus:ring-2 focus:ring-blue-200"
-            value={projectFilter}
-            onChange={(e) => handleProjectFilterChange(e.target.value)}
+          <Autocomplete
+            size="small"
+            options={dropdownProjects}
+            value={dropdownProjects.find((p) => p.id === projectFilter) || null}
+            onChange={(e, newValue) => handleProjectFilterChange(newValue ? newValue.id : "")}
+            getOptionLabel={(option) => option.name || ""}
+            isOptionEqualToValue={(option, value) => option.id === value.id}
             disabled={projectsLoading}
-          >
-            <option value="">{lang("dashboard.all_project", "All Projects")}</option>
-            {dropdownProjects.map((project) => (
-              <option key={project.id} value={project.id}>
-                {project.name}
-              </option>
-            ))}
-          </select>
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label={lang("dashboard.all_project", "All Projects")}
+                placeholder="Search project..."
+              />
+            )}
+            sx={{ minWidth: 260 }}
+          />
           {projectsError && (
             <p className="text-xs text-red-600">{projectsError}</p>
           )}
@@ -298,15 +303,30 @@ const Billings = () => {
             onChange={(e) => handleSearchChange(e.target.value)}
             className="px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-200"
           />
-          <select
-            className="px-3 py-2 text-sm border rounded-md theme-btn-blue-color focus:outline-none focus:ring-2 focus:ring-blue-200"
-            value={statusFilter}
-            onChange={(e) => handleStatusFilterChange(e.target.value)}
-          >
-            <option value="">{lang("invoice.allStatus", "All Status")}</option>
-            <option value="1">{lang("invoice.paid", "Paid")}</option>
-            <option value="0">{lang("common.pending", "Pending")}</option>
-          </select>
+          <Autocomplete
+            size="small"
+            options={[
+              { value: "1", label: lang("invoice.paid", "Paid") },
+              { value: "0", label: lang("common.pending", "Pending") },
+            ]}
+            value={
+              [
+                { value: "1", label: lang("invoice.paid", "Paid") },
+                { value: "0", label: lang("common.pending", "Pending") },
+              ].find((s) => s.value === statusFilter) || null
+            }
+            onChange={(e, newValue) => handleStatusFilterChange(newValue ? newValue.value : "")}
+            getOptionLabel={(option) => option.label || ""}
+            isOptionEqualToValue={(option, value) => option.value === value.value}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label={lang("invoice.allStatus", "All Status")}
+                placeholder="Select status..."
+              />
+            )}
+            sx={{ minWidth: 200 }}
+          />
         </div>
       </div>
 
