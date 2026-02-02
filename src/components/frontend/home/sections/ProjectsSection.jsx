@@ -181,7 +181,7 @@ const ProjectsSection = () => {
 
                         <button
                           className="btn btn-primary-custom mt-4 w-100"
-                          style={{ display: "flex" }}
+                          style={{ display: "flex", backgroundColor: "#F6A623", borderColor: "#F6A623" }}
                           onClick={() => router.push(`/frontend/exchange-hub/${project.id}`)}
                         >
                           <Image
