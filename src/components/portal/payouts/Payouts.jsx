@@ -7,7 +7,7 @@ import { PROJECT_STATUS } from "@/constants/project_status";
 import Table from "@/components/shared/table/Table";
 import { usePriceWithCurrency } from "@/hooks/usePriceWithCurrency";
 import { FiDownload, FiEye } from "react-icons/fi";
-import { Autocomplete, IconButton, Stack, TextField } from "@mui/material";
+import { Autocomplete, Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Stack, TextField } from "@mui/material";
 import Link from "next/link";
 import { ROLES } from "@/constants/roles";
 import { downloadPayoutPDF } from "./PayoutPdf";
@@ -21,6 +21,7 @@ const PayoutsPage = () => {
     const { user } = useAuth();
     const [projectList, setProjectList] = useState([]);
     const [projectFilter, setProjectFilter] = useState("");
+    const [documentPreview, setDocumentPreview] = useState(null);
     const [payouts, setPayouts] = useState([]);
     const [loading, setLoading] = useState(false);
     const [pagination, setPagination] = useState({ page: 1, pageSize: pageSize, totalCount: 0, totalPages: 0 });
@@ -82,6 +83,10 @@ const PayoutsPage = () => {
     const handleSearchChange = (value) => {
         setPageIndex(0);
         setSearchTerm(value);
+    };
+
+    const handleViewDocument = (url) => {
+        setDocumentPreview(url);
     };
 
     const handlePaginationChange = (nextPagination) => {
@@ -159,6 +164,25 @@ const PayoutsPage = () => {
                     if (value === null || value === undefined || value === "")
                         return "N/A";
                     return `${value}%`;
+                },
+            },
+            {
+                id: "document",
+                header: () => lang("payouts.uploaded_image", "Document"),
+                cell: ({ row }) => {
+                    const docUrl = row.original.document; // check DB field name
+
+                    if (!docUrl) return "N/A";
+
+                    return (
+                        <Button
+                            size="small"
+                            // variant="outlined"
+                            onClick={() => handleViewDocument(docUrl)} // direct call
+                        >
+                            {lang("navigation.view", "View")}
+                        </Button>
+                    );
                 },
             },
             {
@@ -266,6 +290,28 @@ const PayoutsPage = () => {
                     </>
                 </div>
             </div>
+            {/* Upload Image Preview Modal */}
+            <Dialog
+                open={!!documentPreview}
+                onClose={() => setDocumentPreview(null)}
+                maxWidth="md"
+            >
+                <DialogTitle>{lang("payouts.uploaded_image")}</DialogTitle>
+                <DialogContent dividers sx={{ textAlign: "center" }}>
+                    {documentPreview && (
+                        <img
+                            src={documentPreview}
+                            alt="Document"
+                            style={{ maxWidth: "100%", borderRadius: 8 }}
+                        />
+                    )}
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setDocumentPreview(null)} color="primary">
+                        {lang("common.close")}
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </>
     );
 };

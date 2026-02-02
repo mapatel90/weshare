@@ -1737,7 +1737,7 @@
     "invoice_update_title": "Invoice Updated",
     "invoice_updated": "The invoice \"{{invoice_number}}\" has been updated by \"{{created_by}}\".",
     "new_payout_generated": "New Payout Generated",
-    "payout_generated": "Your payout \"{{payout_prefix}}\" - \"{{payout_number}}\" has been created"
+    "payout_generated": "Your payout with  \"{{payout_prefix}}\" has been released by WeShare"
   },
   "notification": {
     "title": "Notifications",
@@ -1784,7 +1784,7 @@
     "enterTransactionId": "Enter Transaction ID",
     "payout_date": "Payout Date",
     "mark_as_pay": "Mark as Pay",
-    "uploaded_image": "Uploaded Image",
+    "uploaded_image": "Uploaded Screenshot",
     "selected_image": "Selected Image",
     "payoutCreatedSuccessfully": "Payout Created Successfully",
     "payoutUpdatedSuccessfully": "Payout Updated Successfully",
