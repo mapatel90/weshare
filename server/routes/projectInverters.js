@@ -49,7 +49,11 @@ router.get('/', authenticateToken, async (req, res) => {
               select: {
                 type: true,
               },
-            }
+            }, inverter_company: {
+              select: {
+                company_name: true
+              },
+            },
           }
         },
       },

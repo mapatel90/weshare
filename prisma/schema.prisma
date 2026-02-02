@@ -119,52 +119,6 @@ model inverter_data {
   @@map("inverter_data")
 }
 
-model inverter_type {
-  id         Int    @id @default(autoincrement())
-  created_by Int?
-  type       String @db.VarChar(255)
-  status     Int    @default(1)
-  is_deleted Int    @default(0)
-
-  inverters inverters[]
-}
-
-model inverters {
-  id               Int    @id @default(autoincrement())
-  created_by       Int?
-  inverter_type_id Int?
-  company_id       Int?
-  phase_name       String? @db.VarChar(255)
-  status           Int?          @default(1)
-  is_deleted Int? @default(0)
-  created_at DateTime? @default(now())
-  updated_at DateTime? @default(now())
-
-  inverter_type          inverter_type?       @relation(fields: [inverter_type_id], references: [id])
-  inverter_company       inverter_company?    @relation(fields: [company_id], references: [id])
-
-  project_inverters project_inverters[]
-}
-
-model inverter_company {
-  id           Int    @id @default(autoincrement())
-  created_by   Int?
-  company_name String @db.VarChar(255)
-
-  api_url    String? @db.VarChar(1000)
-  api_key    String?  @db.VarChar(1000)
-  secret_key String?  @db.VarChar(1000)
-
-  status     Int? @default(1)
-  api_status Int? @default(1)
-  is_deleted Int? @default(0)
-
-  created_at DateTime @default(now())
-  updated_at DateTime @default(now())
-
-  inverters inverters[]
-}
-
 model invoices {
   id                    Int      @id @default(autoincrement())
   created_by            Int?
@@ -628,4 +582,51 @@ model payouts {
   invoices  invoices    @relation(fields: [invoice_id], references: [id])
   users     users       @relation(fields: [investor_id], references: [id])
   projects  projects    @relation(fields: [project_id], references: [id])
+}
+
+
+model inverter_type {
+  id         Int    @id @default(autoincrement())
+  created_by Int?
+  type       String @db.VarChar(255)
+  status     Int    @default(1)
+  is_deleted Int    @default(0)
+
+  inverters inverters[]
+}
+
+model inverters {
+  id               Int    @id @default(autoincrement())
+  created_by       Int?
+  inverter_type_id Int?
+  company_id       Int?
+  title            String? @db.VarChar(255)
+  status           Int?          @default(1)
+  is_deleted Int? @default(0)
+  created_at DateTime? @default(now())
+  updated_at DateTime? @default(now())
+
+  inverter_type          inverter_type?       @relation(fields: [inverter_type_id], references: [id])
+  inverter_company       inverter_company?    @relation(fields: [company_id], references: [id])
+
+  project_inverters project_inverters[]
+}
+
+model inverter_company {
+  id           Int    @id @default(autoincrement())
+  created_by   Int?
+  company_name String @db.VarChar(255)
+
+  api_url    String? @db.VarChar(1000)
+  api_key    String?  @db.VarChar(1000)
+  secret_key String?  @db.VarChar(1000)
+
+  status     Int? @default(1)
+  api_status Int? @default(1)
+  is_deleted Int? @default(0)
+
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+
+  inverters inverters[]
 }

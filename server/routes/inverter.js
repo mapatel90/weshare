@@ -6,11 +6,10 @@ const router = express.Router();
 
 router.post("/", authenticateToken, async (req, res) => {
     try {
-        const { company_id, phase_name, inverter_type_id, status, created_by } = req.body;
-        console.log("ReqBody", req.body);
+        const { company_id, title, inverter_type_id, status, created_by } = req.body;
 
         // Basic validation
-        if (!company_id || !phase_name || !inverter_type_id || status === undefined) {
+        if (!company_id || !title || !inverter_type_id || status === undefined) {
             return res.status(400).json({
                 success: false,
                 message: "All fields are required.",
@@ -20,7 +19,7 @@ router.post("/", authenticateToken, async (req, res) => {
         // Insert into PostgreSQL via Prisma
         const newInverter = await prisma.inverters.create({
             data: {
-                phase_name,
+                title,
                 status,
                 created_by,
 
@@ -60,10 +59,10 @@ router.get("/", authenticateToken, async (req, res) => {
             is_deleted: 0,
         };
         if (search) {
-            // 👇 Search in company_id OR phase_name
+            // Search in company_id OR title
             where.OR = [
                 // { company_name: { contains: search, mode: "insensitive" } },
-                { phase_name: { contains: search, mode: "insensitive" } },
+                { title: { contains: search, mode: "insensitive" } },
             ];
         }
         if (status !== undefined) {
@@ -99,7 +98,7 @@ router.get("/", authenticateToken, async (req, res) => {
             company_id: inv.company_id,
             company_name: inv.inverter_company?.company_name,
             inverter_type_id: inv.inverter_type_id,
-            phase_name: inv.phase_name,
+            title: inv.title,
             status: inv.status,
             created_at: inv.created_at,
             updated_at: inv.updated_at,
@@ -130,10 +129,10 @@ router.get("/", authenticateToken, async (req, res) => {
 router.put("/:id", authenticateToken, async (req, res) => {
     try {
         const { id } = req.params;
-        const { company_id, phase_name, inverter_type_id, status } = req.body;
+        const { company_id, title, inverter_type_id, status } = req.body;
 
         // Basic validation
-        if (!company_id || !phase_name || !inverter_type_id || status === undefined) {
+        if (!company_id || !title || !inverter_type_id || status === undefined) {
             return res.status(400).json({
                 success: false,
                 message: "All fields are required.",
@@ -145,7 +144,7 @@ router.put("/:id", authenticateToken, async (req, res) => {
             where: { id: parseInt(id) },
             data: {
                 company_id: Number(company_id),
-                phase_name: phase_name,
+                title: title,
                 inverter_type_id,
                 status,
             },
@@ -169,20 +168,7 @@ router.put("/:id", authenticateToken, async (req, res) => {
 router.delete("/:id", authenticateToken, async (req, res) => {
     try {
         const { id } = req.params;
-
-        //  const inverter = await prisma.inverter.findFirst({
-        //   where: { id: parseInt(id) },
-        //   data: { is_deleted: 0 },
-        // });
-
-        // if (!inverter) {
-        //   return res.status(404).json({
-        //     success: false,
-        //     message: "Inverter not found",
-        //   });
-        // }
-
-        // Soft delete (set is_deleted = 1)
+        
         await prisma.inverters.update({
             where: { id: parseInt(id) },
             data: { is_deleted: 1 },

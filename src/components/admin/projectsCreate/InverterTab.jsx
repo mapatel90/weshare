@@ -311,14 +311,15 @@ const InverterTab = ({ projectId, handleSaveAction }) => {
   const columns = [
     {
       accessorKey: "inverter_type",
-      header: () => lang("inverter.type", "Inverter Type"),
+      header: () => lang("inverter.inverter", "Inverter"),
       cell: (info) => {
         const row = info.row.original;
-        const type =
-          row.inverters?.inverter_type?.type ||
-          inverterTypesMap[row.inverters?.inverter_type_id] ||
+        const inverter =
+          (row.inverters?.inverter_type?.type ? `${row.inverters?.inverter_type?.type} - ` : "") +
+          (row.inverters?.title ? `${row.inverters?.title} ` : "") +
+          (row.inverters?.inverter_company?.company_name ? ` (${row.inverters?.inverter_company?.company_name})` : "") ||
           "";
-        return type ? `${type}` : name;
+        return inverter ? `${inverter}` : "";
       },
     },
     {
