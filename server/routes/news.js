@@ -4,6 +4,7 @@ import { authenticateToken } from '../middleware/auth.js';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import { uploadToS3, isS3Enabled, deleteFromS3 } from '../services/s3Service.js';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 
@@ -35,8 +36,32 @@ router.post("/", authenticateToken, upload.single('news_image'), async (req, res
     const { news_title, news_date, news_description, news_slug } = req.body;
     const userId = req.user?.id; // Get user ID from authenticated token
     
-    // Prefer uploaded file
-    const uploadedPath = req.file ? `/images/news/${req.file.filename}` : (req.body.news_image || null);
+    // Prefer uploaded file. If S3 enabled, try uploading file to S3 and use returned URL.
+    let uploadedPath = req.body.news_image || null;
+    if (req.file) {
+      const s3Enabled = await isS3Enabled();
+      if (s3Enabled) {
+        try {
+          const buffer = fs.readFileSync(req.file.path);
+          const s3Result = await uploadToS3(buffer, req.file.originalname, req.file.mimetype, {
+            folder: 'news',
+            metadata: { uploadedBy: String(req.user?.id || '') },
+          });
+          if (s3Result && s3Result.success) {
+            uploadedPath = s3Result.data.fileUrl;
+          } else {
+            console.error('S3 upload failed:', s3Result);
+            return res.status(500).json({ success: false, message: 'S3 upload failed' });
+          }
+        } catch (err) {
+          console.error('S3 upload error for news image:', err?.message || err);
+          return res.status(500).json({ success: false, message: 'S3 upload failed' });
+        }
+      } else {
+        return res.status(500).json({ success: false, message: 'S3 is disabled' });
+      }
+
+    }
 
     // Basic validation
     if (!news_title || !news_date || !uploadedPath || !news_description || !news_slug) {
@@ -189,14 +214,23 @@ router.delete("/:id", authenticateToken, async (req, res) => {
       });
     }
 
-    // Best-effort file cleanup on delete
-    const oldPath = existing.image ? path.join(PUBLIC_DIR, existing.image.replace(/^\//, '')) : null;
-    if (oldPath && fs.existsSync(oldPath)) {
-      try {
-        fs.unlinkSync(oldPath);
-      } catch (cleanupErr) {
-        console.warn("Failed to remove news image during delete:", cleanupErr);
+    // Best-effort file cleanup on delete (S3 or local)
+    try {
+      if (existing?.image) {
+        if (existing.image.startsWith('http')) {
+          try {
+            const url = new URL(existing.image);
+            const key = decodeURIComponent(url.pathname.substring(1));
+            await deleteFromS3(key);
+          } catch (s3Err) {
+            console.warn('Failed to delete news image from S3:', s3Err.message || s3Err);
+          }
+        } else {
+          console.warn('Local news image deletion not implemented:', existing.image);
+        }
       }
+    } catch (e) {
+      // ignore cleanup errors
     }
 
     await prisma.news.update({
@@ -230,24 +264,55 @@ router.put("/:id", authenticateToken, upload.single('news_image'), async (req, r
       });
     }
 
-    // Determine new image path if uploaded
+    // Determine new image path if uploaded (attempt S3 then fallback local)
     let newImagePath = null;
     if (req.file) {
-      newImagePath = `/images/news/${req.file.filename}`;
-    }
-
-    // If new image uploaded, remove old file (best-effort)
-    if (newImagePath) {
+      const s3Enabled = await isS3Enabled();
+      if (s3Enabled) {
+        try {
+          const buffer = fs.readFileSync(req.file.path);
+          const s3Result = await uploadToS3(buffer, req.file.originalname, req.file.mimetype, {
+            folder: 'news',
+            metadata: { uploadType: 'news_image', newsId: String(id) },
+          });
+          if (s3Result && s3Result.success) {
+            newImagePath = s3Result.data.fileUrl;
+            // try to remove local temp
+            try { if (req.file && req.file.path && fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path); } catch(_){}
+          } else {
+            console.error('S3 upload failed:', s3Result);
+            return res.status(500).json({ success: false, message: 'S3 upload failed' });
+          }
+        } catch (err) {
+          console.error('S3 upload error for news image (update):', err?.message || err);
+          return res.status(500).json({ success: false, message: 'S3 upload failed' });
+        }
+      } else {
+        return res.status(500).json({ success: false, message: 'S3 is disabled' });
+      }
       try {
         const existing = await prisma.news.findFirst({ where: { id: parseInt(id) } });
-        const oldPath = existing?.image
-          ? path.join(PUBLIC_DIR, existing.image.replace(/^\//, ''))
-          : null;
-        if (oldPath && fs.existsSync(oldPath)) {
-          fs.unlinkSync(oldPath);
+        if (existing?.image) {
+          let old = existing.image;
+          if (old.startsWith('http')) {
+            try {
+              const url = new URL(old);
+              const key = decodeURIComponent(url.pathname.substring(1));
+              await deleteFromS3(key).catch(() => {});
+            } catch (e) {
+              console.warn('Failed to delete old news image from S3:', e?.message || e);
+            }
+          } else {
+            try {
+              const oldPath = path.join(PUBLIC_DIR, old.replace(/^\//, ''));
+              if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+            } catch (e) {
+              console.warn('Failed to delete old local news image:', e?.message || e);
+            }
+          }
         }
       } catch (e) {
-        // best effort, ignore
+        // ignore cleanup errors
       }
     }
 

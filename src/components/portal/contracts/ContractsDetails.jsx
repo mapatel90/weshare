@@ -17,7 +17,6 @@ const Field = ({ label, value }) => (
 const ContractsDetails = ({ contractId }) => {
     const { lang } = useLanguage();
     const [contract, setContracts] = useState(null);
-    console.log("Contract:", contract);
     const [isLoading, setIsLoading] = useState(true);
     const [actionLoading, setActionLoading] = useState(false);
     const [showRejectModal, setShowRejectModal] = useState(false);

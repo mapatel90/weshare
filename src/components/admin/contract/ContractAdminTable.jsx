@@ -6,6 +6,7 @@ import Table from "@/components/shared/table/Table";
 import { FiEye } from "react-icons/fi";
 import { showErrorToast } from "@/utils/topTost";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { Autocomplete, TextField } from "@mui/material";
 
 const ContractAdminTable = () => {
   const PAGE_SIZE = 20;
@@ -329,76 +330,128 @@ const ContractAdminTable = () => {
 
   return (
     <div className="contract-admin-table p-6 bg-white rounded-3xl shadow-md">
-      <div className="d-flex items-center justify-content-between gap-2 mb-4 mt-4 w-full flex-wrap">
-        <div className="filter-button">
-          <select
-            value={projectFilter}
-            onChange={(e) => setProjectFilter(e.target.value)}
-            className="theme-btn-blue-color border rounded-md px-3 py-2 mx-2 text-sm"
-          >
-            <option value="">{lang("reports.allprojects", "All Projects")}</option>
-            {projectList.map((p) => (
-              <option
-                key={p.id ?? p.project_id}
-                value={p.id ?? p.project_id}
-              >
-                {p.project_name}
-              </option>
-            ))}
-          </select>
+      <div className="d-flex items-center justify-content-between gap-2 mb-4 mt-4 w-full">
+        <div className="filter-button" style={{ display: "flex", gap: "1.5%", flexWrap: "nowrap", alignItems: "center" }}>
+          <Autocomplete
+            size="small"
+            options={projectList}
+            value={
+              projectList.find(
+                (p) => (p.id ?? p.project_id) === projectFilter
+              ) || null
+            }
+            onChange={(e, newValue) => {
+              setProjectFilter(newValue ? (newValue.id ?? newValue.project_id) : "");
+            }}
+            getOptionLabel={(option) =>
+              option.project_name ||
+              option.projectName ||
+              `Project ${option.id ?? option.project_id ?? ""}`
+            }
+            isOptionEqualToValue={(option, value) =>
+              (option.id ?? option.project_id) === (value.id ?? value.project_id)
+            }
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label={lang("reports.allprojects")}
+                placeholder="Search project..."
+              />
+            )}
+            sx={{ minWidth: 200, flex: "0 0 auto" }}
+          />
 
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="theme-btn-blue-color border rounded-md px-3 py-2 me-2 text-sm"
-          >
-            <option value="">{lang("invoice.allStatus", "All Status")}</option>
-            <option value="0">{lang("common.pending", "Pending")}</option>
-            <option value="1">{lang("common.approved", "Approved")}</option>
-            <option value="2">{lang("common.rejected", "Rejected")}</option>
-          </select>
+          <Autocomplete
+            size="small"
+            options={[
+              { value: "0", label: lang("common.pending", "Pending") },
+              { value: "1", label: lang("common.approved", "Approved") },
+              { value: "2", label: lang("common.rejected", "Rejected") },
+            ]}
+            value={
+              statusFilter === ""
+                ? null
+                : statusFilter === "0"
+                ? { value: "0", label: lang("common.pending", "Pending") }
+                : statusFilter === "1"
+                ? { value: "1", label: lang("common.approved", "Approved") }
+                : { value: "2", label: lang("common.rejected", "Rejected") }
+            }
+            onChange={(e, newValue) => {
+              setStatusFilter(newValue?.value || "");
+            }}
+            getOptionLabel={(option) => option?.label || ""}
+            isOptionEqualToValue={(option, value) => option?.value === value?.value}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label={lang("common.status")}
+                placeholder="Search status..."
+              />
+            )}
+            sx={{ minWidth: 160, flex: "0 0 auto" }}
+            clearOnEscape
+          />
 
-          <select
-            value={offtakerFilter}
-            onChange={(e) => setOfftakerFilter(e.target.value)}
-            className="theme-btn-blue-color border rounded-md px-3 py-2 me-2 text-sm"
-          >
-            <option value="">{lang("invoice.allOfftaker", "All Offtakers")}</option>
-            {offtakerList.map((o) => (
-              <option key={o.id} value={o.id}>
-                {o.full_name}
-              </option>
-            ))}
-          </select>
+          <Autocomplete
+            size="small"
+            options={offtakerList}
+            value={
+              offtakerList.find((o) => o.id === offtakerFilter) || null
+            }
+            onChange={(e, newValue) => {
+              setOfftakerFilter(newValue ? newValue.id : "");
+            }}
+            getOptionLabel={(option) => option?.full_name || ""}
+            isOptionEqualToValue={(option, value) => option.id === value.id}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label={lang("invoice.allOfftaker")}
+                placeholder="Search offtaker..."
+              />
+            )}
+            sx={{ minWidth: 180, flex: "0 0 auto" }}
+          />
 
-          <select
-            value={investorFilter}
-            onChange={(e) => setInvestorFilter(e.target.value)}
-            className="theme-btn-blue-color border rounded-md px-3 py-2 me-2 text-sm"
-          >
-            <option value="">{lang("reports.allinvestors", "All Investors")}</option>
-            {investorList.map((inv) => (
-              <option key={inv.id} value={inv.id}>
-                {inv.full_name}
-              </option>
-            ))}
-          </select>
+          <Autocomplete
+            size="small"
+            options={investorList}
+            value={
+              investorList.find((inv) => inv.id === investorFilter) || null
+            }
+            onChange={(e, newValue) => {
+              setInvestorFilter(newValue ? newValue.id : "");
+            }}
+            getOptionLabel={(option) => option?.full_name || ""}
+            isOptionEqualToValue={(option, value) => option.id === value.id}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label={lang("reports.allinvestors")}
+                placeholder="Search investor..."
+              />
+            )}
+            sx={{ minWidth: 180, flex: "0 0 auto" }}
+          />
 
-          <input
+          <TextField
             type="date"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
-            className="theme-btn-blue-color border rounded-md px-3 py-2 me-2 text-sm"
-            placeholder={lang("common.startDate") || "Start Date"}
+            size="small"
+            InputLabelProps={{ shrink: true }}
+            sx={{ minWidth: 150, flex: "0 0 auto" }}
           />
 
-          <input
+          <TextField
             type="date"
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
-            min={startDate || undefined}
-            className="theme-btn-blue-color border rounded-md px-3 py-2 me-2 text-sm"
-            placeholder={lang("common.endDate") || "End Date"}
+            inputProps={{ min: startDate || undefined }}
+            size="small"
+            InputLabelProps={{ shrink: true }}
+            sx={{ minWidth: 150, flex: "0 0 auto" }}
           />
         </div>
       </div>

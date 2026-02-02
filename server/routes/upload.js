@@ -4,6 +4,7 @@ import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { authenticateToken } from '../middleware/auth.js';
+import { uploadToS3, isS3Enabled } from '../services/s3Service.js';
 
 const router = express.Router();
 const __filename = fileURLToPath(import.meta.url);
@@ -24,7 +25,7 @@ const upload = multer({
 });
 
 // Upload endpoint
-router.post('/', authenticateToken, upload.single('file'), (req, res) => {
+router.post('/', authenticateToken, upload.single('file'), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({
@@ -33,41 +34,65 @@ router.post('/', authenticateToken, upload.single('file'), (req, res) => {
       });
     }
 
-    // Get folder from form data
     const folder = req.body?.folder || 'general';
+
+    // Try S3 first when enabled
+    const s3Enabled = await isS3Enabled();
+    if (s3Enabled) {
+      try {
+        const result = await uploadToS3(req.file.buffer, req.file.originalname, req.file.mimetype, {
+          folder,
+          metadata: {
+            uploadedBy: String(req.user?.id || ''),
+            originalName: req.file.originalname,
+          },
+        });
+
+        // Normalize response to include `data.url` for frontend compatibility
+        return res.json({
+          success: true,
+          data: {
+            url: result.data.fileUrl,
+            fileKey: result.data.fileKey,
+            fileName: result.data.fileName,
+            mimeType: result.data.mimeType,
+            size: result.data.fileSize,
+          },
+        });
+      } catch (s3Err) {
+        console.error('S3 upload failed, falling back to local:', s3Err.message || s3Err);
+        // continue to local fallback
+      }
+    }
+
+    // Local fallback (write to public/images/<folder>)
     const uploadDir = path.join(__dirname, `../../public/images/${folder}`);
-    
-    // Create directory if it doesn't exist
     if (!fs.existsSync(uploadDir)) {
       fs.mkdirSync(uploadDir, { recursive: true });
     }
 
-    // Generate filename
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
     const ext = path.extname(req.file.originalname);
     const name = path.basename(req.file.originalname, ext);
     const filename = `${name}-${uniqueSuffix}${ext}`;
     const filepath = path.join(uploadDir, filename);
-
-    // Write file to disk
     fs.writeFileSync(filepath, req.file.buffer);
-
     const fileUrl = `/images/${folder}/${filename}`;
 
     res.json({
       success: true,
       data: {
-        filename: filename,
+        filename,
         url: fileUrl,
         mimetype: req.file.mimetype,
-        size: req.file.size
-      }
+        size: req.file.size,
+      },
     });
   } catch (error) {
     console.error('Upload error:', error);
     res.status(500).json({
       success: false,
-      message: error.message || 'Upload failed'
+      message: error.message || 'Upload failed',
     });
   }
 });

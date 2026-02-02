@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState, memo, useMemo } from "react";
+import { Autocomplete, TextField } from "@mui/material";
 import Table from "@/components/shared/table/Table";
 import {
   FiEdit3,
@@ -409,46 +410,59 @@ const ProjectTable = () => {
     <div className="p-6 bg-white shadow-md rounded-3xl">
       {/* Filters */}
       <div className="flex-wrap items-center w-full gap-2 mt-4 mb-4 d-flex justify-content-between">
-        <div className="filter-button">
-          <select
-            value={offtakerFilter}
-            onChange={(e) => setOfftakerFilter(e.target.value)}
-            className="px-3 py-2 mx-2 text-sm border rounded-md theme-btn-blue-color"
-          >
-            <option value="">{lang("invoice.allOfftaker", "All Offtakers")}</option>
-            {offtakerList.map((o) => (
-              <option key={o.id} value={o.id}>
-                {o.full_name || `Offtaker ${o.id}`}
-              </option>
-            ))}
-          </select>
+        <div className="filter-button" style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+          <Autocomplete
+            size="small"
+            options={offtakerList}
+            value={offtakerList.find((p) => String(p.id) === String(offtakerFilter)) || null}
+            onChange={(e, newValue) => {
+              setOfftakerFilter(newValue ? newValue.id : "");
+            }}
+            getOptionLabel={(option) => option.full_name || option.name || `Offtaker ${option.id ?? ''}`}
+            isOptionEqualToValue={(option, value) => (option.id ?? option.project_id) === (value.id ?? value.project_id)}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label={lang("invoice.allOfftaker", "All Offtakers")}
+                placeholder="Search off taker..."
+              />
+            )}
+            sx={{ minWidth: 260 }}
+          />
 
-          <select
-            value={solisStatusFilter}
-            onChange={(e) => setSolisStatusFilter(e.target.value)}
-            className="px-3 py-2 text-sm border rounded-md theme-btn-blue-color me-2"
-          >
-            <option value="">{lang("projects.allSolisStatus", "All Solis Status")}</option>
-            <option value="online">Online</option>
-            <option value="offline">Offline</option>
-            <option value="alarm">Alarm</option>
-          </select>
+          <Autocomplete
+            size="small"
+            options={[
+              { value: "online", label: lang("common.online", "Online") },
+              { value: "offline", label: lang("common.offline", "Offline") },
+              { value: "alarm", label: lang("common.alarm", "Alarm") },
+            ]}
+            value={
+              [{ value: "online", label: lang("common.online", "Online") }, { value: "offline", label: lang("common.offline", "Offline") }, { value: "alarm", label: lang("common.alarm", "Alarm") }].find(
+                (o) => o.value === solisStatusFilter
+              ) || null
+            }
+            onChange={(e, newValue) => setSolisStatusFilter(newValue ? newValue.value : "")}
+            getOptionLabel={(option) => option.label || ""}
+            renderInput={(params) => (
+              <TextField {...params} label={lang("projects.allSolisStatus", "All Solis Status")} placeholder="Search status..." />
+            )}
+            sx={{ minWidth: 200 }}
+          />
 
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-3 py-2 text-sm border rounded-md theme-btn-blue-color me-2"
+          <Autocomplete
+            size="small"
+            options={projectStatusList}
+            value={projectStatusList.find((p) => String(p.id) === String(statusFilter)) || null}
+            onChange={(e, newValue) => setStatusFilter(newValue ? newValue.id : "")}
+            getOptionLabel={(option) => option.name || `Status ${option.id}`}
+            isOptionEqualToValue={(option, value) => String(option.id) === String(value.id)}
+            renderInput={(params) => (
+              <TextField {...params} label={lang("invoice.allStatus", "All Status")} placeholder="Search status..." />
+            )}
             disabled={loadingStatuses}
-          >
-            <option value="">
-              {lang("invoice.allStatus", "All Status")}
-            </option>
-            {projectStatusList.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.name}
-              </option>
-            ))}
-          </select>
+            sx={{ minWidth: 260 }}
+          />
         </div>
       </div>
 

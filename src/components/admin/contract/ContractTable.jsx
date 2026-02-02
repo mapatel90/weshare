@@ -468,6 +468,20 @@ const Contract = ({ projectId, handleCloseForm, handleSaveAction }) => {
       },
     },
     {
+      accessorKey: "signed_document_upload",
+      header: () => lang("contract.signedDocument", "Signed Document"),
+      cell: (info) => {
+        const v = info.getValue();
+        return v ? (
+          <a href={v} target="_blank" rel="noreferrer">
+            {lang("common.view", "View")}
+          </a>
+        ) : (
+          "-"
+        );
+      },
+    },
+    {
       accessorKey: "contract_date",
       header: () => lang("contract.date", "Date"),
       cell: (info) => {

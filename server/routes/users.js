@@ -7,7 +7,7 @@ import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
-import { uploadToS3, isS3Enabled } from '../services/s3Service.js';
+import { uploadToS3, isS3Enabled, deleteFromS3 } from '../services/s3Service.js';
 
 const router = express.Router();
 
@@ -221,8 +221,26 @@ router.post('/', authenticateToken, upload.single('qrCode'), async (req, res) =>
     const saltRounds = 12;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-    // Get QR code path if uploaded
-    const qrCodePath = req.file ? `/images/qrcodes/${req.file.filename}` : null;
+    // Get QR code path if uploaded (support S3 upload)
+    let qrCodePath = null;
+    if (req.file) {
+      const s3Enabled = await isS3Enabled();
+      if (s3Enabled) {
+        try {
+          const buffer = fs.readFileSync(req.file.path);
+          const s3Result = await uploadToS3(buffer, req.file.originalname, req.file.mimetype, {
+            folder: 'users/qrcodes',
+            metadata: { createdBy: String(createdBy || '') }
+          });
+          if (s3Result && s3Result.success) {
+            qrCodePath = s3Result.data.fileUrl;
+          }
+        } catch (s3Err) {
+          console.error('S3 upload failed for QR code:', s3Err.message || s3Err);
+        }
+
+      }
+    }
 
     // Create user
     const newUser = await prisma.users.create({
@@ -486,16 +504,42 @@ router.put('/:id', authenticateToken, upload.single('qrCode'), async (req, res) 
       updateData.password = hashed
     }
 
-    // Handle QR code upload
+    // Handle QR code upload (support S3)
     if (req.file) {
-      const qrCodePath = `/images/qrcodes/${req.file.filename}`;
-      updateData.qr_code = qrCodePath;
+      let newQrPath = null;
+      const s3Enabled = await isS3Enabled();
+      if (s3Enabled) {
+        try {
+          const buffer = fs.readFileSync(req.file.path);
+          const s3Result = await uploadToS3(buffer, req.file.originalname, req.file.mimetype, {
+            folder: 'users/qrcodes',
+            metadata: { uploadType: 'qr_code', userId: String(id) }
+          });
+          if (s3Result && s3Result.success) {
+            newQrPath = s3Result.data.fileUrl;
+          }
+        } catch (s3Err) {
+          console.error('S3 upload failed for QR code (update):', s3Err.message || s3Err);
+        }
 
-      // Delete old QR code file if exists
+      }
+
+      updateData.qr_code = newQrPath;
+
+      // Delete old QR code file if exists (S3 or local)
       if (existingUser.qr_code) {
-        const oldFilePath = path.join(PUBLIC_DIR, existingUser.qr_code.replace(/^\//, ''));
-        if (fs.existsSync(oldFilePath)) {
-          fs.unlinkSync(oldFilePath);
+        try {
+          let oldKey = existingUser.qr_code;
+          if (oldKey.startsWith('http')) {
+            const url = new URL(oldKey);
+            oldKey = decodeURIComponent(url.pathname.substring(1));
+            await deleteFromS3(oldKey).catch(() => {});
+          } else {
+            const oldFilePath = path.join(PUBLIC_DIR, existingUser.qr_code.replace(/^\//, ''));
+            if (fs.existsSync(oldFilePath)) fs.unlinkSync(oldFilePath);
+          }
+        } catch (delErr) {
+          console.warn('Failed to delete previous QR code file:', delErr.message || delErr);
         }
       }
     }
@@ -572,6 +616,18 @@ router.delete('/:id', authenticateToken, async (req, res) => {
         success: false,
         message: 'User not found'
       });
+    }
+
+    // Delete QR code from S3 if it exists and is an S3 URL
+    if (existingUser.qr_code && existingUser.qr_code.startsWith('http')) {
+      try {
+        const url = new URL(existingUser.qr_code);
+        const key = decodeURIComponent(url.pathname.substring(1));
+        await deleteFromS3(key);
+        console.log('S3 QR code deleted:', key);
+      } catch (s3Error) {
+        console.error('Failed to delete QR code from S3:', s3Error);
+      }
     }
 
     // Delete user

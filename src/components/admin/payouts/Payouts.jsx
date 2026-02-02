@@ -7,6 +7,7 @@ import { PROJECT_STATUS } from "@/constants/project_status";
 import Table from "@/components/shared/table/Table";
 import { usePriceWithCurrency } from "@/hooks/usePriceWithCurrency";
 import { FiDownload, FiEdit, FiEye, FiTrash2 } from "react-icons/fi";
+import { BsQrCode } from "react-icons/bs";
 import { Autocomplete, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Stack, TextField } from "@mui/material";
 import Link from "next/link";
 import { downloadPayoutPDF } from "./PayoutPdf";
@@ -38,6 +39,8 @@ const PayoutsPage = () => {
     const [selectedPayout, setSelectedPayout] = useState(null);
     const [selectedFile, setSelectedFile] = useState(null);
     const [errors, setErrors] = useState({});
+    const [showQRModal, setShowQRModal] = useState(false);
+    const [selectedQRCode, setSelectedQRCode] = useState(null);
     const priceWithCurrency = usePriceWithCurrency();
 
     const fetchProjects = async () => {
@@ -153,6 +156,19 @@ const PayoutsPage = () => {
 
     const handleViewDocument = (url) => {
         setDocumentPreview(url);
+    };
+
+    const handleShowQRCode = (qrCode, userName) => {
+        if (!qrCode) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'QR Code Not Found',
+                text: `QR code is not available for ${userName}`
+            });
+            return;
+        }
+        setSelectedQRCode({ qrCode, userName });
+        setShowQRModal(true);
     };
 
     const handleMarkPay = (rowData) => {
@@ -278,6 +294,34 @@ const PayoutsPage = () => {
                     if (value === null || value === undefined || value === "")
                         return "N/A";
                     return `${value}%`;
+                },
+            },
+            {
+                id: "qr_code",
+                header: () => "QR Code",
+                cell: ({ row }) => {
+                    const qrCode = row.original.users?.qr_code;
+
+                    if (!qrCode) return "N/A";
+
+                    return (
+                        <Button
+                            variant="contained"
+                            size="small"
+                            sx={{
+                                backgroundColor: "#28a745",
+                                color: "#fff",
+                                padding: "4px 8px",
+                                fontSize: "12px",
+                                textTransform: "none",
+                                "&:hover": { backgroundColor: "#218838" },
+                            }}
+                            onClick={() => handleShowQRCode(qrCode, row.original.users?.full_name)}
+                        >
+                            <BsQrCode className="me-1" style={{ marginRight: '4px' }} />
+                            {lang("table.qr_code")}
+                        </Button>
+                    );
                 },
             },
             {
@@ -517,6 +561,46 @@ const PayoutsPage = () => {
                     </Button>
                 </DialogActions>
             </Dialog>
+
+            {/* QR Code Modal */}
+            {showQRModal && (
+                <div className="modal fade show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }} onClick={() => setShowQRModal(false)}>
+                    <div className="modal-dialog modal-dialog-centered" onClick={(e) => e.stopPropagation()}>
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h5 className="modal-title">
+                                    <BsQrCode className="me-2" />
+                                    {lang("table.qr_code")} - {selectedQRCode?.userName}
+                                </h5>
+                                <button type="button" className="btn-close" onClick={() => setShowQRModal(false)}></button>
+                            </div>
+                            <div className="modal-body text-center p-4">
+                                {selectedQRCode?.qrCode ? (
+                                    <div>
+                                        <img
+                                            src={selectedQRCode.qrCode}
+                                            alt={`QR Code for ${selectedQRCode.userName}`}
+                                            className="img-fluid"
+                                            style={{ maxWidth: '300px', width: '100%' }}
+                                        />
+                                        <p className="mt-3 text-muted">{lang("table.scan_qr_code")}</p>
+                                    </div>
+                                ) : (
+                                    <div className="text-muted">
+                                        <BsQrCode size={48} className="mb-3" />
+                                        <p>{lang("table.no_qr_code_available")}</p>
+                                    </div>
+                                )}
+                            </div>
+                            <div className="modal-footer">
+                                <button type="button" className="btn btn-secondary" onClick={() => setShowQRModal(false)}>
+                                    {lang("modal.close")}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Transaction ID Modal */}
             <TransactionDialog

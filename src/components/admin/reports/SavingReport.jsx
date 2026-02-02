@@ -6,6 +6,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import Table from "@/components/shared/table/Table";
 import { formatMonthYear, formatShort } from "@/utils/common";
 import { PROJECT_STATUS } from "@/constants/project_status";
+import { Autocomplete, TextField } from "@mui/material";
 
 const SavingReports = () => {
   const PAGE_SIZE = 50; // show 50 rows per page
@@ -14,7 +15,6 @@ const SavingReports = () => {
 
   const [reportsData, setReportsData] = useState([]);
   const [projectFilter, setProjectFilter] = useState("");
-  const [inverterFilter, setInverterFilter] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
   const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
@@ -32,8 +32,8 @@ const SavingReports = () => {
   const [appliedProject, setAppliedProject] = useState("");
   const [appliedStartDate, setAppliedStartDate] = useState("");
   const [appliedEndDate, setAppliedEndDate] = useState("");
-  const [groupBy, setGroupBy] = useState("day");
-  const [appliedGroupBy, setAppliedGroupBy] = useState("day");
+  const [groupBy, setGroupBy] = useState("");
+  const [appliedGroupBy, setAppliedGroupBy] = useState("");
   const isSubmitDisabled = !projectFilter;
 
   const fetch_project_list = async () => {
@@ -381,37 +381,64 @@ const SavingReports = () => {
   return (
     <div className="p-6 bg-white rounded-3xl shadow-md">
       <div className="d-flex items-center justify-content-between gap-2 mb-4 mt-4 w-full flex-wrap">
-        <div className="filter-button flex flex-wrap items-center gap-3">
-
+        <div
+          className="filter-button"
+          style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "nowrap" }}
+        >
           {/* Project */}
-          <select
-            value={projectFilter}
-            onChange={(e) => setProjectFilter(e.target.value)}
-            className="theme-btn-blue-color border  rounded-md px-3 me-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
-          >
-            <option value="">{lang("reports.allprojects")}</option>
-            {projectList.map((p) => (
-              <option key={p.id ?? p.project_id} value={p.id ?? p.project_id}>
-                {p.project_name ?? p.projectName ?? `Project ${p.id ?? ""}`}
-              </option>
-            ))}
-          </select>
+          <Autocomplete
+            size="small"
+            options={projectList}
+            value={
+              projectList.find((p) => String(p?.id ?? p?.project_id) === String(projectFilter)) || null
+            }
+            onChange={(e, newValue) => {
+              setProjectFilter(newValue ? String(newValue.id ?? newValue.project_id) : "");
+            }}
+            getOptionLabel={(option) => option?.project_name || option?.projectName || ""}
+            isOptionEqualToValue={(option, value) =>
+              String(option.id ?? option.project_id) === String(value.id ?? value.project_id)
+            }
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label={lang("reports.allprojects")}
+                placeholder={lang("reports.allprojects")}
+              />
+            )}
+            sx={{ minWidth: 260 }}
+          />
 
           {/* Group By */}
-          <select
-            value={groupBy}
-            onChange={(e) => {
-              const newGroupBy = e.target.value;
+          <Autocomplete
+            size="small"
+            options={[
+              { value: "day", label: lang("common.day", "Day") },
+              { value: "month", label: lang("common.month", "Month") },
+            ]}
+            value={
+              groupBy
+                ? { value: groupBy, label: groupBy === "day" ? lang("common.day", "Day") : lang("common.month", "Month") }
+                : null
+            }
+            onChange={(e, newValue) => {
+              const newGroupBy = newValue?.value || "";
               setGroupBy(newGroupBy);
               if (appliedGroupBy !== newGroupBy && appliedProject) {
                 setSearchTerm("");
               }
             }}
-            className="theme-btn-blue-color border  rounded-md px-3 me-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
-          >
-            <option value="day">{lang("common.day", "Day")}</option>
-            <option value="month">{lang("common.month", "Month")}</option>
-          </select>
+            getOptionLabel={(option) => option?.label || ""}
+            isOptionEqualToValue={(option, value) => option?.value === value?.value}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label={lang("common.groupBy", "Group By")}
+                placeholder={lang("common.groupBy", "Group By")}
+              />
+            )}
+            sx={{ minWidth: 200 }}
+          />
 
           {/* Start Date */}
           <input
@@ -419,6 +446,7 @@ const SavingReports = () => {
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
             className="theme-btn-blue-color border rounded-md px-3 py-2 me-2 text-sm"
+            style={{ minWidth: 170 }}
           />
 
           {/* End Date */}
@@ -428,6 +456,7 @@ const SavingReports = () => {
             onChange={(e) => setEndDate(e.target.value)}
             min={startDate || undefined}
             className="theme-btn-blue-color border rounded-md px-3 py-2 me-2 text-sm"
+            style={{ minWidth: 170 }}
           />
 
           {/* Submit */}
