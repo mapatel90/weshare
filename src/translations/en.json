@@ -50,7 +50,8 @@
     "aboutUs": "About Us",
     "howItWorks": "How It Works",
     "home": "Home",
-    "payouts": "Payouts"
+    "payouts": "Payouts",
+    "company": "Company"
   },
   "header": {
     "dashboard": "Dashboard",
@@ -70,7 +71,8 @@
     "statsDescription": "Overview of Stats",
     "plantoverview": "Solar Plant Overview",
     "payouts": "Payouts",
-    "email_templates": "Email Templates"
+    "email_templates": "Email Templates",
+    "company": "Company"
   },
   "navigation": {
     "navigation": "Navigation",
@@ -301,7 +303,11 @@
     "approve": "Approve",
     "reject": "Reject",
     "rejectContract": "Reject Contract",
-    "reasonForRejection": "Reason for rejection"
+    "reasonForRejection": "Reason for rejection",
+    "notifications": "Notifications",
+    "viewAllNotifications": "View all notifications",
+    "markAllRead": "Mark all read",
+    "noNotifications": "No notifications"
   },
   "messages": {
     "cannotUndoDelete": "You won't be able to revert this!",
@@ -457,7 +463,8 @@
     "cashflowreports": "Cash Flow Reports",
     "investmentsummaryreports": "Investment Summary Reports",
     "emailTemplates": "Email Templates",
-    "payouts": "Payouts"
+    "payouts": "Payouts",
+    "company": "Company"
   },
   "dashboard": {
     "dashboard": "Dashboard",
@@ -701,6 +708,8 @@
       "signIn": "Sign In"
     },
     "projects": {
+      "statusRequiresOfftaker": "Project must be assigned to an offtaker before status to Running.",
+      "statusRequiresInvestor": "Project must be assigned to an investor before status to Running.",
       "title": "Featured Projects",
       "subtitle": "Discover top solar projects",
       "viewDetails": "View Details",
@@ -1147,11 +1156,16 @@
     "inverterdetails": "Inverter Details",
     "inverter": "Inverter",
     "addInverter": "Add Inverter",
+    "add_company": "Add Company",
+    "select_company": "Select Company",
+    "title": "Title",
+    "edit_company": "Edit Company",
     "editInverter": "Edit Inverter",
     "companyName": "Company Name",
     "companyNamePlaceholder": "Company Name",
     "inverterName": "Inverter Name",
     "inverterNamePlaceholder": "Inverter Name",
+    "title_placeholder": "Enter Title",
     "active": "Active",
     "inactive": "Inactive",
     "type": "Inverter Type",
@@ -1182,7 +1196,8 @@
     "apiUrlNamePlaceholder": "API URL",
     "project_inverter": "Projects Inverter",
     "under_installation": "Under Installation",
-    "kWh/year": "kWh/year"
+    "kWh/year": "kWh/year",
+    "title_required": "Title is required"
   },
   "projectType": {
     "title": "Project Types",
@@ -1728,7 +1743,7 @@
     "invoice_update_title": "Invoice Updated",
     "invoice_updated": "The invoice \"{{invoice_number}}\" has been updated by \"{{created_by}}\".",
     "new_payout_generated": "New Payout Generated",
-    "payout_generated": "Your payout \"{{payout_prefix}}\" - \"{{payout_number}}\" has been created"
+    "payout_generated": "Your payout with  \"{{payout_prefix}}\" has been released by WeShare"
   },
   "notification": {
     "title": "Notifications",
@@ -1775,7 +1790,7 @@
     "enterTransactionId": "Enter Transaction ID",
     "payout_date": "Payout Date",
     "mark_as_pay": "Mark as Pay",
-    "uploaded_image": "Uploaded Image",
+    "uploaded_image": "Uploaded Screenshot",
     "selected_image": "Selected Image",
     "payoutCreatedSuccessfully": "Payout Created Successfully",
     "payoutUpdatedSuccessfully": "Payout Updated Successfully",
@@ -1788,5 +1803,21 @@
     "add_details": "Add Details",
     "transaction_id_is_required": "Transaction ID is required",
     "payout_paid": "Payout Marked as Payed"
+  },
+  "company": {
+    "companydetails": "Company Details",
+    "company": "Company",
+    "addCompany": "Add Company",
+    "editCompany": "Edit Company",
+    "companyName": "Company Name",
+    "companyNamePlaceholder": "Company Name",
+    "active": "Active",
+    "inactive": "Inactive",
+    "status": "Status",
+    "createdSuccessfully": "Company Created Successfully",
+    "updatedSuccessfully": "Company Updated Successfully",
+    "deletedSuccessfully": "Company Deleted Successfully",
+    "errorOccurred": "An error occurred. Please try again.",
+    "selectStatus": "Select Status"
   }
 }

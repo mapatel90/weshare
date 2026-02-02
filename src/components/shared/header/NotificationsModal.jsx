@@ -4,15 +4,19 @@ import { useAuth } from '@/contexts/AuthContext';
 import { apiGet, apiPatch } from '@/lib/api';
 import { FiBell } from 'react-icons/fi';
 import { useDarkMode } from '@/utils/common';
+import { ROLES } from '@/constants/roles';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const NotificationsModal = () => {
     const { user } = useAuth();
+    const { lang } = useLanguage();
     const [anchorEl, setAnchorEl] = useState(null);
     const [notifications, setNotifications] = useState([]);
     const [unreadCount, setUnreadCount] = useState(0);
     const [loading, setLoading] = useState(false);
     const open = Boolean(anchorEl);
     const isDark = useDarkMode();
+
 
     // Fetch unread count
     const fetchUnreadCount = async () => {
@@ -136,7 +140,7 @@ const NotificationsModal = () => {
                 color="error"
                 sx={{
                     cursor: 'pointer',
-                    marginRight: '12px',
+                    // marginRight: '12px',
                     '& .MuiBadge-badge': {
                         fontSize: '0.65rem',
                         height: 18,
@@ -165,14 +169,14 @@ const NotificationsModal = () => {
                         borderRadius: 2,
                         boxShadow: '0 4px 16px rgba(0,0,0,0.10)',
                         mt: 1,
-                        overflow: 'hidden'
+                        flexDirection: 'column'
                     }
                 }}
             >
                 {/* Header */}
                 <Box sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                        Notifications
+                        {lang("common.notifications", "Notifications")}
                     </Typography>
                     {unreadCount > 0 && (
                         <Typography
@@ -184,7 +188,7 @@ const NotificationsModal = () => {
                                 '&:hover': { textDecoration: 'underline' }
                             }}
                         >
-                            Mark all read
+                            {lang("common.markAllRead", "Mark all read")}
                         </Typography>
                     )}
                 </Box>
@@ -198,7 +202,7 @@ const NotificationsModal = () => {
                 ) : notifications.length === 0 ? (
                     <Box sx={{ p: 4, textAlign: 'center' }}>
                         <Typography color="text.secondary">
-                            No notifications
+                            {lang("common.noNotifications", "No notifications")}
                         </Typography>
                     </Box>
                 ) : (
@@ -218,56 +222,56 @@ const NotificationsModal = () => {
                                 whiteSpace: 'normal',
                             }}
                         >
-                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                                    <Typography
-                                        variant="subtitle2"
-                                        sx={{
-                                            fontWeight: notification.is_read === 0 ? 600 : 400,
-                                            fontSize: '0.95rem',
-                                            flex: 1,
-                                        }}
-                                    >
-                                        {notification.title}
-                                    </Typography>
-                                    {notification.is_read === 0 && (
-                                        <Box
-                                            sx={{
-                                                width: 8,
-                                                height: 8,
-                                                borderRadius: '50%',
-                                                backgroundColor: '#F6A623',
-                                                ml: 1,
-                                                mt: 0.5,
-                                            }}
-                                        />
-                                    )}
-                                </Box>
-                                {notification.message && (
-                                    <Typography
-                                        variant="body2"
-                                        color="text.secondary"
-                                        sx={{
-                                            fontSize: '0.85rem',
-                                            mt: 0.5,
-                                            overflow: 'hidden',
-                                            textOverflow: 'ellipsis',
-                                            display: '-webkit-box',
-                                            WebkitLineClamp: 2,
-                                            WebkitBoxOrient: 'vertical',
-                                        }}
-                                    >
-                                        {notification.message}
-                                    </Typography>
-                                )}
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                                 <Typography
-                                    variant="caption"
-                                    color="text.secondary"
-                                    sx={{ fontSize: '0.75rem', mt: 0.5, display: 'block' }}
+                                    variant="subtitle2"
+                                    sx={{
+                                        fontWeight: notification.is_read === 0 ? 600 : 400,
+                                        fontSize: '0.95rem',
+                                        flex: 1,
+                                    }}
                                 >
-                                    {formatTimeAgo(notification.created_at)}
+                                    {notification.title}
                                 </Typography>
-                            </MenuItem>
-                        ))
+                                {notification.is_read === 0 && (
+                                    <Box
+                                        sx={{
+                                            width: 8,
+                                            height: 8,
+                                            borderRadius: '50%',
+                                            backgroundColor: '#F6A623',
+                                            ml: 1,
+                                            mt: 0.5,
+                                        }}
+                                    />
+                                )}
+                            </Box>
+                            {notification.message && (
+                                <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                    sx={{
+                                        fontSize: '0.85rem',
+                                        mt: 0.5,
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis',
+                                        display: '-webkit-box',
+                                        WebkitLineClamp: 2,
+                                        WebkitBoxOrient: 'vertical',
+                                    }}
+                                >
+                                    {notification.message}
+                                </Typography>
+                            )}
+                            <Typography
+                                variant="caption"
+                                color="text.secondary"
+                                sx={{ fontSize: '0.75rem', mt: 0.5, display: 'block' }}
+                            >
+                                {formatTimeAgo(notification.created_at)}
+                            </Typography>
+                        </MenuItem>
+                    ))
                 )}
 
                 {/* Footer */}
@@ -284,11 +288,17 @@ const NotificationsModal = () => {
                                     '&:hover': { textDecoration: 'underline' }
                                 }}
                                 onClick={() => {
-                                    window.location.href = '/offtaker/notifications';
+                                    let path = '';
+
+                                    if (user.role === ROLES.OFFTAKER) path = '/offtaker/notifications';
+                                    else if (user.role === ROLES.INVESTOR) path = '/investor/notifications';
+                                    else if (user.role === ROLES.SUPER_ADMIN) path = '/admin/notification/list';
+
+                                    window.location.href = path;
                                     handleClose();
                                 }}
                             >
-                                View all notifications
+                                {lang("common.viewAllNotifications", "View all notifications")}
                             </Typography>
                         </Box>
                     </>

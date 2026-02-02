@@ -10,10 +10,10 @@ const PageHeaderTitle = () => {
     const { lang } = useLanguage();
 
     const parts = pathName.split("/").filter(Boolean);
-    const pageKey = parts[parts.length - 1] || "dashboard";
+    const pageKey = parts[parts.length - 1] || lang("page_title.dashboard", "Dashboard");
 
     const pageName = lang(`menu.${pageKey}`, pageKey.replace(/-/g, " "));
-    let title = "Dashboard";
+    let title = lang("page_title.dashboard", "Dashboard");
     let breadcrumb = [];
 
 
@@ -24,7 +24,7 @@ const PageHeaderTitle = () => {
         parts[1] === "contracts" &&
         parts[2] === "details"
     ) {
-        title = "Contract details";
+        title = lang("page_title.contract_details", "Contract details");
         breadcrumb = [
             { name: lang("menu.contracts", "Contract"), href: "/investor/contracts" },
             { name: lang("menu.details", "Details"), href: null }
@@ -35,10 +35,10 @@ const PageHeaderTitle = () => {
         parts[1] === "payouts" &&
         parts[2] === "view"
     ) {
-        title = "Payout Details";
+        title = lang("payouts.payout_details", "Payout Details");
         breadcrumb = [
             { name: lang("menu.payouts", "Payouts"), href: "/investor/payouts" },
-            { name: lang("menu.details", "Details"), href: null }
+            { name: lang("payouts.payout_details", "Payout Details"), href: null }
         ];
     }
     else {
@@ -46,7 +46,7 @@ const PageHeaderTitle = () => {
         const pageName = lang(`menu.${pageKey}`, pageKey.replace(/-/g, " "));
         title = pageName.charAt(0).toUpperCase() + pageName.slice(1);
         breadcrumb = [
-            { name: "Dashboard", href: "/investor/dashboard" },
+            { name: lang("page_title.dashboard", "Dashboard"), href: "/investor/dashboard" },
             { name: title, href: null }
         ];
     }

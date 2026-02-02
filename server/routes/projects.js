@@ -12,6 +12,7 @@ import { getUserLanguage, t } from '../utils/i18n.js';
 import { getUserFullName } from "../utils/common.js";
 import { sendEmailUsingTemplate } from "../utils/email.js";
 import { uploadToS3, deleteFromS3, isS3Enabled } from '../services/s3Service.js';
+import { PROJECT_STATUS } from "../../src/constants/project_status.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -488,9 +489,9 @@ router.post(
         if (s3Enabled) {
           try {
             const safeProjectName = String(project.project_name || "")
-            .replace(/[^\x20-\x7E]/g, "") // remove non-ASCII
-            .replace(/[\r\n]/g, "")       // remove line breaks
-            .trim();
+              .replace(/[^\x20-\x7E]/g, "") // remove non-ASCII
+              .replace(/[\r\n]/g, "")       // remove line breaks
+              .trim();
 
             const s3Result = await uploadToS3(
               file.buffer,
@@ -877,6 +878,24 @@ router.put("/:id/status", authenticateToken, async (req, res) => {
     const projectId = parseInt(req.params.id);
     const newStatus = parseInt(req.body.status);
 
+    const existingProject = await prisma.projects.findFirst({
+      where: { id: projectId },
+      select: {
+        offtaker_id: true,
+        project_name: true,
+        investor_id: true,
+      },
+    });
+
+    if (newStatus === PROJECT_STATUS.RUNNING) {
+      if (!existingProject?.investor_id) {
+        return res.status(400).json({ success: false, message: "Project must be assigned to an investor before status running" });
+      }
+      if (!existingProject?.offtaker_id) {
+        return res.status(400).json({ success: false, message: "Project must be assigned to an offtaker before status running" });
+      }
+    }
+
     //  Update project status
     const updated = await prisma.projects.update({
       where: { id: projectId },
@@ -989,6 +1008,7 @@ router.put("/:id", authenticateToken, async (req, res) => {
       select: {
         project_status: true,
         offtaker_id: true,
+        investor_id: true,
         project_name: true,
       },
     });
@@ -1059,6 +1079,15 @@ router.put("/:id", authenticateToken, async (req, res) => {
     if (project_slug !== undefined) {
       const baseSlug = slugify(project_slug || name || "");
       updateData.project_slug = await ensureUniqueSlug(baseSlug, projectId);
+    }
+
+    if (project_status_id === PROJECT_STATUS.RUNNING) {
+      if (!existingProject?.investor_id) {
+        return res.status(400).json({ success: false, message: "Project must be assigned to an investor before status running" });
+      }
+      if (!existingProject?.offtaker_id) {
+        return res.status(400).json({ success: false, message: "Project must be assigned to an offtaker before status running" });
+      }
     }
 
     const updated = await prisma.projects.update({

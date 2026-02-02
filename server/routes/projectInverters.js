@@ -1,6 +1,7 @@
 import express from 'express';
 import prisma from '../utils/prisma.js';
 import { authenticateToken } from '../middleware/auth.js';
+import { InventoryTableConfigurationUpdates$ } from '@aws-sdk/client-s3';
 
 const router = express.Router();
 // Get inverter counts (active/total) for all projects
@@ -48,7 +49,11 @@ router.get('/', authenticateToken, async (req, res) => {
               select: {
                 type: true,
               },
-            }
+            }, inverter_company: {
+              select: {
+                company_name: true
+              },
+            },
           }
         },
       },

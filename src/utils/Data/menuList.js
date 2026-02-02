@@ -47,6 +47,12 @@ export const menuList = [
       },
       {
         id: 2,
+        name: "company",
+        path: "/admin/inverter/company",
+        subdropdownMenu: false,
+      },
+      {
+        id: 3,
         name: "list",
         path: "/admin/inverter/list",
         subdropdownMenu: false,
@@ -79,21 +85,27 @@ export const menuList = [
       },
     ],
   },
-  // {
-  //   id: 6,
-  //   name: "news",
-  //   path: "/admin/news/list",
-  //   icon: "feather-bell",
-  //   dropdownMenu: false,
-  // },
-  // {
-  //   id: 7,
-  //   name: "testimonials",
-  //   path: "/admin/testimonial/list",
-  //   icon: "feather-star",
-  //   dropdownMenu: false,
-  // },
-  // End Settings Menu
+  {
+    id: 10,
+    name: "contracts",
+    path: "/admin/contract/list",
+    icon: "feather-shield",
+    dropdownMenu: false,
+  },
+  {
+    id: 9,
+    name: "lease requests",
+    path: "/admin/lease-request/list",
+    icon: "feather-repeat",
+    dropdownMenu: false,
+  },
+  {
+    id: 7,
+    name: "blog",
+    path: "/admin/blog/list",
+    icon: "feather-youtube",
+    dropdownMenu: false,
+  },
   {
     id: 5,
     name: "news",
@@ -109,31 +121,10 @@ export const menuList = [
     dropdownMenu: false,
   },
   {
-    id: 7,
-    name: "blog",
-    path: "/admin/blog/list",
-    icon: "feather-youtube",
-    dropdownMenu: false,
-  },
-  {
     id: 8,
     name: "contact us",
     path: "/admin/contact-us/list",
     icon: "feather-globe",
-    dropdownMenu: false,
-  },
-  {
-    id: 9,
-    name: "lease requests",
-    path: "/admin/lease-request/list",
-    icon: "feather-repeat",
-    dropdownMenu: false,
-  },
-  {
-    id: 10,
-    name: "contracts",
-    path: "/admin/contract/list",
-    icon: "feather-shield",
     dropdownMenu: false,
   },
   {

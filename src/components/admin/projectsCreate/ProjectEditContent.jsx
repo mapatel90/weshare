@@ -14,6 +14,7 @@ import { getFullImageUrl } from '@/utils/common'
 import ProjectForm from './ProjectForm'
 import MeterView from '../meter/MeterView'
 import DocumentTab from './document/DocumentTab'
+import { PROJECT_STATUS } from '@/constants/project_status'
 
 const MAX_PROJECT_IMAGES = 10
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024
@@ -78,6 +79,7 @@ const ProjectEditContent = ({ projectId }) => {
         { name: lang('contract.document', 'Document'), key: 'document' }
     ];
     const [activeTab, setActiveTab] = useState('info');
+    const [previousStatusId, setPreviousStatusId] = useState(null)
 
     const loadProjectGallery = useCallback(async (id) => {
         if (!id) return
@@ -295,6 +297,7 @@ const ProjectEditContent = ({ projectId }) => {
                         solis_plant_id: p.solis_plant_id || '', // ← add Solis Plant ID into form
                         project_status_id: p.project_status?.id || p.project_status_id || (statusRes?.data?.[0]?.id ?? '')
                     })
+                    setPreviousStatusId(p.project_status?.id || p.project_status_id || null)
                     if (p.country_id) handleCountryChange(p.country_id)
                     if (p.state_id) handleStateChange(p.state_id)
                 }
@@ -317,7 +320,43 @@ const ProjectEditContent = ({ projectId }) => {
             const slug = generateSlug(value)
             setFormData(prev => ({ ...prev, [name]: value, project_slug: slug }))
         } else if (name === 'project_status_id') {
-            setFormData(prev => ({ ...prev, project_status_id: value === '' ? '' : Number(value) }))
+            const numericValue = value === '' ? '' : Number(value)
+
+            // Frontend guard: prevent RUNNING (3) without investor & offtaker
+            if (numericValue === PROJECT_STATUS.RUNNING) {
+                if (!formData.offtaker) {
+                    showErrorToast(
+                        lang(
+                            'projects.statusRequiresOfftaker',
+                            'Project must be assigned to an offtaker before status to Running.'
+                        )
+                    )
+                    // reset select back to previous value
+                    setFormData(prev => ({
+                        ...prev,
+                        project_status_id: previousStatusId !== null ? previousStatusId : prev.project_status_id
+                    }))
+                    return false
+                }
+                if (!formData.investorId) {
+                    showErrorToast(
+                        lang(
+                            'projects.statusRequiresInvestor',
+                            'Project must be assigned to an investor before status to Running.'
+                        )
+                    )
+                    setFormData(prev => ({
+                        ...prev,
+                        project_status_id: previousStatusId !== null ? previousStatusId : prev.project_status_id
+                    }))
+                    return false
+                }
+            } else {
+                // when user selects a non-running status, remember it as previous
+                setPreviousStatusId(numericValue)
+            }
+
+            setFormData(prev => ({ ...prev, project_status_id: numericValue }))
         } else {
             setFormData(prev => ({ ...prev, [name]: value }))
         }
@@ -482,7 +521,6 @@ const ProjectEditContent = ({ projectId }) => {
             if (!res?.success) {
                 throw new Error(res?.message || 'Update failed')
             }
-
             showSuccessToast(lang('projects.projectupdatedsuccessfully', 'Project updated successfully'))
             return true
         } catch (e) {

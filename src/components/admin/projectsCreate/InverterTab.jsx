@@ -59,6 +59,7 @@ const InverterTab = ({ projectId, handleSaveAction }) => {
 
   useEffect(() => {
     apiGet("/api/inverters?status=1&limit=100").then((res) => {
+
       if (res?.success) setInverterList(res.data.inverters);
     });
   }, []);
@@ -310,15 +311,15 @@ const InverterTab = ({ projectId, handleSaveAction }) => {
   const columns = [
     {
       accessorKey: "inverter_type",
-      header: () => lang("inverter.type", "Inverter Type"),
+      header: () => lang("inverter.inverter", "Inverter"),
       cell: (info) => {
         const row = info.row.original;
-        const name = row.inverters?.inverter_name || "-";
-        const type =
-          row.inverters?.inverter_type?.type ||
-          inverterTypesMap[row.inverters?.inverter_type_id] ||
+        const inverter =
+          (row.inverters?.inverter_type?.type ? `${row.inverters?.inverter_type?.type} - ` : "") +
+          (row.inverters?.title ? `${row.inverters?.title} ` : "") +
+          (row.inverters?.inverter_company?.company_name ? ` (${row.inverters?.inverter_company?.company_name})` : "") ||
           "";
-        return type ? `${name} (${type})` : name;
+        return inverter ? `${inverter}` : "";
       },
     },
     {
@@ -529,9 +530,10 @@ const InverterTab = ({ projectId, handleSaveAction }) => {
                   </MenuItem>
                   {inverterList.map((inv) => (
                     <MenuItem key={inv.id} value={inv.id}>
-                      {inv.inverter_name +
+                      {console.log("inv", inv)}
+                      {inv.inverter_type_name +
                         ` - ` +
-                        inv.inverter_type_id +
+                        inv.title +
                         (inv.company_name ? ` (${inv.company_name})` : "")}
                     </MenuItem>
                   ))}

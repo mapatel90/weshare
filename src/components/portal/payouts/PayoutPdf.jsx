@@ -67,21 +67,10 @@ export const downloadPayoutPDF = async (payout_id, priceWithCurrency) => {
         const companyState = getLocationName(settings?.site_state, "state");
         const companyCountry = getLocationName(settings?.site_country, "country");
         const companyLocation = [companyCountry, companyState, companyCity].filter(Boolean).join(", ");
-
-
         const payout = response.data;
-        const invoice = payout?.invoices || {};
         const project = payout?.projects || {};
         const client = payout?.users || {};
-        const qrCodeSrc = client?.qr_code || "/images/invoice_qr.jpg";
-        // Build client address
-        // const clientAddress = [
-        //     inv?.users?.address_1,
-        //     inv?.users?.address_2,
-        //     inv?.users?.cities?.name,
-        //     inv?.users?.states?.name,
-        //     inv?.users?.zipcode,
-        // ].filter(Boolean).join(", ") || "";
+
 
         // Create HTML
         const invoiceHTML = `
@@ -102,15 +91,15 @@ export const downloadPayoutPDF = async (payout_id, priceWithCurrency) => {
             </div>
                 <h2 style="margin-bottom:20px;">Payout Details</h2>
 
-                <div><b>Payout No:</b> ${payout.payout_prefix}-${payout.payout_number}</div>
-                <div><b>Project:</b> ${project.project_name || ""}</div>
-                <div><b>Date:</b> ${payout.created_at ? new Date(payout.created_at).toLocaleDateString() : ""}</div>
+                <div><b>Payout No:</b> ${payout?.payout_prefix}-${payout?.payout_number}</div>
+                <div><b>Project:</b> ${project?.project_name || ""}</div>
+                <div><b>Date:</b> ${payout?.created_at ? new Date(payout.created_at).toLocaleDateString() : ""}</div>
 
                 <hr style="margin:20px 0"/>
 
                 <h3>Investor</h3>
-                <div><b>Name:</b> ${client.full_name || ""}</div>
-                <div><b>Email:</b> ${client.email || ""}</div>
+                <div><b>Name:</b> ${client?.full_name || ""}</div>
+                <div><b>Email:</b> ${client?.email || ""}</div>
 
                 <hr style="margin:20px 0"/>
 
@@ -125,8 +114,8 @@ export const downloadPayoutPDF = async (payout_id, priceWithCurrency) => {
                     <tbody>
                         <tr>
                             <td style="border:1px solid #ddd; padding:8px;"><b>${priceWithCurrency(payout.payout_amount)}</b></td>
-                            <td style="border:1px solid #ddd; padding:8px;">${payout.transaction_id || "-"}</td>
-                            <td style="border:1px solid #ddd; padding:8px;">${payout.payout_date ? payout.payout_date : "-"}</td>
+                            <td style="border:1px solid #ddd; padding:8px;">${payout?.transaction_id || "-"}</td>
+                            <td style="border:1px solid #ddd; padding:8px;">${payout?.payout_date ? new Date(payout.payout_date).toLocaleDateString("en-CA") : "-"}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -140,7 +129,7 @@ export const downloadPayoutPDF = async (payout_id, priceWithCurrency) => {
         // PDF options
         const opt = {
             margin: 0.5,
-            filename: `Payout-${payout.payout_number}.pdf`,
+            filename: `Payout-${payout?.payout_number}.pdf`,
             image: { type: "jpeg", quality: 0.98 },
             html2canvas: { scale: 2 },
             jsPDF: { unit: "in", format: "a4", orientation: "portrait" },

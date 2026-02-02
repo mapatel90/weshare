@@ -51,7 +51,8 @@
     "howItWorks": "Cách hoạt động",
     "home": "Trang chủ",
     "payouts": "khoản thanh toán",
-    "email_templates": "Mẫu email"
+    "email_templates": "Mẫu email",
+    "company": "Công ty"
   },
   "header": {
     "dashboard": "Bảng điều khiển",
@@ -284,7 +285,11 @@
     "approve": "Phê duyệt",
     "reject": "Từ chối",
     "rejectContract": "Từ chối hợp đồng",
-    "reasonForRejection": "Lý do từ chối"
+    "reasonForRejection": "Lý do từ chối",
+    "notifications": "Thông báo",
+    "viewAllNotifications": "Xem tất cả thông báo",
+    "markAllRead": "Đánh dấu tất cả đã đọc",
+    "noNotifications": "Không có thông báo"
   },
   "messages": {
     "cannotUndoDelete": "Bạn sẽ không thể hoàn tác điều này!",
@@ -307,8 +312,8 @@
     "companyNameRequired": "Tên công ty là bắt buộc",
     "inverterNameRequired": "Tên biến tần là bắt buộc",
     "typeRequired": "Loại biến tần là bắt buộc",
-    "apiKeyRequired": "API key là bắt buộc",
-    "secretKeyRequired": "Secret key là bắt buộc",
+    "apiKeyRequired": "Khóa API là bắt buộc",
+    "secretKeyRequired": "Khóa bí mật là bắt buộc",
     "newpasswordsNotMatch": "Mật khẩu mới không khớp",
     "usernameRequired": "Tên người dùng là bắt buộc",
     "passwordRequired": "Mật khẩu là bắt buộc",
@@ -346,7 +351,8 @@
     "apiUrlNameRequired": "API URL là bắt buộc",
     "invalidUrl": "Vui lòng nhập URL hợp lệ",
     "serialNumberRequired": "Số serial là bắt buộc",
-    "kilowattRequired": "Kilowatt là bắt buộc"
+    "kilowattRequired": "Kilowatt là bắt buộc",
+    "statusRequired": "Trạng thái là bắt buộc"
   },
   "menu": {
     "email_template": "Mẫu Email",
@@ -441,7 +447,8 @@
     "roireports": "Báo cáo ROI",
     "cashflowreports": "Báo cáo dòng tiền",
     "investmentsummaryreports": "Báo cáo tóm tắt đầu tư",
-    "payouts": "khoản thanh toán"
+    "payouts": "khoản thanh toán",
+    "company": "Công ty"
   },
   "dashboard": {
     "dashboard": "Trang tổng quan",
@@ -681,6 +688,8 @@
       "signIn": "Đăng nhập"
     },
     "projects": {
+      "statusRequiresOfftaker": "Dự án phải được gán cho người nhận hàng trước khi đặt trạng thái thành Đang chạy.",
+      "statusRequiresInvestor": "Dự án phải được gán cho nhà đầu tư trước khi đặt trạng thái thành Đang chạy.",
       "title": "Dự án nổi bật",
       "subtitle": "Khám phá các dự án năng lượng mặt trời hàng đầu",
       "viewDetails": "Xem chi tiết",
@@ -1100,6 +1109,9 @@
     "project_inverter": "Biến tần dự án",
     "inverterdetails": "Chi tiết biến tần",
     "inverter": "biến tần",
+    "title": "Tiêu đề",
+    "title_required": "Tiêu đề là bắt buộc",
+    "title_placeholder": "Nhập tiêu đề",
     "addInverter": "Thêm bộ biến tần",
     "editInverter": "Sửa bộ biến tần",
     "companyName": "Tên công ty",
@@ -1125,7 +1137,7 @@
     "kilowatt": "Kilowatt",
     "inverterList": "Danh sách biến tần",
     "inverterType": "Loại biến tần",
-    "apiUrlName": "URL API",
+    "apiUrlName": "Tên API URL",
     "version": "Phiên bản",
     "model": "Mô hình",
     "Warranty": "Bảo hành",
@@ -1672,7 +1684,7 @@
     "invoice_update_title": "Hóa đơn đã được cập nhật",
     "invoice_updated": "Hóa đơn \"{{invoice_number}}\" đã được cập nhật bởi \"{{updated_by}}\".",
     "new_payout_generated": "Khoản thanh toán mới đã được tạo",
-    "payout_generated": "Khoản thanh toán \"{{payout_prefix}}\" - \"{{payout_number}}\" của bạn đã được tạo"
+    "payout_generated": "Khoản thanh toán \"{{payout_prefix}}\" đã được WeShare giải ngân."
   },
   "notification": {
     "title": "Thông báo",
@@ -1732,5 +1744,21 @@
     "add_details": "Thêm chi tiết",
     "transaction_id_is_required": "Mã giao dịch là bắt buộc",
     "payout_paid":"Khoản thanh toán đã được đánh dấu là đã thanh toán"
+  },
+  "company": {
+    "companydetails": "Chi tiết công ty",
+    "company": "Công ty",
+    "addCompany": "Thêm công ty",
+    "editCompany": "Sửa công ty",
+    "companyName": "Tên công ty",
+    "companyNamePlaceholder": "Nhập tên công ty",
+    "active": "Hoạt động",
+    "inactive": "Không hoạt động",
+    "status": "Trạng thái",
+    "createdSuccessfully": "Công ty đã được tạo thành công",
+    "updatedSuccessfully": "Công ty đã được cập nhật thành công",
+    "deletedSuccessfully": "Công ty đã được xóa thành công",
+    "errorOccurred": "Đã xảy ra lỗi. Vui lòng thử lại.",
+    "selectStatus": "Chọn trạng thái"
   }
 }

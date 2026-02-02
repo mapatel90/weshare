@@ -194,6 +194,7 @@ const ProjectTable = () => {
     } catch (err) {
       console.error("Status update error:", err);
       showErrorToast(err.message || "Failed to update status");
+      fetchProjects();
     }
   };
 

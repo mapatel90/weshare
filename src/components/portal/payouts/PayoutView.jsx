@@ -5,6 +5,8 @@ import { apiGet } from "@/lib/api";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePriceWithCurrency } from "@/hooks/usePriceWithCurrency";
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
+import { downloadPayoutPDF } from "./PayoutPdf";
 
 const PayoutView = ({ payout_id }) => {
     const { lang } = useLanguage();
@@ -14,9 +16,9 @@ const PayoutView = ({ payout_id }) => {
     const [error, setError] = useState("");
     const [companySettings, setCompanySettings] = useState({});
     const [countries, setCountries] = useState([]);
-
-
+    const [documentPreview, setDocumentPreview] = useState(null);
     const priceWithCurrency = usePriceWithCurrency();
+
     useEffect(() => {
         const fetchCompanySettings = async () => {
             try {
@@ -72,24 +74,12 @@ const PayoutView = ({ payout_id }) => {
         return <div>No payout data found.</div>;
     }
 
-    // payout data for display (customize as needed)
-    const company = {
-        name: companySettings?.site_name || "WeShare",
-        address: companySettings?.site_address || "",
-        country: countries.find(c => Number(c.id) === Number(companySettings?.site_country))?.name || "",
-        zip: companySettings?.site_zip || "",
-    };
     const payout = payoutData;
-    const invoice = payout?.invoices || {};
     const project = payout?.projects || {};
     const client = payout?.users || {};
-    const summary = {
-        summary: invoice?.sub_amount,
-        tax_amount: invoice?.tax_amount,
-        total: invoice?.total_amount,
+    const handleViewDocument = (url) => {
+        setDocumentPreview(url);
     };
-    const invoiceDisplay = `${invoice?.invoice_prefix || ""}-${invoice?.invoice_number || ""}`;
-    const qrCodeSrc = client?.qr_code || "/images/invoice_qr.jpg";
 
     return (
         <div className="bg-white mt-5 rounded shadow p-4">
@@ -116,13 +106,22 @@ const PayoutView = ({ payout_id }) => {
                                 <th className="px-3 py-2 text-start fw-semibold">{lang("payouts.payout_amount")}</th>
                                 <th className="px-3 py-2 text-start fw-semibold">{lang("payouts.transaction_id")}</th>
                                 <th className="px-3 py-2 text-start fw-semibold">{lang("payouts.payout_date")}</th>
+                                <th className="px-3 py-2 text-start fw-semibold">{lang("payouts.uploaded_image")}</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr style={{ backgroundColor: '#ffffff' }}>
                                 <td className="px-3 py-2 text-nowrap fw-bold">{payout.payout_amount ? priceWithCurrency(payout.payout_amount) : "-"}</td>
                                 <td className="px-3 py-2 text-nowrap">{payout.transaction_id ? payout.transaction_id : "-"}</td>
-                                <td className="px-3 py-2 text-nowrap">{payout.payout_date ? payout.payout_date : "-"}</td>
+                                <td className="px-3 py-2 text-nowrap">{payout?.payout_date ? new Date(payout.payout_date).toLocaleDateString("en-CA") : "-"}</td>
+                                <td className="px-3 py-2 text-nowrap">
+                                    <Button
+                                        size="small"
+                                        onClick={() => handleViewDocument(payout?.document)}
+                                    >
+                                        {lang("navigation.view", "View")}
+                                    </Button>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -161,6 +160,37 @@ const PayoutView = ({ payout_id }) => {
                         </div>
                     </div>
                 </div>
+            </div>
+            {/* Upload Image Preview Modal */}
+            <Dialog
+                open={!!documentPreview}
+                onClose={() => setDocumentPreview(null)}
+                maxWidth="md"
+            >
+                <DialogTitle>{lang("payouts.uploaded_image")}</DialogTitle>
+                <DialogContent dividers sx={{ textAlign: "center" }}>
+                    {documentPreview && (
+                        <img
+                            src={documentPreview}
+                            alt="Document"
+                            style={{ maxWidth: "100%", borderRadius: 8 }}
+                        />
+                    )}
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setDocumentPreview(null)} color="primary">
+                        {lang("common.close", "Close")}
+                    </Button>
+                </DialogActions>
+            </Dialog>
+            <div className="d-flex justify-content-end gap-2 mt-3">
+                <button
+                    className="btn btn-secondary fw-bold px-4 py-2 rounded shadow"
+                    type="button"
+                    onClick={() => downloadPayoutPDF(payoutData.id, priceWithCurrency)}
+                >
+                    {lang("common.downloadPdf")}
+                </button>
             </div>
         </div>
     );

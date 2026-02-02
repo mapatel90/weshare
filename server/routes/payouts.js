@@ -259,29 +259,6 @@ router.post("/create", authenticateToken, uploadPayoutDoc.single('document'), as
         // const newNumber = String(Number(next_payout_number) + 1).padStart(3, "0");
         // await settingsService.set("next_payout_number", newNumber);
 
-        const lang = await getUserLanguage(investor_id);
-        const creatorName = await getUserFullName(1);
-
-        const notification_message = t(lang, 'notification_msg.payout_generated', {
-            payout_prefix: payout.payout_prefix + "-" + payout.payout_number,
-        });
-
-        const title = t(lang, 'notification_msg.new_payout_generated');
-
-        // Create Notification
-        await prisma.notifications.create({
-            data: {
-                user_id: investor_id,
-                title: title,
-                message: notification_message,
-                module_type: "payouts",
-                module_id: payout.id,
-                action_url: `/investor/payout/${payout.id}`,
-                is_read: 0,
-                created_at: new Date(),
-            },
-        });
-
         return res.json({
             success: true,
             message: "Payout created successfully",
@@ -391,6 +368,30 @@ router.post("/update", authenticateToken, uploadPayoutDoc.single('document'), as
                 users: true,
             },
         });
+
+        const lang = await getUserLanguage(updatedPayout?.investor_id);
+        const creatorName = await getUserFullName(1);
+
+        const notification_message = t(lang, 'notification_msg.payout_generated', {
+            payout_prefix: updatedPayout?.payout_prefix + "-" + updatedPayout?.payout_number,
+        });
+
+        const title = t(lang, 'notification_msg.new_payout_generated');
+
+        if (updatedPayout?.status === PAYOUT_STATUS.PAYOUT) {
+            await prisma.notifications.create({
+                data: {
+                    user_id: updatedPayout?.investor_id,
+                    title: title,
+                    message: notification_message,
+                    module_type: "payouts",
+                    module_id: updatedPayout?.id,
+                    action_url: `/investor/payouts/view/${updatedPayout?.id}`,
+                    is_read: 0,
+                    created_at: new Date(),
+                },
+            });
+        }
 
 
         return res.json({ success: true, message: "Payout updated successfully", data: updatedPayout });

@@ -28,29 +28,16 @@ import {
 import { Close as CloseIcon } from "@mui/icons-material";
 import { useAuth } from "@/contexts/AuthContext";
 
-const InverterTable = () => {
+const CompanyTable = () => {
   const { lang } = useLanguage();
-  const [invertersData, setInvertersData] = useState([]);
-  // Modal/Form state (moved from AddInverter)
-  const [typeOptions, setTypeOptions] = useState([]);
-  const [selectedType, setSelectedType] = useState(null);
-  const [loadingTypes, setLoadingTypes] = useState(false);
-  const [typesError, setTypesError] = useState("");
+  const [companyData, setICompanyData] = useState([]);
   const [submitting, setSubmitting] = useState(false);
-  const [pendingEdit, setPendingEdit] = useState(null);
-  const [companyName, setCompanyName] = useState(""); // keep for compatibility, but use selectedCompany
-  const [companyOptions, setCompanyOptions] = useState([]);
-  const [selectedCompany, setSelectedCompany] = useState(null);
-  const [title, setTitle] = useState("");
+  const [companyName, setCompanyName] = useState("");
   const [apiKey, setApiKey] = useState("");
   const [secretKey, setSecretKey] = useState("");
-  const [apiUrlName, setApiUrlName] = useState(""); // <-- added state
-  const [companyId, setCompanyId] = useState("");
-  const [typeId, setTypeId] = useState("");
-
+  const [apiUrlName, setApiUrlName] = useState("");
   const [editingId, setEditingId] = useState(null);
   const [errors, setErrors] = useState({});
-  // Modal logic state:
   const [modalMode, setModalMode] = useState(null);
   const [status, setStatus] = useState("");
   const [statusError, setStatusError] = useState("");
@@ -58,31 +45,39 @@ const InverterTable = () => {
 
   const resetForm = () => {
     setCompanyName("");
-    setSelectedCompany(null);
-    setTitle("");
     setApiKey("");
     setSecretKey("");
-    setApiUrlName(""); // <-- reset new field
-    setSelectedType(null);
+    setApiUrlName("");
     setEditingId(null);
     setErrors({});
-    setPendingEdit(null);
     setStatus("");
     setStatusError("");
   };
 
-  const fetchInverters = async () => {
+  // Validate URL helper
+  const isValidUrl = (value) => {
+    if (!value) return false;
     try {
-      const response = await apiGet("/api/inverters/");
-      if (response.success && response.data.inverters) {
-        setInvertersData(response.data.inverters);
+      const url = new URL(value);
+      return url.protocol === "http:" || url.protocol === "https:";
+    } catch (e) {
+      return false;
+    }
+  };
+
+  const fetchcompanys = async () => {
+    try {
+      const response = await apiGet("/api/inverter-company/");
+      console.log("response", response);
+      if (response.success && response.data.company) {
+        setICompanyData(response.data.company);
       }
     } catch (error) {
       // noop
     }
   };
 
-  const handleDelete = async (inverterId) => {
+  const handleDelete = async (company_id) => {
     const result = await Swal.fire({
       title: lang("messages.confirmDelete"),
       icon: "warning",
@@ -96,10 +91,10 @@ const InverterTable = () => {
       return;
     }
     try {
-      const response = await apiDelete(`/api/inverters/${inverterId}`);
+      const response = await apiDelete(`/api/inverter-company/${company_id}`);
       if (response.success) {
-        showSuccessToast(lang("inverter.deletedSuccessfully"));
-        fetchInverters();
+        showSuccessToast(lang("company.deletedSuccessfully"));
+        fetchcompanys();
       } else {
         // optional: show toast
       }
@@ -109,59 +104,10 @@ const InverterTable = () => {
   };
 
   useEffect(() => {
-    fetchInverters();
-
-    const onSaved = () => fetchInverters();
+    fetchcompanys();
+    const onSaved = () => fetchcompanys();
     window.addEventListener("inverter:saved", onSaved);
     return () => window.removeEventListener("inverter:saved", onSaved);
-  }, []);
-
-  // Fetch inverter types
-  const fetchTypes = async () => {
-    try {
-      setLoadingTypes(true);
-      setTypesError("");
-      const res = await apiGet("/api/inverterTypes");
-      const items = Array.isArray(res?.data) ? res.data : [];
-      const mapped = items.map((it) => ({
-        label: it.type,
-        value: String(it.id),
-      }));
-      setTypeOptions([
-        { label: lang("inverter.selectType"), value: "select type" },
-        ...mapped,
-      ]);
-    } catch (e) {
-      setTypesError(e?.message || "Failed to load inverter types");
-    } finally {
-      setLoadingTypes(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchTypes();
-  }, []);
-
-  // Fetch company list for dropdown
-  const fetchCompany = async () => {
-    try {
-      const res = await apiGet("/api/inverter-company/");
-      const items = Array.isArray(res?.data.company) ? res.data.company : [];
-      const mapped = items.map((it) => ({
-        label: it.company_name,
-        value: String(it.id),
-      }));
-      setCompanyOptions([
-        { label: lang("inverter.select_company") || "Select Company", value: "" },
-        ...mapped,
-      ]);
-    } catch (e) {
-      // Optionally handle error
-    }
-  };
-
-  useEffect(() => {
-    fetchCompany();
   }, []);
 
   // Ensure form resets when opening for Add via Bootstrap trigger and after close
@@ -193,31 +139,38 @@ const InverterTable = () => {
   // Handle create/update
   const handleAdd = async () => {
     const newErrors = {
-      company_id: !companyId ? lang("validation.companyNameRequired") : "",
-      title: !title ? lang("inverter.title_required") : "",
-      typeId: !typeId ? lang("validation.typeRequired") : "",
+      companyName: !companyName ? lang("validation.companyNameRequired") : "",
+      apiKey: !apiKey ? lang("validation.apiKeyRequired") : "",
+      secretKey: !secretKey ? lang("validation.secretKeyRequired") : "",
+      apiUrlName: !apiUrlName
+        ? lang("validation.apiUrlNameRequired")
+        : !isValidUrl(apiUrlName)
+          ? lang("validation.invalidUrl") || "Enter a valid URL (include http:// or https://)"
+          : "",
     };
-    const newStatusError = !status && status !== 0 ? lang("validation.statusRequired") : "";
+    const newStatusError =
+      !status && status !== 0 ? lang("validation.statusRequired") : "";
     setStatusError(newStatusError);
     setErrors(newErrors);
     if (Object.values(newErrors).some(Boolean) || newStatusError) return;
     try {
       setSubmitting(true);
       const payload = {
-        company_id: parseInt(companyId) || "",
-        title: title,
-        inverter_type_id: parseInt(typeId),
+        companyName,
+        apiKey,
+        secretKey,
+        apiUrl: apiUrlName, // <-- include in payload (snake_case for backend)
         status: parseInt(status),
         created_by: user?.id ? parseInt(user.id) : null,
       };
-      const res = editingId ? await apiPut(`/api/inverters/${editingId}`, payload) : await apiPost("/api/inverters/", payload);
+
+      const res = editingId ? await apiPut(`/api/inverter-company/${editingId}`, payload) : await apiPost("/api/inverter-company", payload);
 
       if (res.success) {
-        // Success Toast Message
         if (editingId) {
-          showSuccessToast(lang("inverter.updatedSuccessfully"));
+          showSuccessToast(lang("company.updatedSuccessfully"));
         } else {
-          showSuccessToast(lang("inverter.createdSuccessfully"));
+          showSuccessToast(lang("company.createdSuccessfully"));
         }
       }
 
@@ -241,44 +194,28 @@ const InverterTable = () => {
         setModalMode("add");
         setEditingId(null);
         resetForm();
-        setSelectedType(null);
         return;
       }
+      // Edit mode - same as before
       setModalMode("edit");
       setEditingId(item.id || null);
-      setCompanyId(String(item.company_id || ""));
-      setTypeId(String(item.inverter_type_id || ""));
-      setTitle(item.title || "");
       setCompanyName(item.company_name || "");
-      setTitle(item.title || "");
+      setApiKey(item.api_key || "");
+      setSecretKey(item.secret_key || "");
+      setApiUrlName(item.api_url || "");
       setErrors({});
-      setPendingEdit(item);
       setStatus(item.status !== undefined && item.status !== null ? String(item.status) : "");
     };
     window.addEventListener("inverter:open-edit", openEdit);
     return () => window.removeEventListener("inverter:open-edit", openEdit);
-  }, [typeOptions]);
+  }, []);
 
-  // When types finish loading, if an edit is pending, resolve the selected option
-  useEffect(() => {
-    if (!pendingEdit) return;
-    if (!Array.isArray(typeOptions) || typeOptions.length === 0) return;
-    const { inverter_type_id } = pendingEdit;
-    if (inverter_type_id === undefined || inverter_type_id === null) {
-      setSelectedType(null);
-      return;
-    }
-    const valueToOption = new Map(typeOptions.map((o) => [o.value, o]));
-    const labelToOption = new Map(typeOptions.map((o) => [o.label, o]));
-    const key = String(inverter_type_id);
-    const found = valueToOption.get(key) || labelToOption.get(inverter_type_id) || null;
-    setSelectedType(found);
-  }, [typeOptions, pendingEdit]);
 
   const columns = [
-    { accessorKey: "company_name", header: () => lang("inverter.companyName") },
-    { accessorKey: "title", header: () => lang("common.title") },
-    { accessorKey: "inverter_type_name", header: () => lang("inverter.type") },
+    { accessorKey: "company_name", header: () => lang("company.companyName") },
+    { accessorKey: "api_key", header: () => lang("inverter.apiKey") },
+    { accessorKey: "api_url", header: () => lang("inverter.apiUrlName") }, 
+    { accessorKey: "secret_key", header: () => lang("inverter.secretKey") },
     {
       accessorKey: "status",
       header: () => lang("inverter.status"),
@@ -360,18 +297,12 @@ const InverterTable = () => {
     setModalMode(null);
     resetForm();
     setEditingId(null);
-    setSelectedType(null);
-    setCompanyId(null);
-    setSelectedCompany(null);
-    setTypeId(null);
-    setSelectedType(null);
     setErrors({});
-    setPendingEdit(null);
   };
 
   return (
     <>
-      <Table data={invertersData} columns={columns} />
+      <Table data={companyData} columns={columns} />
       <Dialog
         open={!!modalMode}
         onClose={handleCloseModal}
@@ -393,8 +324,8 @@ const InverterTable = () => {
         >
           <Typography variant="h6" component="span">
             {modalMode === "edit"
-              ? lang("inverter.editInverter")
-              : lang("inverter.addInverter")}
+              ? lang("company.editCompany")
+              : lang("company.addCompany")}
           </Typography>
           <IconButton
             aria-label="close"
@@ -408,69 +339,64 @@ const InverterTable = () => {
         </DialogTitle>
         <DialogContent>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 3, pt: 2 }}>
-            <FormControl fullWidth error={!!errors.company_id}>
-              <InputLabel>{lang("company.company")}</InputLabel>
-              <InputLabel>
-                {lang("company.company")} *
-              </InputLabel>
-              <Select
-                value={companyId}
-                label={lang("company.company")}
-                onChange={(e) => {
-                  setCompanyId(e.target.value);
-                  if (errors.company_id) {
-                    setErrors((prev) => ({ ...prev, company_id: "" }));
-                  }
-                }}
-              >
-                {companyOptions.map((company) => (
-                  <MenuItem key={company.value} value={company.value}>
-                    {company.label}
-                  </MenuItem>
-                ))}
-              </Select>
-              {errors.company_id && (
-                <FormHelperText error>{errors.company_id}</FormHelperText>
-              )}
-            </FormControl>
-
-            <FormControl fullWidth error={!!errors.typeId}>
-              <InputLabel>{lang("inverter.type")}</InputLabel>
-              <InputLabel>
-                {lang("inverter.type")} *
-              </InputLabel>
-              <Select
-                value={typeId}
-                label={lang("inverter.type")}
-                onChange={(e) => {
-                  setTypeId(e.target.value);
-                  if (errors.typeId) {
-                    setErrors((prev) => ({ ...prev, typeId: "" }));
-                  }
-                }}
-              >
-                {typeOptions.map((type) => (
-                  <MenuItem key={type.value} value={type.value}>
-                    {type.label}
-                  </MenuItem>
-                ))}
-              </Select>
-              {errors.typeId && (
-                <FormHelperText error>{errors.typeId}</FormHelperText>
-              )}
-            </FormControl>
+            <TextField
+              label={lang("company.companyName")}
+              placeholder={lang("company.companyNamePlaceholder")}
+              value={companyName}
+              onChange={(e) => {
+                setCompanyName(e.target.value);
+                if (errors.companyName)
+                  setErrors((prev) => ({ ...prev, companyName: "" }));
+              }}
+              error={!!errors.companyName}
+              helperText={errors.companyName}
+              fullWidth
+            />
 
             <TextField
-              label={lang("inverter.title")}
-              placeholder={lang("inverter.title_placeholder")}
-              value={title}
+              label={lang("inverter.apiKey")}
+              placeholder={lang("inverter.apiKeyPlaceholder")}
+              value={apiKey}
               onChange={(e) => {
-                setTitle(e.target.value);
-                if (errors.title)
-                  setErrors((prev) => ({ ...prev, title: "" }));
+                setApiKey(e.target.value);
+                if (errors.apiKey)
+                  setErrors((prev) => ({ ...prev, apiKey: "" }));
               }}
-              error={!!errors.title}
-              helperText={errors.title}
+              error={!!errors.apiKey}
+              helperText={errors.apiKey}
+              fullWidth
+            />
+
+            <TextField
+              label={lang("inverter.apiUrlName") || "API URL Name"} // <-- new input
+              placeholder={
+                lang("inverter.apiUrlNamePlaceholder") || "Enter API URL name"
+              }
+              value={apiUrlName}
+              onChange={(e) => {
+                const v = e.target.value;
+                setApiUrlName(v);
+                // Clear error only when value becomes valid
+                if (errors.apiUrlName && v && isValidUrl(v)) {
+                  setErrors((prev) => ({ ...prev, apiUrlName: "" }));
+                }
+              }}
+              error={!!errors.apiUrlName}
+              helperText={errors.apiUrlName}
+              fullWidth
+            />
+
+            <TextField
+              label={lang("inverter.secretKey")}
+              placeholder={lang("inverter.secretKeyPlaceholder")}
+              value={secretKey}
+              onChange={(e) => {
+                setSecretKey(e.target.value);
+                if (errors.secretKey)
+                  setErrors((prev) => ({ ...prev, secretKey: "" }));
+              }}
+              error={!!errors.secretKey}
+              helperText={errors.secretKey}
               fullWidth
             />
 
@@ -524,4 +450,4 @@ const InverterTable = () => {
   );
 };
 
-export default InverterTable;
+export default CompanyTable;

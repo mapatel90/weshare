@@ -8,6 +8,7 @@ import { useLanguage } from '@/contexts/LanguageContext'
 import { generateSlug, checkProjectNameExists } from '@/utils/projectUtils'
 import ProjectForm from './ProjectForm'
 import { useAuth } from '@/contexts/AuthContext'
+import { PROJECT_STATUS } from '@/constants/project_status'
 const MAX_PROJECT_IMAGES = 10
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024
 
@@ -34,6 +35,8 @@ const TabProjectBasicDetails = ({ setFormData, formData, error, setError }) => {
     const [projectStatuses, setProjectStatuses] = useState([])
     const [loadingStatuses, setLoadingStatuses] = useState(false)
     const [queuedImages, setQueuedImages] = useState([])
+    // simple tracker for last chosen status (even though RUNNING is hidden on create)
+    const [previousStatusId, setPreviousStatusId] = useState(formData?.project_status_id ?? null)
 
     // Offtakers are loaded by hook on mount; load project types
     useEffect(() => {
@@ -54,13 +57,20 @@ const TabProjectBasicDetails = ({ setFormData, formData, error, setError }) => {
             try {
                 const res = await apiGet('/api/projects/status')
                 if (res?.success && Array.isArray(res.data)) {
-                    setProjectStatuses(res.data)
+                    // Create form: hide RUNNING status so user only sees first 2 statuses
+                    const filtered = res.data.filter(status => status.id !== PROJECT_STATUS.RUNNING)
+                    setProjectStatuses(filtered)
                     setFormData(prev => {
                         if (prev.project_status_id !== undefined && prev.project_status_id !== null && prev.project_status_id !== '') {
+                            setPreviousStatusId(prev.project_status_id)
                             return prev
                         }
-                        const firstId = res.data?.[0]?.id
-                        return firstId ? { ...prev, project_status_id: firstId } : prev
+                        const firstId = filtered?.[0]?.id
+                        if (firstId) {
+                            setPreviousStatusId(firstId)
+                            return { ...prev, project_status_id: firstId }
+                        }
+                        return prev
                     })
                 }
             } catch (err) {
@@ -82,7 +92,13 @@ const TabProjectBasicDetails = ({ setFormData, formData, error, setError }) => {
             const slug = generateSlug(value)
             setFormData(prev => ({ ...prev, [name]: value, project_slug: slug }))
         } else if (name === 'project_status_id') {
-            setFormData(prev => ({ ...prev, project_status_id: value === '' ? '' : Number(value) }))
+            const numericValue = value === '' ? '' : Number(value)
+
+            // On create we don't show RUNNING at all, so just remember the selected status
+            if (numericValue !== '' && !Number.isNaN(numericValue)) {
+                setPreviousStatusId(numericValue)
+            }
+            setFormData(prev => ({ ...prev, project_status_id: numericValue }))
         } else {
             setFormData(prev => ({ ...prev, [name]: value }))
         }
