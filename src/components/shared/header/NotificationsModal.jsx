@@ -4,15 +4,19 @@ import { useAuth } from '@/contexts/AuthContext';
 import { apiGet, apiPatch } from '@/lib/api';
 import { FiBell } from 'react-icons/fi';
 import { useDarkMode } from '@/utils/common';
+import { ROLES } from '@/constants/roles';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const NotificationsModal = () => {
     const { user } = useAuth();
+    const { lang } = useLanguage();
     const [anchorEl, setAnchorEl] = useState(null);
     const [notifications, setNotifications] = useState([]);
     const [unreadCount, setUnreadCount] = useState(0);
     const [loading, setLoading] = useState(false);
     const open = Boolean(anchorEl);
     const isDark = useDarkMode();
+
 
     // Fetch unread count
     const fetchUnreadCount = async () => {
@@ -172,7 +176,7 @@ const NotificationsModal = () => {
                 {/* Header */}
                 <Box sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                        Notifications
+                        {lang("common.notifications", "Notifications")}
                     </Typography>
                     {unreadCount > 0 && (
                         <Typography
@@ -184,7 +188,7 @@ const NotificationsModal = () => {
                                 '&:hover': { textDecoration: 'underline' }
                             }}
                         >
-                            Mark all read
+                            {lang("common.markAllRead", "Mark all read")}
                         </Typography>
                     )}
                 </Box>
@@ -198,7 +202,7 @@ const NotificationsModal = () => {
                 ) : notifications.length === 0 ? (
                     <Box sx={{ p: 4, textAlign: 'center' }}>
                         <Typography color="text.secondary">
-                            No notifications
+                            {lang("common.noNotifications", "No notifications")}
                         </Typography>
                     </Box>
                 ) : (
@@ -284,11 +288,17 @@ const NotificationsModal = () => {
                                     '&:hover': { textDecoration: 'underline' }
                                 }}
                                 onClick={() => {
-                                    window.location.href = '/offtaker/notifications';
+                                    let path = '';
+
+                                    if (user.role === ROLES.OFFTAKER) path = '/offtaker/notifications';
+                                    else if (user.role === ROLES.INVESTOR) path = '/investor/notifications';
+                                    else if (user.role === ROLES.SUPER_ADMIN) path = '/admin/notification/list';
+
+                                    window.location.href = path;
                                     handleClose();
                                 }}
                             >
-                                View all notifications
+                                {lang("common.viewAllNotifications", "View all notifications")}
                             </Typography>
                         </Box>
                     </>

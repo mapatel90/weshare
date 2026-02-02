@@ -303,7 +303,11 @@
     "approve": "Approve",
     "reject": "Reject",
     "rejectContract": "Reject Contract",
-    "reasonForRejection": "Reason for rejection"
+    "reasonForRejection": "Reason for rejection",
+    "notifications": "Notifications",
+    "viewAllNotifications": "View all notifications",
+    "markAllRead": "Mark all read",
+    "noNotifications": "No notifications"
   },
   "messages": {
     "cannotUndoDelete": "You won't be able to revert this!",
