@@ -1657,6 +1657,113 @@ router.post('/electricity/overview-chart', async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 });
+router.post('/electricity/consumption-chart', async (req, res) => {
+  try {
+    const { projectId, type, date } = req.body;
+
+    if (!projectId || !type) {
+      return res.status(400).json({ message: 'Missing parameters' });
+    }
+
+    const project = await prisma.projects.findFirst({
+      where: { id: Number(projectId) },
+      select: {
+        evn_price_kwh: true,
+        weshare_price_kwh: true,
+      },
+    });
+
+    if (!project) {
+      return res.status(404).json({ message: 'Project not found' });
+    }
+
+    let startDate, endDate, groupBy;
+
+    // ================= DAY (1 month → daily)
+    if (type === 'day') {
+      startDate = new Date(`${date}-01`);
+      endDate = new Date(startDate);
+      endDate.setMonth(endDate.getMonth() + 1);
+      groupBy = 'day';
+    }
+
+    // ================= MONTH (1 year → monthly)
+    if (type === 'month') {
+      startDate = new Date(`${date}-01-01`);
+      endDate = new Date(`${date}-12-31`);
+      groupBy = 'month';
+    }
+
+    // ================= YEAR (all years → yearly)
+    if (type === 'year') {
+      startDate = new Date('2000-01-01');
+      endDate = new Date();
+      groupBy = 'year';
+    }
+
+    const rows = await prisma.project_energy_days_data.findMany({
+      where: {
+        project_id: Number(projectId),
+        date: {
+          gte: startDate,
+          lt: endDate,
+        },
+      },
+      select: {
+        date: true,
+        consume_energy: true,
+      },
+      orderBy: { date: 'asc' },
+    });
+
+    const resultMap = {};
+
+    rows.forEach((row) => {
+      let key;
+
+      if (groupBy === 'day') {
+        key = row.date.toISOString().slice(0, 10);
+      }
+      if (groupBy === 'month') {
+        key = row.date.toISOString().slice(0, 7);
+      }
+      if (groupBy === 'year') {
+        key = row.date.getFullYear().toString();
+      }
+
+      if (!resultMap[key]) {
+        resultMap[key] = { evn: 0, weshare: 0, consume_energy: 0 };
+      }
+
+      const consume_energy = Number(row.consume_energy) || 0;
+      const evnPrice = Number(project.evn_price_kwh) || 0;
+      const wesharePrice = Number(project.weshare_price_kwh) || 0;
+
+      const evnAmount = consume_energy * evnPrice;
+      const weshareAmount = consume_energy * wesharePrice;
+
+      resultMap[key].evn += evnAmount;
+      resultMap[key].weshare += weshareAmount;
+      resultMap[key].consume_energy += consume_energy;
+    });
+
+    const data = Object.keys(resultMap).map((key) => ({
+      label: key,
+      evn: resultMap[key].evn,
+      weshare: resultMap[key].weshare,
+      consume_energy: resultMap[key].consume_energy
+    }));
+
+    return res.json({
+      success: true,
+      data: data,
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
 
 router.post('/dropdown/project', authenticateToken, async (req, res) => {
   try {
