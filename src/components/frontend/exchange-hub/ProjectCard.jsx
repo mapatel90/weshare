@@ -293,6 +293,7 @@ const ProjectCard = ({ project, activeTab }) => {
                 <span className="progress-label">
                   {lang("home.exchangeHub.fundProgress") || "Fund Progress"}:{" "}
                   <strong className="text-secondary-color">
+                    {console.log("project.fund_progress", project?.fund_progress)}
                     {project?.fund_progress || "45"}%
                   </strong>
                 </span>
