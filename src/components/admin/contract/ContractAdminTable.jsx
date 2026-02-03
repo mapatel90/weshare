@@ -296,11 +296,15 @@ const ContractAdminTable = () => {
           <span className="badge bg-soft-success text-success">
             {lang("common.actives", "Approved")}
           </span>
-        ) : (
+        ) : info.getValue() == 2 ? (
           <span className="badge bg-soft-danger text-danger">
-            {lang("common.inactives", "Rejected")}
+            {lang("common.rejected", "Rejected")}
           </span>
-        ),
+        ) : info.getValue() == 4 ? (
+          <span className="badge bg-soft-info text-info">
+            {lang("common.cancel", "Cancel")}
+          </span>
+        ) : null,
     },
     {
       accessorKey: "actions",
@@ -367,6 +371,7 @@ const ContractAdminTable = () => {
               { value: "0", label: lang("common.pending", "Pending") },
               { value: "1", label: lang("common.approved", "Approved") },
               { value: "2", label: lang("common.rejected", "Rejected") },
+              { value: "4", label: lang("common.cancel", "Cancel") },
             ]}
             value={
               statusFilter === ""
@@ -375,7 +380,11 @@ const ContractAdminTable = () => {
                 ? { value: "0", label: lang("common.pending", "Pending") }
                 : statusFilter === "1"
                 ? { value: "1", label: lang("common.approved", "Approved") }
-                : { value: "2", label: lang("common.rejected", "Rejected") }
+                : statusFilter === "2"
+                ? { value: "2", label: lang("common.rejected", "Rejected") }
+                : statusFilter === "4"
+                ? { value: "4", label: lang("common.cancel", "Cancel") }
+                : null
             }
             onChange={(e, newValue) => {
               setStatusFilter(newValue?.value || "");

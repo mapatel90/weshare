@@ -818,6 +818,9 @@ router.get("/", async (req, res) => {
         where,
         include: {
           offtaker: { select: { id: true, full_name: true, email: true, phone_number: true } },
+          investor: { 
+            select: { id: true, full_name: true, email: true, phone_number: true }
+          },
           cities: true,
           states: true,
           project_status: true,
