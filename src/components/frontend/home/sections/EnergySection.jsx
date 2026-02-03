@@ -23,7 +23,7 @@ const EnergySection = () => {
               <p className="text-black mb-40 fs-24">{lang('home.energy.description')}</p>
               
               <div className="groupBtn gap-4 mt-0 justify-content-start">
-                <button className="btn btn-primary-custom" onClick={() => router.push('/register')}>{lang('home.energy.becomeInvestor')} →</button>
+                <button className="btn btn-primary-custom"  style={{ backgroundColor: "#F6A623", borderColor: "#F6A623" }} onClick={() => router.push('/register')}>{lang('home.energy.becomeInvestor')} →</button>
                 <button className="btn btn-primary-custom transparentBtn tc-102C41 border-1" onClick={() => router.push('/login')}>{lang('home.energy.signIn')}</button>
               </div>
             </div>

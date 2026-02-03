@@ -530,7 +530,6 @@ const InverterTab = ({ projectId, handleSaveAction }) => {
                   </MenuItem>
                   {inverterList.map((inv) => (
                     <MenuItem key={inv.id} value={inv.id}>
-                      {console.log("inv", inv)}
                       {inv.inverter_type_name +
                         ` - ` +
                         inv.title +

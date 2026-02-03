@@ -1,289 +1,411 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { apiGet, apiUpload } from '@/lib/api';
-import { useLanguage } from '@/contexts/LanguageContext';
-import { showErrorToast, showSuccessToast } from '@/utils/topTost';
-import { PROJECT_STATUS } from '@/constants/project_status';
-
+import React, { useState, useEffect } from "react";
+import { apiGet, apiUpload } from "@/lib/api";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { showErrorToast, showSuccessToast } from "@/utils/topTost";
+import { PROJECT_STATUS } from "@/constants/project_status";
 
 const Field = ({ label, value }) => (
-    <div className="mb-4">
-        <div className="font-semibold text-sm mb-1">{label}</div>
-        <div className="text-gray-800">{value ?? '-'}</div>
-    </div>
+  <div className="mb-4">
+    <div className="font-semibold text-sm mb-1">{label}</div>
+    <div className="text-gray-800">{value ?? "-"}</div>
+  </div>
 );
 
 const ContractsDetails = ({ contractId }) => {
-    const { lang } = useLanguage();
-    const [contract, setContracts] = useState(null);
-    const [isLoading, setIsLoading] = useState(true);
-    const [actionLoading, setActionLoading] = useState(false);
-    const [showRejectModal, setShowRejectModal] = useState(false);
-    const [rejectReason, setRejectReason] = useState("");
-    const [rejectError, setRejectError] = useState("");
-    const [showApproveModal, setShowApproveModal] = useState(false);
-    const [approveFile, setApproveFile] = useState(null);
-    const [approveError, setApproveError] = useState("");
+  const { lang } = useLanguage();
+  const [contract, setContracts] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState(false);
+  const [showRejectModal, setShowRejectModal] = useState(false);
+  const [rejectReason, setRejectReason] = useState("");
+  const [rejectError, setRejectError] = useState("");
+  const [showApproveModal, setShowApproveModal] = useState(false);
+  const [approveFile, setApproveFile] = useState(null);
+  const [approveError, setApproveError] = useState("");
 
-    // Approve/Reject contract
-    const handleContractAction = async (status, file = null) => {
-        if (!contractId) return;
-        setActionLoading(true);
-        try {
-            // status: 1 = Approved, 2 = Rejected
-            let payload = new FormData();
-            payload.append('status', status);
-            
-            if (status === 2) {
-                payload.append('reason', rejectReason);
-            }
-            
-            if (status === 1 && file) {
-                payload.append('file', file);
-            }
-            
-            const res = await apiUpload(`/api/contracts/${contractId}/status`, payload, { method: 'PUT' });
-            if (res?.success) {
-                if (status === 1) {
-                    showSuccessToast("Approved successfully.");
-                } else {
-                    showSuccessToast("Rejected successfully.");
-                }
-                await fetchContracts();
-                setShowRejectModal(false);
-                setRejectReason("");
-                setShowApproveModal(false);
-                setApproveFile(null);
-            } else {
-                showErrorToast("Failed to update contract status.");
-            }
-        } catch (e) {
-            showErrorToast("Error updating contract status.");
+  // Approve/Reject contract
+  const handleContractAction = async (status, file = null) => {
+    if (!contractId) return;
+    setActionLoading(true);
+    try {
+      // status: 1 = Approved, 2 = Rejected
+      let payload = new FormData();
+      payload.append("status", status);
+
+      if (status === 2) {
+        payload.append("reason", rejectReason);
+      }
+
+      if (status === 1 && file) {
+        payload.append("file", file);
+      }
+
+      const res = await apiUpload(
+        `/api/contracts/${contractId}/status`,
+        payload,
+        { method: "PUT" },
+      );
+      if (res?.success) {
+        if (status === 1) {
+          showSuccessToast("Approved successfully.");
+        } else {
+          showSuccessToast("Rejected successfully.");
         }
-        setActionLoading(false);
-    };
-
-    const fetchContracts = async () => {
-        setIsLoading(true);
-        try {
-            const res = await apiGet("/api/contracts?id=" + contractId);
-            if (res?.success) {
-                const all = Array.isArray(res.data) ? res.data : [];
-                setContracts(all[0] || null);
-            } else {
-                setContracts(null);
-            }
-        } catch (e) {
-            setContracts([]);
-        }
-        setIsLoading(false);
-    };
-
-    useEffect(() => {
-        fetchContracts();
-    }, [contractId]);
-
-    if (isLoading) {
-        return <div className="p-8 text-center text-gray-500">Loading contract details...</div>;
+        await fetchContracts();
+        setShowRejectModal(false);
+        setRejectReason("");
+        setShowApproveModal(false);
+        setApproveFile(null);
+      } else {
+        showErrorToast("Failed to update contract status.");
+      }
+    } catch (e) {
+      showErrorToast("Error updating contract status.");
     }
-    if (!contract) {
-        return <div className="p-8 text-center text-red-500">{lang('contracts.no_contracts_found', 'Contract not found.')}</div>;
+    setActionLoading(false);
+  };
+
+  const fetchContracts = async () => {
+    setIsLoading(true);
+    try {
+      const res = await apiGet("/api/contracts?id=" + contractId);
+      if (res?.success) {
+        const all = Array.isArray(res.data) ? res.data : [];
+        setContracts(all[0] || null);
+      } else {
+        setContracts(null);
+      }
+    } catch (e) {
+      setContracts([]);
     }
+    setIsLoading(false);
+  };
+
+  useEffect(() => {
+    fetchContracts();
+  }, [contractId]);
+
+  if (isLoading) {
     return (
-        <div className="min-h-full bg-gradient-to-br from-slate-50 to-slate-100 p-6 flex flex-col items-center">
-            <div className="w-full">
-                <div className="bg-white rounded-xl p-8 mb-8">
-                    <h1 className="text-3xl font-bold mb-4 text-gray-900 border-b pb-2">{contract.contract_title}</h1>
-                    <div className="mb-6">
-                        <h2 className="text-lg font-semibold mb-2 text-gray-800">{lang('contract.contract_summary', 'Contract Summary')}</h2>
-                        <div className="grid grid-cols-1 md:grid-cols-2 mt-4 gap-6">
-                            <div>
-                                <Field label={lang('contract.contractName', 'Contract Name')} value={contract.projects?.project_name} />
-                                <Field label={lang('contract.contractDescription', 'Contract Description')} value={contract.contract_description} />
-                            </div>
-                            <div>
-                                <Field label={lang('contract.contractDate', 'Contract Date')} value={`${contract.contract_date ? new Date(contract.contract_date).toLocaleDateString('en-GB') : '-'}`.trim()} />
-                                <Field label={lang('contract.contractDocument', 'Contract Document')} value={
-                                    <div className="flex gap-3">
-                                        {contract.document_upload ? (
-                                            <a
-                                                href={contract.document_upload}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="text-blue-600 font-medium hover:underline"
-                                            >
-                                                View File
-                                            </a>
-                                        ) : (
-                                            <span className="text-gray-400">{lang('common.no_file', 'No file')}</span>
-                                        )}
-                                        {contract.signed_document_upload && (
-                                            <>
-                                                <span className="text-gray-300">|</span>
-                                                <a
-                                                    href={contract.signed_document_upload}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="text-blue-600 font-medium hover:underline"
-                                                >
-                                                    View Signed File
-                                                </a>
-                                            </>
-                                        )}
-                                    </div>
-                                }
-                                />
-                            </div>
-                        </div>
+      <div className="p-8 text-center text-gray-500">
+        Loading contract details...
+      </div>
+    );
+  }
+  if (!contract) {
+    return (
+      <div className="p-8 text-center text-red-500">
+        {lang("contracts.no_contracts_found", "Contract not found.")}
+      </div>
+    );
+  }
+  return (
+    <div className="min-h-full bg-gradient-to-br from-slate-50 to-slate-100 p-6 flex flex-col items-center">
+      <div className="w-full">
+        <div className="bg-white rounded-xl p-8 mb-8">
+          <h1 className="text-3xl font-bold mb-4 text-gray-900 border-b pb-2">
+            {contract.contract_title}
+          </h1>
+          <div className="mb-6">
+            <h2 className="text-lg font-semibold mb-2 text-gray-800">
+              {lang("contract.contract_summary", "Contract Summary")}
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 mt-4 gap-6">
+              <div>
+                <Field
+                  label={lang("contract.contractName", "Contract Name")}
+                  value={contract.projects?.project_name}
+                />
+                <Field
+                  label={lang(
+                    "contract.contractDescription",
+                    "Contract Description",
+                  )}
+                  value={contract.contract_description}
+                />
+              </div>
+              <div>
+                <Field
+                  label={lang("contract.contractDate", "Contract Date")}
+                  value={`${contract.contract_date ? new Date(contract.contract_date).toLocaleDateString("en-GB") : "-"}`.trim()}
+                />
+                <Field
+                  label={lang("contract.contractDocument", "Contract Document")}
+                  value={
+                    <div className="flex gap-3">
+                      {contract.document_upload ? (
+                        <a
+                          href={contract.document_upload}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 font-medium hover:underline"
+                        >
+                          View File
+                        </a>
+                      ) : (
+                        <span className="text-gray-400">
+                          {lang("common.no_file", "No file")}
+                        </span>
+                      )}
+                      {contract.signed_document_upload && (
+                        <>
+                          <span className="text-gray-300">|</span>
+                          <a
+                            href={contract.signed_document_upload}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 font-medium hover:underline"
+                          >
+                            View Signed File
+                          </a>
+                        </>
+                      )}
                     </div>
-                    <div className="mb-6">
-                        <h2 className="text-lg font-semibold mb-3 text-gray-800">{lang('projects.projectInformation', 'Project Information')}</h2>
-                        {/* <h2 className="text-xl font-semibold mb-2 text-blue-700">{contract.project.project_name}</h2> */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <Field label={lang('projects.projectName', 'Project Name')} value={contract.projects?.project_name} />
-                                <Field label={lang('projects.projectType', 'Project Type')} value={contract.projects?.project_types?.type_name} />
-                                <Field label={lang('meter.meterUrl', 'Meter Url')} value={contract.projects?.meter_url ? contract.projects?.meter_url : '-'} />
-                                <Field label={lang('projects.sim_number', 'SIM Number')} value={contract.projects?.sim_number ? contract.projects?.sim_number : '-'} />
-                            </div>
-                            <div>
-                                <Field label={lang('projects.status', 'Status')} value={
-                                    contract.projects?.project_status_id === PROJECT_STATUS.PENDING ? lang('common.pending', 'Pending') :
-                                    contract.projects?.project_status_id === PROJECT_STATUS.UPCOMING ? lang('common.upcoming', 'Upcoming') :
-                                    contract.projects?.project_status_id === PROJECT_STATUS.RUNNING ? lang('common.running', 'Running') : '-'
-                                } />
-                                <Field label={lang('projects.weshareprofite', 'Weshare profite')} value={contract.projects?.weshare_profit} />
-                            </div>
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-6">
-                            <Field label={lang('projects.country', 'Country')} value={contract.projects?.countries?.name} />
-                            <Field label={lang('projects.state', 'State')} value={contract.projects?.states?.name} />
-                            <Field label={lang('projects.city', 'City')} value={contract.projects?.cities?.name} />
-                            <Field label={lang('projects.zipcode', 'Zip Code')} value={contract.projects?.zipcode} />
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                            <Field label={lang('projects.addressLine1', 'Address Line 1')} value={contract.projects?.address_1} />
-                            {/* <Field label={lang('projects.addressLine2', 'Address Line 2')} value={contract.project.address_2} /> */}
-                        </div>
-                        {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                  }
+                />
+              </div>
+            </div>
+          </div>
+          <div className="mb-6">
+            <h2 className="text-lg font-semibold mb-3 text-gray-800">
+              {lang("projects.projectInformation", "Project Information")}
+            </h2>
+            {/* <h2 className="text-xl font-semibold mb-2 text-blue-700">{contract.project.project_name}</h2> */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <Field
+                  label={lang("projects.projectName", "Project Name")}
+                  value={contract.projects?.project_name}
+                />
+                <Field
+                  label={lang("projects.projectType", "Project Type")}
+                  value={contract.projects?.project_types?.type_name}
+                />
+                <Field
+                  label={lang("meter.meterUrl", "Meter Url")}
+                  value={
+                    contract.projects?.meter_url
+                      ? contract.projects?.meter_url
+                      : "-"
+                  }
+                />
+                <Field
+                  label={lang("projects.sim_number", "SIM Number")}
+                  value={
+                    contract.projects?.sim_number
+                      ? contract.projects?.sim_number
+                      : "-"
+                  }
+                />
+              </div>
+              <div>
+                <Field
+                  label={lang("projects.status", "Status")}
+                  value={
+                    contract.projects?.project_status_id ===
+                    PROJECT_STATUS.PENDING
+                      ? lang("common.pending", "Pending")
+                      : contract.projects?.project_status_id ===
+                          PROJECT_STATUS.UPCOMING
+                        ? lang("common.upcoming", "Upcoming")
+                        : contract.projects?.project_status_id ===
+                            PROJECT_STATUS.RUNNING
+                          ? lang("common.running", "Running")
+                          : "-"
+                  }
+                />
+                <Field
+                  label={lang("projects.weshareprofite", "Weshare profite")}
+                  value={contract.projects?.weshare_profit}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-6">
+              <Field
+                label={lang("projects.country", "Country")}
+                value={contract.projects?.countries?.name}
+              />
+              <Field
+                label={lang("projects.state", "State")}
+                value={contract.projects?.states?.name}
+              />
+              <Field
+                label={lang("projects.city", "City")}
+                value={contract.projects?.cities?.name}
+              />
+              <Field
+                label={lang("projects.zipcode", "Zip Code")}
+                value={contract.projects?.zipcode}
+              />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+              <Field
+                label={lang("projects.addressLine1", "Address Line 1")}
+                value={contract.projects?.address_1}
+              />
+              {/* <Field label={lang('projects.addressLine2', 'Address Line 2')} value={contract.project.address_2} /> */}
+            </div>
+            {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                                 <Field label={lang('common.createdAt', 'Created At')} value={contract.createdAt ? new Date(contract.createdAt).toLocaleString() : '-'} />
                                 <Field label={lang('common.updatedAt', 'Updated At')} value={contract.updatedAt ? new Date(contract.updatedAt).toLocaleString() : '-'} />
                             </div> */}
-                    </div>
-                    {/* Action Buttons */}
-                    {contract.status === 0 && (
-                        <div className="flex justify-end mt-8">
-                            <button
-                                className="px-6 py-2 rounded-lg font-semibold bg-green-600 text-white hover:bg-green-700 mr-4 disabled:opacity-50"
-                                disabled={actionLoading}
-                                onClick={() => setShowApproveModal(true)}
-                            >
-                                {actionLoading ? "Processing..." : lang('common.approve', 'Approve')}
-                            </button>
+          </div>
+          {/* Action Buttons */}
+          {contract.status === 0 && (
+            <div className="flex justify-end mt-8">
+              <button
+                className="px-6 py-2 rounded-lg font-semibold bg-green-600 text-white hover:bg-green-700 mr-4 disabled:opacity-50"
+                disabled={actionLoading}
+                onClick={() => setShowApproveModal(true)}
+              >
+                {actionLoading
+                  ? "Processing..."
+                  : lang("common.approve", "Approve")}
+              </button>
 
-                            <button
-                                className="px-6 py-2 rounded-lg font-semibold bg-red-600 text-white hover:bg-red-700 disabled:opacity-50"
-                                disabled={actionLoading}
-                                onClick={() => setShowRejectModal(true)}
-                            >
-                                {actionLoading ? "Processing..." : lang('common.reject', 'Reject')}
-                            </button>
-                        </div>
-                    )}
-                    {/* Reject Reason Modal */}
-                    {showRejectModal && (
-                        <div className="fixed inset-0 z-50 flex items-center justify-center bg-opacity-30 backdrop-blur-sm">
-                            <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-md">
-                                <h2 className="text-xl font-bold mb-4 text-gray-800">{lang('common.rejectContract', 'Reject Contract')}</h2>
-                                <label className="block mb-2 font-medium text-gray-700">{lang('common.reasonForRejection', 'Reason for rejection')}</label>
-                                <textarea
-                                    className="w-full border rounded-lg p-2 mb-2"
-                                    rows={3}
-                                    value={rejectReason}
-                                    onChange={e => setRejectReason(e.target.value)}
-                                    placeholder="Enter reason..."
-                                />
-                                {rejectError && <div className="text-red-500 mb-2">{rejectError}</div>}
-                                <div className="flex justify-end mt-4">
-                                    <button
-                                        className="px-4 py-2 mr-2 rounded-lg bg-gray-300 text-gray-700 hover:bg-gray-400"
-                                        onClick={() => { setShowRejectModal(false); setRejectReason(""); setRejectError(""); }}
-                                        disabled={actionLoading}
-                                    >{lang('common.cancel', 'Cancel')}</button>
-                                    <button
-                                        className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700"
-                                        disabled={actionLoading}
-                                        onClick={async () => {
-                                            if (!rejectReason.trim()) {
-                                                setRejectError("Reason is required.");
-                                                return;
-                                            }
-                                            setRejectError("");
-                                            await handleContractAction(2);
-                                        }}
-                                    >{actionLoading ? "Processing..." : lang('common.reject', 'Reject')}</button>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-                    {/* Approve Modal with File Upload */}
-                    {showApproveModal && (
-                        <div className="fixed inset-0 z-50 flex items-center justify-center bg-opacity-30 backdrop-blur-sm">
-                            <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-md">
-                                <h2 className="text-xl font-bold mb-4 text-gray-800">{lang('common.approveContract', 'Approve Contract')}</h2>
-                                <label className="block mb-2 font-medium text-gray-700">{lang('common.uploadDocument', 'Upload Document (PDF only)')} <span className="text-red-500">*</span></label>
-                                <div className="border-2 border-dashed rounded-lg p-4 mb-2 bg-gray-50 hover:bg-gray-100 transition">
-                                    <input
-                                        type="file"
-                                        accept=".pdf"
-                                        onChange={(e) => {
-                                            const file = e.target.files?.[0];
-                                            if (file) {
-                                                if (file.type !== 'application/pdf') {
-                                                    setApproveError("Only PDF files are allowed.");
-                                                    setApproveFile(null);
-                                                } else {
-                                                    setApproveFile(file);
-                                                    setApproveError("");
-                                                }
-                                            }
-                                        }}
-                                        className="w-full"
-                                    />
-                                </div>
-                                {approveFile && (
-                                    <div className="bg-green-50 border border-green-300 rounded p-2 mb-2">
-                                        <p className="text-sm text-green-700">✓ {approveFile.name}</p>
-                                    </div>
-                                )}
-                                {approveError && <div className="text-red-500 mb-2 text-sm">{approveError}</div>}
-                                <div className="flex justify-end mt-4">
-                                    <button
-                                        className="px-4 py-2 mr-2 rounded-lg bg-gray-300 text-gray-700 hover:bg-gray-400"
-                                        onClick={() => { setShowApproveModal(false); setApproveFile(null); setApproveError(""); }}
-                                        disabled={actionLoading}
-                                    >{lang('common.cancel', 'Cancel')}</button>
-                                    <button
-                                        className="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 disabled:opacity-50"
-                                        disabled={actionLoading}
-                                        onClick={async () => {
-                                            if (!approveFile) {
-                                                setApproveError("File upload is required.");
-                                                return;
-                                            }
-                                            setApproveError("");
-                                            await handleContractAction(1, approveFile);
-                                        }}
-                                    >{actionLoading ? "Processing..." : lang('common.approve', 'Approve')}</button>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-                </div>
+              <button
+                className="px-6 py-2 rounded-lg font-semibold bg-red-600 text-white hover:bg-red-700 disabled:opacity-50"
+                disabled={actionLoading}
+                onClick={() => setShowRejectModal(true)}
+              >
+                {actionLoading
+                  ? "Processing..."
+                  : lang("common.reject", "Reject")}
+              </button>
             </div>
+          )}
+          {/* Reject Reason Modal */}
+          {showRejectModal && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-opacity-30 backdrop-blur-sm">
+              <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-md">
+                <h2 className="text-xl font-bold mb-4 text-gray-800">
+                  {lang("common.rejectContract", "Reject Contract")}
+                </h2>
+                <label className="block mb-2 font-medium text-gray-700">
+                  {lang("common.reasonForRejection", "Reason for rejection")}
+                </label>
+                <textarea
+                  className="w-full border rounded-lg p-2 mb-2"
+                  rows={3}
+                  value={rejectReason}
+                  onChange={(e) => setRejectReason(e.target.value)}
+                  placeholder="Enter reason..."
+                />
+                {rejectError && (
+                  <div className="text-red-500 mb-2">{rejectError}</div>
+                )}
+                <div className="flex justify-end mt-4">
+                  <button
+                    className="px-4 py-2 mr-2 rounded-lg bg-gray-300 text-gray-700 hover:bg-gray-400"
+                    onClick={() => {
+                      setShowRejectModal(false);
+                      setRejectReason("");
+                      setRejectError("");
+                    }}
+                    disabled={actionLoading}
+                  >
+                    {lang("common.cancel", "Cancel")}
+                  </button>
+                  <button
+                    className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700"
+                    disabled={actionLoading}
+                    onClick={async () => {
+                      if (!rejectReason.trim()) {
+                        setRejectError("Reason is required.");
+                        return;
+                      }
+                      setRejectError("");
+                      await handleContractAction(2);
+                    }}
+                  >
+                    {actionLoading
+                      ? "Processing..."
+                      : lang("common.reject", "Reject")}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+          {/* Approve Modal with File Upload */}
+          {showApproveModal && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-opacity-30 backdrop-blur-sm">
+              <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-md">
+                <h2 className="text-xl font-bold mb-4 text-gray-800">
+                  {lang("common.approveContract", "Approve Contract")}
+                </h2>
+                <label className="block mb-2 font-medium text-gray-700">
+                  {lang("common.uploadDocument", "Upload Document (PDF only)")}{" "}
+                  <span className="text-red-500">*</span>
+                </label>
+                <div className="border-2 border-dashed rounded-lg p-4 mb-2 bg-gray-50 hover:bg-gray-100 transition">
+                  <input
+                    type="file"
+                    accept=".pdf"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        if (file.type !== "application/pdf") {
+                          setApproveError("Only PDF files are allowed.");
+                          setApproveFile(null);
+                        } else {
+                          setApproveFile(file);
+                          setApproveError("");
+                        }
+                      }
+                    }}
+                    className="w-full"
+                  />
+                </div>
+                {approveFile && (
+                  <div className="bg-green-50 border border-green-300 rounded p-2 mb-2">
+                    <p className="text-sm text-green-700">
+                      ✓ {approveFile.name}
+                    </p>
+                  </div>
+                )}
+                {approveError && (
+                  <div className="text-red-500 mb-2 text-sm">
+                    {approveError}
+                  </div>
+                )}
+                <div className="flex justify-end mt-4">
+                  <button
+                    className="px-4 py-2 mr-2 rounded-lg bg-gray-300 text-gray-700 hover:bg-gray-400"
+                    onClick={() => {
+                      setShowApproveModal(false);
+                      setApproveFile(null);
+                      setApproveError("");
+                    }}
+                    disabled={actionLoading}
+                  >
+                    {lang("common.cancel", "Cancel")}
+                  </button>
+                  <button
+                    className="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 disabled:opacity-50"
+                    disabled={actionLoading}
+                    onClick={async () => {
+                      if (!approveFile) {
+                        setApproveError("File upload is required.");
+                        return;
+                      }
+                      setApproveError("");
+                      await handleContractAction(1, approveFile);
+                    }}
+                  >
+                    {actionLoading
+                      ? "Processing..."
+                      : lang("common.approve", "Approve")}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
-    );
+      </div>
+    </div>
+  );
 };
 
 export default ContractsDetails;

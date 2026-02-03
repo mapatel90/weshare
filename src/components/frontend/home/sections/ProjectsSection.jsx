@@ -9,6 +9,7 @@ import { apiGet } from "@/lib/api";
 import { getFullImageUrl } from "@/utils/common";
 import { useRouter } from "next/navigation";
 import { getPrimaryProjectImage } from "@/utils/projectUtils";
+import { PROJECT_STATUS } from "@/constants/project_status";
 
 const ProjectsSection = () => {
   const [activeTab, setActiveTab] = useState("open");
@@ -16,7 +17,7 @@ const ProjectsSection = () => {
   const [loading, setLoading] = useState(true);
   const { lang } = useLanguage();
   const router = useRouter();
-  
+
   useEffect(() => {
     AOS.init({ duration: 1000, once: true });
     fetchProjects();
@@ -25,9 +26,7 @@ const ProjectsSection = () => {
   const fetchProjects = async () => {
     try {
       setLoading(true);
-      const response = await apiGet("/api/projects?limit=3&status=1", {
-        showLoader: false,
-      });
+      const response = await apiGet(`/api/projects?limit=3&project_status_id=${PROJECT_STATUS.UPCOMING},${PROJECT_STATUS.RUNNING}`, { showLoader: false });
       if (response.success && response.data) {
         setProjects(response.data);
       }
@@ -40,7 +39,11 @@ const ProjectsSection = () => {
 
   const getProjectMainImage = (project) => {
     const cover = getPrimaryProjectImage(project);
-    return cover ? getFullImageUrl(cover) : "/images/projects/project-img1.png";
+    console.log("cover", cover);
+    if (!cover) {
+      return getFullImageUrl('/uploads/general/noimage_2.png');
+    }
+    return cover ? getFullImageUrl(cover) : getFullImageUrl('/uploads/general/noimage_2.png');
   };
 
   return (
@@ -87,6 +90,8 @@ const ProjectsSection = () => {
           ) : (
             <div className="row">
               {projects.map((project, index) => {
+                const projectImage = project.project_images?.[0]?.path;
+                const demo_image = 'http://weshare-energy.com/_next/image?url=http%3A%2F%2Fapi.weshare-energy.com%2Fuploads%2Fgeneral%2Fnoimage_2.png&w=1080&q=75';
                 const cityName = project.cities?.name || "";
                 const stateName = project.states?.code || "";
                 const location =
@@ -103,14 +108,11 @@ const ProjectsSection = () => {
                     <div className="project-card shadow-sm overflow-hidden">
                       <div className="project-items">
                         <Image
-                          src={getProjectMainImage(project)}
+                          src={projectImage ? projectImage : demo_image}
                           alt={project.project_name}
                           className="img-fluid project-img"
                           width={400}
                           height={250}
-                          onError={(e) => {
-                            e.target.src = "/images/projects/project-img1.png";
-                          }}
                         />
                       </div>
 
@@ -181,7 +183,7 @@ const ProjectsSection = () => {
 
                         <button
                           className="btn btn-primary-custom mt-4 w-100"
-                          style={{ display: "flex" }}
+                          style={{ display: "flex", backgroundColor: "#F6A623", borderColor: "#F6A623" }}
                           onClick={() => router.push(`/frontend/exchange-hub/${project.id}`)}
                         >
                           <Image

@@ -50,13 +50,12 @@ const StatusDropdown = memo(({ value, onChange, options, disabled }) => {
 
 const ProjectTable = () => {
   const { lang } = useLanguage();
-  const PAGE_SIZE = 20;
+  const PAGE_SIZE = 50;
 
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
   const [error, setError] = useState(null);
-  const [inverterCounts, setInverterCounts] = useState([]);
 
   // Filter states
   const [offtakerFilter, setOfftakerFilter] = useState("");
@@ -69,22 +68,32 @@ const ProjectTable = () => {
   const [projectStatusList, setProjectStatusList] = useState([]);
   const [loadingStatuses, setLoadingStatuses] = useState(false);
 
-  // Pagination
-  const [pagination, setPagination] = useState({
-    page: 1,
-    limit: PAGE_SIZE,
+  // Pagination (server-side)
+  const [pageIndex, setPageIndex] = useState(0); // 0-based for table
+  const [pageSize, setPageSize] = useState(PAGE_SIZE);
+  const [paginationMeta, setPaginationMeta] = useState({
     total: 0,
     pages: 0,
   });
 
-  const fetchProjects = async () => {
+  const fetchProjects = async (
+    pageIndexParam = pageIndex,
+    pageSizeParam = pageSize
+  ) => {
     try {
       setLoading(true);
       setError(null);
 
+      const currentPage = Number.isFinite(pageIndexParam)
+        ? pageIndexParam
+        : 0;
+      const currentPageSize = Number.isFinite(pageSizeParam)
+        ? pageSizeParam
+        : PAGE_SIZE;
+
       const params = new URLSearchParams({
-        page: "1",
-        downloadAll: "1",
+        page: String(currentPage + 1), // API is 1-based
+        limit: String(currentPageSize),
       });
 
       if (offtakerFilter) {
@@ -112,14 +121,17 @@ const ProjectTable = () => {
         });
 
         setData(projectsWithCounts);
-        setOfftakerList(Array.isArray(res?.offtakerList) ? res.offtakerList : []);
+        setOfftakerList(
+          Array.isArray(res?.offtakerList) ? res.offtakerList : []
+        );
 
         const apiTotal = res?.pagination?.total ?? projectsWithCounts.length;
-        setPagination({
-          page: 1,
-          limit: PAGE_SIZE,
+        const apiPages =
+          res?.pagination?.pages ??
+          Math.max(1, Math.ceil(apiTotal / currentPageSize));
+        setPaginationMeta({
           total: apiTotal,
-          pages: Math.max(1, Math.ceil(apiTotal / PAGE_SIZE)),
+          pages: apiPages,
         });
       } else {
         setData([]);
@@ -152,16 +164,16 @@ const ProjectTable = () => {
     }
   };
 
-  // Fetch and auto-refresh every 2 minutes
+  // Fetch and auto-refresh every 2 minutes (server-side pagination aware)
   useEffect(() => {
-    fetchProjects();
+    fetchProjects(pageIndex, pageSize);
 
     const interval = setInterval(() => {
-      fetchProjects();
+      fetchProjects(pageIndex, pageSize);
     }, 120000); // 2 minutes
 
     return () => clearInterval(interval);
-  }, [offtakerFilter, searchTerm, statusFilter]);
+  }, [offtakerFilter, searchTerm, statusFilter, pageIndex, pageSize]);
 
   useEffect(() => {
     fetchProjectStatuses();
@@ -189,12 +201,12 @@ const ProjectTable = () => {
         showSuccessToast(
           lang("projects.statusUpdated", "Status updated successfully")
         );
-        fetchProjects();
+        fetchProjects(pageIndex, pageSize);
       }
     } catch (err) {
       console.error("Status update error:", err);
       showErrorToast(err.message || "Failed to update status");
-      fetchProjects();
+      fetchProjects(pageIndex, pageSize);
     }
   };
 
@@ -204,6 +216,11 @@ const ProjectTable = () => {
       value: String(s?.id),
     }));
   }, [projectStatusList]);
+
+  const handleSearchChange = (value) => {
+    setPageIndex(0);
+    setSearchTerm(value);
+  };
 
   const columns = [
     {
@@ -273,6 +290,15 @@ const ProjectTable = () => {
         const offtaker = info.getValue();
         if (!offtaker) return "-";
         return `${offtaker.full_name || ""}`.trim();
+      },
+    },
+    {
+      accessorKey: "investor",
+      header: () => lang("projecttablelabel.investor", "Investor"),
+      cell: (info) => {
+        const investor = info.getValue();
+        if (!investor) return "-";
+        return `${investor.full_name || ""}`.trim();
       },
     },
     {
@@ -483,8 +509,20 @@ const ProjectTable = () => {
               data={filteredData}
               columns={columns}
               disablePagination={false}
-              onSearchChange={setSearchTerm}
-              serverSideTotal={pagination.total}
+              onSearchChange={handleSearchChange}
+              serverSideTotal={paginationMeta.total}
+              pageIndex={pageIndex}
+              pageSize={pageSize}
+              onPaginationChange={(nextPagination) => {
+                setPageIndex(nextPagination.pageIndex);
+                if (nextPagination.pageSize !== pageSize) {
+                  setPageSize(nextPagination.pageSize);
+                }
+                fetchProjects(
+                  nextPagination.pageIndex,
+                  nextPagination.pageSize
+                );
+              }}
               initialPageSize={PAGE_SIZE}
               emptyMessage={lang("common.noData", "No Data")}
             />

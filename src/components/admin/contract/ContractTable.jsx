@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { apiGet, apiPost, apiPut, apiDelete, apiUpload } from "@/lib/api";
 import Table from "@/components/shared/table/Table";
-import { FiArrowRight, FiEdit3, FiSave, FiTrash2, FiX } from "react-icons/fi";
+import { FiArrowRight, FiEdit3, FiSave, FiTrash2, FiX, FiXCircle } from "react-icons/fi";
 import Swal from "sweetalert2";
 import { showSuccessToast, showErrorToast } from "@/utils/topTost";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -29,7 +29,6 @@ const Contract = ({ projectId, handleCloseForm, handleSaveAction }) => {
   const [forcedParty, setForcedParty] = useState(""); // "investor" | "offtaker" | ""
   const [offtakerDisabled, setOfftakerDisabled] = useState(false);
   const [allowAdd, setAllowAdd] = useState(true); // NEW: control Add button visibility
-
   // form fields
   const [contractTitle, setContractTitle] = useState("");
   const [contractDescription, setContractDescription] = useState("");
@@ -47,34 +46,29 @@ const Contract = ({ projectId, handleCloseForm, handleSaveAction }) => {
     fetchProjectParties();
   }, [projectId]);
 
-  // Recompute whether Add button should be shown
+
   useEffect(() => {
     if (!projectId) {
       setAllowAdd(true);
       return;
     }
 
-    // Find interested_investors that belong to this project
-    const invIdsForProject = Array.isArray(investorList)
-      ? investorList
-        .filter((inv) => Number(inv.project_id) === Number(projectId))
-        .map((inv) => Number(inv.id))
-      : [];
-
-    // If any contract has investorId that matches an interested_investor id for same project -> hide Add
-    const investorConflict = contracts.some(
+    const activeContracts = contracts.filter(
       (c) =>
-        Number(c.projectId) === Number(projectId) &&
-        c.investorId != null &&
-        invIdsForProject.includes(Number(c.investorId))
+        Number(c.project_id) === Number(projectId) &&
+        Number(c.status) !== 4
     );
 
-    // New condition: if any contract (in entire table) has an offtakerId -> hide Add
-    const offtakerConflict = contracts.some((c) => c.offtaker_id != null);
+    const hasInvestorContract = activeContracts.some(
+      (c) => c.investor_id != null || c.investorId != null
+    );
 
-    // Hide Add button only when BOTH investorConflict AND offtakerConflict are true
-    setAllowAdd(!(investorConflict && offtakerConflict));
-  }, [contracts, investorList, projectId]);
+    const hasOfftakerContract = activeContracts.some(
+      (c) => c.offtaker_id != null || c.offtakerId != null
+    );
+
+    setAllowAdd(!(hasInvestorContract && hasOfftakerContract));
+  }, [contracts, projectId]);
 
   // Auto-select investor when partyType changes to "investor"
   useEffect(() => {
@@ -94,8 +88,7 @@ const Contract = ({ projectId, handleCloseForm, handleSaveAction }) => {
       // Replace with your actual API endpoints for offtakers/investors
       const offtakerRes = await apiGet(`/api/projects/${projectId}`);
       const investorRes = await apiGet('/api/investors?projectId=' + projectId);
-      console.log('Fetched offtaker:', offtakerRes);
-      console.log('Fetched investors:', investorRes);
+      console.log("investorRes", investorRes?.data);
       setProjectData(offtakerRes?.data || null); // Store project details
       setOfftakerList(offtakerRes?.data.offtaker || {});
       setInvestorList(investorRes?.data || []);
@@ -107,14 +100,10 @@ const Contract = ({ projectId, handleCloseForm, handleSaveAction }) => {
 
   const fetchContracts = async () => {
     try {
-      const res = await apiGet("/api/contracts");
-      console.log('Fetched contracts:', res);
+      const res = await apiGet("/api/contracts?projectId=" + projectId);
       if (res?.success) {
         const all = Array.isArray(res.data) ? res.data : [];
-        const filtered = projectId
-          ? all.filter((item) => Number(item.project_id) === Number(projectId))
-          : all;
-        setContracts(filtered);
+        setContracts(all);
       } else {
         setContracts([]);
       }
@@ -145,8 +134,11 @@ const Contract = ({ projectId, handleCloseForm, handleSaveAction }) => {
       setForcedParty("");
       setPartyType("");
     } else {
+      // Consider only non-cancelled contracts for party selection logic
       const contractsForProject = contracts.filter(
-        (c) => Number(c.project_id) === Number(projectId)
+        (c) =>
+          Number(c.project_id) === Number(projectId) &&
+          Number(c.status) !== 4
       );
       if (!contractsForProject.length) {
         setShowPartySelection(true);
@@ -174,7 +166,7 @@ const Contract = ({ projectId, handleCloseForm, handleSaveAction }) => {
     }
     setSelectedOfftaker("");
     setSelectedInvestor("");
-    
+
     // Auto-select investor if project has investor_id and partyType is investor
     if (projectData && projectData.investor_id) {
       const matchingInvestor = investorList.find(
@@ -184,7 +176,6 @@ const Contract = ({ projectId, handleCloseForm, handleSaveAction }) => {
         setSelectedInvestor(String(matchingInvestor.user_id));
       }
     }
-    
     setOfftakerDisabled(false);
     setShowModal(true);
   };
@@ -366,6 +357,52 @@ const Contract = ({ projectId, handleCloseForm, handleSaveAction }) => {
     }
   };
 
+  const handleCancel = async (row) => {
+    const confirm = await Swal.fire({
+      icon: "warning",
+      title: lang("contract.cancelContract", "Cancel Contract?"),
+      text: lang("contract.cancelWarning", "Are you sure you want to cancel this contract? This action cannot be undone."),
+      showCancelButton: true,
+      confirmButtonText: lang("common.yesCancel", "Yes, cancel it!"),
+      cancelButtonText: lang("common.no", "No"),
+      confirmButtonColor: "#ff9800",
+    });
+    if (!confirm.isConfirmed) return;
+
+    try {
+      const res = await apiPut(`/api/contracts/${row.id}/status`, {
+        status: 4,
+      });
+      if (res?.success) {
+        showSuccessToast(lang("contract.cancelled", "Contract cancelled successfully"));
+        fetchContracts();
+      } else {
+        showErrorToast(res.message || lang("common.error", "Error"));
+      }
+    } catch (err) {
+      showErrorToast(err.message || lang("common.error", "Error"));
+    }
+  };
+
+  useEffect(() => {
+    const investorMissing = !Number(projectData?.investor_id);
+
+    const tryingInvestorContract =
+      (modalType !== "edit" && showPartySelection && partyType === "investor") || // radio case
+      (modalType !== "edit" && !showPartySelection && forcedParty === "investor") || // forced case
+      (modalType === "edit" && partyType === "investor"); // edit case
+
+    if (open && tryingInvestorContract && investorMissing) {
+      showErrorToast(
+        lang(
+          "contract.assignAsInvestor",
+          "Please assign an investor to the project before creating an investor contract."
+        )
+      );
+    }
+  }, [open, partyType, forcedParty, modalType, showPartySelection, projectData?.investor_id]);
+
+
   const columns = [
     {
       accessorKey: "contract_title",
@@ -498,40 +535,80 @@ const Contract = ({ projectId, handleCloseForm, handleSaveAction }) => {
     {
       accessorKey: "status",
       header: () => lang("common.status", "Status"),
-      cell: (info) =>
-        info.getValue() == 0 ? (
-          <span className="badge bg-soft-warning text-warning">
-            {lang("common.pending", "Pending")}
-          </span>
-        ) : info.getValue() == 1 ? (
-          <span className="badge bg-soft-success text-success">
-            {lang("common.actives", "Approved")}
-          </span>
-        ) : (
-          <span className="badge bg-soft-danger text-danger">
-            {lang("common.inactives", "Rejected")}
-          </span>
-        ),
+      cell: (info) => {
+        const status = info.getValue();
+        if (status == 0) {
+          return (
+            <span className="badge bg-soft-warning text-warning">
+              {lang("common.pending", "Pending")}
+            </span>
+          );
+        } else if (status == 1) {
+          return (
+            <span className="badge bg-soft-success text-success">
+              {lang("common.actives", "Approved")}
+            </span>
+          );
+        } else if (status == 2) {
+          return (
+            <span className="badge bg-soft-danger text-danger">
+              {lang("common.inactives", "Rejected")}
+            </span>
+          );
+        } else if (status == 4) {
+          return (
+            <span className="badge bg-soft-info text-info">
+              {lang("contract.cancel", "Cancel")}
+            </span>
+          );
+        } else {
+          return (
+            <span className="badge bg-soft-danger text-danger">
+              {lang("common.inactives", "Rejected")}
+            </span>
+          );
+        }
+      },
     },
     {
       accessorKey: "actions",
       header: () => lang("common.actions", "Actions"),
       cell: ({ row }) => {
         const item = row.original;
+        const status = item.status ?? 0;
+
+        // If status is 4 (Cancelled) => no action buttons
+        if (status === 4) {
+          return '-';
+        }
+
         return (
           <div className="d-flex gap-2" style={{ flexWrap: "nowrap" }}>
-            <FiEdit3
-              size={18}
-              onClick={() => openEdit(item)}
-              title={lang("common.edit", "Edit")}
-              style={{ color: "#007bff", cursor: "pointer" }}
-            />
-            <FiTrash2
-              size={18}
-              onClick={() => handleDelete(item)}
-              title={lang("common.delete", "Delete")}
-              style={{ color: "#dc3545", cursor: "pointer" }}
-            />
+            {/* For status 1 (Approved) => only show Cancel button */}
+            {status === 1 ? (
+              <FiXCircle
+                size={18}
+                onClick={() => handleCancel(item)}
+                title={lang("contract.cancel", "Cancel Contract")}
+                style={{ color: "#ff9800", cursor: "pointer" }}
+              />
+            ) : (
+              <>
+                {/* For other statuses => keep Edit and Delete */}
+                <FiEdit3
+                  size={18}
+                  onClick={() => openEdit(item)}
+                  title={lang("common.edit", "Edit")}
+                  style={{ color: "#007bff", cursor: "pointer" }}
+                />
+                <FiTrash2
+                  size={18}
+                  onClick={() => handleDelete(item)}
+                  title={lang("common.delete", "Delete")}
+                  style={{ color: "#dc3545", cursor: "pointer" }}
+                />
+              </>
+            )}
           </div>
         );
       },
@@ -598,6 +675,7 @@ const Contract = ({ projectId, handleCloseForm, handleSaveAction }) => {
         showPartySelection={showPartySelection}
         forcedParty={forcedParty}
         onSubmit={handleSave}
+        projectData={projectData}
       />
 
       <Table
@@ -611,7 +689,7 @@ const Contract = ({ projectId, handleCloseForm, handleSaveAction }) => {
         }}
       />
       <div className="col-12 d-flex justify-content-end gap-2">
-        <Button
+        {/* <Button
           type="button"
           variant="outlined"
           disabled={loading.form}
@@ -626,7 +704,7 @@ const Contract = ({ projectId, handleCloseForm, handleSaveAction }) => {
           {loading.form
             ? lang("common.saving", "Saving")
             : lang("common.close", "close")}
-        </Button>
+        </Button> */}
         <Button
           type="button"
           variant="outlined"

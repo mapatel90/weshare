@@ -127,7 +127,6 @@ const PayoutsPage = () => {
         let newPageSize = typeof updated.pageSize === "number" ? updated.pageSize : pageSize;
         setPageIndex(newPageIndex);
         setPageSize(newPageSize);
-        // fetch payouts for new page (pageIndex is 0-based, API expects 1-based)
         fetchPayouts(newPageIndex + 1, newPageSize);
     };
 
@@ -179,10 +178,12 @@ const PayoutsPage = () => {
 
     const validate = () => {
         const newErrors = {};
+        console.log("selectedPayout",selectedPayout);
         if (selectedPayout && !selectedPayout.transaction_id) {
             if (!txId) newErrors.transactionId = lang("payouts.transaction_id_is_required", "Transaction ID is required");
         }
-        if (selectedFile === null) newErrors.document = lang("payouts.uploaded_image_is_required");
+
+        if (selectedFile === null && selectedPayout && !selectedPayout?.document) newErrors.document = lang("payouts.uploaded_image_is_required");
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };

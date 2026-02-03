@@ -5,6 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Table from "@/components/shared/table/Table";
 import { PROJECT_STATUS } from "@/constants/project_status";
+import { Autocomplete, TextField } from "@mui/material";
 
 const InverterEnvReport = () => {
   const PAGE_SIZE = 50; // show 50 rows per page
@@ -15,7 +16,7 @@ const InverterEnvReport = () => {
   const [projectFilter, setProjectFilter] = useState("");
   const [inverterFilter, setInverterFilter] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
   const [error, setError] = useState(null);
   const [pagination, setPagination] = useState({
@@ -24,6 +25,7 @@ const InverterEnvReport = () => {
     total: 0,
     pages: 0,
   });
+  const [pageIndex, setPageIndex] = useState(0);
 
   // Dropdown lists
   const [projectList, setProjectList] = useState([]);
@@ -84,7 +86,7 @@ const InverterEnvReport = () => {
   };
 
   // -----------------------------
-  // Fetch Reports Function
+  // Fetch reports Function
   // -----------------------------
   const fetchReports = async () => {
     try {
@@ -97,21 +99,9 @@ const InverterEnvReport = () => {
         return;
       }
 
-
-      // if (!projectFilter || !inverterFilter) {
-      //   setReportsData([]);
-      //   setPagination({
-      //     page: 1,
-      //     limit: PAGE_SIZE,
-      //     total: 0,
-      //     pages: 1,
-      //   });
-      //   return;
-      // }
-
       const params = new URLSearchParams({
-        page: "1",
-        downloadAll: "1", // fetch all data
+        page: String(pageIndex + 1),
+        limit: String(PAGE_SIZE),
       });
 
       // Add projectId filter if selected
@@ -122,7 +112,6 @@ const InverterEnvReport = () => {
       if (appliedInverter) {
         params.append("inverterId", appliedInverter);
       }
-
 
       // Add search term
       if (searchTerm) {
@@ -175,20 +164,20 @@ const InverterEnvReport = () => {
       // Note: Project and inverter lists are now fetched separately via fetchProjectList and fetchInverterList
       // This ensures dropdowns are populated on component mount, not just after submit
 
-      const apiTotal = mappedData.length;
+      const apiTotal = res?.pagination?.total || mappedData.length;
       setPagination({
-        page: 1,
+        page: res?.pagination?.page || pageIndex + 1,
         limit: PAGE_SIZE,
         total: apiTotal,
         pages: Math.max(1, Math.ceil(apiTotal / PAGE_SIZE)),
       });
 
       setError(null);
+      setHasLoadedOnce(true);
     } catch (err) {
       setError(err?.message || "Failed to load reports");
     } finally {
       setLoading(false);
-      setHasLoadedOnce(true);
     }
   };
 
@@ -232,8 +221,22 @@ const InverterEnvReport = () => {
     setReportsData([]);
     setHasLoadedOnce(false);
     setLoading(true);
+    setPageIndex(0);
+    setSearchTerm("");
     setAppliedProject(projectFilter);
     setAppliedInverter(inverterFilter);
+  };
+
+  const handleSearchChange = (value) => {
+    setPageIndex(0);
+    setSearchTerm(value);
+  };
+
+  const handlePaginationChange = (nextPagination) => {
+    const updated = typeof nextPagination === "function"
+      ? nextPagination({ pageIndex, pageSize: PAGE_SIZE })
+      : nextPagination;
+    setPageIndex(updated.pageIndex || 0);
   };
 
   useEffect(() => {
@@ -243,7 +246,7 @@ const InverterEnvReport = () => {
 
     const interval = setInterval(fetchReports, 120000);
     return () => clearInterval(interval);
-  }, [appliedProject, appliedInverter, searchTerm, user?.id]);
+  }, [appliedProject, appliedInverter, searchTerm, pageIndex, user?.id]);
 
 
   // -----------------------------
@@ -403,51 +406,48 @@ const InverterEnvReport = () => {
   return (
     <div className="p-6 bg-white rounded-3xl shadow-md">
       <div className="d-flex items-center justify-content-between gap-2 mb-4 mt-4 w-full flex-wrap">
-        <div className="filter-button">
-          <select
-            value={projectFilter}
-            onChange={(e) => setProjectFilter(e.target.value)}
-            className="theme-btn-blue-color border rounded-md px-3 py-2 mx-2 text-sm"
-          >
-            <option value="">{lang("reports.allprojects")}</option>
-            {projectList.map((p) => (
-              <option key={p.id ?? p.project_id} value={p.id ?? p.project_id}>
-                {p.project_name ?? p.projectName ?? `Project ${p.id ?? ""}`}
-              </option>
-            ))}
-          </select>
+        <div className="filter-button flex items-center gap-2 flex-wrap">
+          <Autocomplete
+            size="small"
+            options={projectList}
+            value={projectList.find((p) => String(p.id ?? p.project_id) === projectFilter) || null}
+            onChange={(e, newValue) =>
+              setProjectFilter(newValue ? String(newValue.id ?? newValue.project_id) : "")
+            }
+            getOptionLabel={(option) => option.project_name ?? option.projectName ?? `Project ${option.id ?? ""}`}
+            isOptionEqualToValue={(option, value) => String(option.id ?? option.project_id) === String(value.id ?? value.project_id)}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label={lang("reports.allprojects", "All Projects")}
+                placeholder="Search project..."
+              />
+            )}
+            sx={{ minWidth: 260 }}
+          />
 
-          {/* <select
-            value={inverterFilter}
-            onChange={(e) => setInverterFilter(e.target.value)}
-            className="theme-btn-blue-color border rounded-md px-3 py-2 me-2 text-sm"
-          >
-            <option value="">{lang("reports.allinverters")}</option>
-            {inverterList.map((i) => (
-              <option key={i.id} value={i.id}>
-                {i.inverter_name ?? i.name ?? `Inverter ${i.id}`}
-              </option>
-            ))}
-          </select> */}
-          <select
-            value={inverterFilter}
-            onChange={(e) => setInverterFilter(e.target.value)}
-            className="theme-btn-blue-color border rounded-md px-3 py-2 me-2 text-sm"
-          >
-            <option value="">{lang("reports.allinverters")}</option>
-
-            {[...inverterList]
-              .sort((a, b) => {
-                const nameA = (a.inverter_name ?? a.name ?? "").toLowerCase();
-                const nameB = (b.inverter_name ?? b.name ?? "").toLowerCase();
-                return nameA.localeCompare(nameB);
-              })
-              .map((i) => (
-                <option key={i.id} value={i.id}>
-                  {i.inverter_name ?? i.name ?? `Inverter ${i.id}`}
-                </option>
-              ))}
-          </select>
+          <Autocomplete
+            size="small"
+            options={[...inverterList].sort((a, b) => {
+              const nameA = (a.inverter_name ?? a.name ?? "").toLowerCase();
+              const nameB = (b.inverter_name ?? b.name ?? "").toLowerCase();
+              return nameA.localeCompare(nameB);
+            })}
+            value={inverterList.find((i) => String(i.id) === inverterFilter) || null}
+            onChange={(e, newValue) =>
+              setInverterFilter(newValue ? String(newValue.id) : "")
+            }
+            getOptionLabel={(option) => option.inverter_name ?? option.name ?? `Inverter ${option.id}`}
+            isOptionEqualToValue={(option, value) => String(option.id) === String(value.id)}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label={lang("reports.allinverters", "All Inverters")}
+                placeholder="Search inverter..."
+              />
+            )}
+            sx={{ minWidth: 260 }}
+          />
 
           <button
             onClick={handleSubmit}
@@ -485,7 +485,10 @@ const InverterEnvReport = () => {
             data={filteredData}
             columns={columns}
             disablePagination={false}
-            onSearchChange={setSearchTerm}
+            onSearchChange={handleSearchChange}
+            onPaginationChange={handlePaginationChange}
+            pageIndex={pageIndex}
+            pageSize={PAGE_SIZE}
             serverSideTotal={pagination.total}
             initialPageSize={PAGE_SIZE}
           />

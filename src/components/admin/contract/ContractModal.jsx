@@ -13,6 +13,7 @@ import {
   MenuItem,
 } from "@mui/material";
 import { Close as CloseIcon } from "@mui/icons-material";
+import { showErrorToast } from "@/utils/topTost";
 
 const ContractModal = (props) => {
   const {
@@ -50,6 +51,7 @@ const ContractModal = (props) => {
     onSubmit,
     showPartySelection = true,
     forcedParty = "",
+    projectData = null,
   } = props;
 
   return (
@@ -108,6 +110,11 @@ const ContractModal = (props) => {
                     onChange={() => {
                       setPartyType("investor");
                       setSelectedOfftaker("");
+                      if (!Number(projectData?.investor_id)) {
+                        showErrorToast(
+                          lang("contract.assignAsInvestor", "Please assign as investor first")
+                        );
+                      }
                     }}
                   />
                   <span>{lang("contract.investor", "Investor")}</span>

@@ -1,9 +1,10 @@
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
-import { apiGet } from "@/lib/api";
+import { apiGet, apiPost } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Table from "@/components/shared/table/Table";
+import { Autocomplete, TextField } from "@mui/material";
 
 const RoiReports = () => {
   const { user } = useAuth();
@@ -27,6 +28,11 @@ const RoiReports = () => {
   });
   const [projectList, setProjectList] = useState([]);
   const [inverterList, setInverterList] = useState([]);
+  const [appliedProjectFilter, setAppliedProjectFilter] = useState("");
+  const [appliedInverterFilter, setAppliedInverterFilter] = useState("");
+  const [appliedSearchTerm, setAppliedSearchTerm] = useState("");
+  const [pageIndex, setPageIndex] = useState(0);
+  const isSubmitDisabled = !projectFilter;
 
   // 1) Load allowed project IDs (Investor Logic)
   useEffect(() => {
@@ -50,6 +56,55 @@ const RoiReports = () => {
       .catch(() => setAllowedIds([]));
   }, [user?.id]);
 
+  // Fetch Project List
+  const fetchProjectList = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const res = await apiPost("/api/projects/dropdown/project", { 
+        offtaker_id: user?.id, 
+        project_status_id: 2 // RUNNING status
+      });
+
+      if (res && res.data) {
+        setProjectList(res.data);
+      } else if (Array.isArray(res)) {
+        setProjectList(res);
+      } else {
+        setProjectList([]);
+      }
+    } catch (err) {
+      console.error("Failed to fetch projects:", err);
+      setProjectList([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch Inverter List based on selected project
+  const fetchInverterList = async (projectId) => {
+    try {
+      if (!projectId) {
+        setInverterList([]);
+        return;
+      }
+
+      const res = await apiGet(`/api/project-inverters?project_id=${projectId}`);
+
+      if (Array.isArray(res?.data)) {
+        setInverterList(res.data);
+      } else if (Array.isArray(res)) {
+        setInverterList(res);
+      } else {
+        setInverterList([]);
+      }
+    } catch (err) {
+      console.error("Error fetching inverter list:", err);
+      setInverterList([]);
+    }
+  };
+
   // 2) Fetch reports with server-side filters (like SavingReports)
   const fetchReports = async () => {
     try {
@@ -57,16 +112,17 @@ const RoiReports = () => {
       setError(null);
 
       const params = new URLSearchParams({
-        page: "1",
-        downloadAll: "1",
+        page: String(pageIndex + 1),
+        limit: String(PAGE_SIZE),
       });
 
-      if (projectFilter) params.append("projectId", projectFilter);
-      if (inverterFilter) params.append("inverterId", inverterFilter);
-      if (searchTerm) params.append("search", searchTerm);
+      if (appliedProjectFilter) params.append("projectId", appliedProjectFilter);
+      if (appliedInverterFilter) params.append("inverterId", appliedInverterFilter);
+      if (appliedSearchTerm) params.append("search", appliedSearchTerm);
 
       const res = await apiGet(`/api/inverter-data?${params.toString()}`);
       const items = Array.isArray(res?.data) ? res.data : [];
+      console.log("Fetched ROI reports", items);
 
       // Restrict to investor-allowed projects
       const allowed = Array.isArray(allowedIds) ? allowedIds : null;
@@ -116,13 +172,23 @@ const RoiReports = () => {
       const investorInverters = resInverters.filter((inv) => allowedProjectSet.has(String(inv.project_id)));
       setInverterList(investorInverters);
 
-      const total = mappedData.length;
-      setPagination({
-        page: 1,
-        limit: PAGE_SIZE,
-        total,
-        pages: Math.max(1, Math.ceil(total / PAGE_SIZE)),
-      });
+      // Set pagination from server response
+      if (res.pagination) {
+        setPagination({
+          page: res.pagination.page || pageIndex + 1,
+          limit: res.pagination.limit || PAGE_SIZE,
+          total: res.pagination.total || mappedData.length,
+          pages: res.pagination.pages || Math.max(1, Math.ceil(mappedData.length / PAGE_SIZE)),
+        });
+      } else {
+        // Fallback if no pagination in response
+        setPagination({
+          page: pageIndex + 1,
+          limit: PAGE_SIZE,
+          total: mappedData.length,
+          pages: Math.max(1, Math.ceil(mappedData.length / PAGE_SIZE)),
+        });
+      }
     } catch (err) {
       setError(err?.message || "Failed to load reports");
     } finally {
@@ -139,16 +205,47 @@ const RoiReports = () => {
     }, 120000);
 
     return () => clearInterval(interval);
-  }, [projectFilter, inverterFilter, searchTerm, allowedIds]);
+  }, [appliedProjectFilter, appliedInverterFilter, appliedSearchTerm, allowedIds, pageIndex]);
 
-  // 3) Filtered data (client-side on fetched set)
-  const filteredData = useMemo(() => {
-    return reportsData.filter((d) => {
-      if (projectFilter && String(d.projectId) !== projectFilter) return false;
-      if (inverterFilter && String(d.inverterId) !== inverterFilter) return false;
-      return true;
-    });
-  }, [projectFilter, inverterFilter, reportsData]);
+  // Fetch project list on component mount
+  useEffect(() => {
+    if (user?.id) {
+      fetchProjectList();
+    }
+  }, [user?.id]);
+
+  // Fetch inverter list when project filter changes
+  useEffect(() => {
+    if (projectFilter) {
+      fetchInverterList(projectFilter);
+      // Reset inverter filter when project changes
+      setInverterFilter("");
+    } else {
+      setInverterList([]);
+      setInverterFilter("");
+    }
+  }, [projectFilter]);
+
+  // 3) Handle submit to apply filters
+  const handleSubmit = () => {
+    if (!projectFilter) {
+      alert("Please select Project");
+      return;
+    }
+
+    // Clear old data and reset loading state when submitting new filters
+    setReportsData([]);
+    setHasLoadedOnce(false);
+    setLoading(true);
+    setPageIndex(0);
+    setSearchTerm('');
+    setAppliedProjectFilter(projectFilter);
+    setAppliedInverterFilter(inverterFilter);
+    setAppliedSearchTerm(searchTerm);
+  };
+
+  // 4) Server-side filtered data
+  const filteredData = reportsData;
 
   // Reset inverter filter when project changes
   useEffect(() => {
@@ -157,7 +254,15 @@ const RoiReports = () => {
     if (!available.has(inverterFilter)) setInverterFilter("");
   }, [projectFilter, inverterList, inverterFilter]);
 
-  const total = filteredData.length;
+  const handleSearchChange = (value) => {
+    setPageIndex(0);
+    setSearchTerm(value);
+  };
+
+  const handlePaginationChange = (nextPagination) => {
+    setPageIndex(nextPagination.pageIndex);
+    setPagination(nextPagination);
+  };
 
   // Format date helper
   const formatDateDDMMYYYY = (raw) => {
@@ -168,22 +273,59 @@ const RoiReports = () => {
     return "";
   };
 
-  // CSV Download
+  // CSV Download - Fetch all records
   const handleDownloadCSV = async () => {
     try {
-      const rows = filteredData.map((r) => ({
-        projectName: r.projectName,
-        inverterName: r.inverterName,
-        date: r.date,
-        time: r.time,
-        generatedKW: r.generatedKW,
-        Acfrequency: r.Acfrequency,
-        DailyYield: r.DailyYield,
-        AnnualYield: r.AnnualYield,
-        TotalYield: r.TotalYield,
+      setLoading(true);
+
+      // Build params to fetch all data for CSV export
+      const params = new URLSearchParams({
+        page: "1",
+        limit: "1000000", // Large limit to get all data
+      });
+
+      if (appliedProjectFilter) params.append("projectId", appliedProjectFilter);
+      if (appliedInverterFilter) params.append("inverterId", appliedInverterFilter);
+      if (appliedSearchTerm) params.append("search", appliedSearchTerm);
+
+      const res = await apiGet(`/api/inverter-data?${params.toString()}`);
+      const items = Array.isArray(res?.data) ? res.data : [];
+
+      // Restrict to investor-allowed projects
+      const allowed = Array.isArray(allowedIds) ? allowedIds : null;
+      const filteredItems = items.filter((item) => {
+        if (!allowed) return true;
+        const pid = Number(item.project_id ?? item.projectId ?? item?.project?.id);
+        return allowed.includes(pid);
+      });
+
+      // Map data for CSV
+      const csvData = filteredItems.map((item) => ({
+        projectName: item.projects?.project_name || item?.project?.project_name || `Project ${item.project_id ?? ""}`,
+        inverterName: item.project_inverters?.inverter_name || "-",
+        date: item.date || "",
+        time: item.time ?? "",
+        generatedKW:
+          item.generate_kw !== undefined && item.generate_kw !== null
+            ? (Number(item.generate_kw) / 1000).toFixed(2) + " kwh"
+            : "",
+        Acfrequency: item.ac_frequency ?? "",
+        DailyYield:
+          item.daily_yield !== undefined && item.daily_yield !== null
+            ? item.daily_yield + " kwh"
+            : "",
+        AnnualYield:
+          item.annual_yield !== undefined && item.annual_yield !== null
+            ? item.annual_yield + " kwh"
+            : "",
+        TotalYield:
+          item.total_yield !== undefined && item.total_yield !== null
+            ? item.total_yield + " kwh"
+            : "",
       }));
 
-      const header = [
+      // Define CSV headers
+      const headers = [
         lang("projects.projectName"),
         lang("inverter.inverterName"),
         lang("common.date"),
@@ -195,30 +337,52 @@ const RoiReports = () => {
         lang("reports.totalYield"),
       ];
 
-      const csvRows = rows.map((row) => [
-        row.projectName,
-        row.inverterName,
-        formatDateDDMMYYYY(row.date),
-        row.time ?? "",
-        row.generatedKW ?? "",
-        row.Acfrequency ?? "",
-        row.DailyYield ?? "",
-        row.AnnualYield ?? "",
-        row.TotalYield ?? "",
-      ]);
+      // Convert data to CSV rows
+      const csvRows = [
+        headers.join(","), // Header row
+        ...csvData.map((row) => {
+          const values = [
+            `"${(row.projectName || "-").replace(/"/g, '""')}"`,
+            `"${(row.inverterName || "-").replace(/"/g, '""')}"`,
+            row.date ? `"${formatDateDDMMYYYY(row.date)}"` : '"-"',
+            row.time ? `"${row.time}"` : '"-"',
+            row.generatedKW ? `"${row.generatedKW}"` : '"-"',
+            row.Acfrequency ? `"${row.Acfrequency}"` : '"-"',
+            row.DailyYield ? `"${row.DailyYield}"` : '"-"',
+            row.AnnualYield ? `"${row.AnnualYield}"` : '"-"',
+            row.TotalYield ? `"${row.TotalYield}"` : '"-"',
+          ];
+          return values.join(",");
+        }),
+      ];
 
-      const csvContent =
-        "data:text/csv;charset=utf-8," +
-        [header, ...csvRows].map((e) => e.join(",")).join("\n");
+      // Create CSV content
+      const csvContent = csvRows.join("\n");
 
+      // Create blob and download
+      const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
       const link = document.createElement("a");
-      link.setAttribute("href", encodeURI(csvContent));
-      link.setAttribute("download", "roi_reports.csv");
+      const url = URL.createObjectURL(blob);
+
+      // Generate filename
+      let filename = "roi_reports";
+      if (appliedProjectFilter) {
+        const project = projectList.find((p) => String(p.id ?? p.project_id) === String(appliedProjectFilter));
+        if (project) filename += `_${project.project_name || appliedProjectFilter}`;
+      }
+      filename += `_${new Date().toISOString().split("T")[0]}.csv`;
+
+      link.setAttribute("href", url);
+      link.setAttribute("download", filename);
+      link.style.visibility = "hidden";
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
     } catch (err) {
       console.error("CSV download failed", err);
+      setError(err?.message || "Failed to download CSV");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -253,31 +417,71 @@ const RoiReports = () => {
       {/* Filter Section */}
       <div className="d-flex items-center justify-content-between gap-2 mb-4 mt-4 w-full flex-wrap">
         <div className="filter-button flex flex-wrap gap-2">
-          <select
-            value={projectFilter}
-            onChange={(e) => setProjectFilter(e.target.value)}
-            className="theme-btn-blue-color border rounded-md px-3 py-2 text-sm"
-          >
-            <option value="">{lang("reports.allprojects")}</option>
-            {projectList.map((p) => (
-              <option key={p.id ?? p.project_id} value={p.id ?? p.project_id}>
-                {p.project_name || `Project ${p.id}`}
-              </option>
-            ))}
-          </select>
+          <Autocomplete
+            size="small"
+            options={projectList}
+            value={
+              projectList.find(
+                (p) => (p.id ?? p.project_id) === projectFilter
+              ) || null
+            }
+            onChange={(e, newValue) => {
+              setProjectFilter(newValue ? (newValue.id ?? newValue.project_id) : "");
+            }}
+            getOptionLabel={(option) =>
+              option.project_name ||
+              option.projectName ||
+              `Project ${option.id ?? option.project_id ?? ""}`
+            }
+            isOptionEqualToValue={(option, value) =>
+              (option.id ?? option.project_id) === (value.id ?? value.project_id)
+            }
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label={lang("reports.allprojects")}
+                placeholder="Search project..."
+              />
+            )}
+            sx={{ minWidth: 260 }}
+          />
 
-          <select
-            value={inverterFilter}
-            onChange={(e) => setInverterFilter(e.target.value)}
-            className="theme-btn-blue-color border rounded-md px-3 py-2 text-sm"
+          <Autocomplete
+            size="small"
+            options={[...inverterList].sort((a, b) => {
+              const nameA = (a.inverter_name ?? a.name ?? "").toLowerCase();
+              const nameB = (b.inverter_name ?? b.name ?? "").toLowerCase();
+              return nameA.localeCompare(nameB);
+            })}
+            value={
+              inverterList.find((i) => String(i.id) === String(inverterFilter)) || null
+            }
+            onChange={(e, newValue) => {
+              setInverterFilter(newValue ? String(newValue.id) : "");
+            }}
+            getOptionLabel={(option) =>
+              option.inverter_name ?? option.name ?? `Inverter ${option.id}`
+            }
+            isOptionEqualToValue={(option, value) =>
+              String(option.id) === String(value.id)
+            }
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label={lang("reports.allinverters")}
+                placeholder="Search inverter..."
+              />
+            )}
+            sx={{ minWidth: 260 }}
+          />
+
+          <button
+            onClick={handleSubmit}
+            disabled={isSubmitDisabled}
+            className={`theme-btn-blue-color border rounded-md px-4 py-2 text-sm ${isSubmitDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
           >
-            <option value="">{lang("reports.allinverters")}</option>
-            {inverterList.map((i) => (
-              <option key={i.id} value={i.id}>
-                {i.name}
-              </option>
-            ))}
-          </select>
+            {lang("common.submit", "Submit")}
+          </button>
         </div>
 
         <button
@@ -296,19 +500,16 @@ const RoiReports = () => {
 
         {error && <div className="text-red-600">Error: {error}</div>}
 
-        {hasLoadedOnce && filteredData.length === 0 && !error && !loading && (
-          <div className="text-center py-6 text-gray-600">
-            {lang("common.noData")}
-          </div>
-        )}
-
         {hasLoadedOnce && (
           <>
             <Table
               data={filteredData}
               columns={columns}
               disablePagination={false}
-              onSearchChange={setSearchTerm}
+              onSearchChange={handleSearchChange}
+              onPaginationChange={handlePaginationChange}
+              pageIndex={pageIndex}
+              pageSize={PAGE_SIZE}
               serverSideTotal={pagination.total}
               initialPageSize={PAGE_SIZE}
             />

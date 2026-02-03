@@ -30,7 +30,7 @@ const NewsLetterSection = () => {
         <div className="col-md-5">
           <div className="d-flex justify-content-center flex-wrap gap-2 mb-3 newsletter-form">
             <input type="email" className="form-control w-auto" placeholder={lang("news.enterEmail")} style={{ minWidth: 280 }} />
-            <button className="btn btn-dark">{lang("news.subscribe")}{" "}
+            <button className="btn btn-dark text-black">{lang("news.subscribe")}{" "}
               <FontAwesomeIcon icon={faPaperPlane} className="ms-2" /></button>
           </div>
         </div>

@@ -58,6 +58,12 @@ export default function AuthProvider({ children }) {
         phone: data.data.phone_number,
         role: data.data.role_id,
         status: data.data.status === 1 ? 'active' : 'inactive',
+        address_1: data.data.address_1 || "",
+        address_2: data.data.address_2 || "",
+        country_id: data.data.country_id || "",
+        state_id: data.data.state_id || "",
+        city_id: data.data.city_id || "",
+        zipcode: data.data.zipcode || "",
         avatar: data.data.user_image || null
       }
 

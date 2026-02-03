@@ -1585,6 +1585,8 @@
     "deleted": "Contract Deleted Successfully",
     "updated": "Contract Updated Successfully",
     "created": "Contract Created Successfully",
+    "cancelled": "Contract Cancelled Successfully",
+    "cancel": "Cancel Contract",
     "title": "Title",
     "description": "Description",
     "document": "Document",
@@ -1595,7 +1597,8 @@
     "contractName": "Contract Name",
     "contractDescription": "Contract Description",
     "contractDate": "Contract Date",
-    "contractDocument": "Contract Document"
+    "contractDocument": "Contract Document",
+    "assignAsInvestor": "Please assign an inverter to this project before creating an inverter contract."
   },
   "meter": {
     "meter": "Meter",
@@ -1734,6 +1737,8 @@
     "contract_approved_message": "The contract \"{{contract_title}}\" has been approved by \"{{created_by}}\".",
     "contract_rejected_title": "Contract Rejected",
     "contract_rejected_message": "The contract \"{{contract_title}}\" has been rejected by \"{{created_by}}\".",
+    "contract_cancelled_title": "Contract Cancelled",
+    "contract_cancelled_message": "The contract \"{{contract_title}}\" has been cancelled by \"{{created_by}}\".",
     "project_status_title": "Project \"{{project_name}}\" status updated",
     "project_status_message": "Project \"{{project_name}}\" status has been updated to \"{{status_name}}\".",
     "investor_marked_title": "Investor Assigned",
