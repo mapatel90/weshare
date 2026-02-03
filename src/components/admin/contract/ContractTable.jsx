@@ -29,7 +29,6 @@ const Contract = ({ projectId, handleCloseForm, handleSaveAction }) => {
   const [forcedParty, setForcedParty] = useState(""); // "investor" | "offtaker" | ""
   const [offtakerDisabled, setOfftakerDisabled] = useState(false);
   const [allowAdd, setAllowAdd] = useState(true); // NEW: control Add button visibility
-
   // form fields
   const [contractTitle, setContractTitle] = useState("");
   const [contractDescription, setContractDescription] = useState("");
@@ -47,37 +46,29 @@ const Contract = ({ projectId, handleCloseForm, handleSaveAction }) => {
     fetchProjectParties();
   }, [projectId]);
 
-  // Recompute whether Add button should be shown
+
   useEffect(() => {
     if (!projectId) {
       setAllowAdd(true);
       return;
     }
 
-    // Ignore cancelled contracts (status === 4) when deciding conflicts
-    const activeContracts = contracts.filter((c) => Number(c.status) !== 4);
-
-    // Find interested_investors that belong to this project
-    const invIdsForProject = Array.isArray(investorList)
-      ? investorList
-        .filter((inv) => Number(inv.project_id) === Number(projectId))
-        .map((inv) => Number(inv.id))
-      : [];
-
-    // If any contract has investorId that matches an interested_investor id for same project -> hide Add
-    const investorConflict = activeContracts.some(
+    const activeContracts = contracts.filter(
       (c) =>
-        Number(c.projectId) === Number(projectId) &&
-        c.investorId != null &&
-        invIdsForProject.includes(Number(c.investorId))
+        Number(c.project_id) === Number(projectId) &&
+        Number(c.status) !== 4
     );
 
-    // New condition: if any active contract (in entire table) has an offtakerId -> hide Add
-    const offtakerConflict = activeContracts.some((c) => c.offtaker_id != null);
+    const hasInvestorContract = activeContracts.some(
+      (c) => c.investor_id != null || c.investorId != null
+    );
 
-    // Hide Add button only when BOTH investorConflict AND offtakerConflict are true
-    setAllowAdd(!(investorConflict && offtakerConflict));
-  }, [contracts, investorList, projectId]);
+    const hasOfftakerContract = activeContracts.some(
+      (c) => c.offtaker_id != null || c.offtakerId != null
+    );
+
+    setAllowAdd(!(hasInvestorContract && hasOfftakerContract));
+  }, [contracts, projectId]);
 
   // Auto-select investor when partyType changes to "investor"
   useEffect(() => {
@@ -97,6 +88,7 @@ const Contract = ({ projectId, handleCloseForm, handleSaveAction }) => {
       // Replace with your actual API endpoints for offtakers/investors
       const offtakerRes = await apiGet(`/api/projects/${projectId}`);
       const investorRes = await apiGet('/api/investors?projectId=' + projectId);
+      console.log("investorRes", investorRes?.data);
       setProjectData(offtakerRes?.data || null); // Store project details
       setOfftakerList(offtakerRes?.data.offtaker || {});
       setInvestorList(investorRes?.data || []);
@@ -108,13 +100,10 @@ const Contract = ({ projectId, handleCloseForm, handleSaveAction }) => {
 
   const fetchContracts = async () => {
     try {
-      const res = await apiGet("/api/contracts");
+      const res = await apiGet("/api/contracts?projectId=" + projectId);
       if (res?.success) {
         const all = Array.isArray(res.data) ? res.data : [];
-        const filtered = projectId
-          ? all.filter((item) => Number(item.project_id) === Number(projectId))
-          : all;
-        setContracts(filtered);
+        setContracts(all);
       } else {
         setContracts([]);
       }
@@ -187,7 +176,6 @@ const Contract = ({ projectId, handleCloseForm, handleSaveAction }) => {
         setSelectedInvestor(String(matchingInvestor.user_id));
       }
     }
-
     setOfftakerDisabled(false);
     setShowModal(true);
   };
@@ -395,6 +383,25 @@ const Contract = ({ projectId, handleCloseForm, handleSaveAction }) => {
       showErrorToast(err.message || lang("common.error", "Error"));
     }
   };
+
+  useEffect(() => {
+    const investorMissing = !Number(projectData?.investor_id);
+
+    const tryingInvestorContract =
+      (modalType !== "edit" && showPartySelection && partyType === "investor") || // radio case
+      (modalType !== "edit" && !showPartySelection && forcedParty === "investor") || // forced case
+      (modalType === "edit" && partyType === "investor"); // edit case
+
+    if (open && tryingInvestorContract && investorMissing) {
+      showErrorToast(
+        lang(
+          "contract.assignAsInvestor",
+          "Please assign an investor to the project before creating an investor contract."
+        )
+      );
+    }
+  }, [open, partyType, forcedParty, modalType, showPartySelection, projectData?.investor_id]);
+
 
   const columns = [
     {
@@ -668,6 +675,7 @@ const Contract = ({ projectId, handleCloseForm, handleSaveAction }) => {
         showPartySelection={showPartySelection}
         forcedParty={forcedParty}
         onSubmit={handleSave}
+        projectData={projectData}
       />
 
       <Table
@@ -681,7 +689,7 @@ const Contract = ({ projectId, handleCloseForm, handleSaveAction }) => {
         }}
       />
       <div className="col-12 d-flex justify-content-end gap-2">
-        <Button
+        {/* <Button
           type="button"
           variant="outlined"
           disabled={loading.form}
@@ -696,7 +704,7 @@ const Contract = ({ projectId, handleCloseForm, handleSaveAction }) => {
           {loading.form
             ? lang("common.saving", "Saving")
             : lang("common.close", "close")}
-        </Button>
+        </Button> */}
         <Button
           type="button"
           variant="outlined"

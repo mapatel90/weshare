@@ -553,11 +553,11 @@ router.put("/:id/status", authenticateToken, upload.single('file'), async (req, 
     if (!existing || existing.is_deleted) {
       return res.status(404).json({ success: false, message: 'Contract not found' });
     }
-    // If rejected, save the reason
+    // If rejected or cancelled, save the reason
     const updateData = { status: Number(status) };
-    if (Number(status) === 2 && reason) {
+    if ((Number(status) === 2 || Number(status) === 4) && reason) {
       updateData.rejectreason = reason;
-    } else if (Number(status) !== 2) {
+    } else if (Number(status) !== 2 && Number(status) !== 4) {
       updateData.rejectreason = null;
     }
 
@@ -814,15 +814,123 @@ router.put("/:id/status", authenticateToken, upload.single('file'), async (req, 
       }
     }
 
-    await createNotification({
-      userId: existing?.created_by,
-      title: notification_title,
-      message: notification_message,
-      moduleType: 'contract',
-      moduleId: existing?.id,
-      actionUrl: `/offtaker/contract/view/${existing?.id}`,
-      created_by: existing?.offtaker_id
-    });
+    if (Number(status) === 4) {
+      notification_title = t(lang, 'notification_msg.contract_cancelled_title');
+      notification_message = t(lang, 'notification_msg.contract_cancelled_message', {
+        contract_title: existing.contract_title,
+        created_by: creator_name
+      });
+
+      // Send email to offtaker if exists
+      if (existing?.offtaker_id) {
+        const offtakerUser = await prisma.users.findUnique({ where: { id: Number(existing.offtaker_id) } });
+        if (offtakerUser?.email) {
+          const templateData = {
+            user_name: offtakerUser.full_name || 'User',
+            user_email: offtakerUser.email,
+            contract_title: existing.contract_title || 'N/A',
+            project_name: existing?.projects?.project_name || 'N/A',
+            solis_id: existing?.projects?.solis_plant_id || 'N/A',
+            rejection_reason: existing.rejectreason || 'No reason provided',
+            site_url: process.env.FRONTEND_URL || 'http://localhost:3000',
+            company_name: 'WeShare Energy',
+            company_logo: `${process.env.NEXT_PUBLIC_URL || ''}/images/main_logo.png`,
+            support_email: 'support@weshare.com',
+            support_phone: '+1 (555) 123-4567',
+            support_hours: 'Mon–Fri, 9am–6pm GMT',
+            current_date: new Date().toLocaleDateString(),
+          };
+
+          sendEmailUsingTemplate({
+            to: offtakerUser.email,
+            templateSlug: 'contract_rejected',
+            templateData,
+            language: offtakerUser.language || 'en',
+          })
+            .then((result) => {
+              if (result.success) {
+                console.log(`Contract cancellation email sent to offtaker: ${offtakerUser.email}`);
+              } else {
+                console.warn(`Could not send contract cancellation email: ${result.error}`);
+              }
+            })
+            .catch((error) => {
+              console.error('Failed to send contract cancellation email:', error.message);
+            });
+        }
+
+        await createNotification({
+          userId: existing?.offtaker_id,
+          title: notification_title,
+          message: notification_message,
+          moduleType: 'contract',
+          moduleId: existing?.id,
+          actionUrl: `/offtaker/contract/view/${existing?.id}`,
+          created_by: 1
+        });
+      }
+
+      // Send email to investor if exists
+      if (existing?.investor_id) {
+        const investor = await prisma.interested_investors.findFirst({
+          where: { user_id: Number(existing.investor_id), project_id: Number(existing.project_id), is_deleted: 0 }
+        });
+        if (investor?.email) {
+          const templateData = {
+            user_name: investor.full_name || 'Investor',
+            user_email: investor.email,
+            contract_title: existing.contract_title || 'N/A',
+            project_name: existing?.projects?.project_name || 'N/A',
+            solis_id: existing?.projects?.solis_plant_id || 'N/A',
+            rejection_reason: existing.rejectreason || 'No reason provided',
+            site_url: process.env.FRONTEND_URL || 'http://localhost:3000',
+            company_name: 'WeShare Energy',
+            company_logo: `${process.env.NEXT_PUBLIC_URL || ''}/images/main_logo.png`,
+            support_email: 'support@weshare.com',
+            support_phone: '+1 (555) 123-4567',
+            support_hours: 'Mon–Fri, 9am–6pm GMT',
+            current_date: new Date().toLocaleDateString(),
+          };
+
+          sendEmailUsingTemplate({
+            to: investor.email,
+            templateSlug: 'contract_rejected',
+            templateData,
+            language: investor.language || 'en',
+          })
+            .then((result) => {
+              if (result.success) {
+                console.log(`Contract cancellation email sent to investor: ${investor.email}`);
+              } else {
+                console.warn(`Could not send contract cancellation email: ${result.error}`);
+              }
+            })
+            .catch((error) => {
+              console.error('Failed to send contract cancellation email:', error.message);
+            });
+        }
+
+        await createNotification({
+          userId: existing?.investor_id,
+          title: notification_title,
+          message: notification_message,
+          moduleType: 'contract',
+          moduleId: existing?.id,
+          actionUrl: `/investor/contract/view/${existing?.id}`,
+          created_by: 1
+        });
+      }
+    }
+
+    // await createNotification({
+    //   userId: existing?.created_by,
+    //   title: notification_title,
+    //   message: notification_message,
+    //   moduleType: 'contract',
+    //   moduleId: existing?.id,
+    //   actionUrl: `/offtaker/contract/view/${existing?.id}`,
+    //   created_by: existing?.offtaker_id
+    // });
 
 
     return res.json({ success: true, data: updated });

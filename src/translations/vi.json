@@ -1537,7 +1537,8 @@
     "contractName": "Tên hợp đồng",
     "contractDate": "Ngày hợp đồng",
     "contractDescription": "Mô tả hợp đồng",
-    "contractDocument": "Tài liệu hợp đồng"
+    "contractDocument": "Tài liệu hợp đồng",
+    "assignAsInvestor": "Vui lòng gán biến tần cho dự án này trước khi chọn hợp đồng biến tần."
   },
   "meter": {
     "meter": "Công tơ",
@@ -1676,6 +1677,8 @@
     "contract_approved_message": "Hợp đồng \"{{contract_title}}\" đã được phê duyệt bởi \"{{created_by}}\".",
     "contract_rejected_title": "Hợp đồng bị từ chối",
     "contract_rejected_message": "Hợp đồng \"{{contract_title}}\" đã bị từ chối bởi \"{{created_by}}\".",
+    "contract_cancelled_title": "Hợp đồng đã bị hủy",
+    "contract_cancelled_message": "Hợp đồng \"{{contract_title}}\" đã bị hủy bởi \"{{created_by}}\".",
     "project_status_title": "Trạng thái dự án \"{{project_name}}\" đã được cập nhật",
     "project_status_message": "Trạng thái của dự án \"{{project_name}}\" đã được cập nhật thành \"{{status_name}}\".",
     "investor_marked_title": "Nhà đầu tư được chỉ định",
