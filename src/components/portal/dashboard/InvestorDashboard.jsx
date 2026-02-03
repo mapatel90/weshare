@@ -14,7 +14,7 @@ import { apiGet, apiPost } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import EnergyYearChart from "@/components/admin/projectsCreate/projectViewSection/YearChart";
 import EnergyChart from "@/components/admin/projectsCreate/projectViewSection/MonthChart";
-import { useDarkMode } from "@/utils/common";
+import { sortByNameAsc, useDarkMode } from "@/utils/common";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 function DashboardView() {
@@ -538,7 +538,7 @@ function DashboardView() {
                         {invertersError}
                       </li>
                     ) : inverters.length ? (
-                      inverters.map((inv) => {
+                      sortByNameAsc(inverters, "name").map((inv) => {
                         const isSelectedInv =
                           selectedInverter &&
                           (selectedInverter.id === inv.id ||
