@@ -503,7 +503,7 @@ function DashboardView() {
                 }}
                 disabled={!selectedProject}
               >
-                {selectedInverter ? selectedInverter.name : "Inverter ▼"}
+                {selectedInverter ? selectedInverter.name : `${lang("dashboard.all_inverters", "All Inverters")} ▼`}
               </button>
               {showInverterDropdown && selectedProject && (
                 <div
@@ -580,11 +580,11 @@ function DashboardView() {
 
           {selectedProject && (
             <div style={{ marginBottom: "12px", color: "#374151" }}>
-              Selected project: <strong>{selectedProject.name}</strong>
+              {lang("dashboard.selected_project", "Selected project")}: <strong>{selectedProject.name}</strong>
               {selectedInverter && (
                 <span style={{ marginLeft: 12 }}>
                   {" "}
-                  • Inverter: <strong>{selectedInverter.name}</strong>
+                  • {lang("dashboard.inverter", "Inverter")}: <strong>{selectedInverter.name}</strong>
                 </span>
               )}
             </div>
@@ -642,7 +642,7 @@ function DashboardView() {
                   color: "#111827",
                 }}
               >
-                Energy Production Overview
+                {lang("projectView.energyProduction.energy_production", "Energy Production Overview")}
               </h3>
               <div style={{ display: "flex", gap: "8px" }}>
                 {["day", "month", "year"].map((mode) => (
@@ -721,7 +721,7 @@ function DashboardView() {
 
       <ProjectsTable />
 
-        <PayoutCard />
+      <PayoutCard />
       <div className="bottom-row">
         {/* <DocumentsCard /> */}
       </div>

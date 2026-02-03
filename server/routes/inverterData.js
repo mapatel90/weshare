@@ -375,7 +375,7 @@ router.post("/investor/latest-record", authenticateToken, async (req, res) => {
     const projectInverters = await prisma.project_inverters.findMany({
       where: { is_deleted: 0, ...projectFilter },
       include: {
-        inverters: { select: { inverter_name: true } },
+        inverters: { select: { title: true } },
       },
     });
 
@@ -669,7 +669,7 @@ router.post("/offtaker/summary/data", authenticateToken, async (req, res) => {
     const projectInverters = await prisma.project_inverters.findMany({
       where: { is_deleted: 0, ...projectFilter },
       include: {
-        inverters: { select: { inverter_name: true } },
+        inverters: { select: { title: true } },
       },
     });
 
