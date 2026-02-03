@@ -348,7 +348,9 @@ const InvoiceViewContant = ({ invoiceId }) => {
                 <tr key={item.id} style={{ backgroundColor: idx % 2 ? '#ffffff' : '#f9fafb' }}>
                   <td className="px-3 py-2 text-nowrap">
                     <div className="fw-semibold">{item.title}</div>
-                    <div className="text-muted" style={{ fontSize: '0.75rem' }}>{item.desc}</div>
+                    <div className="text-muted" style={{ fontSize: '0.75rem', whiteSpace: 'pre-line' }}>
+                      {item.desc.replace(/\\n/g, '\n')}
+                    </div>
                   </td>
                   <td className="px-3 py-2 text-nowrap">{(item.unit).toFixed(2)}</td>
                   <td className="px-3 py-2 text-nowrap">{item.price}</td>

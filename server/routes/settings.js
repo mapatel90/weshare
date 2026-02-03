@@ -64,28 +64,35 @@ const deleteOldLogoIfSafe = async (publicPath) => {
 // Get all settings
 router.get("/", async (req, res) => {
   try {
+    // const settings = await prisma.$queryRaw`
+    //   SELECT 
+    //     s.key,
+    //     s.value,
+
+    //     CASE WHEN s.key = 'site_country' THEN c.name END AS site_country_name,
+    //     CASE WHEN s.key = 'site_state'   THEN st.name END AS site_state_name,
+    //     CASE WHEN s.key = 'site_city'    THEN ct.name END AS site_city_name
+
+    //   FROM settings s
+
+    //   LEFT JOIN countries c 
+    //     ON s.key = 'site_country'
+    //     AND c.id = CASE WHEN s.value ~ '^[0-9]+$' THEN CAST(s.value AS INTEGER) END
+
+    //   LEFT JOIN states st 
+    //     ON s.key = 'site_state'
+    //     AND st.id = CASE WHEN s.value ~ '^[0-9]+$' THEN CAST(s.value AS INTEGER) END
+
+    //   LEFT JOIN cities ct 
+    //     ON s.key = 'site_city'
+    //     AND ct.id = CASE WHEN s.value ~ '^[0-9]+$' THEN CAST(s.value AS INTEGER) END
+    // `;
+
     const settings = await prisma.$queryRaw`
       SELECT 
         s.key,
-        s.value,
-
-        CASE WHEN s.key = 'site_country' THEN c.name END AS site_country_name,
-        CASE WHEN s.key = 'site_state'   THEN st.name END AS site_state_name,
-        CASE WHEN s.key = 'site_city'    THEN ct.name END AS site_city_name
-
+        s.value
       FROM settings s
-
-      LEFT JOIN countries c 
-        ON s.key = 'site_country'
-        AND c.id = CASE WHEN s.value ~ '^[0-9]+$' THEN CAST(s.value AS INTEGER) END
-
-      LEFT JOIN states st 
-        ON s.key = 'site_state'
-        AND st.id = CASE WHEN s.value ~ '^[0-9]+$' THEN CAST(s.value AS INTEGER) END
-
-      LEFT JOIN cities ct 
-        ON s.key = 'site_city'
-        AND ct.id = CASE WHEN s.value ~ '^[0-9]+$' THEN CAST(s.value AS INTEGER) END
     `;
 
     const settingsObj = {};
