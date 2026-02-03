@@ -6,7 +6,7 @@ import AOS from 'aos'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { useRouter } from 'next/navigation'
 
-const VisionSection = () => {
+const   VisionSection = () => {
   const { lang } = useLanguage()
   const router = useRouter()
   
@@ -37,6 +37,7 @@ const VisionSection = () => {
                 type="button"
                 className="btn btn-primary-custom mt-3 d-inline-flex align-items-center"
                 onClick={() => router.push('/frontend/exchange-hub')}
+                style={{ backgroundColor: "#F6A623", borderColor: "#F6A623" }}
               >
                 {lang('home.vision.visitHub')}
                 <Image className="ms-2" src="/images/icons/right-white.svg" alt="arrow" width={20} height={20} />

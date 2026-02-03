@@ -56,6 +56,7 @@ const MissionSection = () => {
                 type="button"
                 className="btn btn-primary-custom mt-3 d-inline-flex align-items-center"
                 onClick={() => router.push('/frontend/exchange-hub')}
+                style={{ backgroundColor: "#F6A623", borderColor: "#F6A623" }}
               >
                 {lang('home.mission.visitHub')}
                 <Image
