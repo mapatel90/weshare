@@ -183,8 +183,6 @@ router.delete("/:investorUserId/:projectId", authenticateToken, async (req, res)
   }
 });
 
-
-
 // Mark investor for project - updates project.investor_id
 router.post("/:id/mark-investor", authenticateToken, async (req, res) => {
   try {
@@ -195,7 +193,7 @@ router.post("/:id/mark-investor", authenticateToken, async (req, res) => {
       return res.status(400).json({ success: false, message: "projectId is required" });
     }
 
-    // Verify investor exists and is not deleted
+    //  investor exists and is not deleted
     const investor = await prisma.interested_investors.findFirst({
       where: { id: investorId, is_deleted: 0 },
     });
@@ -203,12 +201,52 @@ router.post("/:id/mark-investor", authenticateToken, async (req, res) => {
       return res.status(404).json({ success: false, message: "Investor not found" });
     }
 
-    // Verify project exists
+    //  project exists
     const project = await prisma.projects.findFirst({
       where: { id: Number(projectId), is_deleted: 0 },
     });
+
     if (!project) {
       return res.status(404).json({ success: false, message: "Project not found" });
+    }
+
+    // check old invester assign if yes check contrect status is 1 so fist cnacle after new assign
+    const oldInvestor = await prisma.projects.findFirst({
+      where: { id: Number(projectId) },
+      select: { investor_id: true },
+    });
+
+    if (oldInvestor?.investor_id) {
+      const existingContract = await prisma.contracts.findFirst({
+        where: { project_id: Number(projectId), investor_id: Number(oldInvestor?.investor_id), status: { not: 4 } },
+      });
+      if (existingContract) {
+        if (existingContract?.status == 1) {
+          return res.status(400).json({ success: false, message: "Cuurent Invester has an active contract, please cancel the contract first" });
+        } else {
+          await prisma.contracts.update({
+            where: { id: existingContract.id },
+            data: { status: 4 },
+          });
+
+          const lang = await getUserLanguage(existingContract?.investor_id);
+          const notification_title = t(lang, 'notification_msg.contract_cancelled_title');
+          const notification_message = t(lang, 'notification_msg.contract_cancelled_message', {
+            contract_title: existingContract.contract_title,
+            created_by: await getUserFullName(existingContract?.created_by),
+          }); 
+
+          await createNotification({
+            userId: Number(existingContract?.investor_id),
+            title: notification_title,
+            message: notification_message,
+            moduleType: 'contract',
+            moduleId: existingContract.id,
+            actionUrl: `/contract/view/${existingContract.id}`,
+            created_by: 1,
+          });
+        }
+      }
     }
 
     // Update project with investor_id
@@ -248,4 +286,5 @@ router.post("/:id/mark-investor", authenticateToken, async (req, res) => {
     return res.status(500).json({ success: false, message: error.message });
   }
 });
+
 export default router;
