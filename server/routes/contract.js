@@ -595,6 +595,7 @@ router.put("/:id/status", authenticateToken, upload.single('file'), async (req, 
           if (s3Result.success) {
             updateData.signed_document_upload = s3Result.data.fileUrl;
           }
+          console.log('S3 signed document uploaded:', s3Result.data.fileUrl);
         } catch (err) {
           console.error('S3 upload error:', err);
         }
@@ -643,12 +644,12 @@ router.put("/:id/status", authenticateToken, upload.single('file'), async (req, 
             current_date: new Date().toLocaleDateString(),
           };
 
-          // Prepare attachments
+          // Prepare attachments (use S3 URL stored in updateData.signed_document_upload)
           const offtakerAttachments = [];
-          if (req.file) {
+          if (req.file && updateData.signed_document_upload) {
             offtakerAttachments.push({
-              filename: req.file.filename,
-              path: path.join(PUBLIC_DIR, 'images', 'contract', req.file.filename),
+              filename: path.basename(updateData.signed_document_upload),
+              path: updateData.signed_document_upload,
             });
           }
 
@@ -661,13 +662,13 @@ router.put("/:id/status", authenticateToken, upload.single('file'), async (req, 
           })
             .then((result) => {
               if (result.success) {
-                console.log(`✅ Contract approval email sent to offtaker: ${offtakerUser.email}`);
+                console.log(`Contract approval email sent to offtaker: ${offtakerUser.email}`);
               } else {
-                console.warn(`⚠️ Could not send contract approval email: ${result.error}`);
+                console.warn(` Could not send contract approval email: ${result.error}`);
               }
             })
             .catch((error) => {
-              console.error('❌ Failed to send contract approval email:', error.message);
+              console.error(' Failed to send contract approval email:', error.message);
             });
         }
       }
@@ -696,12 +697,12 @@ router.put("/:id/status", authenticateToken, upload.single('file'), async (req, 
             current_date: new Date().toLocaleDateString(),
           };
 
-          // Prepare attachments
+          // Prepare attachments (use S3 URL stored in updateData.signed_document_upload)
           const investorAttachments = [];
-          if (req.file) {
+          if (req.file && updateData.signed_document_upload) {
             investorAttachments.push({
-              filename: req.file.filename,
-              path: path.join(PUBLIC_DIR, 'images', 'contract', req.file.filename),
+              filename: path.basename(updateData.signed_document_upload),
+              path: updateData.signed_document_upload,
             });
           }
 
@@ -714,13 +715,13 @@ router.put("/:id/status", authenticateToken, upload.single('file'), async (req, 
           })
             .then((result) => {
               if (result.success) {
-                console.log(`✅ Contract approval email sent to investor: ${investor.email}`);
+                console.log(`Contract approval email sent to investor: ${investor.email}`);
               } else {
-                console.warn(`⚠️ Could not send contract approval email: ${result.error}`);
+                console.warn(`Could not send contract approval email: ${result.error}`);
               }
             })
             .catch((error) => {
-              console.error('❌ Failed to send contract approval email:', error.message);
+              console.error('Failed to send contract approval email:', error.message);
             });
         }
       }
@@ -761,13 +762,13 @@ router.put("/:id/status", authenticateToken, upload.single('file'), async (req, 
           })
             .then((result) => {
               if (result.success) {
-                console.log(`✅ Contract rejection email sent to offtaker: ${offtakerUser.email}`);
+                console.log(`Contract rejection email sent to offtaker: ${offtakerUser.email}`);
               } else {
-                console.warn(`⚠️ Could not send contract rejection email: ${result.error}`);
+                console.warn(` Could not send contract rejection email: ${result.error}`);
               }
             })
             .catch((error) => {
-              console.error('❌ Failed to send contract rejection email:', error.message);
+              console.error('Failed to send contract rejection email:', error.message);
             });
         }
       }
@@ -802,13 +803,13 @@ router.put("/:id/status", authenticateToken, upload.single('file'), async (req, 
           })
             .then((result) => {
               if (result.success) {
-                console.log(`✅ Contract rejection email sent to investor: ${investor.email}`);
+                console.log(`Contract rejection email sent to investor: ${investor.email}`);
               } else {
-                console.warn(`⚠️ Could not send contract rejection email: ${result.error}`);
+                console.warn(`Could not send contract rejection email: ${result.error}`);
               }
             })
             .catch((error) => {
-              console.error('❌ Failed to send contract rejection email:', error.message);
+              console.error('Failed to send contract rejection email:', error.message);
             });
         }
       }
