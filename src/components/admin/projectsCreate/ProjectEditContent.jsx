@@ -9,7 +9,7 @@ import { useLanguage } from '@/contexts/LanguageContext'
 import InverterTab from './InverterTab'
 import Investor from './Investor'
 import Contract from '../contract/ContractTable'
-import { generateSlug, checkProjectNameExists } from '@/utils/projectUtils'
+import { generateSlug, checkProjectNameExists, check_project_solis_plant_id_exists } from '@/utils/projectUtils'
 import { getFullImageUrl } from '@/utils/common'
 import ProjectForm from './ProjectForm'
 import MeterView from '../meter/MeterView'
@@ -463,6 +463,14 @@ const ProjectEditContent = ({ projectId }) => {
             const nameExists = await checkProjectNameExists(formData.project_name, projectId)
             if (nameExists) {
                 errors.project_name = lang('projects.projectNameExists', 'Project name already exists')
+            }
+        }
+
+        // Check if solis plant id already exists (exclude current project)
+        if (formData.solis_plant_id) {
+            const solisPlantIdExists = await check_project_solis_plant_id_exists(projectId, formData.solis_plant_id)
+            if (solisPlantIdExists) {
+                errors.solis_plant_id = lang('projects.solis_plant_id_exists', 'Solis Plant ID already exists')
             }
         }
 
