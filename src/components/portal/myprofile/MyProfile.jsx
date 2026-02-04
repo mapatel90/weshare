@@ -1,6 +1,7 @@
 "use client";
 
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage, LANGUAGES } from "@/contexts/LanguageContext";
 import useLocationData from "@/hooks/useLocationData";
 import { apiGet, apiUpload } from "@/lib/api";
 import { getFullImageUrl } from "@/utils/common";
@@ -25,6 +26,7 @@ import { useEffect, useState } from "react";
 
 const MyProfile = () => {
     const { user, updateUser } = useAuth()
+    const { currentLanguage, changeLanguage, lang } = useLanguage()
     const {
         countries,
         states,
@@ -49,7 +51,8 @@ const MyProfile = () => {
         stateId: '',
         cityId: '',
         zipcode: '',
-        user_image: ''
+        user_image: '',
+        language: currentLanguage || 'en'
     })
     const [imageFile, setImageFile] = useState(null)
     const [imagePreview, setImagePreview] = useState(null)
@@ -78,7 +81,8 @@ const MyProfile = () => {
                         stateId: userData.state_id || '',
                         cityId: userData.city_id || '',
                         zipcode: userData.zipcode || '',
-                        user_image: userData.user_image || ''
+                        user_image: userData.user_image || '',
+                        language: userData.language || currentLanguage || 'en'
                     })
 
 
@@ -226,6 +230,7 @@ const MyProfile = () => {
             formData.append('state_id', profileData.stateId || '')
             formData.append('city_id', profileData.cityId || '')
             formData.append('zipcode', profileData.zipcode || '')
+            formData.append('language', profileData.language || 'en')
 
             // Add image file if selected
             if (imageFile) {
@@ -239,11 +244,17 @@ const MyProfile = () => {
                 setImageFile(null)
                 setImageError('')
 
+                // Update language context if language was changed
+                if (profileData.language && profileData.language !== currentLanguage) {
+                    changeLanguage(profileData.language)
+                }
+
                 // Update profile data with response
                 if (response.data) {
                     setProfileData(prev => ({
                         ...prev,
-                        user_image: response.data.user_image || prev.user_image
+                        user_image: response.data.user_image || prev.user_image,
+                        language: response.data.language || prev.language
                     }))
 
                     // Update image preview with new image
@@ -620,6 +631,46 @@ const MyProfile = () => {
                                                 }
                                             }}
                                         />
+                                    </Grid>
+                                </Grid>
+                            </Box>
+
+                            {/* Preferences Section */}
+                            <Box sx={{ mb: 4 }}>
+                                <Typography variant="h6" sx={{ fontWeight: 600, mb: 3, color: '#334155' }}>
+                                    {lang('profile.preferences', 'Preferences')}
+                                </Typography>
+                                <Grid container spacing={3}>
+                                    <Grid item xs={12} md={6}>
+                                        <TextField
+                                            fullWidth
+                                            select
+                                            label={lang('profile.language', 'Language')}
+                                            name="language"
+                                            value={profileData.language}
+                                            onChange={handleInputChange}
+                                            variant="outlined"
+                                            sx={{
+                                                '& .MuiOutlinedInput-root': {
+                                                    borderRadius: 2,
+                                                    '&:hover fieldset': { borderColor: '#f6a623' },
+                                                    '&.Mui-focused fieldset': { borderColor: '#f6a623' }
+                                                }
+                                            }}
+                                        >
+                                            {Object.values(LANGUAGES).map((language) => (
+                                                <MenuItem key={language.code} value={language.code}>
+                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                        <img
+                                                            src={language.flag}
+                                                            alt={language.name}
+                                                            style={{ width: '20px', height: '15px', objectFit: 'cover' }}
+                                                        />
+                                                        <span>{language.name}</span>
+                                                    </Box>
+                                                </MenuItem>
+                                            ))}
+                                        </TextField>
                                     </Grid>
                                 </Grid>
                             </Box>
