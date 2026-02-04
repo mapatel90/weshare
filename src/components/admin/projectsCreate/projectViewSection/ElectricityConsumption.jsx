@@ -405,6 +405,7 @@ const ElectricityConsumption = ({
               dataKey="grid_purchased_energy"
               name={lang("common.grid_purchased_energy", "Grid")}
               fill="#2563eb"
+              // stackId="total"
               barSize={isMobile ? 14 : 18}
               isAnimationActive={false}
             />
@@ -414,6 +415,7 @@ const ElectricityConsumption = ({
               dataKey="energy"
               name={lang("common.energy", "Energy")}
               fill="#f97316"
+              // stackId="total"
               barSize={isMobile ? 14 : 18}
               isAnimationActive={false}
             />
