@@ -149,7 +149,7 @@ const ElectricityConsumption = ({
       },
       {
         key: "consume_energy",
-        title: lang("projects.consume", "Consume"),
+        title: lang("projects.consume", "Total consumption"),
         color: "#22c55e",
       },
     ];
