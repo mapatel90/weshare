@@ -1743,6 +1743,10 @@
     "project_status_message": "Project \"{{project_name}}\" status has been updated to \"{{status_name}}\".",
     "investor_marked_title": "Investor Assigned",
     "investor_marked_message": "You have been assigned as an investor for the project \"{{project_name}}\" by \"{{assigned_by}}\".",
+    "investor_interest_title": "New Investor Interest",
+    "investor_interest_message": "{{investor_name}} has shown interest in your project \"{{project_name}}\".",
+    "investor_interest_admin_title": "New Investor Interest",
+    "investor_interest_admin_message": "{{investor_name}} has shown interest in project \"{{project_name}}\" (Offtaker: {{offtaker_name}}).",
     "payment_approved": "Great news! Your payment of {{amount}} for invoice {{invoice_number}} has been successfully processed.",
     "invoice_title": "New Invoice Created",
     "invoice_update_title": "Invoice Updated",
@@ -1824,5 +1828,9 @@
     "deletedSuccessfully": "Company Deleted Successfully",
     "errorOccurred": "An error occurred. Please try again.",
     "selectStatus": "Select Status"
+  },
+  "profile": {
+    "preferences": "Preferences",
+    "language": "Language"
   }
 }

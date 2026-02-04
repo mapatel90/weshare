@@ -1,3 +1,5 @@
+"use client"
+
 import React, { useState, useEffect } from 'react';
 import { Menu, MenuItem, Badge, Box, Typography, Divider, CircularProgress } from '@mui/material';
 import { useAuth } from '@/contexts/AuthContext';
@@ -98,12 +100,17 @@ const NotificationsModal = () => {
     };
 
     // Handle notification click
-    const handleNotificationClick = (notification) => {
+    const handleNotificationClick = async (notification) => {
+        console.log("notification", notification);
         if (notification.is_read === 0) {
-            markAsRead(notification.id);
+            await markAsRead(notification.id);
         }
-        if (notification.action_url) {
-            window.location.href = notification.action_url;
+
+        const baseUrl = window.location.origin; // http://localhost:3000
+        const redirectUrl = `${baseUrl}/${notification.action_url}`;
+        
+        if (redirectUrl) {
+            window.location.href = redirectUrl;
         }
         handleClose();
     };

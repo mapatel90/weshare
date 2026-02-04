@@ -4,6 +4,7 @@ import { authenticateToken } from "../middleware/auth.js";
 import { createNotification } from "../utils/notifications.js";
 import { getUserLanguage, t } from "../utils/i18n.js";
 import { getUserFullName } from "../utils/common.js";
+import { getAdminUserId, getAdminUsers } from "../utils/constants.js";
 
 const router = express.Router();
 
@@ -28,23 +29,64 @@ router.post("/", async (req, res) => {
       },
     });
 
-    //THis is to create notification for the offtaker when an investor shows interest
+    // Create notifications for offtaker and super admins when an investor shows interest
     if (projectId) {
       const project = await prisma.projects.findFirst({
         where: { id: Number(projectId) },
         include: { offtaker: true },
       });
 
-      if (project && project.offtaker) {
-        const notificationMessage = `New investor interest with name ${fullName} for project "${project.project_name}".`;
-        await createNotification({
-          userId: project.offtaker.id,
-          title: notificationMessage,
-          message: notificationMessage,
-          moduleType: 'projects',
-          moduleId: project.id,
-          actionUrl: `/projects/${project.id}/investors`,
-        });
+      if (project) {
+        // Notify the offtaker
+        if (project.offtaker) {
+          const offtakerLang = await getUserLanguage(project.offtaker.id);
+
+          const offtakerTitle = t(offtakerLang, 'notification_msg.investor_interest_title', {
+            investor_name: fullName
+          });
+
+          const offtakerMessage = t(offtakerLang, 'notification_msg.investor_interest_message', {
+            investor_name: fullName,
+            project_name: project.project_name
+          });
+
+          await createNotification({
+            userId: project.offtaker.id,
+            title: offtakerTitle || `New investor interest: ${fullName}`,
+            message: offtakerMessage || `New investor interest with name ${fullName} for project "${project.project_name}".`,
+            moduleType: 'projects',
+            moduleId: project.id,
+            actionUrl: `offtaker/projects/details/${project.id}`,
+            created_by: userId || null,
+          });
+        }
+
+        // Notify all super admins
+        const adminUsers = await getAdminUsers(prisma, { activeOnly: true });
+
+        for (const admin of adminUsers) {
+          const adminLang = await getUserLanguage(admin.id);
+
+          const adminTitle = t(adminLang, 'notification_msg.investor_interest_admin_title', {
+            investor_name: fullName
+          });
+
+          const adminMessage = t(adminLang, 'notification_msg.investor_interest_admin_message', {
+            investor_name: fullName,
+            project_name: project.project_name,
+            offtaker_name: project.offtaker?.full_name || 'Unknown'
+          });
+
+          await createNotification({
+            userId: admin.id.toString(),
+            title: adminTitle || `New investor interest: ${fullName}`,
+            message: adminMessage || `New investor interest from ${fullName} for project "${project.project_name}" (Offtaker: ${project.offtaker?.full_name || 'Unknown'}).`,
+            moduleType: 'projects',
+            moduleId: project.id,
+            actionUrl: `admin/projects/view/${project.id}`,
+            created_by: userId || null,
+          });
+        }
       }
     }
 
@@ -243,7 +285,7 @@ router.post("/:id/mark-investor", authenticateToken, async (req, res) => {
             moduleType: 'contract',
             moduleId: existingContract.id,
             actionUrl: `/contract/view/${existingContract.id}`,
-            created_by: 1,
+            created_by: getAdminUserId(),
           });
         }
       }
@@ -255,9 +297,10 @@ router.post("/:id/mark-investor", authenticateToken, async (req, res) => {
       data: { investor_id: investor?.user_id },
     });
 
-    // Create notification
+    // Create notification for the investor
+    const adminId = getAdminUserId();
     const lang = await getUserLanguage(investor?.user_id);
-    const assigned_by = await getUserFullName(1);
+    const assigned_by = await getUserFullName(adminId);
 
     const notification_title = t(lang, 'notification_msg.investor_marked_title', {
       project_name: updated.project_name,
@@ -276,7 +319,7 @@ router.post("/:id/mark-investor", authenticateToken, async (req, res) => {
         moduleType: 'projects',
         moduleId: projectId,
         actionUrl: `/projects/${updated.id}/investors`,
-        created_by: 1,
+        created_by: adminId,
       });
     }
 

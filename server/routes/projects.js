@@ -13,6 +13,7 @@ import { getUserFullName } from "../utils/common.js";
 import { sendEmailUsingTemplate } from "../utils/email.js";
 import { uploadToS3, deleteFromS3, isS3Enabled } from '../services/s3Service.js';
 import { PROJECT_STATUS } from "../../src/constants/project_status.js";
+import { getAdminUserId, getAdminUsers, getNotificationRecipients, USER_ROLES } from "../utils/constants.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -258,7 +259,7 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
         created_by: parseInt(created_by),
         project_slug: uniqueSlug,
         ...(project_type_id && {
-          project_types: { connect: { id: project_type_id } },
+          project_types: { connect: { id: parseInt(project_type_id) } },
         }),
         ...(offtaker_id && {
           offtaker: { connect: { id: parseInt(offtaker_id) } },
@@ -309,46 +310,62 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
       },
     });
 
-    if (project && created_by != 1) {
+    // Send notifications based on who created the project
+    const adminUserId = getAdminUserId();
+    const createdByInt = parseInt(created_by);
 
-      const lang = await getUserLanguage(1);
+    if (project && createdByInt != adminUserId) {
+      // Project created by non-admin (offtaker) - notify all admins
+      const adminUsers = await getAdminUsers(prisma, { activeOnly: true });
 
-      const notification_title = t(lang, 'notification_msg.project_created_title', {
-        project_name: project.project_name
-      });
+      // Send notification to each admin
+      for (const admin of adminUsers) {
+        const lang = await getUserLanguage(admin.id);
 
-      const notification_message = t(lang, 'notification_msg.project_created', {
-        project_name: project.project_name,
-        created_by: project.offtaker?.full_name
-      });
+        const notification_title = t(lang, 'notification_msg.project_created_title', {
+          project_name: project.project_name
+        });
 
-      await createNotification({
-        userId: '1',
-        title: notification_title,
-        message: notification_message,
-        moduleType: 'projects',
-        moduleId: project?.id,
-        actionUrl: `projects/view/${project.id}`,
-        created_by: parseInt(created_by),
-      });
+        const notification_message = t(lang, 'notification_msg.project_created', {
+          project_name: project.project_name,
+          created_by: project.offtaker?.full_name
+        });
+
+        await createNotification({
+          userId: admin.id.toString(),
+          title: notification_title,
+          message: notification_message,
+          moduleType: 'projects',
+          moduleId: project?.id,
+          actionUrl: `projects/view/${project.id}`,
+          created_by: createdByInt,
+        });
+      }
     } else {
-      const lang = await getUserLanguage(project.offtaker?.id);
-      const creator_name = await getUserFullName(created_by);
+      // Project created by admin - notify the offtaker
+      if (project.offtaker?.id) {
+        const lang = await getUserLanguage(project.offtaker?.id);
+        const creator_name = await getUserFullName(created_by);
 
-      const notification_message = t(lang, 'notification_msg.project_created', {
-        project_name: project.project_name,
-        created_by: creator_name
-      });
+        const notification_title = t(lang, 'notification_msg.project_created_title', {
+          project_name: project.project_name
+        });
 
-      await createNotification({
-        userId: project.offtaker?.id,
-        title: notification_message,
-        message: notification_message,
-        moduleType: 'projects',
-        moduleId: project?.id,
-        actionUrl: `projects/view/${project.id}`,
-        created_by: parseInt(created_by),
-      });
+        const notification_message = t(lang, 'notification_msg.project_created', {
+          project_name: project.project_name,
+          created_by: creator_name
+        });
+
+        await createNotification({
+          userId: project.offtaker?.id.toString(),
+          title: notification_title,
+          message: notification_message,
+          moduleType: 'projects',
+          moduleId: project?.id,
+          actionUrl: `projects/view/${project.id}`,
+          created_by: createdByInt,
+        });
+      }
     }
 
     // Send email notification for new project creation
@@ -928,7 +945,7 @@ router.put("/:id/status", authenticateToken, async (req, res) => {
         }),
         moduleType: "projects",
         moduleId: updated.id,
-        actionUrl: `projects/view/${updated.id}`,
+        actionUrl: `offtaker/projects/details/${updated.id}`,
         created_by: 1,
       });
     }
