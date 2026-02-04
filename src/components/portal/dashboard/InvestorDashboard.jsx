@@ -62,6 +62,7 @@ function DashboardView() {
   const [electricityConsumptionData, setElectricityConsumptionData] = useState(null);
   const [electricityConsumptionDataLoading, setElectricityConsumptionDataLoading] = useState(true);
   const [electricityConsumptionDate, setElectricityConsumptionDate] = useState(new Date().toISOString().slice(0, 7));
+  const [electricityConsumptionViewMode, setElectricityConsumptionViewMode] = useState("day");
 
   const normalizeInvestorProject = (entry) => {
     const source = entry.projects || entry;
@@ -323,9 +324,9 @@ function DashboardView() {
       if (!selectedProject?.id) return;
 
       let dateValue;
-      if (electricityOverviewViewMode === "day") {
+      if (electricityConsumptionViewMode === "day") {
         dateValue = electricityConsumptionDate; // YYYY-MM format
-      } else if (electricityOverviewViewMode === "month") {
+      } else if (electricityConsumptionViewMode === "month") {
         dateValue = electricityConsumptionDate.slice(0, 4); // YYYY format
       } else {
         dateValue = new Date().getFullYear().toString(); // YYYY format (not used by API but required)
@@ -333,7 +334,7 @@ function DashboardView() {
 
       const payload = {
         projectId: selectedProject?.id ?? null,
-        type: electricityOverviewViewMode,
+        type: electricityConsumptionViewMode,
         date: dateValue,
       };
 
@@ -349,7 +350,7 @@ function DashboardView() {
       }
     };
     loadElectricityConsumptionData();
-  }, [selectedProject?.id, electricityOverviewViewMode, electricityConsumptionDate]);
+  }, [selectedProject?.id, electricityConsumptionViewMode, electricityConsumptionDate]);
 
   useEffect(() => {
     function handleClick(e) {
@@ -648,6 +649,7 @@ function DashboardView() {
             data={electricityConsumptionData}
             loading={electricityConsumptionDataLoading}
             selectedMonthYear={electricityConsumptionDate}
+            onMonthYearChange={setElectricityConsumptionDate}
             isDark={isDark}
           />
         </>

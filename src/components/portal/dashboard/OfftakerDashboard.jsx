@@ -78,6 +78,7 @@ function DashboardView() {
   const [electricityConsumptionData, setElectricityConsumptionData] = useState(null);
   const [electricityConsumptionDataLoading, setElectricityConsumptionDataLoading] = useState(true);
   const [electricityConsumptionDate, setElectricityConsumptionDate] = useState(new Date().toISOString().slice(0, 7));
+  const [electricityConsumptionViewMode, setElectricityConsumptionViewMode] = useState("day");
 
 
   // fetch offtaker projects similar to ProjectTable
@@ -462,17 +463,17 @@ function DashboardView() {
       if (!selectedProject?.id) return;
 
       let dateValue;
-      if (electricityOverviewViewMode === "day") {
-        dateValue = electricityOverviewDate; // YYYY-MM format
-      } else if (electricityOverviewViewMode === "month") {
-        dateValue = electricityOverviewDate.slice(0, 4); // YYYY format
+      if (electricityConsumptionViewMode === "day") {
+        dateValue = electricityConsumptionDate; // YYYY-MM format
+      } else if (electricityConsumptionViewMode === "month") {
+        dateValue = electricityConsumptionDate.slice(0, 4); // YYYY format
       } else {
         dateValue = new Date().getFullYear().toString(); // YYYY format (not used by API but required)
       }
 
       const payload = {
         projectId: selectedProject?.id ?? null,
-        type: electricityOverviewViewMode,
+        type: electricityConsumptionViewMode,
         date: dateValue,
       };
 
@@ -488,7 +489,7 @@ function DashboardView() {
       }
     };
     loadElectricityConsumptionData();
-  }, [selectedProject?.id, electricityOverviewViewMode, electricityOverviewDate]);
+  }, [selectedProject?.id, electricityConsumptionViewMode, electricityConsumptionDate]);
 
   return (
     <div>
@@ -774,6 +775,7 @@ function DashboardView() {
             data={electricityConsumptionData}
             loading={electricityConsumptionDataLoading}
             selectedMonthYear={electricityConsumptionDate}
+            onMonthYearChange={setElectricityConsumptionDate}
             isDark={isDark}
           />
 

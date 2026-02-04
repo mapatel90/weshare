@@ -1714,6 +1714,8 @@ router.post('/electricity/consumption-chart', async (req, res) => {
         consume_energy: true,
         energy: true,
         grid_purchased_energy: true,
+        battery_charge_energy: true,
+        battery_discharge_energy: true,
       },
       orderBy: { date: 'asc' },
     });
@@ -1737,14 +1739,16 @@ router.post('/electricity/consumption-chart', async (req, res) => {
         resultMap[key] = { energy: 0, grid_purchased_energy: 0, consume_energy: 0 };
       }
 
-      const consume_energy = Number(row.consume_energy) || 0;
-      const energy = Number(row.energy) || 0;
-      const grid_purchased_energy = Number(row.grid_purchased_energy) || 0;
+      const total_consumes_energy = Number(row?.consume_energy) || 0;
+      const energy = Number(row?.energy) || 0;
+      const grid_purchased_energy = Number(row?.grid_purchased_energy) || 0;
+      const battery_charge_energy = Number(row?.battery_charge_energy) || 0;
+      const battery_discharge_energy = Number(row?.battery_discharge_energy) || 0;
+      const consume_energy = total_consumes_energy + battery_charge_energy - battery_discharge_energy;
 
-
-      resultMap[key].consume_energy += consume_energy;
       resultMap[key].energy += energy;
       resultMap[key].grid_purchased_energy += grid_purchased_energy;
+      resultMap[key].consume_energy += consume_energy;
     });
 
     const data = Object.keys(resultMap).map((key) => ({

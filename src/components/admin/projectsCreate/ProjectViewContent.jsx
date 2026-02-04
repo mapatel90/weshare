@@ -315,17 +315,17 @@ const ProjectViewContent = ({ projectId = "" }) => {
       if (!projectId) return;
 
       let dateValue;
-      if (electricityOverviewViewMode === "day") {
-        dateValue = electricityOverviewDate; // YYYY-MM format
-      } else if (electricityOverviewViewMode === "month") {
-        dateValue = electricityOverviewDate.slice(0, 4); // YYYY format
+        if (electricityConsumptionViewMode === "day") {
+        dateValue = electricityConsumptionDate; // YYYY-MM format
+      } else if (electricityConsumptionViewMode === "month") {
+        dateValue = electricityConsumptionDate.slice(0, 4); // YYYY format
       } else {
         dateValue = new Date().getFullYear().toString(); // YYYY format (not used by API but required)
       }
 
       const payload = {
         projectId: projectId ?? null,
-        type: electricityOverviewViewMode,
+        type: electricityConsumptionViewMode,
         date: dateValue,
       };
 
@@ -341,7 +341,7 @@ const ProjectViewContent = ({ projectId = "" }) => {
       }
     };
     loadElectricityConsumptionData();
-  }, [projectId, electricityOverviewViewMode, electricityOverviewDate]);
+  }, [projectId, electricityConsumptionViewMode, electricityConsumptionDate]);
 
 
   // ------------------- Determine which data to show -------------------
@@ -680,7 +680,8 @@ const ProjectViewContent = ({ projectId = "" }) => {
       <ElectricityConsumption
         data={electricityConsumptionData}
         loading={electricityConsumptionDataLoading}
-        selectedMonthYear={electricityConsumptionDate} 
+        selectedMonthYear={electricityConsumptionDate}
+        onMonthYearChange={setElectricityConsumptionDate}
         isDark={isDark}
       />
 

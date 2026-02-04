@@ -16,6 +16,8 @@ import dayjs from "dayjs";
 import { FiZap } from "react-icons/fi";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { formatShort } from "@/utils/common";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 const buildDayWiseData = (raw = [], selectedMonthYear) => {
   if (!Array.isArray(raw) || !selectedMonthYear) return [];
@@ -99,11 +101,15 @@ const ElectricityConsumption = ({
   data,
   loading = false,
   selectedMonthYear,
+  onMonthYearChange,
   isDark = false,
 }) => {
   const { lang } = useLanguage();
   const [isMobile, setIsMobile] = useState(false);
   const [isTablet, setIsTablet] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(
+    selectedMonthYear ? dayjs(selectedMonthYear, "YYYY-MM").toDate() : new Date()
+  );
 
   useEffect(() => {
     const onResize = () => {
@@ -121,6 +127,21 @@ const ElectricityConsumption = ({
     () => buildDayWiseData(data, selectedMonthYear),
     [data, selectedMonthYear]
   );
+
+  // Sync internal Date object with incoming YYYY-MM, same pattern as MonthChart.jsx
+  useEffect(() => {
+    if (selectedMonthYear) {
+      setSelectedDate(dayjs(selectedMonthYear, "YYYY-MM").toDate());
+    }
+  }, [selectedMonthYear]);
+
+  const handleDateChange = (date) => {
+    setSelectedDate(date);
+    if (date && onMonthYearChange) {
+      const monthYear = dayjs(date).format("YYYY-MM");
+      onMonthYearChange(monthYear);
+    }
+  };
 
   const maxKwhValue = useMemo(() => getMaxKwhValue(chartData), [chartData]);
   const yTicks = useMemo(() => generateTicks(maxKwhValue), [maxKwhValue]);
@@ -269,56 +290,72 @@ const ElectricityConsumption = ({
   }
 
   return (
-    <div
-      style={{
-        backgroundColor: isDark ? "#121a2d" : "#ffffff",
-        borderRadius: 12,
-        border: `1px solid ${isDark ? "#1b2436" : "#e5e7eb"}`,
-        boxShadow: isDark
-          ? "0 0 20px rgba(14, 32, 56, 0.3)"
-          : "0 1px 3px rgba(0,0,0,0.1), 0 4px 12px rgba(0,0,0,0.05)",
-        padding: isMobile ? 16 : isTablet ? 20 : 24,
-        transition: "box-shadow 0.3s ease",
-        width: "100%",
-        marginBottom: isMobile ? 16 : 24,
-      }}
-    >
+    <>
+      <style>{`
+      .date-picker-wrapper .react-datepicker__input-container input {
+        width: 100%;
+        padding: ${isMobile ? '10px 12px' : '8px 12px'};
+        border-radius: 8px;
+        border: 1px solid ${isDark ? '#1b2436' : '#d1d5db'};
+        background: ${isDark ? '#121a2d' : '#fff'};
+        color: ${isDark ? '#ffffff' : '#111827'};
+        font-size: ${isMobile ? '13px' : '14px'};
+      }
+      .date-picker-wrapper .react-datepicker__input-container input:focus {
+        outline: none;
+        border-color: #3b82f6;
+      }
+    `}</style>
       <div
         style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 8,
-          marginBottom: 16,
+          backgroundColor: isDark ? "#121a2d" : "#ffffff",
+          borderRadius: 12,
+          border: `1px solid ${isDark ? "#1b2436" : "#e5e7eb"}`,
+          boxShadow: isDark
+            ? "0 0 20px rgba(14, 32, 56, 0.3)"
+            : "0 1px 3px rgba(0,0,0,0.1), 0 4px 12px rgba(0,0,0,0.05)",
+          padding: isMobile ? 16 : isTablet ? 20 : 24,
+          transition: "box-shadow 0.3s ease",
+          width: "100%",
+          marginBottom: isMobile ? 16 : 24,
         }}
       >
         <div
           style={{
-            width: 32,
-            height: 32,
-            borderRadius: "999px",
             display: "flex",
             alignItems: "center",
-            justifyContent: "center",
-            backgroundColor: isDark ? "#0f172a" : "#eff6ff",
-            color: "#2563eb",
+            gap: 8,
+            marginBottom: 16,
           }}
         >
-          <FiZap />
-        </div>
-        <div>
           <div
             style={{
-              fontSize: 15,
-              fontWeight: 600,
-              color: isDark ? "#e5e7eb" : "#111827",
+              width: 32,
+              height: 32,
+              borderRadius: "999px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              backgroundColor: isDark ? "#0f172a" : "#eff6ff",
+              color: "#2563eb",
             }}
           >
-            {lang(
-              "projects.electricityConsumptionTitle",
-              "Electricity Consumption"
-            )}
+            <FiZap />
           </div>
-          {/* <div
+          <div>
+            <div
+              style={{
+                fontSize: 15,
+                fontWeight: 600,
+                color: isDark ? "#e5e7eb" : "#111827",
+              }}
+            >
+              {lang(
+                "projects.electricityConsumptionTitle",
+                "Electricity Consumption"
+              )}
+            </div>
+            {/* <div
             style={{
               fontSize: 12,
               color: isDark ? "#9ca3af" : "#6b7280",
@@ -329,112 +366,132 @@ const ElectricityConsumption = ({
               "Day-wise breakdown for the selected month."
             )}
           </div> */}
+          </div>
+        </div>
+
+        <div
+          className="date-picker-wrapper"
+          style={{
+            width: isMobile ? "30%" : isTablet ? "50%" : "10%",
+            marginBottom: 12,
+          }}
+        >
+          <DatePicker
+            selected={selectedDate}
+            onChange={handleDateChange}
+            dateFormat="MM / yyyy"
+            showMonthYearPicker
+            placeholderText={lang(
+              "projects.electricityConsumptionMonth",
+              "Select month and year"
+            )}
+          />
+        </div>
+
+        <div
+          style={{
+            width: "100%",
+            height: isMobile ? 380 : isTablet ? 420 : 360,
+            overflowX: isMobile || isTablet ? "auto" : "visible",
+          }}
+        >
+          <ResponsiveContainer
+            width={isMobile ? "100%" : "98%"}
+            height={isMobile ? "80%" : "88%"}
+            minWidth={isMobile ? 320 : isTablet ? 560 : 0}
+          >
+            <ComposedChart
+              data={chartData}
+              // stackOffset="none"
+              // barGap={isMobile ? -14 : -18}
+              margin={{
+                top: isMobile ? 20 : 24,
+                right: isMobile ? 12 : 24,
+                left: isMobile ? 8 : 24,
+                bottom: isMobile ? 10 : 16,
+              }}
+              barCategoryGap="10%"
+            >
+              <CartesianGrid
+                strokeDasharray="3 3"
+                stroke={isDark ? "#1f2937" : "#e5e7eb"}
+                opacity={0.5}
+              />
+
+              <XAxis
+                dataKey="label"
+                tick={{ fontSize: isMobile ? 10 : 12, fill: isDark ? "#cbd5f5" : "#4b5563" }}
+                tickMargin={8}
+              />
+
+              {/* Single Y-axis (kWh) for both bars + line */}
+              <YAxis
+                yAxisId="left"
+                type="number"
+                domain={[0, maxKwhValue]}
+                ticks={yTicks}
+                allowDecimals={false}
+                tick={{ fontSize: isMobile ? 10 : 12, fill: isDark ? "#e5e7eb" : "#111827" }}
+                label={{
+                  value: lang("projects.kwh", "kWh"),
+                  angle: -90,
+                  position: "insideLeft",
+                  offset: 10,
+                  dx: -20,
+                  style: {
+                    fill: isDark ? "#cbd5f5" : "#4b5563",
+                    fontSize: 12,
+                  },
+                }}
+                tickFormatter={(v) => formatShort(v)}
+              />
+
+              <Tooltip content={renderTooltip} />
+
+              <Legend
+                wrapperStyle={{
+                  fontSize: isMobile ? 11 : 12,
+                  color: isDark ? "#cbd5f5" : "#4b5563",
+                }}
+                iconSize={12}
+              />
+
+              <Bar
+                yAxisId="left"
+                dataKey="grid_purchased_energy"
+                name={lang("common.grid_purchased_energy", "Grid")}
+                fill="#2563eb"
+                stackId="total"
+                barSize={isMobile ? 14 : 18}
+                isAnimationActive={false}
+              />
+
+              <Bar
+                yAxisId="left"
+                dataKey="energy"
+                name={lang("common.energy", "Energy")}
+                fill="#f97316"
+                stackId="total"
+                barSize={isMobile ? 14 : 18}
+                isAnimationActive={false}
+              />
+
+              {/* Consume Energy line */}
+              <Line
+                yAxisId="left"
+                type="monotone"
+                dataKey="consume_energy"
+                name={lang("projects.consumeEnergy", "Total consumption")}
+                stroke="#22c55e"
+                strokeWidth={2}
+                dot={{ r: 3, fill: "#22c55e" }}
+                activeDot={{ r: 5, fill: "#22c55e" }}
+              />
+            </ComposedChart>
+          </ResponsiveContainer>
         </div>
       </div>
-
-      <div
-        style={{
-          width: "100%",
-          height: isMobile ? 380 : isTablet ? 420 : 360,
-          overflowX: isMobile || isTablet ? "auto" : "visible",
-        }}
-      >
-        <ResponsiveContainer
-          width={isMobile ? "100%" : "98%"}
-          height={isMobile ? "80%" : "88%"}
-          minWidth={isMobile ? 320 : isTablet ? 560 : 0}
-        >
-          <ComposedChart
-            data={chartData}
-            stackOffset="none"
-            barGap={isMobile ? -14 : -18}
-            margin={{
-              top: isMobile ? 20 : 24,
-              right: isMobile ? 12 : 24,
-              left: isMobile ? 8 : 24,
-              bottom: isMobile ? 10 : 16,
-            }}
-            barCategoryGap="10%"
-          >
-            <CartesianGrid
-              strokeDasharray="3 3"
-              stroke={isDark ? "#1f2937" : "#e5e7eb"}
-              opacity={0.5}
-            />
-
-            <XAxis
-              dataKey="label"
-              tick={{ fontSize: isMobile ? 10 : 12, fill: isDark ? "#cbd5f5" : "#4b5563" }}
-              tickMargin={8}
-            />
-
-            {/* Single Y-axis (kWh) for both bars + line */}
-            <YAxis
-              yAxisId="left"
-              type="number"
-              domain={[0, maxKwhValue]}
-              ticks={yTicks}
-              allowDecimals={false}
-              tick={{ fontSize: isMobile ? 10 : 12, fill: isDark ? "#e5e7eb" : "#111827" }}
-              label={{
-                value: lang("projects.kwh", "kWh"),
-                angle: -90,
-                position: "insideLeft",
-                offset: 10,
-                dx: -20,
-                style: {
-                  fill: isDark ? "#cbd5f5" : "#4b5563",
-                  fontSize: 12,
-                },
-              }}
-              tickFormatter={(v) => formatShort(v)}
-            />
-
-            <Tooltip content={renderTooltip} />
-
-            <Legend
-              wrapperStyle={{
-                fontSize: isMobile ? 11 : 12,
-                color: isDark ? "#cbd5f5" : "#4b5563",
-              }}
-              iconSize={12}
-            />
-
-            <Bar
-              yAxisId="left"
-              dataKey="grid_purchased_energy"
-              name={lang("common.grid_purchased_energy", "Grid")}
-              fill="#2563eb"
-              // stackId="total"
-              barSize={isMobile ? 14 : 18}
-              isAnimationActive={false}
-            />
-
-            <Bar
-              yAxisId="left"
-              dataKey="energy"
-              name={lang("common.energy", "Energy")}
-              fill="#f97316"
-              // stackId="total"
-              barSize={isMobile ? 14 : 18}
-              isAnimationActive={false}
-            />
-
-            {/* Consume Energy line */}
-            <Line
-              yAxisId="left"
-              type="monotone"
-              dataKey="consume_energy"
-              name={lang("projects.consumeEnergy", "Total consumption")}
-              stroke="#22c55e"
-              strokeWidth={2}
-              dot={{ r: 3, fill: "#22c55e" }}
-              activeDot={{ r: 5, fill: "#22c55e" }}
-            />
-          </ComposedChart>
-        </ResponsiveContainer>
-      </div>
-    </div>
+    </>
   );
 };
 
