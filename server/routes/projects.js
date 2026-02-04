@@ -1712,6 +1712,8 @@ router.post('/electricity/consumption-chart', async (req, res) => {
       select: {
         date: true,
         consume_energy: true,
+        energy: true,
+        grid_purchased_energy: true,
       },
       orderBy: { date: 'asc' },
     });
@@ -1732,26 +1734,24 @@ router.post('/electricity/consumption-chart', async (req, res) => {
       }
 
       if (!resultMap[key]) {
-        resultMap[key] = { evn: 0, weshare: 0, consume_energy: 0 };
+        resultMap[key] = { energy: 0, grid_purchased_energy: 0, consume_energy: 0 };
       }
 
       const consume_energy = Number(row.consume_energy) || 0;
-      const evnPrice = Number(project.evn_price_kwh) || 0;
-      const wesharePrice = Number(project.weshare_price_kwh) || 0;
+      const energy = Number(row.energy) || 0;
+      const grid_purchased_energy = Number(row.grid_purchased_energy) || 0;
 
-      const evnAmount = consume_energy * evnPrice;
-      const weshareAmount = consume_energy * wesharePrice;
 
-      resultMap[key].evn += evnAmount;
-      resultMap[key].weshare += weshareAmount;
       resultMap[key].consume_energy += consume_energy;
+      resultMap[key].energy += energy;
+      resultMap[key].grid_purchased_energy += grid_purchased_energy;
     });
 
     const data = Object.keys(resultMap).map((key) => ({
       label: key,
-      evn: resultMap[key].evn,
-      weshare: resultMap[key].weshare,
-      consume_energy: resultMap[key].consume_energy
+      consume_energy: resultMap[key].consume_energy,
+      energy: resultMap[key].energy,
+      grid_purchased_energy: resultMap[key].grid_purchased_energy
     }));
 
     return res.json({

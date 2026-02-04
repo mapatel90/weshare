@@ -73,7 +73,7 @@ const ProjectViewContent = ({ projectId = "" }) => {
   const [electricityOverviewViewMode, setElectricityOverviewViewMode] = useState("day"); // day | month | year
   const [electricityOverviewDate, setElectricityOverviewDate] = useState(new Date().toISOString().slice(0, 7)); // YYYY-MM for day, YYYY for month
   const [electricityConsumptionData, setElectricityConsumptionData] = useState(null);
-  const [electricityConsumptionDataLoading, setElectricityConsumptionDataLoading] = useState(true); 
+  const [electricityConsumptionDataLoading, setElectricityConsumptionDataLoading] = useState(true);
   const [electricityConsumptionViewMode, setElectricityConsumptionViewMode] = useState("day"); // day | month | year
   const [electricityConsumptionDate, setElectricityConsumptionDate] = useState(new Date().toISOString().slice(0, 7)); // YYYY-MM for day, YYYY for month
 
@@ -657,15 +657,6 @@ const ProjectViewContent = ({ projectId = "" }) => {
         </div>
       </div>
 
-      {/* {electricityOverviewViewMode === "day" && ( */}
-      <ElectricityConsumption
-        data={electricityConsumptionData}
-        loading={electricityConsumptionDataLoading}
-        selectedMonthYear={electricityConsumptionDate} // "YYYY-MM"
-        isDark={isDark}
-      />
-      {/* )} */}
-
       {/* STAT CARDS */}
       <StatCardsGrid
         project={project}
@@ -686,6 +677,12 @@ const ProjectViewContent = ({ projectId = "" }) => {
         isDark={isDark}
       />
 
+      <ElectricityConsumption
+        data={electricityConsumptionData}
+        loading={electricityConsumptionDataLoading}
+        selectedMonthYear={electricityConsumptionDate} 
+        isDark={isDark}
+      />
 
       {/* ElectricityCostOverviewChart & Bar Chart*/}
       <div

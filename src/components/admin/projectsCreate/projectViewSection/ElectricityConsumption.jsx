@@ -17,13 +17,6 @@ import { FiZap } from "react-icons/fi";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { formatShort } from "@/utils/common";
 
-/**
- * Transform API data from `/projects/electricity/overview-chart`
- * into day-wise rows for the selected month.
- *
- * Input items look like:
- *   { label: "YYYY-MM-DD", evn: number, weshare: number, saving: number }
- */
 const buildDayWiseData = (raw = [], selectedMonthYear) => {
   if (!Array.isArray(raw) || !selectedMonthYear) return [];
 
@@ -43,77 +36,65 @@ const buildDayWiseData = (raw = [], selectedMonthYear) => {
     const dateKey = `${monthYear}-${String(day).padStart(2, "0")}`;
     const src = byDate[dateKey] || {};
 
-    const evn = Number(src.evn) || 0;
-    const weshare = Number(src.weshare) || 0;
     const consume_energy = Number(src.consume_energy) || 0;
+    const energy = Number(src.energy) || 0;
+    const grid_purchased_energy = Number(src.grid_purchased_energy) || 0;
 
     return {
       label: dayjs(dateKey).format("DD/MM"),
       day,
-      evn,
-      weshare,
+      energy,
+      grid_purchased_energy,
       consume_energy,
     };
   });
 };
 
-// Get max value for bars (EVN + WeShare costs in VND)
-const getMaxBarValue = (rows = []) => {
+// Single-axis max (kWh): take max across all 3 series and pad nicely
+const getMaxKwhValue = (rows = []) => {
   const rawMax = Math.max(
-    ...rows.map((r) => Math.max(r.evn || 0, r.weshare || 0)),
+    ...rows.map((r) =>
+      Math.max(
+        Number(r.energy) || 0,
+        Number(r.grid_purchased_energy) || 0,
+        Number(r.consume_energy) || 0
+      )
+    ),
     0
   );
 
   if (!rawMax || !Number.isFinite(rawMax)) return 10;
 
-  let step = 10;
-  if (rawMax > 100 && rawMax <= 500) step = 50;
-  else if (rawMax > 500 && rawMax <= 2000) step = 100;
-  else if (rawMax > 2000) step = 250;
+  // kWh step sizing
+  let step = 1;
+  if (rawMax <= 10) step = 1;
+  else if (rawMax <= 50) step = 5;
+  else if (rawMax <= 100) step = 10;
+  else if (rawMax <= 500) step = 50;
+  else if (rawMax <= 1000) step = 100;
+  else step = 250;
 
-  return Math.ceil(rawMax / step) * step;
-};
-
-// Get max value for line (consume_energy in kWh)
-const getMaxLineValue = (rows = []) => {
-  const rawMax = Math.max(
-    ...rows.map((r) => r.consume_energy || 0),
-    0
-  );
-
-  if (!rawMax || !Number.isFinite(rawMax)) return 10;
-
-  let step = 10;
-  if (rawMax > 100 && rawMax <= 500) step = 50;
-  else if (rawMax > 500 && rawMax <= 2000) step = 100;
-  else if (rawMax > 2000) step = 250;
-
-  return Math.ceil(rawMax / step) * step;
+  const paddedMax = rawMax * 1.1;
+  return Math.ceil(paddedMax / step) * step;
 };
 
 const generateTicks = (max) => {
   if (!max) return [];
+
   const approxSteps = 5;
-  const step = Math.max(1, Math.round(max / approxSteps));
+  let step = Math.max(1, Math.round(max / approxSteps));
+
+  // Round step to nice kWh numbers
+  if (step >= 100) step = Math.ceil(step / 50) * 50;
+  else if (step >= 10) step = Math.ceil(step / 5) * 5;
+  else step = Math.ceil(step);
+
   const out = [];
   for (let v = 0; v <= max; v += step) out.push(v);
   if (!out.includes(max)) out.push(max);
   return out;
 };
 
-/**
- * ElectricityConsumption
- *
- * Day-wise EVN + WeShare "consumption" chart for a single month.
- * - Blue + orange stacked bars for EVN & WeShare
- * - Green line showing total (EVN + WeShare)
- *
- * Props:
- * - data: raw array from `/projects/electricity/overview-chart` (type = "day")
- * - loading: boolean
- * - selectedMonthYear: string "YYYY-MM" for the month to display
- * - isDark: boolean for theming
- */
 const ElectricityConsumption = ({
   data,
   loading = false,
@@ -141,10 +122,8 @@ const ElectricityConsumption = ({
     [data, selectedMonthYear]
   );
 
-  const maxBarValue = useMemo(() => getMaxBarValue(chartData), [chartData]);
-  const maxLineValue = useMemo(() => getMaxLineValue(chartData), [chartData]);
-  const yBarTicks = useMemo(() => generateTicks(maxBarValue), [maxBarValue]);
-  const yLineTicks = useMemo(() => generateTicks(maxLineValue), [maxLineValue]);
+  const maxKwhValue = useMemo(() => getMaxKwhValue(chartData), [chartData]);
+  const yTicks = useMemo(() => generateTicks(maxKwhValue), [maxKwhValue]);
 
   // ------- Custom Tooltip so labels (EVN / Total / WeShare) are always visible -------
   const renderTooltip = ({ active, payload, label }) => {
@@ -159,19 +138,19 @@ const ElectricityConsumption = ({
 
     const rows = [
       {
-        key: "evn",
-        title: lang("common.env", "EVN"),
+        key: "energy",
+        title: lang("common.energy", "Energy"),
+        color: "#f97316",
+      },
+      {
+        key: "grid_purchased_energy",
+        title: lang("common.grid_purchased_energy", "Grid"),
         color: "#2563eb",
       },
       {
         key: "consume_energy",
-        title: lang("projects.consumeEnergy", "Consume Energy"),
+        title: lang("projects.consume", "Consume"),
         color: "#22c55e",
-      },
-      {
-        key: "weshare",
-        title: lang("common.weshare", "WeShare"),
-        color: "#f97316",
       },
     ];
 
@@ -225,13 +204,11 @@ const ElectricityConsumption = ({
                     color: isDark ? "#e5e7eb" : "#111827",
                   }}
                 >
-                  {title}
+                  {title} :
                 </span>
               </div>
               <span style={{ color }}>
-                {key === "consume_energy" 
-                  ? `${formatShort(value)} kWh`
-                  : `${formatShort(value)} VND`}
+                {`${formatShort(value)} kWh`}
               </span>
             </div>
           );
@@ -244,6 +221,13 @@ const ElectricityConsumption = ({
     return (
       <div
         style={{
+          backgroundColor: isDark ? "#121a2d" : "#ffffff",
+          borderRadius: 12,
+          border: `1px solid ${isDark ? "#1b2436" : "#e5e7eb"}`,
+          boxShadow: isDark
+            ? "0 0 20px rgba(14, 32, 56, 0.3)"
+            : "0 1px 3px rgba(0,0,0,0.1), 0 4px 12px rgba(0,0,0,0.05)",
+          padding: 20,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -261,6 +245,13 @@ const ElectricityConsumption = ({
     return (
       <div
         style={{
+          backgroundColor: isDark ? "#121a2d" : "#ffffff",
+          borderRadius: 12,
+          border: `1px solid ${isDark ? "#1b2436" : "#e5e7eb"}`,
+          boxShadow: isDark
+            ? "0 0 20px rgba(14, 32, 56, 0.3)"
+            : "0 1px 3px rgba(0,0,0,0.1), 0 4px 12px rgba(0,0,0,0.05)",
+          padding: 20,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -280,9 +271,16 @@ const ElectricityConsumption = ({
   return (
     <div
       style={{
+        backgroundColor: isDark ? "#121a2d" : "#ffffff",
+        borderRadius: 12,
+        border: `1px solid ${isDark ? "#1b2436" : "#e5e7eb"}`,
+        boxShadow: isDark
+          ? "0 0 20px rgba(14, 32, 56, 0.3)"
+          : "0 1px 3px rgba(0,0,0,0.1), 0 4px 12px rgba(0,0,0,0.05)",
+        padding: isMobile ? 16 : isTablet ? 20 : 24,
+        transition: "box-shadow 0.3s ease",
         width: "100%",
-        height: isMobile ? 380 : isTablet ? 420 : 360,
-        overflowX: isMobile || isTablet ? "auto" : "visible",
+        marginBottom: isMobile ? 16 : 24,
       }}
     >
       <div
@@ -290,7 +288,7 @@ const ElectricityConsumption = ({
           display: "flex",
           alignItems: "center",
           gap: 8,
-          marginBottom: 12,
+          marginBottom: 16,
         }}
       >
         <div
@@ -305,7 +303,7 @@ const ElectricityConsumption = ({
             color: "#2563eb",
           }}
         >
-          <FiZap size={18} />
+          <FiZap />
         </div>
         <div>
           <div
@@ -317,10 +315,10 @@ const ElectricityConsumption = ({
           >
             {lang(
               "projects.electricityConsumptionTitle",
-              "Electricity Consumption: EVN + WeShare"
+              "Electricity Consumption"
             )}
           </div>
-          <div
+          {/* <div
             style={{
               fontSize: 12,
               color: isDark ? "#9ca3af" : "#6b7280",
@@ -330,123 +328,110 @@ const ElectricityConsumption = ({
               "projects.electricityConsumptionSubtitle",
               "Day-wise breakdown for the selected month."
             )}
-          </div>
+          </div> */}
         </div>
       </div>
 
-      <ResponsiveContainer
-        width={isMobile ? "100%" : "98%"}
-        height={isMobile ? "80%" : "88%"}
-        minWidth={isMobile ? 320 : isTablet ? 560 : 0}
+      <div
+        style={{
+          width: "100%",
+          height: isMobile ? 380 : isTablet ? 420 : 360,
+          overflowX: isMobile || isTablet ? "auto" : "visible",
+        }}
       >
-        <ComposedChart
-          data={chartData}
-          margin={{
-            top: isMobile ? 20 : 24,
-            right: isMobile ? 12 : 24,
-            left: isMobile ? 8 : 24,
-            bottom: isMobile ? 10 : 16,
-          }}
+        <ResponsiveContainer
+          width={isMobile ? "100%" : "98%"}
+          height={isMobile ? "80%" : "88%"}
+          minWidth={isMobile ? 320 : isTablet ? 560 : 0}
         >
-          <CartesianGrid
-            strokeDasharray="3 3"
-            stroke={isDark ? "#1f2937" : "#e5e7eb"}
-            opacity={0.5}
-          />
-
-          <XAxis
-            dataKey="label"
-            tick={{ fontSize: isMobile ? 10 : 12 }}
-            tickMargin={8}
-          />
-
-          {/* Left Y-axis for bars (EVN + WeShare costs in VND) */}
-          <YAxis
-            yAxisId="left"
-            type="number"
-            domain={[0, maxBarValue]}
-            ticks={yBarTicks}
-            tick={{ fontSize: isMobile ? 10 : 12, fill: isDark ? "#e5e7eb" : "#111827" }}
-            label={{
-              value: lang("projects.costVND", "Cost (VND)"),
-              angle: -90,
-              position: "insideLeft",
-              offset: 10,
-              dx: -20,
-              style: {
-                fill: isDark ? "#cbd5f5" : "#4b5563",
-                fontSize: 12,
-              },
+          <ComposedChart
+            data={chartData}
+            stackOffset="none"
+            barGap={isMobile ? -14 : -18}
+            margin={{
+              top: isMobile ? 20 : 24,
+              right: isMobile ? 12 : 24,
+              left: isMobile ? 8 : 24,
+              bottom: isMobile ? 10 : 16,
             }}
-            tickFormatter={(v) => formatShort(v)}
-          />
+            barCategoryGap="10%"
+          >
+            <CartesianGrid
+              strokeDasharray="3 3"
+              stroke={isDark ? "#1f2937" : "#e5e7eb"}
+              opacity={0.5}
+            />
 
-          {/* Right Y-axis for line (Consume Energy in kWh) */}
-          <YAxis
-            yAxisId="right"
-            type="number"
-            domain={[0, maxLineValue]}
-            ticks={yLineTicks}
-            orientation="right"
-            tick={{ fontSize: isMobile ? 10 : 12, fill: "#22c55e" }}
-            label={{
-              value: lang("projects.kwh", "kWh"),
-              angle: 90,
-              position: "insideRight",
-              offset: 10,
-              dx: 20,
-              style: {
-                fill: "#22c55e",
-                fontSize: 12,
-              },
-            }}
-            tickFormatter={(v) => formatShort(v)}
-          />
+            <XAxis
+              dataKey="label"
+              tick={{ fontSize: isMobile ? 10 : 12, fill: isDark ? "#cbd5f5" : "#4b5563" }}
+              tickMargin={8}
+            />
 
-          <Tooltip content={renderTooltip} />
+            {/* Single Y-axis (kWh) for both bars + line */}
+            <YAxis
+              yAxisId="left"
+              type="number"
+              domain={[0, maxKwhValue]}
+              ticks={yTicks}
+              allowDecimals={false}
+              tick={{ fontSize: isMobile ? 10 : 12, fill: isDark ? "#e5e7eb" : "#111827" }}
+              label={{
+                value: lang("projects.kwh", "kWh"),
+                angle: -90,
+                position: "insideLeft",
+                offset: 10,
+                dx: -20,
+                style: {
+                  fill: isDark ? "#cbd5f5" : "#4b5563",
+                  fontSize: 12,
+                },
+              }}
+              tickFormatter={(v) => formatShort(v)}
+            />
 
-          <Legend
-            wrapperStyle={{
-              fontSize: isMobile ? 11 : 12,
-            }}
-            iconSize={12}
-          />
+            <Tooltip content={renderTooltip} />
 
-          {/* EVN */}
-          <Bar
-            yAxisId="left"
-            dataKey="evn"
-            name={lang("common.env", "EVN")}
-            stackId="consumption"
-            fill="#2563eb"
-            barSize={isMobile ? 10 : 14}
-            radius={[4, 4, 0, 0]}
-          />
+            <Legend
+              wrapperStyle={{
+                fontSize: isMobile ? 11 : 12,
+                color: isDark ? "#cbd5f5" : "#4b5563",
+              }}
+              iconSize={12}
+            />
 
-          {/* WeShare */}
-          <Bar
-            yAxisId="left"
-            dataKey="weshare"
-            name={lang("common.weshare", "WeShare")}
-            stackId="consumption"
-            fill="#f97316"
-            barSize={isMobile ? 10 : 14}
-            radius={[4, 4, 0, 0]}
-          />
+            <Bar
+              yAxisId="left"
+              dataKey="grid_purchased_energy"
+              name={lang("common.grid_purchased_energy", "Grid")}
+              fill="#2563eb"
+              barSize={isMobile ? 14 : 18}
+              isAnimationActive={false}
+            />
 
-          {/* Consume Energy line */}
-          <Line
-            yAxisId="right"
-            type="monotone"
-            dataKey="consume_energy"
-            name={lang("projects.consumeEnergy", "Consume Energy")}
-            stroke="#22c55e"
-            strokeWidth={2}
-            dot={{ r: 3, fill: "#22c55e" }}
-            activeDot={{ r: 5, fill: "#22c55e" }}
-          />
-        </ComposedChart>
-      </ResponsiveContainer>
+            <Bar
+              yAxisId="left"
+              dataKey="energy"
+              name={lang("common.energy", "Energy")}
+              fill="#f97316"
+              barSize={isMobile ? 14 : 18}
+              isAnimationActive={false}
+            />
+
+            {/* Consume Energy line */}
+            <Line
+              yAxisId="left"
+              type="monotone"
+              dataKey="consume_energy"
+              name={lang("projects.consumeEnergy", "Total consumption")}
+              stroke="#22c55e"
+              strokeWidth={2}
+              dot={{ r: 3, fill: "#22c55e" }}
+              activeDot={{ r: 5, fill: "#22c55e" }}
+            />
+          </ComposedChart>
+        </ResponsiveContainer>
+      </div>
     </div>
   );
 };
