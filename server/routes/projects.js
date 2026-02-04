@@ -1674,6 +1674,117 @@ router.post('/electricity/overview-chart', async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 });
+router.post('/electricity/consumption-chart', async (req, res) => {
+  try {
+    const { projectId, type, date } = req.body;
+
+    if (!projectId || !type) {
+      return res.status(400).json({ message: 'Missing parameters' });
+    }
+
+    const project = await prisma.projects.findFirst({
+      where: { id: Number(projectId) },
+      select: {
+        evn_price_kwh: true,
+        weshare_price_kwh: true,
+      },
+    });
+
+    if (!project) {
+      return res.status(404).json({ message: 'Project not found' });
+    }
+
+    let startDate, endDate, groupBy;
+
+    // ================= DAY (1 month → daily)
+    if (type === 'day') {
+      startDate = new Date(`${date}-01`);
+      endDate = new Date(startDate);
+      endDate.setMonth(endDate.getMonth() + 1);
+      groupBy = 'day';
+    }
+
+    // ================= MONTH (1 year → monthly)
+    if (type === 'month') {
+      startDate = new Date(`${date}-01-01`);
+      endDate = new Date(`${date}-12-31`);
+      groupBy = 'month';
+    }
+
+    // ================= YEAR (all years → yearly)
+    if (type === 'year') {
+      startDate = new Date('2000-01-01');
+      endDate = new Date();
+      groupBy = 'year';
+    }
+
+    const rows = await prisma.project_energy_days_data.findMany({
+      where: {
+        project_id: Number(projectId),
+        date: {
+          gte: startDate,
+          lt: endDate,
+        },
+      },
+      select: {
+        date: true,
+        consume_energy: true,
+        energy: true,
+        grid_purchased_energy: true,
+        battery_charge_energy: true,
+        battery_discharge_energy: true,
+      },
+      orderBy: { date: 'asc' },
+    });
+
+    const resultMap = {};
+
+    rows.forEach((row) => {
+      let key;
+
+      if (groupBy === 'day') {
+        key = row.date.toISOString().slice(0, 10);
+      }
+      if (groupBy === 'month') {
+        key = row.date.toISOString().slice(0, 7);
+      }
+      if (groupBy === 'year') {
+        key = row.date.getFullYear().toString();
+      }
+
+      if (!resultMap[key]) {
+        resultMap[key] = { energy: 0, grid_purchased_energy: 0, consume_energy: 0 };
+      }
+
+      const total_consumes_energy = Number(row?.consume_energy) || 0;
+      const energy = Number(row?.energy) || 0;
+      const grid_purchased_energy = Number(row?.grid_purchased_energy) || 0;
+      const battery_charge_energy = Number(row?.battery_charge_energy) || 0;
+      const battery_discharge_energy = Number(row?.battery_discharge_energy) || 0;
+      const consume_energy = total_consumes_energy + battery_charge_energy - battery_discharge_energy;
+
+      resultMap[key].energy += energy;
+      resultMap[key].grid_purchased_energy += grid_purchased_energy;
+      resultMap[key].consume_energy += consume_energy;
+    });
+
+    const data = Object.keys(resultMap).map((key) => ({
+      label: key,
+      consume_energy: resultMap[key].consume_energy,
+      energy: resultMap[key].energy,
+      grid_purchased_energy: resultMap[key].grid_purchased_energy
+    }));
+
+    return res.json({
+      success: true,
+      data: data,
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
 
 router.post('/dropdown/project', authenticateToken, async (req, res) => {
   try {

@@ -21,6 +21,7 @@ import { getDarkModeColors, useDarkMode } from "@/utils/common";
 import ElectricityCostOverviewChart from "@/components/admin/projectsCreate/projectViewSection/ElectricityCostOverviewChart";
 import ElectricityCostBarChart from "@/components/admin/projectsCreate/projectViewSection/ElectricityCostBarChart";
 import { sortByNameAsc } from "@/utils/common";
+import ElectricityConsumption from "@/components/admin/projectsCreate/projectViewSection/ElectricityConsumption";
 
 
 function DashboardView() {
@@ -71,9 +72,13 @@ function DashboardView() {
   const [electricitySelectedYear, setElectricitySelectedYear] = useState(new Date().getFullYear().toString());
   const [electricityOverviewData, setElectricityOverviewData] = useState(null);
   const [electricityOverviewDataLoading, setElectricityOverviewDataLoading] = useState(true);
-  const [electricityOverviewViewMode, setElectricityOverviewViewMode] = useState("day"); // day | month | year
-  const [electricityOverviewDate, setElectricityOverviewDate] = useState(new Date().toISOString().slice(0, 7)); // YYYY-MM for day, YYYY for month
-  const [savingsViewTab, setSavingsViewTab] = useState("daily"); // daily | monthly | comparison
+  const [electricityOverviewViewMode, setElectricityOverviewViewMode] = useState("day");
+  const [electricityOverviewDate, setElectricityOverviewDate] = useState(new Date().toISOString().slice(0, 7));
+  const [savingsViewTab, setSavingsViewTab] = useState("daily");
+  const [electricityConsumptionData, setElectricityConsumptionData] = useState(null);
+  const [electricityConsumptionDataLoading, setElectricityConsumptionDataLoading] = useState(true);
+  const [electricityConsumptionDate, setElectricityConsumptionDate] = useState(new Date().toISOString().slice(0, 7));
+  const [electricityConsumptionViewMode, setElectricityConsumptionViewMode] = useState("day");
 
 
   // fetch offtaker projects similar to ProjectTable
@@ -453,6 +458,39 @@ function DashboardView() {
     }
   }, [selectedProject?.id, electricityOverviewViewMode, electricityOverviewDate]);
 
+  useEffect(() => {
+    const loadElectricityConsumptionData = async () => {
+      if (!selectedProject?.id) return;
+
+      let dateValue;
+      if (electricityConsumptionViewMode === "day") {
+        dateValue = electricityConsumptionDate; // YYYY-MM format
+      } else if (electricityConsumptionViewMode === "month") {
+        dateValue = electricityConsumptionDate.slice(0, 4); // YYYY format
+      } else {
+        dateValue = new Date().getFullYear().toString(); // YYYY format (not used by API but required)
+      }
+
+      const payload = {
+        projectId: selectedProject?.id ?? null,
+        type: electricityConsumptionViewMode,
+        date: dateValue,
+      };
+
+      try {
+        setElectricityConsumptionDataLoading(true);
+        const res = await apiPost(`/api/projects/electricity/consumption-chart`, payload);
+        setElectricityConsumptionData(res?.success ? res.data : null);
+      } catch (error) {
+        console.error("Error loading electricity consumption data:", error);
+        setElectricityConsumptionData(null);
+      } finally {
+        setElectricityConsumptionDataLoading(false);
+      }
+    };
+    loadElectricityConsumptionData();
+  }, [selectedProject?.id, electricityConsumptionViewMode, electricityConsumptionDate]);
+
   return (
     <div>
       {/* <StatsCardOverview /> */}
@@ -733,6 +771,14 @@ function DashboardView() {
             selectedInverterId={selectedInverter?.inverterId}
           />
 
+          <ElectricityConsumption
+            data={electricityConsumptionData}
+            loading={electricityConsumptionDataLoading}
+            selectedMonthYear={electricityConsumptionDate}
+            onMonthYearChange={setElectricityConsumptionDate}
+            isDark={isDark}
+          />
+
           {/* CHART SECTION */}
           <div
             style={{
@@ -780,7 +826,7 @@ function DashboardView() {
                       month: lang("common.month", "Month"),
                       year: lang("projects.year", "Year")
                     };
-                    
+
                     return (
                       <button
                         key={mode}
@@ -857,7 +903,7 @@ function DashboardView() {
       {/* Dashboard */}
       {selectedProject && (
         <div className="dashboard-row">
-          <div className="chart-card" style={{overflow: 'auto'}}>
+          <div className="chart-card" style={{ overflow: 'auto' }}>
             <div className="card-header" style={{ marginBottom: '10px' }}>
               <div className="card-title">{lang("dashboard.savingsTracker", "Savings Tracker")}</div>
               <div className="tabs">
@@ -997,11 +1043,11 @@ function DashboardView() {
       {/* Bottom Row */}
       <div className="bottom-row">
         {/* Billing Card */}
-        <BillingCard 
+        <BillingCard
           lang={lang}
         />
         {/* Documents Card */}
-        <DocumentsCard 
+        <DocumentsCard
           lang={lang}
         />
       </div>
