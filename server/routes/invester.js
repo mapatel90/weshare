@@ -56,7 +56,7 @@ router.post("/", async (req, res) => {
             message: offtakerMessage || `New investor interest with name ${fullName} for project "${project.project_name}".`,
             moduleType: 'projects',
             moduleId: project.id,
-            actionUrl: `offtaker/projects/details/${project.id}`,
+            actionUrl: `/offtaker/projects/details/${project.id}`,
             created_by: userId || null,
           });
         }
@@ -83,7 +83,7 @@ router.post("/", async (req, res) => {
             message: adminMessage || `New investor interest from ${fullName} for project "${project.project_name}" (Offtaker: ${project.offtaker?.full_name || 'Unknown'}).`,
             moduleType: 'projects',
             moduleId: project.id,
-            actionUrl: `admin/projects/view/${project.id}`,
+            actionUrl: `/admin/projects/view/${project.id}`,
             created_by: userId || null,
           });
         }
