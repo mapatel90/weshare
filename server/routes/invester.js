@@ -56,7 +56,7 @@ router.post("/", async (req, res) => {
             message: offtakerMessage || `New investor interest with name ${fullName} for project "${project.project_name}".`,
             moduleType: 'projects',
             moduleId: project.id,
-            actionUrl: `offtaker/projects/details/${project.id}`,
+            actionUrl: `/offtaker/projects/details/${project.id}`,
             created_by: userId || null,
           });
         }
@@ -83,7 +83,7 @@ router.post("/", async (req, res) => {
             message: adminMessage || `New investor interest from ${fullName} for project "${project.project_name}" (Offtaker: ${project.offtaker?.full_name || 'Unknown'}).`,
             moduleType: 'projects',
             moduleId: project.id,
-            actionUrl: `admin/projects/view/${project.id}`,
+            actionUrl: `/admin/projects/view/${project.id}`,
             created_by: userId || null,
           });
         }
@@ -260,34 +260,59 @@ router.post("/:id/mark-investor", authenticateToken, async (req, res) => {
 
     if (oldInvestor?.investor_id) {
       const existingContract = await prisma.contracts.findFirst({
-        where: { project_id: Number(projectId), investor_id: Number(oldInvestor?.investor_id), status: { not: 4 } },
+        where: { project_id: Number(projectId), investor_id: Number(oldInvestor?.investor_id), status: { not: 3 } },
       });
+
+
       if (existingContract) {
         if (existingContract?.status == 1) {
           return res.status(400).json({ success: false, message: "Cuurent Invester has an active contract, please cancel the contract first" });
         } else {
-          await prisma.contracts.update({
+          const cancelledContract = await prisma.contracts.update({
             where: { id: existingContract.id },
-            data: { status: 4 },
+            data: { status: 3 },
           });
 
-          const lang = await getUserLanguage(existingContract?.investor_id);
-          const notification_title = t(lang, 'notification_msg.contract_cancelled_title');
-          const notification_message = t(lang, 'notification_msg.contract_cancelled_message', {
-            contract_title: existingContract.contract_title,
-            created_by: await getUserFullName(existingContract?.created_by),
-          }); 
+          if (cancelledContract) {
+            const lang = await getUserLanguage(existingContract?.investor_id);
+            const notification_title = t(lang, 'notification_msg.contract_cancelled_title');
+            const notification_message = t(lang, 'notification_msg.contract_cancelled_message', {
+              contract_title: existingContract.contract_title,
+              created_by: await getUserFullName(existingContract?.created_by),
+            });
 
-          await createNotification({
-            userId: Number(existingContract?.investor_id),
-            title: notification_title,
-            message: notification_message,
-            moduleType: 'contract',
-            moduleId: existingContract.id,
-            actionUrl: `/contract/view/${existingContract.id}`,
-            created_by: getAdminUserId(),
-          });
+            await createNotification({
+              userId: Number(existingContract?.investor_id),
+              title: notification_title,
+              message: notification_message,
+              moduleType: 'contract',
+              moduleId: existingContract.id,
+              actionUrl: `/contract/view/${existingContract.id}`,
+              created_by: getAdminUserId(),
+            });
+          }
         }
+      } else {
+        // Remvoe Notification for the investor
+        const lang = await getUserLanguage(oldInvestor?.investor_id);
+
+        const notification_title = t(lang, 'notification_msg.remove_investor_title', {
+          project_name: project.project_name,
+        });
+
+        const notification_message = t(lang, 'notification_msg.remove_investor_message', {
+          project_name: project.project_name,
+        });
+
+        await createNotification({
+          userId: Number(oldInvestor?.investor_id),
+          title: notification_title,
+          message: notification_message,
+          moduleType: 'investor',
+          moduleId: projectId,
+          actionUrl: `/investor/projects`,
+          created_by: getAdminUserId(),
+        });
       }
     }
 
@@ -318,7 +343,7 @@ router.post("/:id/mark-investor", authenticateToken, async (req, res) => {
         message: notification_message,
         moduleType: 'projects',
         moduleId: projectId,
-        actionUrl: `/projects/${updated.id}/investors`,
+        actionUrl: `/investor/projects`,
         created_by: adminId,
       });
     }

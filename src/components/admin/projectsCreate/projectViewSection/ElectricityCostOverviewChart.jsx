@@ -324,25 +324,67 @@ const ElectricityCostOverviewChart = ({
                                 }}
                             />
 
-                            <Legend />
-
                             <Bar
                                 dataKey="evn"
-                                name= {lang('reports.evnCost', 'EVN Cost')}
+                                name= {lang('chart_label.evn', 'EVN')}
                                 fill="#2563eb"
                                 barSize={12}
                             />
                             <Bar
                                 dataKey="weshare"
-                                name= {lang('reports.weshareCost', 'WeShare Cost')}
+                                name= {lang('chart_label.weshare', 'WeShare')}
                                 fill="#f97316"
                                 barSize={12}
                             />
                             <Bar
                                 dataKey="saving"
-                                name={lang('reports.savingCost', 'Saving Cost')}
+                                name={lang('chart_label.saving', 'Savings')}
                                 fill="#fbbf24"
                                 barSize={12}
+                            />
+
+                            <Legend 
+                                content={({ payload }) => {
+                                    if (!payload || !payload.length) return null;
+                                    
+                                    // Reorder payload: evn, weshare, saving
+                                    const orderedPayload = [];
+                                    const evnItem = payload.find(item => item.dataKey === 'evn');
+                                    const weshareItem = payload.find(item => item.dataKey === 'weshare');
+                                    const savingItem = payload.find(item => item.dataKey === 'saving');
+                                    
+                                    if (evnItem) orderedPayload.push(evnItem);
+                                    if (weshareItem) orderedPayload.push(weshareItem);
+                                    if (savingItem) orderedPayload.push(savingItem);
+                                    
+                                    return (
+                                        <div style={{ textAlign: 'center', marginTop: '16px' }}>
+                                            {orderedPayload.map((entry, index) => (
+                                                <span
+                                                    key={`item-${index}`}
+                                                    style={{
+                                                        color: entry.color,
+                                                        marginRight: '16px',
+                                                        fontSize: '14px',
+                                                        display: 'inline-block'
+                                                    }}
+                                                >
+                                                    <span
+                                                        style={{
+                                                            display: 'inline-block',
+                                                            width: '14px',
+                                                            height: '14px',
+                                                            backgroundColor: entry.color,
+                                                            marginRight: '4px',
+                                                            verticalAlign: 'middle'
+                                                        }}
+                                                    />
+                                                    {entry.value}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    );
+                                }}
                             />
                         </BarChart>
                     ) : (
@@ -394,7 +436,7 @@ const ElectricityCostOverviewChart = ({
                             <Line
                                 type="monotone"
                                 dataKey="evn"
-                                name="EVN Cost"
+                                name={lang('chart_label.evn', 'EVN')}
                                 stroke="#2563eb"
                                 strokeWidth={3}
                                 dot={{ r: 4, fill: '#2563eb' }}
@@ -403,7 +445,7 @@ const ElectricityCostOverviewChart = ({
                             <Line
                                 type="monotone"
                                 dataKey="weshare"
-                                name="WeShare Cost"
+                                name={lang('chart_label.weshare', 'WeShare')}
                                 stroke="#f97316"
                                 strokeWidth={3}
                                 dot={{ r: 4, fill: '#f97316' }}

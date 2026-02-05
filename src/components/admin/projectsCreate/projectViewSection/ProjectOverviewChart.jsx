@@ -6,10 +6,10 @@ import { useLanguage } from '@/contexts/LanguageContext';
 const TIME_TICK_HOURS = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22];
 const xAxisTicks = [...TIME_TICK_HOURS];
 
-const SERIES = [
-  { key: 'load', name: 'Load (kW)', stroke: '#fdaa4c' },
-  { key: 'pv', name: 'PV (kW)', stroke: '#f0cf03' },
-  { key: 'grid', name: 'Grid (kW)', stroke: '#25a4b8' },
+const SERIES_CONFIG = [
+  { key: 'load', labelKey: 'chart_label.load', defaultLabel: 'Load', stroke: '#fdaa4c' },
+  { key: 'pv', labelKey: 'chart_label.pv', defaultLabel: 'PV', stroke: '#f0cf03' },
+  { key: 'grid', labelKey: 'chart_label.grid', defaultLabel: 'Grid', stroke: '#25a4b8' },
 ];
 
 const normalizeDateKey = (value) => {
@@ -140,7 +140,7 @@ const formatKw = (value) => {
   return `${num.toFixed(3)} kW`;
 };
 
-const CustomTooltip = ({ active, payload, label, isDark = false, isMobile = false }) => {
+const CustomTooltip = ({ active, payload, label, isDark = false, isMobile = false, series = [] }) => {
   if (!active || !payload?.length) return null;
   const styles = getStyles(isDark);
 
@@ -157,7 +157,7 @@ const CustomTooltip = ({ active, payload, label, isDark = false, isMobile = fals
         ...styles.tooltipTitleStyle,
         fontSize: isMobile ? 11 : 13
       }}>{displayTime}</div>
-      {SERIES.map((s) => {
+      {series.map((s) => {
         const entry = byKey.get(s.key);
         const value = entry?.value;
         return (
@@ -178,6 +178,13 @@ const CustomTooltip = ({ active, payload, label, isDark = false, isMobile = fals
 const ProjectOverviewChart = ({ projectId, readings = [], loading = false, selectedDate, onDateChange, isDark = false }) => {
   const { lang } = useLanguage();
   const styles = getStyles(isDark);
+  
+  // Create translated series with proper lang() usage inside component
+  const SERIES = useMemo(() => 
+    SERIES_CONFIG.map(s => ({
+      ...s,
+      name: lang(s.labelKey, s.defaultLabel) + ' (kW)'
+    })), [lang]);
   const [isMobile, setIsMobile] = React.useState(() => typeof window !== 'undefined' ? window.innerWidth < 768 : false);
   const [isTablet, setIsTablet] = React.useState(() => typeof window !== 'undefined' ? (window.innerWidth >= 768 && window.innerWidth < 1024) : false);
 
@@ -405,7 +412,7 @@ const ProjectOverviewChart = ({ projectId, readings = [], loading = false, selec
                   width={isMobile ? 45 : isTablet ? 55 : 60}
                 />
                 <Tooltip
-                  content={<CustomTooltip isDark={isDark} isMobile={isMobile} />}
+                  content={<CustomTooltip isDark={isDark} isMobile={isMobile} series={SERIES} />}
                 />
                 <Legend
                   verticalAlign="bottom"

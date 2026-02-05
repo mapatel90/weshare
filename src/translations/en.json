@@ -946,7 +946,7 @@
     "gallery": "Project Gallery",
     "projectSlugPlaceholder": "Project Slug",
     "solisStatus": "Solis Status",
-    "solis_plant_id_exists":"This Solis Plant ID already exists in another project.",
+    "solis_plant_id_exists": "This Solis Plant ID already exists in another project.",
     "allSolisStatus": "All Solis Status",
     "noProjects": "No projects available.",
     "remaining": "Remaining",
@@ -1351,11 +1351,11 @@
     "thousandSeparator": "Thousand Separator",
     "thousandSeparatorInfo": "Thousand Separator [Ex: ./,/'/None/Space]",
     "bank_title": "Bank Details",
-    "bank_account_number" : "Bank Account Number",
+    "bank_account_number": "Bank Account Number",
     "bank_account_number_info": "Bank Account Number [Ex: 1234567890]",
-    "bank_acq_id" : "Bank ACQ ID",
+    "bank_acq_id": "Bank ACQ ID",
     "bank_acq_id_info": "Bank ACQ ID [e.g. Vietcombank]",
-    "bank_account_name" : "Bank Account Name",
+    "bank_account_name": "Bank Account Name",
     "bank_account_name_info": "Bank Account Name [Ex: John Doe]",
     "defaultTax": "Default Tax",
     "defaultTaxInfo": "Default Tax [Ex: 5%/10%/15%]",
@@ -1590,7 +1590,7 @@
     "title": "Title",
     "description": "Description",
     "document": "Document",
-    "date": "Date",
+    "date": "Contract Date",
     "addContract": "Add Contract",
     "editContract": "Edit Contract",
     "viewcontract": "View Contract",
@@ -1681,9 +1681,9 @@
       "tree_planted": "Equivalent Trees Planted"
     },
     "energyProduction": {
-      "energy_production": "Energy Production Overview",
-      "monthly_energy_production": "Electricity Cost Production Overview",
-      "yearly_energy_production": "Electricity Monthly Cost (VND)"
+      "energy_production": "Daily Power Profile (Load, PV & Grid)",
+      "monthly_energy_production": "Daily Electricity Cost (VND)",
+      "yearly_energy_production": "Monthly Electricity Cost (VND)"
     }
   },
   "projecttablelabel": {
@@ -1728,21 +1728,22 @@
   "notification_msg": {
     "payment_title": "Payment Alert",
     "project_created_title": "Project Create",
-    "project_created": "New project \"{{project_name}}\" created by \"{{created_by}}\".",
-    "invoice_created": "New invoice \"{{invoice_number}}\" created by \"{{created_by}}\".",
-    "payment_made": "Payment of \"{{amount}}\" made by \"{{created_by}}\" for invoice \"{{invoice_number}}\".",
+    "project_created": "New project \"{{project_name}}\" created by WeShare.",
+    "invoice_created": "New invoice \"{{invoice_number}}\" created by WeShare.",
+    "payment_made": "Payment of \"{{amount}}\" made by WeShare for invoice \"{{invoice_number}}\".",
     "contract_title": "Contract Generated",
-    "contract_created": "A new contract has been successfully created for the project \"{{project_name}}\" created by \"{{created_by}}\".",
+    "contract_created": "A new contract has been successfully created for the project \"{{project_name}}\" created by WeShare.",
     "contract_approved_title": "Contract Approved",
     "contract_approved_message": "The contract \"{{contract_title}}\" has been approved by \"{{created_by}}\".",
+    "invester_contract_approved_message": "Investor \"{{investor_name}}\" has been approved for the contract \"{{contract_title}}\".",
     "contract_rejected_title": "Contract Rejected",
     "contract_rejected_message": "The contract \"{{contract_title}}\" has been rejected by \"{{created_by}}\".",
     "contract_cancelled_title": "Contract Cancelled",
-    "contract_cancelled_message": "The contract \"{{contract_title}}\" has been cancelled by \"{{created_by}}\".",
+    "contract_cancelled_message": "The contract \"{{contract_title}}\" has been cancelled by WeShare.",
     "project_status_title": "Project \"{{project_name}}\" status updated",
     "project_status_message": "Project \"{{project_name}}\" status has been updated to \"{{status_name}}\".",
     "investor_marked_title": "Investor Assigned",
-    "investor_marked_message": "You have been assigned as an investor for the project \"{{project_name}}\" by \"{{assigned_by}}\".",
+    "investor_marked_message": "You have been assigned as an investor for the project \"{{project_name}}\" by WeShare.",
     "investor_interest_title": "New Investor Interest",
     "investor_interest_message": "{{investor_name}} has shown interest in your project \"{{project_name}}\".",
     "investor_interest_admin_title": "New Investor Interest",
@@ -1750,9 +1751,11 @@
     "payment_approved": "Great news! Your payment of {{amount}} for invoice {{invoice_number}} has been successfully processed.",
     "invoice_title": "New Invoice Created",
     "invoice_update_title": "Invoice Updated",
-    "invoice_updated": "The invoice \"{{invoice_number}}\" has been updated by \"{{created_by}}\".",
+    "invoice_updated": "The invoice \"{{invoice_number}}\" has been updated by WeShare.",
     "new_payout_generated": "New Payout Generated",
-    "payout_generated": "Your payout with  \"{{payout_prefix}}\" has been released by WeShare"
+    "payout_generated": "Your payout with  \"{{payout_prefix}}\" has been released by WeShare",
+    "remove_investor_title": "You Are No Longer Assigned to This Project as an Investor.",
+    "remove_investor_message": "You have been removed as an investor for the project \"{{project_name}}\" by WeShare."
   },
   "notification": {
     "title": "Notifications",
@@ -1832,5 +1835,14 @@
   "profile": {
     "preferences": "Preferences",
     "language": "Language"
+  },
+  "chart_label": {
+    "electricityConsumption": "Daily Electricity Consumption by Source (WeShare/Grid)",
+    "weshare": "WeShare's",
+    "evn": "EVN's",
+    "saving": "Savings",
+    "grid": "Grid's",
+    "load": "Load",
+    "pv": "PV"
   }
 }

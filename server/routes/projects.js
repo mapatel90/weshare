@@ -337,7 +337,7 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
           message: notification_message,
           moduleType: 'projects',
           moduleId: project?.id,
-          actionUrl: `projects/view/${project.id}`,
+          actionUrl: `/projects/view/${project.id}`,
           created_by: createdByInt,
         });
       }
@@ -362,7 +362,7 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
           message: notification_message,
           moduleType: 'projects',
           moduleId: project?.id,
-          actionUrl: `projects/view/${project.id}`,
+          actionUrl: `/projects/view/${project.id}`,
           created_by: createdByInt,
         });
       }
@@ -945,7 +945,7 @@ router.put("/:id/status", authenticateToken, async (req, res) => {
         }),
         moduleType: "projects",
         moduleId: updated.id,
-        actionUrl: `offtaker/projects/details/${updated.id}`,
+        actionUrl: `/offtaker/projects/details/${updated.id}`,
         created_by: 1,
       });
     }
@@ -970,7 +970,7 @@ router.put("/:id/status", authenticateToken, async (req, res) => {
         }),
         moduleType: "projects",
         moduleId: updated.id,
-        actionUrl: `projects/view/${updated.id}`,
+        actionUrl: `/projects/view/${updated.id}`,
         created_by: 1,
       });
     }
@@ -1150,7 +1150,7 @@ router.put("/:id", authenticateToken, async (req, res) => {
         message: notification_message,
         moduleType: 'projects',
         moduleId: updated.id,
-        actionUrl: `projects/view/${updated.id}`,
+        actionUrl: `/projects/view/${updated.id}`,
         created_by: 1,
       });
 
@@ -1181,7 +1181,7 @@ router.put("/:id", authenticateToken, async (req, res) => {
           message: notification_message,
           moduleType: 'projects',
           moduleId: updated.id,
-          actionUrl: `projects/view/${updated.id}`,
+          actionUrl: `/projects/view/${updated.id}`,
           created_by: 1,
         });
       }

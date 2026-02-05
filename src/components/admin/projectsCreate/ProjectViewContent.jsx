@@ -717,7 +717,7 @@ const ProjectViewContent = ({ projectId = "" }) => {
           >
             {lang(
               "projectView.energyProduction.monthly_energy_production",
-              "Electricity Cost Production Overview"
+              "Daily Electricity Cost (VND)"
             )}
           </h3>
           <ElectricityCostOverviewChart
@@ -752,7 +752,7 @@ const ProjectViewContent = ({ projectId = "" }) => {
           >
             {lang(
               "projectView.energyProduction.yearly_energy_production",
-              "Electricity Monthly Cost (VND)"
+              "Monthly Electricity Cost (VND)"
             )}
           </h3>
           <ElectricityCostBarChart
@@ -804,7 +804,7 @@ const ProjectViewContent = ({ projectId = "" }) => {
             >
               {lang(
                 "projectView.energyProduction.energy_production",
-                "Energy Production Overviews"
+                "Daily Power Profile (Load, PV & Grid)"
               )}
             </h3>
             <div style={{ display: "flex", gap: "8px" }}>

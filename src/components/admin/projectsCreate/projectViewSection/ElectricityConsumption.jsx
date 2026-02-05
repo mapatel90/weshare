@@ -351,8 +351,8 @@ const ElectricityConsumption = ({
               }}
             >
               {lang(
-                "projects.electricityConsumptionTitle",
-                "Electricity Consumption"
+                "chart_label.electricityConsumption",
+                "Daily Electricity Consumption by Source"
               )}
             </div>
             {/* <div
@@ -448,18 +448,10 @@ const ElectricityConsumption = ({
 
               <Tooltip content={renderTooltip} />
 
-              <Legend
-                wrapperStyle={{
-                  fontSize: isMobile ? 11 : 12,
-                  color: isDark ? "#cbd5f5" : "#4b5563",
-                }}
-                iconSize={12}
-              />
-
               <Bar
                 yAxisId="left"
                 dataKey="grid_purchased_energy"
-                name={lang("common.grid_purchased_energy", "Grid")}
+                name={lang("chart_label.grid", "Grid'")}
                 fill="#2563eb"
                 stackId="total"
                 barSize={isMobile ? 14 : 18}
@@ -469,7 +461,7 @@ const ElectricityConsumption = ({
               <Bar
                 yAxisId="left"
                 dataKey="energy"
-                name={lang("common.energy", "Energy")}
+                name={lang("chart_label.weshare", "WeShare's")}
                 fill="#f97316"
                 stackId="total"
                 barSize={isMobile ? 14 : 18}
@@ -487,7 +479,16 @@ const ElectricityConsumption = ({
                 dot={{ r: 3, fill: "#22c55e" }}
                 activeDot={{ r: 5, fill: "#22c55e" }}
               />
+              <Legend
+                wrapperStyle={{
+                  fontSize: isMobile ? 11 : 12,
+                  color: isDark ? "#cbd5f5" : "#4b5563",
+                }}
+                iconSize={12}
+              />
+
             </ComposedChart>
+
           </ResponsiveContainer>
         </div>
       </div>
