@@ -154,14 +154,53 @@ const ElectricityCostBarChart = ({
                         />
 
                         <Legend
-                            wrapperStyle={{ fontSize: isMobile ? '11px' : '12px' }}
-                            iconSize={isMobile ? 10 : 14}
+                            content={({ payload }) => {
+                                if (!payload || !payload.length) return null;
+
+                                // Reorder payload: evn, weshare, saving
+                                const orderedPayload = [];
+                                const evnItem = payload.find(item => item.dataKey === 'evn');
+                                const weshareItem = payload.find(item => item.dataKey === 'weshare');
+                                const savingItem = payload.find(item => item.dataKey === 'saving');
+
+                                if (evnItem) orderedPayload.push(evnItem);
+                                if (weshareItem) orderedPayload.push(weshareItem);
+                                if (savingItem) orderedPayload.push(savingItem);
+
+                                return (
+                                    <div style={{ textAlign: 'center', marginTop: '16px' }}>
+                                        {orderedPayload.map((entry, index) => (
+                                            <span
+                                                key={`item-${index}`}
+                                                style={{
+                                                    color: entry.color,
+                                                    marginRight: '16px',
+                                                    fontSize: '14px',
+                                                    display: 'inline-block'
+                                                }}
+                                            >
+                                                <span
+                                                    style={{
+                                                        display: 'inline-block',
+                                                        width: '14px',
+                                                        height: '14px',
+                                                        backgroundColor: entry.color,
+                                                        marginRight: '4px',
+                                                        verticalAlign: 'middle'
+                                                    }}
+                                                />
+                                                {entry.value}
+                                            </span>
+                                        ))}
+                                    </div>
+                                );
+                            }}
                         />
 
                         {/* EVN bar */}
                         <Bar
                             dataKey="evn"
-                            name={lang('common.env', 'EVN')}
+                            name={lang('chart_label.evn', 'EVN')}
                             fill={isDark ? '#2563eb' : '#2563eb'}
                             barSize={isMobile ? 8 : isTablet ? 10 : 12}
                         />
@@ -169,7 +208,7 @@ const ElectricityCostBarChart = ({
                         {/* WeShare bar */}
                         <Bar
                             dataKey="weshare"
-                            name={lang('common.weshare', 'WeShare')}
+                            name={lang('chart_label.weshare', 'WeShare')}
                             fill={isDark ? '#f97316' : '#f97316'}
                             barSize={isMobile ? 8 : isTablet ? 10 : 12}
                         />
@@ -177,7 +216,7 @@ const ElectricityCostBarChart = ({
                         {/* Saving bar */}
                         <Bar
                             dataKey="saving"
-                            name={lang('common.savings', 'Savings')}
+                            name={lang('chart_label.saving', 'Savings')}
                             fill={isDark ? '#fbbf24' : '#fbbf24'}
                             barSize={12}
                         />

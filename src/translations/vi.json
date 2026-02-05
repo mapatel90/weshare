@@ -1621,9 +1621,9 @@
       "tree_planted": "Cây trồng"
     },
     "energyProduction": {
-      "energy_production": "Tổng quan về sản xuất năng lượng",
-      "monthly_energy_production": "Tổng quan về sản xuất chi phí điện",
-      "yearly_energy_production": "Chi phí điện hàng tháng (VND)"
+      "energy_production": "Biểu đồ công suất hàng ngày (Tải, PV & Lưới điện)",
+      "monthly_energy_production": "Chi phí tiền điện hàng ngày (VND)",
+      "yearly_energy_production": "Chi phí tiền điện hàng tháng (VND)"
     }
   },
   "projecttablelabel": {
@@ -1774,5 +1774,14 @@
   "profile": {
     "preferences": "Tùy chọn",
     "language": "Ngôn ngữ"
+  },
+  "chart_label": {
+    "electricityConsumption": "Lượng điện tiêu thụ hàng ngày theo nguồn (WeShare/Lưới điện)",
+    "weshare": "WeShare của",
+    "evn": "EVN của",
+    "saving": "Tiết kiệm của",
+    "grid": "Lưới điện của",
+    "load": "Tải",
+    "pv": "PV"
   }
 }

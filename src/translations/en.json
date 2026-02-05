@@ -946,7 +946,7 @@
     "gallery": "Project Gallery",
     "projectSlugPlaceholder": "Project Slug",
     "solisStatus": "Solis Status",
-    "solis_plant_id_exists":"This Solis Plant ID already exists in another project.",
+    "solis_plant_id_exists": "This Solis Plant ID already exists in another project.",
     "allSolisStatus": "All Solis Status",
     "noProjects": "No projects available.",
     "remaining": "Remaining",
@@ -1351,11 +1351,11 @@
     "thousandSeparator": "Thousand Separator",
     "thousandSeparatorInfo": "Thousand Separator [Ex: ./,/'/None/Space]",
     "bank_title": "Bank Details",
-    "bank_account_number" : "Bank Account Number",
+    "bank_account_number": "Bank Account Number",
     "bank_account_number_info": "Bank Account Number [Ex: 1234567890]",
-    "bank_acq_id" : "Bank ACQ ID",
+    "bank_acq_id": "Bank ACQ ID",
     "bank_acq_id_info": "Bank ACQ ID [e.g. Vietcombank]",
-    "bank_account_name" : "Bank Account Name",
+    "bank_account_name": "Bank Account Name",
     "bank_account_name_info": "Bank Account Name [Ex: John Doe]",
     "defaultTax": "Default Tax",
     "defaultTaxInfo": "Default Tax [Ex: 5%/10%/15%]",
@@ -1681,9 +1681,9 @@
       "tree_planted": "Equivalent Trees Planted"
     },
     "energyProduction": {
-      "energy_production": "Energy Production Overview",
-      "monthly_energy_production": "Electricity Cost Production Overview",
-      "yearly_energy_production": "Electricity Monthly Cost (VND)"
+      "energy_production": "Daily Power Profile (Load, PV & Grid)",
+      "monthly_energy_production": "Daily Electricity Cost (VND)",
+      "yearly_energy_production": "Monthly Electricity Cost (VND)"
     }
   },
   "projecttablelabel": {
@@ -1834,5 +1834,14 @@
   "profile": {
     "preferences": "Preferences",
     "language": "Language"
+  },
+  "chart_label": {
+    "electricityConsumption": "Daily Electricity Consumption by Source (WeShare/Grid)",
+    "weshare": "WeShare's",
+    "evn": "EVN's",
+    "saving": "Savings",
+    "grid": "Grid's",
+    "load": "Load",
+    "pv": "PV"
   }
 }
