@@ -132,7 +132,7 @@ router.post("/", authenticateToken, upload.single('document'), async (req, res) 
       if (offtakerId) {
         await createNotification({
           userId: offtakerId,
-          actionUrl: `contracts/details/${created.id}`,
+          actionUrl: `/offtaker/contracts/details/${created.id}`,
           ...notificationPayload,
         });
 
@@ -180,13 +180,13 @@ router.post("/", authenticateToken, upload.single('document'), async (req, res) 
           })
             .then((result) => {
               if (result.success) {
-                console.log(`✅ Contract email sent to ${offtakerUser.email}`);
+                console.log(`Contract email sent to ${offtakerUser.email}`);
               } else {
-                console.warn(`⚠️ Could not send contract email: ${result.error}`);
+                console.warn(`Could not send contract email: ${result.error}`);
               }
             })
             .catch((error) => {
-              console.error('❌ Failed to send contract email:', error.message);
+              console.error('Failed to send contract email:', error.message);
             });
         }
       }
@@ -195,7 +195,7 @@ router.post("/", authenticateToken, upload.single('document'), async (req, res) 
       if (investorId) {
         await createNotification({
           userId: investorId,
-          actionUrl: `contracts/details/${created.id}`,
+          actionUrl: `/investor/contracts/details/${created.id}`,
           ...notificationPayload,
         });
 

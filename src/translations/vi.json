@@ -1692,7 +1692,9 @@
     "invoice_update_title": "Hóa đơn đã được cập nhật",
     "invoice_updated": "Hóa đơn \"{{invoice_number}}\" đã được cập nhật bởi \"{{updated_by}}\".",
     "new_payout_generated": "Khoản thanh toán mới đã được tạo",
-    "payout_generated": "Khoản thanh toán \"{{payout_prefix}}\" đã được WeShare giải ngân."
+    "payout_generated": "Khoản thanh toán \"{{payout_prefix}}\" đã được WeShare giải ngân.",
+    "remove_investor_title": "Nhà đầu tư đã bị xóa",
+    "remove_investor_message": "Bạn đã bị xóa làm nhà đầu tư cho dự án \"{{project_name}}\" bởi WeShare."
   },
   "notification": {
     "title": "Thông báo",
