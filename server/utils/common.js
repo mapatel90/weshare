@@ -20,3 +20,17 @@ export const getUserFullName = async (userId) => {
     return 'Admin';
   }
 };
+
+
+export const getSiteSettings = async () => {
+  try {
+    const settings = await prisma.site_settings.findMany({
+      where: { key : { in: ['site_name', 'site_logo', 'contact_email'] } },
+      select: { key: true, value: true }
+    });
+    return settings;
+  } catch (error) {
+    console.error('getSiteSettings error:', error);
+    throw error;
+  }
+}
