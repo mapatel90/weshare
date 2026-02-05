@@ -260,7 +260,7 @@ router.post("/:id/mark-investor", authenticateToken, async (req, res) => {
 
     if (oldInvestor?.investor_id) {
       const existingContract = await prisma.contracts.findFirst({
-        where: { project_id: Number(projectId), investor_id: Number(oldInvestor?.investor_id), status: { not: 4 } },
+        where: { project_id: Number(projectId), investor_id: Number(oldInvestor?.investor_id), status: { not: 3 } },
       });
 
 
@@ -270,7 +270,7 @@ router.post("/:id/mark-investor", authenticateToken, async (req, res) => {
         } else {
           const cancelledContract = await prisma.contracts.update({
             where: { id: existingContract.id },
-            data: { status: 4 },
+            data: { status: 3 },
           });
 
           if (cancelledContract) {

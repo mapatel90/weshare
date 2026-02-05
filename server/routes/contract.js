@@ -12,6 +12,7 @@ import { getUserFullName } from '../utils/common.js';
 import { sendEmailUsingTemplate } from '../utils/email.js';
 import { PROJECT_STATUS } from '../../src/constants/project_status.js';
 import { uploadToS3, deleteFromS3, isS3Enabled } from '../services/s3Service.js';
+import { getAdminUsers } from '../utils/constants.js';
 
 const router = express.Router();
 
@@ -549,15 +550,16 @@ router.put("/:id/status", authenticateToken, upload.single('file'), async (req, 
   try {
     const id = Number(req.params.id);
     const { status, reason } = req.body;
+
     const existing = await prisma.contracts.findFirst({ where: { id }, include: { projects: true, users: true, interested_investors: true } });
     if (!existing || existing.is_deleted) {
       return res.status(404).json({ success: false, message: 'Contract not found' });
     }
     // If rejected or cancelled, save the reason
     const updateData = { status: Number(status) };
-    if ((Number(status) === 2 || Number(status) === 4) && reason) {
+    if ((Number(status) === 2 || Number(status) === 3) && reason) {
       updateData.rejectreason = reason;
-    } else if (Number(status) !== 2 && Number(status) !== 4) {
+    } else if (Number(status) !== 2 && Number(status) !== 3) {
       updateData.rejectreason = null;
     }
 
@@ -616,12 +618,6 @@ router.put("/:id/status", authenticateToken, upload.single('file'), async (req, 
     let notification_message = '';
 
     if (Number(status) === 1) {
-      notification_title = t(lang, 'notification_msg.contract_approved_title');
-      notification_message = t(lang, 'notification_msg.contract_approved_message', {
-        contract_title: existing.contract_title,
-        created_by: creator_name
-      });
-
       // Send email to offtaker if exists
       if (existing.offtaker_id) {
         const offtakerUser = await prisma.users.findUnique({ where: { id: Number(existing.offtaker_id) } });
@@ -671,6 +667,24 @@ router.put("/:id/status", authenticateToken, upload.single('file'), async (req, 
               console.error(' Failed to send contract approval email:', error.message);
             });
         }
+
+        const adminUsers = await getAdminUsers(prisma, { activeOnly: true });
+        notification_title = t(lang, 'notification_msg.contract_approved_title');
+        notification_message = t(lang, 'notification_msg.contract_approved_message', {
+          contract_title: existing.contract_title,
+          created_by: creator_name
+        });
+        for (const admin of adminUsers) {
+          await createNotification({
+            userId: admin.id.toString(),
+            title: notification_title,
+            message: notification_message,
+            moduleType: 'contract',
+            moduleId: existing?.id,
+            actionUrl: `/admin/contract/view/${existing?.id}`,
+            created_by: existing?.offtaker_id
+          });
+        }
       }
 
       // Send email to investor if exists
@@ -678,6 +692,7 @@ router.put("/:id/status", authenticateToken, upload.single('file'), async (req, 
         const investor = await prisma.interested_investors.findFirst({
           where: { user_id: Number(existing.investor_id), project_id: Number(existing.project_id), is_deleted: 0 }
         });
+
         if (investor?.email) {
           const templateData = {
             user_name: investor.full_name || 'Investor',
@@ -724,6 +739,24 @@ router.put("/:id/status", authenticateToken, upload.single('file'), async (req, 
               console.error('Failed to send contract approval email:', error.message);
             });
         }
+        const adminUsers = await getAdminUsers(prisma, { activeOnly: true });
+
+        notification_title = t(lang, 'notification_msg.contract_approved_title');
+        notification_message = t(lang, 'notification_msg.contract_approved_message', {
+          contract_title: existing.contract_title,
+          created_by: investor.full_name
+        });
+        for (const admin of adminUsers) {
+          await createNotification({
+            userId: admin.id.toString(),
+            title: notification_title,
+            message: notification_message,
+            moduleType: 'contract',
+            moduleId: existing?.id,
+            actionUrl: `/admin/contract/view/${existing?.id}`,
+            created_by: existing?.investor_id
+          });
+        }
       }
     }
 
@@ -736,7 +769,7 @@ router.put("/:id/status", authenticateToken, upload.single('file'), async (req, 
 
       // Send email to offtaker if exists
       if (existing.offtaker_id) {
-        const offtakerUser = await prisma.users.findUnique({ where: { id: Number(existing.offtaker_id) } });
+        const offtakerUser = await prisma.users.findFirst({ where: { id: Number(existing.offtaker_id) } });
         if (offtakerUser?.email) {
           const templateData = {
             user_name: offtakerUser.full_name || 'User',
@@ -770,6 +803,19 @@ router.put("/:id/status", authenticateToken, upload.single('file'), async (req, 
             .catch((error) => {
               console.error('Failed to send contract rejection email:', error.message);
             });
+        }
+        const adminUsers = await getAdminUsers(prisma, { activeOnly: true });
+
+        for (const admin of adminUsers) {
+          await createNotification({
+            userId: admin.id.toString(),
+            title: notification_title,
+            message: notification_message,
+            moduleType: 'contract',
+            moduleId: existing?.id,
+            actionUrl: `/admin/contract/view/${existing?.id}`,
+            created_by: existing?.offtaker_id
+          });
         }
       }
 
@@ -812,10 +858,27 @@ router.put("/:id/status", authenticateToken, upload.single('file'), async (req, 
               console.error('Failed to send contract rejection email:', error.message);
             });
         }
+        const adminUsers = await getAdminUsers(prisma, { activeOnly: true });
+        notification_title = t(lang, 'notification_msg.contract_rejected_title');
+        notification_message = t(lang, 'notification_msg.contract_rejected_message', {
+          contract_title: existing.contract_title,
+          created_by: investor.full_name
+        });
+        for (const admin of adminUsers) {
+          await createNotification({
+            userId: admin.id.toString(),
+            title: notification_title,
+            message: notification_message,
+            moduleType: 'contract',
+            moduleId: existing?.id,
+            actionUrl: `/admin/contract/view/${existing?.id}`,
+            created_by: existing?.investor_id
+          });
+        }
       }
     }
 
-    if (Number(status) === 4) {
+    if (Number(status) === 3) {
       notification_title = t(lang, 'notification_msg.contract_cancelled_title');
       notification_message = t(lang, 'notification_msg.contract_cancelled_message', {
         contract_title: existing.contract_title,
@@ -922,17 +985,6 @@ router.put("/:id/status", authenticateToken, upload.single('file'), async (req, 
         });
       }
     }
-
-    // await createNotification({
-    //   userId: existing?.created_by,
-    //   title: notification_title,
-    //   message: notification_message,
-    //   moduleType: 'contract',
-    //   moduleId: existing?.id,
-    //   actionUrl: `/offtaker/contract/view/${existing?.id}`,
-    //   created_by: existing?.offtaker_id
-    // });
-
 
     return res.json({ success: true, data: updated });
   } catch (error) {
