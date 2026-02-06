@@ -127,6 +127,81 @@ router.get("/", async (req, res) => {
   }
 });
 
+// Get View Settings
+router.get("/settings-data", async (req, res) => {
+  try {
+    const settings = await prisma.$queryRaw`
+      WITH safe_settings AS (
+        SELECT
+          key,
+          value,
+          CASE
+            WHEN value ~ '^[0-9]{1,10}$' THEN value::INT
+            ELSE NULL
+          END AS value_int
+        FROM settings
+      )
+      SELECT
+        s.key,
+        s.value,
+
+        c.name  AS site_country_name,
+        st.name AS site_state_name,
+        ct.name AS site_city_name
+
+      FROM safe_settings s
+
+      LEFT JOIN countries c
+        ON s.key = 'site_country'
+      AND c.id = s.value_int
+
+      LEFT JOIN states st
+        ON s.key = 'site_state'
+      AND st.id = s.value_int
+
+      LEFT JOIN cities ct
+        ON s.key = 'site_city'
+      AND ct.id = s.value_int
+   `;
+    // const settings = await prisma.$queryRaw`
+    //   SELECT 
+    //     s.key,
+    //     s.value
+    //   FROM settings s
+    // `;
+
+    const settingsObj = {};
+
+    settings.forEach(row => {
+      // original value
+      settingsObj[row.key] = row.value;
+
+      // name fields (only if exist)
+      if (row.site_country_name)
+        settingsObj.site_country_name = row.site_country_name;
+
+      if (row.site_state_name)
+        settingsObj.site_state_name = row.site_state_name;
+
+      if (row.site_city_name)
+        settingsObj.site_city_name = row.site_city_name;
+    });
+
+    res.json({
+      success: true,
+      data: settingsObj
+    });
+
+  } catch (error) {
+    console.error("Error fetching settings:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching settings",
+      error: error.message
+    });
+  }
+});
+
 
 // get taxes data (must come before /:key route to avoid route collision)
 router.get('/taxes', authenticateToken, async (req, res) => {

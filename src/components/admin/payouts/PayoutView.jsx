@@ -79,7 +79,7 @@ const PayoutView = ({ payout_id }) => {
     useEffect(() => {
         const fetchCompanySettings = async () => {
             try {
-                const response = await apiGet("/api/settings", { includeAuth: true });
+                const response = await apiGet("/api/settings/settings-data", { includeAuth: true });
                 if (response?.success && response?.data) {
                     setCompanySettings(response.data);
                 }
