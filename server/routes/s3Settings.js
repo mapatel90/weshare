@@ -80,24 +80,45 @@ router.post('/', authenticateToken, async (req, res) => {
       signed_url_expiry,
     } = req.body;
 
+    // Get existing secret key if not provided in request
+    let secretKeyToUse = aws_secret_access_key;
+    let encryptedSecretKey;
+
+    if (!aws_secret_access_key || aws_secret_access_key === '***********') {
+      // Try to get existing secret key
+      const existingSecret = await prisma.settings.findFirst({
+        where: { key: S3_KEYS.SECRET_ACCESS_KEY },
+      });
+
+      if (existingSecret) {
+        // Use existing encrypted key (don't decrypt/re-encrypt)
+        encryptedSecretKey = existingSecret.value;
+        secretKeyToUse = decrypt(existingSecret.value);
+      } else {
+        // No existing secret and none provided
+        return res.status(400).json({
+          success: false,
+          message: 'AWS Secret Access Key is required',
+        });
+      }
+    } else {
+      // New secret key provided, encrypt it
+      encryptedSecretKey = encrypt(aws_secret_access_key);
+    }
+
     // Validation
-    if (
-      !aws_access_key_id ||
-      !aws_secret_access_key ||
-      !aws_region ||
-      !s3_bucket_name
-    ) {
+    if (!aws_access_key_id || !aws_region || !s3_bucket_name) {
       return res.status(400).json({
         success: false,
         message:
-          'Missing required fields: aws_access_key_id, aws_secret_access_key, aws_region, s3_bucket_name',
+          'Missing required fields: aws_access_key_id, aws_region, s3_bucket_name',
       });
     }
 
     // Validate AWS credentials
     const validation = await validateS3Credentials(
       aws_access_key_id,
-      aws_secret_access_key,
+      secretKeyToUse,
       aws_region,
       s3_bucket_name
     );
@@ -108,9 +129,6 @@ router.post('/', authenticateToken, async (req, res) => {
         message: `AWS validation failed: ${validation.message}`,
       });
     }
-
-    // Encrypt secret key
-    const encryptedSecretKey = encrypt(aws_secret_access_key);
 
     // Prepare settings to upsert
     const settingsToSave = [
@@ -311,12 +329,26 @@ router.post('/validate', authenticateToken, async (req, res) => {
       s3_bucket_name,
     } = req.body;
 
-    if (
-      !aws_access_key_id ||
-      !aws_secret_access_key ||
-      !aws_region ||
-      !s3_bucket_name
-    ) {
+    // Get secret key - use provided one or fetch existing
+    let secretKeyToUse = aws_secret_access_key;
+
+    if (!aws_secret_access_key || aws_secret_access_key === '***********') {
+      // Try to get existing secret key
+      const existingSecret = await prisma.settings.findFirst({
+        where: { key: S3_KEYS.SECRET_ACCESS_KEY },
+      });
+
+      if (existingSecret) {
+        secretKeyToUse = decrypt(existingSecret.value);
+      } else {
+        return res.status(400).json({
+          success: false,
+          message: 'AWS Secret Access Key is required for validation',
+        });
+      }
+    }
+
+    if (!aws_access_key_id || !aws_region || !s3_bucket_name) {
       return res.status(400).json({
         success: false,
         message: 'Missing required fields for validation',
@@ -325,7 +357,7 @@ router.post('/validate', authenticateToken, async (req, res) => {
 
     const validation = await validateS3Credentials(
       aws_access_key_id,
-      aws_secret_access_key,
+      secretKeyToUse,
       aws_region,
       s3_bucket_name
     );

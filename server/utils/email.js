@@ -61,16 +61,28 @@ export const getEmailTemplateData = async (customData = {}) => {
 
     // Helper function to build full image URL
     const buildImageUrl = (imagePath) => {
-      if (!imagePath) return process.env.UPLOAD_URL || '';
+      console.log('🔍 buildImageUrl - Input imagePath:', imagePath);
+      console.log('🔍 buildImageUrl - UPLOAD_URL:', process.env.NEXT_PUBLIC_UPLOAD_URL);
+
+      if (!imagePath) {
+        console.log('⚠️ No imagePath, returning UPLOAD_URL');
+        return process.env.NEXT_PUBLIC_UPLOAD_URL || '';
+      }
+
       // If already a full URL (starts with http:// or https://), return as-is
       if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+        console.log('✅ Full URL detected, returning as-is:', imagePath);
         return imagePath;
       }
+
       // Otherwise, prepend UPLOAD_URL to the S3 key
-      const baseUrl = process.env.UPLOAD_URL || '';
+      const baseUrl = process.env.NEXT_PUBLIC_UPLOAD_URL || '';
       // Remove leading slash from imagePath if exists to avoid double slashes
       const cleanPath = imagePath.startsWith('/') ? imagePath.substring(1) : imagePath;
-      return baseUrl + cleanPath;
+      const finalUrl = baseUrl + cleanPath;
+
+      console.log('✅ Built final URL:', finalUrl);
+      return finalUrl;
     };
 
     // Build complete template data with common fields
