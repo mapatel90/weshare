@@ -181,7 +181,7 @@ export const menuList = [
       {
         id: 1,
         name: "general",
-        path: "/admin/settings/ganeral",
+        path: "/admin/settings/general",
         subdropdownMenu: false,
       },
       // {

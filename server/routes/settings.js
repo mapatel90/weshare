@@ -519,9 +519,29 @@ router.post('/upload-favicon', authenticateToken, async (req, res) => {
     const { mimeType, base64Data } = parseDataUrl(dataUrl);
     const buffer = Buffer.from(base64Data, 'base64');
 
+    // ✅ MIME type → file extension mapping
+    const mimeToExt = {
+      'image/png': 'png',
+      'image/jpeg': 'jpg',
+      'image/jpg': 'jpg',
+      'image/webp': 'webp',
+      'image/svg+xml': 'svg'
+    };
+
+    const extension = mimeToExt[mimeType];
+    if (!extension) {
+      return res.status(400).json({
+        success: false,
+        message: `Unsupported image type: ${mimeType}`
+      });
+    }
+
+    // ✅ Filename WITH extension
+    const fileName = `favicon_${Date.now()}.${extension}`;
+
     const s3Result = await uploadToS3(
       buffer,
-      `favicon_${Date.now()}`,
+      fileName,
       mimeType,
       { folder: 'logo', metadata: { uploadType: 'site_favicon' } }
     );

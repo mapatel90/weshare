@@ -33,6 +33,7 @@ const SettingsMiscellaneousForm = () => {
     const [loading, setLoading] = useState(false)
     const [validating, setValidating] = useState(false)
     const [fetching, setFetching] = useState(true)
+    const [hasExistingSecretKey, setHasExistingSecretKey] = useState(false)
 
     const [s3FormData, setS3FormData] = useState({
         aws_access_key_id: '',
@@ -57,9 +58,13 @@ const SettingsMiscellaneousForm = () => {
 
             if (response.success) {
                 const settings = response.data
+                // Check if secret key exists (will be encrypted in DB)
+                const hasSecret = !!settings.s3_aws_secret_access_key
+                setHasExistingSecretKey(hasSecret)
+
                 setS3FormData({
                     aws_access_key_id: settings.s3_aws_access_key_id || '',
-                    aws_secret_access_key: settings.s3_aws_secret_access_key || '',
+                    aws_secret_access_key: '', // Always keep blank - only update if user enters new value
                     aws_region: settings.s3_aws_region || 'us-east-1',
                     s3_bucket_name: settings.s3_bucket_name || '',
                     s3_folder_path: settings.s3_folder_path || 'uploads',
@@ -103,12 +108,21 @@ const SettingsMiscellaneousForm = () => {
         }
     }
 
-    const handleS3Submit = async (e) => {
-        e.preventDefault()
+    const handleS3Submit = async () => {
         setLoading(true)
 
         try {
-            const response = await apiPost('/api/s3-settings', s3FormData)
+            // Prepare data to send - only include secret key if it has been changed
+            const dataToSend = { ...s3FormData }
+
+            // If secret key is blank and we have an existing one, don't send it (keep existing)
+            // If secret key has a value, send it (will be encrypted on server)
+            if (!dataToSend.aws_secret_access_key && hasExistingSecretKey) {
+                // Don't include empty secret key in update - keep existing
+                delete dataToSend.aws_secret_access_key
+            }
+
+            const response = await apiPost('/api/s3-settings', dataToSend)
 
             if (response.success) {
                 showSuccessToast('S3 settings saved successfully!')
@@ -123,7 +137,11 @@ const SettingsMiscellaneousForm = () => {
     return (
         <div className="content-area" data-scrollbar-target="#psScrollbarInit">
             <PerfectScrollbar>
-                <PageHeaderSetting />
+                <PageHeaderSetting
+                    onSave={handleS3Submit}
+                    isSubmitting={loading}
+                    showSaveButton={true}
+                />
                 <div className="content-area-body">
                     <div className="mb-0 card">
                         <div className="card-body">
@@ -317,7 +335,7 @@ const SettingsMiscellaneousForm = () => {
                                     </div>
                                 </div>
                             ) : (
-                                <form onSubmit={handleS3Submit}>
+                                <div>
                                     <div className="row">
                                         {/* AWS Access Key ID */}
                                         <div className="mb-4 col-lg-6">
@@ -341,12 +359,14 @@ const SettingsMiscellaneousForm = () => {
                                                 name="aws_secret_access_key"
                                                 value={s3FormData.aws_secret_access_key}
                                                 onChange={handleS3Change}
-                                                placeholder="wJalrXUtnFEMI/K7MDENG/bPxRfiCY"
-                                                required
-                                                star="*"
+                                                placeholder={hasExistingSecretKey ? "Leave blank to keep existing" : "wJalrXUtnFEMI/K7MDENG/bPxRfiCY"}
+                                                required={!hasExistingSecretKey}
+                                                star={!hasExistingSecretKey ? "*" : ""}
                                             />
                                             <small className="text-muted">
-                                                Secret key will be encrypted before storing in database
+                                                {hasExistingSecretKey
+                                                    ? "Secret key is already set. Leave blank to keep existing, or enter new value to update."
+                                                    : "Secret key will be encrypted before storing in database"}
                                             </small>
                                         </div>
 
@@ -469,7 +489,7 @@ const SettingsMiscellaneousForm = () => {
                                         )}
                                     </div>
 
-                                    {/* Action Buttons */}
+                                    {/* Test Connection Button */}
                                     <div className="gap-2 pt-3 d-flex">
                                         <button
                                             type="button"
@@ -489,26 +509,8 @@ const SettingsMiscellaneousForm = () => {
                                                 'Test S3 Connection'
                                             )}
                                         </button>
-
-                                        <button
-                                            type="submit"
-                                            disabled={loading || validating}
-                                            className="btn btn-primary"
-                                        >
-                                            {loading ? (
-                                                <>
-                                                    <span
-                                                        className="spinner-border spinner-border-sm me-2"
-                                                        role="status"
-                                                    ></span>
-                                                    Saving...
-                                                </>
-                                            ) : (
-                                                'Save S3 Settings'
-                                            )}
-                                        </button>
                                     </div>
-                                </form>
+                                </div>
                             )}
                         </div>
                     </div>

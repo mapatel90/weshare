@@ -130,14 +130,13 @@ const SettingGeneralForm = () => {
       // Set uploaded image if exists
       const siteImage = getSetting("site_image", "");
       if (siteImage) {
-        console.log("Setting uploaded image to:", `${process.env.UPLOAD_URL}${siteImage}`);
-        setUploadedImage(`${process.env.UPLOAD_URL}${siteImage}`);
+        setUploadedImage(`${process.env.NEXT_PUBLIC_UPLOAD_URL}${siteImage}`);
       }
 
       // Set uploaded favicon if exists
       const siteFavicon = getSetting("site_favicon", "");
       if (siteFavicon) {
-        setUploadedFavicon(siteFavicon);
+        setUploadedFavicon(`${process.env.NEXT_PUBLIC_UPLOAD_URL}${siteFavicon}`);
       }
       // Update document favicon (will use default if no favicon is set)
       updateDocumentFavicon(siteFavicon);
@@ -364,18 +363,26 @@ const SettingGeneralForm = () => {
         site_email: trimmedEmail, // save trimmed value (possibly empty)
       };
 
+      console.log("settingsToUpdate", settingsToUpdate);
+
       await updateSettings(settingsToUpdate);
-      // Make sure local form state reflects the saved image and favicon and clear temp preview
-      setFormData((prev) => ({ 
-        ...prev, 
+      // Make sure local form state reflects the saved image and favicon
+      setFormData((prev) => ({
+        ...prev,
         site_image: newImagePath,
         site_favicon: newFaviconPath,
       }));
-      setUploadedImage(null);
-      setUploadedFavicon(null);
-      
+
+      // Update uploaded images with full URLs so they display correctly
+      if (newImagePath) {
+        setUploadedImage(`${process.env.NEXT_PUBLIC_UPLOAD_URL}${newImagePath}`);
+      }
+      if (newFaviconPath) {
+        setUploadedFavicon(`${process.env.NEXT_PUBLIC_UPLOAD_URL}${newFaviconPath}`);
+      }
+
       // Update favicon in document head immediately without refresh
-      updateDocumentFavicon(newFaviconPath);
+      updateDocumentFavicon(newFaviconPath ? `${process.env.NEXT_PUBLIC_UPLOAD_URL}${newFaviconPath}` : "");
     } catch (error) {
       console.error("Error saving settings:", error);
     } finally {
@@ -390,9 +397,9 @@ const SettingGeneralForm = () => {
   //             <PerfectScrollbar>
   //                 <PageHeaderSetting />
   //                 <div className="content-area-body">
-  //                     <div className="card mb-0">
+  //                     <div className="mb-0 card">
   //                         <div className="card-body">
-  //                             <div className="text-center py-5">
+  //                             <div className="py-5 text-center">
   //                                 <div className="spinner-border text-primary" role="status">
   //                                     <span className="visually-hidden">Loading...</span>
   //                                 </div>
@@ -416,7 +423,7 @@ const SettingGeneralForm = () => {
           showSaveButton={true}
         />
         <div className="content-area-body">
-          <div className="card mb-0">
+          <div className="mb-0 card">
             <div className="card-body">
               {uploadedImage || (formData.site_image && !imageLoadError) ? (
                 <Box
@@ -432,7 +439,7 @@ const SettingGeneralForm = () => {
                 >
                   {/* Image Preview */}
                   <Avatar
-                    src={uploadedImage || `${process.env.UPLOAD_URL}${formData.site_image}`}
+                    src={uploadedImage || formData.site_image}
                     alt="Logo"
                     variant="rounded"
                     sx={{ width: "100%", height: "100%", objectFit: "cover" }}
