@@ -44,7 +44,7 @@ const LanguagesModal = () => {
         className="nxl-head-link me-0 nxl-language-link"
         onClick={handleToggle}
         aria-expanded={open}
-        style={{ borderRadius: 0, border: 'none', background: 'transparent' }}
+        style={{ borderRadius: 0, border: 'none', background: 'transparent', marginLeft: '25%' }}
       >
         <img src={currentLanguageInfo.flag} alt={currentLanguageInfo.name} className="img-fluid wd-20" />
       </button>
