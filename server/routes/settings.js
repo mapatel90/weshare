@@ -397,37 +397,81 @@ router.delete('/:key', authenticateToken, async (req, res) => {
 router.post('/upload-logo', authenticateToken, async (req, res) => {
   try {
     const { dataUrl, oldImagePath } = req.body || {};
+
     if (!dataUrl) {
-      return res.status(400).json({ success: false, message: 'dataUrl is required' });
+      return res.status(400).json({
+        success: false,
+        message: 'dataUrl is required'
+      });
     }
 
     const s3Enabled = await isS3Enabled();
     if (!s3Enabled) {
-      return res.status(500).json({ success: false, message: 'S3 is disabled' });
+      return res.status(500).json({
+        success: false,
+        message: 'S3 is disabled'
+      });
     }
 
     const { mimeType, base64Data } = parseDataUrl(dataUrl);
     const buffer = Buffer.from(base64Data, 'base64');
 
-    const s3Result = await uploadToS3(
-      buffer,
-      `logo_${Date.now()}`,
-      mimeType,
-      { folder: 'logo', metadata: { uploadType: 'site_logo' } }
-    );
+    // ✅ MIME type → file extension mapping
+    const mimeToExt = {
+      'image/png': 'png',
+      'image/jpeg': 'jpg',
+      'image/jpg': 'jpg',
+      'image/webp': 'webp',
+      'image/svg+xml': 'svg'
+    };
 
-    if (!s3Result || !s3Result.success) {
-      console.error('S3 upload failed:', s3Result);
-      return res.status(500).json({ success: false, message: 'S3 upload failed' });
+    const extension = mimeToExt[mimeType];
+    if (!extension) {
+      return res.status(400).json({
+        success: false,
+        message: `Unsupported image type: ${mimeType}`
+      });
     }
 
-    // Delete previous logo if provided
+    // ✅ Filename WITH extension
+    const fileName = `logo_${Date.now()}.${extension}`;
+
+    const s3Result = await uploadToS3(
+      buffer,
+      fileName,
+      mimeType,
+      {
+        folder: 'logo',
+        metadata: { uploadType: 'site_logo' }
+      }
+    );
+    
+    if (!s3Result || !s3Result.success) {
+      console.error('S3 upload failed:', s3Result);
+      return res.status(500).json({
+        success: false,
+        message: 'S3 upload failed'
+      });
+    }
+
+    // ✅ Delete previous logo if provided
     await deleteOldLogoIfSafe(oldImagePath);
 
-    return res.json({ success: true, message: 'Logo uploaded', data: { path: s3Result.data.fileUrl } });
+    return res.json({
+      success: true,
+      message: 'Logo uploaded',
+      data: {
+        path: s3Result.data.fileKey
+      }
+    });
+
   } catch (error) {
     console.error('Error uploading logo:', error);
-    return res.status(500).json({ success: false, message: 'Error uploading logo', error: error.message });
+    return res.status(500).json({
+      success: false,
+      message: 'Error uploading logo',
+      error: error.message
+    });
   }
 });
 

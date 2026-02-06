@@ -130,7 +130,8 @@ const SettingGeneralForm = () => {
       // Set uploaded image if exists
       const siteImage = getSetting("site_image", "");
       if (siteImage) {
-        setUploadedImage(siteImage);
+        console.log("Setting uploaded image to:", `${process.env.UPLOAD_URL}${siteImage}`);
+        setUploadedImage(`${process.env.UPLOAD_URL}${siteImage}`);
       }
 
       // Set uploaded favicon if exists
@@ -431,7 +432,7 @@ const SettingGeneralForm = () => {
                 >
                   {/* Image Preview */}
                   <Avatar
-                    src={uploadedImage || formData.site_image}
+                    src={uploadedImage || `${process.env.UPLOAD_URL}${formData.site_image}`}
                     alt="Logo"
                     variant="rounded"
                     sx={{ width: "100%", height: "100%", objectFit: "cover" }}

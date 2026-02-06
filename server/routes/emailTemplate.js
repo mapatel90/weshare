@@ -1,6 +1,7 @@
 import express from "express";
 import prisma from "../utils/prisma.js";
 import { authenticateToken } from "../middleware/auth.js";
+import { sendEmailUsingTemplate } from '../utils/email.js';
 
 const router = express.Router();
 
@@ -116,6 +117,109 @@ router.delete("/:id", authenticateToken, async (req, res) => {
     res.json({ success: true, message: "Template deleted successfully" });
   } catch (e) {
     res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+//This is to view template design in browser
+router.get("/view/template/:slug", async (req, res) => {
+  try {
+    const { slug } = req.params;
+    const { language = 'en', send = 'false' } = req.query;
+
+    // Sample template data for preview
+    const verifyLink = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/verify-email/123456789`;
+    const loginUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/offtaker/login`;
+
+    const templateData = {
+      user_name: "Maulik Patel",
+      user_email: "mapatel90@gmail.com",
+      account_type: 'Offtaker',
+      verify_link: verifyLink,
+      login_url: loginUrl,
+      invoice_number: "INV-2026-001",
+      amount: "$500",
+      contract_title: "Solar Energy Agreement",
+      project_name: "Solar Installation Project",
+    };
+
+    // If send=true is in query, actually send the email
+    if (send === 'true') {
+      const result = await sendEmailUsingTemplate({
+        to: "mapatel90@gmail.com",
+        templateSlug: slug,
+        templateData,
+        language: language
+      });
+
+      if (result.success) {
+        return res.json({
+          success: true,
+          message: "Email sent successfully to mapatel90@gmail.com"
+        });
+      } else {
+        return res.status(500).json({
+          success: false,
+          message: `Failed to send email: ${result.error}`
+        });
+      }
+    }
+
+    // Otherwise, just display the HTML in browser
+    const { buildEmailLayout, getEmailTemplateData } = await import('../utils/email.js');
+
+    // Get complete template data with settings
+    const completeTemplateData = await getEmailTemplateData(templateData);
+
+    console.log("completeTemplateData", completeTemplateData);
+
+    // Fetch template from database
+    const template = await prisma.email_template.findFirst({
+      where: { slug }
+    });
+
+    if (!template) {
+      return res.status(404).send(`
+        <html>
+          <body style="font-family: Arial; padding: 40px; text-align: center;">
+            <h1>❌ Template Not Found</h1>
+            <p>The template with slug "<strong>${slug}</strong>" does not exist in the database.</p>
+            <p><a href="/api/email-templates">View all templates</a></p>
+          </body>
+        </html>
+      `);
+    }
+
+    // Get content based on language
+    const contentField = language === 'vi' ? 'content_vi' : 'content_en';
+    const { replacePlaceholders } = await import('../utils/email.js');
+
+    const rawContent = replacePlaceholders(
+      template[contentField] || template.content_en,
+      completeTemplateData
+    );
+
+    // Build the complete HTML
+    const finalHtml = await buildEmailLayout({
+      bodyContent: rawContent,
+      templateData: completeTemplateData,
+      language
+    });
+
+    // Send HTML to browser
+    res.setHeader('Content-Type', 'text/html');
+    res.send(finalHtml);
+
+  } catch (e) {
+    console.error('Error viewing template:', e);
+    res.status(500).send(`
+      <html>
+        <body style="font-family: Arial; padding: 40px;">
+          <h1>❌ Error</h1>
+          <p>${e.message}</p>
+          <pre>${e.stack}</pre>
+        </body>
+      </html>
+    `);
   }
 });
 
