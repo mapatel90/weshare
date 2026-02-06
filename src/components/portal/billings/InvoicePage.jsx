@@ -214,7 +214,7 @@ const InvoicePage = ({ invoiceId }) => {
 
   const { company, invoice, client, items, payment, summary } = invoiceData || {};
   const invoiceDisplay = `${invoice?.prefix || ""}-${invoice?.number || ""}`;
-  const qrCodeSrc = companySettings?.qr_code_url || "/images/invoice_qr.jpg";
+  const qrCodeSrc = buildUploadUrl(companySettings?.qr_code_url) || "/images/invoice_qr.jpg";
 
   const getCompanyAddress = () => {
     if (!company) return "";

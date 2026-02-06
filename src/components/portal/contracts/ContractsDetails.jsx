@@ -5,6 +5,7 @@ import { apiGet, apiUpload } from "@/lib/api";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { showErrorToast, showSuccessToast } from "@/utils/topTost";
 import { PROJECT_STATUS } from "@/constants/project_status";
+import { buildUploadUrl } from "@/utils/common";
 
 const Field = ({ label, value }) => (
   <div className="mb-4">
@@ -137,7 +138,7 @@ const ContractsDetails = ({ contractId }) => {
                     <div className="flex gap-3">
                       {contract.document_upload ? (
                         <a
-                          href={contract.document_upload}
+                          href={buildUploadUrl(contract.document_upload)}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-blue-600 font-medium hover:underline"
@@ -153,7 +154,7 @@ const ContractsDetails = ({ contractId }) => {
                         <>
                           <span className="text-gray-300">|</span>
                           <a
-                            href={contract.signed_document_upload}
+                            href={buildUploadUrl(contract.signed_document_upload)}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-blue-600 font-medium hover:underline"

@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 import ContractModal from "./ContractModal";
 import { useAuth } from "@/contexts/AuthContext";
+import { buildUploadUrl } from "@/utils/common";
 
 const Contract = ({ projectId, handleCloseForm, handleSaveAction }) => {
   const { lang } = useLanguage();
@@ -496,7 +497,7 @@ const Contract = ({ projectId, handleCloseForm, handleSaveAction }) => {
       cell: (info) => {
         const v = info.getValue();
         return v ? (
-          <a href={v} target="_blank" rel="noreferrer">
+          <a href={buildUploadUrl(v)} target="_blank" rel="noreferrer">
             View
           </a>
         ) : (
@@ -510,7 +511,7 @@ const Contract = ({ projectId, handleCloseForm, handleSaveAction }) => {
       cell: (info) => {
         const v = info.getValue();
         return v ? (
-          <a href={v} target="_blank" rel="noreferrer">
+          <a href={buildUploadUrl(v)} target="_blank" rel="noreferrer">
             {lang("common.view", "View")}
           </a>
         ) : (

@@ -1,5 +1,6 @@
 "use client";
 import { apiGet } from "@/lib/api";
+import { buildUploadUrl } from "@/utils/common";
 
 export const downloadPaymentPDF = async (paymentId, priceWithCurrency) => {
   try {
@@ -164,7 +165,7 @@ export const downloadPaymentPDF = async (paymentId, priceWithCurrency) => {
           </div>
           <div style="padding: 16px; text-align: center;">
             <img
-              src="${payment.ss_url}"
+              src="${buildUploadUrl(payment.ss_url)}"
               style="max-width: 100%; max-height: 420px; border-radius: 8px; border: 1px solid #e5e7eb; object-fit: contain;"
             />
           </div>

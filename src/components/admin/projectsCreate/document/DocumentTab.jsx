@@ -19,6 +19,7 @@ import {
 } from "@mui/material";
 import { Close as CloseIcon } from "@mui/icons-material";
 import { useAuth } from "@/contexts/AuthContext";
+import { buildUploadUrl } from "@/utils/common";
 
 const DocumentTab = ({ projectId, handleCloseForm }) => {
     const { lang } = useLanguage();
@@ -192,7 +193,7 @@ const DocumentTab = ({ projectId, handleCloseForm }) => {
                 const row = info.row.original;
                 return row.document ? (
                     <a
-                        href={row.document.replace('/public', '')}
+                        href={buildUploadUrl(row.document)}
                         target="_blank"
                         rel="noopener noreferrer"
                         download

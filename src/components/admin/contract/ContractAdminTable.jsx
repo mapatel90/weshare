@@ -7,6 +7,7 @@ import { FiEye } from "react-icons/fi";
 import { showErrorToast } from "@/utils/topTost";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Autocomplete, TextField } from "@mui/material";
+import { buildUploadUrl } from "@/utils/common";
 
 const ContractAdminTable = () => {
   const PAGE_SIZE = 20;
@@ -247,8 +248,9 @@ const ContractAdminTable = () => {
       header: () => lang("contract.document", "Document"),
       cell: (info) => {
         const v = info.getValue();
+        console.log("VALUE", v);
         return v ? (
-          <a href={v} target="_blank" rel="noreferrer">
+          <a href={buildUploadUrl(v)} target="_blank" rel="noreferrer">
             {lang("common.view", "View")}
           </a>
         ) : (
@@ -262,7 +264,7 @@ const ContractAdminTable = () => {
       cell: (info) => {
         const v = info.getValue();
         return v ? (
-          <a href={v} target="_blank" rel="noreferrer">
+          <a href={buildUploadUrl(v)} target="_blank" rel="noreferrer">
             {lang("common.view", "View")}
           </a>
         ) : (
@@ -377,14 +379,14 @@ const ContractAdminTable = () => {
               statusFilter === ""
                 ? null
                 : statusFilter === "0"
-                ? { value: "0", label: lang("common.pending", "Pending") }
-                : statusFilter === "1"
-                ? { value: "1", label: lang("common.approved", "Approved") }
-                : statusFilter === "2"
-                ? { value: "2", label: lang("common.rejected", "Rejected") }
-                : statusFilter === "4"
-                ? { value: "4", label: lang("common.cancel", "Cancel") }
-                : null
+                  ? { value: "0", label: lang("common.pending", "Pending") }
+                  : statusFilter === "1"
+                    ? { value: "1", label: lang("common.approved", "Approved") }
+                    : statusFilter === "2"
+                      ? { value: "2", label: lang("common.rejected", "Rejected") }
+                      : statusFilter === "4"
+                        ? { value: "4", label: lang("common.cancel", "Cancel") }
+                        : null
             }
             onChange={(e, newValue) => {
               setStatusFilter(newValue?.value || "");
