@@ -21,6 +21,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import useLocationData from '@/hooks/useLocationData'
 import { showErrorToast, showSuccessToast } from '@/utils/topTost'
 import { useLanguage } from '@/contexts/LanguageContext';
+import { buildUploadUrl } from '@/utils/common';
 // import { toast } from 'react-toastify'
 // -------- DARK MODE HOOK ----------
 const useDarkMode = () => {
@@ -103,7 +104,7 @@ const ProfilePage = () => {
 
                     // Set image preview if user has an image
                     if (userData.user_image) {
-                        setImagePreview(userData.user_image)
+                        setImagePreview(buildUploadUrl(userData.user_image))
                     }
 
                     // Load states if country is selected
@@ -216,7 +217,7 @@ const ProfilePage = () => {
 
                 // Update image preview with new image
                 if (response.data.user_image) {
-                    setImagePreview(response.data.user_image)
+                    setImagePreview(buildUploadUrl(response.data.user_image))
                 }
             }
         } catch (error) {

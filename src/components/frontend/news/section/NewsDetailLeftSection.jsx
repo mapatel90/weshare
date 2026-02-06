@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendar, faAnglesLeft, faAnglesRight } from '@fortawesome/free-solid-svg-icons';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { getFullImageUrl } from '@/utils/common';
+import { buildUploadUrl, getFullImageUrl } from '@/utils/common';
 
 const NewsDetailLeftSection = ({ news, previousNews, nextNews }) => {
   const { lang } = useLanguage();
@@ -44,7 +44,7 @@ const NewsDetailLeftSection = ({ news, previousNews, nextNews }) => {
 
       {news.image && (
         <Image
-          src={getFullImageUrl(news?.image)}
+          src={buildUploadUrl(news?.image)}
           alt={news.title || 'News'}
           className="img-fluid rounded mb-4 article-feature-img"
           width={800}

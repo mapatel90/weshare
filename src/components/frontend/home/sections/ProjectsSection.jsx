@@ -6,7 +6,7 @@ import Link from "next/link";
 import AOS from "aos";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { apiGet } from "@/lib/api";
-import { getFullImageUrl } from "@/utils/common";
+import { buildUploadUrl, getFullImageUrl } from "@/utils/common";
 import { useRouter } from "next/navigation";
 import { getPrimaryProjectImage } from "@/utils/projectUtils";
 import { PROJECT_STATUS } from "@/constants/project_status";
@@ -90,8 +90,8 @@ const ProjectsSection = () => {
           ) : (
             <div className="row">
               {projects.map((project, index) => {
-                const projectImage = project.project_images?.[0]?.path;
-                const demo_image = 'http://weshare-energy.com/_next/image?url=http%3A%2F%2Fapi.weshare-energy.com%2Fuploads%2Fgeneral%2Fnoimage_2.png&w=1080&q=75';
+                const projectImage = buildUploadUrl(project.project_images?.[0]?.path);
+                const demo_image = 'http://weshare-energy.com/_next/image?url=http%3A%2F%2Flocalhost%3A5000%2Fuploads%2Fgeneral%2Fnoimage_2.png&w=1080&q=75';
                 const cityName = project.cities?.name || "";
                 const stateName = project.states?.code || "";
                 const location =
@@ -108,7 +108,7 @@ const ProjectsSection = () => {
                     <div className="project-card shadow-sm overflow-hidden">
                       <div className="project-items">
                         <Image
-                          src={projectImage ? projectImage : demo_image}
+                          src={projectImage ? buildUploadUrl(projectImage) : demo_image}
                           alt={project.project_name}
                           className="img-fluid project-img"
                           width={400}

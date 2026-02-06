@@ -8,7 +8,7 @@ import 'aos/dist/aos.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { getFullImageUrl } from '@/utils/common';
+import { buildUploadUrl, getFullImageUrl } from '@/utils/common';
 
 const BlogDetailRightSection = ({ relatedBlogs, currentBlogSlug }) => {
   const { lang } = useLanguage();
@@ -58,7 +58,7 @@ const BlogDetailRightSection = ({ relatedBlogs, currentBlogSlug }) => {
             >
               {blog?.image && (
                 <Image
-                  src={getFullImageUrl(blog?.image)}
+                  src={buildUploadUrl(blog?.image)}
                   alt={blog.title || 'Related Blog'}
                   className="rounded me-3"
                   width={80}

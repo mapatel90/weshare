@@ -24,7 +24,7 @@ import {
     FormHelperText,
 } from "@mui/material";
 import { Close as CloseIcon } from "@mui/icons-material";
-import { getFullImageUrl } from "@/utils/common";
+import { buildUploadUrl, getFullImageUrl } from "@/utils/common";
 import { useAuth } from "@/contexts/AuthContext";
 import { PROJECT_STATUS } from "@/constants/project_status";
 
@@ -161,7 +161,7 @@ const TestimonialTable = () => {
                 setDescription(item?.description || "");
                 setImage(item?.image || "");
                 setImageFile(null);
-                setImagePreviewUrl(getFullImageUrl(item?.image) || "");
+                setImagePreviewUrl(buildUploadUrl(item?.image) || "");
                 setErrors({});
             });
         }
@@ -276,7 +276,7 @@ const TestimonialTable = () => {
                     if (!src) return "";
                     return (
                         <img
-                            src={getFullImageUrl(src)}
+                            src={buildUploadUrl(src)}
                             alt="testimonial"
                             style={{
                                 width: 48,

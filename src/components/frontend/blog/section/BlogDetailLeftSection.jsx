@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendar, faAnglesLeft, faAnglesRight } from '@fortawesome/free-solid-svg-icons';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { getFullImageUrl } from '@/utils/common';
+import { buildUploadUrl, getFullImageUrl } from '@/utils/common';
 
 const BlogDetailLeftSection = ({ blog, previousBlog, nextBlog }) => {
   const { lang } = useLanguage();
@@ -44,7 +44,7 @@ const BlogDetailLeftSection = ({ blog, previousBlog, nextBlog }) => {
 
       {blog.image && (
         <Image
-          src={getFullImageUrl(blog?.image)}
+          src={buildUploadUrl(blog?.image)}
           alt={blog.title || 'Blog Image'}
           className="img-fluid rounded mb-4 article-feature-img"
           width={800}

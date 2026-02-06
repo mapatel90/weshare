@@ -17,6 +17,7 @@ import { showSuccessToast } from "@/utils/topTost";
 import { PAYOUT_STATUS } from "@/constants/payout_status";
 import { identity } from "@fullcalendar/core/internal";
 import TransactionDialog from "./TransactionDialog";
+import { buildUploadUrl } from "@/utils/common";
 
 
 const PayoutsPage = () => {
@@ -154,7 +155,7 @@ const PayoutsPage = () => {
     };
 
     const handleViewDocument = (url) => {
-        setDocumentPreview(url);
+        setDocumentPreview(buildUploadUrl(url));
     };
 
     const handleShowQRCode = (qrCode, userName) => {
@@ -178,7 +179,6 @@ const PayoutsPage = () => {
 
     const validate = () => {
         const newErrors = {};
-        console.log("selectedPayout",selectedPayout);
         if (selectedPayout && !selectedPayout.transaction_id) {
             if (!txId) newErrors.transactionId = lang("payouts.transaction_id_is_required", "Transaction ID is required");
         }

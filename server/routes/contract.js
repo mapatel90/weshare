@@ -70,7 +70,7 @@ router.post("/", authenticateToken, upload.single('document'), async (req, res) 
             }
           );
           if (s3Result.success) {
-            uploadedPath = s3Result.data.fileUrl;
+            uploadedPath = s3Result.data.fileKey;
           }
         } catch (err) {
           console.error('S3 upload error:', err);
@@ -499,7 +499,7 @@ router.put("/:id", authenticateToken, upload.single('document'), async (req, res
             }
           );
           if (s3Result.success) {
-            newDocumentPath = s3Result.data.fileUrl;
+            newDocumentPath = s3Result.data.fileKey;
           }
         } catch (err) {
           console.error('S3 upload error:', err);
@@ -595,9 +595,9 @@ router.put("/:id/status", authenticateToken, upload.single('file'), async (req, 
             }
           );
           if (s3Result.success) {
-            updateData.signed_document_upload = s3Result.data.fileUrl;
+            updateData.signed_document_upload = s3Result.data.fileKey;
           }
-          console.log('S3 signed document uploaded:', s3Result.data.fileUrl);
+          console.log('S3 signed document uploaded:', s3Result.data.fileKey);
         } catch (err) {
           console.error('S3 upload error:', err);
         }

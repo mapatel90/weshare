@@ -7,7 +7,7 @@ import { createNotification } from "../utils/notifications.js";
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
-import { uploadToS3, isS3Enabled, deleteFromS3 } from '../services/s3Service.js';
+import { uploadToS3, isS3Enabled, deleteFromS3, extractUploadKey, buildUploadUrl } from '../services/s3Service.js';
 import { PAYOUT_STATUS } from '../../src/constants/payout_status.js';
 import { getDateTimeInTZ } from '../../src/utils/common.js';
 
@@ -218,7 +218,7 @@ router.post("/create", authenticateToken, uploadPayoutDoc.single('document'), as
                         }
                     );
                     if (s3Result.success) {
-                        documentUrl = s3Result.data.fileUrl;
+                        documentUrl = s3Result.data.fileKey;
                     }
                 } catch (err) {
                     console.error('S3 upload error:', err);
@@ -289,14 +289,16 @@ router.post("/update", authenticateToken, uploadPayoutDoc.single('document'), as
         }
 
         // Handle document upload (image/pdf)
-        let documentUrl = payout.document;
+        let documentUrl = payout?.document;
         if (req.file) {
             const s3Enabled = await isS3Enabled();
             if (s3Enabled) {
                 try {
                     if (payout.document) {
                         try {
+                            // let fileKey = buildUploadUrl(payout.document);
                             let fileKey = payout.document;
+                            console.log("fileKey",fileKey);
 
                             // If DB stores FULL URL → extract key
                             if (fileKey.startsWith("http")) {
@@ -324,7 +326,7 @@ router.post("/update", authenticateToken, uploadPayoutDoc.single('document'), as
                         }
                     );
                     if (s3Result.success) {
-                        documentUrl = s3Result.data.fileUrl;
+                        documentUrl = s3Result.data.fileKey;
                     }
                 } catch (err) {
                     console.error('S3 upload error:', err);

@@ -6,7 +6,7 @@ import { apiGet } from "@/lib/api";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCalendar, faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { getFullImageUrl } from "@/utils/common";
+import { buildUploadUrl, getFullImageUrl } from "@/utils/common";
 
 const BlogSection = () => {
   const { lang } = useLanguage();
@@ -56,7 +56,7 @@ const BlogSection = () => {
               >
                 <div className="card h-100 border-0 shadow-0">
                   <img
-                    src={getFullImageUrl(blog?.image)}
+                    src={buildUploadUrl(blog?.image)}
                     className="card-img-top"
                     alt={blog.title || "Blog Image"}
                   />

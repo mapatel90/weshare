@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage, LANGUAGES } from "@/contexts/LanguageContext";
 import useLocationData from "@/hooks/useLocationData";
 import { apiGet, apiUpload } from "@/lib/api";
-import { getFullImageUrl } from "@/utils/common";
+import { buildUploadUrl, getFullImageUrl } from "@/utils/common";
 import { showErrorToast, showSuccessToast } from "@/utils/topTost";
 import {
     Card,
@@ -88,7 +88,7 @@ const MyProfile = () => {
 
                     // Set image preview if user has an image
                     if (userData.user_image) {
-                        setImagePreview(userData.user_image)
+                        setImagePreview(buildUploadUrl(userData.user_image))
                     }
 
                     // Load states if country is selected
@@ -259,7 +259,7 @@ const MyProfile = () => {
 
                     // Update image preview with new image
                     if (response.data.user_image) {
-                        setImagePreview(response.data.user_image)
+                        setImagePreview(buildUploadUrl(response.data.user_image))
 
                         // Update user avatar in AuthContext to reflect in header
                         if (updateUser) {
@@ -333,7 +333,7 @@ const MyProfile = () => {
                                 <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: 'center', gap: 3, p: 3, background: '#f8fafc', borderRadius: 3 }}>
                                     <Box sx={{ position: 'relative' }}>
                                         <Avatar
-                                            src={getFullImageUrl(imagePreview) || '/images/avatar/default-avatar.png'}
+                                            src={imagePreview || '/images/avatar/default-avatar.png'}
                                             alt="Profile"
                                             sx={{
                                                 width: 100,

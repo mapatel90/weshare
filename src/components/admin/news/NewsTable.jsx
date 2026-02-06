@@ -21,7 +21,7 @@ import {
 import { Close as CloseIcon } from "@mui/icons-material";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
-import { getFullImageUrl } from "@/utils/common";
+import { buildUploadUrl, getFullImageUrl } from "@/utils/common";
 import { useAuth } from "@/contexts/AuthContext";
 
 const NewsTable = () => {
@@ -163,7 +163,7 @@ const NewsTable = () => {
       setNewsDate(toDateInput(item?.date));
       setNewsImage(item?.image || "");
       setNewsImageFile(null);
-      setImagePreviewUrl(getFullImageUrl(item?.image) || "");
+      setImagePreviewUrl(buildUploadUrl(item?.image) || "");
       setNewsDescription(item?.description || "");
       setNewsSlug(item?.slug || "");
       setErrors({});
@@ -291,7 +291,7 @@ const NewsTable = () => {
           if (!src) return "";
           return (
             <img
-              src={getFullImageUrl(src)}
+              src={buildUploadUrl(src)}
               alt="news"
               style={{
                 width: 48,

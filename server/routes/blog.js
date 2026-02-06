@@ -47,7 +47,7 @@ router.post("/", authenticateToken, upload.single('blog_image'), async (req, res
             { folder: 'blog', metadata: { uploadType: 'blog_image' } }
           );
           if (s3Result && s3Result.success) {
-            uploadedPath = s3Result.data.fileUrl;
+            uploadedPath = s3Result.data.fileKey;
           } else {
             console.error('S3 upload failed:', s3Result);
             return res.status(500).json({ success: false, message: 'S3 upload failed' });
@@ -222,7 +222,7 @@ router.put("/:id", authenticateToken, upload.single('blog_image'), async (req, r
             { folder: 'blog', metadata: { uploadType: 'blog_image_update', blogId: String(id) } }
           );
           if (s3Result && s3Result.success) {
-            newImagePath = s3Result.data.fileUrl;
+            newImagePath = s3Result.data.fileKey;
 
             // delete old S3 file if previous image was remote
             try {

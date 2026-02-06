@@ -13,6 +13,7 @@ import {
     Button,
     CircularProgress,
 } from "@mui/material";
+import { buildUploadUrl } from '@/utils/common'
 
 const UserForm = ({ initialData = {}, onSubmit, includePassword = false, excludeId = null, roles = [] }) => {
     const { lang } = useLanguage()
@@ -437,7 +438,7 @@ const UserForm = ({ initialData = {}, onSubmit, includePassword = false, exclude
                                     {qrCodePreview && (
                                         <div className="mt-2 position-relative" style={{ width: '150px' }}>
                                             <img
-                                                src={qrCodePreview}
+                                                src={buildUploadUrl(qrCodePreview)}
                                                 alt="QR Code Preview"
                                                 style={{ width: '100%', height: 'auto', border: '1px solid #ddd', borderRadius: '4px' }}
                                             />

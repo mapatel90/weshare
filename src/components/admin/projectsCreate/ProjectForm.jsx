@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, useState } from "react";
 import { FiSave, FiUpload, FiX, FiStar, FiArrowRight } from "react-icons/fi";
 import { useDropzone } from "react-dropzone";
-import { getFullImageUrl } from "@/utils/common";
+import { buildUploadUrl, getFullImageUrl } from "@/utils/common";
 import { check_project_solis_plant_id_exists } from "@/utils/projectUtils";
 import {
   TextField,
@@ -87,16 +87,6 @@ const ProjectForm = ({
     );
   }, [existingImages, imageQueue]);
 
-  const resolveExistingImageSrc = useCallback(
-    (image) => {
-      // debug: log resolved URL so you can inspect it in browser console on the live site
-      const candidate = image?.path || image?.url || image?.image || image?.src || "";
-      const full = getFullImageUrl(candidate);
-      // eslint-disable-next-line no-console
-      return full;
-    },
-    []
-  );
   // Handler for Solis Plant ID uniqueness check
   const handleSolisPlantIdBlur = async () => {
     const solis_plant_id = formData.solis_plant_id;
@@ -484,7 +474,7 @@ const ProjectForm = ({
                   >
                     <div className="border rounded overflow-hidden project-image-thumb">
                       <img
-                        src={image.url}
+                        src={buildUploadUrl(image.path)}
                         alt="Project"
                         style={{
                           width: "100%",

@@ -526,7 +526,7 @@ router.post(
             );
             console.log('S3 upload result:', s3Result);
             if (s3Result.success) {
-              imagePath = s3Result.data.fileUrl;
+              imagePath = s3Result.data.fileKey;
             }
           } catch (err) {
             console.error('S3 upload error:', err);

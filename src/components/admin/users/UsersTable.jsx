@@ -10,28 +10,13 @@ import { useRouter } from 'next/navigation'
 import Swal from 'sweetalert2'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { Button } from '@mui/material'
-
-// Role mapping
-const roleMapping = {
-  1: { label: 'Super Admin', color: 'danger' },
-  2: { label: 'Admin', color: 'warning' },
-  3: { label: 'User', color: 'primary' },
-  4: { label: 'Moderator', color: 'info' }
-}
+import { buildUploadUrl } from '@/utils/common'
 
 // Status mapping
 const statusMapping = {
   0: { label: 'Inactive', color: 'danger' },
   1: { label: 'Active', color: 'success' }
 }
-
-const LoadingSpinner = () => (
-  <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '200px' }}>
-    <div className="spinner-border text-primary" role="status">
-      <span className="visually-hidden">Loading...</span>
-    </div>
-  </div>
-)
 
 const UsersTable = () => {
   const { lang } = useLanguage();
@@ -126,23 +111,6 @@ const UsersTable = () => {
   useEffect(() => {
     fetchUsers()
   }, [])
-
-  // Search handler
-  const handleSearch = (searchTerm) => {
-    setFilters(prev => ({ ...prev, search: searchTerm }))
-    fetchUsers(1, searchTerm, filters.role, filters.status)
-  }
-
-  // Filter handlers
-  const handleRoleFilter = (role) => {
-    setFilters(prev => ({ ...prev, role }))
-    fetchUsers(1, filters.search, role, filters.status)
-  }
-
-  const handleStatusFilter = (status) => {
-    setFilters(prev => ({ ...prev, status }))
-    fetchUsers(1, filters.search, filters.role, status)
-  }
 
   // Pagination handler
   const handlePageChange = (page) => {
@@ -270,7 +238,7 @@ const UsersTable = () => {
               textTransform: "none",
               "&:hover": { backgroundColor: "#218838" },
             }}
-            onClick={() => handleShowQRCode(user?.qr_code, user?.full_name)}
+            onClick={() => handleShowQRCode(buildUploadUrl(user?.qr_code), user?.full_name)}
           >
             <BsQrCode className="me-1" />
             {lang("table.qr_code")}

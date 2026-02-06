@@ -64,7 +64,7 @@ router.post("/", authenticateToken, upload.single('document'), async (req, res) 
                         }
                     );
                     if (s3Result.success) {
-                        uploadedPath = s3Result.data.fileUrl;
+                        uploadedPath = s3Result.data.fileKey;
                     }
                 } catch (err) {
                     console.error('S3 upload error:', err);
@@ -235,7 +235,7 @@ router.put("/:id", authenticateToken, upload.single('document'), async (req, res
                         }
                     );
                     if (s3Result.success) {
-                        updateData.document = s3Result.data.fileUrl;
+                        updateData.document = s3Result.data.fileKey;
                     }
                 } catch (err) {
                     console.error('S3 upload error:', err);

@@ -534,7 +534,7 @@ router.post('/upload-favicon', authenticateToken, async (req, res) => {
     // Delete previous favicon if provided
     await deleteOldLogoIfSafe(oldImagePath);
 
-    return res.json({ success: true, message: 'Favicon uploaded', data: { path: s3Result.data.fileUrl } });
+    return res.json({ success: true, message: 'Favicon uploaded', data: { path: s3Result.data.fileKey } });
   } catch (error) {
     console.error('Error uploading favicon:', error);
     return res.status(500).json({ success: false, message: 'Error uploading favicon', error: error.message });
