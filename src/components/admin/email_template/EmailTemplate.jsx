@@ -23,9 +23,12 @@ import { useAuth } from "@/contexts/AuthContext";
 import { EMAIL_PLACEHOLDERS } from "@/utils/emailPlaceholders";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useRouter } from "next/navigation";
+import { getDarkModeColors, useDarkMode } from "@/utils/common";
 
 const SettingsEmailTemplate = ({ Id }) => {
   const { user } = useAuth();
+  const isDark = useDarkMode();
+  const colors = getDarkModeColors(isDark);
   const router = useRouter();
   const [loading, setLoading] = useState(false); // saving state
   const [fetching, setFetching] = useState(false); // loading existing template
@@ -295,11 +298,11 @@ const SettingsEmailTemplate = ({ Id }) => {
   }, []);
 
   return (
-    <Box sx={{ p: 3, backgroundColor: "#fff" }}>
+    <Box sx={{ p: 3, backgroundColor: isDark ? "#0f172a" : "#fff" }}>
       <Grid container spacing={3}>
         {/* Left Side - Form */}
         <Grid item xs={12} md={8}>
-          <Paper elevation={2} sx={{ p: 3 }}>
+          <Paper elevation={2} sx={{ p: 3, backgroundColor: isDark ? "#121a2d" : "#fff" }}>
             <Typography variant="h5" gutterBottom>
               {isEdit ? lang("common.editEmailTemplate") : lang("common.addEmailTemplate")}
             </Typography>
@@ -331,7 +334,7 @@ const SettingsEmailTemplate = ({ Id }) => {
               </Grid>
 
               <Grid item xs={12}>
-                <Typography variant="body2" className="mb-1 fw-semibold">
+                <Typography variant="body2" className="mb-1 fw-semibold" color={isDark ? "white" : "black"}>
                   {lang("contactUs.subject") || "Subject"} <span style={{ color: "red" }}>*</span>
                 </Typography>
                 <TextField
@@ -348,11 +351,14 @@ const SettingsEmailTemplate = ({ Id }) => {
               </Grid>
 
               {/* Content EN */}
-              <Grid item xs={12}>
-                <Typography variant="body2" className="mb-2 fw-semibold">
+              <Grid item xs={12} sx={{ backgroundColor: isDark ? "#121a2d" : "#fff" }}>
+                <Typography variant="body2" className="mb-2 fw-semibold" color={isDark ? "white" : "black"}>
                   {lang("email.content") || "Content (English)"}
                 </Typography>
                 <CKEditor
+                  config={{
+                    theme: isDark ? "dark" : "light",
+                  }}
                   editor={ClassicEditor}
                   data={formData.content_en}
                   disabled={loading || fetching}
@@ -370,11 +376,14 @@ const SettingsEmailTemplate = ({ Id }) => {
               </Grid>
 
               {/* Content VI */}
-              <Grid item xs={12}>
-                <Typography variant="body2" className="mb-2 fw-semibold">
+              <Grid item xs={12} sx={{ backgroundColor: isDark ? "#121a2d" : "#fff" }}>
+                <Typography variant="body2" className="mb-2 fw-semibold" color={isDark ? "white" : "black"}>
                   {lang("email.content_vi") || "Content (Vietnamese)"}
                 </Typography>
                 <CKEditor
+                  config={{
+                    theme: isDark ? "dark" : "light",
+                  }}
                   editor={ClassicEditor}
                   data={formData.content_vi}
                   disabled={loading || fetching}
@@ -417,28 +426,28 @@ const SettingsEmailTemplate = ({ Id }) => {
         </Grid>
 
         {/* Right Side - Merge Fields */}
-        <Grid item xs={12} md={4}>
-          <Card elevation={2}>
+        <Grid item xs={12} md={4} sx={{ backgroundColor: isDark ? "#121a2d" : "#fff" }}>
+          <Card elevation={2} sx={{ backgroundColor: isDark ? "#121a2d" : "#fff" }}>
             <CardHeader
               title={lang("email.mergeFields") || "Merge Fields"}
-              titleTypographyProps={{ variant: "h6" }}
+              titleTypographyProps={{ variant: "h6", color: isDark ? "white" : "primary" }}
             />
             <Divider />
-            <CardContent>
-              <Grid container spacing={1}>
+            <CardContent sx={{ backgroundColor: isDark ? "#121a2d" : "#fff" }}>
+              <Grid container spacing={1} sx={{ backgroundColor: isDark ? "#121a2d" : "#fff" }}>
                 {EMAIL_PLACEHOLDERS.map((placeholder) => (
                   <Grid item xs={6} sm={6} key={placeholder.key}>
                     <Box
                       onClick={() => insertPlaceholder(placeholder.key)}
                       sx={{
                         p: 1.5,
-                        border: "1px solid #ddd",
+                        border: "1px solid " + (isDark ? "#1b2436" : "#e5e7eb"),
                         borderRadius: 1,
                         cursor: "pointer",
                         transition: "all 0.2s",
-                        backgroundColor: focusedField ? "#f9f9f9" : "#f5f5f5",
+                        backgroundColor: focusedField ? (isDark ? "#1b2436" : "#f9f9f9") : (isDark ? "#1b2436" : "#f5f5f5"),
                         "&:hover": {
-                          bgcolor: "#e3f2fd",
+                          bgcolor: isDark ? "#1b2436" : "#e3f2fd",
                           borderColor: "primary.main",
                           boxShadow: 1,
                           transform: "translateY(-2px)",

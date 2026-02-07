@@ -267,7 +267,7 @@ const BlogTable = () => {
           if (!src) return "";
           return (
             <img
-              src={getFullImageUrl(src)}
+              src={buildUploadUrl(src)}
               alt="blog"
               style={{ width: 48, height: 32, objectFit: "cover", borderRadius: 4 }}
             />
