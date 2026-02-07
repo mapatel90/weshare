@@ -1,16 +1,23 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { closeSidebars } from '@/assets/portal/offtaker.js';
 import Link from 'next/link';
 import { ChevronDown } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { usePathname } from 'next/navigation';
 
-function PannelSidebar({ activeMenu, setActiveMenu }) {
+function PannelSidebar() {
     const { lang } = useLanguage();
+    const [activeMenu, setActiveMenu] = useState('');
+    const pathname = usePathname();
     const handleClose = () => {
         closeSidebars();
     };
+
+    useEffect(() => {
+        setActiveMenu(pathname.split('/').pop());
+    }, [pathname]);
 
     return (
         <div className="text-sidebar" id="textSidebar">
@@ -49,25 +56,24 @@ function PannelSidebar({ activeMenu, setActiveMenu }) {
                 </div>
                 <div className="menu-section">
                     <div
-                        className={`menu-item${activeMenu === 'reports' ? ' active' : ''}`}
+                        className={`menu-item${activeMenu == 'roi-reports' || activeMenu == 'investment-summary-reports' ? ' active' : ''}`}
                         onClick={() => setActiveMenu('reports')}
                     >
                         <span>{lang("offtaker_login.sidebar.reports")}</span>
                         <ChevronDown className="w-4 h-4" />
                     </div>
-                    <div className={`submenu${activeMenu === 'reports' ? ' show' : ''}`}>
-                        <Link href="/investor/reports/roi-reports/" className="menu-item">ROI Reports</Link>
-                        {/* <Link href="/investor/reports/cash-flow-reports/" className="menu-item">Cash Flow Reports</Link> */}
-                        <Link href="/investor/reports/investment-summary-reports/" className="menu-item">Investment Summary</Link>
+                    <div className={`submenu${activeMenu == 'reports' ? ' show' : ''}`}>
+                        <Link href="/investor/reports/roi-reports/" className="menu-item">{lang("menu.roireports")}</Link>
+                        <Link href="/investor/reports/investment-summary-reports/" className="menu-item">{lang("menu.investmentsummaryreports")}</Link>
                     </div>
                 </div>
                 <div className="menu-section">
-                <Link
-                    href="/investor/contracts"
-                    className={`menu-item${activeMenu === 'contract' ? ' active' : ''}`}
-                    onClick={() => setActiveMenu('contract')}
-                >{lang("offtaker_login.sidebar.contracts")}</Link>
-            </div>
+                    <Link
+                        href="/investor/contracts"
+                        className={`menu-item${activeMenu === 'contracts' ? ' active' : ''}`}
+                        onClick={() => setActiveMenu('contracts')}
+                    >{lang("offtaker_login.sidebar.contracts")}</Link>
+                </div>
             </div>
         </div>
     );

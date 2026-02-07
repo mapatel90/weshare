@@ -182,7 +182,7 @@ function Header({ toggleSidebar }) {
                             }}
                         >
                             <PersonOutlineIcon sx={{ mr: 2, fontSize: 26, color: '#000', transition: 'color 0.2s', marginRight: 0 }} />
-                            My Profile
+                            {lang('page_title.myprofile', 'My Profile')}
                         </MenuItem>
                         <MenuItem
                             onClick={handleLogout}

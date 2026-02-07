@@ -1,16 +1,23 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { closeSidebars } from '@/assets/portal/offtaker.js';
 import Link from 'next/link';
 import { ChevronDown } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { usePathname } from 'next/navigation';
 
-function PannelSidebar({ activeMenu, setActiveMenu }) {
+function PannelSidebar() {
     const { lang } = useLanguage();
+    const [activeMenu, setActiveMenu] = useState('');
+    const pathname = usePathname();
     const handleClose = () => {
         closeSidebars();
     };
+
+    useEffect(() => {
+        setActiveMenu(pathname.split('/').pop());
+    }, [pathname]);
 
     return (
         <div className="text-sidebar" id="textSidebar">
@@ -18,13 +25,13 @@ function PannelSidebar({ activeMenu, setActiveMenu }) {
             <div className="menu-section">
                 <Link
                     href="/offtaker/dashboard"
-                    className={`menu-item${activeMenu === 'dashboard' ? ' active' : ''}`}
+                    className={`menu-header menu-item${activeMenu === 'dashboard' ? ' active' : ''}`}
                     onClick={() => setActiveMenu('dashboard')}
                 >{lang("offtaker_login.sidebar.dashboard")}</Link>
                 <div className="menu-section">
                     <Link
                         href="/offtaker/projects"
-                        className={`menu-item${activeMenu === 'projects' ? ' active' : ''}`}
+                        className={`menu-item${activeMenu == 'projects' ? ' active' : ''}`}
                         onClick={() => setActiveMenu('projects')}
                     >{lang("offtaker_login.sidebar.myprojects")}</Link>
                 </div>
@@ -67,8 +74,8 @@ function PannelSidebar({ activeMenu, setActiveMenu }) {
             <div className="menu-section">
                 <Link
                     href="/offtaker/contracts"
-                    className={`menu-item${activeMenu === 'contract' ? ' active' : ''}`}
-                    onClick={() => setActiveMenu('contract')}
+                    className={`menu-item${activeMenu === 'contracts' ? ' active' : ''}`}
+                    onClick={() => setActiveMenu('contracts')}
                 >{lang("offtaker_login.sidebar.contracts")}</Link>
             </div>
         </div>
