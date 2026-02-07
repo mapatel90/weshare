@@ -1729,6 +1729,7 @@
     "payment_title": "Payment Alert",
     "project_created_title": "Project Create",
     "project_created": "New project \"{{project_name}}\" created by WeShare.",
+    "offtaker_project_created": "New project \"{{project_name}}\" created by \"{{created_by}}\".",
     "invoice_created": "New invoice \"{{invoice_number}}\" created by WeShare.",
     "payment_made": "Payment of \"{{amount}}\" made by WeShare for invoice \"{{invoice_number}}\".",
     "contract_title": "Contract Generated",

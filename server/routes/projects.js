@@ -326,7 +326,7 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
           project_name: project.project_name
         });
 
-        const notification_message = t(lang, 'notification_msg.project_created', {
+        const notification_message = t(lang, 'notification_msg.offtaker_project_created', {
           project_name: project.project_name,
           created_by: project.offtaker?.full_name
         });
@@ -337,7 +337,7 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
           message: notification_message,
           moduleType: 'projects',
           moduleId: project?.id,
-          actionUrl: `/projects/view/${project.id}`,
+          actionUrl: `admin/projects/view/${project.id}`,
           created_by: createdByInt,
         });
       }
@@ -362,7 +362,7 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
           message: notification_message,
           moduleType: 'projects',
           moduleId: project?.id,
-          actionUrl: `/projects/view/${project.id}`,
+          actionUrl: `/offtaker/projects`,
           created_by: createdByInt,
         });
       }
@@ -835,7 +835,7 @@ router.get("/", async (req, res) => {
         where,
         include: {
           offtaker: { select: { id: true, full_name: true, email: true, phone_number: true } },
-          investor: { 
+          investor: {
             select: { id: true, full_name: true, email: true, phone_number: true }
           },
           cities: true,
