@@ -307,7 +307,11 @@
     "notifications": "Notifications",
     "viewAllNotifications": "View all notifications",
     "markAllRead": "Mark all read",
-    "noNotifications": "No notifications"
+    "noNotifications": "No notifications",
+    "change_photo": "Change Photo",
+    "upload_photo": "Upload Photo",
+    "saving_changes": "Saving Changes...",
+    "save_changes": "Save Changes"
   },
   "messages": {
     "cannotUndoDelete": "You won't be able to revert this!",
@@ -1275,7 +1279,8 @@
     "suspended": "Suspended",
     "banned": "Banned",
     "phonenumber": "Phone Number",
-    "userRole": "User Role"
+    "userRole": "User Role",
+    "email_address": "Email Address"
   },
   "invoice": {
     "item": "Item",
@@ -1835,7 +1840,24 @@
   },
   "profile": {
     "preferences": "Preferences",
-    "language": "Language"
+    "language": "Language",
+    "profile_picture": "Profile Picture",
+    "profile_image_format": "JPG, PNG, GIF or WEBP. Max size 5MB",
+    "new_image_selected": "New image selected. Click Save Changes below to upload.",
+    "personal_information": "Personal Information",
+    "address_information": "Address Information",
+    "address_line_1": "Address Line 1",
+    "address_line_2": "Address Line 2",
+    "address_line_1_placeholder": "Street address, P.O. box",
+    "address_line_2_placeholder": "Apartment, suite, unit, building, floor, etc.",
+    "country": "Country",
+    "country_placeholder": "Select Country",
+    "state": "State",
+    "state_placeholder": "Select State",
+    "city": "City",
+    "city_placeholder": "Select City",
+    "zipcode": "Zip Code",
+    "zipcode_placeholder": "Enter Zip Code"
   },
   "chart_label": {
     "electricityConsumption": "Daily Electricity Consumption by Source (WeShare/Grid)",
