@@ -55,6 +55,9 @@ const InverterTable = () => {
   const [status, setStatus] = useState("");
   const [statusError, setStatusError] = useState("");
   const { user } = useAuth();
+  const { canDelete, canEdit } = usePermissions();
+  const showActionColumn = canEdit("inverter_list") || canDelete("inverter_list");
+  console.log("showActionColumn",showActionColumn);
 
   const resetForm = () => {
     setCompanyName("");
