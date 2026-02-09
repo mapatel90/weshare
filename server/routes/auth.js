@@ -5,6 +5,8 @@ import crypto from 'crypto';
 import prisma from '../utils/prisma.js';
 import redis from '../utils/redis.js';
 import { sendPasswordResetEmail, sendPasswordResetConfirmationEmail, sendEmailVerificationEmail, sendEmailUsingTemplate } from '../utils/email.js';
+import { USER_ROLES } from '../utils/constants.js';
+
 
 const router = express.Router();
 
@@ -131,7 +133,7 @@ router.post('/register', async (req, res) => {
     });
 
     // Send welcome email using template for Offtakers (role_id = 3)
-    if (role_id === 3) {
+    if (role_id === USER_ROLES.OFFTAKER) {
       const verifyLink = `${process.env.FRONTEND_URL || ''}/verify-email/${verificationToken}`;
       const loginUrl = `${process.env.FRONTEND_URL || ''}/offtaker/login`;
       
@@ -153,7 +155,7 @@ router.post('/register', async (req, res) => {
 
       sendEmailUsingTemplate({
         to: newUser.email,
-        templateSlug: 'offtaker_sign_up',
+        templateSlug: 'email_to_offtaker_on_sign_up',
         templateData,
         language: language || 'en'
       })
@@ -167,7 +169,7 @@ router.post('/register', async (req, res) => {
         .catch((error) => {
           console.error('❌ Failed to send welcome email:', error.message);
         });
-    } else if (role_id === 4) {
+    } else if (role_id === USER_ROLES.INVESTOR) {
       // Send welcome email for Investors (role_id = 4)
       const loginUrl = `${process.env.FRONTEND_URL || ''}/investor/login`;
       

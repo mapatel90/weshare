@@ -1,5 +1,11 @@
 import nodemailer from 'nodemailer';
 import { PrismaClient } from '@prisma/client';
+import fs from 'fs/promises';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const prisma = new PrismaClient();
 
@@ -23,6 +29,104 @@ export const replacePlaceholders = (template, values = {}) => {
 };
 
 /**
+ * Fetch common email settings from database and build template data
+ * This centralizes fetching of common merge fields like company info, support details, etc.
+ * @param {Object} customData - Custom data to merge with settings (optional)
+ * @returns {Promise<Object>} Complete template data object with all merge fields
+ */
+export const getEmailTemplateData = async (customData = {}) => {
+  try {
+    // Define all settings keys needed for email templates
+    const settingsKeys = [
+      'site_name',
+      'site_image',
+      'site_email',
+      'site_phone',
+      'site_address',
+      'site_city',
+      'site_state',
+      'site_country'
+    ];
+
+    // Fetch all settings from database
+    const settings = await prisma.settings.findMany({
+      where: { key: { in: settingsKeys } }
+    });
+
+    // Convert array to object
+    const settingsObj = settings.reduce((acc, setting) => {
+      acc[setting.key] = setting.value;
+      return acc;
+    }, {});
+
+    // Helper function to build full image URL
+    const buildImageUrl = (imagePath) => {
+      console.log('🔍 buildImageUrl - Input imagePath:', imagePath);
+      console.log('🔍 buildImageUrl - UPLOAD_URL:', process.env.NEXT_PUBLIC_UPLOAD_URL);
+
+      if (!imagePath) {
+        console.log('⚠️ No imagePath, returning UPLOAD_URL');
+        return process.env.NEXT_PUBLIC_UPLOAD_URL || '';
+      }
+
+      // If already a full URL (starts with http:// or https://), return as-is
+      if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+        console.log('✅ Full URL detected, returning as-is:', imagePath);
+        return imagePath;
+      }
+
+      // Otherwise, prepend UPLOAD_URL to the S3 key
+      const baseUrl = process.env.NEXT_PUBLIC_UPLOAD_URL || '';
+      // Remove leading slash from imagePath if exists to avoid double slashes
+      const cleanPath = imagePath.startsWith('/') ? imagePath.substring(1) : imagePath;
+      const finalUrl = baseUrl + cleanPath;
+
+      console.log('✅ Built final URL:', finalUrl);
+      return finalUrl;
+    };
+
+    // Build complete template data with common fields
+    const templateData = {
+      // Company information
+      company_name: settingsObj.site_name || 'WeShare Energy',
+      company_logo: buildImageUrl(settingsObj.site_image),
+
+      // Support information
+      support_email: settingsObj.site_email || 'support@weshare.com',
+      support_phone: settingsObj.site_phone || '',
+      
+      // URLs
+      site_url: settingsObj.site_url || process.env.FRONTEND_URL || 'http://localhost:3000',
+      privacy_policy_url: settingsObj.privacy_policy_url || `${settingsObj.site_url || process.env.FRONTEND_URL}/privacy`,
+      terms_of_service_url: settingsObj.terms_of_service_url || `${settingsObj.site_url || process.env.FRONTEND_URL}/terms`,
+
+      // Dynamic fields
+      current_date: new Date().getFullYear().toString(),
+
+      // Merge with custom data (custom data takes precedence)
+      ...customData
+    };
+
+    return templateData;
+  } catch (error) {
+    console.error('Error fetching email template data:', error);
+    // Return defaults with custom data if database fetch fails
+    return {
+      company_name: 'WeShare Energy',
+      company_logo: process.env.UPLOAD_URL || '',
+      support_email: 'support@weshare.com',
+      support_phone: '',
+      support_hours: 'Mon–Fri, 9am–6pm GMT',
+      site_url: process.env.FRONTEND_URL || 'http://localhost:3000',
+      privacy_policy_url: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/privacy`,
+      terms_of_service_url: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/terms`,
+      current_date: new Date().getFullYear().toString(),
+      ...customData
+    };
+  }
+};
+
+/**
  * Send email using template from database
  * @param {Object} options - Email options
  * @param {string} options.to - Recipient email
@@ -30,10 +134,16 @@ export const replacePlaceholders = (template, values = {}) => {
  * @param {Object} options.templateData - Data to replace in template
  * @param {string} options.language - Language (en or vi), defaults to en
  * @param {Array} options.attachments - Array of attachments (optional)
+ * @param {boolean} options.autoFetchSettings - Auto-fetch settings from database (default: true)
  * @returns {Promise<Object>} Result with success status
  */
-export const sendEmailUsingTemplate = async ({ to, templateSlug, templateData = {}, language = 'en', attachments = null }) => {
+export const sendEmailUsingTemplate = async ({ to, templateSlug, templateData = {}, language = 'en', attachments = null, autoFetchSettings = true }) => {
   try {
+    // Automatically fetch settings and merge with custom templateData
+    const completeTemplateData = autoFetchSettings
+      ? await getEmailTemplateData(templateData)
+      : templateData;
+
     // Fetch template from database
     const template = await prisma.email_template.findFirst({
       where: { slug: templateSlug }
@@ -47,16 +157,19 @@ export const sendEmailUsingTemplate = async ({ to, templateSlug, templateData = 
     // Get content based on language
     const contentField = language === 'vi' ? 'content_vi' : 'content_en';
 
-    const rawContent = replacePlaceholders(template[contentField] || template.content_en, templateData);
+    const rawContent = replacePlaceholders(template[contentField] || template.content_en, completeTemplateData);
 
     // const content = template[contentField] || template.content_en;
-    const subject = replacePlaceholders(template.subject, templateData);
+    const subject = replacePlaceholders(template.subject, completeTemplateData);
     // const html = replacePlaceholders(content, templateData);
 
-    const finalHtml = buildEmailLayout({
+    const finalHtml = await buildEmailLayout({
       bodyContent: rawContent,
-      templateData
+      templateData: completeTemplateData,
+      language
     });
+
+    console.log("finalHtml", finalHtml);
 
     // Send email
     return await sendEmail({
@@ -215,73 +328,74 @@ export const sendEmail = async ({ to, subject, html, text, attachments = null, c
   }
 };
 
-export const buildEmailLayout = ({ bodyContent, templateData }) => {
-  return `
-  <!DOCTYPE html>
-  <html>
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>${templateData.company_name}</title>
-  </head>
-  <body style="margin:0; padding:0; background-color:#f4f6f8; font-family: Arial, sans-serif;">
-    
-    <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f6f8; padding:30px 0;">
-      <tr>
-        <td align="center">
-          
-          <!-- Main Container -->
-          <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff; border-radius:10px; overflow:hidden; box-shadow:0 4px 12px rgba(0,0,0,0.06);">
-            
-            <!-- Header -->
-            <tr>
-              <td style="background:#f4f2f0; padding:30px; text-align:center;">
-                ${templateData.company_logo ? `<img src="${templateData.company_logo}" alt="${templateData.company_name}" style="max-width:180px; height:auto; display:block; margin:0 auto;" />` : `<h1 style="color:#ffffff; margin:0; font-size:22px; letter-spacing:0.5px;">${templateData.company_name}</h1>`}
-              </td>
-            </tr>
+export const buildEmailLayout = async ({ bodyContent, templateData, language = 'en' }) => {
+  try {
+    // Read header/footer template files based on language
+    const templatesDir = path.join(__dirname, '../templates/email');
+    const headerFile = language === 'vi' ? 'header-vi.html' : 'header-en.html';
+    const footerFile = language === 'vi' ? 'footer-vi.html' : 'footer-en.html';
 
-            <!-- Body Content -->
-            <tr>
-              <td style="padding:35px 30px; color:#333333; font-size:15px; line-height:1.7;">
-                ${bodyContent}
-              </td>
-            </tr>
+    let headerHtml = '';
+    try {
+      const headerTemplate = await fs.readFile(path.join(templatesDir, headerFile), 'utf-8');
+      headerHtml = replacePlaceholders(headerTemplate, templateData);
+    } catch (error) {
+      console.warn(`Could not read header template: ${headerFile}`, error);
+    }
 
-            <!-- Footer -->
-            <tr>
-              <td style="background:#696969; padding:25px 30px; font-family:Arial, sans-serif;">
+    let footerHtml = '';
+    try {
+      const footerTemplate = await fs.readFile(path.join(templatesDir, footerFile), 'utf-8');
+      footerHtml = replacePlaceholders(footerTemplate, templateData);
+    } catch (error) {
+      console.warn(`Could not read footer template: ${footerFile}`, error);
+    }
 
-                <table width="100%" cellpadding="0" cellspacing="0">
-                  <tr>
-                    <!-- Left Side -->
-                    <td align="left" style="font-size:13px; color:#ffffff; line-height:1.6;">
-                      <strong style="font-size:14px;">Need help?</strong><br/>
-                      📧 <a href="mailto:${templateData.support_email}" style="color:#ffffff; text-decoration:none;">${templateData.support_email}</a><br/>
-                      📞 ${templateData.support_phone}<br/>
-                      🕒 ${templateData.support_hours}
-                    </td>
+    // If templates loaded successfully, concatenate header + body + footer
+    if (headerHtml && footerHtml) {
+      return headerHtml + bodyContent + footerHtml;
+    } else {
 
-                    <!-- Right Side -->
-                    <td align="right" style="font-size:13px; color:#ffffff; line-height:1.6;">
-                      <a href="${templateData.site_url}" style="color:#ffffff; text-decoration:none;">Visit Website</a><br/>
-                      <span style="font-size:12px; color:#ffffff;">
-                        © ${new Date().getFullYear()} ${templateData.company_name}
-                      </span>
-                    </td>
-                  </tr>
-                </table>
-
-              </td>
-            </tr>
-
+      // Fallback to simple layout if template reading fails
+      return `<!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>${templateData.company_name || 'Email'}</title>
+      </head>
+      <body style="margin:0; padding:0; background-color:#f4f6f8; font-family: Arial, sans-serif;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f6f8; padding:30px 0;">
+          <tr>
+            <td align="center">
+              <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff; border-radius:10px; overflow:hidden; box-shadow:0 4px 12px rgba(0,0,0,0.06);">
+                <tr>
+                  <td style="padding:35px 30px; color:#333333; font-size:15px; line-height:1.7;">
+                    ${bodyContent}
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </body>
+      </html>`;
+    }
+  } catch (error) {
+    console.error('Error building email layout:', error);
+    // Fallback to simple layout if template reading fails
+    return `<!DOCTYPE html>
+    <html>
+    <body style="margin:0; padding:0; background-color:#f4f6f8;">
+      <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f6f8; padding:30px 0;">
+        <tr><td align="center">
+          <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff; border-radius:10px; padding:35px 30px;">
+            <tr><td>${bodyContent}</td></tr>
           </table>
-
-        </td>
-      </tr>
-    </table>
-  </body>
-  </html>
-  `;
+        </td></tr>
+      </table>
+    </body></html>`;
+  }
 };
 
 
@@ -1296,6 +1410,8 @@ export const sendProjectNotificationEmail = async (project, user, eventType) => 
 
 export default {
   sendEmail,
+  sendEmailUsingTemplate,
+  getEmailTemplateData,
   sendEmailVerificationEmail,
   sendPasswordResetEmail,
   sendPasswordResetConfirmationEmail,

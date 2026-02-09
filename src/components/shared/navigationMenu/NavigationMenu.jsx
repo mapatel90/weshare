@@ -8,7 +8,7 @@ import Menus from './Menus';
 import { NavigationContext } from '@/contentApi/navigationProvider';
 import { useLanguage } from '@/contexts/LanguageContext';
 import useSettings from '@/hooks/useSettings';
-import { getFullImageUrl } from '@/utils/common';
+import { buildUploadUrl, getFullImageUrl } from '@/utils/common';
 
 const NavigationManu = () => {
     const { navigationOpen, setNavigationOpen } = useContext(NavigationContext)
@@ -29,7 +29,7 @@ const NavigationManu = () => {
                         <img
                             width={140}
                             height={30}
-                            src={getFullImageUrl(settings?.site_image) || "WeShare"}
+                            src={buildUploadUrl(settings?.site_image) || "WeShare"}
                             alt="WeShare"
                             className="logo logo-lg"
                             // onError={e => {
@@ -44,7 +44,7 @@ const NavigationManu = () => {
                         <img
                             width={140}
                             height={30}
-                            src={settings?.site_image || "S"}
+                            src={buildUploadUrl(settings?.site_image) || "S"}
                             alt="WeShare"
                             className="logo logo-sm"
                             // onError={e => {

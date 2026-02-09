@@ -3,12 +3,11 @@ import MainSidebar from './investor_layouts/MainSidebar';
 import PannelSidebar from './investor_layouts/PannelSidebar';
 
 function PortalSidebarLayout() {
-    const [activeMenu, setActiveMenu] = useState('dashboard');
 
     return (
         <div style={{ display: 'flex' }}>
-            <MainSidebar activeMenu={activeMenu} setActiveMenu={setActiveMenu} />
-            <PannelSidebar activeMenu={activeMenu} setActiveMenu={setActiveMenu} />
+            <MainSidebar />
+            <PannelSidebar />
         </div>
     );
 }

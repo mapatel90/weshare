@@ -13,6 +13,7 @@ import { getUserFullName } from "../utils/common.js";
 import { sendEmailUsingTemplate } from "../utils/email.js";
 import { uploadToS3, deleteFromS3, isS3Enabled } from '../services/s3Service.js';
 import { PROJECT_STATUS } from "../../src/constants/project_status.js";
+import { getAdminUserId, getAdminUsers, getNotificationRecipients, USER_ROLES } from "../utils/constants.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -258,7 +259,7 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
         created_by: parseInt(created_by),
         project_slug: uniqueSlug,
         ...(project_type_id && {
-          project_types: { connect: { id: project_type_id } },
+          project_types: { connect: { id: parseInt(project_type_id) } },
         }),
         ...(offtaker_id && {
           offtaker: { connect: { id: parseInt(offtaker_id) } },
@@ -309,46 +310,62 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
       },
     });
 
-    if (project && created_by != 1) {
+    // Send notifications based on who created the project
+    const adminUserId = getAdminUserId();
+    const createdByInt = parseInt(created_by);
 
-      const lang = await getUserLanguage(1);
+    if (project && createdByInt != adminUserId) {
+      // Project created by non-admin (offtaker) - notify all admins
+      const adminUsers = await getAdminUsers(prisma, { activeOnly: true });
 
-      const notification_title = t(lang, 'notification_msg.project_created_title', {
-        project_name: project.project_name
-      });
+      // Send notification to each admin
+      for (const admin of adminUsers) {
+        const lang = await getUserLanguage(admin.id);
 
-      const notification_message = t(lang, 'notification_msg.project_created', {
-        project_name: project.project_name,
-        created_by: project.offtaker?.full_name
-      });
+        const notification_title = t(lang, 'notification_msg.project_created_title', {
+          project_name: project.project_name
+        });
 
-      await createNotification({
-        userId: '1',
-        title: notification_title,
-        message: notification_message,
-        moduleType: 'projects',
-        moduleId: project?.id,
-        actionUrl: `projects/view/${project.id}`,
-        created_by: parseInt(created_by),
-      });
+        const notification_message = t(lang, 'notification_msg.offtaker_project_created', {
+          project_name: project.project_name,
+          created_by: project.offtaker?.full_name
+        });
+
+        await createNotification({
+          userId: admin.id.toString(),
+          title: notification_title,
+          message: notification_message,
+          moduleType: 'projects',
+          moduleId: project?.id,
+          actionUrl: `admin/projects/view/${project.id}`,
+          created_by: createdByInt,
+        });
+      }
     } else {
-      const lang = await getUserLanguage(project.offtaker?.id);
-      const creator_name = await getUserFullName(created_by);
+      // Project created by admin - notify the offtaker
+      if (project.offtaker?.id) {
+        const lang = await getUserLanguage(project.offtaker?.id);
+        const creator_name = await getUserFullName(created_by);
 
-      const notification_message = t(lang, 'notification_msg.project_created', {
-        project_name: project.project_name,
-        created_by: creator_name
-      });
+        const notification_title = t(lang, 'notification_msg.project_created_title', {
+          project_name: project.project_name
+        });
 
-      await createNotification({
-        userId: project.offtaker?.id,
-        title: notification_message,
-        message: notification_message,
-        moduleType: 'projects',
-        moduleId: project?.id,
-        actionUrl: `projects/view/${project.id}`,
-        created_by: parseInt(created_by),
-      });
+        const notification_message = t(lang, 'notification_msg.project_created', {
+          project_name: project.project_name,
+          created_by: creator_name
+        });
+
+        await createNotification({
+          userId: project.offtaker?.id.toString(),
+          title: notification_title,
+          message: notification_message,
+          moduleType: 'projects',
+          moduleId: project?.id,
+          actionUrl: `/offtaker/projects`,
+          created_by: createdByInt,
+        });
+      }
     }
 
     // Send email notification for new project creation
@@ -509,7 +526,7 @@ router.post(
             );
             console.log('S3 upload result:', s3Result);
             if (s3Result.success) {
-              imagePath = s3Result.data.fileUrl;
+              imagePath = s3Result.data.fileKey;
             }
           } catch (err) {
             console.error('S3 upload error:', err);
@@ -818,7 +835,7 @@ router.get("/", async (req, res) => {
         where,
         include: {
           offtaker: { select: { id: true, full_name: true, email: true, phone_number: true } },
-          investor: { 
+          investor: {
             select: { id: true, full_name: true, email: true, phone_number: true }
           },
           cities: true,
@@ -928,7 +945,7 @@ router.put("/:id/status", authenticateToken, async (req, res) => {
         }),
         moduleType: "projects",
         moduleId: updated.id,
-        actionUrl: `projects/view/${updated.id}`,
+        actionUrl: `/offtaker/projects/details/${updated.id}`,
         created_by: 1,
       });
     }
@@ -953,7 +970,7 @@ router.put("/:id/status", authenticateToken, async (req, res) => {
         }),
         moduleType: "projects",
         moduleId: updated.id,
-        actionUrl: `projects/view/${updated.id}`,
+        actionUrl: `/projects/view/${updated.id}`,
         created_by: 1,
       });
     }
@@ -1133,7 +1150,7 @@ router.put("/:id", authenticateToken, async (req, res) => {
         message: notification_message,
         moduleType: 'projects',
         moduleId: updated.id,
-        actionUrl: `projects/view/${updated.id}`,
+        actionUrl: `/projects/view/${updated.id}`,
         created_by: 1,
       });
 
@@ -1164,7 +1181,7 @@ router.put("/:id", authenticateToken, async (req, res) => {
           message: notification_message,
           moduleType: 'projects',
           moduleId: updated.id,
-          actionUrl: `projects/view/${updated.id}`,
+          actionUrl: `/projects/view/${updated.id}`,
           created_by: 1,
         });
       }
@@ -1645,6 +1662,117 @@ router.post('/electricity/overview-chart', async (req, res) => {
       evn: resultMap[key].evn,
       weshare: resultMap[key].weshare,
       saving: resultMap[key].saving
+    }));
+
+    return res.json({
+      success: true,
+      data: data,
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+router.post('/electricity/consumption-chart', async (req, res) => {
+  try {
+    const { projectId, type, date } = req.body;
+
+    if (!projectId || !type) {
+      return res.status(400).json({ message: 'Missing parameters' });
+    }
+
+    const project = await prisma.projects.findFirst({
+      where: { id: Number(projectId) },
+      select: {
+        evn_price_kwh: true,
+        weshare_price_kwh: true,
+      },
+    });
+
+    if (!project) {
+      return res.status(404).json({ message: 'Project not found' });
+    }
+
+    let startDate, endDate, groupBy;
+
+    // ================= DAY (1 month → daily)
+    if (type === 'day') {
+      startDate = new Date(`${date}-01`);
+      endDate = new Date(startDate);
+      endDate.setMonth(endDate.getMonth() + 1);
+      groupBy = 'day';
+    }
+
+    // ================= MONTH (1 year → monthly)
+    if (type === 'month') {
+      startDate = new Date(`${date}-01-01`);
+      endDate = new Date(`${date}-12-31`);
+      groupBy = 'month';
+    }
+
+    // ================= YEAR (all years → yearly)
+    if (type === 'year') {
+      startDate = new Date('2000-01-01');
+      endDate = new Date();
+      groupBy = 'year';
+    }
+
+    const rows = await prisma.project_energy_days_data.findMany({
+      where: {
+        project_id: Number(projectId),
+        date: {
+          gte: startDate,
+          lt: endDate,
+        },
+      },
+      select: {
+        date: true,
+        consume_energy: true,
+        energy: true,
+        grid_purchased_energy: true,
+        battery_charge_energy: true,
+        battery_discharge_energy: true,
+      },
+      orderBy: { date: 'asc' },
+    });
+
+    const resultMap = {};
+
+    rows.forEach((row) => {
+      let key;
+
+      if (groupBy === 'day') {
+        key = row.date.toISOString().slice(0, 10);
+      }
+      if (groupBy === 'month') {
+        key = row.date.toISOString().slice(0, 7);
+      }
+      if (groupBy === 'year') {
+        key = row.date.getFullYear().toString();
+      }
+
+      if (!resultMap[key]) {
+        resultMap[key] = { energy: 0, grid_purchased_energy: 0, consume_energy: 0 };
+      }
+
+      const total_consumes_energy = Number(row?.consume_energy) || 0;
+      const energy = Number(row?.energy) || 0;
+      const grid_purchased_energy = Number(row?.grid_purchased_energy) || 0;
+      const battery_charge_energy = Number(row?.battery_charge_energy) || 0;
+      const battery_discharge_energy = Number(row?.battery_discharge_energy) || 0;
+      const consume_energy = total_consumes_energy + battery_charge_energy - battery_discharge_energy;
+
+      resultMap[key].energy += energy;
+      resultMap[key].grid_purchased_energy += grid_purchased_energy;
+      resultMap[key].consume_energy += consume_energy;
+    });
+
+    const data = Object.keys(resultMap).map((key) => ({
+      label: key,
+      consume_energy: resultMap[key].consume_energy,
+      energy: resultMap[key].energy,
+      grid_purchased_energy: resultMap[key].grid_purchased_energy
     }));
 
     return res.json({

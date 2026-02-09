@@ -5,7 +5,7 @@ import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import NotificationsModal from '@/components/shared/header/NotificationsModal';
-import { getFullImageUrl } from '@/utils/common';
+import { buildUploadUrl, getFullImageUrl } from '@/utils/common';
 
 function Header({ toggleSidebar }) {
     const { user, logout } = useAuth()
@@ -97,7 +97,7 @@ function Header({ toggleSidebar }) {
                         </MenuItem>
                     </Menu>
                     <Avatar
-                        src={getFullImageUrl(user?.avatar) || '/images/avatar/default-avatar.png'}
+                        src={buildUploadUrl(user?.avatar) || '/images/avatar/default-avatar.png'}
                         onClick={handleAvatarClick}
                         sx={{
                             width: 40,
@@ -141,7 +141,7 @@ function Header({ toggleSidebar }) {
                             marginBottom: '8px'
                         }}>
                             <Avatar
-                                src={getFullImageUrl(user?.avatar) || '/images/avatar/default-avatar.png'}
+                                src={buildUploadUrl(user?.avatar) || '/images/avatar/default-avatar.png'}
                                 sx={{
                                     width: 48,
                                     height: 48,
@@ -182,7 +182,7 @@ function Header({ toggleSidebar }) {
                             }}
                         >
                             <PersonOutlineIcon sx={{ mr: 2, fontSize: 26, color: '#000', transition: 'color 0.2s', marginRight: 0 }} />
-                            My Profile
+                            {lang('page_title.myprofile', 'My Profile')}
                         </MenuItem>
                         <MenuItem
                             onClick={handleLogout}

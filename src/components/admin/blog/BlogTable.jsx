@@ -22,7 +22,7 @@ import {
 import { Close as CloseIcon } from "@mui/icons-material";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
-import { getFullImageUrl } from "@/utils/common";
+import { buildUploadUrl, getFullImageUrl } from "@/utils/common";
 
 const BlogTable = () => {
   const { lang } = useLanguage();
@@ -161,7 +161,7 @@ const BlogTable = () => {
       setBlogDate(toDateInput(item?.date));
       setBlogImage(item?.image || "");
       setBlogImageFile(null);
-      setImagePreviewUrl(getFullImageUrl(item?.image) || "");
+      setImagePreviewUrl(buildUploadUrl(item?.image) || "");
       setBlogDescription(item?.description || "");
       setBlogSlug(item?.slug || "");
       setErrors({});
@@ -267,7 +267,7 @@ const BlogTable = () => {
           if (!src) return "";
           return (
             <img
-              src={getFullImageUrl(src)}
+              src={buildUploadUrl(src)}
               alt="blog"
               style={{ width: 48, height: 32, objectFit: "cover", borderRadius: 4 }}
             />

@@ -6,6 +6,7 @@ import { apiGet } from "@/lib/api";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCalendar, faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { buildUploadUrl } from "@/utils/common";
 
 const NewsSection = () => {
   const { lang } = useLanguage();
@@ -55,7 +56,7 @@ const NewsSection = () => {
               >
                 <div className="card h-100 border-0 shadow-0">
                   <img
-                    src={news.image || "https://via.placeholder.com/400x250"}
+                    src={buildUploadUrl(news.image) || "https://via.placeholder.com/400x250"}
                     className="card-img-top"
                     alt={news.title || "News Image"}
                   />

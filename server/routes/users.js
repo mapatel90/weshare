@@ -233,7 +233,7 @@ router.post('/', authenticateToken, upload.single('qrCode'), async (req, res) =>
             metadata: { createdBy: String(createdBy || '') }
           });
           if (s3Result && s3Result.success) {
-            qrCodePath = s3Result.data.fileUrl;
+            qrCodePath = s3Result.data.fileKey;
           }
         } catch (s3Err) {
           console.error('S3 upload failed for QR code:', s3Err.message || s3Err);
@@ -516,7 +516,7 @@ router.put('/:id', authenticateToken, upload.single('qrCode'), async (req, res) 
             metadata: { uploadType: 'qr_code', userId: String(id) }
           });
           if (s3Result && s3Result.success) {
-            newQrPath = s3Result.data.fileUrl;
+            newQrPath = s3Result.data.fileKey;
           }
         } catch (s3Err) {
           console.error('S3 upload failed for QR code (update):', s3Err.message || s3Err);
@@ -823,7 +823,7 @@ router.put('/profile/:id', authenticateToken, uploadAvatar.single('user_image'),
           );
 
           if (s3Result.success) {
-            updateData.user_image = s3Result.data.fileUrl;
+            updateData.user_image = s3Result.data.fileKey;
           }
         } catch (s3Error) {
           console.error('S3 upload error:', s3Error);

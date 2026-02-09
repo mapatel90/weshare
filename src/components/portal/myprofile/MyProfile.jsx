@@ -1,9 +1,11 @@
 "use client";
 
+import { ROLES } from "@/constants/roles";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage, LANGUAGES } from "@/contexts/LanguageContext";
 import useLocationData from "@/hooks/useLocationData";
 import { apiGet, apiUpload } from "@/lib/api";
-import { getFullImageUrl } from "@/utils/common";
+import { buildUploadUrl, getFullImageUrl } from "@/utils/common";
 import { showErrorToast, showSuccessToast } from "@/utils/topTost";
 import {
     Card,
@@ -25,6 +27,7 @@ import { useEffect, useState } from "react";
 
 const MyProfile = () => {
     const { user, updateUser } = useAuth()
+    const { currentLanguage, changeLanguage, lang } = useLanguage()
     const {
         countries,
         states,
@@ -49,7 +52,8 @@ const MyProfile = () => {
         stateId: '',
         cityId: '',
         zipcode: '',
-        user_image: ''
+        user_image: '',
+        language: currentLanguage || 'en'
     })
     const [imageFile, setImageFile] = useState(null)
     const [imagePreview, setImagePreview] = useState(null)
@@ -78,13 +82,14 @@ const MyProfile = () => {
                         stateId: userData.state_id || '',
                         cityId: userData.city_id || '',
                         zipcode: userData.zipcode || '',
-                        user_image: userData.user_image || ''
+                        user_image: userData.user_image || '',
+                        language: userData.language || currentLanguage || 'en'
                     })
 
 
                     // Set image preview if user has an image
                     if (userData.user_image) {
-                        setImagePreview(userData.user_image)
+                        setImagePreview(buildUploadUrl(userData.user_image))
                     }
 
                     // Load states if country is selected
@@ -194,6 +199,14 @@ const MyProfile = () => {
         }
     }
 
+    const handleCancel = () => {
+        if (user?.role === ROLES.INVESTOR) {
+            window.location.href = '/investor/dashboard';
+        } else {
+            window.location.href = '/offtaker/dashboard';
+        }
+    }
+
     const handleSubmit = async (e) => {
         e.preventDefault()
 
@@ -226,6 +239,7 @@ const MyProfile = () => {
             formData.append('state_id', profileData.stateId || '')
             formData.append('city_id', profileData.cityId || '')
             formData.append('zipcode', profileData.zipcode || '')
+            formData.append('language', profileData.language || 'en')
 
             // Add image file if selected
             if (imageFile) {
@@ -239,16 +253,22 @@ const MyProfile = () => {
                 setImageFile(null)
                 setImageError('')
 
+                // Update language context if language was changed
+                if (profileData.language && profileData.language !== currentLanguage) {
+                    changeLanguage(profileData.language)
+                }
+
                 // Update profile data with response
                 if (response.data) {
                     setProfileData(prev => ({
                         ...prev,
-                        user_image: response.data.user_image || prev.user_image
+                        user_image: response.data.user_image || prev.user_image,
+                        language: response.data.language || prev.language
                     }))
 
                     // Update image preview with new image
                     if (response.data.user_image) {
-                        setImagePreview(response.data.user_image)
+                        setImagePreview(buildUploadUrl(response.data.user_image))
 
                         // Update user avatar in AuthContext to reflect in header
                         if (updateUser) {
@@ -317,12 +337,12 @@ const MyProfile = () => {
                             {/* Profile Image Section */}
                             <Box sx={{ mb: 4, textAlign: 'center' }}>
                                 <Typography variant="h6" sx={{ fontWeight: 600, mb: 3, color: '#334155', textAlign: 'left' }}>
-                                    Profile Picture
+                                    {lang('profile.profile_picture', 'Profile Picture')}
                                 </Typography>
                                 <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: 'center', gap: 3, p: 3, background: '#f8fafc', borderRadius: 3 }}>
                                     <Box sx={{ position: 'relative' }}>
                                         <Avatar
-                                            src={getFullImageUrl(imagePreview) || '/images/avatar/default-avatar.png'}
+                                            src={imagePreview || '/images/avatar/default-avatar.png'}
                                             alt="Profile"
                                             sx={{
                                                 width: 100,
@@ -370,7 +390,7 @@ const MyProfile = () => {
                                                 }}
                                                 size="small"
                                             >
-                                                {imageFile ? 'Change Photo' : 'Upload Photo'}
+                                                {imageFile ? lang('common.change_photo', 'Change Photo') : lang('common.upload_photo', 'Upload Photo')}
                                                 <input
                                                     type="file"
                                                     id="user_image"
@@ -396,12 +416,12 @@ const MyProfile = () => {
                                                         '&:hover': { background: '#fef2f2', borderColor: '#dc2626' },
                                                     }}
                                                 >
-                                                    Remove
+                                                    {lang('common.remove', 'Remove')}
                                                 </Button>
                                             )}
                                         </Box>
                                         <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
-                                            JPG, PNG, GIF or WEBP. Max size 5MB
+                                            {lang('profile.profile_image_format', 'JPG, PNG, GIF or WEBP. Max size 5MB')}
                                         </Typography>
                                     </Box>
                                 </Box>
@@ -412,7 +432,7 @@ const MyProfile = () => {
                                 )}
                                 {imageFile && !imageError && (
                                     <Alert severity="info" sx={{ mt: 2 }}>
-                                        New image selected. Click "Save Changes" below to upload.
+                                        {lang('profile.new_image_selected', 'New image selected. Click "Save Changes" below to upload.')}
                                     </Alert>
                                 )}
                             </Box>
@@ -420,17 +440,17 @@ const MyProfile = () => {
                             {/* Personal Information Section */}
                             <Box sx={{ mb: 4 }}>
                                 <Typography variant="h6" sx={{ fontWeight: 600, mb: 3, color: '#334155' }}>
-                                    Personal Information
+                                    {lang('profile.personal_information', 'Personal Information')}
                                 </Typography>
                                 <Grid container spacing={3}>
                                     <Grid item xs={12} md={6}>
                                         <TextField
                                             fullWidth
-                                            label="Full Name"
+                                            label={lang('usersView.fullName', 'Full Name')}
                                             name="fullName"
                                             value={profileData.fullName}
                                             onChange={handleInputChange}
-                                            placeholder="Enter your full name"
+                                            placeholder={lang('placeholders.enterfullname', 'Enter your full name')}
                                             required
                                             variant="outlined"
                                             sx={{
@@ -445,7 +465,7 @@ const MyProfile = () => {
                                     <Grid item xs={12} md={6}>
                                         <TextField
                                             fullWidth
-                                            label="Email Address"
+                                            label={lang('usersView.email_address', 'Email Address')}
                                             name="email"
                                             type="email"
                                             value={profileData.email}
@@ -465,11 +485,11 @@ const MyProfile = () => {
                                     <Grid item xs={12} md={6}>
                                         <TextField
                                             fullWidth
-                                            label="Phone Number"
+                                            label={lang('usersView.phonenumber', 'Phone Number')}
                                             name="phoneNumber"
                                             value={profileData.phoneNumber}
                                             onChange={handleInputChange}
-                                            placeholder="Enter your phone number"
+                                            placeholder={lang('placeholders.enterphonenumber', 'Enter your phone number')}
                                             variant="outlined"
                                             sx={{
                                                 '& .MuiOutlinedInput-root': {
@@ -486,17 +506,17 @@ const MyProfile = () => {
                             {/* Address Information Section */}
                             <Box sx={{ mb: 4 }}>
                                 <Typography variant="h6" sx={{ fontWeight: 600, mb: 3, color: '#334155' }}>
-                                    Address Information
+                                    {lang('profile.address_information', 'Address Information')}
                                 </Typography>
                                 <Grid container spacing={3}>
                                     <Grid item xs={12}>
                                         <TextField
                                             fullWidth
-                                            label="Address Line 1"
+                                            label={lang('profile.address_line_1', 'Address Line 1')}
                                             name="address_1"
                                             value={profileData.address_1}
                                             onChange={handleInputChange}
-                                            placeholder="Street address, P.O. box"
+                                            placeholder={lang('profile.address_line_1_placeholder', 'Street address, P.O. box')}
                                             variant="outlined"
                                             sx={{
                                                 '& .MuiOutlinedInput-root': {
@@ -510,11 +530,11 @@ const MyProfile = () => {
                                     <Grid item xs={12}>
                                         <TextField
                                             fullWidth
-                                            label="Address Line 2"
+                                            label={lang('profile.address_line_2', 'Address Line 2')}
                                             name="address_2"
                                             value={profileData.address_2}
                                             onChange={handleInputChange}
-                                            placeholder="Apartment, suite, unit, building, floor, etc."
+                                            placeholder={lang('profile.address_line_2_placeholder', 'Apartment, suite, unit, building, floor, etc.')}
                                             variant="outlined"
                                             sx={{
                                                 '& .MuiOutlinedInput-root': {
@@ -529,7 +549,7 @@ const MyProfile = () => {
                                         <TextField
                                             fullWidth
                                             select
-                                            label="Country"
+                                            label={lang('profile.country', 'Country')}
                                             name="countryId"
                                             value={profileData.countryId}
                                             onChange={handleCountrySelect}
@@ -543,7 +563,7 @@ const MyProfile = () => {
                                                 }
                                             }}
                                         >
-                                            <MenuItem value="">Select Country</MenuItem>
+                                            <MenuItem value="">{lang('profile.country_placeholder', 'Select Country')}</MenuItem>
                                             {countries.map((country) => (
                                                 <MenuItem key={country.id} value={country.id}>
                                                     {country.name}
@@ -555,7 +575,7 @@ const MyProfile = () => {
                                         <TextField
                                             fullWidth
                                             select
-                                            label="State / Province"
+                                            label={lang('profile.state', 'State / Province')}
                                             name="stateId"
                                             value={profileData.stateId}
                                             onChange={handleStateSelect}
@@ -569,7 +589,7 @@ const MyProfile = () => {
                                                 }
                                             }}
                                         >
-                                            <MenuItem value="">Select State</MenuItem>
+                                            <MenuItem value="">{lang('profile.state_placeholder', 'Select State')}</MenuItem>
                                             {states.map((state) => (
                                                 <MenuItem key={state.id} value={state.id}>
                                                     {state.name}
@@ -581,7 +601,7 @@ const MyProfile = () => {
                                         <TextField
                                             fullWidth
                                             select
-                                            label="City"
+                                            label={lang('common.city', 'City')}
                                             name="cityId"
                                             value={profileData.cityId}
                                             onChange={handleCitySelect}
@@ -595,7 +615,7 @@ const MyProfile = () => {
                                                 }
                                             }}
                                         >
-                                            <MenuItem value="">Select City</MenuItem>
+                                            <MenuItem value="">{lang('profile.city_placeholder', 'Select City')}</MenuItem>
                                             {cities.map((city) => (
                                                 <MenuItem key={city.id} value={city.id}>
                                                     {city.name}
@@ -606,11 +626,11 @@ const MyProfile = () => {
                                     <Grid item xs={12} md={6}>
                                         <TextField
                                             fullWidth
-                                            label="Zip / Postal Code"
+                                            label={lang('common.zip', 'Zip / Postal Code')}
                                             name="zipcode"
                                             value={profileData.zipcode}
                                             onChange={handleInputChange}
-                                            placeholder="Enter zip/postal code"
+                                            placeholder={lang('profile.zipcode_placeholder', 'Enter zip/postal code')}
                                             variant="outlined"
                                             sx={{
                                                 '& .MuiOutlinedInput-root': {
@@ -624,13 +644,53 @@ const MyProfile = () => {
                                 </Grid>
                             </Box>
 
+                            {/* Preferences Section */}
+                            <Box sx={{ mb: 4 }}>
+                                <Typography variant="h6" sx={{ fontWeight: 600, mb: 3, color: '#334155' }}>
+                                    {lang('profile.preferences', 'Preferences')}
+                                </Typography>
+                                <Grid container spacing={3}>
+                                    <Grid item xs={12} md={6}>
+                                        <TextField
+                                            fullWidth
+                                            select
+                                            label={lang('profile.language', 'Language')}
+                                            name="language"
+                                            value={profileData.language}
+                                            onChange={handleInputChange}
+                                            variant="outlined"
+                                            sx={{
+                                                '& .MuiOutlinedInput-root': {
+                                                    borderRadius: 2,
+                                                    '&:hover fieldset': { borderColor: '#f6a623' },
+                                                    '&.Mui-focused fieldset': { borderColor: '#f6a623' }
+                                                }
+                                            }}
+                                        >
+                                            {Object.values(LANGUAGES).map((language) => (
+                                                <MenuItem key={language.code} value={language.code}>
+                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                        <img
+                                                            src={language.flag}
+                                                            alt={language.name}
+                                                            style={{ width: '20px', height: '15px', objectFit: 'cover' }}
+                                                        />
+                                                        <span>{language.name}</span>
+                                                    </Box>
+                                                </MenuItem>
+                                            ))}
+                                        </TextField>
+                                    </Grid>
+                                </Grid>
+                            </Box>
+
                             {/* Action Buttons */}
                             <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, pt: 2, borderTop: '1px solid #e5e7eb' }}>
                                 <Button
                                     type="button"
                                     variant="outlined"
                                     disabled={loading}
-                                    onClick={() => window.location.reload()}
+                                    onClick={handleCancel}
                                     sx={{
                                         borderRadius: 2,
                                         px: 4,
@@ -645,7 +705,7 @@ const MyProfile = () => {
                                         },
                                     }}
                                 >
-                                    Cancel
+                                    {lang('common.cancel', 'Cancel')}
                                 </Button>
                                 <Button
                                     type="submit"
@@ -672,7 +732,7 @@ const MyProfile = () => {
                                     }}
                                     startIcon={loading && <CircularProgress size={20} sx={{ color: '#fff' }} />}
                                 >
-                                    {loading ? 'Saving Changes...' : 'Save Changes'}
+                                    {loading ? lang('common.saving_changes', 'Saving Changes...') : lang('common.save_changes', 'Save Changes')}
                                 </Button>
                             </Box>
                         </form>

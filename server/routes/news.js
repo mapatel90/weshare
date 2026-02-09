@@ -48,7 +48,7 @@ router.post("/", authenticateToken, upload.single('news_image'), async (req, res
             metadata: { uploadedBy: String(req.user?.id || '') },
           });
           if (s3Result && s3Result.success) {
-            uploadedPath = s3Result.data.fileUrl;
+            uploadedPath = s3Result.data.fileKey;
           } else {
             console.error('S3 upload failed:', s3Result);
             return res.status(500).json({ success: false, message: 'S3 upload failed' });
@@ -276,7 +276,7 @@ router.put("/:id", authenticateToken, upload.single('news_image'), async (req, r
             metadata: { uploadType: 'news_image', newsId: String(id) },
           });
           if (s3Result && s3Result.success) {
-            newImagePath = s3Result.data.fileUrl;
+            newImagePath = s3Result.data.fileKey;
             // try to remove local temp
             try { if (req.file && req.file.path && fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path); } catch(_){}
           } else {

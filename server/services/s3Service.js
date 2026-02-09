@@ -25,6 +25,8 @@ export const S3_KEYS = {
   ENABLED: 's3_enabled',
 };
 
+const UPLOAD_URL = process?.env?.NEXT_PUBLIC_UPLOAD_URL;
+
 /**
  * Get S3 configuration from settings table
  * @returns {Promise<Object>} S3 configuration
@@ -243,6 +245,7 @@ export const generateSignedUrl = async (fileKey, expiresIn = null) => {
  */
 export const deleteFromS3 = async (fileKey) => {
   try {
+    
     const config = await getS3Config();
     const s3Client = createS3Client(config);
 
@@ -276,6 +279,47 @@ export const isS3Enabled = async () => {
   }
 };
 
+// Extract upload key from URL
+// Example: https://your-bucket.s3.amazonaws.com/uploads/file.jpg
+// Returns: uploads/file.jpg
+export const extractUploadKey = (url = "") => {
+  if (!url) return null;
+
+  if (url.startsWith("http")) {
+    return url.replace(UPLOAD_URL, "");
+  }
+
+  return url;
+};
+
+// Build upload URL from key
+// Example: uploads/file.jpg
+// Returns: https://your-bucket.s3.amazonaws.com/uploads/file.jpg
+// Example: https://your-bucket.s3.amazonaws.com/uploads/file.jpg
+// Returns: true
+// Example: https://cdn.example.com/uploads/file.jpg
+// Returns: false
+// Example: /uploads/file.jpg
+// Returns: false
+// Example: uploads/file.jpg
+// Returns: true
+
+export const isS3Url = (url = "") => {
+  if (!url) return false;
+
+  return /^https:\/\/.+\.s3(\.[a-z0-9-]+)?\.amazonaws\.com\//i.test(url);
+};
+
+export const buildUploadUrl = (key = "") => {
+  if (!key) return null;
+
+  if (isS3Url(key)) {
+    return key; // safety
+  }
+
+  return `${UPLOAD_URL}${key}`;
+};
+
 export default {
   getS3Config,
   createS3Client,
@@ -284,5 +328,7 @@ export default {
   generateSignedUrl,
   deleteFromS3,
   isS3Enabled,
+  extractUploadKey,
+  buildUploadUrl,
   S3_KEYS,
 };

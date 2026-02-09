@@ -5,6 +5,7 @@ import { showSuccessToast, showErrorToast } from "@/utils/topTost";
 import { generateSlug, checkProjectNameExists } from "@/utils/projectUtils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { ROLES } from "@/constants/roles";
 
 export default function AddModal({ open, onClose }) {
   const [internalOpen, setInternalOpen] = useState(false);
@@ -13,33 +14,33 @@ export default function AddModal({ open, onClose }) {
   const { user } = useAuth() || {};
   const { lang } = useLanguage();
   const fileInputRef = useRef(null);
+  // console.log("user", user);
+
+  const [project, setProjects] = useState({
+    name : '',
+    project_slug : '',
+    project_type_id : '',
+    offtaker_id : (user && (user.id ?? user.user?.id)) ? String(user.id ?? user.user?.id) : "",
+    address_1 : '',
+    address_2 : '',
+    country_id : '',
+    state_id : '',
+    city_id : '',
+    zipcode : '',
+    lease_term : '',
+    project_description : '',
+    project_size : '',
+    project_close_date : '',
+    project_location : '',
+    start_date : '',
+    created_by : (user && (user.id ?? user.user?.id)) ? String(user.id ?? user.user?.id) : "",
+    status : '1'
+  });
 
   // form state (match TabProjectBasicDetails / API fields)
-  const [name, setName] = useState("");
-  const [projectSlug, setProjectSlug] = useState("");
   const [projectTypesList, setProjectTypesList] = useState([]); // list of all project types
-  const [selectedProjectTypeId, setSelectedProjectTypeId] = useState(""); // selected project type ID
-  const [offtakerId, setOfftakerId] = useState(
-    // try to default to logged-in user id if available
-    (user && (user.id ?? user.user?.id)) ? String(user.id ?? user.user?.id) : ""
-  );
-  const [address_1, setaddress_1] = useState("");
-  const [address_2, setaddress_2] = useState("");
-  const [countryId, setCountryId] = useState("");
-  const [stateId, setStateId] = useState("");
-  const [cityId, setCityId] = useState("");
-  const [zipcode, setZipcode] = useState("");
-  const [askingPrice, setAskingPrice] = useState("");
-  const [leaseTerm, setLeaseTerm] = useState("");
-  const [productCode, setProductCode] = useState("");
-  const [projectDescription, setProjectDescription] = useState("");
   const [imagePreviews, setImagePreviews] = useState([]);
   const [queuedImageFiles, setQueuedImageFiles] = useState([]);
-  const [projectSize, setProjectSize] = useState("");
-  const [projectCloseDate, setProjectCloseDate] = useState("");
-  const [projectLocation, setProjectLocation] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [status, setStatus] = useState(1);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -72,8 +73,8 @@ export default function AddModal({ open, onClose }) {
   
   // auto-generate slug from name
   useEffect(() => {
-    if (name) {
-      const slug = name
+    if (project?.name) {
+      const slug = project.name
         .toString()
         .trim()
         .toLowerCase()
@@ -81,17 +82,34 @@ export default function AddModal({ open, onClose }) {
         .replace(/\s+/g, "-")
         .replace(/-+/g, "-")
         .replace(/^-|-$/g, "");
-      setProjectSlug(slug);
+      setProjects(prev => ({
+          ...prev,
+          project_slug : slug
+      }));
     } else {
-      setProjectSlug("");
+      setProjects(prev => ({
+          ...prev,
+          project_slug : ""
+      }));
     }
-  }, [name]);
+  }, [project?.name]);
+
+  async function handleChange(e) {
+    
+    const { name, value } = e.target;
+    console.log("Name", name);
+    console.log("Value", value);
+    setProjects(prev => ({ 
+      ...prev, 
+      [name]: value 
+    }));
+  }
   
   // check project name uniqueness on blur
   async function handleProjectNameBlur() {
-    if (!name || name.trim() === "") return;
+    if (!project?.name || project.name.trim() === "") return;
     try {
-      const exists = await checkProjectNameExists(name);
+      const exists = await checkProjectNameExists(project.name);
       if (exists) {
         setFieldErrors((prev) => ({ ...prev, name: "Project name already exists" }));
       } else {
@@ -135,68 +153,61 @@ export default function AddModal({ open, onClose }) {
   // Fetch states when country changes
   useEffect(() => {
     const fetchStates = async () => {
-      if (!countryId) {
+      if (!project.country_id) {
         setStateList([]);
-        setStateId("");
+        setProjects(prev => ({ ...prev, state_id: "", city_id: "" }));
         setCityList([]);
-        setCityId("");
         return;
       }
       try {
-        const res = await apiGet(`/api/locations/countries/${countryId}/states`);
+        const res = await apiGet(`/api/locations/countries/${project.country_id}/states`);
         if (res?.success) setStateList(res.data || []);
       } catch (e) {
         console.error("Failed to fetch states:", e);
       }
     };
     fetchStates();
-  }, [countryId]);
+  }, [project.country_id]);
 
   // Fetch cities when state changes
   useEffect(() => {
     const fetchCities = async () => {
-      if (!stateId) {
+      if (!project.state_id) {
         setCityList([]);
-        setCityId("");
+        setProjects(prev => ({ ...prev, city_id: "" }));
         return;
       }
       try {
-        const res = await apiGet(`/api/locations/states/${stateId}/cities`);
+        const res = await apiGet(`/api/locations/states/${project.state_id}/cities`);
         if (res?.success) setCityList(res.data || []);
       } catch (e) {
         console.error("Failed to fetch cities:", e);
       }
     };
     fetchCities();
-  }, [stateId]);
+  }, [project.state_id]);
 
   // Pre-fill user address when user is loaded
   useEffect(() => {
     if (!user) return;
-    
+
     try {
       const userData = user?.user || user;
-      if (userData.address_1) setaddress_1(userData.address_1);
-      if (userData.address_2) setaddress_2(userData.address_2);
-      if (userData.country_id) setCountryId(String(userData.country_id));
-      if (userData.state_id) setStateId(String(userData.state_id));
-      if (userData.city_id) setCityId(String(userData.city_id));
-      if (userData.zipcode) setZipcode(userData.zipcode);
-    } catch (err) {
-      console.error("Error pre-filling user address:", err);
-    }
-  }, [user]);
-
-  // If logged-in user is an offtaker (role 3), default offtakerId to their id and keep it in sync
-  useEffect(() => {
-    try {
       const uid = user?.id ?? user?.user?.id ?? user?.userId ?? null;
       const role = user?.role ?? user?.user?.role;
-      if (uid && role === 3) {
-        setOfftakerId(String(uid));
-      }
+
+      setProjects(prev => ({
+          ...prev,
+          address_1 : userData.address_1 || prev.address_1,
+          address_2 : userData.address_2 || prev.address_2,
+          country_id : userData.country_id || prev.country_id,
+          state_id : userData.state_id || prev.state_id,
+          city_id : userData.city_id || prev.city_id,
+          zipcode : userData.zipcode || prev.zipcode,
+          offtaker_id : uid ? String(uid) : prev.offtaker_id
+      }));
     } catch (err) {
-      // noop
+      console.error("Error pre-filling user address:", err);
     }
   }, [user]);
 
@@ -256,31 +267,35 @@ export default function AddModal({ open, onClose }) {
     const errors = {};
 
     // Required fields
-    if (!name || name.trim() === "") errors.name = "Project name is required";
-    if (!selectedProjectTypeId || selectedProjectTypeId === "")
-      errors.selectedProjectTypeId = "Project type is required";
-    if (!projectDescription || projectDescription.trim() === "") errors.projectDescription = "Description is required";
-    if (!askingPrice || askingPrice.trim() === "") errors.askingPrice = "Target Investment Amount is required";
-    if (!leaseTerm || leaseTerm.trim() === "") errors.leaseTerm = "Lease Term is required";
-    if (!projectSize || projectSize.trim() === "") errors.projectSize = "Installed Capacity is required";
-    if (!projectLocation || projectLocation.trim() === "") errors.projectLocation = "Location is required";
-    if (!startDate || startDate.trim() === "") errors.startDate = "Project Start Date is required";
-    if (!projectCloseDate || projectCloseDate.trim() === "") errors.projectCloseDate = "Project End Date is required";
+    if (!project?.name || project?.name.trim() === "")
+      errors.name = "Project name is required";
+    if (!project?.project_type_id || project?.project_type_id === "")
+      errors.project_type_id = "Project type is required";
+    if (!project?.project_description || project?.project_description.trim() === "")
+      errors.project_description = "Description is required";
+    if (!project?.lease_term || project?.lease_term.trim() === "")
+      errors.lease_term = "Lease Term is required";
+    if (!project?.project_size || project?.project_size.trim() === "")
+      errors.project_size = "Installed Capacity is required";
+    if (!project?.project_location || project?.project_location.trim() === "")
+      errors.project_location = "Location is required";
+    if (!project?.start_date || project?.start_date.trim() === "")
+      errors.start_date = "Project Start Date is required";
+    if (!project?.project_close_date || project?.project_close_date.trim() === "")
+      errors.project_close_date = "Project End Date is required";
 
     // Numeric validation
     const numberRegex = /^[0-9]*\.?[0-9]*$/;
-    if (askingPrice && askingPrice.trim() !== "" && !numberRegex.test(askingPrice))
-      errors.askingPrice = "Target Investment Amount must be a valid number";
-    if (leaseTerm && leaseTerm.trim() !== "" && !numberRegex.test(leaseTerm))
-      errors.leaseTerm = "Lease Term must be a valid number";
-    if (projectSize && projectSize.trim() !== "" && !numberRegex.test(projectSize))
-      errors.projectSize = "Installed Capacity must be a valid number";
+    if (project?.lease_term && project.lease_term.trim() !== "" && !numberRegex.test(project.lease_term))
+      errors.lease_term = "Lease Term must be a valid number";
+    if (project?.project_size && project.project_size.trim() !== "" && !numberRegex.test(project.project_size))
+      errors.project_size = "Installed Capacity must be a valid number";
 
     // Date validation - check if end date is after start date
-    if (startDate && projectCloseDate) {
-      const start = new Date(startDate);
-      const end = new Date(projectCloseDate);
-      if (end < start) errors.projectCloseDate = "Project End Date must be after Start Date";
+    if (project?.start_date && project?.project_close_date) {
+      const start = new Date(project.start_date);
+      const end = new Date(project.project_close_date);
+      if (end < start) errors.project_close_date = "Project End Date must be after Start Date";
     }
 
     setFieldErrors(errors);
@@ -306,31 +321,8 @@ export default function AddModal({ open, onClose }) {
 
     setLoading(true);
     try {
-      const payload = {
-        name,
-        project_slug:
-          projectSlug || (name || "").toLowerCase().replace(/\s+/g, "-"),
-        project_type_id: Number(selectedProjectTypeId || 1),
-        ...(offtakerId ? { offtaker_id: Number(offtakerId) } : {}),
-        address_1: address_1 || "",
-        address_2: address_2 || "",
-        ...(countryId ? { country_id: Number(countryId) } : {}),
-        ...(stateId ? { state_id: Number(stateId) } : {}),
-        ...(cityId ? { city_id: Number(cityId) } : {}),
-        zipcode: zipcode || "",
-        asking_price: askingPrice || "",
-        lease_term: leaseTerm !== "" ? Number(leaseTerm) : null,
-        product_code: productCode || "",
-        project_description: projectDescription || "",
-        project_size: projectSize || "",
-        project_close_date: projectCloseDate || null,
-        project_location: projectLocation || "",
-        start_date: startDate || null,
-        created_by: Number(user?.id),
-        status: Number(1),
-      };
-
-      const res = await apiPost("/api/projects/AddProject", payload);
+      
+      const res = await apiPost("/api/projects/AddProject", project);
 
       if (!res || !res.success) {
         throw new Error(res?.message || "Failed to create project");
@@ -357,30 +349,30 @@ export default function AddModal({ open, onClose }) {
       closeModal();
 
       // reset
-      setName("");
-      setProjectSlug("");
-      setSelectedProjectTypeId("");
-      setOfftakerId("");
-      setaddress_1("");
-      setaddress_2("");
-      setCountryId("");
-      setStateId("");
-      setCityId("");
-      setZipcode("");
-      setAskingPrice("");
-      setLeaseTerm("");
-      setProductCode("");
-      setProjectDescription("");
+      setProjects({
+        name: "",
+        project_slug: "",
+        project_type_id: "",
+        offtaker_id: (user && (user.id ?? user.user?.id)) ? String(user.id ?? user.user?.id) : "",
+        address_1: "",
+        address_2: "",
+        country_id: "",
+        state_id: "",
+        city_id: "",
+        zipcode: "",
+        lease_term: "",
+        project_description: "",
+        project_size: "",
+        project_close_date: "",
+        project_location: "",
+        start_date: "",
+        created_by: "",
+        status: "1"
+      });
       setQueuedImageFiles([]);
       setImagePreviews([]);
-      setProjectSize("");
-      setProjectCloseDate("");
-      setProjectLocation("");
-      setStartDate("");
-      setStatus(1);
       setFieldErrors({});
     } catch (err) {
-      console.error("Add project error:", err);
       setError(err.message || "Error creating project");
       showErrorToast(err.message || "Failed to create project");
     } finally {
@@ -388,13 +380,15 @@ export default function AddModal({ open, onClose }) {
     }
   }
 
+  console.log("project", project);
+
   return (
     <>
       {!isControlled && (
-        <div className="w-full flex justify-end">
+        <div className="flex justify-end w-full">
           <button
             onClick={openModal}
-            className="inline-flex items-center gap-2 px-3 py-2 mb-3 text-white rounded-lg text-sm"
+            className="inline-flex items-center gap-2 px-3 py-2 mb-3 text-sm text-white rounded-lg"
             style={{ backgroundColor: "#F6A623" }}
           >
             <span className="text-lg leading-none">+</span> {lang("modal.add", "Add")}
@@ -422,12 +416,12 @@ export default function AddModal({ open, onClose }) {
         >
           {/* Header */}
           <div className="flex items-center justify-between px-6 py-4 border-b">
-            <h2 className="text-black text-xl font-semibold">
+            <h2 className="text-xl font-semibold text-black">
               {lang("projects.projectdetails", "Project Details")}
             </h2>
             <button
               onClick={closeModal}
-              className="text-gray-500 hover:text-gray-800 text-xl"
+              className="text-xl text-gray-500 hover:text-gray-800"
             >
               ✕
             </button>
@@ -439,77 +433,52 @@ export default function AddModal({ open, onClose }) {
             className="p-6 space-y-6"
             style={{ flex: 1, overflow: "auto" }}
           >
-            <div className="border rounded-lg p-4 shadow-sm bg-white">
-              <h3 className="font-semibold mb-2 text-lg text-black">
+            <div className="p-4 bg-white border rounded-lg shadow-sm">
+              <h3 className="mb-2 text-lg font-semibold text-black">
                 {lang("projects.basicinformation", "Basic Information")}
               </h3>
 
-              <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-1">
                 <div className="flex flex-col" data-field="name">
-                  <label className="mb-1 font-medium text-sm text-black">
+                  <label className="mb-1 text-sm font-medium text-black">
                     {lang("projects.projectName", "Project Name")}
                   </label>
                   <input
-                    value={name}
-                    onChange={(e) => {
-                      const v = e.target.value;
-                      setName(v);
-                      // Clear error when user types
-                      if (fieldErrors.name) {
-                        setFieldErrors((prev) => {
-                          const newErrors = { ...prev };
-                          delete newErrors.name;
-                          return newErrors;
-                        });
-                      }
-                      // also generate slug immediately using shared util
-                      try {
-                        const s = generateSlug(v);
-                        setProjectSlug(s);
-                      } catch (e) {
-                        // fallback to previous logic if util fails
-                      }
-                    }}
+                    name="name"
+                    value={project?.name}
+                    onChange={(e) => handleChange(e)}
                     onBlur={handleProjectNameBlur}
                     className={`input-field ${fieldErrors.name ? "border-red-500" : ""}`}
                     placeholder={lang("projects.projectNamePlaceholder", "Enter Project Name")}
                   />
-                  {fieldErrors.name && <div className="text-red-600 text-sm mt-1">{fieldErrors.name}</div>}
+                  {fieldErrors.name && <div className="mt-1 text-sm text-red-600">{fieldErrors.name}</div>}
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+              <div className="grid grid-cols-1 gap-4 mt-4 md:grid-cols-2">
                 <div className="flex flex-col">
-                  <label className="mb-1 font-medium text-sm text-black">
+                  <label className="mb-1 text-sm font-medium text-black">
                     {lang("projects.projectslug", "Project Slug")}
                   </label>
                   <input
-                    value={projectSlug}
-                    onChange={(e) => setProjectSlug(e.target.value)}
+                    name="project_slug"
+                    value={project?.project_slug}
+                    onChange={(e) => handleChange(e)}
                     className="input-field"
                     placeholder={lang("projects.projectslug", "Project Slug")}
                     disabled
                   />
                 </div>
 
-                <div className="flex flex-col" data-field="selectedProjectTypeId">
-                  <label className="mb-1 font-medium text-sm text-black">
+                <div className="flex flex-col" data-field="project_type_id">
+                  <label className="mb-1 text-sm font-medium text-black">
                     {lang("projects.projectType", "Project Type")}
                   </label>
                   <select
-                    value={selectedProjectTypeId}
-                    onChange={(e) => {
-                      setSelectedProjectTypeId(e.target.value);
-                      // Clear error when user selects
-                      if (fieldErrors.selectedProjectTypeId) {
-                        setFieldErrors((prev) => {
-                          const newErrors = { ...prev };
-                          delete newErrors.selectedProjectTypeId;
-                          return newErrors;
-                        });
-                      }
-                    }}
-                    className={`input-field ${fieldErrors.selectedProjectTypeId ? "border-red-500" : ""}`}
+                    name="project_type_id"
+                    value={project?.project_type_id}
+                    onChange={(e) => handleChange(e)}
+                    className={`input-field ${fieldErrors.project_type_id ? "border-red-500" : ""}`}
                   >
                     <option value="">{lang("projects.selectProjectType", "Select Project Type")}</option>
                     {projectTypesList && Array.isArray(projectTypesList) && projectTypesList.map((t) => (
@@ -518,73 +487,68 @@ export default function AddModal({ open, onClose }) {
                       </option>
                     ))}
                   </select>
-                  {fieldErrors.selectedProjectTypeId && <div className="text-red-600 text-sm mt-1">{fieldErrors.selectedProjectTypeId}</div>}
+                  {fieldErrors.project_type_id && <div className="mt-1 text-sm text-red-600">{fieldErrors.project_type_id}</div>}
                 </div>
               </div>
 
-              <div className="flex flex-col mt-4" data-field="projectDescription">
-                <label className="mb-1 font-medium text-sm text-black">
+              <div className="flex flex-col mt-4" data-field="project_description">
+                <label className="mb-1 text-sm font-medium text-black">
                   {lang("news.description", "Description")}
                 </label>
                 <textarea
-                  value={projectDescription}
-                  onChange={(e) => {
-                    setProjectDescription(e.target.value);
-                    if (fieldErrors.projectDescription) {
-                      setFieldErrors((prev) => {
-                        const newErrors = { ...prev };
-                        delete newErrors.projectDescription;
-                        return newErrors;
-                      });
-                    }
-                  }}
-                  className={`input-field ${fieldErrors.projectDescription ? "border-red-500" : ""}`}
+                  name="project_description"
+                  value={project?.project_description}
+                  onChange={(e) => handleChange(e)}
+                  className={`input-field ${fieldErrors.project_description ? "border-red-500" : ""}`}
                   rows="4"
                   placeholder={lang("projects.projectDescriptionPlaceholder", "Enter project description")}
                 ></textarea>
-                {fieldErrors.projectDescription && <div className="text-red-600 text-sm mt-1">{fieldErrors.projectDescription}</div>}
+                {fieldErrors.project_description && <div className="mt-1 text-sm text-red-600">{fieldErrors.project_description}</div>}
               </div>
             </div>
 
             {/* Address Information Section */}
-            <div className="border rounded-lg p-4 shadow-sm bg-white">
-              <h3 className="font-semibold mb-2 text-lg text-black">
+            <div className="p-4 bg-white border rounded-lg shadow-sm">
+              <h3 className="mb-2 text-lg font-semibold text-black">
                 {lang("projects.addressInformation", "Address Information")}
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div className="flex flex-col">
-                  <label className="mb-1 font-medium text-sm text-black">
+                  <label className="mb-1 text-sm font-medium text-black">
                     {lang("projects.addressLine1", "Address Line 1")}
                   </label>
                   <input
-                    value={address_1}
-                    onChange={(e) => setaddress_1(e.target.value)}
+                    name="address_1"
+                    value={project?.address_1}
+                    onChange={(e) => handleChange(e)}
                     className="input-field"
                     placeholder={lang("projects.addressLine1", "Address Line 1")}
                   />
                 </div>
 
                 <div className="flex flex-col">
-                  <label className="mb-1 font-medium text-sm text-black">
+                  <label className="mb-1 text-sm font-medium text-black">
                     {lang("projects.addressLine2", "Address Line 2")}
                   </label>
                   <input
-                    value={address_2}
-                    onChange={(e) => setaddress_2(e.target.value)}
+                    name="address_2"
+                    value={project?.address_2}
+                    onChange={(e) => handleChange(e)}
                     className="input-field"
                     placeholder={lang("projects.addressLine2", "Address Line 2")}
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
+              <div className="grid grid-cols-1 gap-4 mt-4 md:grid-cols-4">
                 <div className="flex flex-col">
-                  <label className="mb-1 font-medium text-sm text-black">
+                  <label className="mb-1 text-sm font-medium text-black">
                     {lang("projects.country", "Country")}
                   </label>
                   <select
-                    value={countryId}
-                    onChange={(e) => setCountryId(e.target.value)}
+                    name="country_id"
+                    value={project?.country_id}
+                    onChange={(e) => handleChange(e)}
                     className="input-field"
                   >
                     <option value="">{lang("projects.selectCountry", "Select Country")}</option>
@@ -597,14 +561,15 @@ export default function AddModal({ open, onClose }) {
                 </div>
 
                 <div className="flex flex-col">
-                  <label className="mb-1 font-medium text-sm text-black">
+                  <label className="mb-1 text-sm font-medium text-black">
                     {lang("projects.state", "State")}
                   </label>
                   <select
-                    value={stateId}
-                    onChange={(e) => setStateId(e.target.value)}
+                    name="state_id"
+                    value={project?.state_id}
+                    onChange={(e) => handleChange(e)}
                     className="input-field"
-                    disabled={!countryId}
+                    disabled={!project?.country_id}
                   >
                     <option value="">{lang("projects.selectState", "Select State")}</option>
                     {stateList.map((state) => (
@@ -616,14 +581,15 @@ export default function AddModal({ open, onClose }) {
                 </div>
 
                 <div className="flex flex-col">
-                  <label className="mb-1 font-medium text-sm text-black">
+                  <label className="mb-1 text-sm font-medium text-black">
                     {lang("projects.city", "City")}
                   </label>
                   <select
-                    value={cityId}
-                    onChange={(e) => setCityId(e.target.value)}
+                    name="city_id"
+                    value={project?.city_id}
+                    onChange={(e) => handleChange(e)}
                     className="input-field"
-                    disabled={!stateId}
+                    disabled={!project?.state_id}
                   >
                     <option value="">{lang("projects.selectCity", "Select City")}</option>
                     {cityList.map((city) => (
@@ -635,12 +601,13 @@ export default function AddModal({ open, onClose }) {
                 </div>
 
                 <div className="flex flex-col">
-                  <label className="mb-1 font-medium text-sm text-black">
+                  <label className="mb-1 text-sm font-medium text-black">
                     {lang("projects.zipcode", "Zipcode")}
                   </label>
                   <input
-                    value={zipcode}
-                    onChange={(e) => setZipcode(e.target.value)}
+                    name="zipcode"
+                    value={project?.zipcode}
+                    onChange={(e) => handleChange(e)}
                     className="input-field"
                     placeholder={lang("projects.zipcode", "Zipcode")}
                   />
@@ -649,165 +616,99 @@ export default function AddModal({ open, onClose }) {
             </div>
 
             {/* Financial / energy / summary sections (connected to state) */}
-            <div className="border rounded-lg p-4 shadow-sm bg-white">
-              <h3 className="font-semibold mb-2 text-lg text-black">
+            <div className="p-4 bg-white border rounded-lg shadow-sm">
+              <h3 className="mb-2 text-lg font-semibold text-black">
                 {lang("projects.financialdetails", "Financial Details")}
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* <div className="flex flex-col">
-                  <label className="mb-1 font-medium text-sm">Expected ROI (%)</label>
-                  <input value={investorProfit} onChange={(e) => setInvestorProfit(e.target.value)} className="input-field" placeholder="Enter Number" />
-                </div> */}
-                <div className="flex flex-col" data-field="askingPrice">
-                  <label className="mb-1 font-medium text-sm">
-                    {lang("projects.targetInvestmentAmount", "Target Investment Amount ($)")}
-                  </label>
-                  <input
-                    value={askingPrice}
-                    onChange={(e) => {
-                      setAskingPrice(e.target.value);
-                      if (fieldErrors.askingPrice) {
-                        setFieldErrors((prev) => {
-                          const newErrors = { ...prev };
-                          delete newErrors.askingPrice;
-                          return newErrors;
-                        });
-                      }
-                    }}
-                    className={`input-field ${fieldErrors.askingPrice ? "border-red-500" : ""}`}
-                    placeholder={lang("projects.enterNumber", "Enter Number")}
-                  />
-                  {fieldErrors.askingPrice && <div className="text-red-600 text-sm mt-1">{fieldErrors.askingPrice}</div>}
-                </div>
-
-                <div className="flex flex-col" data-field="leaseTerm">
-                  <label className="mb-1 font-medium text-sm">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div className="flex flex-col" data-field="lease_term">
+                  <label className="mb-1 text-sm font-medium">
                     {lang("projects.leaseterm", "Lease Term (years)")}
                   </label>
                   <input
-                    value={leaseTerm}
-                    onChange={(e) => {
-                      setLeaseTerm(e.target.value);
-                      if (fieldErrors.leaseTerm) {
-                        setFieldErrors((prev) => {
-                          const newErrors = { ...prev };
-                          delete newErrors.leaseTerm;
-                          return newErrors;
-                        });
-                      }
-                    }}
-                    className={`input-field ${fieldErrors.leaseTerm ? "border-red-500" : ""}`}
+                    name="lease_term"
+                    value={project?.lease_term}
+                    onChange={(e) => handleChange(e)}
+                    className={`input-field ${fieldErrors.lease_term ? "border-red-500" : ""}`}
                     placeholder={lang("projects.enterNumber", "Enter Number")}
                   />
-                  {fieldErrors.leaseTerm && <div className="text-red-600 text-sm mt-1">{fieldErrors.leaseTerm}</div>}
+                  {fieldErrors.lease_term && <div className="mt-1 text-sm text-red-600">{fieldErrors.lease_term}</div>}
                 </div>
               </div>
             </div>
 
-            <div className="border rounded-lg p-4 shadow-sm bg-white">
-              <h3 className="font-semibold mb-2 text-lg text-black">
+            <div className="p-4 bg-white border rounded-lg shadow-sm">
+              <h3 className="mb-2 text-lg font-semibold text-black">
                 {lang("projects.energyGenerationDetails", "Energy Generation Details")}
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
-                <div className="flex flex-col" data-field="projectSize">
-                  <label className="mb-1 font-medium text-sm">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-1">
+                <div className="flex flex-col" data-field="project_size">
+                  <label className="mb-1 text-sm font-medium">
                     {lang("projects.installedCapacity", "Installed Capacity (kWp)")}
                   </label>
                   <input
-                    value={projectSize}
-                    onChange={(e) => {
-                      setProjectSize(e.target.value);
-                      if (fieldErrors.projectSize) {
-                        setFieldErrors((prev) => {
-                          const newErrors = { ...prev };
-                          delete newErrors.projectSize;
-                          return newErrors;
-                        });
-                      }
-                    }}
-                    className={`input-field ${fieldErrors.projectSize ? "border-red-500" : ""}`}
+                    name="project_size"
+                    value={project?.project_size}
+                    onChange={(e) => handleChange(e)}
+                    className={`input-field ${fieldErrors.project_size ? "border-red-500" : ""}`}
                     placeholder={lang("projects.enterNumber", "Enter Number")}
                   />
-                  {fieldErrors.projectSize && <div className="text-red-600 text-sm mt-1">{fieldErrors.projectSize}</div>}
+                  {fieldErrors.project_size && <div className="mt-1 text-sm text-red-600">{fieldErrors.project_size}</div>}
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-1 gap-4 mt-4">
-                <div className="flex flex-col" data-field="projectLocation">
-                  <label className="mb-1 font-medium text-sm">{lang("common.location", "Location")}</label>
+              <div className="grid grid-cols-1 gap-4 mt-4 md:grid-cols-1">
+                <div className="flex flex-col" data-field="project_location">
+                  <label className="mb-1 text-sm font-medium">{lang("common.location", "Location")}</label>
                   <input
-                    value={projectLocation}
-                    onChange={(e) => {
-                      setProjectLocation(e.target.value);
-                      if (fieldErrors.projectLocation) {
-                        setFieldErrors((prev) => {
-                          const newErrors = { ...prev };
-                          delete newErrors.projectLocation;
-                          return newErrors;
-                        });
-                      }
-                    }}
-                    className={`input-field ${fieldErrors.projectLocation ? "border-red-500" : ""}`}
+                    name="project_location"
+                    value={project?.project_location}
+                    onChange={(e) => handleChange(e)}
+                    className={`input-field ${fieldErrors.project_location ? "border-red-500" : ""}`}
                     placeholder={lang("projects.enterLocation", "Enter Location")}
                   />
-                  {fieldErrors.projectLocation && <div className="text-red-600 text-sm mt-1">{fieldErrors.projectLocation}</div>}
+                  {fieldErrors.project_location && <div className="mt-1 text-sm text-red-600">{fieldErrors.project_location}</div>}
                 </div>
               </div>
             </div>
 
-            <div className="border rounded-lg p-4 shadow-sm bg-white">
-              <h3 className="font-semibold mb-2 text-lg text-black">
+            <div className="p-4 bg-white border rounded-lg shadow-sm">
+              <h3 className="mb-2 text-lg font-semibold text-black">
                 {lang("dashboard.projectSummary", "Project Summary")}
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="flex flex-col" data-field="startDate">
-                  <label className="mb-1 font-medium text-sm">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div className="flex flex-col" data-field="start_date">
+                  <label className="mb-1 text-sm font-medium">
                     {lang("dashboard.projectStartDate", "Project Start Date")}
                   </label>
                   <input
-                    value={startDate}
-                    onChange={(e) => {
-                      setStartDate(e.target.value);
-                      if (fieldErrors.startDate) {
-                        setFieldErrors((prev) => {
-                          const newErrors = { ...prev };
-                          delete newErrors.startDate;
-                          return newErrors;
-                        });
-                      }
-                    }}
+                    name="start_date"
+                    value={project?.start_date}
+                    onChange={(e) => handleChange(e)}
                     type="date"
-                    className={`input-field ${fieldErrors.startDate ? "border-red-500" : ""}`}
+                    className={`input-field ${fieldErrors.start_date ? "border-red-500" : ""}`}
                   />
-                  {fieldErrors.startDate && <div className="text-red-600 text-sm mt-1">{fieldErrors.startDate}</div>}
+                  {fieldErrors.start_date && <div className="mt-1 text-sm text-red-600">{fieldErrors.start_date}</div>}
                 </div>
-                <div className="flex flex-col" data-field="projectCloseDate">
-                  <label className="mb-1 font-medium text-sm">
+                <div className="flex flex-col" data-field="project_close_date">
+                  <label className="mb-1 text-sm font-medium">
                     {lang("projects.projectEndDate", "Project End Date")}
                   </label>
                   <input
-                    value={projectCloseDate}
-                    onChange={(e) => {
-                      setProjectCloseDate(e.target.value);
-                      if (fieldErrors.projectCloseDate) {
-                        setFieldErrors((prev) => {
-                          const newErrors = { ...prev };
-                          delete newErrors.projectCloseDate;
-                          return newErrors;
-                        });
-                      }
-                    }}
+                    name="project_close_date"
+                    value={project?.project_close_date}
+                    onChange={(e) => handleChange(e)}
                     type="date"
-                    className={`input-field ${fieldErrors.projectCloseDate ? "border-red-500" : ""}`}
+                    className={`input-field ${fieldErrors.project_close_date ? "border-red-500" : ""}`}
                   />
-                  {fieldErrors.projectCloseDate && <div className="text-red-600 text-sm mt-1">{fieldErrors.projectCloseDate}</div>}
+                  {fieldErrors.project_close_date && <div className="mt-1 text-sm text-red-600">{fieldErrors.project_close_date}</div>}
                 </div>
               </div>
 
-              <label className="mb-1 font-medium text-sm mt-4 text-black">
+              <label className="mt-4 mb-1 text-sm font-medium text-black">
                 {lang("dashboard.uploadDocuments", "Upload Documents / Image")}
               </label>
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center text-gray-500 text-sm">
+              <div className="p-4 text-sm text-center text-gray-500 border-2 border-gray-300 border-dashed rounded-lg">
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -819,7 +720,7 @@ export default function AddModal({ open, onClose }) {
                   {lang("projects.optionalProjectImageUpload", "Optional project image upload (multiple files allowed)")}
                 </div>
                 {imagePreviews.length > 0 && (
-                  <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-2 gap-4 mt-4 md:grid-cols-3">
                     {imagePreviews.map((preview, index) => (
                       <div key={index} className="relative">
                         <img
@@ -835,7 +736,7 @@ export default function AddModal({ open, onClose }) {
                         <button
                           type="button"
                           onClick={() => handleRemoveImage(index)}
-                          className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors"
+                          className="absolute flex items-center justify-center w-6 h-6 text-white transition-colors bg-red-500 rounded-full top-1 right-1 hover:bg-red-600"
                         >
                           ✕
                         </button>
@@ -847,14 +748,14 @@ export default function AddModal({ open, onClose }) {
 
               {/* optional extra field that API expects */}
               {/* <div className="mt-4">
-                <label className="mb-1 font-medium text-sm">Project Manager (project_manage)</label>
+                <label className="mb-1 text-sm font-medium">Project Manager (project_manage)</label>
                 <input value={projectManage} onChange={(e) => setProjectManage(e.target.value)} className="input-field" placeholder="Project Manager" />
               </div> */}
             </div>
           </form>
 
           {/* Footer */}
-          <div className="flex justify-end gap-3 px-6 py-4 border-t bg-white">
+          <div className="flex justify-end gap-3 px-6 py-4 bg-white border-t">
             <button
               onClick={closeModal}
               className="cancel-btn"

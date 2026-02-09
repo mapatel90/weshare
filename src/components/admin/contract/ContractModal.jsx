@@ -14,6 +14,7 @@ import {
 } from "@mui/material";
 import { Close as CloseIcon } from "@mui/icons-material";
 import { showErrorToast } from "@/utils/topTost";
+import { buildUploadUrl } from "@/utils/common";
 
 const ContractModal = (props) => {
   const {
@@ -134,15 +135,15 @@ const ContractModal = (props) => {
                   >
                     {Array.isArray(offtakerList)
                       ? offtakerList.map((o) => (
-                          <MenuItem key={o.id} value={o.id}>
-                            {o.fullName || o.full_name || `#${o.id}`}
-                          </MenuItem>
-                        ))
+                        <MenuItem key={o.id} value={o.id}>
+                          {o.fullName || o.full_name || `#${o.id}`}
+                        </MenuItem>
+                      ))
                       : offtakerList && offtakerList.id ? (
-                          <MenuItem key={offtakerList.id} value={offtakerList.id}>
-                            {offtakerList.fullName || offtakerList.full_name || `#${offtakerList.id}`}
-                          </MenuItem>
-                        ) : null}
+                        <MenuItem key={offtakerList.id} value={offtakerList.id}>
+                          {offtakerList.fullName || offtakerList.full_name || `#${offtakerList.id}`}
+                        </MenuItem>
+                      ) : null}
                   </TextField>
                 ) : (
                   <TextField
@@ -175,15 +176,15 @@ const ContractModal = (props) => {
                   >
                     {Array.isArray(offtakerList)
                       ? offtakerList.map((o) => (
-                          <MenuItem key={o.id} value={o.id}>
-                            {o.fullName || o.full_name || `#${o.id}`}
-                          </MenuItem>
-                        ))
+                        <MenuItem key={o.id} value={o.id}>
+                          {o.fullName || o.full_name || `#${o.id}`}
+                        </MenuItem>
+                      ))
                       : offtakerList && offtakerList.id ? (
-                          <MenuItem key={offtakerList.id} value={offtakerList.id}>
-                            {offtakerList.fullName || offtakerList.full_name || `#${offtakerList.id}`}
-                          </MenuItem>
-                        ) : null}
+                        <MenuItem key={offtakerList.id} value={offtakerList.id}>
+                          {offtakerList.fullName || offtakerList.full_name || `#${offtakerList.id}`}
+                        </MenuItem>
+                      ) : null}
                   </TextField>
                 ) : (
                   <TextField
@@ -286,7 +287,7 @@ const ContractModal = (props) => {
             {(documentPreviewUrl || documentUpload) && (
               <Box>
                 {documentPreviewUrl &&
-                documentPreviewUrl.match(/\.(jpg|jpeg|png|gif)$/i) ? (
+                  documentPreviewUrl.match(/\.(jpg|jpeg|png|gif)$/i) ? (
                   <img
                     src={documentPreviewUrl}
                     alt="preview"
@@ -300,7 +301,7 @@ const ContractModal = (props) => {
                   />
                 ) : (
                   <a
-                    href={documentUpload || documentPreviewUrl}
+                    href={buildUploadUrl(documentUpload || documentPreviewUrl)}
                     target="_blank"
                     rel="noreferrer"
                   >
@@ -317,21 +318,23 @@ const ContractModal = (props) => {
               InputLabelProps={{ shrink: true }}
               fullWidth
             />
-            <TextField
-              select
-              label={lang("common.status", "Status")}
-              value={status}
-              onChange={(e) => setStatus(Number(e.target.value))}
-              fullWidth
-            >
-              <MenuItem value={0}>
-                {lang("common.pending", "Pending")}
-              </MenuItem>
-              <MenuItem value={1}>{lang("common.approved", "Approved")}</MenuItem>
-              <MenuItem value={2}>
-                {lang("common.rejected", "Rejected")}
-              </MenuItem>
-            </TextField>
+            {/* {modalType == "edit" && (
+              <TextField
+                select
+                label={lang("common.status", "Status")}
+                value={status}
+                onChange={(e) => setStatus(Number(e.target.value))}
+                fullWidth
+              >
+                <MenuItem value={0}>
+                  {lang("common.pending", "Pending")}
+                </MenuItem>
+                <MenuItem value={1}>{lang("common.approved", "Approved")}</MenuItem>
+                <MenuItem value={2}>
+                  {lang("common.rejected", "Rejected")}
+                </MenuItem>
+              </TextField>
+            )} */}
           </Box>
         </DialogContent>
 

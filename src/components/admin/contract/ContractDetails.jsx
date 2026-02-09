@@ -5,6 +5,7 @@ import { apiGet } from "@/lib/api";
 import { showErrorToast } from "@/utils/topTost";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { PROJECT_STATUS } from "@/constants/project_status";
+import { buildUploadUrl } from "@/utils/common";
 
 const ContractDetails = () => {
   const { lang } = useLanguage();
@@ -39,10 +40,7 @@ const ContractDetails = () => {
   }, [contractId, lang]);
 
   const contractName = data?.contract_title || "-";
-  const contractStatus =
-    data?.status === 0 ? "Pending" :
-      data?.status === 1 ? "Active" :
-        data?.status === 2 ? "Inactive" : "-";
+  const contractStatus = data?.status === 0 ? "Pending" : data?.status === 1 ? "Approved" : data?.status === 2 ? "Rejected" : data?.status === 3 ? "Cancelled" : "-";
   const contractDate = data?.contract_date
     ? new Date(data.contract_date).toLocaleDateString("en-GB")
     : "-";
@@ -119,7 +117,7 @@ const ContractDetails = () => {
                   <div className="mb-1 text-muted">{lang('contract.document', 'Contract Document')}</div>
                   {documentUrl ? (
                     <a
-                      href={documentUrl}
+                      href={buildUploadUrl(documentUrl)}
                       target="_blank"
                       rel="noreferrer"
                       className="text-primary"

@@ -11,7 +11,7 @@ import {
   MapPin,
   Filter,
 } from "lucide-react";
-import { getFullImageUrl } from "@/utils/common";
+import { buildUploadUrl, getFullImageUrl } from "@/utils/common";
 import { getPrimaryProjectImage } from "@/utils/projectUtils";
 import { apiGet } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
@@ -62,7 +62,7 @@ const normalizeApiProject = (project) => {
   };
 
   const coverImage = getPrimaryProjectImage(project);
-  const normalizedCover = coverImage ? getFullImageUrl(coverImage) : null;
+  const normalizedCover = coverImage ? buildUploadUrl(coverImage) : buildUploadUrl("/uploads/general/noimage.jpeg");
 
   const status_id = project?.project_status_id ?? null;
   const STATUS_LABELS = {
@@ -619,8 +619,8 @@ const SolarProjectTable = () => {
                     <div className="relative w-full h-36 sm:h-44 md:h-40 lg:h-36 xl:h-40 overflow-hidden">
                       <img
                         src={
-                          project.project_image ||
-                          getFullImageUrl("/uploads/general/noimage.jpeg")
+                          buildUploadUrl(project.project_image) ||
+                          buildUploadUrl("/uploads/general/noimage.jpeg")
                         }
                         alt={project.project_name}
                         className="object-cover w-full h-full"

@@ -41,6 +41,16 @@ const PageHeaderTitle = () => {
             { name: lang("payouts.payout_details", "Payout Details"), href: null }
         ];
     }
+    else if (
+        parts.length >= 2 &&
+        parts[0] === "investor" &&
+        parts[1] === "myprofile"
+    ) {
+        title = lang("page_title.profile", "Profile");
+        breadcrumb = [
+            { name: title, href: "/investor/myprofile" }
+        ];
+    }
     else {
         const pageKey = parts[parts.length - 1] || "dashboard";
         const pageName = lang(`menu.${pageKey}`, pageKey.replace(/-/g, " "));

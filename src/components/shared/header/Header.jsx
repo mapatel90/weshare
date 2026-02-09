@@ -180,7 +180,6 @@ const Header = () => {
                 <!--! [Start] Header Right !--> */}
                 <div className="header-right ms-auto">
                     <div className="d-flex align-items-center">
-                        {/* <SearchModal /> */}
                         <NotificationsModal />
                         <LanguagesModal />
                         <div className="nxl-h-item dark-light-theme">
@@ -191,11 +190,6 @@ const Header = () => {
                                 <FiSun size={20} />
                             </div>
                         </div>
-                        <div className="nxl-h-item dark-light-theme">
-                            
-                        </div>
-                        {/* <TimesheetsModal /> */}
-
                         <ProfileModal />
                     </div>
                 </div>

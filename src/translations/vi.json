@@ -52,7 +52,8 @@
     "home": "Trang chủ",
     "payouts": "khoản thanh toán",
     "email_templates": "Mẫu email",
-    "company": "Công ty"
+    "company": "Công ty",
+    "myprofile": "Hồ sơ của tôi"
   },
   "header": {
     "dashboard": "Bảng điều khiển",
@@ -289,7 +290,11 @@
     "notifications": "Thông báo",
     "viewAllNotifications": "Xem tất cả thông báo",
     "markAllRead": "Đánh dấu tất cả đã đọc",
-    "noNotifications": "Không có thông báo"
+    "noNotifications": "Không có thông báo",
+    "change_photo": "Thay đổi ảnh",
+    "upload_photo": "Tải lên ảnh",
+    "saving_changes": "Đang lưu thay đổi...",
+    "save_changes": "Lưu thay đổi"
   },
   "messages": {
     "cannotUndoDelete": "Bạn sẽ không thể hoàn tác điều này!",
@@ -1221,7 +1226,8 @@
     "suspended": "Bị đình chỉ",
     "banned": "Bị cấm",
     "phonenumber": "Số điện thoại",
-    "userRole": "Vai trò người dùng"
+    "userRole": "Vai trò người dùng",
+    "email_address": "Địa chỉ email"
   },
   "invoice": {
     "item": "Mục",
@@ -1621,9 +1627,9 @@
       "tree_planted": "Cây trồng"
     },
     "energyProduction": {
-      "energy_production": "Tổng quan về sản xuất năng lượng",
-      "monthly_energy_production": "Tổng quan về sản xuất chi phí điện",
-      "yearly_energy_production": "Chi phí điện hàng tháng (VND)"
+      "energy_production": "Biểu đồ công suất hàng ngày (Tải, PV & Lưới điện)",
+      "monthly_energy_production": "Chi phí tiền điện hàng ngày (VND)",
+      "yearly_energy_production": "Chi phí tiền điện hàng tháng (VND)"
     }
   },
   "projecttablelabel": {
@@ -1683,12 +1689,18 @@
     "project_status_message": "Trạng thái của dự án \"{{project_name}}\" đã được cập nhật thành \"{{status_name}}\".",
     "investor_marked_title": "Nhà đầu tư được chỉ định",
     "investor_marked_message": "Bạn đã được chỉ định làm nhà đầu tư cho dự án \"{{project_name}}\" bởi \"{{assigned_by}}\".",
+    "investor_interest_title": "Nhà đầu tư quan tâm mới",
+    "investor_interest_message": "{{investor_name}} đã quan tâm đến dự án \"{{project_name}}\" của bạn.",
+    "investor_interest_admin_title": "Nhà đầu tư quan tâm mới",
+    "investor_interest_admin_message": "{{investor_name}} đã quan tâm đến dự án \"{{project_name}}\" (Người nhận: {{offtaker_name}}).",
     "payment_approved": "Thanh toán cho hóa đơn \"{{invoice_number}}\" với số tiền \"{{amount}}\" đã được thanh toán thành công.",
     "invoice_title": "Hóa đơn mới đã được tạo",
     "invoice_update_title": "Hóa đơn đã được cập nhật",
     "invoice_updated": "Hóa đơn \"{{invoice_number}}\" đã được cập nhật bởi \"{{updated_by}}\".",
     "new_payout_generated": "Khoản thanh toán mới đã được tạo",
-    "payout_generated": "Khoản thanh toán \"{{payout_prefix}}\" đã được WeShare giải ngân."
+    "payout_generated": "Khoản thanh toán \"{{payout_prefix}}\" đã được WeShare giải ngân.",
+    "remove_investor_title": "Nhà đầu tư đã bị xóa",
+    "remove_investor_message": "Bạn đã bị xóa làm nhà đầu tư cho dự án \"{{project_name}}\" bởi WeShare."
   },
   "notification": {
     "title": "Thông báo",
@@ -1770,5 +1782,31 @@
     "privacy": "Sự riêng tư",
     "policy": "Chính sách",
     "message2": "Cập nhật lần cuối ngày 31 tháng 10 năm 2025"
+  },
+  "profile": {
+    "preferences": "Tùy chọn",
+    "language": "Ngôn ngữ",
+    "profile_picture": "Ảnh đại diện",
+    "profile_image_format": "JPG, PNG, GIF hoặc WEBP. Kích thước tối đa 5MB",
+    "new_image_selected": "Ảnh mới đã được chọn. Vui lòng nhấn Lưu thay đổi dưới để tải lên.",
+    "personal_information": "Thông tin cá nhân",
+    "address_information": "Thông tin địa chỉ",
+    "address_line_1": "Địa chỉ 1",
+    "address_line_2": "Địa chỉ 2",
+    "address_line_1_placeholder": "Địa chỉ 1",
+    "address_line_2_placeholder": "Địa chỉ 2",
+    "country": "Quốc gia",
+    "country_placeholder": "Chọn quốc gia",
+    "state": "Tiểu bang",
+    "state_placeholder": "Chọn tiểu bang"
+  },
+  "chart_label": {
+    "electricityConsumption": "Lượng điện tiêu thụ hàng ngày theo nguồn (WeShare/Lưới điện)",
+    "weshare": "WeShare của",
+    "evn": "EVN của",
+    "saving": "Tiết kiệm của",
+    "grid": "Lưới điện của",
+    "load": "Tải",
+    "pv": "PV"
   }
 }

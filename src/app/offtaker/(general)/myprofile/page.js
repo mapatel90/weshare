@@ -6,7 +6,7 @@ import MyProfile from '@/components/portal/myprofile/MyProfile'
 const page = () => {
     return (
         <>
-            <DynamicTitle titleKey="notifications.notificationlist" />
+            <DynamicTitle titleKey="page_title.profile" />
             <div className='row'>
               <MyProfile />
             </div>

@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 import ContractModal from "./ContractModal";
 import { useAuth } from "@/contexts/AuthContext";
+import { buildUploadUrl } from "@/utils/common";
 
 const Contract = ({ projectId, handleCloseForm, handleSaveAction }) => {
   const { lang } = useLanguage();
@@ -56,7 +57,7 @@ const Contract = ({ projectId, handleCloseForm, handleSaveAction }) => {
     const activeContracts = contracts.filter(
       (c) =>
         Number(c.project_id) === Number(projectId) &&
-        Number(c.status) !== 4
+        Number(c.status) !== 3
     );
 
     const hasInvestorContract = activeContracts.some(
@@ -138,7 +139,7 @@ const Contract = ({ projectId, handleCloseForm, handleSaveAction }) => {
       const contractsForProject = contracts.filter(
         (c) =>
           Number(c.project_id) === Number(projectId) &&
-          Number(c.status) !== 4
+          Number(c.status) !== 3
       );
       if (!contractsForProject.length) {
         setShowPartySelection(true);
@@ -371,7 +372,7 @@ const Contract = ({ projectId, handleCloseForm, handleSaveAction }) => {
 
     try {
       const res = await apiPut(`/api/contracts/${row.id}/status`, {
-        status: 4,
+        status: 3,
       });
       if (res?.success) {
         showSuccessToast(lang("contract.cancelled", "Contract cancelled successfully"));
@@ -496,7 +497,7 @@ const Contract = ({ projectId, handleCloseForm, handleSaveAction }) => {
       cell: (info) => {
         const v = info.getValue();
         return v ? (
-          <a href={v} target="_blank" rel="noreferrer">
+          <a href={buildUploadUrl(v)} target="_blank" rel="noreferrer">
             View
           </a>
         ) : (
@@ -510,7 +511,7 @@ const Contract = ({ projectId, handleCloseForm, handleSaveAction }) => {
       cell: (info) => {
         const v = info.getValue();
         return v ? (
-          <a href={v} target="_blank" rel="noreferrer">
+          <a href={buildUploadUrl(v)} target="_blank" rel="noreferrer">
             {lang("common.view", "View")}
           </a>
         ) : (
@@ -555,7 +556,7 @@ const Contract = ({ projectId, handleCloseForm, handleSaveAction }) => {
               {lang("common.inactives", "Rejected")}
             </span>
           );
-        } else if (status == 4) {
+        } else if (status == 3) {
           return (
             <span className="badge bg-soft-info text-info">
               {lang("contract.cancel", "Cancel")}
@@ -577,8 +578,8 @@ const Contract = ({ projectId, handleCloseForm, handleSaveAction }) => {
         const item = row.original;
         const status = item.status ?? 0;
 
-        // If status is 4 (Cancelled) => no action buttons
-        if (status === 4) {
+        // If status is 3 (Cancelled) => no action buttons
+        if (status === 3) {
           return '-';
         }
 

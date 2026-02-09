@@ -5,6 +5,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import "./styles/exchange-hub-custom.css";
 import "./styles/responsive.css";
 import {
+  buildUploadUrl,
   formatEnergyUnit,
   formatShort,
   getFullImageUrl,
@@ -89,7 +90,7 @@ const ProjectCard = ({ project, activeTab }) => {
     const cover = getPrimaryProjectImage(project);
     if (!cover) return getFullImageUrl("/uploads/general/noimage_2.png");
     return (
-      getFullImageUrl(cover) ||
+      buildUploadUrl(cover) ||
       getFullImageUrl("/uploads/general/noimage_2.png")
     );
   };

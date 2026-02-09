@@ -10,6 +10,7 @@ import { apiGet, apiPost, apiUpload } from "@/lib/api";
 import { PROJECT_STATUS } from "@/constants/project_status";
 import { usePriceWithCurrency } from "@/hooks/usePriceWithCurrency";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { buildUploadUrl } from "@/utils/common";
 
 const AddPayout = () => {
     const { lang } = useLanguage();
@@ -62,7 +63,7 @@ const AddPayout = () => {
                 setInvestorPercent(Number(data?.investor_percent || 0));
                 setInvester(data.users?.full_name || "");
                 setTransactionId(data?.transaction_id || "");
-                setDocumentUrl(data?.document || null);
+                setDocumentUrl(buildUploadUrl(data?.document) || null);
             } else {
                 // ADD MODE RESET
                 setEditData(null);

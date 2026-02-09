@@ -9,11 +9,12 @@ import ProjectOverviewChart from "../../admin/projectsCreate/projectViewSection/
 import AOS from "aos";
 import "aos/dist/aos.css";
 import "./styles/exchange-hub-custom.css";
-import { getFullImageUrl } from "@/utils/common";
+import { buildUploadUrl, getFullImageUrl } from "@/utils/common";
 import { getPrimaryProjectImage } from "@/utils/projectUtils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import InvestDialog from "./InvestDialog";
+import { PROJECT_STATUS } from "@/constants/project_status";
 
 // Dynamically import ApexCharts to avoid SSR issues
 const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
@@ -202,35 +203,32 @@ const ProjectDetail = ({ projectId }) => {
 
   const getProjectMainImage = () => {
     const cover = getPrimaryProjectImage(project);
-    return cover ? getFullImageUrl(cover) : getFullImageUrl("/uploads/general/noimage.jpeg");
+    return cover ? buildUploadUrl(cover) : getFullImageUrl("/uploads/general/noimage.jpeg");
   };
 
   // Determine reliability badge based on ROI
   const getReliabilityBadge = () => {
-    if (!project)
-      return { text: "Loading...", icon: "⚪", class: "badge-moderate" };
-
-    const roi = parseFloat(project.investor_profit || 0);
-    if (roi >= 12)
+    const status = project?.project_status_id;
+    if (status === PROJECT_STATUS.UPCOMING) {
       return {
-        text: lang("home.exchangeHub.highReliability") || "High Reliability",
-        icon: "🟢",
-        class: "badge-high",
-      };
-    if (roi >= 8)
-      return {
-        text:
-          lang("home.exchangeHub.moderateReliability") ||
-          "Moderate Reliability",
+        text: lang("project_status.upcoming") || "Upcoming",
         icon: "🟡",
-        class: "badge-moderate",
+        class: "badge-upcoming",
       };
-    return {
-      text:
-        lang("home.exchangeHub.premiumReliability") || "Premium Reliability",
-      icon: "🔵",
-      class: "badge-premium",
-    };
+    }
+    if (status === PROJECT_STATUS.RUNNING) {
+      return {
+        text: lang("project_status.running") || "Running",
+        icon: "🟢",
+        class: "badge-running",
+      };
+    } if (status === PROJECT_STATUS.PENDING) {
+      return {
+        text: lang("project_status.pending") || "Pending",
+        icon: "🔵",
+        class: "badge-pending",
+      };
+    }
   };
 
   // KWh & Revenue Chart Data
@@ -546,16 +544,12 @@ const ProjectDetail = ({ projectId }) => {
                       project.project_size
                     )} kWp solar power project stands as a reliable and high-performing renewable energy asset, generating approximately ${formatNumber(
                       accumulative
-                    )} kWh annually. With a strong ROI of ${
-                      project.investor_profit
-                    }% and ${
-                      project.lease_term || "eight"
-                    } years remaining on its lease term, it continues to deliver consistent financial returns while supporting clean energy adoption. Backed by a trusted offtaker ${
-                      project.offtaker?.company_name ||
-                      project.offtaker?.fullName ||
-                      ""
-                    } with a ${
-                      project.offtaker_reliability_score || "92"
+                    )} kWh annually. With a strong ROI of ${project.investor_profit
+                    }% and ${project.lease_term || "eight"
+                    } years remaining on its lease term, it continues to deliver consistent financial returns while supporting clean energy adoption. Backed by a trusted offtaker ${project.offtaker?.company_name ||
+                    project.offtaker?.fullName ||
+                    ""
+                    } with a ${project.offtaker_reliability_score || "92"
                     }% reliability index, the project ensures steady revenue flow and long-term stability. Initially commissioned and now listed for resale, this system presents an excellent opportunity for investors seeking sustainable and profitable resale options.`}
                 </p>
               </div>
@@ -755,7 +749,7 @@ const ProjectDetail = ({ projectId }) => {
                     const isInvestor = user && user.role === 4;
                     if (!isInvestor) return null;
                     if (hasExpressedInterest) {
-                        return null;
+                      return null;
                     }
                     return (
                       <button
@@ -782,7 +776,7 @@ const ProjectDetail = ({ projectId }) => {
                   testimonials.map((t, idx) => (
                     <div className="testi-card" key={t.id || idx}>
                       <img
-                        src={t.image || "/images/avatar/user-img.png"}
+                        src={buildUploadUrl(t?.image) || "/images/avatar/user-img.png"}
                         alt="testimonial"
                         onError={(e) => {
                           e.target.src = "/images/avatar/user-img.png";

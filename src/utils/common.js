@@ -272,3 +272,28 @@ export const getTimeLeft = (closeDate) => {
 
   return `${days} days`
 }
+
+const UPLOAD_URL = process.env.NEXT_PUBLIC_UPLOAD_URL;
+
+export const isS3Url = (url = "") => {
+  if (!url) return false;
+
+  return /^https:\/\/.+\.s3(\.[a-z0-9-]+)?\.amazonaws\.com\//i.test(url);
+};
+
+export const buildUploadUrl = (key = "") => {
+  if (!key) return null;
+
+  // Already an S3 URL
+  if (isS3Url(key)) {
+    return key;
+  }
+
+  // Any other external URL (cdn, google, etc.)
+  if (key.startsWith("http://") || key.startsWith("https://")) {
+    return key;
+  }
+
+  // Object key → build from env
+  return `${UPLOAD_URL}${key}`;
+};

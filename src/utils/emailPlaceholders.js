@@ -32,6 +32,9 @@ export const EMAIL_PLACEHOLDERS = [
   { key: "[site_url]", label: "Site URL", description: "Website URL" },
   { key: "[verify_link]", label: "Verification Link", description: "Account verification URL" },
   { key: "[login_url]", label: "Login URL", description: "Portal login URL" },
+  { key: "[privacy_policy_url]", label: "Privacy Policy URL", description: "Link to privacy policy" },
+  { key: "[terms_of_service_url]", label: "Terms of Service URL", description: "Link to terms of service" },
+  { key: "[unsubscribe_url]", label: "Unsubscribe URL", description: "Unsubscribe link" },
 ];
 
 // Test/Preview values for local testing
@@ -61,6 +64,9 @@ export const PLACEHOLDER_TEST_VALUES = {
   "[site_url]": "https://weshare.com",
   "[verify_link]": "https://weshare.com/verify/abc123",
   "[login_url]": "https://weshare.com/login",
+  "[privacy_policy_url]": "https://weshare.com/privacy",
+  "[terms_of_service_url]": "https://weshare.com/terms",
+  "[unsubscribe_url]": "https://weshare.com/unsubscribe",
 };
 
 /**

@@ -8,7 +8,7 @@ import 'aos/dist/aos.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { getFullImageUrl } from '@/utils/common';
+import { buildUploadUrl, getFullImageUrl } from '@/utils/common';
 
 const NewsDetailRightSection = ({ relatedNews, currentNewsSlug }) => {
   const { lang } = useLanguage();
@@ -54,7 +54,7 @@ const NewsDetailRightSection = ({ relatedNews, currentNewsSlug }) => {
             >
               {news?.image && (
                 <Image
-                  src={getFullImageUrl(news?.image)}
+                  src={buildUploadUrl(news?.image)}
                   alt={news.title || 'Related News'}
                   className="rounded me-3"
                   width={80}
