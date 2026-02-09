@@ -9,69 +9,77 @@ import { usePathname } from 'next/navigation';
 
 function PannelSidebar() {
     const { lang } = useLanguage();
-    const [activeMenu, setActiveMenu] = useState('');
-    const pathname = usePathname();
     const handleClose = () => {
         closeSidebars();
     };
-
+    const [activeMenu, setActiveMenu] = useState('');
+    const [reportsOpen, setReportsOpen] = useState(false);
+    const pathname = usePathname();
+    
     useEffect(() => {
-        setActiveMenu(pathname.split('/').pop());
+        // Remove trailing slash and get last segment
+        const cleanPath = pathname.replace(/\/$/, '');
+        const lastSegment = cleanPath.split('/').pop() || '';
+        setActiveMenu(lastSegment);
+        
+        // Auto-open reports submenu if on a reports page
+        if (lastSegment === 'roi-reports' || lastSegment === 'investment-summary-reports') {
+            setReportsOpen(true);
+        }
     }, [pathname]);
-
+    
     return (
         <div className="text-sidebar" id="textSidebar">
             <button className="close-sidebar-btn" onClick={handleClose}>✕</button>
             <div className="menu-section">
-                <div
+                <Link
+                    href="/investor/dashboard"
                     className={`menu-header menu-item${activeMenu === 'dashboard' ? ' active' : ''}`}
-                    onClick={() => {
-                        handleClose();
-                        window.location.href = '/investor/dashboard';
-                    }}
+                    onClick={handleClose}
                     style={{ cursor: 'pointer' }}
                 >
                     <div>{lang("offtaker_login.sidebar.dashboard")}</div>
-                </div>
+                </Link>
                 <div className="menu-section">
                     <Link
                         href="/investor/projects"
-                        className={`menu-item${activeMenu === 'projects' ? ' active' : ''}`}
-                        onClick={() => setActiveMenu('projects')}
+                        className={`menu-header menu-item${activeMenu === 'projects' ? ' active' : ''}`}
+                        onClick={handleClose}
                     >{lang("offtaker_login.sidebar.myprojects")}</Link>
                 </div>
                 <div className="menu-section">
                     <Link
                         href="/investor/payouts"
                         className={`menu-item${activeMenu === 'payouts' ? ' active' : ''}`}
-                        onClick={() => setActiveMenu('payouts')}
+                        onClick={handleClose}
                     >{lang("offtaker_login.sidebar.payouts")}</Link>
                 </div>
                 <div className="menu-section">
                     <Link
                         href="/investor/notifications"
                         className={`menu-item${activeMenu === 'notifications' ? ' active' : ''}`}
-                        onClick={() => setActiveMenu('notifications')}
+                        onClick={handleClose}
                     >{lang("offtaker_login.sidebar.notifications")}</Link>
                 </div>
                 <div className="menu-section">
                     <div
-                        className={`menu-item${activeMenu == 'roi-reports' || activeMenu == 'investment-summary-reports' ? ' active' : ''}`}
-                        onClick={() => setActiveMenu('reports')}
+                        className={`menu-item${activeMenu === 'roi-reports' || activeMenu === 'investment-summary-reports' ? ' active' : ''}`}
+                        onClick={() => setReportsOpen(!reportsOpen)}
+                        style={{ cursor: 'pointer' }}
                     >
                         <span>{lang("offtaker_login.sidebar.reports")}</span>
-                        <ChevronDown className="w-4 h-4" />
+                        <ChevronDown className={`w-4 h-4 transition-transform ${reportsOpen ? 'rotate-180' : ''}`} />
                     </div>
-                    <div className={`submenu${activeMenu == 'reports' ? ' show' : ''}`}>
-                        <Link href="/investor/reports/roi-reports/" className="menu-item">{lang("menu.roireports")}</Link>
-                        <Link href="/investor/reports/investment-summary-reports/" className="menu-item">{lang("menu.investmentsummaryreports")}</Link>
+                    <div className={`submenu${reportsOpen ? ' show' : ''}`}>
+                        <Link href="/investor/reports/roi-reports" className={`menu-item${activeMenu === 'roi-reports' ? ' active' : ''}`} onClick={handleClose}>{lang("menu.roireports")}</Link>
+                        <Link href="/investor/reports/investment-summary-reports" className={`menu-item${activeMenu === 'investment-summary-reports' ? ' active' : ''}`} onClick={handleClose}>{lang("menu.investmentsummaryreports")}</Link>
                     </div>
                 </div>
                 <div className="menu-section">
                     <Link
                         href="/investor/contracts"
                         className={`menu-item${activeMenu === 'contracts' ? ' active' : ''}`}
-                        onClick={() => setActiveMenu('contracts')}
+                        onClick={handleClose}
                     >{lang("offtaker_login.sidebar.contracts")}</Link>
                 </div>
             </div>
