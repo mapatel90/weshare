@@ -1845,6 +1845,12 @@
     "errorOccurred": "An error occurred. Please try again.",
     "selectStatus": "Select Status"
   },
+  "privacyPolicy": {
+    "title": "Privacy Policy",
+    "privacy": "Privacy ",
+    "policy": "Policy",
+    "message2": "Last Updated on 31st October, 2025"
+  },
   "profile": {
     "preferences": "Preferences",
     "language": "Language",
