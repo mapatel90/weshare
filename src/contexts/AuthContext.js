@@ -64,7 +64,8 @@ export default function AuthProvider({ children }) {
         state_id: data.data.state_id || "",
         city_id: data.data.city_id || "",
         zipcode: data.data.zipcode || "",
-        avatar: data.data.user_image || null
+        avatar: data.data.user_image || null,
+        permissions: data.data.permissions || {}
       }
 
       setUser(transformedUser)
@@ -138,7 +139,8 @@ export default function AuthProvider({ children }) {
           phone: data.data.user.phoneNumber,
           role: data.data.user.role_id,
           status: data.data.user.status === 1 ? 'active' : 'inactive',
-          avatar: data.data.user.avatar || null
+          avatar: data.data.user.avatar || null,
+          permissions: data.data.user.permissions || {}
         }
         // Set user
         setUser(transformedUser)

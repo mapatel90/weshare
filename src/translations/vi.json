@@ -1073,7 +1073,13 @@
     "updatedAt": "Ngày cập nhật",
     "createdSuccessfully": "Vai trò đã được tạo thành công",
     "updatedSuccessfully": "Vai trò đã được cập nhật thành công",
-    "deletedSuccessfully": "Đã xóa vai trò thành công"
+    "deletedSuccessfully": "Đã xóa vai trò thành công",
+    "managePermissions": "Quản lý quyền hạn",
+    "features": "Tính năng",
+    "capabilities": "Quyền hạn",
+    "rolePermissions": "Quyền hạn vai trò",
+    "permissionsUpdated": "Quyền hạn đã được cập nhật thành công",
+    "permissionsUpdateFailed": "Không thể cập nhật quyền hạn"
   },
   "smtp": {
     "title": "Cấu hình SMTP",

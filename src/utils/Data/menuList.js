@@ -4,6 +4,7 @@ export const menuList = [
     name: "dashboards",
     path: "/admin/dashboards",
     icon: "feather-airplay",
+    permission: "dashboards",
     dropdownMenu: false,
   },
   {
@@ -11,17 +12,20 @@ export const menuList = [
     name: "projects",
     path: "#",
     icon: "feather-briefcase",
+    permission: "projects",
     dropdownMenu: [
       {
         id: 1,
         name: "List",
         path: "/admin/projects/list",
+        permission: "list",
         subdropdownMenu: false,
       },
       {
         id: 2,
         name: "Type",
         path: "/admin/projects/type",
+        permission: "type",
         subdropdownMenu: false,
       },
     ],
@@ -31,6 +35,7 @@ export const menuList = [
     name: "users",
     path: "/admin/users/list",
     icon: "feather-users",
+    permission: "users",
     dropdownMenu: false,
   },
   {
@@ -38,23 +43,27 @@ export const menuList = [
     name: "inverter",
     path: "#",
     icon: "feather-archive",
+    permission: "inverter",
     dropdownMenu: [
       {
         id: 1,
         name: "Type",
         path: "/admin/inverter/type",
+        permission: "inverter_type",
         subdropdownMenu: false,
       },
       {
         id: 2,
         name: "company",
         path: "/admin/inverter/company",
+        permission: "inverter_company",
         subdropdownMenu: false,
       },
       {
         id: 3,
         name: "list",
         path: "/admin/inverter/list",
+        permission: "inverter_list",
         subdropdownMenu: false,
       },
     ],
@@ -64,23 +73,27 @@ export const menuList = [
     name: "finance",
     path: "#",
     icon: "feather-file-text",
+    permission: "finance",
     dropdownMenu: [
       {
         id: 1,
         name: "invoices",
         path: "/admin/finance/invoice",
+        permission: "invoices",
         subdropdownMenu: false,
       },
       {
         id: 2,
         name: "payments",
         path: "/admin/finance/payments",
+        permission: "payments",
         subdropdownMenu: false,
       },
       {
-        id: 2,
+        id: 3,
         name: "payouts",
         path: "/admin/finance/payouts",
+        permission: "payouts",
         subdropdownMenu: false,
       },
     ],
@@ -90,6 +103,7 @@ export const menuList = [
     name: "contracts",
     path: "/admin/contract/list",
     icon: "feather-shield",
+    permission: "contracts",
     dropdownMenu: false,
   },
   {
@@ -97,6 +111,7 @@ export const menuList = [
     name: "lease requests",
     path: "/admin/lease-request/list",
     icon: "feather-repeat",
+    permission: "lease_requests",
     dropdownMenu: false,
   },
   {
@@ -104,6 +119,7 @@ export const menuList = [
     name: "blog",
     path: "/admin/blog/list",
     icon: "feather-youtube",
+    permission: "blog",
     dropdownMenu: false,
   },
   {
@@ -111,6 +127,7 @@ export const menuList = [
     name: "news",
     path: "/admin/news/list",
     icon: "feather-bell",
+    permission: "news",
     dropdownMenu: false,
   },
   {
@@ -118,6 +135,7 @@ export const menuList = [
     name: "testimonials",
     path: "/admin/testimonial/list",
     icon: "feather-star",
+    permission: "testimonials",
     dropdownMenu: false,
   },
   {
@@ -125,6 +143,7 @@ export const menuList = [
     name: "contact us",
     path: "/admin/contact-us/list",
     icon: "feather-globe",
+    permission: "contact_us",
     dropdownMenu: false,
   },
   {
@@ -132,6 +151,7 @@ export const menuList = [
     name: "notifications",
     path: "/admin/notification/list",
     icon: "feather-tag",
+    permission: "notifications",
     dropdownMenu: false,
   },
   {
@@ -139,23 +159,27 @@ export const menuList = [
     name: "Reports",
     path: "#",
     icon: "feather-file-text",
+    permission: "reports",
     dropdownMenu: [
       {
         id: 1,
         name: "Inverter evn report",
         path: "/admin/reports/inverter-evn",
+        permission: "inverter_evn_report",
         subdropdownMenu: false,
       },
       {
         id: 2,
         name: "Project evn report",
         path: "/admin/reports/project-env",
+        permission: "project_evn_report",
         subdropdownMenu: false,
       },
       {
         id: 3,
         name: "Saving Report",
         path: "/admin/reports/saving-report",
+        permission: "saving_report",
         subdropdownMenu: false,
       },
       // {
@@ -177,11 +201,13 @@ export const menuList = [
     name: "settings",
     path: "#",
     icon: "feather-settings",
+    permission: "settings",
     dropdownMenu: [
       {
         id: 1,
         name: "general",
         path: "/admin/settings/general",
+        permission: "general_settings",
         subdropdownMenu: false,
       },
       // {
@@ -194,6 +220,7 @@ export const menuList = [
         id: 2,
         name: "Roles Management",
         path: "/admin/settings/role",
+        permission: "roles_management",
         subdropdownMenu: false,
       },
       // {
@@ -206,12 +233,14 @@ export const menuList = [
         id: 3,
         name: "SMTP",
         path: "/admin/settings/smtp",
+        permission: "smtp_settings",
         subdropdownMenu: false,
       },
       {
         id: 4,
         name: "Email Templates",
         path: "/admin/email_template/list",
+        permission: "email_templates",
         subdropdownMenu: false,
       },
       // {
@@ -236,6 +265,7 @@ export const menuList = [
         id: 5,
         name: "Finance",
         path: "/admin/settings/finance",
+        permission: "finance_settings",
         subdropdownMenu: false,
       },
       // {
@@ -266,6 +296,7 @@ export const menuList = [
         id: 6,
         name: "Miscellaneous",
         path: "/admin/settings/miscellaneous",
+        permission: "miscellaneous",
         subdropdownMenu: false,
       },
     ],
