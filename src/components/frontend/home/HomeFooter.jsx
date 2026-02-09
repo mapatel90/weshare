@@ -287,7 +287,7 @@ const HomeFooter = () => {
             {lang("home.footer.copyright")}
           </p>
           <div className="footer-links d-flex gap-3">
-            <Link href="#">{lang("home.footer.privacyPolicy")}</Link>
+            <Link href="/frontend/privacy_policy">{lang("home.footer.privacyPolicy")}</Link>
             <Link href="#">{lang("home.footer.termsOfService")}</Link>
           </div>
         </div>

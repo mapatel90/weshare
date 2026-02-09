@@ -1764,5 +1764,11 @@
     "deletedSuccessfully": "Công ty đã được xóa thành công",
     "errorOccurred": "Đã xảy ra lỗi. Vui lòng thử lại.",
     "selectStatus": "Chọn trạng thái"
+  },
+  "privacyPolicy": {
+    "title": "Chính sách bảo mật",
+    "privacy": "Sự riêng tư",
+    "policy": "Chính sách",
+    "message2": "Cập nhật lần cuối ngày 31 tháng 10 năm 2025"
   }
 }
