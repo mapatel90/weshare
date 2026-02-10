@@ -170,8 +170,6 @@ router.get("/view/template/:slug", async (req, res) => {
     // Get complete template data with settings
     const completeTemplateData = await getEmailTemplateData(templateData);
 
-    console.log("completeTemplateData", completeTemplateData);
-
     // Fetch template from database
     const template = await prisma.email_template.findFirst({
       where: { slug }

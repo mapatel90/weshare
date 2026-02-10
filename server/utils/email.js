@@ -3,6 +3,7 @@ import { PrismaClient } from '@prisma/client';
 import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { generateSignedUrl } from '../services/s3Service.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -45,7 +46,11 @@ export const getEmailTemplateData = async (customData = {}) => {
       'site_address',
       'site_city',
       'site_state',
-      'site_country'
+      'site_country',
+      's3_public_url',
+      's3_bucket_name',
+      's3_aws_region',
+      's3_file_visibility'
     ];
 
     // Fetch all settings from database
@@ -59,14 +64,13 @@ export const getEmailTemplateData = async (customData = {}) => {
       return acc;
     }, {});
 
-    // Helper function to build full image URL
-    const buildImageUrl = (imagePath) => {
+    // Helper function to build full image URL (async for signed URLs)
+    const buildImageUrl = async (imagePath) => {
       console.log('🔍 buildImageUrl - Input imagePath:', imagePath);
-      console.log('🔍 buildImageUrl - UPLOAD_URL:', process.env.NEXT_PUBLIC_UPLOAD_URL);
 
       if (!imagePath) {
-        console.log('⚠️ No imagePath, returning UPLOAD_URL');
-        return process.env.NEXT_PUBLIC_UPLOAD_URL || '';
+        console.log('⚠️ No imagePath provided');
+        return '';
       }
 
       // If already a full URL (starts with http:// or https://), return as-is
@@ -75,11 +79,49 @@ export const getEmailTemplateData = async (customData = {}) => {
         return imagePath;
       }
 
-      // Otherwise, prepend UPLOAD_URL to the S3 key
-      const baseUrl = process.env.NEXT_PUBLIC_UPLOAD_URL || '';
-      // Remove leading slash from imagePath if exists to avoid double slashes
+      // Check if S3 files are private - need signed URL
+      const fileVisibility = settingsObj.s3_file_visibility || 'private';
+
+      if (fileVisibility === 'private') {
+        try {
+          console.log('🔐 Private file detected, generating signed URL...');
+          const signedUrl = await generateSignedUrl(imagePath, 86400); // 24 hours expiry
+          console.log('✅ Generated signed URL:', signedUrl);
+          return signedUrl;
+        } catch (error) {
+          console.error('❌ Failed to generate signed URL:', error.message);
+          // Fall through to build static URL as fallback
+        }
+      }
+
+      // For public files or if signed URL fails, build static URL
+      let baseUrl = '';
+
+      // Try S3 public URL first (if custom domain/CloudFront is configured)
+      if (settingsObj.s3_public_url) {
+        baseUrl = settingsObj.s3_public_url;
+        console.log('✅ Using S3 public URL from settings:', baseUrl);
+      }
+      // Otherwise, construct standard S3 URL from bucket and region
+      else if (settingsObj.s3_bucket_name && settingsObj.s3_aws_region) {
+        baseUrl = `https://${settingsObj.s3_bucket_name}.s3.${settingsObj.s3_aws_region}.amazonaws.com`;
+        console.log('✅ Constructed S3 URL from bucket/region:', baseUrl);
+      }
+      // Fallback to environment variable
+      else {
+        baseUrl = process.env.UPLOAD_URL || process.env.NEXT_PUBLIC_UPLOAD_URL || '';
+        console.log('⚠️ Using fallback UPLOAD_URL:', baseUrl);
+      }
+
+      if (!baseUrl) {
+        console.error('❌ No base URL available for image. Please configure S3 settings.');
+        return imagePath; // Return the path as-is
+      }
+
+      // Ensure baseUrl ends with slash and path doesn't start with slash
+      const cleanBaseUrl = baseUrl.endsWith('/') ? baseUrl : baseUrl + '/';
       const cleanPath = imagePath.startsWith('/') ? imagePath.substring(1) : imagePath;
-      const finalUrl = baseUrl + cleanPath;
+      const finalUrl = cleanBaseUrl + cleanPath;
 
       console.log('✅ Built final URL:', finalUrl);
       return finalUrl;
@@ -89,7 +131,7 @@ export const getEmailTemplateData = async (customData = {}) => {
     const templateData = {
       // Company information
       company_name: settingsObj.site_name || 'WeShare Energy',
-      company_logo: buildImageUrl(settingsObj.site_image),
+      company_logo: await buildImageUrl(settingsObj.site_image),
 
       // Support information
       support_email: settingsObj.site_email || 'support@weshare.com',
@@ -113,7 +155,7 @@ export const getEmailTemplateData = async (customData = {}) => {
     // Return defaults with custom data if database fetch fails
     return {
       company_name: 'WeShare Energy',
-      company_logo: process.env.UPLOAD_URL || '',
+      company_logo: '', // Empty string if error occurs
       support_email: 'support@weshare.com',
       support_phone: '',
       support_hours: 'Mon–Fri, 9am–6pm GMT',

@@ -35,6 +35,7 @@ export const EMAIL_PLACEHOLDERS = [
   { key: "[privacy_policy_url]", label: "Privacy Policy URL", description: "Link to privacy policy" },
   { key: "[terms_of_service_url]", label: "Terms of Service URL", description: "Link to terms of service" },
   { key: "[unsubscribe_url]", label: "Unsubscribe URL", description: "Unsubscribe link" },
+  { key: "[reset_password_url]", label: "Reset Password URL", description: "Password reset URL" },
 ];
 
 // Test/Preview values for local testing
