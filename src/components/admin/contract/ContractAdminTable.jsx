@@ -100,7 +100,6 @@ const ContractAdminTable = () => {
       }
 
       const res = await apiGet(`/api/contracts?${params.toString()}`);
-      console.log("Contracts API response:", res);
       if (res?.success) {
         const mappedContracts = (Array.isArray(res.data) ? res.data : []).map(
           (item) => {

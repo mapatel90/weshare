@@ -6,6 +6,7 @@ import getIcon from "@/utils/getIcon";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { useLanguage } from "@/contexts/LanguageContext";
+import usePermissions from "@/hooks/usePermissions";
 
 const Menus = () => {
     const [openDropdown, setOpenDropdown] = useState(null);
@@ -14,7 +15,8 @@ const Menus = () => {
     const [activeChild, setActiveChild] = useState("");
     const pathName = usePathname();
     const { lang } = useLanguage();
-
+    const { canView } = usePermissions();
+    const { filterMenuByPermissions } = usePermissions();
     const handleMainMenu = (e, name) => {
         if (openDropdown === name) {
             setOpenDropdown(null);
@@ -35,12 +37,12 @@ const Menus = () => {
     useEffect(() => {
         if (pathName !== "/") {
             const pathSegments = pathName.split("/").filter(Boolean); // Remove empty strings
-            
+
             // Check if path starts with /admin
             if (pathSegments[0] === "admin") {
                 const parent = pathSegments[1];
                 const child = pathSegments[2];
-                
+
                 setActiveParent(parent);
                 setActiveChild(child);
                 setOpenDropdown(parent);
@@ -49,7 +51,7 @@ const Menus = () => {
                 // For non-admin routes
                 const parent = pathSegments[0];
                 const child = pathSegments[1];
-                
+
                 setActiveParent(parent);
                 setActiveChild(child);
                 setOpenDropdown(parent);
@@ -64,11 +66,13 @@ const Menus = () => {
 
     return (
         <>
-            {menuList.map(({ dropdownMenu, id, name, path, icon }) => {
+            {filterMenuByPermissions(menuList).map(({ dropdownMenu, id, name, path, icon }) => {
                 const menuKey = name.toLowerCase().replace(/\s+/g, '');
+                const hasMenuAccess = canView(menuKey);
                 const isMenuActive = activeParent === menuKey || pathName === path || pathName.startsWith(`${path}/`);
-                
+
                 return (
+                    hasMenuAccess && (
                     <li
                         key={id}
                         onClick={(e) => handleMainMenu(e, menuKey)}
@@ -89,7 +93,7 @@ const Menus = () => {
                             {dropdownMenu && dropdownMenu.map(({ id, name, path, subdropdownMenu, target }) => {
                                 const submenuKey = name.toLowerCase().replace(/\s+/g, '');
                                 const isSubmenuActive = activeChild === submenuKey || pathName === path || pathName.startsWith(`${path}/`);
-                                
+
                                 return (
                                     <Fragment key={id}>
                                         {subdropdownMenu && subdropdownMenu.length ? (
@@ -109,7 +113,7 @@ const Menus = () => {
                                                 {subdropdownMenu && subdropdownMenu.map(({ id, name, path }) => {
                                                     const subItemKey = name.toLowerCase().replace(/\s+/g, '');
                                                     const isSubItemActive = pathName === path || pathName.startsWith(`${path}/`);
-                                                    
+
                                                     return (
                                                         <ul
                                                             key={id}
@@ -144,6 +148,7 @@ const Menus = () => {
                             })}
                         </ul>
                     </li>
+                    )
                 );
             })}
         </>

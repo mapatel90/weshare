@@ -1154,7 +1154,13 @@
     "updatedAt": "Updated At",
     "createdSuccessfully": "Role Created Successfully",
     "updatedSuccessfully": "Role Updated Successfully",
-    "deletedSuccessfully": "Role Deleted Successfully"
+    "deletedSuccessfully": "Role Deleted Successfully",
+    "managePermissions": "Role Manage Permissions",
+    "features": "Features",
+    "capabilities": "Capabilities",
+    "rolePermissions": "Role Permissions",
+    "permissionsUpdated": "Permissions updated successfully",
+    "permissionsUpdateFailed": "Failed to update permissions"
   },
   "inverter": {
     "project_inverters": "Project Inverters",

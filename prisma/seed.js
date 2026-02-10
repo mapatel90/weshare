@@ -1,6 +1,8 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { insertLocationData } from "../server/utils/location-data-package.js";
+import { ROLES } from "../src/constants/roles.js";
+import { menuList } from "../src/utils/Data/menuList.js";
 
 const prisma = new PrismaClient();
 
@@ -9,10 +11,11 @@ async function main() {
 
   // Create default roles
   const roles = [
-    { id: 1, name: 'superadmin', status: 1 },
-    { id: 2, name: 'staffadmin', status: 1 },
-    { id: 3, name: 'offtaker', status: 1 },
-    { id: 4, name: 'investor', status: 1 },
+    { id: 1, name: 'Super Admin', status: 1 },
+    { id: 2, name: 'Admin Staff', status: 1 },
+    { id: 3, name: 'Offtaker', status: 1 },
+    { id: 4, name: 'Investor', status: 1 },
+    { id: 5, name: 'Finance Staff', status: 1 },
   ];
 
   console.log("📝 Creating roles...");
@@ -24,6 +27,70 @@ async function main() {
     });
     console.log(`✅ Role created: ${roleData.name}`);
   }
+
+
+  const ROLE_DEFAULTS = {
+    [ROLES.SUPER_ADMIN]: { view: 1, create: 1, edit: 1, delete: 1 },
+    [ROLES.STAFF_ADMIN]: { view: 1, create: 1, edit: 1, delete: 0 },
+    [ROLES.OFFTAKER]: { view: 1, create: 0, edit: 0, delete: 0 },
+    [ROLES.INVESTOR]: { view: 1, create: 0, edit: 0, delete: 0 },
+    [ROLES.FINANCE_STAFF]: { view: 1, create: 1, edit: 0, delete: 0 },
+  };
+
+
+  const PERMISSION_KEYS = ["view", "create", "edit", "delete"];
+
+  const extractModules = (menuList, modules = []) => {
+    for (const menu of menuList) {
+      // main menu permission
+      if (menu.permission) {
+        modules.push(menu.permission);
+      }
+
+      // dropdown / submenu
+      if (Array.isArray(menu.dropdownMenu)) {
+        extractModules(menu.dropdownMenu, modules);
+      }
+
+      // subdropdown (future proof)
+      if (Array.isArray(menu.subdropdownMenu)) {
+        extractModules(menu.subdropdownMenu, modules);
+      }
+    }
+    return modules;
+  };
+
+
+  const modules = extractModules(menuList);
+
+  console.log("🔐 Creating permissions...");
+  for (const [roleName, roleId] of Object.entries(ROLES)) {
+    const defaults = ROLE_DEFAULTS[roleId];
+
+    for (const module of modules) {
+      for (const key of PERMISSION_KEYS) {
+        await prisma.roles_permissions.upsert({
+          where: {
+            role_id_module_key: {
+              role_id: roleId,
+              module,
+              key,
+            },
+          },
+          update: {},
+          create: {
+            role_id: roleId,
+            module,
+            key,
+            value: defaults[key] ?? 0,
+          },
+        });
+      }
+    }
+
+    console.log(`✅ Permissions seeded for role: ${roleName}`);
+  }
+
 
   // Insert comprehensive location data using the package
   console.log("🌍 Inserting comprehensive location data...");
@@ -218,20 +285,17 @@ async function main() {
   ];
 
   for (const status of projectStatuses) {
-    const existingStatus = await prisma.project_status.findFirst({
-      where: { name: status.name },
+    await prisma.project_status.upsert({
+      where: { id: status.id },
+      update: {
+        name: status.name,
+        is_deleted: 0,
+      },
+      create: status,
     });
 
-    if (!existingStatus) {
-      await prisma.project_status.create({
-        data: status,
-      });
-    } else {
-      console.log(`Project status "${status.name}" already exists, skipping...`);
-    }
-    console.log(`Project status added`);
+    console.log(`✅ Project status ensured: ${status.name}`);
   }
-
 
   console.log("Database seeding completed successfully!");
 }

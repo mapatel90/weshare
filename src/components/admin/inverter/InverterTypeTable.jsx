@@ -26,6 +26,7 @@ import {
 } from "@mui/material";
 import { useAuth } from "@/contexts/AuthContext";
 import { Close as CloseIcon } from "@mui/icons-material";
+import usePermissions from "@/hooks/usePermissions";
 
 const InverterTypeTable = () => {
   const { lang } = useLanguage();
@@ -39,6 +40,8 @@ const InverterTypeTable = () => {
   const [statusError, setStatusError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const { user } = useAuth();
+  const { canDelete, canEdit } = usePermissions();
+  const showActionColumn = canEdit("inverter_type") || canDelete("inverter_type");
 
   const resetForm = () => {
     setTypeName("");
@@ -173,46 +176,56 @@ const InverterTypeTable = () => {
         );
       },
     },
+    ...(showActionColumn ? [
     {
       accessorKey: "actions",
       header: () => lang("common.actions"),
-      cell: ({ row }) => (
-        <Stack direction="row" spacing={1} sx={{ flexWrap: "nowrap" }}>
-          <IconButton
-            size="small"
-            onClick={() => {
-              const item = row.original;
-              window.dispatchEvent(new CustomEvent("inverterType:open-edit", { detail: { item } }));
-            }}
-            sx={{
-              color: "#1976d2",
-              transition: "transform 0.2s ease",
-              "&:hover": {
-                backgroundColor: "rgba(25, 118, 210, 0.08)",
-                transform: "scale(1.1)",
-              },
-            }}
-          >
-            <FiEdit3 size={18} />
-          </IconButton>
-          <IconButton
-            size="small"
-            onClick={() => handleDelete(row.original.id)}
-            sx={{
-              color: "#d32f2f",
-              transition: "transform 0.2s ease",
-              "&:hover": {
-                backgroundColor: "rgba(211, 47, 47, 0.08)",
-                transform: "scale(1.1)",
-              },
-            }}
-          >
-            <FiTrash2 size={18} />
-          </IconButton>
-        </Stack>
-      ),
-      meta: { disableSort: true },
+      cell: ({ row }) => {
+        return (
+          <>
+              <Stack direction="row" spacing={1} sx={{ flexWrap: "nowrap" }}>
+                {canEdit("inverter_type") && (
+                  <IconButton
+                    size="small"
+                    onClick={() => {
+                      const item = row.original;
+                      window.dispatchEvent(new CustomEvent("inverterType:open-edit", { detail: { item } }));
+                    }}
+                    sx={{
+                      color: "#1976d2",
+                      transition: "transform 0.2s ease",
+                      "&:hover": {
+                        backgroundColor: "rgba(25, 118, 210, 0.08)",
+                        transform: "scale(1.1)",
+                      },
+                    }}
+                  >
+                    <FiEdit3 size={18} />
+                  </IconButton>
+                )}
+                {canDelete("inverter_type") && (
+                  <IconButton
+                    size="small"
+                    onClick={() => handleDelete(row.original.id)}
+                    sx={{
+                      color: "#d32f2f",
+                      transition: "transform 0.2s ease",
+                      "&:hover": {
+                        backgroundColor: "rgba(211, 47, 47, 0.08)",
+                        transform: "scale(1.1)",
+                      },
+                    }}
+                  >
+                    <FiTrash2 size={18} />
+                  </IconButton>
+                )}
+              </Stack>
+          </>
+        )
+      },
+      meta: { disableSort: true }
     },
+  ] : [])
   ];
 
 

@@ -141,17 +141,10 @@ router.post('/register', async (req, res) => {
         full_name: newUser.full_name,
         user_email: newUser.email,
         account_type: 'Offtaker',
-        site_url: process.env.FRONTEND_URL || '',
-        company_name: 'WeShare Energy',
-        company_logo: `${process.env.NEXT_PUBLIC_URL || ''}/images/main_logo.png`,
-        support_email: 'support@weshare.com',
-        support_phone: '+1 (555) 123-4567',
-        support_hours: 'Mon–Fri, 9am–6pm GMT',
         current_date: new Date().toLocaleDateString(),
         verify_link: verifyLink,
         login_url: loginUrl,
       };
-      console.log("templateData", templateData);
 
       sendEmailUsingTemplate({
         to: newUser.email,
@@ -176,13 +169,6 @@ router.post('/register', async (req, res) => {
       const templateData = {
         full_name: newUser.full_name,
         user_email: newUser.email,
-        account_type: 'Investor',
-        site_url: process.env.FRONTEND_URL || '',
-        company_name: 'WeShare Energy',
-        company_logo: `${process.env.NEXT_PUBLIC_URL || ''}/images/main_logo.png`,
-        support_email: 'support@weshare.com',
-        support_phone: '+1 (555) 123-4567',
-        support_hours: 'Mon–Fri, 9am–6pm GMT',
         current_date: new Date().toLocaleDateString(),
         login_url: loginUrl,
       };
@@ -293,29 +279,6 @@ router.post('/login', async (req, res) => {
       });
     }
 
-    // Generate JWT token
-    // const token = jwt.sign(
-    //   { 
-    //     userId: user.id,
-    //     username: user.username,
-    //     role: user.userRole 
-    //   },
-    //   process.env.JWT_SECRET,
-    //   { expiresIn: process.env.JWT_EXPIRES_IN }
-    // );
-
-    // // Return user data (excluding password)
-    // const { password: _, ...userWithoutPassword } = user;
-
-    // res.json({
-    //   success: true,
-    //   message: 'Login successful',
-    //   data: {
-    //     user: userWithoutPassword,
-    //     token
-    //   }
-    // });
-
     const token = jwt.sign(
       {
         userId: user.id,
@@ -346,12 +309,29 @@ router.post('/login', async (req, res) => {
       sessionTTL
     );
 
+    // Get user's role permissions
+    const rolePermissions = await prisma.roles_permissions.findMany({
+      where: { role_id: user.role_id }
+    });
+
+    // Build permissions map: { module: { capability: boolean } }
+    const permissions = {};
+    rolePermissions.forEach(p => {
+      if (!permissions[p.module]) {
+        permissions[p.module] = {};
+      }
+      permissions[p.module][p.key] = p.value === 1;
+    });
+
     const { password: _, ...userWithoutPassword } = user;
     res.json({
       success: true,
       message: 'Login successful',
       data: {
-        user: userWithoutPassword,
+        user: {
+          ...userWithoutPassword,
+          permissions
+        },
         token
       }
     });
@@ -422,9 +402,26 @@ router.get('/me', async (req, res) => {
       });
     }
 
+    // Get user's role permissions
+    const rolePermissions = await prisma.roles_permissions.findMany({
+      where: { role_id: user.role_id }
+    });
+
+    // Build permissions map: { module: { capability: boolean } }
+    const permissions = {};
+    rolePermissions.forEach(p => {
+      if (!permissions[p.module]) {
+        permissions[p.module] = {};
+      }
+      permissions[p.module][p.key] = p.value === 1;
+    });
+
     res.json({
       success: true,
-      data: user
+      data: {
+        ...user,
+        permissions
+      }
     });
 
 
@@ -510,6 +507,36 @@ router.post('/forgot-password', async (req, res) => {
         used: false
       }
     });
+
+
+    const verifyLink = `${process.env.FRONTEND_URL || ''}/verify-email/${verificationToken}`;
+      const loginUrl = `${process.env.FRONTEND_URL || ''}/offtaker/login`;
+      
+      const templateData = {
+        user_name: newUser.full_name,
+        user_email: newUser.email,
+        account_type: 'Offtaker',
+        current_date: new Date().toLocaleDateString(),
+        verify_link: verifyLink,
+        login_url: loginUrl,
+      };
+
+      sendEmailUsingTemplate({
+        to: newUser.email,
+        templateSlug: 'email_to_offtaker_on_sign_up',
+        templateData,
+        language: language || 'en'
+      })
+        .then((result) => {
+          if (result.success) {
+            console.log(`✅ Welcome email sent to ${newUser.email}`);
+          } else {
+            console.warn(`⚠️ Could not send welcome email: ${result.error}`);
+          }
+        })
+        .catch((error) => {
+          console.error('❌ Failed to send welcome email:', error.message);
+        });
 
     // Send email with reset link
     const emailResult = await sendPasswordResetEmail(user.email, resetToken);

@@ -40,6 +40,7 @@ export const EMAIL_PLACEHOLDERS = [
   { key: "[sub_amount]", label: "Subtotal Amount", description: "Amount before tax" },
   { key: "[total_amount]", label: "Total Invoice Amount", description: "Final payable amount" },
   { key: "[currency]", label: "Currency", description: "Invoice currency (VND, USD, etc.)" },
+  { key: "[reset_password_url]", label: "Reset Password URL", description: "Password reset URL" },
 ];
 
 // Test/Preview values for local testing

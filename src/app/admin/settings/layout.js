@@ -6,6 +6,7 @@ import SettingSidebar from '@/components/admin/setting/SettingSidebar'
 import Header from '@/components/shared/header/Header'
 import { usePathname } from 'next/navigation'
 import ProtectedRoute from '@/components/ProtectedRoute'
+import RoutePermissionGuard from '@/components/common/RoutePermissionGuard'
 
 const layout = ({ children }) => {
     const pathName = usePathname()
@@ -19,7 +20,9 @@ const layout = ({ children }) => {
                 <div className="nxl-content without-header nxl-full-content">
                     <div className='main-content d-flex'>
                         {/* <SettingSidebar /> */}
-                        {children}
+                        <RoutePermissionGuard>
+                            {children}
+                        </RoutePermissionGuard>
                     </div>
                 </div>
             </main>
