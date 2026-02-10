@@ -17,6 +17,7 @@ import {
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePathname } from "next/navigation";
+import { ROLES } from "@/constants/roles";
 
 const LoginForm = ({ registerPath, resetPath }) => {
   const pathname = usePathname();
@@ -75,9 +76,15 @@ const LoginForm = ({ registerPath, resetPath }) => {
 
     // Role check based on pathname
     let expectedRole = null;
-    if (pathname === "/admin/login") expectedRole = 1;
-    else if (pathname === "/offtaker/login") expectedRole = 3;
-    else if (pathname === "/investor/login") expectedRole = 4;
+
+    if (pathname === "/offtaker/login") {
+      expectedRole = ROLES.OFFTAKER;
+    } else if (pathname === "/investor/login") {
+      expectedRole = ROLES.INVESTOR;
+    } else if (pathname === "/admin/login") {
+      expectedRole = [ROLES.SUPER_ADMIN, ROLES.STAFF_ADMIN];
+    }
+
 
     if (!isValid) {
       setLoading(false);
@@ -97,15 +104,22 @@ const LoginForm = ({ registerPath, resetPath }) => {
     const result = await login(username, password, remember);
 
     if (result.success) {
-      if (expectedRole && result.user?.role !== expectedRole) {
+      console.log(result.user?.role);
+      console.log(expectedRole);
+      if (expectedRole && (
+          Array.isArray(expectedRole)
+            ? !expectedRole.includes(result.user?.role)
+            : result.user?.role !== expectedRole
+        )
+      ) {
         setError("You do not have permission to access this area.");
         setLoading(false);
         return;
       } else {
         // Redirect based on role
-        if (result.user?.role === 3) {
+        if (result.user?.role === ROLES.OFFTAKER) {
           window.location.href = "/offtaker/dashboard";
-        } else if (result.user?.role === 4) {
+        } else if (result.user?.role === ROLES.INVESTOR) {
           window.location.href = "/investor/dashboard";
         } else {
           window.location.href = "/admin/dashboards";
@@ -243,12 +257,12 @@ const LoginForm = ({ registerPath, resetPath }) => {
           }}
         >
           <FormControlLabel
-           control={
-        <Checkbox
-            checked={rememberMe}
-            onChange={(e) => setRememberMe(e.target.checked)}
-        />
-    }
+            control={
+              <Checkbox
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+              />
+            }
             label={lang("authentication.rememberMe")}
           />
           <Link

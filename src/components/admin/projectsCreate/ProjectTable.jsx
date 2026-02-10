@@ -17,6 +17,7 @@ import Swal from "sweetalert2";
 import { showSuccessToast, showErrorToast } from "@/utils/topTost";
 import { apiGet, apiPut, apiDelete, apiPost } from "@/lib/api";
 import { useLanguage } from "@/contexts/LanguageContext";
+import usePermissions from "@/hooks/usePermissions";
 
 const StatusDropdown = memo(({ value, onChange, options, disabled }) => {
   const statusOptions = Array.isArray(options) ? options : [];
@@ -75,6 +76,9 @@ const ProjectTable = () => {
     total: 0,
     pages: 0,
   });
+
+  const { canEdit, canDelete } = usePermissions();
+  const showActionColumn = canEdit("projects") || canDelete("projects");
 
   const fetchProjects = async (
     pageIndexParam = pageIndex,
@@ -367,14 +371,19 @@ const ProjectTable = () => {
       header: () => lang("common.actions", "Actions"),
       cell: (info) => {
         const id = info.row.original.id;
-        const rowActions = [
-          {
-            label: "Edit",
-            icon: <FiEdit3 />,
-            link: `/admin/projects/edit/${id}`,
-          },
-          { type: "divider" },
-          {
+        const rowActions = [];
+        if (canEdit("projects")) {
+          rowActions.push(
+            {
+              label: lang("common.edit", "Edit"),
+              icon: <FiEdit3 />,
+              link: `/admin/projects/edit/${id}`,
+            },
+            { type: "divider" }
+          );
+        }
+        if (canDelete("projects")) {
+          rowActions.push({
             label: lang("common.delete", "Delete"),
             icon: <FiTrash2 />,
             onClick: async () => {
@@ -393,6 +402,7 @@ const ProjectTable = () => {
                     "Yes, delete it!"
                   ),
                 });
+
                 if (confirm.isConfirmed) {
                   setLoading(true);
                   await apiDelete(`/api/projects/${id}`);
@@ -411,25 +421,36 @@ const ProjectTable = () => {
                 setLoading(false);
               }
             },
-          },
-        ];
+          });
+        }
+        // remove last divider if exists
+        if (rowActions.at(-1)?.type === "divider") {
+          rowActions.pop();
+        }
         return (
           <div className="gap-2 hstack justify-content-start">
             <a
               href={`/admin/projects/view/${id}`}
               className="avatar-text avatar-md"
+              title={lang("common.view", "View")}
             >
               <FiEye />
             </a>
-            <Dropdown
-              dropdownItems={rowActions}
-              triggerClass="avatar-md"
-              triggerIcon={<FiMoreHorizontal />}
-            />
+
+            {rowActions.length > 0 && (
+              <Dropdown
+                dropdownItems={rowActions}
+                triggerClass="avatar-md"
+                triggerIcon={<FiMoreHorizontal />}
+              />
+            )}
           </div>
         );
       },
-      meta: { disableSort: true },
+      meta: {
+        disableSort: true,
+          headerClassName: 'text-center'
+        }
     },
   ];
 
