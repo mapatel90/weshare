@@ -14,6 +14,9 @@ import {
   CardContent,
   CardHeader,
   Divider,
+  ToggleButtonGroup,
+  ToggleButton,
+  TextareaAutosize,
 } from "@mui/material";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
@@ -51,6 +54,10 @@ const SettingsEmailTemplate = ({ Id }) => {
     content_en: "",
     content_vi: "",
   });
+
+  // Editor mode states (visual or html)
+  const [editorModeEn, setEditorModeEn] = useState("visual"); // "visual" or "html"
+  const [editorModeVi, setEditorModeVi] = useState("visual"); // "visual" or "html"
 
   const resetForm = (data = {}) => {
     setFormData({
@@ -194,7 +201,14 @@ const SettingsEmailTemplate = ({ Id }) => {
 
   // Insert placeholder into CKEditor (English)
   const insertPlaceholderInEnglish = (placeholder) => {
-    if (editorEnRef.current) {
+    if (editorModeEn === "html") {
+      // Insert into HTML textarea
+      setFormData((prev) => ({
+        ...prev,
+        content_en: prev.content_en + placeholder,
+      }));
+    } else if (editorEnRef.current) {
+      // Insert into CKEditor
       const viewFragment =
         editorEnRef.current.data.processor.toView(placeholder);
       const modelFragment = editorEnRef.current.data.toModel(viewFragment);
@@ -205,7 +219,14 @@ const SettingsEmailTemplate = ({ Id }) => {
 
   // Insert placeholder into CKEditor (Vietnamese)
   const insertPlaceholderInVietnamese = (placeholder) => {
-    if (editorViRef.current) {
+    if (editorModeVi === "html") {
+      // Insert into HTML textarea
+      setFormData((prev) => ({
+        ...prev,
+        content_vi: prev.content_vi + placeholder,
+      }));
+    } else if (editorViRef.current) {
+      // Insert into CKEditor
       const viewFragment =
         editorViRef.current.data.processor.toView(placeholder);
       const modelFragment = editorViRef.current.data.toModel(viewFragment);
@@ -349,46 +370,126 @@ const SettingsEmailTemplate = ({ Id }) => {
 
               {/* Content EN */}
               <Grid item xs={12}>
-                <Typography variant="body2" className="mb-2 fw-semibold">
-                  {lang("email.content") || "Content (English)"}
-                </Typography>
-                <CKEditor
-                  editor={ClassicEditor}
-                  data={formData.content_en}
-                  disabled={loading || fetching}
-                  onReady={(editor) => {
-                    editorEnRef.current = editor;
-                  }}
-                  onFocus={() => setFocusedField("content_en")}
-                  onChange={(event, editor) => {
-                    setFormData((prev) => ({
-                      ...prev,
-                      content_en: editor.getData(),
-                    }));
-                  }}
-                />
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                  <Typography variant="body2" className="fw-semibold">
+                    {lang("email.content") || "Content (English)"}
+                  </Typography>
+                  <ToggleButtonGroup
+                    value={editorModeEn}
+                    exclusive
+                    onChange={(e, newMode) => {
+                      if (newMode !== null) {
+                        setEditorModeEn(newMode);
+                      }
+                    }}
+                    size="small"
+                  >
+                    <ToggleButton value="visual">Visual</ToggleButton>
+                    <ToggleButton value="html">HTML</ToggleButton>
+                  </ToggleButtonGroup>
+                </Box>
+
+                {editorModeEn === "visual" ? (
+                  <CKEditor
+                    editor={ClassicEditor}
+                    data={formData.content_en}
+                    disabled={loading || fetching}
+                    onReady={(editor) => {
+                      editorEnRef.current = editor;
+                    }}
+                    onFocus={() => setFocusedField("content_en")}
+                    onChange={(event, editor) => {
+                      setFormData((prev) => ({
+                        ...prev,
+                        content_en: editor.getData(),
+                      }));
+                    }}
+                  />
+                ) : (
+                  <TextField
+                    multiline
+                    rows={15}
+                    value={formData.content_en}
+                    onChange={(e) => {
+                      setFormData((prev) => ({
+                        ...prev,
+                        content_en: e.target.value,
+                      }));
+                    }}
+                    onFocus={() => setFocusedField("content_en")}
+                    fullWidth
+                    disabled={loading || fetching}
+                    placeholder="Enter HTML code here..."
+                    sx={{
+                      '& .MuiInputBase-root': {
+                        fontFamily: 'monospace',
+                        fontSize: '14px',
+                      }
+                    }}
+                  />
+                )}
               </Grid>
 
               {/* Content VI */}
               <Grid item xs={12}>
-                <Typography variant="body2" className="mb-2 fw-semibold">
-                  {lang("email.content_vi") || "Content (Vietnamese)"}
-                </Typography>
-                <CKEditor
-                  editor={ClassicEditor}
-                  data={formData.content_vi}
-                  disabled={loading || fetching}
-                  onReady={(editor) => {
-                    editorViRef.current = editor;
-                  }}
-                  onFocus={() => setFocusedField("content_vi")}
-                  onChange={(event, editor) => {
-                    setFormData((prev) => ({
-                      ...prev,
-                      content_vi: editor.getData(),
-                    }));
-                  }}
-                />
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                  <Typography variant="body2" className="fw-semibold">
+                    {lang("email.content_vi") || "Content (Vietnamese)"}
+                  </Typography>
+                  <ToggleButtonGroup
+                    value={editorModeVi}
+                    exclusive
+                    onChange={(e, newMode) => {
+                      if (newMode !== null) {
+                        setEditorModeVi(newMode);
+                      }
+                    }}
+                    size="small"
+                  >
+                    <ToggleButton value="visual">Visual</ToggleButton>
+                    <ToggleButton value="html">HTML</ToggleButton>
+                  </ToggleButtonGroup>
+                </Box>
+
+                {editorModeVi === "visual" ? (
+                  <CKEditor
+                    editor={ClassicEditor}
+                    data={formData.content_vi}
+                    disabled={loading || fetching}
+                    onReady={(editor) => {
+                      editorViRef.current = editor;
+                    }}
+                    onFocus={() => setFocusedField("content_vi")}
+                    onChange={(event, editor) => {
+                      setFormData((prev) => ({
+                        ...prev,
+                        content_vi: editor.getData(),
+                      }));
+                    }}
+                  />
+                ) : (
+                  <TextField
+                    multiline
+                    rows={15}
+                    value={formData.content_vi}
+                    onChange={(e) => {
+                      setFormData((prev) => ({
+                        ...prev,
+                        content_vi: e.target.value,
+                      }));
+                    }}
+                    onFocus={() => setFocusedField("content_vi")}
+                    fullWidth
+                    disabled={loading || fetching}
+                    placeholder="Enter HTML code here..."
+                    sx={{
+                      '& .MuiInputBase-root': {
+                        fontFamily: 'monospace',
+                        fontSize: '14px',
+                      }
+                    }}
+                  />
+                )}
               </Grid>
 
               <Grid item xs={12}>
@@ -402,6 +503,19 @@ const SettingsEmailTemplate = ({ Id }) => {
                   >
                     {lang("common.reset") || "Reset"}
                   </Button>
+                  {isEdit && formData.slug && (
+                    <Button
+                      variant="outlined"
+                      color="info"
+                      onClick={() => {
+                        const previewUrl = `/api/email-templates/view/template/${formData.slug}`;
+                        window.open(previewUrl, '_blank');
+                      }}
+                      disabled={loading || !formData.slug}
+                    >
+                      Preview Template
+                    </Button>
+                  )}
                   <Button
                     variant="contained"
                     onClick={handleSave}
