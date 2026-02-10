@@ -5,7 +5,16 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 import enTranslations from '@/translations/en.json';
 import viTranslations from '@/translations/vi.json';
 
-const LanguageContext = createContext();
+// Default context value for when provider is not mounted
+const defaultLanguageValue = {
+  currentLanguage: 'en',
+  changeLanguage: () => {},
+  lang: (key, def = key) => def ?? key,
+  languages: {},
+  currentLanguageInfo: null
+};
+
+const LanguageContext = createContext(defaultLanguageValue);
 
 // Available languages
 export const LANGUAGES = {

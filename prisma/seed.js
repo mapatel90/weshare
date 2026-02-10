@@ -31,12 +31,7 @@ async function main() {
 
   const ROLE_DEFAULTS = {
     [ROLES.SUPER_ADMIN]: { view: 1, create: 1, edit: 1, delete: 1 },
-    [ROLES.STAFF_ADMIN]: { view: 1, create: 1, edit: 1, delete: 0 },
-    [ROLES.OFFTAKER]: { view: 1, create: 0, edit: 0, delete: 0 },
-    [ROLES.INVESTOR]: { view: 1, create: 0, edit: 0, delete: 0 },
-    [ROLES.FINANCE_STAFF]: { view: 1, create: 1, edit: 0, delete: 0 },
   };
-
 
   const PERMISSION_KEYS = ["view", "create", "edit", "delete"];
 

@@ -10,13 +10,21 @@ import { usePathname, useRouter } from 'next/navigation'
 import { apiGet, apiPost } from '@/lib/api'
 import { useSettings } from './SettingsContext'
 
-const AuthContext = createContext({})
+// Default context value for when provider is not mounted
+const defaultAuthValue = {
+  user: null,
+  loading: true,
+  login: () => Promise.resolve({ success: false, message: 'Auth not initialized' }),
+  logout: () => Promise.resolve(),
+  checkAuth: () => Promise.resolve(),
+  updateUser: () => {},
+}
+
+const AuthContext = createContext(defaultAuthValue)
 
 export const useAuth = () => {
   const context = useContext(AuthContext)
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider')
-  }
+  // Return context directly - default value is already provided via createContext
   return context
 }
 

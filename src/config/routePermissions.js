@@ -29,7 +29,7 @@ export const routePermissions = [
     exact: false,
   },
   {
-    path: '/admin/projects/view',
+    path: '/admin/projects/list',
     module: MODULES.PROJECT_LIST,
     capability: CAPABILITIES.VIEW,
     exact: false,
@@ -232,6 +232,7 @@ export const getRoutePermission = (pathname) => {
   const exactMatch = routePermissions.find(
     (route) => route.exact && route.path === pathname
   );
+  console.log("exactMatch",exactMatch);
   if (exactMatch) return exactMatch;
 
   // Then try prefix match (longest match first)

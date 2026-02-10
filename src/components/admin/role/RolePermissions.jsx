@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { apiGet, apiPut } from "@/lib/api";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import { showSuccessToast, showErrorToast } from "@/utils/topTost";
 import {
@@ -36,6 +37,7 @@ const CAPABILITY_LABELS = {
 
 const RolePermissions = ({ roleId }) => {
   const { lang } = useLanguage();
+  const { user, checkAuth } = useAuth();
   const isDark = useDarkMode();
   const router = useRouter();
 
@@ -93,6 +95,13 @@ const RolePermissions = ({ roleId }) => {
       });
       if (response.success) {
         showSuccessToast(lang("roles.permissionsUpdated") || "Permissions updated successfully");
+        
+        // If the modified role is the current user's role, refresh auth to get updated permissions
+        if (user?.role && String(user.role) === String(roleId)) {
+          // Clear cached user and re-authenticate to get fresh permissions
+          localStorage.removeItem('cachedUser');
+          await checkAuth(false);
+        }
       } else {
         showErrorToast(response.message || "Failed to update permissions");
       }

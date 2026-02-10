@@ -20,8 +20,8 @@ export const MODULES = {
   SETTINGS: 'settings',
   
   // Sub-modules for Projects
-  PROJECT_LIST: 'list',
-  PROJECT_TYPE: 'type',
+  PROJECT_LIST: 'project_list',
+  PROJECT_TYPE: 'project_type',
   
   // Sub-modules for Inverter
   INVERTER_TYPE: 'inverter_type',

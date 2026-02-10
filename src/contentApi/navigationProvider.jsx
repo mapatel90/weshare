@@ -1,7 +1,15 @@
 'use client'
 import React, { createContext, useState } from 'react';
 
-export const NavigationContext = createContext();
+// Default context value for when provider is not mounted
+const defaultNavigationValue = {
+    navigationOpen: false,
+    setNavigationOpen: () => {},
+    navigationExpend: false,
+    setNavigationExpend: () => {}
+};
+
+export const NavigationContext = createContext(defaultNavigationValue);
 
 const NavigationProvider = ({ children }) => {
     const [navigationOpen, setNavigationOpen] = useState(false)

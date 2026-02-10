@@ -1,7 +1,13 @@
 'use client'
 import React, { createContext, useState } from 'react'
 
-export const SettingSidebarContext = createContext()
+// Default context value for when provider is not mounted
+const defaultSidebarValue = {
+    sidebarOpen: false,
+    setSidebarOpen: () => {}
+};
+
+export const SettingSidebarContext = createContext(defaultSidebarValue)
 const SettingSideBarProvider = ({children}) => {
     const [sidebarOpen, setSidebarOpen] = useState(false)
     return (

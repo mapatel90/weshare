@@ -30,9 +30,8 @@ import usePermissions from "@/hooks/usePermissions";
 
 const InverterTypeTable = () => {
   const { lang } = useLanguage();
-
   const [types, setTypes] = useState([]);
-  const [modalMode, setModalMode] = useState(null); // 'add' | 'edit' | null
+  const [modalMode, setModalMode] = useState(null); 
   const [editingId, setEditingId] = useState(null);
   const [typeName, setTypeName] = useState("");
   const [status, setStatus] = useState("");
