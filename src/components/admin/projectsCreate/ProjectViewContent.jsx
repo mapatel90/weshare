@@ -16,6 +16,7 @@ import EnergyYearChart from "./projectViewSection/YearChart";
 import ElectricityCostBarChart from "./projectViewSection/ElectricityCostBarChart";
 import ElectricityCostOverviewChart from "./projectViewSection/ElectricityCostOverviewChart";
 import ElectricityConsumption from "./projectViewSection/ElectricityConsumption";
+import usePermissions from "@/hooks/usePermissions";
 
 
 // -------- NUMBER FORMATTER ----------
@@ -76,7 +77,7 @@ const ProjectViewContent = ({ projectId = "" }) => {
   const [electricityConsumptionDataLoading, setElectricityConsumptionDataLoading] = useState(true);
   const [electricityConsumptionViewMode, setElectricityConsumptionViewMode] = useState("day"); // day | month | year
   const [electricityConsumptionDate, setElectricityConsumptionDate] = useState(new Date().toISOString().slice(0, 7)); // YYYY-MM for day, YYYY for month
-
+  const { canEdit, canDelete } = usePermissions();
   // ------------------- Detect Mobile Screen -------------------
   useEffect(() => {
     const checkMobile = () => {
@@ -315,7 +316,7 @@ const ProjectViewContent = ({ projectId = "" }) => {
       if (!projectId) return;
 
       let dateValue;
-        if (electricityConsumptionViewMode === "day") {
+      if (electricityConsumptionViewMode === "day") {
         dateValue = electricityConsumptionDate; // YYYY-MM format
       } else if (electricityConsumptionViewMode === "month") {
         dateValue = electricityConsumptionDate.slice(0, 4); // YYYY format
@@ -424,17 +425,19 @@ const ProjectViewContent = ({ projectId = "" }) => {
                   }}
                 >
                   {project.project_name}
-                  <FiEdit3
-                    style={{
-                      cursor: "pointer",
-                      marginLeft: "8px",
-                      color: "#3b82f6",
-                      fontSize: "20px",
-                    }}
-                    onClick={() =>
-                      (window.location.href = `/admin/projects/edit/${project.id}`)
-                    }
-                  />
+                  {canEdit("projects") && (
+                    <FiEdit3
+                      style={{
+                        cursor: "pointer",
+                        marginLeft: "8px",
+                        color: "#3b82f6",
+                        fontSize: "20px",
+                      }}
+                      onClick={() =>
+                        (window.location.href = `/admin/projects/edit/${project.id}`)
+                      }
+                    />
+                  )}
                 </h1>
                 <p
                   style={{
@@ -556,17 +559,19 @@ const ProjectViewContent = ({ projectId = "" }) => {
                   }}
                 >
                   {project.project_name}
-                  <FiEdit3
-                    style={{
-                      cursor: "pointer",
-                      marginLeft: "8px",
-                      color: "#3b82f6",
-                      fontSize: "20px",
-                    }}
-                    onClick={() =>
-                      (window.location.href = `/admin/projects/edit/${project.id}`)
-                    }
-                  />
+                  {canEdit("projects") && (
+                    <FiEdit3
+                      style={{
+                        cursor: "pointer",
+                        marginLeft: "8px",
+                        color: "#3b82f6",
+                        fontSize: "20px",
+                      }}
+                      onClick={() =>
+                        (window.location.href = `/admin/projects/edit/${project.id}`)
+                      }
+                    />
+                  )}
                 </h1>
                 <p
                   style={{
