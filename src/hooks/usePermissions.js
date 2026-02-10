@@ -53,9 +53,11 @@ export const usePermissions = () => {
    * @returns {boolean}
    */
   const hasPermission = useCallback((module, capability) => {
+    // Super Admin has all permissions
+    if (isSuperAdmin) return true;
     // Check if module exists and capability is true
     return permissions[module]?.[capability] === true;
-  }, [permissions]);
+  }, [permissions, isSuperAdmin]);
 
   /**
    * Check if user can view a module (either view_own or view_global)
@@ -99,12 +101,15 @@ export const usePermissions = () => {
    * @returns {boolean}
    */
   const hasModuleAccess = useCallback((module) => {
+    // Super Admin has access to all modules
+    if (isSuperAdmin) return true;
+    
     const modulePermissions = permissions[module];
     if (!modulePermissions) return false;
 
     // Check if any capability is true
     return Object.values(modulePermissions).some(value => value === true);
-  }, [permissions]);
+  }, [permissions, isSuperAdmin]);
 
   /**
    * Get all permissions for a specific module
