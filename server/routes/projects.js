@@ -371,7 +371,7 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
     // Send email notification for new project creation
     if (project && project.offtaker?.email) {
       const templateData = {
-        user_name: project.offtaker.full_name || 'User',
+        full_name: project.offtaker.full_name || 'User',
         user_email: project.offtaker.email || '',
         user_phone: project.offtaker.phone_number || '',
         project_name: project.project_name || '',
@@ -386,9 +386,9 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
 
       sendEmailUsingTemplate({
         to: project.offtaker.email,
-        templateSlug: 'project-mail',
+        templateSlug: '	project_created_for_offtaker',
         templateData,
-        language: 'vi'
+        language: project.offtaker.language
       }).then(() => {
         console.log('Project creation email sent successfully to:', project.offtaker.email);
       }).catch((err) => {

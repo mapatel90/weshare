@@ -11,10 +11,11 @@ import { getUserLanguage, t } from '../utils/i18n.js';
 import { getUserFullName } from '../utils/common.js';
 import { sendEmailUsingTemplate } from '../utils/email.js';
 import { PROJECT_STATUS } from '../../src/constants/project_status.js';
-import { uploadToS3, deleteFromS3, isS3Enabled } from '../services/s3Service.js';
+import { uploadToS3, deleteFromS3, isS3Enabled, buildUploadUrl } from '../services/s3Service.js';
 import { getAdminUsers } from '../utils/constants.js';
 
 const router = express.Router();
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -142,7 +143,7 @@ router.post("/", authenticateToken, upload.single('document'), async (req, res) 
         if (offtakerUser?.email) {
           const contractUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/offtaker/contracts/details/${created.id}`;
           const templateData = {
-            user_name: offtakerUser.full_name || 'User',
+            full_name: offtakerUser.full_name || 'User',
             user_email: offtakerUser.email,
             contract_title: created.contract_title,
             project_name: created?.projects?.project_name || 'N/A',
@@ -163,18 +164,29 @@ router.post("/", authenticateToken, upload.single('document'), async (req, res) 
           // Prepare attachments
           const attachments = [];
           if (created.document_upload) {
-            const docPath = path.join(PUBLIC_DIR, created.document_upload.replace(/^\//, ''));
-            if (fs.existsSync(docPath)) {
+            const s3Enabled = await isS3Enabled();
+            if (s3Enabled) {
+              // Use S3 URL for attachment
+              const s3Url = buildUploadUrl(created.document_upload);
               attachments.push({
-                filename: path.basename(docPath),
-                path: docPath,
+                filename: path.basename(created.document_upload),
+                path: s3Url,
               });
+            } else {
+              // Fallback to local file
+              const docPath = path.join(PUBLIC_DIR, created.document_upload.replace(/^\//, ''));
+              if (fs.existsSync(docPath)) {
+                attachments.push({
+                  filename: path.basename(docPath),
+                  path: docPath,
+                });
+              }
             }
           }
 
           sendEmailUsingTemplate({
             to: offtakerUser.email,
-            templateSlug: 'contract_created',
+            templateSlug: 'contract_created_for_offtaker',
             templateData,
             language: offtakerUser.language || 'en',
             attachments,
@@ -205,7 +217,7 @@ router.post("/", authenticateToken, upload.single('document'), async (req, res) 
         if (investor?.email) {
           const contractUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/investor/contracts/details/${created.id}`;
           const templateData = {
-            user_name: investor.full_name || 'Investor',
+            full_name: investor.full_name || 'Investor',
             user_email: investor.email,
             contract_title: created.contract_title,
             project_name: created?.projects?.project_name || 'N/A',
@@ -227,18 +239,29 @@ router.post("/", authenticateToken, upload.single('document'), async (req, res) 
           // Prepare attachments
           const investorAttachments = [];
           if (created.document_upload) {
-            const docPath = path.join(PUBLIC_DIR, created.document_upload.replace(/^\//, ''));
-            if (fs.existsSync(docPath)) {
+            const s3Enabled = await isS3Enabled();
+            if (s3Enabled) {
+              // Use S3 URL for attachment
+              const s3Url = buildUploadUrl(created.document_upload);
               investorAttachments.push({
-                filename: path.basename(docPath),
-                path: docPath,
+                filename: path.basename(created.document_upload),
+                path: s3Url,
               });
+            } else {
+              // Fallback to local file
+              const docPath = path.join(PUBLIC_DIR, created.document_upload.replace(/^\//, ''));
+              if (fs.existsSync(docPath)) {
+                investorAttachments.push({
+                  filename: path.basename(docPath),
+                  path: docPath,
+                });
+              }
             }
           }
 
           sendEmailUsingTemplate({
             to: investor.email,
-            templateSlug: 'contract_created',
+            templateSlug: 'contract_created_for_investor',
             templateData,
             language: investor.users?.language || 'en',
             attachments: investorAttachments,
@@ -623,7 +646,7 @@ router.put("/:id/status", authenticateToken, upload.single('file'), async (req, 
         const offtakerUser = await prisma.users.findUnique({ where: { id: Number(existing.offtaker_id) } });
         if (offtakerUser?.email) {
           const templateData = {
-            user_name: offtakerUser.full_name || 'User',
+            full_name: offtakerUser.full_name || 'User',
             user_email: offtakerUser.email,
             project_name: existing?.projects?.project_name || 'N/A',
             solis_id: existing?.projects?.solis_plant_id || 'N/A',
@@ -643,15 +666,16 @@ router.put("/:id/status", authenticateToken, upload.single('file'), async (req, 
           // Prepare attachments (use S3 URL stored in updateData.signed_document_upload)
           const offtakerAttachments = [];
           if (req.file && updateData.signed_document_upload) {
+            const s3Url = buildUploadUrl(updateData.signed_document_upload);
             offtakerAttachments.push({
               filename: path.basename(updateData.signed_document_upload),
-              path: updateData.signed_document_upload,
+              path: s3Url,
             });
           }
 
           sendEmailUsingTemplate({
             to: offtakerUser.email,
-            templateSlug: 'contract_approved',
+            templateSlug: 'contract_approved_for_offtaker',
             templateData,
             language: offtakerUser.language || 'en',
             attachments: offtakerAttachments,
@@ -695,7 +719,7 @@ router.put("/:id/status", authenticateToken, upload.single('file'), async (req, 
 
         if (investor?.email) {
           const templateData = {
-            user_name: investor.full_name || 'Investor',
+            full_name: investor.full_name || 'Investor',
             user_email: investor.email,
             project_name: existing?.projects?.project_name || 'N/A',
             solis_id: existing?.projects?.solis_plant_id || 'N/A',
@@ -715,15 +739,16 @@ router.put("/:id/status", authenticateToken, upload.single('file'), async (req, 
           // Prepare attachments (use S3 URL stored in updateData.signed_document_upload)
           const investorAttachments = [];
           if (req.file && updateData.signed_document_upload) {
+            const s3Url = buildUploadUrl(updateData.signed_document_upload);
             investorAttachments.push({
               filename: path.basename(updateData.signed_document_upload),
-              path: updateData.signed_document_upload,
+              path: s3Url,
             });
           }
 
           sendEmailUsingTemplate({
             to: investor.email,
-            templateSlug: 'contract_approved',
+            templateSlug: 'contract_approved_for_investor',
             templateData,
             language: investor.language || 'en',
             attachments: investorAttachments,
@@ -772,7 +797,7 @@ router.put("/:id/status", authenticateToken, upload.single('file'), async (req, 
         const offtakerUser = await prisma.users.findFirst({ where: { id: Number(existing.offtaker_id) } });
         if (offtakerUser?.email) {
           const templateData = {
-            user_name: offtakerUser.full_name || 'User',
+            full_name: offtakerUser.full_name || 'User',
             user_email: offtakerUser.email,
             contract_title: existing.contract_title || 'N/A',
             project_name: existing?.projects?.project_name || 'N/A',
@@ -789,7 +814,7 @@ router.put("/:id/status", authenticateToken, upload.single('file'), async (req, 
 
           sendEmailUsingTemplate({
             to: offtakerUser.email,
-            templateSlug: 'contract_rejected',
+            templateSlug: 'contract_rejected_for_offtaker',
             templateData,
             language: offtakerUser.language || 'en',
           })
@@ -826,7 +851,7 @@ router.put("/:id/status", authenticateToken, upload.single('file'), async (req, 
         });
         if (investor?.email) {
           const templateData = {
-            user_name: investor.full_name || 'Investor',
+            full_name: investor.full_name || 'Investor',
             user_email: investor.email,
             contract_title: existing.contract_title || 'N/A',
             project_name: existing?.projects?.project_name || 'N/A',
@@ -843,7 +868,7 @@ router.put("/:id/status", authenticateToken, upload.single('file'), async (req, 
 
           sendEmailUsingTemplate({
             to: investor.email,
-            templateSlug: 'contract_rejected',
+            templateSlug: 'contract_rejected_for_investor',
             templateData,
             language: investor.language || 'en',
           })
@@ -890,7 +915,7 @@ router.put("/:id/status", authenticateToken, upload.single('file'), async (req, 
         const offtakerUser = await prisma.users.findUnique({ where: { id: Number(existing.offtaker_id) } });
         if (offtakerUser?.email) {
           const templateData = {
-            user_name: offtakerUser.full_name || 'User',
+            full_name: offtakerUser.full_name || 'User',
             user_email: offtakerUser.email,
             contract_title: existing.contract_title || 'N/A',
             project_name: existing?.projects?.project_name || 'N/A',
@@ -907,7 +932,7 @@ router.put("/:id/status", authenticateToken, upload.single('file'), async (req, 
 
           sendEmailUsingTemplate({
             to: offtakerUser.email,
-            templateSlug: 'contract_rejected',
+            templateSlug: 'contract_cancelled_for_offtaker',
             templateData,
             language: offtakerUser.language || 'en',
           })
@@ -941,7 +966,7 @@ router.put("/:id/status", authenticateToken, upload.single('file'), async (req, 
         });
         if (investor?.email) {
           const templateData = {
-            user_name: investor.full_name || 'Investor',
+            full_name: investor.full_name || 'Investor',
             user_email: investor.email,
             contract_title: existing.contract_title || 'N/A',
             project_name: existing?.projects?.project_name || 'N/A',
@@ -958,7 +983,7 @@ router.put("/:id/status", authenticateToken, upload.single('file'), async (req, 
 
           sendEmailUsingTemplate({
             to: investor.email,
-            templateSlug: 'contract_rejected',
+            templateSlug: '	contract_cancelled_for_investor',
             templateData,
             language: investor.language || 'en',
           })

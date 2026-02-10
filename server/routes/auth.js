@@ -138,7 +138,7 @@ router.post('/register', async (req, res) => {
       const loginUrl = `${process.env.FRONTEND_URL || ''}/offtaker/login`;
       
       const templateData = {
-        user_name: newUser.full_name,
+        full_name: newUser.full_name,
         user_email: newUser.email,
         account_type: 'Offtaker',
         site_url: process.env.FRONTEND_URL || '',
@@ -174,7 +174,7 @@ router.post('/register', async (req, res) => {
       const loginUrl = `${process.env.FRONTEND_URL || ''}/investor/login`;
       
       const templateData = {
-        user_name: newUser.full_name,
+        full_name: newUser.full_name,
         user_email: newUser.email,
         account_type: 'Investor',
         site_url: process.env.FRONTEND_URL || '',
@@ -189,7 +189,7 @@ router.post('/register', async (req, res) => {
 
       sendEmailUsingTemplate({
         to: newUser.email,
-        templateSlug: 'investor_sign_up',
+        templateSlug: 'email_to_investor_on_sign_up',
         templateData,
         language: language || 'en'
       })
