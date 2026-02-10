@@ -29,13 +29,14 @@ import {
 import { Close as CloseIcon } from "@mui/icons-material";
 import { BsShieldFillExclamation } from "react-icons/bs";
 import { ROLES } from "@/constants/roles";
+import { useAuth } from "@/contexts/AuthContext";
 
 const RoleTable = () => {
   const { lang } = useLanguage();
   const router = useRouter();
   const [rolesData, setRolesData] = useState([]);
   const [loading, setLoading] = useState(true);
-
+  const { user } = useAuth();
   // Modal States
   const [modalMode, setModalMode] = useState(null);
   const [roleName, setRoleName] = useState("");
@@ -232,22 +233,23 @@ const RoleTable = () => {
             >
               <FiEdit3 size={18} />
             </IconButton>
-            {![ROLES.OFFTAKER, ROLES.INVESTOR].includes(row.id) && (
-              <IconButton
-                size="small"
-                onClick={() => handlePermission(row.id)}
-                sx={{
-                  color: "#2e7d32",
-                  "&:hover": {
-                    backgroundColor: "rgba(46, 125, 50, 0.08)",
-                    transform: "scale(1.1)",
-                  },
-                }}
-                title="Manage Permissions"
-              >
-                <BsShieldFillExclamation size={18} />
-              </IconButton>
-            )}
+            {user?.role === ROLES.SUPER_ADMIN &&
+              ![ROLES.OFFTAKER, ROLES.INVESTOR].includes(row.id) && (
+                <IconButton
+                  size="small"
+                  onClick={() => handlePermission(row.id)}
+                  sx={{
+                    color: "#2e7d32",
+                    "&:hover": {
+                      backgroundColor: "rgba(46, 125, 50, 0.08)",
+                      transform: "scale(1.1)",
+                    },
+                  }}
+                  title="Manage Permissions"
+                >
+                  <BsShieldFillExclamation size={18} />
+                </IconButton>
+              )}
             <IconButton
               size="small"
               onClick={() => handleDelete(row.id)}

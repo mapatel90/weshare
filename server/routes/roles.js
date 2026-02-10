@@ -222,6 +222,14 @@ router.put('/:id', authenticateToken, async (req, res) => {
       const modules = extractModules(menuList);
       for (const module of modules) {
         for (const key of PERMISSION_KEYS) {
+          const value = isSuperAdmin
+            ? 1
+            : module === "settings"
+              ? 0
+              : key === "view"
+                ? 1
+                : 0;
+
           await prisma.roles_permissions.upsert({
             where: {
               role_id_module_key: {
@@ -235,7 +243,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
               role_id: parseInt(id),
               module,
               key,
-              value: isSuperAdmin ? 1 : key === "view" ? 1 : 0,
+              value,
             },
           });
         }
