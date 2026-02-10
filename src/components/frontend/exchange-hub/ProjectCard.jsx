@@ -239,8 +239,8 @@ const ProjectCard = ({ project, activeTab }) => {
                 <h4>
                   {formatShort(
                     project.asking_price ||
-                      project.target_investment ||
-                      1450000,
+                    project.target_investment ||
+                    1450000,
                   ).toLocaleString()}
                 </h4>
                 <p>
@@ -256,12 +256,6 @@ const ProjectCard = ({ project, activeTab }) => {
                   {lang("home.exchangeHub.expectedGeneration") ||
                     "Expected Generation"}
                 </p>
-              </div>
-              <div className="stat-image">
-                <h4 className="text-secondary-color">
-                  {project.investor_profit || "20"}%
-                </h4>
-                <p>{lang("home.exchangeHub.expectedROI") || "Expected ROI"}</p>
               </div>
             </div>
 
@@ -320,8 +314,8 @@ const ProjectCard = ({ project, activeTab }) => {
             {/* Action Buttons */}
             <div className="buttons-image">
               {project?.project_status_id === PROJECT_STATUS.UPCOMING &&
-              !hasAlreadyInvested &&
-              getTimeLeft(project?.project_close_date) !== "Expired" ? (
+                !hasAlreadyInvested &&
+                getTimeLeft(project?.project_close_date) !== "Expired" ? (
                 <button
                   className="btn btn-primary-custom"
                   style={{ padding: "14px 0px" }}
@@ -451,10 +445,7 @@ const ProjectCard = ({ project, activeTab }) => {
               {formatNumber(accumulative)} kWh
             </h4>
             <p>
-              {lang("home.exchangeHub.accumulativeGeneration") ||
-                "Accumulative"}
-              <br />
-              {lang("home.exchangeHub.generation") || "Generation"}
+              {lang("home.exchangeHub.accumulativeGeneration") ||"Accumulative"}
             </p>
           </div>
           <div className="stat">

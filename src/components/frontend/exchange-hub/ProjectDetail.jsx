@@ -15,6 +15,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import InvestDialog from "./InvestDialog";
 import { PROJECT_STATUS } from "@/constants/project_status";
+import ElectricityConsumption from "@/components/admin/projectsCreate/projectViewSection/ElectricityConsumption";
+import EnergyChart from "@/components/admin/projectsCreate/projectViewSection/MonthChart";
+import { FiZap } from "react-icons/fi";
 
 // Dynamically import ApexCharts to avoid SSR issues
 const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
@@ -50,6 +53,17 @@ const ProjectDetail = ({ projectId }) => {
   const [selectedDate, setSelectedDate] = useState(
     new Date().toISOString().split("T")[0]
   );
+
+  // Consumption Data Chart
+  const [electricityConsumptionData, setElectricityConsumptionData] = useState(null);
+  const [electricityConsumptionDataLoading, setElectricityConsumptionDataLoading] = useState(true);
+  const [electricityConsumptionViewMode, setElectricityConsumptionViewMode] = useState("day"); // day | month | year
+  const [electricityConsumptionDate, setElectricityConsumptionDate] = useState(new Date().toISOString().slice(0, 7));
+
+  // Month Data Chart
+  const [chartMonthData, setChartMonthData] = useState(null);
+  const [selectedMonthYear, setSelectedMonthYear] = useState(new Date().toISOString().slice(0, 7));
+  const [monthlyChartDataLoading, setMonthlyChartDataLoading] = useState(true);
 
   const checkInterest = async () => {
     if (!user || !project) {
@@ -231,6 +245,61 @@ const ProjectDetail = ({ projectId }) => {
     }
   };
 
+  // Load Electricity Consumption Data
+  useEffect(() => {
+    const loadElectricityConsumptionData = async () => {
+      if (!project?.id) return;
+
+      let dateValue;
+      if (electricityConsumptionViewMode === "day") {
+        dateValue = electricityConsumptionDate; // YYYY-MM format
+      } else if (electricityConsumptionViewMode === "month") {
+        dateValue = electricityConsumptionDate.slice(0, 4); // YYYY format
+      } else {
+        dateValue = new Date().getFullYear().toString(); // YYYY format (not used by API but required)
+      }
+
+      const payload = {
+        projectId: project?.id ?? null,
+        type: electricityConsumptionViewMode,
+        date: dateValue,
+      };
+
+      try {
+        setElectricityConsumptionDataLoading(true);
+        const res = await apiPost(`/api/projects/electricity/consumption-chart`, payload);
+        setElectricityConsumptionData(res?.success ? res.data : null);
+      } catch (error) {
+        console.error("Error loading electricity consumption data:", error);
+        setElectricityConsumptionData(null);
+      } finally {
+        setElectricityConsumptionDataLoading(false);
+      }
+    };
+    loadElectricityConsumptionData();
+  }, [project?.id, electricityConsumptionViewMode, electricityConsumptionDate]);
+
+  useEffect(() => {
+    const loadEnergyDayWiseData = async () => {
+      const [year, month] = selectedMonthYear.split('-');
+      const payload = {
+        projectId: project?.id ?? null,
+        year: year ?? null,
+        month: month ?? null
+      };
+
+      try {
+        setMonthlyChartDataLoading(true);
+        const res = await apiPost(`/api/projects/chart_month_data`, payload);
+        setChartMonthData(res?.success ? res.data : null);
+      } finally {
+        setMonthlyChartDataLoading(false);
+      }
+    };
+    if (project?.id && selectedMonthYear) {
+      loadEnergyDayWiseData();
+    }
+  }, [project?.id, selectedMonthYear])
   // KWh & Revenue Chart Data
   const kwhRevenueChartOptions = useMemo(
     () => ({
@@ -324,70 +393,6 @@ const ProjectDetail = ({ projectId }) => {
       },
     ];
   }, [projectChartData]);
-
-  // ROI Trend Chart Data
-  const roiTrendChartOptions = useMemo(
-    () => ({
-      chart: {
-        type: "line",
-        height: 350,
-        toolbar: {
-          show: false,
-        },
-      },
-      stroke: {
-        curve: "smooth",
-        width: 3,
-      },
-      xaxis: {
-        categories: ["0", "2021", "2022", "2023", "2025"],
-        title: {
-          text: "Year",
-        },
-      },
-      yaxis: {
-        title: {
-          text: "ROI",
-        },
-        min: 0,
-        max: 800,
-      },
-      colors: ["#FFA726"],
-      markers: {
-        size: 5,
-        colors: ["#FFA726"],
-        strokeColors: "#fff",
-        strokeWidth: 2,
-        hover: {
-          size: 7,
-        },
-      },
-      tooltip: {
-        y: {
-          formatter: function (val) {
-            return val;
-          },
-        },
-      },
-    }),
-    []
-  );
-
-  const roiTrendChartSeries = useMemo(() => {
-    const currentROI = parseFloat(project?.investor_profit || 10);
-    return [
-      {
-        name: "ROI",
-        data: [
-          0,
-          Math.round(currentROI * 55),
-          Math.round(currentROI * 18),
-          Math.round(currentROI * 8),
-          Math.round(currentROI * 75),
-        ],
-      },
-    ];
-  }, [project]);
 
   // change Invest Now button to open modal (and add submit handler)
   const handleInvestClick = () => {
@@ -621,29 +626,50 @@ const ProjectDetail = ({ projectId }) => {
 
               {/* Analytics */}
               <div className="analytics">
-                <h3>{lang("home.exchangeHub.analytics") || "Analytics"}:</h3>
-                <p className="fw-600 mb-3">KWh & Revenue</p>
-                <div className="chart-container mb-4">
-                  {typeof window !== "undefined" && (
-                    <Chart
-                      options={kwhRevenueChartOptions}
-                      series={kwhRevenueChartSeries}
-                      type="bar"
-                      height={350}
-                    />
-                  )}
-                </div>
+                {/* <div className="chart-container"> */}
+                <ElectricityConsumption
+                  data={electricityConsumptionData}
+                  loading={electricityConsumptionDataLoading}
+                  selectedMonthYear={electricityConsumptionDate}
+                  onMonthYearChange={setElectricityConsumptionDate}
+                />
+                {/* </div> */}
 
-                <p className="fw-600 mb-3 mt-5">ROI Trend</p>
-                <div className="chart-container">
-                  {typeof window !== "undefined" && (
-                    <Chart
-                      options={roiTrendChartOptions}
-                      series={roiTrendChartSeries}
-                      type="line"
-                      height={350}
-                    />
-                  )}
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 10,
+                    marginBottom: 10,
+                    padding: "0px 0px 0px 24px",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: 32,
+                      height: 32,
+                      borderRadius: "999px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      backgroundColor: "#eff6ff",
+                      color: "#2563eb",
+                    }}
+                  >
+                    <FiZap />
+                  </div>
+                  <div
+                    style={{
+                      fontSize: 15,
+                      fontWeight: 600,
+                      color: "#111827",
+                    }}
+                  >
+                    {lang(
+                      "projectView.energyProduction.real_time_energy_production",
+                      "Daily Power Profile (Load, PV & Grid)"
+                    )}
+                  </div>
                 </div>
 
                 <ProjectOverviewChart
@@ -652,6 +678,50 @@ const ProjectDetail = ({ projectId }) => {
                   loading={chartDataLoading}
                   selectedDate={selectedDate}
                   onDateChange={setSelectedDate}
+                />
+
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 10,
+                    marginBottom: 10,
+                    padding: "0px 0px 0px 24px",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: 32,
+                      height: 32,
+                      borderRadius: "999px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      backgroundColor: "#eff6ff",
+                      color: "#2563eb",
+                    }}
+                  >
+                    <FiZap />
+                  </div>
+                  <div
+                    style={{
+                      fontSize: 15,
+                      fontWeight: 600,
+                      color: "#111827",
+                    }}
+                  >
+                    {lang(
+                      "projectView.energyProduction.monthly_real_time_energy_production",
+                      "Daily Power Profile (Load, PV & Grid)"
+                    )}
+                  </div>
+                </div>
+
+                <EnergyChart
+                  chartMonthData={chartMonthData}
+                  selectedMonthYear={selectedMonthYear}
+                  onMonthYearChange={setSelectedMonthYear}
+                  monthlyChartDataLoading={monthlyChartDataLoading}
                 />
 
               </div>

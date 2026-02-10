@@ -1694,6 +1694,8 @@
     },
     "energyProduction": {
       "energy_production": "Daily Power Profile (Load, PV & Grid)",
+      "real_time_energy_production": "Real-Time Power Profile (Load, PV & Grid)",
+      "monthly_real_time_energy_production": "Monthly Profile (Load, PV & Grid)",
       "monthly_energy_production": "Daily Electricity Cost (VND)",
       "yearly_energy_production": "Monthly Electricity Cost (VND)"
     }

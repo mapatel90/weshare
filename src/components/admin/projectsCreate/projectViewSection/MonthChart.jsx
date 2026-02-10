@@ -6,6 +6,7 @@ import { ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
 import dayjs from "dayjs";
 import 'react-datepicker/dist/react-datepicker.css';
 import { formatShort } from '@/utils/common';
+import { usePathname } from 'next/navigation';
 
 const buildChartData = (chartMonthData = [], selectedDate) => {
   const month_data = Array.isArray(chartMonthData) ? chartMonthData : [];
@@ -162,6 +163,8 @@ const EnergyChart = ({ chartMonthData, selectedMonthYear, onMonthYearChange, isD
   const [selectedDate, setSelectedDate] = useState(
     selectedMonthYear ? dayjs(selectedMonthYear, 'YYYY-MM').toDate() : new Date()
   );
+  const path = usePathname();
+  const isExchangeHub = path?.includes("/frontend/exchange-hub");
   const [isMobile, setIsMobile] = React.useState(() => typeof window !== 'undefined' ? window.innerWidth < 768 : false);
 
   React.useEffect(() => {
@@ -222,7 +225,7 @@ const EnergyChart = ({ chartMonthData, selectedMonthYear, onMonthYearChange, isD
         ...styles.containerStyle,
         padding: isMobile ? '16px' : isTablet ? '24px' : '32px'
       }}>
-        <div className='date-picker-wrapper' style={{  width: isMobile ? '30%' : isTablet ? '50%' : '10%', }}>
+        <div className='date-picker-wrapper' style={{  width: isExchangeHub ? "20%" : isMobile ? '30%' : isTablet ? '50%' : '10%', }}>
           <DatePicker
             selected={selectedDate}
             onChange={handleDateChange}
