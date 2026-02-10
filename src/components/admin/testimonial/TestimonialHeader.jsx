@@ -3,9 +3,11 @@ import React from "react";
 import { FiPlus } from "react-icons/fi";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@mui/material";
+import usePermissions from "@/hooks/usePermissions";
 
 const TestimonialHeader = () => {
   const { lang } = useLanguage();
+  const { canCreate } = usePermissions();
 
   const openAddModal = () => {
     if (typeof window !== "undefined") {
@@ -17,14 +19,16 @@ const TestimonialHeader = () => {
 
   return (
     <div className="d-flex align-items-center">
-      <Button
-        variant="contained"
-        className="common-orange-color"
-        onClick={openAddModal}
-        startIcon={<FiPlus size={17} />}
-      >
-        {lang("testimonial.add") || "Add Testimonial"}
-      </Button>
+      {canCreate("testimonials") && (
+        <Button
+          variant="contained"
+          className="common-orange-color"
+          onClick={openAddModal}
+          startIcon={<FiPlus size={17} />}
+        >
+          {lang("testimonial.add") || "Add Testimonial"}
+        </Button>
+      )}
     </div>
   );
 };

@@ -23,28 +23,26 @@ import { Close as CloseIcon } from "@mui/icons-material";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import { buildUploadUrl, getFullImageUrl } from "@/utils/common";
+import usePermissions from "@/hooks/usePermissions";
 
 const BlogTable = () => {
   const { lang } = useLanguage();
   const { user } = useAuth();
-
   const [blogData, setBlogData] = useState([]);
-
-  // Modal/form state
-  const [modalMode, setModalMode] = useState(null); // "add" | "edit" | null
+  const [modalMode, setModalMode] = useState(null);
   const [editingId, setEditingId] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
-
-  // fields required by API
   const [blogTitle, setBlogTitle] = useState("");
-  const [blogDate, setBlogDate] = useState(""); // yyyy-mm-dd
+  const [blogDate, setBlogDate] = useState("");
   const [blogImage, setBlogImage] = useState("");
   const [blogImageFile, setBlogImageFile] = useState(null);
   const [imagePreviewUrl, setImagePreviewUrl] = useState("");
   const [blogDescription, setBlogDescription] = useState("");
   const [blogSlug, setBlogSlug] = useState("");
   const [slugChecking, setSlugChecking] = useState(false);
+  const { canEdit, canDelete } = usePermissions();
+  const showActionColumn = canEdit("blog") || canDelete("blog");
 
   const clearError = (key) =>
     setErrors((prev) => (prev[key] ? { ...prev, [key]: "" } : prev));
@@ -274,42 +272,48 @@ const BlogTable = () => {
           );
         },
       },
-      {
-        accessorKey: "actions",
-        header: () => lang("common.actions"),
-        meta: { disableSort: true },
-        cell: ({ row }) => (
-          <Stack direction="row" spacing={1} sx={{ flexWrap: "nowrap" }}>
-            <IconButton
-              size="small"
-              onClick={() => {
-                const item = row.original;
-                if (typeof window !== "undefined") {
-                  window.dispatchEvent(new CustomEvent("blog:open-edit", { detail: { item } }));
-                }
-              }}
-              sx={{
-                color: "#1976d2",
-                transition: "transform 0.2s ease",
-                "&:hover": { backgroundColor: "rgba(25, 118, 210, 0.08)", transform: "scale(1.1)" },
-              }}
-            >
-              <FiEdit3 size={18} />
-            </IconButton>
-            <IconButton
-              size="small"
-              onClick={() => handleDelete(row.original.id)}
-              sx={{
-                color: "#d32f2f",
-                transition: "transform 0.2s ease",
-                "&:hover": { backgroundColor: "rgba(211, 47, 47, 0.08)", transform: "scale(1.1)" },
-              }}
-            >
-              <FiTrash2 size={18} />
-            </IconButton>
-          </Stack>
-        ),
-      },
+      ...(showActionColumn ? [
+        {
+          accessorKey: "actions",
+          header: () => lang("common.actions"),
+          meta: { disableSort: true },
+          cell: ({ row }) => (
+            <Stack direction="row" spacing={1} sx={{ flexWrap: "nowrap" }}>
+              {canEdit("blog") && (
+                <IconButton
+                  size="small"
+                  onClick={() => {
+                    const item = row.original;
+                    if (typeof window !== "undefined") {
+                      window.dispatchEvent(new CustomEvent("blog:open-edit", { detail: { item } }));
+                    }
+                  }}
+                  sx={{
+                    color: "#1976d2",
+                    transition: "transform 0.2s ease",
+                    "&:hover": { backgroundColor: "rgba(25, 118, 210, 0.08)", transform: "scale(1.1)" },
+                  }}
+                >
+                  <FiEdit3 size={18} />
+                </IconButton>
+              )}
+              {canDelete("blog") && (
+                <IconButton
+                  size="small"
+                  onClick={() => handleDelete(row.original.id)}
+                  sx={{
+                    color: "#d32f2f",
+                    transition: "transform 0.2s ease",
+                    "&:hover": { backgroundColor: "rgba(211, 47, 47, 0.08)", transform: "scale(1.1)" },
+                  }}
+                >
+                  <FiTrash2 size={18} />
+                </IconButton>
+              )}
+            </Stack>
+          ),
+        }
+      ] : [])
     ],
     [lang]
   );
@@ -418,7 +422,7 @@ const BlogTable = () => {
                 config={{
                   toolbar: {
                     items: [
-                      "heading","|","bold","italic","underline","strikethrough","fontSize","fontFamily","fontColor","fontBackgroundColor","highlight","removeFormat","|","link","blockQuote","code","codeBlock","insertTable","imageUpload","mediaEmbed","horizontalLine","|","alignment","bulletedList","numberedList","outdent","indent","|","undo","redo"
+                      "heading", "|", "bold", "italic", "underline", "strikethrough", "fontSize", "fontFamily", "fontColor", "fontBackgroundColor", "highlight", "removeFormat", "|", "link", "blockQuote", "code", "codeBlock", "insertTable", "imageUpload", "mediaEmbed", "horizontalLine", "|", "alignment", "bulletedList", "numberedList", "outdent", "indent", "|", "undo", "redo"
                     ],
                     shouldNotGroupWhenFull: true,
                   },

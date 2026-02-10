@@ -27,6 +27,7 @@ import {
 } from "@mui/material";
 import { Close as CloseIcon } from "@mui/icons-material";
 import { useAuth } from "@/contexts/AuthContext";
+import usePermissions from "@/hooks/usePermissions";
 
 const CompanyTable = () => {
   const { lang } = useLanguage();
@@ -41,6 +42,8 @@ const CompanyTable = () => {
   const [modalMode, setModalMode] = useState(null);
   const [status, setStatus] = useState("");
   const [statusError, setStatusError] = useState("");
+  const { canEdit, canDelete } = usePermissions();
+  const showActionColumn = canEdit("inverter_company") || canDelete("inverter_company");
   const { user } = useAuth();
 
   const resetForm = () => {
@@ -214,7 +217,7 @@ const CompanyTable = () => {
   const columns = [
     { accessorKey: "company_name", header: () => lang("company.companyName") },
     { accessorKey: "api_key", header: () => lang("inverter.apiKey") },
-    { accessorKey: "api_url", header: () => lang("inverter.apiUrlName") }, 
+    { accessorKey: "api_url", header: () => lang("inverter.apiUrlName") },
     { accessorKey: "secret_key", header: () => lang("inverter.secretKey") },
     {
       accessorKey: "status",
@@ -245,51 +248,57 @@ const CompanyTable = () => {
         );
       },
     },
-    {
-      accessorKey: "actions",
-      header: () => lang("common.actions"),
-      cell: ({ row }) => (
-        <Stack direction="row" spacing={1} sx={{ flexWrap: "nowrap" }}>
-          <IconButton
-            size="small"
-            onClick={() => {
-              // Open modal for edit with prefilled data via window event
-              const item = row.original;
-              window.dispatchEvent(
-                new CustomEvent("inverter:open-edit", { detail: { item } })
-              );
-            }}
-            sx={{
-              color: "#1976d2",
-              transition: "transform 0.2s ease",
-              "&:hover": {
-                backgroundColor: "rgba(25, 118, 210, 0.08)",
-                transform: "scale(1.1)",
-              },
-            }}
-          >
-            <FiEdit3 size={18} />
-          </IconButton>
-          <IconButton
-            size="small"
-            onClick={() => handleDelete(row.original.id)}
-            sx={{
-              color: "#d32f2f",
-              transition: "transform 0.2s ease",
-              "&:hover": {
-                backgroundColor: "rgba(211, 47, 47, 0.08)",
-                transform: "scale(1.1)",
-              },
-            }}
-          >
-            <FiTrash2 size={18} />
-          </IconButton>
-        </Stack>
-      ),
-      meta: {
-        disableSort: true,
+    ...(showActionColumn ? [
+      {
+        accessorKey: "actions",
+        header: () => lang("common.actions"),
+        cell: ({ row }) => (
+          <Stack direction="row" spacing={1} sx={{ flexWrap: "nowrap" }}>
+            {canEdit("inverter_company") && (
+              <IconButton
+                size="small"
+                onClick={() => {
+                  // Open modal for edit with prefilled data via window event
+                  const item = row.original;
+                  window.dispatchEvent(
+                    new CustomEvent("inverter:open-edit", { detail: { item } })
+                  );
+                }}
+                sx={{
+                  color: "#1976d2",
+                  transition: "transform 0.2s ease",
+                  "&:hover": {
+                    backgroundColor: "rgba(25, 118, 210, 0.08)",
+                    transform: "scale(1.1)",
+                  },
+                }}
+              >
+                <FiEdit3 size={18} />
+              </IconButton>
+            )}
+            {canDelete("inverter_company") && (
+              <IconButton
+                size="small"
+                onClick={() => handleDelete(row.original.id)}
+                sx={{
+                  color: "#d32f2f",
+                  transition: "transform 0.2s ease",
+                  "&:hover": {
+                    backgroundColor: "rgba(211, 47, 47, 0.08)",
+                    transform: "scale(1.1)",
+                  },
+                }}
+              >
+                <FiTrash2 size={18} />
+              </IconButton>
+            )}
+          </Stack>
+        ),
+        meta: {
+          disableSort: true,
+        },
       },
-    },
+    ] : [])
   ];
 
   // For closing modal:

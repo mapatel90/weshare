@@ -1155,7 +1155,7 @@
     "createdSuccessfully": "Role Created Successfully",
     "updatedSuccessfully": "Role Updated Successfully",
     "deletedSuccessfully": "Role Deleted Successfully",
-    "managePermissions": "Role Manage Permissions",
+    "managePermissions": "Manage Module Permissions",
     "features": "Features",
     "capabilities": "Capabilities",
     "rolePermissions": "Role Permissions",

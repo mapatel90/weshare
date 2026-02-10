@@ -26,18 +26,16 @@ import { usePriceWithCurrency } from "@/hooks/usePriceWithCurrency";
 import { useAuth } from "@/contexts/AuthContext";
 import { PROJECT_STATUS } from "@/constants/project_status";
 import { buildUploadUrl } from "@/utils/common";
+import usePermissions from "@/hooks/usePermissions";
 
 const PaymentsPage = () => {
   const { lang } = useLanguage();
   const { user } = useAuth();
-
   const [items, setItems] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [screenshotModal, setScreenshotModal] = useState(false);
   const [selectedScreenshot, setSelectedScreenshot] = useState(null);
   const priceWithCurrency = usePriceWithCurrency();
-
-  // Filter and pagination states
   const [projectFilter, setProjectFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [paymentDateFilter, setPaymentDateFilter] = useState("");
@@ -52,9 +50,8 @@ const PaymentsPage = () => {
   });
   const [loading, setLoading] = useState(true);
   const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
-
-  // Dropdown lists
   const [projectList, setProjectList] = useState([]);
+  const { canCreate, canEdit, canDelete } = usePermissions();
 
   const fetchItems = async () => {
     try {
@@ -349,15 +346,16 @@ const PaymentsPage = () => {
           },
           { type: "divider" },
         ];
-
-        if (paymentStatus !== "Paid") {
-          rowActions.push({
-            label: "Mark as Paid",
-            icon: <span>✓</span>,
-            onClick: async () => {
-              await handleMarkAsPaid(paymentId);
-            },
-          });
+        if (canEdit("payments")) {
+          if (paymentStatus !== "Paid") {
+            rowActions.push({
+              label: "Mark as Paid",
+              icon: <span>✓</span>,
+              onClick: async () => {
+                await handleMarkAsPaid(paymentId);
+              },
+            });
+          }
         }
 
         return (
@@ -380,13 +378,15 @@ const PaymentsPage = () => {
     <>
       <PageHeader>
         <div className="ms-auto">
-          <Button
-            variant="contained"
-            className="common-orange-color"
-            onClick={openAdd}
-          >
-            + {lang("payments.addPayment", "Add Payment")}
-          </Button>
+          {canCreate("payments") && (
+            <Button
+              variant="contained"
+              className="common-orange-color"
+              onClick={openAdd}
+            >
+              + {lang("payments.addPayment", "Add Payment")}
+            </Button>
+          )}
         </div>
       </PageHeader>
       <div className="main-content">

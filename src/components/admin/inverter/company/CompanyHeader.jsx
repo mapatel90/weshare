@@ -3,15 +3,15 @@
 import React from "react";
 import { FiPlus } from "react-icons/fi";
 import { useLanguage } from "@/contexts/LanguageContext";
-// import { Button } from "bootstrap/dist/js/bootstrap.bundle.min";
 import { Button } from "@mui/material";
+import usePermissions from "@/hooks/usePermissions";
 
 const CompanyHeader = () => {
   const { lang } = useLanguage();
+  const { canCreate } = usePermissions();
 
   const openAddModal = () => {
     if (typeof window !== "undefined") {
-      // Open as 'add' mode by resetting with no item passed
       window.dispatchEvent(
         new CustomEvent("inverter:open-edit", { detail: { item: null } })
       );
@@ -20,14 +20,16 @@ const CompanyHeader = () => {
 
   return (
     <div className="d-flex align-items-center">
-      <Button
-        variant="contained"
-        className="common-orange-color"
-        onClick={openAddModal}
-        startIcon={<FiPlus size={17} />}
-      >
-        {lang("company.addCompany")}
-      </Button>
+      {canCreate("inverter_company") && (
+        <Button
+          variant="contained"
+          className="common-orange-color"
+          onClick={openAddModal}
+          startIcon={<FiPlus size={17} />}
+        >
+          {lang("company.addCompany")}
+        </Button>
+      )}
     </div>
   );
 };

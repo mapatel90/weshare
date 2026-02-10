@@ -23,28 +23,26 @@ import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import { buildUploadUrl, getFullImageUrl } from "@/utils/common";
 import { useAuth } from "@/contexts/AuthContext";
+import usePermissions from "@/hooks/usePermissions";
 
 const NewsTable = () => {
   const { lang } = useLanguage();
   const { user } = useAuth();
-
   const [newsData, setNewsData] = useState([]);
-
-  // Modal/form state
-  const [modalMode, setModalMode] = useState(null); // "add" | "edit" | null
+  const [modalMode, setModalMode] = useState(null);
   const [editingId, setEditingId] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
-
-  // fields required by API
   const [newsTitle, setNewsTitle] = useState("");
-  const [newsDate, setNewsDate] = useState(""); // yyyy-mm-dd
+  const [newsDate, setNewsDate] = useState("");
   const [newsImage, setNewsImage] = useState("");
   const [newsImageFile, setNewsImageFile] = useState(null);
   const [imagePreviewUrl, setImagePreviewUrl] = useState("");
   const [newsDescription, setNewsDescription] = useState("");
   const [newsSlug, setNewsSlug] = useState("");
   const [slugChecking, setSlugChecking] = useState(false);
+  const { canEdit, canDelete } = usePermissions();
+  const showActionColumn = canEdit("news") || canDelete("news");
 
   // ---------- simple helpers ----------
   const clearError = (key) =>
@@ -312,50 +310,56 @@ const NewsTable = () => {
       //     return t.length > 80 ? `${t.slice(0, 80)}…` : t;
       //   },
       // },
-      {
-        accessorKey: "actions",
-        header: () => lang("common.actions"),
-        meta: { disableSort: true },
-        cell: ({ row }) => (
-          <Stack direction="row" spacing={1} sx={{ flexWrap: "nowrap" }}>
-            <IconButton
-              size="small"
-              onClick={() => {
-                const item = row.original;
-                if (typeof window !== "undefined") {
-                  window.dispatchEvent(
-                    new CustomEvent("news:open-edit", { detail: { item } })
-                  );
-                }
-              }}
-              sx={{
-                color: "#1976d2",
-                transition: "transform 0.2s ease",
-                "&:hover": {
-                  backgroundColor: "rgba(25, 118, 210, 0.08)",
-                  transform: "scale(1.1)",
-                },
-              }}
-            >
-              <FiEdit3 size={18} />
-            </IconButton>
-            <IconButton
-              size="small"
-              onClick={() => handleDelete(row.original.id)}
-              sx={{
-                color: "#d32f2f",
-                transition: "transform 0.2s ease",
-                "&:hover": {
-                  backgroundColor: "rgba(211, 47, 47, 0.08)",
-                  transform: "scale(1.1)",
-                },
-              }}
-            >
-              <FiTrash2 size={18} />
-            </IconButton>
-          </Stack>
-        ),
-      },
+      ...(showActionColumn ? [
+        {
+          accessorKey: "actions",
+          header: () => lang("common.actions"),
+          meta: { disableSort: true },
+          cell: ({ row }) => (
+            <Stack direction="row" spacing={1} sx={{ flexWrap: "nowrap" }}>
+              {canEdit("news") && (
+                <IconButton
+                  size="small"
+                  onClick={() => {
+                    const item = row.original;
+                    if (typeof window !== "undefined") {
+                      window.dispatchEvent(
+                        new CustomEvent("news:open-edit", { detail: { item } })
+                      );
+                    }
+                  }}
+                  sx={{
+                    color: "#1976d2",
+                    transition: "transform 0.2s ease",
+                    "&:hover": {
+                      backgroundColor: "rgba(25, 118, 210, 0.08)",
+                      transform: "scale(1.1)",
+                    },
+                  }}
+                >
+                  <FiEdit3 size={18} />
+                </IconButton>
+              )}
+              {canDelete("news") && (
+                <IconButton
+                  size="small"
+                  onClick={() => handleDelete(row.original.id)}
+                  sx={{
+                    color: "#d32f2f",
+                    transition: "transform 0.2s ease",
+                    "&:hover": {
+                      backgroundColor: "rgba(211, 47, 47, 0.08)",
+                      transform: "scale(1.1)",
+                    },
+                  }}
+                >
+                  <FiTrash2 size={18} />
+                </IconButton>
+              )}
+            </Stack>
+          ),
+        }
+      ] : [])
     ],
     [lang]
   );

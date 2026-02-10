@@ -27,37 +27,34 @@ import {
 } from "@mui/material";
 import { Close as CloseIcon } from "@mui/icons-material";
 import { useAuth } from "@/contexts/AuthContext";
+import usePermissions from "@/hooks/usePermissions";
 
 const InverterTable = () => {
   const { lang } = useLanguage();
   const [invertersData, setInvertersData] = useState([]);
-  // Modal/Form state (moved from AddInverter)
   const [typeOptions, setTypeOptions] = useState([]);
   const [selectedType, setSelectedType] = useState(null);
   const [loadingTypes, setLoadingTypes] = useState(false);
   const [typesError, setTypesError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [pendingEdit, setPendingEdit] = useState(null);
-  const [companyName, setCompanyName] = useState(""); // keep for compatibility, but use selectedCompany
+  const [companyName, setCompanyName] = useState("");
   const [companyOptions, setCompanyOptions] = useState([]);
   const [selectedCompany, setSelectedCompany] = useState(null);
   const [title, setTitle] = useState("");
   const [apiKey, setApiKey] = useState("");
   const [secretKey, setSecretKey] = useState("");
-  const [apiUrlName, setApiUrlName] = useState(""); // <-- added state
+  const [apiUrlName, setApiUrlName] = useState("");
   const [companyId, setCompanyId] = useState("");
   const [typeId, setTypeId] = useState("");
-
   const [editingId, setEditingId] = useState(null);
   const [errors, setErrors] = useState({});
-  // Modal logic state:
   const [modalMode, setModalMode] = useState(null);
   const [status, setStatus] = useState("");
   const [statusError, setStatusError] = useState("");
   const { user } = useAuth();
   const { canDelete, canEdit } = usePermissions();
   const showActionColumn = canEdit("inverter_list") || canDelete("inverter_list");
-  console.log("showActionColumn",showActionColumn);
 
   const resetForm = () => {
     setCompanyName("");
@@ -311,51 +308,57 @@ const InverterTable = () => {
         );
       },
     },
-    {
-      accessorKey: "actions",
-      header: () => lang("common.actions"),
-      cell: ({ row }) => (
-        <Stack direction="row" spacing={1} sx={{ flexWrap: "nowrap" }}>
-          <IconButton
-            size="small"
-            onClick={() => {
-              // Open modal for edit with prefilled data via window event
-              const item = row.original;
-              window.dispatchEvent(
-                new CustomEvent("inverter:open-edit", { detail: { item } })
-              );
-            }}
-            sx={{
-              color: "#1976d2",
-              transition: "transform 0.2s ease",
-              "&:hover": {
-                backgroundColor: "rgba(25, 118, 210, 0.08)",
-                transform: "scale(1.1)",
-              },
-            }}
-          >
-            <FiEdit3 size={18} />
-          </IconButton>
-          <IconButton
-            size="small"
-            onClick={() => handleDelete(row.original.id)}
-            sx={{
-              color: "#d32f2f",
-              transition: "transform 0.2s ease",
-              "&:hover": {
-                backgroundColor: "rgba(211, 47, 47, 0.08)",
-                transform: "scale(1.1)",
-              },
-            }}
-          >
-            <FiTrash2 size={18} />
-          </IconButton>
-        </Stack>
-      ),
-      meta: {
-        disableSort: true,
+    ...(showActionColumn ? [
+      {
+        accessorKey: "actions",
+        header: () => lang("common.actions"),
+        cell: ({ row }) => (
+          <Stack direction="row" spacing={1} sx={{ flexWrap: "nowrap" }}>
+            {canEdit("inverter_list") && (
+              <IconButton
+                size="small"
+                onClick={() => {
+                  // Open modal for edit with prefilled data via window event
+                  const item = row.original;
+                  window.dispatchEvent(
+                    new CustomEvent("inverter:open-edit", { detail: { item } })
+                  );
+                }}
+                sx={{
+                  color: "#1976d2",
+                  transition: "transform 0.2s ease",
+                  "&:hover": {
+                    backgroundColor: "rgba(25, 118, 210, 0.08)",
+                    transform: "scale(1.1)",
+                  },
+                }}
+              >
+                <FiEdit3 size={18} />
+              </IconButton>
+            )}
+            {canDelete("inverter_list") && (
+              <IconButton
+                size="small"
+                onClick={() => handleDelete(row.original.id)}
+                sx={{
+                  color: "#d32f2f",
+                  transition: "transform 0.2s ease",
+                  "&:hover": {
+                    backgroundColor: "rgba(211, 47, 47, 0.08)",
+                    transform: "scale(1.1)",
+                  },
+                }}
+              >
+                <FiTrash2 size={18} />
+              </IconButton>
+            )}
+          </Stack>
+        ),
+        meta: {
+          disableSort: true,
+        },
       },
-    },
+    ] : [])
   ];
 
   // For closing modal:
