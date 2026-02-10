@@ -4,11 +4,8 @@ import Header from "@/components/shared/header/Header";
 import NavigationManu from "@/components/shared/navigationMenu/NavigationMenu";
 import SupportDetails from "@/components/supportDetails";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import dynamic from "next/dynamic";
+import RoutePermissionGuard from "@/components/common/RoutePermissionGuard";
 import useBootstrapUtils from "@/hooks/useBootstrapUtils";
-
-// const useBootstrapUtils = dynamic(() => import('@/hooks/useBootstrapUtils'), { ssr: false })
-// const AddInverter = dynamic(() => import('@/components/inverter/AddInverter'), { ssr: false })
 
 const layout = ({ children }) => {
     const pathName = usePathname()
@@ -16,15 +13,16 @@ const layout = ({ children }) => {
 
     return (
         <ProtectedRoute>
-            <Header />
-            <NavigationManu />
-            <main className="nxl-container">
-                <div className="nxl-content">
-                    {children}
-                </div>
-            </main>
-            <SupportDetails />
-            {/* <AddInverter /> */}
+            <RoutePermissionGuard>
+                <Header />
+                <NavigationManu />
+                <main className="nxl-container">
+                    <div className="nxl-content">
+                        {children}
+                    </div>
+                </main>
+                <SupportDetails />
+            </RoutePermissionGuard>
         </ProtectedRoute>
     )
 }

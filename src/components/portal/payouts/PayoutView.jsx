@@ -7,6 +7,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { usePriceWithCurrency } from "@/hooks/usePriceWithCurrency";
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
 import { downloadPayoutPDF } from "./PayoutPdf";
+import { buildUploadUrl } from "@/utils/common";
 
 const PayoutView = ({ payout_id }) => {
     const { lang } = useLanguage();
@@ -78,7 +79,7 @@ const PayoutView = ({ payout_id }) => {
     const project = payout?.projects || {};
     const client = payout?.users || {};
     const handleViewDocument = (url) => {
-        setDocumentPreview(url);
+        setDocumentPreview(buildUploadUrl(url));
     };
 
     return (

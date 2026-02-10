@@ -25,6 +25,7 @@ import {
 import { usePriceWithCurrency } from "@/hooks/usePriceWithCurrency";
 import { useAuth } from "@/contexts/AuthContext";
 import { PROJECT_STATUS } from "@/constants/project_status";
+import { buildUploadUrl } from "@/utils/common";
 
 const PaymentsPage = () => {
   const { lang } = useLanguage();
@@ -93,8 +94,8 @@ const PaymentsPage = () => {
             : "N/A",
           invoiceDate: payment.invoices?.invoice_date
             ? new Date(payment.invoices.invoice_date).toLocaleDateString(
-                "en-US"
-              )
+              "en-US"
+            )
             : "N/A",
           dueDate: payment.invoices?.due_date
             ? new Date(payment.invoices.due_date).toLocaleDateString("en-US")
@@ -176,49 +177,28 @@ const PaymentsPage = () => {
     try {
       // Upload screenshot first
       let ss_url = "";
-      if (data.image) {
-        const formData = new FormData();
-        formData.append("file", data.image);
-        formData.append("folder", "payment");
-
-        const uploadResponse = await apiUpload("/api/upload", formData);
-        if (uploadResponse?.success && uploadResponse?.data?.url) {
-          ss_url = uploadResponse.data.url;
-        } else {
-          throw new Error("Failed to upload screenshot");
-        }
-      }
-
-      // Prepare payload with correct types
-      const payload = {
-        invoice_id: data.invoice_id ? Number(data.invoice_id) : 0,
-        offtaker_id: user?.id || null,
-        amount: parseFloat(data.amount) || 0,
-        ss_url: ss_url,
-        status: 1,
-        created_by: user?.id || null,
-      };
-
-      const res = await apiPost("/api/payments", payload);
-      if (res?.success) {
-        showSuccessToast(
-          lang("payments.createdSuccessfully", "Payment Created Successfully")
-        );
-        closeModal();
-        await fetchItems();
+      const formData = new FormData();
+      formData.append("file", data.image);
+      formData.append("folder", "payment");
+      formData.append("invoice_id", data.invoice_id);
+      formData.append("offtaker_id", user?.id);
+      formData.append("amount", parseFloat(data.amount) || 0);
+      formData.append("status", 0);
+      formData.append("created_by", user?.id);
+      // Create payment record
+      const response = await apiUpload("/api/payments", formData, { includeAuth: true });
+      if (response?.success) {
+        showSuccessToast("Payment submitted successfully!");
+        setShowModal(false);
       } else {
-        showErrorToast(
-          res?.message ||
-            lang(
-              "payments.errorOccurred",
-              "An error occurred. Please try again."
-            )
-        );
+        throw new Error("Payment creation failed");
       }
+      // Refresh payments list
+      await fetchItems();
     } catch (err) {
       showErrorToast(
         err?.message ||
-          lang("payments.errorOccurred", "An error occurred. Please try again.")
+        lang("payments.errorOccurred", "An error occurred. Please try again.")
       );
     }
   };
@@ -255,13 +235,13 @@ const PaymentsPage = () => {
       } else {
         showErrorToast(
           res?.message ||
-            lang("payments.errorOccurred", "An error occurred. Please try again.")
+          lang("payments.errorOccurred", "An error occurred. Please try again.")
         );
       }
     } catch (err) {
       showErrorToast(
         err?.message ||
-          lang("payments.errorOccurred", "An error occurred. Please try again.")
+        lang("payments.errorOccurred", "An error occurred. Please try again.")
       );
     }
   };
@@ -334,7 +314,7 @@ const PaymentsPage = () => {
       accessorKey: "ss_url",
       header: () => lang("payments.screenshot", "Screenshot"),
       cell: ({ row }) => {
-        const ss_url = row.original?.ss_url;
+        const ss_url = buildUploadUrl(row.original?.ss_url);
         return ss_url ? (
           <IconButton
             size="small"
@@ -358,7 +338,7 @@ const PaymentsPage = () => {
       cell: ({ row }) => {
         const paymentId = row.original.id;
         const paymentStatus = row.original.status;
-        
+
         const rowActions = [
           {
             label: "Download PDF",
@@ -454,8 +434,8 @@ const PaymentsPage = () => {
                     statusFilter === ""
                       ? null
                       : statusFilter === "1"
-                      ? { value: "1", label: lang("invoice.paid", "Paid") }
-                      : { value: "0", label: lang("common.pending", "Pending") }
+                        ? { value: "1", label: lang("invoice.paid", "Paid") }
+                        : { value: "0", label: lang("common.pending", "Pending") }
                   }
                   onChange={(e, newValue) => {
                     setPageIndex(0);

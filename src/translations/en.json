@@ -51,7 +51,8 @@
     "howItWorks": "How It Works",
     "home": "Home",
     "payouts": "Payouts",
-    "company": "Company"
+    "company": "Company",
+    "myprofile": "My Profile"
   },
   "header": {
     "dashboard": "Dashboard",
@@ -307,7 +308,11 @@
     "notifications": "Notifications",
     "viewAllNotifications": "View all notifications",
     "markAllRead": "Mark all read",
-    "noNotifications": "No notifications"
+    "noNotifications": "No notifications",
+    "change_photo": "Change Photo",
+    "upload_photo": "Upload Photo",
+    "saving_changes": "Saving Changes...",
+    "save_changes": "Save Changes"
   },
   "messages": {
     "cannotUndoDelete": "You won't be able to revert this!",
@@ -1149,7 +1154,13 @@
     "updatedAt": "Updated At",
     "createdSuccessfully": "Role Created Successfully",
     "updatedSuccessfully": "Role Updated Successfully",
-    "deletedSuccessfully": "Role Deleted Successfully"
+    "deletedSuccessfully": "Role Deleted Successfully",
+    "managePermissions": "Role Manage Permissions",
+    "features": "Features",
+    "capabilities": "Capabilities",
+    "rolePermissions": "Role Permissions",
+    "permissionsUpdated": "Permissions updated successfully",
+    "permissionsUpdateFailed": "Failed to update permissions"
   },
   "inverter": {
     "project_inverters": "Project Inverters",
@@ -1275,7 +1286,8 @@
     "suspended": "Suspended",
     "banned": "Banned",
     "phonenumber": "Phone Number",
-    "userRole": "User Role"
+    "userRole": "User Role",
+    "email_address": "Email Address"
   },
   "invoice": {
     "item": "Item",
@@ -1729,6 +1741,7 @@
     "payment_title": "Payment Alert",
     "project_created_title": "Project Create",
     "project_created": "New project \"{{project_name}}\" created by WeShare.",
+    "offtaker_project_created": "New project \"{{project_name}}\" created by \"{{created_by}}\".",
     "invoice_created": "New invoice \"{{invoice_number}}\" created by WeShare.",
     "payment_made": "Payment of \"{{amount}}\" made by WeShare for invoice \"{{invoice_number}}\".",
     "contract_title": "Contract Generated",
@@ -1832,9 +1845,32 @@
     "errorOccurred": "An error occurred. Please try again.",
     "selectStatus": "Select Status"
   },
+  "privacyPolicy": {
+    "title": "Privacy Policy",
+    "privacy": "Privacy ",
+    "policy": "Policy",
+    "message2": "Last Updated on 31st October, 2025"
+  },
   "profile": {
     "preferences": "Preferences",
-    "language": "Language"
+    "language": "Language",
+    "profile_picture": "Profile Picture",
+    "profile_image_format": "JPG, PNG, GIF or WEBP. Max size 5MB",
+    "new_image_selected": "New image selected. Click Save Changes below to upload.",
+    "personal_information": "Personal Information",
+    "address_information": "Address Information",
+    "address_line_1": "Address Line 1",
+    "address_line_2": "Address Line 2",
+    "address_line_1_placeholder": "Street address, P.O. box",
+    "address_line_2_placeholder": "Apartment, suite, unit, building, floor, etc.",
+    "country": "Country",
+    "country_placeholder": "Select Country",
+    "state": "State",
+    "state_placeholder": "Select State",
+    "city": "City",
+    "city_placeholder": "Select City",
+    "zipcode": "Zip Code",
+    "zipcode_placeholder": "Enter Zip Code"
   },
   "chart_label": {
     "electricityConsumption": "Daily Electricity Consumption by Source (WeShare/Grid)",

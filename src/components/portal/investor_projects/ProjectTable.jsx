@@ -14,7 +14,7 @@ import { apiGet } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import { getPrimaryProjectImage } from "@/utils/projectUtils";
-import { getFullImageUrl } from "@/utils/common";
+import { buildUploadUrl, getFullImageUrl } from "@/utils/common";
 import { PROJECT_STATUS } from "@/constants/project_status";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -70,8 +70,8 @@ const normalizeApiProject = (project) => {
   const rawCoverImage =
     getPrimaryProjectImage(project.projects || project) || "";
   const coverImage = rawCoverImage
-    ? getFullImageUrl(rawCoverImage)
-    : getFullImageUrl("/uploads/general/noimage.jpeg");
+    ? buildUploadUrl(rawCoverImage)
+    : buildUploadUrl("/uploads/general/noimage.jpeg");
 
   return {
     id: project.projects?.id ? `#${project.projects.id}` : project.projects?.project_code ?? "—",

@@ -5,6 +5,7 @@ import { apiGet } from "@/lib/api";
 import { showErrorToast } from "@/utils/topTost";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { PROJECT_STATUS } from "@/constants/project_status";
+import { buildUploadUrl } from "@/utils/common";
 
 const ContractDetails = () => {
   const { lang } = useLanguage();
@@ -116,7 +117,7 @@ const ContractDetails = () => {
                   <div className="mb-1 text-muted">{lang('contract.document', 'Contract Document')}</div>
                   {documentUrl ? (
                     <a
-                      href={documentUrl}
+                      href={buildUploadUrl(documentUrl)}
                       target="_blank"
                       rel="noreferrer"
                       className="text-primary"

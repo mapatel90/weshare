@@ -167,7 +167,7 @@ const PayoutsPage = () => {
             });
             return;
         }
-        setSelectedQRCode({ qrCode, userName });
+        setSelectedQRCode({ qrCode: buildUploadUrl(qrCode), userName });
         setShowQRModal(true);
     };
 

@@ -3,7 +3,6 @@ import React, { memo, useEffect, useState } from 'react'
 import Table from '@/components/shared/table/Table'
 import { FiEdit3, FiEye, FiTrash2, FiMoreHorizontal, FiMail, FiPhone } from 'react-icons/fi'
 import { BsQrCode } from 'react-icons/bs'
-import Dropdown from '@/components/shared/Dropdown'
 import Link from 'next/link'
 import { apiGet, apiDelete } from '@/lib/api'
 import { useRouter } from 'next/navigation'
@@ -11,6 +10,7 @@ import Swal from 'sweetalert2'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { Button } from '@mui/material'
 import { buildUploadUrl } from '@/utils/common'
+import usePermissions from '@/hooks/usePermissions'
 
 // Status mapping
 const statusMapping = {
@@ -36,6 +36,9 @@ const UsersTable = () => {
   const [showQRModal, setShowQRModal] = useState(false)
   const [selectedQRCode, setSelectedQRCode] = useState(null)
   const router = useRouter()
+  const { canDelete, canEdit } = usePermissions();
+  const showActionColumn = canEdit("users") || canDelete("users");
+
 
   // Fetch users
   const fetchUsers = async (page = 1, search = '', role = '', status = '') => {
@@ -249,100 +252,48 @@ const UsersTable = () => {
         headerClassName: 'text-center'
       }
     },
-    {
-      accessorKey: 'actions',
-      header: () => lang("table.actions"),
-      cell: ({ row }) => {
-        const user = row.original
-        const actions = [
-          {
-            label: lang("common.edit"),
-            icon: <FiEdit3 />,
-            onClick: () => router.push(`/admin/users/edit?id=${user.id}`)
-          },
-          { type: 'divider' },
-          {
-            label: lang("common.delete"),
-            icon: <FiTrash2 />,
-            className: 'text-danger',
-            onClick: () => handleDeleteUser(user.id, `${user?.full_name}`)
-          }
-        ]
+    ...(showActionColumn
+      ? [{
+        accessorKey: 'actions',
+        header: () => lang("table.actions"),
+        cell: ({ row }) => {
+          const user = row.original;
 
-        return (
-          <div className="hstack gap-2 justify-content-end">
-            <Link href={`/admin/users/edit?id=${user.id}`} className="avatar-text avatar-md">
-              <FiEdit3 />
-            </Link>
-            <a className="avatar-text avatar-md" onClick={() => handleDeleteUser(user.id, `${user?.full_name}`)}>
-              <FiTrash2 />
-            </a>
-          </div>
-        )
-      },
-      meta: {
-        headerClassName: 'text-center',
-      }
-    }
+          return (
+            <div className="hstack gap-2 justify-content-end">
+              {canEdit("users") && (
+                <Link
+                  href={`/admin/users/edit?id=${user.id}`}
+                  className="avatar-text avatar-md"
+                >
+                  <FiEdit3 />
+                </Link>
+              )}
+
+              {canDelete("users") && (
+                <a
+                  className="avatar-text avatar-md"
+                  onClick={() =>
+                    handleDeleteUser(user.id, `${user?.full_name}`)
+                  }
+                >
+                  <FiTrash2 />
+                </a>
+              )}
+            </div>
+          );
+        },
+        meta: {
+          headerClassName: 'text-center',
+        },
+      }]
+      : []),
   ]
 
   return (
     <div>
-      {/* Filters */}
-      {/* <div className="card-header border-bottom">
-        <div className="row align-items-center">
-          <div className="col-md-6">
-            <div className="input-group">
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Search users..."
-                value={filters.search}
-                onChange={(e) => handleSearch(e.target.value)}
-              />
-            </div>
-          </div>
-          <div className="col-md-6">
-            <div className="d-flex gap-2 justify-content-end">
-              <select
-                className="form-select form-select-sm"
-                style={{ width: 'auto' }}
-                value={filters.role}
-                onChange={(e) => handleRoleFilter(e.target.value)}
-              >
-                <option value="">All Roles</option>
-                <option value="1">Super Admin</option>
-                <option value="2">Admin</option>
-                <option value="3">User</option>
-                <option value="4">Moderator</option>
-              </select>
-              <select
-                className="form-select form-select-sm"
-                style={{ width: 'auto' }}
-                value={filters.status}
-                onChange={(e) => handleStatusFilter(e.target.value)}
-              >
-                <option value="">All Status</option>
-                <option value="0">Inactive</option>
-                <option value="1">Active</option>
-                <option value="2">Suspended</option>
-                <option value="3">Banned</option>
-              </select>
-            </div>
-          </div>
-        </div>
-      </div> */}
-
       {/* Table */}
       <div className="position-relative">
-        {/* Commented out - using global loader instead */}
-        {/* {loading && (
-          <div className="position-absolute top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center bg-white bg-opacity-75" style={{ zIndex: 10 }}>
-            <div className="spinner-border text-primary" role="status">
-              <span className="visually-hidden">Loading...</span>
-            </div>
-          </div>
-        )} */}
         <Table data={users} columns={columns} />
       </div>
 

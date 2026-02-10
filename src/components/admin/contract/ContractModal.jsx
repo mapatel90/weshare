@@ -14,6 +14,7 @@ import {
 } from "@mui/material";
 import { Close as CloseIcon } from "@mui/icons-material";
 import { showErrorToast } from "@/utils/topTost";
+import { buildUploadUrl } from "@/utils/common";
 
 const ContractModal = (props) => {
   const {
@@ -300,7 +301,7 @@ const ContractModal = (props) => {
                   />
                 ) : (
                   <a
-                    href={documentUpload || documentPreviewUrl}
+                    href={buildUploadUrl(documentUpload || documentPreviewUrl)}
                     target="_blank"
                     rel="noreferrer"
                   >

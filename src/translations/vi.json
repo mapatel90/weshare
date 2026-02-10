@@ -52,7 +52,8 @@
     "home": "Trang chủ",
     "payouts": "khoản thanh toán",
     "email_templates": "Mẫu email",
-    "company": "Công ty"
+    "company": "Công ty",
+    "myprofile": "Hồ sơ của tôi"
   },
   "header": {
     "dashboard": "Bảng điều khiển",
@@ -289,7 +290,11 @@
     "notifications": "Thông báo",
     "viewAllNotifications": "Xem tất cả thông báo",
     "markAllRead": "Đánh dấu tất cả đã đọc",
-    "noNotifications": "Không có thông báo"
+    "noNotifications": "Không có thông báo",
+    "change_photo": "Thay đổi ảnh",
+    "upload_photo": "Tải lên ảnh",
+    "saving_changes": "Đang lưu thay đổi...",
+    "save_changes": "Lưu thay đổi"
   },
   "messages": {
     "cannotUndoDelete": "Bạn sẽ không thể hoàn tác điều này!",
@@ -1068,7 +1073,13 @@
     "updatedAt": "Ngày cập nhật",
     "createdSuccessfully": "Vai trò đã được tạo thành công",
     "updatedSuccessfully": "Vai trò đã được cập nhật thành công",
-    "deletedSuccessfully": "Đã xóa vai trò thành công"
+    "deletedSuccessfully": "Đã xóa vai trò thành công",
+    "managePermissions": "Quản lý quyền hạn",
+    "features": "Tính năng",
+    "capabilities": "Quyền hạn",
+    "rolePermissions": "Quyền hạn vai trò",
+    "permissionsUpdated": "Quyền hạn đã được cập nhật thành công",
+    "permissionsUpdateFailed": "Không thể cập nhật quyền hạn"
   },
   "smtp": {
     "title": "Cấu hình SMTP",
@@ -1221,7 +1232,8 @@
     "suspended": "Bị đình chỉ",
     "banned": "Bị cấm",
     "phonenumber": "Số điện thoại",
-    "userRole": "Vai trò người dùng"
+    "userRole": "Vai trò người dùng",
+    "email_address": "Địa chỉ email"
   },
   "invoice": {
     "item": "Mục",
@@ -1771,9 +1783,28 @@
     "errorOccurred": "Đã xảy ra lỗi. Vui lòng thử lại.",
     "selectStatus": "Chọn trạng thái"
   },
+  "privacyPolicy": {
+    "title": "Chính sách bảo mật",
+    "privacy": "Sự riêng tư",
+    "policy": "Chính sách",
+    "message2": "Cập nhật lần cuối ngày 31 tháng 10 năm 2025"
+  },
   "profile": {
     "preferences": "Tùy chọn",
-    "language": "Ngôn ngữ"
+    "language": "Ngôn ngữ",
+    "profile_picture": "Ảnh đại diện",
+    "profile_image_format": "JPG, PNG, GIF hoặc WEBP. Kích thước tối đa 5MB",
+    "new_image_selected": "Ảnh mới đã được chọn. Vui lòng nhấn Lưu thay đổi dưới để tải lên.",
+    "personal_information": "Thông tin cá nhân",
+    "address_information": "Thông tin địa chỉ",
+    "address_line_1": "Địa chỉ 1",
+    "address_line_2": "Địa chỉ 2",
+    "address_line_1_placeholder": "Địa chỉ 1",
+    "address_line_2_placeholder": "Địa chỉ 2",
+    "country": "Quốc gia",
+    "country_placeholder": "Chọn quốc gia",
+    "state": "Tiểu bang",
+    "state_placeholder": "Chọn tiểu bang"
   },
   "chart_label": {
     "electricityConsumption": "Lượng điện tiêu thụ hàng ngày theo nguồn (WeShare/Lưới điện)",

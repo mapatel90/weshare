@@ -50,7 +50,18 @@ const PageHeaderTitle = () => {
             { name: lang("menu.billings", "Billings"), href: "/offtaker/billings" },
             { name: lang("menu.invoice", "Invoice"), href: null }
         ];
-    } else {
+    }
+    else if (
+        parts.length >= 2 &&
+        parts[0] === "offtaker" &&
+        parts[1] === "myprofile"
+    ) {
+        title = lang("page_title.myprofile", "My Profile");
+        breadcrumb = [
+            { name: title, href: "/offtaker/myprofile" }
+        ];
+    }
+    else {
         const pageKey = parts[parts.length - 1] || lang("page_title.dashboard", "dashboard");
         const pageName = lang(`menu.${pageKey}`, pageKey.replace(/-/g, " "));
         title = pageName.charAt(0).toUpperCase() + pageName.slice(1);

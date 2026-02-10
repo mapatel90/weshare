@@ -6,55 +6,25 @@ import ProjectsStatistics from '../../widgetsStatistics/ProjectsStatistics'
 import Link from 'next/link'
 import { Button } from '@mui/material'
 import { useLanguage } from '@/contexts/LanguageContext'
+import usePermissions from '@/hooks/usePermissions'
 
-const options = [
-  { label: "Alls", color: "bg-primary" },
-  { label: "On Hold", color: "bg-indigo" },
-  { label: "Pending", color: "bg-warning" },
-  { label: "Finished", color: "bg-success" },
-  { label: "Declined", color: "bg-danger" },
-  { label: "In Progress", color: "bg-teal" },
-  { label: "Not Started", color: "bg-success" },
-  { label: "My Projects", color: "bg-warning" }
-];
 const ProjectsListHeader = () => {
   const { lang } = useLanguage();
+  const { canCreate } = usePermissions();
   return (
     <>
       <div className="d-flex align-items-center gap-2 page-header-right-items-wrapper">
-        {/* <a href="#" className="btn btn-icon btn-light-brand" data-bs-toggle="collapse" data-bs-target="#collapseOne">
-          <FiBarChart size={16} />
-        </a>
-        <Dropdown
-          dropdownItems={options}
-          triggerPosition={"0, 10"}
-          triggerIcon={<FiFilter size={16} strokeWidth={1.6} />}
-          triggerClass='btn btn-icon btn-light-brand'
-          isAvatar={false}
-          dropdownAutoClose={"outside"}
-          isItemIcon={false}
-        />
-        <Dropdown
-          dropdownItems={fileType}
-          triggerPosition={"0, 12"}
-          triggerIcon={<FiPaperclip size={16} strokeWidth={1.6} />}
-          triggerClass='btn btn-icon btn-light-brand'
-          isAvatar={false}
-          iconStrokeWidth={0}
-        /> */}
-        {/* <Link href="/admin/projects/create" className="btn common-orange-color">
-          <FiPlus size={16} className='me-2' />
-          <span>Create Prject</span>
-        </Link> */}
-        <Button
-          component={Link}
-          href="/admin/projects/create"
-          variant="contained"
-          startIcon={<FiPlus size={16} />}
-          className="common-orange-color"
-        >
-          {lang('projects.createproject', 'Create Project')}
-        </Button>
+        {canCreate("projects") && (
+          <Button
+            component={Link}
+            href="/admin/projects/create"
+            variant="contained"
+            startIcon={<FiPlus size={16} />}
+            className="common-orange-color"
+          >
+            {lang('projects.createproject', 'Create Project')}
+          </Button>
+        )}
       </div>
       <div id="collapseOne" className="accordion-collapse collapse page-header-collapse">
         <div className="accordion-body pb-2">

@@ -11,6 +11,7 @@ import { Autocomplete, Button, Dialog, DialogActions, DialogContent, DialogTitle
 import Link from "next/link";
 import { ROLES } from "@/constants/roles";
 import { downloadPayoutPDF } from "./PayoutPdf";
+import { buildUploadUrl } from "@/utils/common";
 
 
 const PayoutsPage = () => {
@@ -86,7 +87,7 @@ const PayoutsPage = () => {
     };
 
     const handleViewDocument = (url) => {
-        setDocumentPreview(url);
+        setDocumentPreview(buildUploadUrl(url));
     };
 
     const handlePaginationChange = (nextPagination) => {

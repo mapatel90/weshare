@@ -2,7 +2,8 @@
 import React, { useState, useEffect } from "react";
 import { apiGet, apiPost, apiPut, apiDelete } from "@/lib/api";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { FiTrash2, FiEdit3, FiPlus } from "react-icons/fi";
+import { useRouter } from "next/navigation";
+import { FiTrash2, FiEdit3, FiPlus, FiShield } from "react-icons/fi";
 import Table from "@/components/shared/table/Table";
 import RoleHeaderSetting from "./RoleHeader";
 import { showSuccessToast } from "@/utils/topTost";
@@ -26,9 +27,11 @@ import {
   Stack,
 } from "@mui/material";
 import { Close as CloseIcon } from "@mui/icons-material";
+import { BsShieldFillExclamation } from "react-icons/bs";
 
 const RoleTable = () => {
   const { lang } = useLanguage();
+  const router = useRouter();
   const [rolesData, setRolesData] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -150,6 +153,10 @@ const RoleTable = () => {
     }
   };
 
+  const handlePermission = (roleId) => {
+    router.push(`/admin/settings/role/permissions/${roleId}`);
+  };
+
   useEffect(() => {
     fetchRoles();
   }, []);
@@ -224,6 +231,21 @@ const RoleTable = () => {
             >
               <FiEdit3 size={18} />
             </IconButton>
+            {/* PERMISSION */}
+            <IconButton
+              size="small"
+              onClick={() => handlePermission(row.id)}
+              sx={{
+                color: "#2e7d32",
+                "&:hover": {
+                  backgroundColor: "rgba(46, 125, 50, 0.08)",
+                  transform: "scale(1.1)",
+                },
+              }}
+              title="Manage Permissions"
+            >
+              <BsShieldFillExclamation  size={18} />
+            </IconButton>
             <IconButton
               size="small"
               onClick={() => handleDelete(row.id)}
@@ -241,23 +263,9 @@ const RoleTable = () => {
           </Stack>
         );
       },
-     meta: { disableSort: true },
+      meta: { disableSort: true },
     },
   ];
-
-  /** ✅ Loader */
-  // Commented out - using global loader instead
-  // if (loading) {
-  //   return (
-  //     <div className="text-center py-5">
-  //       <div className="spinner-border text-primary" role="status">
-  //         <span className="visually-hidden">Loading...</span>
-  //       </div>
-  //     </div>
-  //   );
-  // }
-
-  /** ✅ Render */
 
   return (
     <>

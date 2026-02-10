@@ -111,10 +111,17 @@ router.post('/', authenticateToken, async (req, res) => {
         message: 'Role with this name already exists'
       });
     }
+
+    // get last role id
+    const lastRole = await prisma.roles.findFirst({
+      orderBy: { id: 'desc' }
+    });
+    const lastRoleId = lastRole ? lastRole.id + 1 : 1;
     
     // Create role
     const newRole = await prisma.roles.create({
       data: {
+        id: lastRoleId,
         name,
         status: parseInt(status)
       }
@@ -221,6 +228,143 @@ router.delete('/:id', authenticateToken, async (req, res) => {
 
   } catch (error) {
     console.error('Delete role error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    });
+  }
+});
+
+// Get permissions for a role
+router.get('/permissions/:id', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Check if role exists
+    const role = await prisma.roles.findFirst({
+      where: { id: parseInt(id), is_deleted: 0 }
+    });
+
+    if (!role) {
+      return res.status(404).json({
+        success: false,
+        message: 'Role not found'
+      });
+    }
+
+    // Get ALL unique modules and keys from roles_permissions table (for all roles)
+    const allPermissions = await prisma.roles_permissions.findMany({
+      distinct: ['module', 'key'],
+      select: { module: true, key: true },
+      orderBy: { id: 'asc' }
+    });
+
+    // Build modules list with all available capabilities
+    const modulesMap = {};
+    allPermissions.forEach(p => {
+      if (!modulesMap[p.module]) {
+        modulesMap[p.module] = {
+          module: p.module,
+          label: p.module.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '),
+          capabilities: []
+        };
+      }
+      if (!modulesMap[p.module].capabilities.includes(p.key)) {
+        modulesMap[p.module].capabilities.push(p.key);
+      }
+    });
+
+    // Get this role's permissions
+    const rolePermissions = await prisma.roles_permissions.findMany({
+      where: { role_id: parseInt(id) }
+    });
+
+    // Build permissions map for this role
+    const permissionsMap = {};
+    rolePermissions.forEach(p => {
+      if (!permissionsMap[p.module]) {
+        permissionsMap[p.module] = {};
+      }
+      permissionsMap[p.module][p.key] = p.value === 1;
+    });
+
+    // Convert modulesMap to array
+    const modules = Object.values(modulesMap);
+
+    res.json({
+      success: true,
+      data: {
+        role,
+        permissions: permissionsMap,
+        modules
+      }
+    });
+
+  } catch (error) {
+    console.error('Get role permissions error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    });
+  }
+});
+
+// Update permissions for a role
+router.put('/permissions/:id', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { permissions } = req.body; // { module: { key: true/false } }
+
+    // Check if role exists
+    const role = await prisma.roles.findFirst({
+      where: { id: parseInt(id), is_deleted: 0 }
+    });
+
+    if (!role) {
+      return res.status(404).json({
+        success: false,
+        message: 'Role not found'
+      });
+    }
+
+    // Prepare upsert operations
+    const operations = [];
+    
+    for (const [module, capabilities] of Object.entries(permissions)) {
+      for (const [key, value] of Object.entries(capabilities)) {
+        operations.push(
+          prisma.roles_permissions.upsert({
+            where: {
+              role_id_module_key: {
+                role_id: parseInt(id),
+                module: module,
+                key: key
+              }
+            },
+            update: {
+              value: value ? 1 : 0
+            },
+            create: {
+              role_id: parseInt(id),
+              module: module,
+              key: key,
+              value: value ? 1 : 0
+            }
+          })
+        );
+      }
+    }
+
+    // Execute all operations
+    await prisma.$transaction(operations);
+
+    res.json({
+      success: true,
+      message: 'Permissions updated successfully'
+    });
+
+  } catch (error) {
+    console.error('Update role permissions error:', error);
     res.status(500).json({
       success: false,
       message: 'Internal server error'

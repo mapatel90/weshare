@@ -13,6 +13,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { PROJECT_STATUS } from "@/constants/project_status";
 import { ROLES } from "@/constants/roles";
 import { Autocomplete, TextField } from "@mui/material";
+import { buildUploadUrl } from "@/utils/common";
 
 const statusColors = {
   Paid: "bg-green-100 text-green-700",
@@ -93,8 +94,8 @@ const Payments = () => {
               : "N/A",
             invoiceDate: payment.invoices?.invoice_date
               ? new Date(payment.invoices.invoice_date).toLocaleDateString(
-                  "en-US",
-                )
+                "en-US",
+              )
               : "N/A",
             dueDate: payment.invoices?.due_date
               ? new Date(payment.invoices.due_date).toLocaleDateString("en-US")
@@ -227,46 +228,30 @@ const Payments = () => {
 
   const openScreenshot = (url) => {
     if (!url) return;
-    window.open(url, "_blank", "noopener,noreferrer");
+    window.open(buildUploadUrl(url), "_blank", "noopener,noreferrer");
   };
 
   const handlePaymentSubmit = async (data) => {
     try {
       setSubmitting(true);
       setError("");
-
       // Upload screenshot first
       let ss_url = "";
-      if (data.image) {
-        const formData = new FormData();
-        formData.append("file", data.image);
-        formData.append("folder", "payment");
-
-        const uploadResponse = await apiUpload("/api/upload", formData);
-        if (uploadResponse?.success && uploadResponse?.data?.url) {
-          ss_url = uploadResponse.data.url;
-        } else {
-          throw new Error("Failed to upload screenshot");
-        }
-      }
-
+      const formData = new FormData();
+      formData.append("file", data.image);
+      formData.append("folder", "payment");
+      formData.append("invoice_id", data.invoice_id);
+      formData.append("offtaker_id", user?.id);
+      formData.append("amount", parseFloat(data.amount) || 0);
+      formData.append("status", 0);
+      formData.append("created_by", user?.id);
       // Create payment record
-      const paymentData = {
-        invoice_id: data.invoice_id,
-        offtaker_id: user?.id,
-        amount: parseFloat(data.amount) || 0,
-        ss_url: ss_url,
-        status: 0, // Paid status
-        created_by: user?.id || null,
-      };
-
-      const response = await apiPost("/api/payments", paymentData);
-      if (!response?.success || !response?.data) {
-        throw new Error("Payment creation failed");
-      } else {
-        // Show success message
+      const response = await apiUpload("/api/payments", formData, { includeAuth: true });
+      if (response?.success) {
         showSuccessToast("Payment submitted successfully!");
         setModalOpen(false);
+      } else {
+        throw new Error("Payment creation failed");
       }
 
       // Refresh payments list
@@ -439,9 +424,8 @@ const Payments = () => {
                       </td>
                       <td className="px-2 py-2 whitespace-nowrap">
                         <span
-                          className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                            statusColors[payment.status]
-                          }`}
+                          className={`px-3 py-1 rounded-full text-xs font-semibold ${statusColors[payment.status]
+                            }`}
                         >
                           {payment.status}
                         </span>
@@ -453,11 +437,10 @@ const Payments = () => {
                           title={
                             payment.ss_url ? "View Screenshot" : "No Screenshot"
                           }
-                          className={`text-xl ${
-                            payment.ss_url
-                              ? "text-blue-600 hover:text-blue-800"
-                              : "text-gray-400 cursor-not-allowed"
-                          }`}
+                          className={`text-xl ${payment.ss_url
+                            ? "text-blue-600 hover:text-blue-800"
+                            : "text-gray-400 cursor-not-allowed"
+                            }`}
                         >
                           <FiImage />
                         </button>
@@ -533,11 +516,10 @@ const Payments = () => {
               {getPageNumbers().map((page) => (
                 <button
                   key={page}
-                  className={`w-8 h-8 rounded font-bold ${
-                    currentPage === page
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
+                  className={`w-8 h-8 rounded font-bold ${currentPage === page
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    }`}
                   onClick={() => handlePageChange(page)}
                 >
                   {page}

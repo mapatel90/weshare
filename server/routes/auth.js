@@ -309,12 +309,29 @@ router.post('/login', async (req, res) => {
       sessionTTL
     );
 
+    // Get user's role permissions
+    const rolePermissions = await prisma.roles_permissions.findMany({
+      where: { role_id: user.role_id }
+    });
+
+    // Build permissions map: { module: { capability: boolean } }
+    const permissions = {};
+    rolePermissions.forEach(p => {
+      if (!permissions[p.module]) {
+        permissions[p.module] = {};
+      }
+      permissions[p.module][p.key] = p.value === 1;
+    });
+
     const { password: _, ...userWithoutPassword } = user;
     res.json({
       success: true,
       message: 'Login successful',
       data: {
-        user: userWithoutPassword,
+        user: {
+          ...userWithoutPassword,
+          permissions
+        },
         token
       }
     });
@@ -385,9 +402,26 @@ router.get('/me', async (req, res) => {
       });
     }
 
+    // Get user's role permissions
+    const rolePermissions = await prisma.roles_permissions.findMany({
+      where: { role_id: user.role_id }
+    });
+
+    // Build permissions map: { module: { capability: boolean } }
+    const permissions = {};
+    rolePermissions.forEach(p => {
+      if (!permissions[p.module]) {
+        permissions[p.module] = {};
+      }
+      permissions[p.module][p.key] = p.value === 1;
+    });
+
     res.json({
       success: true,
-      data: user
+      data: {
+        ...user,
+        permissions
+      }
     });
 
 

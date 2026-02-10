@@ -5,8 +5,35 @@ import { getUserLanguage, t } from '../utils/i18n.js';
 import { getUserFullName } from "../utils/common.js";
 import { createNotification } from "../utils/notifications.js";
 import { ROLES } from '../../src/constants/roles.js';
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
+import { uploadToS3, isS3Enabled } from '../services/s3Service.js';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 
 const router = express.Router();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const ROOT_DIR = path.resolve(__dirname, '..', '..');
+const PUBLIC_DIR = path.join(ROOT_DIR, 'public');
+
+// Multer storage for payment screenshots
+const paymentScreenshotsDir = path.join(PUBLIC_DIR, 'images', 'payments');
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    fs.mkdirSync(paymentScreenshotsDir, { recursive: true });
+    cb(null, paymentScreenshotsDir);
+  },
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname) || '.jpg';
+    const base = path.basename(file.originalname, ext).replace(/[^a-z0-9-_]/gi, '_');
+    const ts = Date.now();
+    cb(null, `payment_${base}_${ts}${ext}`);
+  },
+});
+const upload = multer({ storage });
 
 // List payments (exclude soft-deleted) with search and date filters
 router.get('/', authenticateToken, async (req, res) => {
@@ -20,13 +47,13 @@ router.get('/', authenticateToken, async (req, res) => {
     const searchAmount = parseFloat(search);
     const searchCondition = search
       ? {
-          OR: [
-            { invoices: { invoice_number: { contains: search } } },
-            { invoices: { invoice_prefix: { contains: search } } },
-            { invoices: { projects: { project_name: { contains: search } } } },
-            ...((!isNaN(searchAmount)) ? [{ amount: searchAmount }] : [])
-          ]
-        }
+        OR: [
+          { invoices: { invoice_number: { contains: search } } },
+          { invoices: { invoice_prefix: { contains: search } } },
+          { invoices: { projects: { project_name: { contains: search } } } },
+          ...((!isNaN(searchAmount)) ? [{ amount: searchAmount }] : [])
+        ]
+      }
       : {};
 
     // Build date condition for specific payment date
@@ -66,8 +93,8 @@ router.get('/', authenticateToken, async (req, res) => {
       take: limit
     });
 
-    res.json({ 
-      success: true, 
+    res.json({
+      success: true,
       data: items,
       pagination: {
         page: pageNum,
@@ -101,24 +128,56 @@ router.get('/:id', authenticateToken, async (req, res) => {
 });
 
 // Create payment
-router.post('/', authenticateToken, async (req, res) => {
+router.post('/', authenticateToken, upload.single('file'), async (req, res) => {
   try {
-    const { invoice_id, offtaker_id, ss_url, amount, status, created_by } = req.body;
+    const { invoice_id, offtaker_id, amount, ss_url, status, created_by } = req.body;
     if (!offtaker_id && invoice_id != "") {
       return res.status(400).json({ success: false, message: 'offtaker_id is required' });
     }
+    console.log("req.body", req.body);
+
+    // Handle screenshot upload - prefer uploaded file, upload to S3 if enabled
+    let uploadedPath = ss_url || null;
+    if (req.file) {
+      const s3Enabled = await isS3Enabled();
+      if (s3Enabled) {
+        try {
+          const buffer = fs.readFileSync(req.file.path);
+          const s3Result = await uploadToS3(buffer, req.file.originalname, req.file.mimetype, {
+            folder: 'payments',
+            metadata: {
+              uploadedBy: String(req.user?.id || ''),
+              originalName: req.file.originalname,
+            },
+          });
+          if (s3Result && s3Result.success) {
+            uploadedPath = s3Result.data.fileKey;
+          } else {
+            console.error('S3 upload failed:', s3Result);
+            return res.status(500).json({ success: false, message: 'S3 upload failed' });
+          }
+        } catch (err) {
+          console.error('S3 upload error for payment screenshot:', err?.message || err);
+          return res.status(500).json({ success: false, message: 'S3 upload failed' });
+        }
+      } else {
+        // S3 is disabled, use local path
+        uploadedPath = `/images/payments/${req.file.filename}`;
+      }
+    }
+
     const created = await prisma.payments.create({
       data: {
         invoice_id: parseInt(invoice_id ?? 0),
         offtaker_id: parseInt(offtaker_id),
-        ss_url: ss_url || '',
+        ss_url: uploadedPath || '',
         amount: parseFloat(amount) || 0,
         status: parseInt(status ?? 0),
         created_by: parseInt(created_by)
       }
     });
 
-    if(created && parseInt(created_by) == ROLES.SUPER_ADMIN){
+    if (created && parseInt(created_by) == ROLES.SUPER_ADMIN) {
       await prisma.invoices.update({
         where: { id: created.invoice_id },
         data: {
@@ -156,7 +215,7 @@ router.post('/', authenticateToken, async (req, res) => {
       });
     } else {
       // For admin created payments,
-      
+
       const newInvoice = await prisma.invoices.findUnique({
         where: { id: created.invoice_id },
       });
@@ -228,7 +287,7 @@ router.put('/:id/mark-as-paid', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
     const userId = req.user?.id;
-    
+
     // Get the payment to find associated invoice
     const payment = await prisma.payments.findFirst({
       where: { id: parseInt(id) },

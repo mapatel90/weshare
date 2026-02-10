@@ -41,12 +41,13 @@ export default function PayoutCard() {
     }, [user?.id]);
 
     const formatStatus = (status) => {
-        if (status === PAYOUT_STATUS.PAYOUT) return 'Completed';
+        if (status === PAYOUT_STATUS.PAYOUT) return 'payout';
         if (status === PAYOUT_STATUS.PENDING) return 'Pending';
         return status || '-';
     };
 
     const getStatusClass = (status) => {
+        console.log(status);
         if (status === PAYOUT_STATUS.PAYOUT) {
             return 'bg-green-100 text-green-700';
         }
@@ -135,8 +136,8 @@ export default function PayoutCard() {
                                         {payout.payout_date ? new Date(payout.payout_date).toLocaleDateString() : '-'}
                                     </td>
                                     <td className="py-2 px-4 border-b text-sm">
-                                        <span className={`px-2 py-1 rounded text-xs ${getStatusClass(status)}`}>
-                                            {status ? lang("common.status", "Status") : '-'}
+                                        <span className={`px-2 py-1 rounded text-xs ${getStatusClass(payout?.status)}`}>
+                                            {payout?.status ? formatStatus(payout?.status) : '-'}
                                         </span>
                                     </td>
                                 </tr>
