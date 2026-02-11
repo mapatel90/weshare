@@ -567,7 +567,7 @@ const SolarProjectTable = () => {
                       </div> */}
                       {/* Stats boxes */}
                       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 mb-3">
-                        <div className="bg-gray-50 rounded-lg p-2 text-center">
+                        <div className="bg-gray-50 rounded-lg p-2 text-center" style={{ wordWrap: "break-word" }}>
                           <div className="text-base font-bold text-slate-900">
                             {project.targetInvestment}
                           </div>
