@@ -4,6 +4,7 @@ import { apiPost, apiGet, apiUpload } from "@/lib/api";
 import { showSuccessToast, showErrorToast } from "@/utils/topTost";
 import { generateSlug, checkProjectNameExists } from "@/utils/projectUtils";
 import { useAuth } from "@/contexts/AuthContext";
+import { ROLES } from "@/constants/roles";
 
 export default function AddModal({ open, onClose }) {
   const [internalOpen, setInternalOpen] = useState(false);
@@ -112,7 +113,7 @@ export default function AddModal({ open, onClose }) {
     try {
       const uid = user?.id ?? user?.user?.id ?? user?.userId ?? null;
       const role = user?.role ?? user?.user?.role;
-      if (uid && role === 3) {
+      if (uid && role === ROLES.OFFTAKER) {
         setOfftakerId(String(uid));
       }
     } catch (err) {

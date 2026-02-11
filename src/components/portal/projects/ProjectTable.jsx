@@ -17,6 +17,7 @@ import { apiGet } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import { PROJECT_STATUS } from "@/constants/project_status";
+import { ROLES } from "@/constants/roles";
 
 const statusDictionary = {
   0: "Under Installation",
@@ -196,7 +197,7 @@ const SolarProjectTable = () => {
     const term = searchTerm.toLowerCase();
     return allProjects.filter((project) => {
       // If user is an offtaker (role 3), only show their projects
-      if (user && user.role === 3) {
+      if (user && user.role === ROLES.OFFTAKER) {
         if (project.offtakerId !== user.id) {
           return false;
         }

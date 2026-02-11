@@ -17,6 +17,7 @@ import { getPrimaryProjectImage } from "@/utils/projectUtils";
 import { buildUploadUrl, getFullImageUrl } from "@/utils/common";
 import { PROJECT_STATUS } from "@/constants/project_status";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { ROLES } from "@/constants/roles";
 
 
 const formatCurrency = (value) => {
@@ -181,7 +182,7 @@ const ProjectTable = () => {
     const term = searchTerm.toLowerCase();
     return allProjects.filter((project) => {
       // If user is an offtaker (role 3), only show their projects
-      if (user && user.role === 3) {
+      if (user && user.role === ROLES.OFFTAKER) {
         if (project.offtakerId !== user.id) {
           return false;
         }
@@ -304,53 +305,9 @@ const ProjectTable = () => {
     return sorted;
   }, [filteredProjects, sortConfig]);
 
-  const totalPages = Math.ceil(sortedProjects.length / entriesPerPage);
   const startIndex = (currentPage - 1) * entriesPerPage;
   const endIndex = startIndex + entriesPerPage;
   const currentProjects = sortedProjects.slice(startIndex, endIndex);
-
-  const handleSort = (key) => {
-    setSortConfig((prev) => ({
-      key,
-      direction: prev.key === key && prev.direction === "asc" ? "desc" : "asc",
-    }));
-  };
-
-  const SortableHeader = ({ label, sortKey }) => (
-    <th
-      className="px-4 py-3 text-left text-xs font-semibold text-black uppercase tracking-wider cursor-pointer hover:bg-gray-50"
-      onClick={() => handleSort(sortKey)}
-    >
-      <div className="flex items-center gap-1">
-        {label}
-        <ChevronDown
-          className={`w-3 h-3 transition-transform ${sortConfig.key === sortKey && sortConfig.direction === "desc"
-            ? "rotate-180"
-            : ""
-            }`}
-        />
-      </div>
-    </th>
-  );
-
-  const getPageNumbers = () => {
-    const pages = [];
-    const maxVisible = 5;
-
-    if (totalPages <= maxVisible) {
-      for (let i = 1; i <= totalPages; i++) pages.push(i);
-    } else {
-      if (currentPage <= 3) {
-        for (let i = 1; i <= 5; i++) pages.push(i);
-      } else if (currentPage >= totalPages - 2) {
-        for (let i = totalPages - 4; i <= totalPages; i++) pages.push(i);
-      } else {
-        for (let i = currentPage - 2; i <= currentPage + 2; i++) pages.push(i);
-      }
-    }
-    return pages;
-  };
-
   return (
     <div className="min-h-full from-slate-50 to-slate-100">
       <div className="mx-auto">

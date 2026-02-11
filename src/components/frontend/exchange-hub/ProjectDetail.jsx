@@ -19,6 +19,7 @@ import ElectricityConsumption from "@/components/admin/projectsCreate/projectVie
 import EnergyChart from "@/components/admin/projectsCreate/projectViewSection/MonthChart";
 import { FiZap } from "react-icons/fi";
 import { CloudSun, Compass, Droplets, SunriseIcon, Thermometer, Wind } from 'lucide-react';
+import { ROLES } from "@/constants/roles";
 
 // Dynamically import ApexCharts to avoid SSR issues
 const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
@@ -855,7 +856,7 @@ const ProjectDetail = ({ projectId }) => {
                   </button>
                 ) : (
                   (() => {
-                    const isInvestor = user && user.role === 4;
+                    const isInvestor = user && user.role === ROLES.INVESTOR;
                     if (!isInvestor) return null;
                     if (hasExpressedInterest) {
                       return null;
