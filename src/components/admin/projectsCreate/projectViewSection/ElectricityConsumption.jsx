@@ -374,7 +374,7 @@ const ElectricityConsumption = ({
         <div
           className="date-picker-wrapper"
           style={{
-            width: isExchangeHub ? "27%" : isMobile ? "30%" : isTablet ? "50%" : "10%",
+            width: isExchangeHub ? "20%" : isMobile ? "30%" : isTablet ? "50%" : "10%",
             marginBottom: 12,
           }}
         >
