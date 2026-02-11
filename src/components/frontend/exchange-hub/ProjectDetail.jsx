@@ -630,11 +630,11 @@ const ProjectDetail = ({ projectId }) => {
                   </div>
                   <div>
                     <p>
-                      {lang("home.exchangeHub.cumulativeRevenue") ||
-                        "Cumulative Revenue"}
+                      {lang("home.exchangeHub.paybackPeriod") + " (" + lang("home.exchangeHub.years") + ")" ||
+                        "Payback Period"}
                       :
                     </p>
-                    <h4>${formatNumber(project.cumulative_revenue || "0")}</h4>
+                    <h4>{project.payback_period || "0"} {lang("home.exchangeHub.years") || "Years"}</h4>
                   </div>
                 </div>
                 <div className="rightStatsBox">
@@ -846,32 +846,35 @@ const ProjectDetail = ({ projectId }) => {
                 </div>
 
                 {/* Conditional invest button */}
-                {!user ? (
-                  <button
-                    className="btn btn-primary-custom"
-                    onClick={() => router.push("/investor/login")}
-                  >
-                    {lang("home.exchangeHub.signInToInvest") ||
-                      "Sign In to Invest"}
-                  </button>
-                ) : (
-                  (() => {
-                    const isInvestor = user && user.role === ROLES.INVESTOR;
-                    if (!isInvestor) return null;
-                    if (hasExpressedInterest) {
-                      return null;
-                    }
-                    return (
-                      <button
-                        className="btn btn-primary-custom"
-                        onClick={handleInvestClick}
-                        disabled={checkingInterest}
-                      >
-                        {lang("home.exchangeHub.investNow") || "Invest Now"}
-                      </button>
-                    );
-                  })()
+                {project.project_status_id === PROJECT_STATUS.UPCOMING && (
+                  !user ? (
+                    <button
+                      className="btn btn-primary-custom"
+                      onClick={() => router.push("/investor/login")}
+                    >
+                      {lang("home.exchangeHub.signInToInvest") ||
+                        "Sign In to Invest"}
+                    </button>
+                  ) : (
+                    (() => {
+                      const isInvestor = user && user.role === ROLES.INVESTOR;
+                      if (!isInvestor) return null;
+                      if (hasExpressedInterest) {
+                        return null;
+                      }
+                      return (
+                        <button
+                          className="btn btn-primary-custom"
+                          onClick={handleInvestClick}
+                          disabled={checkingInterest}
+                        >
+                          {lang("home.exchangeHub.investNow") || "Invest Now"}
+                        </button>
+                      );
+                    })()
+                  )
                 )}
+
               </div>
 
               {/* Testimonials */}
