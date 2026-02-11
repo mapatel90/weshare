@@ -18,6 +18,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { formatShort } from "@/utils/common";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { usePathname } from "next/navigation";
 
 const buildDayWiseData = (raw = [], selectedMonthYear) => {
   if (!Array.isArray(raw) || !selectedMonthYear) return [];
@@ -105,11 +106,14 @@ const ElectricityConsumption = ({
   isDark = false,
 }) => {
   const { lang } = useLanguage();
+  const path = usePathname();
+  const isExchangeHub = path?.includes("/frontend/exchange-hub");
   const [isMobile, setIsMobile] = useState(false);
   const [isTablet, setIsTablet] = useState(false);
   const [selectedDate, setSelectedDate] = useState(
     selectedMonthYear ? dayjs(selectedMonthYear, "YYYY-MM").toDate() : new Date()
   );
+
 
   useEffect(() => {
     const onResize = () => {
@@ -308,16 +312,14 @@ const ElectricityConsumption = ({
     `}</style>
       <div
         style={{
-          backgroundColor: isDark ? "#121a2d" : "#ffffff",
-          borderRadius: 12,
-          border: `1px solid ${isDark ? "#1b2436" : "#e5e7eb"}`,
-          boxShadow: isDark
-            ? "0 0 20px rgba(14, 32, 56, 0.3)"
-            : "0 1px 3px rgba(0,0,0,0.1), 0 4px 12px rgba(0,0,0,0.05)",
           padding: isMobile ? 16 : isTablet ? 20 : 24,
           transition: "box-shadow 0.3s ease",
           width: "100%",
           marginBottom: isMobile ? 16 : 24,
+          backgroundColor: isExchangeHub ? "transparent" : isDark ? "#020617" : "#ffffff",
+          border: isExchangeHub ? "none" : `1px solid ${isDark ? "#1f2937" : "#e5e7eb"}`,
+          borderRadius: isExchangeHub ? 0 : 12,
+          boxShadow: isExchangeHub ? "none" : isDark ? "0 0 20px rgba(14, 32, 56, 0.3)" : "0 1px 3px rgba(0,0,0,0.1), 0 4px 12px rgba(0,0,0,0.05)",
         }}
       >
         <div
@@ -372,7 +374,7 @@ const ElectricityConsumption = ({
         <div
           className="date-picker-wrapper"
           style={{
-            width: isMobile ? "30%" : isTablet ? "50%" : "10%",
+            width: isExchangeHub ? "27%" : isMobile ? "30%" : isTablet ? "50%" : "10%",
             marginBottom: 12,
           }}
         >

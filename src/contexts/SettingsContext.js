@@ -3,7 +3,16 @@
 import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { apiGet, apiPost } from '@/lib/api'
 
-const SettingsContext = createContext(null);
+// Default context value for when provider is not mounted
+const defaultContextValue = {
+  settings: null,
+  loading: true,
+  refreshSettings: () => Promise.resolve(),
+  fetchSettings: () => Promise.resolve(),
+  clearSettings: () => {},
+};
+
+const SettingsContext = createContext(defaultContextValue);
 
 export const SettingsProvider = ({ children }) => {
   const [settings, setSettings] = useState(null);
@@ -59,9 +68,7 @@ export const SettingsProvider = ({ children }) => {
 
 export const useSettings = () => {
     const context = useContext(SettingsContext);
-    if (!context) {
-        throw new Error('useSettings must be used within a SettingsProvider');
-    }
+    // Return context directly - default value is already provided via createContext
     return context;
 } 
 

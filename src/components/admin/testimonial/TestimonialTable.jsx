@@ -27,19 +27,15 @@ import { Close as CloseIcon } from "@mui/icons-material";
 import { buildUploadUrl, getFullImageUrl } from "@/utils/common";
 import { useAuth } from "@/contexts/AuthContext";
 import { PROJECT_STATUS } from "@/constants/project_status";
+import usePermissions from "@/hooks/usePermissions";
 
 const TestimonialTable = () => {
     const { lang } = useLanguage();
-
     const [data, setData] = useState([]);
-
-    // Modal/form state
-    const [modalMode, setModalMode] = useState(null); // "add" | "edit" | null
+    const [modalMode, setModalMode] = useState(null);
     const [editingId, setEditingId] = useState(null);
     const [submitting, setSubmitting] = useState(false);
     const [errors, setErrors] = useState({});
-
-    // Fields
     const [projectOptions, setProjectOptions] = useState([]);
     const [selectedProject, setSelectedProject] = useState(null);
     const [offtakerOptions, setOfftakerOptions] = useState([]);
@@ -50,6 +46,8 @@ const TestimonialTable = () => {
     const [imageFile, setImageFile] = useState(null);
     const [imagePreviewUrl, setImagePreviewUrl] = useState("");
     const { user } = useAuth();
+    const { canEdit, canDelete } = usePermissions();
+    const showActionColumn = canEdit("testimonials") || canDelete("testimonials");
 
     const clearError = (key) =>
         setErrors((prev) => (prev[key] ? { ...prev, [key]: "" } : prev));
@@ -92,7 +90,7 @@ const TestimonialTable = () => {
 
     const fetchProjects = async () => {
         try {
-            const res = await apiPost("/api/projects/dropdown/project", {project_status_id: PROJECT_STATUS.RUNNING});
+            const res = await apiPost("/api/projects/dropdown/project", { project_status_id: PROJECT_STATUS.RUNNING });
             const items = Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : [];
             console.log("Fetched projects for testimonial:", items);
             const mapped = items.map((p) => ({ label: p.project_name, value: String(p.id) }));
@@ -300,50 +298,56 @@ const TestimonialTable = () => {
                     return t.length > 80 ? `${t.slice(0, 80)}…` : t;
                 },
             },
-            {
-                accessorKey: "actions",
-                header: () => lang("common.actions"),
-                meta: { disableSort: true },
-                cell: ({ row }) => (
-                    <Stack direction="row" spacing={1} sx={{ flexWrap: "nowrap" }}>
-                        <IconButton
-                            size="small"
-                            onClick={() => {
-                                const item = row.original;
-                                if (typeof window !== "undefined") {
-                                    window.dispatchEvent(
-                                        new CustomEvent("testimonial:open-edit", { detail: { item } })
-                                    );
-                                }
-                            }}
-                            sx={{
-                                color: "#1976d2",
-                                transition: "transform 0.2s ease",
-                                "&:hover": {
-                                    backgroundColor: "rgba(25, 118, 210, 0.08)",
-                                    transform: "scale(1.1)",
-                                },
-                            }}
-                        >
-                            <FiEdit3 size={18} />
-                        </IconButton>
-                        <IconButton
-                            size="small"
-                            onClick={() => handleDelete(row.original.id)}
-                            sx={{
-                                color: "#d32f2f",
-                                transition: "transform 0.2s ease",
-                                "&:hover": {
-                                    backgroundColor: "rgba(211, 47, 47, 0.08)",
-                                    transform: "scale(1.1)",
-                                },
-                            }}
-                        >
-                            <FiTrash2 size={18} />
-                        </IconButton>
-                    </Stack>
-                ),
-            },
+            ...(showActionColumn ? [
+                {
+                    accessorKey: "actions",
+                    header: () => lang("common.actions"),
+                    meta: { disableSort: true },
+                    cell: ({ row }) => (
+                        <Stack direction="row" spacing={1} sx={{ flexWrap: "nowrap" }}>
+                            {canEdit("testimonials") && (
+                                <IconButton
+                                    size="small"
+                                    onClick={() => {
+                                        const item = row.original;
+                                        if (typeof window !== "undefined") {
+                                            window.dispatchEvent(
+                                                new CustomEvent("testimonial:open-edit", { detail: { item } })
+                                            );
+                                        }
+                                    }}
+                                    sx={{
+                                        color: "#1976d2",
+                                        transition: "transform 0.2s ease",
+                                        "&:hover": {
+                                            backgroundColor: "rgba(25, 118, 210, 0.08)",
+                                            transform: "scale(1.1)",
+                                        },
+                                    }}
+                                >
+                                    <FiEdit3 size={18} />
+                                </IconButton>
+                            )}
+                            {canDelete("testimonials") && (
+                                <IconButton
+                                    size="small"
+                                    onClick={() => handleDelete(row.original.id)}
+                                    sx={{
+                                        color: "#d32f2f",
+                                        transition: "transform 0.2s ease",
+                                        "&:hover": {
+                                            backgroundColor: "rgba(211, 47, 47, 0.08)",
+                                            transform: "scale(1.1)",
+                                        },
+                                    }}
+                                >
+                                    <FiTrash2 size={18} />
+                                </IconButton>
+                            )}
+                        </Stack>
+                    ),
+                },
+            ] : [])
         ],
         [lang]
     );

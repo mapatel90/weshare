@@ -9,14 +9,11 @@ import { showSuccessToast } from "@/utils/topTost";
 import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
 import { Chip, IconButton, Stack, Box, Autocomplete, TextField } from "@mui/material";
+import usePermissions from "@/hooks/usePermissions";
 
 const NotificationTable = () => {
   const { lang } = useLanguage();
-  const router = useRouter();
   const [notificationsData, setNotificationsData] = useState([]);
-  const [usersData, setUsersData] = useState([]);
-
-  // Filter and pagination states
   const [moduleTypeFilter, setModuleTypeFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
@@ -30,6 +27,8 @@ const NotificationTable = () => {
   });
   const [loading, setLoading] = useState(true);
   const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
+  const { canDelete } = usePermissions();
+  const showActionColumn = canDelete("notifications");
 
   // Module type options
   const moduleTypes = [
@@ -291,6 +290,7 @@ const NotificationTable = () => {
       header: () => lang("common.date"),
       cell: ({ row }) => formatTime(row.getValue("created_at")),
     },
+    ...(showActionColumn ? [
     {
       accessorKey: "actions",
       header: () => lang("common.actions"),
@@ -313,6 +313,7 @@ const NotificationTable = () => {
               <FiCheckCircle size={18} />
             </IconButton>
           )}
+          {canDelete("notifications") && (
           <IconButton
             size="small"
             onClick={() => handleDelete(row.original.id)}
@@ -328,12 +329,14 @@ const NotificationTable = () => {
           >
             <FiTrash2 size={18} />
           </IconButton>
+          )}
         </Stack>
       ),
       meta: {
         disableSort: true,
+        },
       },
-    },
+    ] : [])
   ];
 
   return (

@@ -18,6 +18,7 @@ import { PAYOUT_STATUS } from "@/constants/payout_status";
 import { identity } from "@fullcalendar/core/internal";
 import TransactionDialog from "./TransactionDialog";
 import { buildUploadUrl } from "@/utils/common";
+import usePermissions from "@/hooks/usePermissions";
 
 
 const PayoutsPage = () => {
@@ -43,6 +44,7 @@ const PayoutsPage = () => {
     const [showQRModal, setShowQRModal] = useState(false);
     const [selectedQRCode, setSelectedQRCode] = useState(null);
     const priceWithCurrency = usePriceWithCurrency();
+    const { canEdit, canDelete } = usePermissions();
 
     const fetchProjects = async () => {
         try {
@@ -381,40 +383,44 @@ const PayoutsPage = () => {
                 header: () => lang("invoice.actions"),
                 cell: ({ row }) => (
                     <Stack direction="row" spacing={1} sx={{ flexWrap: "nowrap" }}>
-                        <IconButton
-                            size="small"
-                            onClick={() => {
-                                // Dispatch event to open edit modal with payout data
-                                window.dispatchEvent(
-                                    new CustomEvent("payout:open-edit", {
-                                        detail: row.original, // WHOLE payout row send karo
-                                    })
-                                );
-                            }}
-                            sx={{
-                                color: "#ed6c02",
-                                transition: "transform 0.2s ease",
-                                "&:hover": {
-                                    backgroundColor: "rgba(237, 108, 2, 0.08)",
-                                    transform: "scale(1.1)",
-                                },
-                            }}
-                        >
-                            <FiEdit size={18} />
-                        </IconButton>
-                        <IconButton
-                            size="small"
-                            onClick={() => handleDelete(row.original.id)}
-                            sx={{
-                                color: "#d32f2f",
-                                transition: "transform 0.2s ease",
-                                "&:hover": {
-                                    backgroundColor: "rgba(211, 47, 47, 0.08)",
-                                    transform: "scale(1.1)",
-                                },
-                            }}
-                        ><FiTrash2 size={18} />
-                        </IconButton>
+                        {canEdit("payouts") && (
+                            <IconButton
+                                size="small"
+                                onClick={() => {
+                                    // Dispatch event to open edit modal with payout data
+                                    window.dispatchEvent(
+                                        new CustomEvent("payout:open-edit", {
+                                            detail: row.original, // WHOLE payout row send karo
+                                        })
+                                    );
+                                }}
+                                sx={{
+                                    color: "#ed6c02",
+                                    transition: "transform 0.2s ease",
+                                    "&:hover": {
+                                        backgroundColor: "rgba(237, 108, 2, 0.08)",
+                                        transform: "scale(1.1)",
+                                    },
+                                }}
+                            >
+                                <FiEdit size={18} />
+                            </IconButton>
+                        )}
+                        {canDelete("payouts") && (
+                            <IconButton
+                                size="small"
+                                onClick={() => handleDelete(row.original.id)}
+                                sx={{
+                                    color: "#d32f2f",
+                                    transition: "transform 0.2s ease",
+                                    "&:hover": {
+                                        backgroundColor: "rgba(211, 47, 47, 0.08)",
+                                        transform: "scale(1.1)",
+                                    },
+                                }}
+                            ><FiTrash2 size={18} />
+                            </IconButton>
+                        )}
                         <Link
                             href={`/admin/finance/payouts/view/${row.original.id}`}
                             target="_blank"

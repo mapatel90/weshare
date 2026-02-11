@@ -1634,6 +1634,8 @@
     },
     "energyProduction": {
       "energy_production": "Biểu đồ công suất hàng ngày (Tải, PV & Lưới điện)",
+      "real_time_energy_production": "Biểu đồ công suất thực tế (Tải, PV & Lưới điện)",
+      "monthly_real_time_energy_production": "Biểu đồ công suất tháng (Tải, PV & Lưới điện)",
       "monthly_energy_production": "Chi phí tiền điện hàng ngày (VND)",
       "yearly_energy_production": "Chi phí tiền điện hàng tháng (VND)"
     }

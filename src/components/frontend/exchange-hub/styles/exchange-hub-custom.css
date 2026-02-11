@@ -320,11 +320,11 @@ a.normalBtn img,
 /* Stats - 3 Columns */
 .stats-image {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 16px;
   margin: 0 0 24px;
   text-align: center;
-  height: 105px;
+  height: 50px;
 }
 
 .stat-image {

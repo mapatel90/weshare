@@ -1,13 +1,17 @@
 import express from 'express';
 import prisma from '../utils/prisma.js';
 import { authenticateToken } from '../middleware/auth.js';
+import { PERMISSION_KEYS } from '../../src/utils/permissionUtils.js';
+import { extractModules } from '../../src/utils/permissionUtils.js';
+import { menuList } from '../../src/utils/Data/menuList.js';
+import { ROLES } from '../../src/constants/roles.js';
 
 const router = express.Router();
 
 // Get all roles
 router.get('/', authenticateToken, async (req, res) => {
   try {
-    const { page = 1, limit = 10, search, status,id } = req.query;
+    const { page = 1, limit = 10, search, status, id } = req.query;
     const offset = (page - 1) * limit;
 
     // Build where clause
@@ -99,12 +103,11 @@ router.post('/', authenticateToken, async (req, res) => {
       });
     }
 
-    
     // Check if role already exists
     const existingRole = await prisma.roles.findFirst({
       where: { name, is_deleted: 0 }
     });
-    
+
     if (existingRole) {
       return res.status(409).json({
         success: false,
@@ -117,7 +120,7 @@ router.post('/', authenticateToken, async (req, res) => {
       orderBy: { id: 'desc' }
     });
     const lastRoleId = lastRole ? lastRole.id + 1 : 1;
-    
+
     // Create role
     const newRole = await prisma.roles.create({
       data: {
@@ -126,11 +129,39 @@ router.post('/', authenticateToken, async (req, res) => {
         status: parseInt(status)
       }
     });
-    
-    res.status(200).json({
+
+    const modules = extractModules(menuList);
+    const permissionRows = [];
+
+    for (const module of modules) {
+      for (const key of PERMISSION_KEYS) {
+        permissionRows.push({
+          role_id: lastRoleId,
+          module,
+          key,
+          value: key === "view" ? 1 : 0,
+        });
+      }
+    }
+
+    // Insert permissions
+    const permissions = await prisma.roles_permissions.createMany({
+      data: permissionRows,
+      skipDuplicates: true,
+    });
+
+    if (permissions.count === 0) {
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to create role permissions'
+      });
+    }
+
+    res.status(201).json({
       success: true,
-      message: 'Role created successfully',
-      data: newRole
+      message: "Role and permissions created successfully",
+      data: newRole,
+      permissionsInserted: permissions.count,
     });
 
   } catch (error) {
@@ -182,6 +213,42 @@ router.put('/:id', authenticateToken, async (req, res) => {
         ...(status !== undefined && { status: parseInt(status) })
       }
     });
+
+    const isSuperAdmin = parseInt(id) === ROLES.SUPER_ADMIN;
+    const isOfftaker = parseInt(id) === ROLES.OFFTAKER;
+    const isInvestor = parseInt(id) === ROLES.INVESTOR;
+
+    if (!isOfftaker && !isInvestor) {
+      const modules = extractModules(menuList);
+      for (const module of modules) {
+        for (const key of PERMISSION_KEYS) {
+          const value = isSuperAdmin
+            ? 1
+            : module === "settings"
+              ? 0
+              : key === "view"
+                ? 1
+                : 0;
+
+          await prisma.roles_permissions.upsert({
+            where: {
+              role_id_module_key: {
+                role_id: parseInt(id),
+                module,
+                key,
+              },
+            },
+            update: {}, // don't change existing
+            create: {
+              role_id: parseInt(id),
+              module,
+              key,
+              value,
+            },
+          });
+        }
+      }
+    }
 
     res.json({
       success: true,
@@ -329,7 +396,7 @@ router.put('/permissions/:id', authenticateToken, async (req, res) => {
 
     // Prepare upsert operations
     const operations = [];
-    
+
     for (const [module, capabilities] of Object.entries(permissions)) {
       for (const [key, value] of Object.entries(capabilities)) {
         operations.push(

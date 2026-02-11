@@ -3,9 +3,11 @@ import React from "react";
 import { FiPlus } from "react-icons/fi";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@mui/material";
+import usePermissions from "@/hooks/usePermissions";
 
 const BlogHeader = () => {
   const { lang } = useLanguage();
+  const { canCreate } = usePermissions();
 
   const openAddModal = () => {
     if (typeof window !== "undefined") {
@@ -17,14 +19,16 @@ const BlogHeader = () => {
 
   return (
     <div className="d-flex align-items-center">
-      <Button
-        variant="contained"
-        className="common-orange-color"
-        onClick={openAddModal}
-        startIcon={<FiPlus size={17} />}
-      >
-        {lang("blog.addBlog") || "Add Blog"}
-      </Button>
+      {canCreate("blog") && (
+        <Button
+          variant="contained"
+          className="common-orange-color"
+          onClick={openAddModal}
+          startIcon={<FiPlus size={17} />}
+        >
+          {lang("blog.addBlog") || "Add Blog"}
+        </Button>
+      )}
     </div>
   );
 };

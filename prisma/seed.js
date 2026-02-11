@@ -31,12 +31,7 @@ async function main() {
 
   const ROLE_DEFAULTS = {
     [ROLES.SUPER_ADMIN]: { view: 1, create: 1, edit: 1, delete: 1 },
-    [ROLES.STAFF_ADMIN]: { view: 1, create: 1, edit: 1, delete: 0 },
-    [ROLES.OFFTAKER]: { view: 1, create: 0, edit: 0, delete: 0 },
-    [ROLES.INVESTOR]: { view: 1, create: 0, edit: 0, delete: 0 },
-    [ROLES.FINANCE_STAFF]: { view: 1, create: 1, edit: 0, delete: 0 },
   };
-
 
   const PERMISSION_KEYS = ["view", "create", "edit", "delete"];
 
@@ -60,37 +55,32 @@ async function main() {
     return modules;
   };
 
+  console.log("🔐 Creating permissions for SUPER_ADMIN only...");
 
+  const superAdminRoleId = ROLES.SUPER_ADMIN;
   const modules = extractModules(menuList);
 
-  console.log("🔐 Creating permissions...");
-  for (const [roleName, roleId] of Object.entries(ROLES)) {
-    const defaults = ROLE_DEFAULTS[roleId];
-
-    for (const module of modules) {
-      for (const key of PERMISSION_KEYS) {
-        await prisma.roles_permissions.upsert({
-          where: {
-            role_id_module_key: {
-              role_id: roleId,
-              module,
-              key,
-            },
-          },
-          update: {},
-          create: {
-            role_id: roleId,
+  for (const module of modules) {
+    for (const key of PERMISSION_KEYS) {
+      await prisma.roles_permissions.upsert({
+        where: {
+          role_id_module_key: {
+            role_id: superAdminRoleId,
             module,
             key,
-            value: defaults[key] ?? 0,
           },
-        });
-      }
+        },
+        update: {},
+        create: {
+          role_id: superAdminRoleId,
+          module,
+          key,
+          value: 1,
+        },
+      });
     }
-
-    console.log(`✅ Permissions seeded for role: ${roleName}`);
   }
-
+  console.log("✅ Permissions seeded for SUPER_ADMIN");
 
   // Insert comprehensive location data using the package
   console.log("🌍 Inserting comprehensive location data...");

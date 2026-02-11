@@ -12,10 +12,11 @@ import { usePriceWithCurrency } from "@/hooks/usePriceWithCurrency";
 import { Autocomplete, Chip, IconButton, Stack, TextField } from "@mui/material";
 import { downloadInvoicePDF } from "./InvoicePdf";
 import { PROJECT_STATUS } from "@/constants/project_status";
+import usePermissions from "@/hooks/usePermissions";
 
 const InvoiceTable = () => {
   const { lang } = useLanguage();
-  const router = useRouter();
+  const { canEdit, canDelete } = usePermissions();
   const [invoicesData, setInvoicesData] = useState([]);
   const priceWithCurrency = usePriceWithCurrency();
 
@@ -66,8 +67,8 @@ const InvoiceTable = () => {
         let invoices = Array.isArray(payload?.invoices)
           ? payload.invoices
           : Array.isArray(payload)
-          ? payload
-          : [];
+            ? payload
+            : [];
 
         // Filter invoices to show only those with project_status_id = 3 (RUNNING)
         invoices = invoices.filter(
@@ -121,12 +122,11 @@ const InvoiceTable = () => {
   const fetchOfftakers = async () => {
     try {
       const response = await apiGet("/api/users?role=3&limit=1000");
-      // Support both shapes: { data: users[] } or { data: { users: users[] } }
       const usersArray = Array.isArray(response?.data?.users)
         ? response.data.users
         : Array.isArray(response?.data)
-        ? response.data
-        : [];
+          ? response.data
+          : [];
       setOfftakerList(usersArray);
     } catch (e) {
       console.error("Error fetching offtakers:", e);
@@ -239,13 +239,12 @@ const InvoiceTable = () => {
 
         if (!taxName) return "";
         if (!taxValue) return "";
-        
+
         return `${taxName || ""} (${taxValue || 0}%)`;
       },
       header: () => lang("invoice.tax"),
       cell: ({ row }) => row.getValue("tax_label") || "-",
     },
-    // { accessorKey: "sub_amount", header: () => lang("invoice.subamount") },
     {
       accessorKey: "sub_amount",
       header: () => lang("invoice.subamount"),
@@ -256,7 +255,6 @@ const InvoiceTable = () => {
       header: () => lang("invoice.taxAmount"),
       cell: ({ getValue }) => priceWithCurrency(getValue()),
     },
-    // { accessorKey: "total_amount", header: () => lang("invoice.totalUnit") },
     {
       accessorKey: "total_amount",
       header: () => lang("invoice.totalUnit"),
@@ -315,39 +313,43 @@ const InvoiceTable = () => {
       header: () => lang("invoice.actions"),
       cell: ({ row }) => (
         <Stack direction="row" spacing={1} sx={{ flexWrap: "nowrap" }}>
-          <Link
-            href={`/admin/finance/invoice/edit/${row.original.id}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+          {canEdit("invoices") && (
+            <Link
+              href={`/admin/finance/invoice/edit/${row.original.id}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <IconButton
+                size="small"
+                sx={{
+                  color: "#1976d2",
+                  transition: "transform 0.2s ease",
+                  "&:hover": {
+                    backgroundColor: "rgba(25, 118, 210, 0.08)",
+                    transform: "scale(1.1)",
+                  },
+                }}
+              >
+                <FiEdit3 size={18} />
+              </IconButton>
+            </Link>
+          )}
+          {canDelete("invoices") && (
             <IconButton
               size="small"
+              onClick={() => handleDelete(row.original.id)}
               sx={{
-                color: "#1976d2",
+                color: "#d32f2f",
                 transition: "transform 0.2s ease",
                 "&:hover": {
-                  backgroundColor: "rgba(25, 118, 210, 0.08)",
+                  backgroundColor: "rgba(211, 47, 47, 0.08)",
                   transform: "scale(1.1)",
                 },
               }}
             >
-              <FiEdit3 size={18} />
+              <FiTrash2 size={18} />
             </IconButton>
-          </Link>
-          <IconButton
-            size="small"
-            onClick={() => handleDelete(row.original.id)}
-            sx={{
-              color: "#d32f2f",
-              transition: "transform 0.2s ease",
-              "&:hover": {
-                backgroundColor: "rgba(211, 47, 47, 0.08)",
-                transform: "scale(1.1)",
-              },
-            }}
-          >
-            <FiTrash2 size={18} />
-          </IconButton>
+          )}
           <Link
             href={`/admin/finance/invoice/view/${row.original.id}`}
             target="_blank"

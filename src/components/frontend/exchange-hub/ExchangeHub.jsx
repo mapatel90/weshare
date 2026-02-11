@@ -322,11 +322,13 @@ const ExchangeHub = () => {
                       <>
                         <div className="row">
                           {projects.map((project) => (
-                            <ProjectCard
-                              key={project.id}
-                              project={project}
-                              activeTab={activeTab}
-                            />
+                            project.project_status_id === PROJECT_STATUS.UPCOMING && (
+                              <ProjectCard
+                                key={project.id}
+                                project={project}
+                                activeTab={activeTab}
+                              />
+                            )
                           ))}
                         </div>
 
@@ -368,11 +370,13 @@ const ExchangeHub = () => {
                       <>
                         <div className="row">
                           {projects.map((project) => (
-                            <ProjectCard
-                              key={project.id}
-                              project={project}
-                              activeTab={activeTab}
-                            />
+                            project.project_status_id === PROJECT_STATUS.RUNNING && (
+                              <ProjectCard
+                                key={project.id}
+                                project={project}
+                                activeTab={activeTab}
+                              />
+                            )
                           ))}
                         </div>
 
