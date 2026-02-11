@@ -18,6 +18,7 @@ import { PROJECT_STATUS } from "@/constants/project_status";
 import ElectricityConsumption from "@/components/admin/projectsCreate/projectViewSection/ElectricityConsumption";
 import EnergyChart from "@/components/admin/projectsCreate/projectViewSection/MonthChart";
 import { FiZap } from "react-icons/fi";
+import { CloudSun, Compass, Droplets, SunriseIcon, Thermometer, Wind } from 'lucide-react';
 
 // Dynamically import ApexCharts to avoid SSR issues
 const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
@@ -27,27 +28,17 @@ const ProjectDetail = ({ projectId }) => {
   const [project, setProject] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  // NEW: testimonials state
   const [testimonials, setTestimonials] = useState([]);
-
   const { user } = useAuth();
-
   const router = useRouter();
-
-  // Added missing states for invest modal & form
   const [showInvestModal, setShowInvestModal] = useState(false);
   const [investFullName, setInvestFullName] = useState("");
   const [investEmail, setInvestEmail] = useState("");
   const [investPhone, setInvestPhone] = useState("");
   const [investNotes, setInvestNotes] = useState("");
   const [submittingInvest, setSubmittingInvest] = useState(false);
-
-  // NEW: track if current user already expressed interest for this project
   const [hasExpressedInterest, setHasExpressedInterest] = useState(false);
   const [checkingInterest, setCheckingInterest] = useState(false);
-
-  // Chart data states
   const [projectChartData, setProjectChartData] = useState(null);
   const [chartDataLoading, setChartDataLoading] = useState(false);
   const [selectedDate, setSelectedDate] = useState(
@@ -470,6 +461,68 @@ const ProjectDetail = ({ projectId }) => {
     );
   }
 
+
+  // Color palette for auto-random colors
+  const colorPalette = [
+    '#10b981', '#3b82f6', '#8b5cf6', '#f59e0b', '#ef4444',
+    '#06b6d4', '#ec4899', '#14b8a6', '#f97316', '#6366f1'
+  ];
+  let colorIndex = 0;
+  const getAutoRandomColor = () => {
+    const color = colorPalette[colorIndex % colorPalette.length];
+    colorIndex++;
+    return color;
+  };
+
+  const InfoCard = ({ icon: Icon, label, value, color, isDark = false }) => {
+    const colors = {
+      // cardBg: isDark ? 'rgba(27, 36, 54, 0.5)' : '#f9fafb',
+      cardBg: '#ffffff',
+      text: isDark ? '#ffffff' : '#111827',
+      textMuted: isDark ? '#b1b4c0' : '#6b7280',
+    }
+
+    return (
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'flex-start',
+          gap: '12px',
+          padding: '16px',
+          backgroundColor: colors.cardBg,
+          borderRadius: '8px',
+          transition: 'background-color 0.2s',
+        }}
+      >
+        <div
+          style={{
+            padding: '8px',
+            borderRadius: '8px',
+            background: color,
+            flexShrink: 0,
+          }}
+        >
+          <Icon style={{ width: '16px', height: '16px', color: '#fff' }} />
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <p style={{ fontSize: '12px', color: colors.textMuted, marginBottom: '4px' }}>{label}</p>
+          <p
+            style={{
+              fontSize: '14px',
+              fontWeight: '600',
+              color: colors.text,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {value || '-'}
+          </p>
+        </div>
+      </div>
+    )
+  };
+
   const badge = getReliabilityBadge();
   const accumulative =
     project.accumulative_generation ||
@@ -571,7 +624,7 @@ const ProjectDetail = ({ projectId }) => {
                     <h4>{formatNumber(project.project_size)} kWp</h4>
                   </div>
                   <div>
-                    <p>{lang("home.exchangeHub.roi") || "ROI"}:</p>
+                    <p>{lang("home.exchangeHub.roi_monthly") || "ROI"}:</p>
                     <h4>{project.investor_profit || "0"}%</h4>
                   </div>
                   <div>
@@ -728,63 +781,49 @@ const ProjectDetail = ({ projectId }) => {
               <hr />
 
               {/* Index Section */}
-              <div className="indexSection">
-                <div className="indexBox">
-                  <h4 className="fs-24 fw-600 text-black">
-                    {lang("home.exchangeHub.offtakerReliability") ||
-                      "Offtaker Reliability Index"}
-                  </h4>
-                  <img
-                    src="/img/chart-semicircle.png"
-                    alt=""
-                    onError={(e) => (e.target.style.display = "none")}
-                  />
-                  <div className="values">
-                    {project.offtaker_reliability_score || "92"}%
-                  </div>
-                  <p>{badge.text}</p>
-                </div>
-
+              <div className="">
                 <div className="ownership-section">
                   <h4>
-                    {lang("home.exchangeHub.transactionHistory") ||
+                    {lang("home.exchangeHub.binh_dinh") ||
                       "Transaction & Ownership History"}
                   </h4>
-                  {project.ownership_history ? (
-                    JSON.parse(project.ownership_history).map((item, index) => (
-                      <div className="row mb-2" key={index}>
-                        <div className="col-3">
-                          <p className="fw-600 text-secondary-color">
-                            {item.year}
-                          </p>
-                        </div>
-                        <div className="col-9">
-                          <p className="text-black fw-500">{item.event}</p>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <>
-                      <div className="row mb-2">
-                        <div className="col-3">
-                          <p className="fw-600 text-secondary-color">2019</p>
-                        </div>
-                        <div className="col-9">
-                          <p className="text-black fw-500">
-                            Initial Investment
-                          </p>
-                        </div>
-                      </div>
-                      <div className="row mb-2">
-                        <div className="col-3">
-                          <p className="fw-600 text-secondary-color">2024</p>
-                        </div>
-                        <div className="col-9">
-                          <p className="text-black fw-500">Listed for Resale</p>
-                        </div>
-                      </div>
-                    </>
-                  )}
+                  <div className="row g-3">
+                    <div className="col-4">
+                      <InfoCard
+                        icon={CloudSun}
+                        label={lang('projectView.projectInformation.weather', 'Weather')}
+                        value={`${project?.project_data?.[0]?.cond_txtd ?? '-'} ~ ${project?.project_data?.[0]?.cond_txtn ?? '-'}`}
+                        color={getAutoRandomColor()}
+                      />
+                    </div>
+                    <div className="col-4">
+                      <InfoCard
+                        icon={SunriseIcon}
+                        label={lang('projectView.projectInformation.sunshine', 'Sunshine')}
+                        value={`${project?.project_data?.[0]?.sr ?? '-'} ~ ${project?.project_data?.[0]?.ss ?? '-'}`}
+                        color={getAutoRandomColor()}
+                      />
+                    </div>
+                    <div className="col-4">
+                      <InfoCard icon={Thermometer} label={lang('projectView.projectInformation.temp', 'Temp')} value={
+                        project?.project_data?.[0]?.tmp_min != null && project?.project_data?.[0]?.tmp_max != null
+                          ? `${project.project_data[0].tmp_min} ℃ ~ ${project.project_data[0].tmp_max} ℃`
+                          : project?.tmp_min != null
+                            ? `${project.tmp_min} ℃`
+                            : '-'
+                      } color={getAutoRandomColor()}
+                      />
+                    </div>
+                    <div className="col-4">
+                      <InfoCard icon={Droplets} label={lang('projectView.projectInformation.humidity', 'Humidity')} value={project?.project_data?.[0]?.hum ?? '-'} color={getAutoRandomColor()} />
+                    </div>
+                    <div className="col-4">
+                      <InfoCard icon={Compass} label={lang('projectView.projectInformation.wind_direction', 'Wind Direction')} value={project?.project_data?.[0]?.wind_dir ?? '-'} color={getAutoRandomColor()} />
+                    </div>
+                    <div className="col-4">
+                      <InfoCard icon={Wind} label={lang('projectView.projectInformation.wind_speed', 'Wind Speed')} value={project?.project_data?.[0]?.wind_spd ?? '-'} color={getAutoRandomColor()} />
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

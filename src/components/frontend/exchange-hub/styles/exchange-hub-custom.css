@@ -1649,7 +1649,7 @@ input:focus-visible {
   font-size: 18px;
   font-weight: 600;
   color: #000;
-  margin-bottom: 20px;
+  /* margin-bottom: 20px; */
 }
 
 .ownership-section .row {
@@ -1877,5 +1877,101 @@ input:focus-visible {
   .leftStatsBox,
   .rightStatsBox {
     padding: 16px;
+  }
+}
+
+/* ===== TRANSACTION HISTORY GRID CARDS ===== */
+.ownership-section .row.g-3 {
+  margin: 0 -8px;
+}
+
+.ownership-section .col-4 {
+  padding: 8px;
+}
+
+.history-card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 16px 12px;
+  text-align: center;
+  border: 1px solid #e0e0e0;
+  height: 100%;
+  min-height: 90px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.history-card:hover {
+  border-color: var(--color-F6A623);
+  box-shadow: 0 4px 12px rgba(246, 166, 35, 0.15);
+  transform: translateY(-2px);
+}
+
+.history-year {
+  display: inline-block;
+  background: var(--color-F6A623);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 4px 14px;
+  border-radius: 20px;
+  margin-bottom: 10px;
+}
+
+.history-event {
+  font-size: 13px;
+  font-weight: 500;
+  color: #333;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Responsive for history cards */
+@media (max-width: 768px) {
+  .ownership-section .col-4 {
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+  
+  .history-card {
+    min-height: 80px;
+    padding: 14px 10px;
+  }
+  
+  .history-year {
+    font-size: 12px;
+    padding: 3px 12px;
+  }
+  
+  .history-event {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 576px) {
+  .ownership-section .col-4 {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+  
+  .history-card {
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 12px;
+    padding: 12px 16px;
+    min-height: auto;
+  }
+  
+  .history-year {
+    margin-bottom: 0;
+    flex-shrink: 0;
+  }
+  
+  .history-event {
+    text-align: left;
   }
 }
