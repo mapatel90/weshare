@@ -111,8 +111,18 @@ const TabProjectBasicDetails = ({ setFormData, formData, error, setError }) => {
                 let isValid = true
                 if (name === 'investorProfit' || name === 'weshareprofite' || name === 'asking_price') {
                     isValid = value === '' || numberRegex.test(value)
-                } else if (name === 'lease_term') {
-                    isValid = value !== '' && intRegex.test(value)
+                } else if (name === 'lease_term' || name === 'payback_period') {
+                    isValid = value === '' || intRegex.test(value)
+                } else if (name === 'fund_progress') {
+                    // Fund progress must be a number between 0 and 100
+                    if (value === '') {
+                        isValid = true
+                    } else if (numberRegex.test(value)) {
+                        const numValue = parseFloat(value)
+                        isValid = !isNaN(numValue) && numValue >= 0 && numValue <= 100
+                    } else {
+                        isValid = false
+                    }
                 } else if (name === 'project_status_id') {
                     isValid = value !== ''
                 } else {
@@ -344,6 +354,23 @@ const TabProjectBasicDetails = ({ setFormData, formData, error, setError }) => {
             errors.project_size = lang('projects.onlynumbers', 'Only numbers are allowed (e.g. 1234.56)');
         }
 
+        // Validate payback_period (must be a positive integer)
+        if (formData.payback_period && !intRegex.test(String(formData.payback_period))) {
+            errors.payback_period = lang('projects.onlynumbersWithoutdesimal', 'Only numbers are allowed (e.g. 123456)');
+        }
+
+        // Validate fund_progress (must be a number between 0 and 100)
+        if (formData.fund_progress) {
+            if (!numberRegex.test(formData.fund_progress)) {
+                errors.fund_progress = lang('projects.onlynumbers', 'Only numbers are allowed (e.g. 1234.56)');
+            } else {
+                const fundProgressValue = parseFloat(formData.fund_progress);
+                if (isNaN(fundProgressValue) || fundProgressValue < 0 || fundProgressValue > 100) {
+                    errors.fund_progress = lang('projects.fundProgressInvalid', 'Fund progress must be between 0 and 100');
+                }
+            }
+        }
+
         if (Object.keys(errors).length > 0) {
             setError(prev => ({ ...prev, ...errors }));
             return;
@@ -381,7 +408,11 @@ const TabProjectBasicDetails = ({ setFormData, formData, error, setError }) => {
                 project_location: formData.project_location || '',
                 project_status_id: formData.project_status_id !== '' && formData.project_status_id !== undefined && formData.project_status_id !== null
                     ? Number(formData.project_status_id)
-                    : (projectStatuses?.[0]?.id ?? 1)
+                    : (projectStatuses?.[0]?.id ?? 1),
+                payback_period: formData.payback_period ? Number(formData.payback_period) : null,
+                fund_progress: formData.fund_progress !== '' && formData.fund_progress !== undefined && formData.fund_progress !== null
+                    ? parseFloat(formData.fund_progress)
+                    : null
             };
 
             // Submit to API

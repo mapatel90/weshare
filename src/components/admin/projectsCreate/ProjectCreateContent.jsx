@@ -5,6 +5,14 @@ import TabProjectBasicDetails from './TabProjectBasicDetails'
 const ProjectCreateContent = () => {
     const [error, setError] = useState(false);
 
+    const getNextYearDate = () => {
+        const today = new Date();
+        today.setFullYear(today.getFullYear() + 1);
+
+        return today.toISOString().split("T")[0];
+    };
+
+
     const [formData, setFormData] = useState({
         projectType: "",
         projectManage: "",
@@ -22,11 +30,13 @@ const ProjectCreateContent = () => {
         product_code: '',
         project_description: '',
         project_size: '',
-        project_close_date: '',
+        project_close_date: getNextYearDate(),
         project_location: '',
         evn_price_kwh: '',
         weshare_price_kwh: '',
-        project_status_id: ''
+        project_status_id: '',
+        payback_period: '',
+        fund_progress: ''
     });
 
     return (

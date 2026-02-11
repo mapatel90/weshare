@@ -240,8 +240,9 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
       weshare_price_kwh,
       created_by,
       project_status_id = 1,
+      payback_period,
+      fund_progress,
     } = req.body;
-    console.log("req.body", req.body);
 
     if (!name || !project_type_id) {
       return res.status(400).json({
@@ -294,6 +295,18 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
         ...(project_status_id && {
           project_status: { connect: { id: parseInt(project_status_id) } },
         }),
+        payback_period:
+          payback_period !== undefined &&
+            payback_period !== null &&
+            `${payback_period}` !== ""
+            ? parseInt(payback_period)
+            : null,
+        fund_progress:
+          fund_progress !== undefined &&
+            fund_progress !== null &&
+            `${fund_progress}` !== ""
+            ? parseFloat(fund_progress)
+            : null,
         updated_at: new Date()
       },
       include: {
@@ -1020,6 +1033,8 @@ router.put("/:id", authenticateToken, async (req, res) => {
       evn_price_kwh,
       project_status_id,
       solis_plant_id,
+      payback_period,
+      fund_progress,
     } = req.body;
 
 
@@ -1094,6 +1109,16 @@ router.put("/:id", authenticateToken, async (req, res) => {
           : { project_status: { disconnect: true } })),
       ...(weshare_price_kwh !== undefined && { weshare_price_kwh: parseFloat(weshare_price_kwh) || null }),
       ...(evn_price_kwh !== undefined && { evn_price_kwh: parseFloat(evn_price_kwh) || null }),
+      ...(payback_period !== undefined && {
+        payback_period: payback_period !== null && `${payback_period}` !== ""
+          ? parseInt(payback_period)
+          : null,
+      }),
+      ...(fund_progress !== undefined && {
+        fund_progress: fund_progress !== null && `${fund_progress}` !== ""
+          ? parseFloat(fund_progress)
+          : null,
+      }),
     };
 
     if (project_slug !== undefined) {

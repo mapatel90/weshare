@@ -380,15 +380,17 @@ model projects {
   state_id             Int?
   country_id           Int?
   zipcode              String?                @db.VarChar(20)
-  investor_profit      String?                 @db.VarChar(255)
-  weshare_profit       String?                 @db.VarChar(255)
+  investor_profit      String?                @db.VarChar(255)
+  weshare_profit       String?                @db.VarChar(255)
   meter_url            String?                @db.VarChar(255)
   sim_number           String?                @db.VarChar(255)
   sim_start_date       DateTime?
   sim_expire_date      DateTime?
-  project_status_id    Int?                    @default(1)
+  project_status_id    Int?                   @default(1)
+  payback_period       Int?                   
+  fund_progress        Float?
   is_deleted           Int                    @default(0)
-  created_at           DateTime?               @default(now())
+  created_at           DateTime?              @default(now())
   updated_at           DateTime?
   contracts            contracts[]
   interested_investors interested_investors[]
