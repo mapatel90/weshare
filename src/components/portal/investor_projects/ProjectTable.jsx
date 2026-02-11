@@ -530,7 +530,7 @@ const ProjectTable = () => {
                         </span>
                       </div> */}
                       {/* Stats boxes */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 mb-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 mb-3" style={{ height: "95px" }}>
                         <div className="bg-gray-50 rounded-lg p-2 text-center" style={{ wordWrap: "break-word" }}>
                           <div className="text-base font-bold text-slate-900">{project.targetInvestment}</div>
                           <div className="text-xs text-gray-500">Target Investment</div>
