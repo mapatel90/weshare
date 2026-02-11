@@ -194,9 +194,9 @@ const UserForm = ({ initialData = {}, onSubmit, includePassword = false, exclude
                 return
             }
 
-            setQrCodeFile(file)
-            setQrCodePreview(URL.createObjectURL(file))
-            if (errors.qrCode) setErrors(prev => ({ ...prev, qrCode: '' }))
+        setQrCodeFile(file)
+        setQrCodePreview(URL.createObjectURL(file))
+        if (errors.qrCode) setErrors(prev => ({ ...prev, qrCode: '' }))
         }
     }
 
@@ -439,7 +439,7 @@ const UserForm = ({ initialData = {}, onSubmit, includePassword = false, exclude
                                     {qrCodePreview && (
                                         <div className="mt-2 position-relative" style={{ width: '150px' }}>
                                             <img
-                                                src={buildUploadUrl(qrCodePreview)}
+                                                src={qrCodePreview.startsWith('blob:') ? qrCodePreview : buildUploadUrl(qrCodePreview)}
                                                 alt="QR Code Preview"
                                                 style={{ width: '100%', height: 'auto', border: '1px solid #ddd', borderRadius: '4px' }}
                                             />
