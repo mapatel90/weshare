@@ -13,6 +13,7 @@ import {
   Button,
   CircularProgress,
   InputAdornment,
+  Autocomplete,
 } from "@mui/material";
 
 const ProjectForm = ({
@@ -246,31 +247,27 @@ const ProjectForm = ({
             </div>
 
             <div className="col-md-3 mb-3">
-              <FormControl fullWidth error={!!error.offtaker}>
-                <InputLabel id="offtaker-select-label">
-                  {lang("projects.selectOfftaker", "Select Offtaker")}
-                </InputLabel>
-                <Select
-                  labelId="offtaker-select-label"
-                  name="offtaker"
-                  value={formData.offtaker}
-                  label={lang("projects.selectOfftaker", "Select Offtaker")}
-                  onChange={handleOfftakerChange}
-                  disabled={loadingOfftakers}
-                >
-                  <MenuItem value="">
-                    {lang("projects.selectOfftaker", "Select Offtaker")}
-                  </MenuItem>
-                  {offtakers.map((offtaker) => (
-                    <MenuItem key={offtaker.id} value={offtaker.id}>
-                      {offtaker.full_name}
-                    </MenuItem>
-                  ))}
-                </Select>
-                {error.offtaker && (
-                  <FormHelperText>{error.offtaker}</FormHelperText>
+              <Autocomplete
+                options={offtakers}
+                value={offtakers.find((o) => String(o.id) === String(formData.offtaker)) || null}
+                onChange={(e, newValue) => {
+                  handleOfftakerChange({
+                    target: { name: "offtaker", value: newValue ? newValue.id : "" },
+                  });
+                }}
+                getOptionLabel={(option) => option.full_name || ""}
+                isOptionEqualToValue={(option, value) => String(option.id) === String(value.id)}
+                disabled={loadingOfftakers}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label={lang("projects.selectOfftaker", "Select Offtaker")}
+                    placeholder={lang("projects.searchOfftaker", "Search Offtaker...")}
+                    error={!!error.offtaker}
+                    helperText={error.offtaker || ""}
+                  />
                 )}
-              </FormControl>
+              />
             </div>
           </div>
 

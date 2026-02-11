@@ -285,9 +285,7 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
         investor_profit,
         weshare_profit,
         project_size: project_size || "",
-        project_close_date: project_close_date
-          ? new Date(project_close_date)
-          : null,
+        project_close_date: project_close_date ? new Date(project_close_date) : null,
         project_start_date: start_date ? new Date(start_date) : null,
         project_location: project_location || "",
         weshare_price_kwh: parseFloat(weshare_price_kwh) || null,
@@ -788,7 +786,9 @@ router.get("/", async (req, res) => {
       offtaker_id,
       project_id,
       downloadAll,
-      solisStatus
+      solisStatus,
+      start_date,
+      end_date
     } = req.query;
     const pageInt = parseInt(page);
     const offtakerIdInt = offtaker_id ? parseInt(offtaker_id) : null;
@@ -837,6 +837,21 @@ router.get("/", async (req, res) => {
         where.project_status_id = status_array[0];
       } else if (status_array.length > 1) {
         where.project_status_id = { in: status_array };
+      }
+    }
+
+    // Filter by date range (created_at)
+    if (start_date || end_date) {
+      where.created_at = {};
+      if (start_date) {
+        const startDateObj = new Date(start_date);
+        startDateObj.setHours(0, 0, 0, 0);
+        where.created_at.gte = startDateObj;
+      }
+      if (end_date) {
+        const endDateObj = new Date(end_date);
+        endDateObj.setHours(23, 59, 59, 999);
+        where.created_at.lte = endDateObj;
       }
     }
 

@@ -53,7 +53,7 @@ const normalizeApiProject = (project) => {
     const d = new Date(iso);
     if (Number.isNaN(d.getTime())) return "—";
     // show as DD/MM/YYYY
-    return d.toLocaleDateString("en-GB");
+    return d.toLocaleDateString("en-CA");
   };
 
   const tsOrZero = (iso) => {
@@ -105,6 +105,7 @@ const SolarProjectTable = () => {
   const { lang } = useLanguage();
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState(""); // debounced search for API calls
   const [currentPage, setCurrentPage] = useState(1);
   const [entriesPerPage, setEntriesPerPage] = useState(5);
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
@@ -122,42 +123,92 @@ const SolarProjectTable = () => {
   const [pendingDateStart, setPendingDateStart] = useState("");
   const [pendingDateEnd, setPendingDateEnd] = useState("");
 
+  // Debounce search term - wait 500ms after user stops typing
   useEffect(() => {
-    const fetchProjects = async () => {
-      setIsLoading(true);
-      setFetchError(null);
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
-      try {
-        let apiUrl = "/api/projects?page=1&limit=50";
-        if (user?.id) {
-          apiUrl += `&offtaker_id=${user.id}`;
-        }
+  const fetchProjects = async (filters = {}) => {
+    setIsLoading(true);
+    setFetchError(null);
 
-        const response = await apiGet(apiUrl);
+    try {
+      const params = new URLSearchParams();
+      params.append("page", "1");
+      params.append("limit", "50");
 
-        // ✅ response.data is the projects array
-        if (response?.success && Array.isArray(response?.data)) {
-          if (response.data.length > 0) {
-            const normalized = response.data.map(normalizeApiProject);
-            setAllProjects(normalized);
-          } else {
-            // no records
-            setAllProjects([]);
-          }
+      if (user?.id) {
+        params.append("offtaker_id", user.id);
+      }
+
+      // Apply server-side filters
+      if (filters.search && filters.search.trim()) {
+        params.append("search", filters.search.trim());
+      }
+      if (filters.status && filters.status !== "All") {
+        params.append("project_status_id", filters.status);
+      }
+      if (filters.startDate) {
+        params.append("start_date", filters.startDate);
+      }
+      if (filters.endDate) {
+        params.append("end_date", filters.endDate);
+      }
+
+      const response = await apiGet(`/api/projects?${params.toString()}`);
+
+      // response.data is the projects array
+      if (response?.success && Array.isArray(response?.data)) {
+        if (response.data.length > 0) {
+          const normalized = response.data.map(normalizeApiProject);
+          // const normalized = response.data;
+          setAllProjects(normalized);
         } else {
+          // no records
           setAllProjects([]);
         }
-      } catch (error) {
-        console.error("Failed to fetch projects:", error);
-        setFetchError("Unable to fetch live project data.");
+      } else {
         setAllProjects([]);
-      } finally {
-        setIsLoading(false);
       }
+    } catch (error) {
+      console.error("Failed to fetch projects:", error);
+      setFetchError("Unable to fetch live project data.");
+      setAllProjects([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Fetch projects when filters change (server-side filtering)
+  useEffect(() => {
+    fetchProjects({
+      search: debouncedSearch,
+      status: statusFilter,
+      startDate: dateFilterStart,
+      endDate: dateFilterEnd,
+    });
+    setCurrentPage(1); // Reset to first page when filters change
+  }, [user?.id, debouncedSearch, statusFilter, dateFilterStart, dateFilterEnd]);
+
+  // Listen for projectCreated event to refresh the list
+  useEffect(() => {
+    const handleProjectCreated = () => {
+      fetchProjects({
+        search: debouncedSearch,
+        status: statusFilter,
+        startDate: dateFilterStart,
+        endDate: dateFilterEnd,
+      });
     };
 
-    fetchProjects();
-  }, [user?.id]);
+    window.addEventListener("projectCreated", handleProjectCreated);
+    return () => {
+      window.removeEventListener("projectCreated", handleProjectCreated);
+    };
+  }, [user?.id, debouncedSearch, statusFilter, dateFilterStart, dateFilterEnd]);
 
   // Close dropdowns when clicking outside
   useEffect(() => {
@@ -193,8 +244,8 @@ const SolarProjectTable = () => {
   };
 
 
+  // Filtering is now done server-side, so we just filter by offtaker role if needed
   const filteredProjects = useMemo(() => {
-    const term = searchTerm.toLowerCase();
     return allProjects.filter((project) => {
       // If user is an offtaker (role 3), only show their projects
       if (user && user.role === ROLES.OFFTAKER) {
@@ -202,122 +253,9 @@ const SolarProjectTable = () => {
           return false;
         }
       }
-
-      const combined = `${project.id} 
-       ${project.projectName} 
-       ${project.status} 
-       ${project.expectedROI} 
-       ${project.targetInvestment} 
-       ${project.paybackPeriod} 
-       ${project.startDate} 
-       ${project.endDate} 
-       ${project.expectedGeneration}`.toLowerCase();
-
-      const matchesSearch = combined.includes(term);
-
-      // statusFilter is 'All' or numeric code (1 = Upcoming, 0 = Under Installation)
-      const matchesStatus =
-        statusFilter === "All" || project.statusCode == statusFilter;
-
-      // Date range filtering
-      let matchesDateRange = true;
-      if (dateFilterStart || dateFilterEnd) {
-        // Parse filter dates to timestamps
-        let startDateTs = null;
-        let endDateTs = null;
-
-        if (dateFilterStart) {
-          const startDate = new Date(dateFilterStart);
-          if (!isNaN(startDate.getTime())) {
-            startDate.setHours(0, 0, 0, 0);
-            startDateTs = startDate.getTime();
-          }
-        }
-
-        if (dateFilterEnd) {
-          const endDate = new Date(dateFilterEnd);
-          if (!isNaN(endDate.getTime())) {
-            endDate.setHours(23, 59, 59, 999);
-            endDateTs = endDate.getTime();
-          }
-        }
-
-        // Get project timestamps (only if valid, not 0)
-        const projectStartTs =
-          project.startDateTs && project.startDateTs > 0
-            ? project.startDateTs
-            : null;
-        const projectEndTs =
-          project.endDateTs && project.endDateTs > 0 ? project.endDateTs : null;
-
-        // If project has no valid dates, exclude it
-        if (!projectStartTs && !projectEndTs) {
-          matchesDateRange = false;
-        } else {
-          if (startDateTs && endDateTs) {
-            // Both dates entered: show projects where BOTH start date AND end date fall within the range
-            // Project start date should be >= filter start date AND project end date should be <= filter end date
-            matchesDateRange =
-              projectStartTs &&
-              projectEndTs &&
-              projectStartTs >= startDateTs &&
-              projectEndTs <= endDateTs;
-          } else if (startDateTs) {
-            // Only start date entered: show projects where start date OR end date matches/falls on or after this date
-            const filterDateStart = new Date(dateFilterStart).setHours(
-              0,
-              0,
-              0,
-              0
-            );
-            const filterDateEnd = new Date(dateFilterStart).setHours(
-              23,
-              59,
-              59,
-              999
-            );
-            matchesDateRange =
-              (projectStartTs &&
-                projectStartTs >= filterDateStart &&
-                projectStartTs <= filterDateEnd) ||
-              (projectEndTs &&
-                projectEndTs >= filterDateStart &&
-                projectEndTs <= filterDateEnd);
-          } else if (endDateTs) {
-            // Only end date entered: show projects where start date OR end date matches/falls on or before this date
-            const filterDateStart = new Date(dateFilterEnd).setHours(
-              0,
-              0,
-              0,
-              0
-            );
-            const filterDateEnd = new Date(dateFilterEnd).setHours(
-              23,
-              59,
-              59,
-              999
-            );
-            matchesDateRange =
-              (projectStartTs &&
-                projectStartTs >= filterDateStart &&
-                projectStartTs <= filterDateEnd) ||
-              (projectEndTs &&
-                projectEndTs >= filterDateStart &&
-                projectEndTs <= filterDateEnd);
-          }
-        }
-      }
-
-      return matchesSearch && matchesStatus && matchesDateRange;
+      return true;
     });
-  }, [
-    searchTerm,
-    statusFilter,
-    dateFilterStart,
-    dateFilterEnd,
-    allProjects,
-    user,
-  ]);
+  }, [allProjects, user]);
 
   const sortedProjects = useMemo(() => {
     let sorted = [...filteredProjects];
@@ -362,48 +300,6 @@ const SolarProjectTable = () => {
   const startIndex = (currentPage - 1) * entriesPerPage;
   const endIndex = startIndex + entriesPerPage;
   const currentProjects = sortedProjects.slice(startIndex, endIndex);
-
-  const handleSort = (key) => {
-    setSortConfig((prev) => ({
-      key,
-      direction: prev.key === key && prev.direction === "asc" ? "desc" : "asc",
-    }));
-  };
-
-  const SortableHeader = ({ label, sortKey }) => (
-    <th
-      className="px-4 py-3 text-left text-xs font-semibold text-black uppercase tracking-wider cursor-pointer hover:bg-gray-50"
-      onClick={() => handleSort(sortKey)}
-    >
-      <div className="flex items-center gap-1">
-        {label}
-        <ChevronDown
-          className={`w-3 h-3 transition-transform ${sortConfig.key === sortKey && sortConfig.direction === "desc"
-            ? "rotate-180"
-            : ""
-            }`}
-        />
-      </div>
-    </th>
-  );
-
-  const getPageNumbers = () => {
-    const pages = [];
-    const maxVisible = 5;
-
-    if (totalPages <= maxVisible) {
-      for (let i = 1; i <= totalPages; i++) pages.push(i);
-    } else {
-      if (currentPage <= 3) {
-        for (let i = 1; i <= 5; i++) pages.push(i);
-      } else if (currentPage >= totalPages - 2) {
-        for (let i = totalPages - 4; i <= totalPages; i++) pages.push(i);
-      } else {
-        for (let i = currentPage - 2; i <= currentPage + 2; i++) pages.push(i);
-      }
-    }
-    return pages;
-  };
 
   return (
     <div className="min-h-full from-slate-50 to-slate-100">
@@ -532,7 +428,18 @@ const SolarProjectTable = () => {
                     aria-expanded={statusDropdownOpen}
                   >
                     <Filter className="w-4 h-4" />
-                    <span className="text-sm font-medium">{lang("projects.status", "Status")}</span>
+                    <span className="text-sm font-medium">
+                      {statusFilter === "All"
+                        ? lang("projects.status", "Status")
+                        : statusFilter === PROJECT_STATUS.PENDING
+                          ? lang("project_status.pending", "Pending")
+                          : statusFilter === PROJECT_STATUS.UPCOMING
+                            ? lang("project_status.upcoming", "Upcoming")
+                            : statusFilter === PROJECT_STATUS.RUNNING
+                              ? lang("project_status.running", "Running")
+                              : lang("projects.status", "Status")
+                      }
+                    </span>
                     <ChevronDown className="w-4 h-4" />
                   </button>
 
@@ -732,6 +639,76 @@ const SolarProjectTable = () => {
             ) : (
               <div className="text-center text-sm text-gray-500 py-8">
                 {lang("common.noData", "No data available.")}
+              </div>
+            )}
+
+            {/* Pagination */}
+            {sortedProjects.length > 0 && (
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 pt-4 border-t border-gray-200">
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <span>{lang("common.show", "Show")}</span>
+                  <select
+                    value={entriesPerPage}
+                    onChange={(e) => {
+                      setEntriesPerPage(Number(e.target.value));
+                      setCurrentPage(1);
+                    }}
+                    className="px-2 py-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-slate-500 focus:border-transparent outline-none"
+                  >
+                    <option value={5}>5</option>
+                    <option value={10}>10</option>
+                    <option value={20}>20</option>
+                    <option value={50}>50</option>
+                  </select>
+                  <span>{lang("common.entries", "entries")}</span>
+                  <span className="ml-2">
+                    ({lang("common.showing", "Showing")} {startIndex + 1}-{Math.min(endIndex, sortedProjects.length)} {lang("common.of", "of")} {sortedProjects.length})
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                    disabled={currentPage === 1}
+                    className="p-2 rounded-lg border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
+
+                  <div className="flex items-center gap-1">
+                    {Array.from({ length: totalPages }, (_, i) => i + 1)
+                      .filter((page) => {
+                        // Show first, last, current, and adjacent pages
+                        if (page === 1 || page === totalPages) return true;
+                        if (Math.abs(page - currentPage) <= 1) return true;
+                        return false;
+                      })
+                      .map((page, idx, arr) => (
+                        <React.Fragment key={page}>
+                          {idx > 0 && arr[idx - 1] !== page - 1 && (
+                            <span className="px-2 text-gray-400">...</span>
+                          )}
+                          <button
+                            onClick={() => setCurrentPage(page)}
+                            className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${currentPage === page
+                                ? "bg-slate-800 text-white"
+                                : "hover:bg-gray-100 text-gray-700"
+                              }`}
+                          >
+                            {page}
+                          </button>
+                        </React.Fragment>
+                      ))}
+                  </div>
+
+                  <button
+                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                    disabled={currentPage === totalPages}
+                    className="p-2 rounded-lg border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             )}
           </div>
