@@ -10,6 +10,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "@/styles/css/home.css";
 import "@/styles/css/responsive.css";
 import DynamicTitle from "@/components/common/DynamicTitle";
+import ScrollToTopButton from "@/components/common/ScrollToTopButton";
 
 const PrivacyPolicyPage = () => {
     useEffect(() => {
@@ -32,6 +33,9 @@ const PrivacyPolicyPage = () => {
 
         {/* Footer */}
         <HomeFooter />
+
+
+        <ScrollToTopButton />
     </>
   );
 }
