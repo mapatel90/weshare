@@ -5,7 +5,7 @@
 
 // Available placeholders for email templates
 export const EMAIL_PLACEHOLDERS = [
-  { key: "[user_name]", label: "User Name", description: "Recipient's full name" },
+  { key: "[full_name]", label: "Full Name", description: "Recipient's full name" },
   { key: "[user_email]", label: "User Email", description: "Recipient's email address" },
   { key: "[user_phone]", label: "User Phone", description: "Recipient's phone number" },
   { key: "[account_type]", label: "Account Type", description: "Type of account (Offtaker / Investor)" },
@@ -35,12 +35,17 @@ export const EMAIL_PLACEHOLDERS = [
   { key: "[privacy_policy_url]", label: "Privacy Policy URL", description: "Link to privacy policy" },
   { key: "[terms_of_service_url]", label: "Terms of Service URL", description: "Link to terms of service" },
   { key: "[unsubscribe_url]", label: "Unsubscribe URL", description: "Unsubscribe link" },
+  { key: "[invoice_date]", label: "Invoice Date", description: "Invoice issue date" },
+  { key: "[due_date]", label: "Due Date", description: "Payment due date" },
+  { key: "[sub_amount]", label: "Subtotal Amount", description: "Amount before tax" },
+  { key: "[total_amount]", label: "Total Invoice Amount", description: "Final payable amount" },
+  { key: "[currency]", label: "Currency", description: "Invoice currency (VND, USD, etc.)" },
   { key: "[reset_password_url]", label: "Reset Password URL", description: "Password reset URL" },
 ];
 
 // Test/Preview values for local testing
 export const PLACEHOLDER_TEST_VALUES = {
-  "[user_name]": "Test Name",
+  "[full_name]": "Test Name",
   "[user_email]": "test@example.com",
   "[user_phone]": "+1234567890",
   "[account_type]": "Offtaker",

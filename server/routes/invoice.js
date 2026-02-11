@@ -2,8 +2,9 @@ import express from "express";
 import prisma from "../utils/prisma.js";
 import { authenticateToken } from "../middleware/auth.js";
 import { sendInvoiceEmail } from "../utils/email.js";
+import { sendEmailUsingTemplate } from '../utils/email.js';
 import { createNotification } from "../utils/notifications.js";
-import { getUserLanguage, t } from '../utils/i18n.js';
+import { getUserLanguage, t } from "../utils/i18n.js";
 import { getUserFullName } from "../utils/common.js";
 
 const router = express.Router();
@@ -223,8 +224,8 @@ router.get("/", authenticateToken, async (req, res) => {
             select: {
               name: true,
               value: true,
-            }
-          }
+            },
+          },
         },
       }),
       prisma.invoices.count({ where }),
@@ -369,13 +370,13 @@ router.post("/", authenticateToken, async (req, res) => {
 
     const parsedItems = Array.isArray(items)
       ? items
-        .map((it) => ({
-          item: it?.item || "",
-          description: it?.description || "",
-          unit: Number(it?.unit) || 0,
-          price: Number(it?.price) || 0,
-        }))
-        .filter((it) => it.item)
+          .map((it) => ({
+            item: it?.item || "",
+            description: it?.description || "",
+            unit: Number(it?.unit) || 0,
+            price: Number(it?.price) || 0,
+          }))
+          .filter((it) => it.item)
       : [];
 
     const itemsTotal = parsedItems.reduce(
@@ -421,29 +422,6 @@ router.post("/", authenticateToken, async (req, res) => {
         },
       });
 
-      if (newInvoice) {
-
-        const lang = await getUserLanguage(newInvoice.offtaker_id);
-        const creatorName = await getUserFullName(created_by);
-
-        const notification_message = t(lang, 'notification_msg.invoice_created', {
-          invoice_number: newInvoice.invoice_prefix + "-" + newInvoice.invoice_number,
-          created_by: creatorName,
-        });
-
-        const title = t(lang, 'notification_msg.invoice_title');
-
-        await createNotification({
-          userId: newInvoice?.offtaker_id,
-          title: title,
-          message: notification_message,
-          moduleType: "Invoice",
-          moduleId: newInvoice?.id,
-          actionUrl: `/offtaker/billings/invoice/${newInvoice?.id}`,
-          created_by: parseInt(created_by),
-        });
-      }
-
       if (parsedItems.length) {
         await tx.invoice_items.createMany({
           data: parsedItems.map((it) => ({
@@ -459,6 +437,89 @@ router.post("/", authenticateToken, async (req, res) => {
 
       return newInvoice;
     });
+
+    if (created) {
+      const offtakerUser = await prisma.users.findUnique({
+        where: { id: created.offtaker_id },
+      });
+
+      const project = await prisma.projects.findUnique({
+        where: { id: created.project_id },
+      });
+
+      if (offtakerUser?.email) {
+        const templateData = {
+          full_name: offtakerUser.full_name || "",
+          user_email: offtakerUser.email,
+          invoice_number:
+            created.invoice_prefix + "-" + created.invoice_number,
+          project_name: project?.project_name || "",
+          due_date: created.due_date
+            ? created.due_date.toLocaleDateString()
+            : "",
+          invoice_date: created.invoice_date
+            ? created.invoice_date.toLocaleDateString()
+            : "",
+          sub_amount: created.sub_amount.toFixed(2),
+          total_amount: created.total_amount.toFixed(2),
+          tax_amount: created.tax_amount.toFixed(2),
+          address_1: offtakerUser.address_1 + " " + offtakerUser.address_2,
+          zipcode: offtakerUser.zipcode,
+          site_url: process.env.FRONTEND_URL || "http://localhost:3000",
+          company_name: "WeShare Energy",
+          company_logo: `${process.env.NEXT_PUBLIC_URL || ""}/images/main_logo.png`,
+          support_email: "support@weshare.com",
+          support_phone: "+1 (555) 123-4567",
+          support_hours: "Mon–Fri, 9am–6pm GMT",
+          current_date: new Date().toLocaleDateString(),
+        };
+
+        sendEmailUsingTemplate({
+          to: offtakerUser.email,
+          templateSlug: "invoice_created_for_offtaker",
+          templateData,
+          language: offtakerUser.language || "en",
+        })
+          .then((result) => {
+            if (result.success) {
+              console.log(
+                `Contract approval email sent to offtaker: ${offtakerUser.email}`,
+              );
+            } else {
+              console.warn(
+                ` Could not send contract approval email: ${result.error}`,
+              );
+            }
+          })
+          .catch((error) => {
+            console.error(
+              " Failed to send contract approval email:",
+              error.message,
+            );
+          });
+      }
+
+      const lang = await getUserLanguage(created.offtaker_id);
+      const creatorName = await getUserFullName(created_by);
+
+      const notification_message = t(lang, "notification_msg.invoice_created", {
+        invoice_number:
+          created.invoice_prefix + "-" + created.invoice_number,
+        created_by: creatorName,
+      });
+
+      const title = t(lang, "notification_msg.invoice_title");
+
+      await createNotification({
+        userId: created?.offtaker_id,
+        title: title,
+        message: notification_message,
+        moduleType: "Invoice",
+        moduleId: created?.id,
+        actionUrl: `/offtaker/billings/invoice/${created?.id}`,
+        created_by: parseInt(created_by),
+      });
+    }
 
     const nextInvoiceNumber = incrementInvoiceNumber(created.invoice_number);
 
@@ -520,14 +581,14 @@ router.put("/:id", authenticateToken, async (req, res) => {
 
     const parsedItems = Array.isArray(items)
       ? items
-        .map((it) => ({
-          item: it?.item || "",
-          description: it?.description || "",
-          unit: Number(it?.unit) || 0,
-          price: Number(it?.price) || 0,
-          id: it?.id,
-        }))
-        .filter((it) => it.item)
+          .map((it) => ({
+            item: it?.item || "",
+            description: it?.description || "",
+            unit: Number(it?.unit) || 0,
+            price: Number(it?.price) || 0,
+            id: it?.id,
+          }))
+          .filter((it) => it.item)
       : [];
 
     const itemsTotal = parsedItems.reduce(
@@ -597,12 +658,12 @@ router.put("/:id", authenticateToken, async (req, res) => {
       const lang = await getUserLanguage(updated.offtaker_id);
       const updaterName = await getUserFullName(userId);
 
-      const notification_message = t(lang, 'notification_msg.invoice_updated', {
+      const notification_message = t(lang, "notification_msg.invoice_updated", {
         invoice_number: updated.invoice_prefix + "-" + updated.invoice_number,
         created_by: updaterName,
       });
 
-      const title = t(lang, 'notification_msg.invoice_update_title');
+      const title = t(lang, "notification_msg.invoice_update_title");
 
       await createNotification({
         userId: updated.offtaker_id,

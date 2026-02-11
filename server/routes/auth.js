@@ -138,7 +138,7 @@ router.post('/register', async (req, res) => {
       const loginUrl = `${process.env.FRONTEND_URL || ''}/offtaker/login`;
       
       const templateData = {
-        user_name: newUser.full_name,
+        full_name: newUser.full_name,
         user_email: newUser.email,
         account_type: 'Offtaker',
         current_date: new Date().toLocaleDateString(),
@@ -167,7 +167,7 @@ router.post('/register', async (req, res) => {
       const loginUrl = `${process.env.FRONTEND_URL || ''}/investor/login`;
       
       const templateData = {
-        user_name: newUser.full_name,
+        full_name: newUser.full_name,
         user_email: newUser.email,
         current_date: new Date().toLocaleDateString(),
         login_url: loginUrl,
