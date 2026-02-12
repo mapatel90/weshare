@@ -467,7 +467,6 @@ router.post("/", authenticateToken, async (req, res) => {
           zipcode: offtakerUser.zipcode,
           site_url: process.env.FRONTEND_URL || "http://localhost:3000",
           company_name: "WeShare Energy",
-          company_logo: `${process.env.NEXT_PUBLIC_URL || ""}/images/main_logo.png`,
           support_email: "support@weshare.com",
           support_phone: "+1 (555) 123-4567",
           support_hours: "Mon–Fri, 9am–6pm GMT",

@@ -143,6 +143,7 @@ model invoices {
   notes                 String?    @db.VarChar(255)
   terms_and_conditions  String?    @db.VarChar(255)
   qr_code_url           String?    @db.VarChar(900)
+  invoice_pdf           String?    @db.VarChar(900)
   status                Int       @default(0)
   is_deleted            Int       @default(0)
   created_at            DateTime  @default(now())
@@ -521,7 +522,7 @@ model notifications {
   created_users        users?                 @relation("NotificationCreator", fields: [created_by], references: [id])
 }
 model project_status {
-  id                  Int                    @id
+  id                  Int                    @id @default(autoincrement())
   name                String?
   is_deleted          Int                    @default(0)
 
