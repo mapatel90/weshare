@@ -314,7 +314,7 @@ const TabProjectBasicDetails = ({ setFormData, formData, error, setError }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        const requiredFields = ['project_name', 'project_type_id'];
+        const requiredFields = ['project_name', 'project_type_id', 'product_code'];
         const errors = {};
 
         requiredFields.forEach(field => {
