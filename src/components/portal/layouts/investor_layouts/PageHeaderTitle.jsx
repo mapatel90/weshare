@@ -17,8 +17,19 @@ const PageHeaderTitle = () => {
     let breadcrumb = [];
 
 
-    // Special case for /offtaker/contracts/details/:id
+    // Special case for /investor/projects/details/:id
     if (
+        parts.length >= 4 &&
+        parts[0] === "investor" &&
+        parts[1] === "projects" &&
+        parts[2] === "details"
+    ) {
+        title = "Project details";
+        breadcrumb = [
+            { name: lang("menu.projects", "Project"), href: "/investor/projects" },
+            { name: lang("menu.details", "Details"), href: null }
+        ];
+    } else if (
         parts.length >= 4 &&
         parts[0] === "investor" &&
         parts[1] === "contracts" &&

@@ -75,6 +75,7 @@ const normalizeApiProject = (project) => {
     : buildUploadUrl("/uploads/general/noimage.jpeg");
 
   return {
+    projectId: project.projects?.id ?? null,  // Raw numeric ID for URLs
     id: project.projects?.id ? `#${project.projects.id}` : project.projects?.project_code ?? "—",
     project_image: coverImage,
     projectName: project.projects?.project_name ?? "—",
@@ -560,12 +561,24 @@ const ProjectTable = () => {
                         {/* <button className="flex-1 px-4 py-2 bg-amber-500 text-white rounded-lg font-semibold hover:bg-amber-600 transition-colors text-sm">Invest Early</button> */}
                         <a
                           className="flex-1 px-4 py-2 border border-gray-300 text-slate-900 rounded-lg font-semibold hover:bg-gray-100 transition-colors text-sm flex items-center justify-center gap-1"
-                          href={`/frontend/exchange-hub/${project.project_slug}`}
+                          href={`/investor/projects/details/${project.projectId ?? project.id ?? ""}`}
                           target="_blank"
                           rel="noopener noreferrer"
                         >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                          View Details
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"
+                            />
+                          </svg>
+                          {lang("home.exchangeHub.viewDetails", "View Details")}
                         </a>
                       </div>
                     </div>

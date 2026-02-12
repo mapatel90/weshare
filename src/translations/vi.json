@@ -786,7 +786,8 @@
       "notes": "Ghi chú",
       "investNow": "Đầu tư ngay",
       "investor": "Nhà đầu tư",
-      "interestSubmitted": "Bạn đã bày tỏ sự quan tâm tới dự án này."
+      "interestSubmitted": "Bạn đã bày tỏ sự quan tâm tới dự án này.",
+      "noTestimonials": "Không có đánh giá cho dự án này"
     },
     "solarLease": {
       "title": "Biến bất động sản của bạn thành cho thuê năng lượng mặt trời",
@@ -1429,7 +1430,9 @@
     "five": "Năm",
     "testimonialCreatedSuccessfully": "Lời chứng thực đã được tạo thành công",
     "testimonialUpdatedSuccessfully": "Lời chứng thực đã được cập nhật thành công",
-    "testimonialDeletedSuccessfully": "Lời chứng thực đã xóa thành công"
+    "testimonialDeletedSuccessfully": "Lời chứng thực đã xóa thành công",
+    "userType": "Loại người dùng",
+    "offtakerAutoSelectHint": "Người nhận sẽ được tự động chọn dựa trên dự án"
   },
   "blog": {
     "title": "Quản lý blog",

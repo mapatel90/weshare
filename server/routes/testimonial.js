@@ -31,54 +31,19 @@ const upload = multer({
     }
 });
 
-router.post('/', authenticateToken, upload.single('image'), async (req, res) => {
+router.post('/', authenticateToken, async (req, res) => {
     try {
-        const { project, offtaker, description, review_status } = req.body;
-        const userId = req.user?.id; // Get user ID from authenticated token
+        const { project, user, description, review_status } = req.body;
+        const userId = req.user?.id; 
 
-        let uploadedPath = req.body.image || null;
-
-        if (req.file) {
-            const s3Enabled = await isS3Enabled();
-            if (s3Enabled) {
-                try {
-                    const s3Result = await uploadToS3(
-                        req.file.buffer,
-                        req.file.originalname,
-                        req.file.mimetype,
-                        {
-                            folder: 'testimonial',
-                            metadata: {
-                                projectId: String(project || ''),
-                                offtakerId: String(offtaker || ''),
-                                uploadType: 'testimonial_image'
-                            }
-                        }
-                    );
-                    if (s3Result && s3Result.success) {
-                        uploadedPath = s3Result.data.fileKey;
-                    } else {
-                        console.error('S3 upload failed:', s3Result);
-                        return res.status(500).json({ error: 'S3 upload failed' });
-                    }
-                } catch (err) {
-                    console.error('S3 upload error:', err);
-                    return res.status(500).json({ error: 'S3 upload failed' });
-                }
-            } else {
-                return res.status(500).json({ error: 'S3 is disabled' });
-            }
-        }
-
-        if (!project || !offtaker || !uploadedPath || !description || !review_status) {
+        if (!project || !user || !description || !review_status) {
             return res.status(400).json({ error: 'All fields are required' });
         }
 
         const testimonial = await prisma.testimonials.create({
             data: {
                 project_id: Number(project),
-                offtaker_id: Number(offtaker),
-                image: uploadedPath,
+                user_id: Number(user),
                 description,
                 review_status: Number(review_status),
                 created_by: userId,
@@ -99,7 +64,7 @@ router.get('/', async (req, res) => {
             where: { is_deleted: 0 },
             include: {
                 projects: { select: { id: true, project_name: true } },
-                users: { select: { id: true, full_name: true } }
+                users: { select: { id: true, full_name: true, user_image: true, role_id: true } }
             }
         });
         res.json(testimonials);
@@ -109,70 +74,49 @@ router.get('/', async (req, res) => {
     }
 });
 
-router.put('/:id', authenticateToken, upload.single('image'), async (req, res) => {
+// Get user's review for a specific project
+router.get('/user-review', authenticateToken, async (req, res) => {
     try {
-        const { id } = req.params;
-        const { project, offtaker, description, review_status } = req.body;
+        const { project_id } = req.query;
+        const userId = req.user?.id;
 
-        if (!project || !offtaker || !description || !review_status) {
-            return res.status(400).json({ error: 'All fields are required' });
+        if (!project_id || !userId) {
+            return res.status(400).json({ success: false, error: 'Project ID and User ID are required' });
         }
 
-        let newImagePath = null;
-
-        if (req.file) {
-            const s3Enabled = await isS3Enabled();
-            if (s3Enabled) {
-                try {
-                    const s3Result = await uploadToS3(
-                        req.file.buffer,
-                        req.file.originalname,
-                        req.file.mimetype,
-                        {
-                            folder: 'testimonial',
-                            metadata: {
-                                testimonialId: String(id),
-                                uploadType: 'testimonial_image_update'
-                            }
-                        }
-                    );
-                    if (s3Result && s3Result.success) {
-                        newImagePath = s3Result.data.fileKey;
-
-                        // Attempt to delete old S3 file if previous image was a remote URL
-                        try {
-                            const existing = await prisma.testimonials.findFirst({ where: { id: Number(id) } });
-                            if (existing?.image && existing.image.startsWith('http')) {
-                                try {
-                                    const url = new URL(existing.image);
-                                    const key = decodeURIComponent(url.pathname.substring(1));
-                                    await deleteFromS3(key);
-                                } catch (delErr) {
-                                    console.error('Failed deleting old S3 testimonial image:', delErr.message || delErr);
-                                }
-                            }
-                        } catch (e) {
-                            // ignore
-                        }
-                    } else {
-                        console.error('S3 upload failed:', s3Result);
-                        return res.status(500).json({ error: 'S3 upload failed' });
-                    }
-                } catch (err) {
-                    console.error('S3 upload error:', err);
-                    return res.status(500).json({ error: 'S3 upload failed' });
-                }
-            } else {
-                return res.status(500).json({ error: 'S3 is disabled' });
+        const review = await prisma.testimonials.findFirst({
+            where: {
+                project_id: Number(project_id),
+                user_id: Number(userId),
+                is_deleted: 0
+            },
+            include: {
+                projects: { select: { id: true, project_name: true } },
+                users: { select: { id: true, full_name: true } }
             }
+        });
+
+        res.json({ success: true, data: review });
+    } catch (error) {
+        console.error('Error fetching user review:', error);
+        res.status(500).json({ success: false, error: 'Failed to fetch user review' });
+    }
+});
+
+router.put('/:id', authenticateToken, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { project, user, description, review_status } = req.body;
+
+        if (!project || !user || !description || !review_status) {
+            return res.status(400).json({ error: 'All fields are required' });
         }
 
         const updatedTestimonial = await prisma.testimonials.update({
             where: { id: Number(id) },
             data: {
                 project_id: Number(project),
-                offtaker_id: Number(offtaker),
-                ...(newImagePath ? { image: newImagePath } : {}),
+                user_id: Number(user),
                 description,
                 review_status: Number(review_status),
             }
@@ -189,28 +133,6 @@ router.delete('/:id', authenticateToken, async (req, res) => {
     try {
         const { id } = req.params;
         const existing = await prisma.testimonials.findFirst({ where: { id: Number(id) } });
-
-        // best-effort delete remote S3 or local image when soft deleting
-        try {
-            if (existing?.image) {
-                if (existing.image.startsWith('http')) {
-                    try {
-                        const url = new URL(existing.image);
-                        const key = decodeURIComponent(url.pathname.substring(1));
-                        await deleteFromS3(key);
-                    } catch (s3Err) {
-                        console.error('S3 delete failed:', s3Err.message || s3Err);
-                    }
-                } else {
-                    const oldPath = path.join(PUBLIC_DIR, existing.image.replace(/^\//, ''));
-                    if (fs.existsSync(oldPath)) {
-                        fs.unlinkSync(oldPath);
-                    }
-                }
-            }
-        } catch (e) {
-            // ignore
-        }
 
         await prisma.testimonials.update({
             where: { id: Number(id) },

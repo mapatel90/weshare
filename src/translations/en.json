@@ -817,7 +817,8 @@
       "signInToInvest": "Sign In to Invest",
       "submit": "Submit",
       "notes": "Notes",
-      "interestSubmitted": "You have already expressed interest for this project."
+      "interestSubmitted": "You have already expressed interest for this project.",
+      "noTestimonials": "No testimonials for this project"
     },
     "solarLease": {
       "title": "Turn your Property Into a Solar Lease",
@@ -1486,7 +1487,9 @@
     "five": "Five",
     "testimonialCreatedSuccessfully": "Testimonial Created Successfully",
     "testimonialUpdatedSuccessfully": "Testimonial Updated Successfully",
-    "testimonialDeletedSuccessfully": "Testimonial Deleted Successfully"
+    "testimonialDeletedSuccessfully": "Testimonial Deleted Successfully",
+    "userType": "User Type",
+    "offtakerAutoSelectHint": "Offtaker will be auto-fill according to the project"
   },
   "blog": {
     "addBlog": "Add Blog",

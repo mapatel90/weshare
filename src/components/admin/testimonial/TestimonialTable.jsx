@@ -2,7 +2,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import Table from "@/components/shared/table/Table";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { apiGet, apiPost, apiDelete, apiUpload } from "@/lib/api";
+import { apiGet, apiPost, apiDelete, apiPut } from "@/lib/api";
 import { showSuccessToast } from "@/utils/topTost";
 import Swal from "sweetalert2";
 import { FiEdit3, FiTrash2 } from "react-icons/fi";
@@ -22,15 +22,22 @@ import {
     FormControl,
     InputLabel,
     FormHelperText,
+    Autocomplete,
+    Radio,
+    RadioGroup,
+    FormControlLabel,
+    FormLabel,
 } from "@mui/material";
 import { Close as CloseIcon } from "@mui/icons-material";
-import { buildUploadUrl, getFullImageUrl } from "@/utils/common";
 import { useAuth } from "@/contexts/AuthContext";
 import { PROJECT_STATUS } from "@/constants/project_status";
 import usePermissions from "@/hooks/usePermissions";
+import { ROLES } from "@/constants/roles";
+import { useDarkMode } from "@/utils/common";
 
 const TestimonialTable = () => {
     const { lang } = useLanguage();
+    const isDarkMode = useDarkMode();
     const [data, setData] = useState([]);
     const [modalMode, setModalMode] = useState(null);
     const [editingId, setEditingId] = useState(null);
@@ -38,13 +45,13 @@ const TestimonialTable = () => {
     const [errors, setErrors] = useState({});
     const [projectOptions, setProjectOptions] = useState([]);
     const [selectedProject, setSelectedProject] = useState(null);
+    const [userType, setUserType] = useState("offtaker"); // "offtaker" or "investor"
     const [offtakerOptions, setOfftakerOptions] = useState([]);
     const [selectedOfftaker, setSelectedOfftaker] = useState(null);
+    const [investorOptions, setInvestorOptions] = useState([]);
+    const [selectedInvestor, setSelectedInvestor] = useState(null);
     const [reviewStatus, setReviewStatus] = useState("");
     const [description, setDescription] = useState("");
-    const [image, setImage] = useState("");
-    const [imageFile, setImageFile] = useState(null);
-    const [imagePreviewUrl, setImagePreviewUrl] = useState("");
     const { user } = useAuth();
     const { canEdit, canDelete } = usePermissions();
     const showActionColumn = canEdit("testimonials") || canDelete("testimonials");
@@ -52,39 +59,25 @@ const TestimonialTable = () => {
     const clearError = (key) =>
         setErrors((prev) => (prev[key] ? { ...prev, [key]: "" } : prev));
 
-    const applyImageSelection = (file) => {
-        setImageFile(file || null);
-        if (file) {
-            if (imagePreviewUrl) URL.revokeObjectURL(imagePreviewUrl);
-            const url = URL.createObjectURL(file);
-            setImagePreviewUrl(url);
-            setImage("");
-        } else {
-            setImagePreviewUrl(image || "");
-        }
-    };
-
     const buildFormData = () => {
-        const form = new FormData();
-        form.append("project", selectedProject?.value || "");
-        form.append("offtaker", selectedOfftaker?.value || "");
-        form.append("description", description);
-        form.append("review_status", reviewStatus);
-        if (user?.id) form.append("created_by", user.id);
-        if (imageFile) form.append("image", imageFile);
-        else if (!editingId && image) form.append("image", image);
-        return form;
+        const selectedUser = userType === "investor" ? selectedInvestor : selectedOfftaker;
+        return {
+            project: selectedProject?.id || "",
+            user: selectedUser?.id || "",
+            description: description,
+            review_status: reviewStatus,
+        };
     };
 
     const resetForm = () => {
         setEditingId(null);
         setSelectedProject(null);
+        setUserType("offtaker");
         setSelectedOfftaker(null);
+        setOfftakerOptions([]);
+        setSelectedInvestor(null);
         setReviewStatus("");
         setDescription("");
-        setImage("");
-        setImageFile(null);
-        setImagePreviewUrl("");
         setErrors({});
     };
 
@@ -92,9 +85,7 @@ const TestimonialTable = () => {
         try {
             const res = await apiPost("/api/projects/dropdown/project", { project_status_id: PROJECT_STATUS.RUNNING });
             const items = Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : [];
-            console.log("Fetched projects for testimonial:", items);
-            const mapped = items.map((p) => ({ label: p.project_name, value: String(p.id) }));
-            setProjectOptions([{ label: lang("invoice.selectProject"), value: "" }, ...mapped]);
+            setProjectOptions(items);
         } catch (_) {
             setProjectOptions([]);
         }
@@ -106,10 +97,9 @@ const TestimonialTable = () => {
             const proj = res?.data;
             const ot = proj?.offtaker;
             if (ot?.id) {
-                const option = { label: (ot.full_name || ot.email || ""), value: String(ot.id) };
-                setOfftakerOptions([option]);
-                setSelectedOfftaker(option);
-                if (errors.offtaker) setErrors((prev) => ({ ...prev, offtaker: "" }));
+                setOfftakerOptions([ot]);
+                setSelectedOfftaker(ot);
+                if (errors.user) setErrors((prev) => ({ ...prev, user: "" }));
             } else {
                 setOfftakerOptions([]);
                 setSelectedOfftaker(null);
@@ -117,6 +107,16 @@ const TestimonialTable = () => {
         } catch (_) {
             setOfftakerOptions([]);
             setSelectedOfftaker(null);
+        }
+    };
+
+    const fetchInvestors = async () => {
+        try {
+            const res = await apiGet(`/api/users?role=${ROLES.INVESTOR}`);
+            const items = res?.data?.users || res?.data || [];
+            setInvestorOptions(Array.isArray(items) ? items : []);
+        } catch (_) {
+            setInvestorOptions([]);
         }
     };
 
@@ -134,38 +134,60 @@ const TestimonialTable = () => {
     useEffect(() => {
         fetchTestimonials();
         fetchProjects();
+        fetchInvestors();
 
         const onSaved = () => fetchTestimonials();
+        const onOpenEdit = (e) => {
+            const item = e?.detail?.item;
+            if (!item) {
+                setModalMode("add");
+                resetForm();
+                return;
+            }
+            setModalMode("edit");
+            setEditingId(item?.id ?? null);
+
+            // Set project
+            const projId = item?.project_id || item?.projects?.id;
+            const projName = item?.projects?.project_name || "";
+            setSelectedProject(projId ? { id: projId, project_name: projName } : null);
+
+            // Determine user type based on the user's role
+            const userData = item?.users;
+            if (userData) {
+                // Check if user is investor (role_id = 4) or offtaker (role_id = 3)
+                const isInvestor = userData.role_id === ROLES.INVESTOR;
+                setUserType(isInvestor ? "investor" : "offtaker");
+
+                if (isInvestor) {
+                    setSelectedInvestor(userData);
+                    setSelectedOfftaker(null);
+                    // Fetch project offtaker for reference
+                    if (projId) fetchProjectOfftaker(projId);
+                } else {
+                    setSelectedOfftaker(userData);
+                    setOfftakerOptions([userData]);
+                    setSelectedInvestor(null);
+                }
+            } else {
+                setUserType("offtaker");
+                setSelectedOfftaker(null);
+                setSelectedInvestor(null);
+            }
+
+            setReviewStatus(item?.review_status?.toString?.() || "");
+            setDescription(item?.description || "");
+            setErrors({});
+        };
+
         if (typeof window !== "undefined") {
             window.addEventListener("testimonial:saved", onSaved);
-            window.addEventListener("testimonial:open-edit", (e) => {
-                const item = e?.detail?.item;
-                if (!item) {
-                    setModalMode("add");
-                    resetForm();
-                    return;
-                }
-                setModalMode("edit");
-                setEditingId(item?.id ?? null);
-                const projId = item?.project_id || item?.project?.id;
-                const projLabel = item?.project?.project_name || "";
-                setSelectedProject(projId ? { label: projLabel, value: String(projId) } : null);
-                const otId = item?.offtaker_id || item?.users?.id;
-                const otLabel = item?.users ? (item.users.full_name || item.users.email || "") : "";
-                const editOfftaker = otId ? { label: otLabel, value: String(otId) } : null;
-                setSelectedOfftaker(editOfftaker);
-                setOfftakerOptions(editOfftaker ? [editOfftaker] : []);
-                setReviewStatus(item?.review_status?.toString?.() || "");
-                setDescription(item?.description || "");
-                setImage(item?.image || "");
-                setImageFile(null);
-                setImagePreviewUrl(buildUploadUrl(item?.image) || "");
-                setErrors({});
-            });
+            window.addEventListener("testimonial:open-edit", onOpenEdit);
         }
         return () => {
             if (typeof window !== "undefined") {
                 window.removeEventListener("testimonial:saved", onSaved);
+                window.removeEventListener("testimonial:open-edit", onOpenEdit);
             }
         };
     }, []);
@@ -196,23 +218,22 @@ const TestimonialTable = () => {
 
     const validate = () => {
         const required = (v, fallback) => (v ? "" : fallback);
+        const selectedUser = userType === "investor" ? selectedInvestor : selectedOfftaker;
         const newErrors = {
             project: required(
-                selectedProject?.value,
+                selectedProject?.id,
                 lang("validation.projectRequired") || "Project is required"
             ),
-            offtaker: required(
-                selectedOfftaker?.value,
-                lang("validation.offtakerRequired") || "Offtaker is required"
+            user: required(
+                selectedUser?.id,
+                userType === "investor"
+                    ? (lang("validation.investorRequired") || "Investor is required")
+                    : (lang("validation.offtakerRequired") || "Offtaker is required")
             ),
             reviewStatus: required(
                 reviewStatus,
                 lang("validation.reviewStatusRequired") || "Review status is required"
             ),
-            image:
-                !editingId && !(imageFile || image)
-                    ? lang("validation.imageRequired") || "Image is required"
-                    : "",
             description: required(
                 description,
                 lang("validation.descriptionRequired") || "Description is required"
@@ -228,9 +249,8 @@ const TestimonialTable = () => {
             setSubmitting(true);
             const form = buildFormData();
             const res = editingId
-                ? await apiUpload(`/api/testimonials/${editingId}`, form, { method: "PUT" })
-                : await apiUpload("/api/testimonials", form);
-
+                ? await apiPut(`/api/testimonials/${editingId}`, form)
+                : await apiPost("/api/testimonials", form);
             if (res?.id || res?.data || res?.success) {
                 showSuccessToast(
                     editingId
@@ -262,29 +282,9 @@ const TestimonialTable = () => {
                 cell: ({ row }) => row.original?.projects?.project_name || row.original?.project_name || "",
             },
             {
-                accessorKey: "offtaker.fullName",
-                header: () => lang("testimonial.offtaker") || "Offtaker",
+                accessorKey: "user.fullName",
+                header: () => lang("page_title.users") || "User",
                 cell: ({ row }) => row.original?.users?.full_name || "",
-            },
-            {
-                accessorKey: "image",
-                header: () => lang("testimonial.image") || "Image",
-                cell: ({ row }) => {
-                    const src = row.original.image;
-                    if (!src) return "";
-                    return (
-                        <img
-                            src={buildUploadUrl(src)}
-                            alt="testimonial"
-                            style={{
-                                width: 48,
-                                height: 48,
-                                objectFit: "cover",
-                                borderRadius: 4,
-                            }}
-                        />
-                    );
-                },
             },
             {
                 accessorKey: "review_status",
@@ -386,92 +386,103 @@ const TestimonialTable = () => {
                 </DialogTitle>
                 <DialogContent>
                     <Box sx={{ display: "flex", flexDirection: "column", gap: 3, pt: 2 }}>
-                        <FormControl fullWidth error={!!errors.project}>
-                            <InputLabel id="testimonial-project-select">{lang("invoice.project") || "Project"}</InputLabel>
-                            <Select
-                                labelId="testimonial-project-select"
-                                value={selectedProject?.value || ""}
-                                label={lang("invoice.project") || "Project"}
-                                onChange={(e) => {
-                                    const value = e.target.value;
-                                    const option = projectOptions.find((opt) => opt.value === value) || null;
-                                    setSelectedProject(option);
-                                    if (errors.project) setErrors((prev) => ({ ...prev, project: "" }));
-                                    if (option?.value) {
-                                        fetchProjectOfftaker(option.value);
-                                    } else {
-                                        setOfftakerOptions([]);
-                                        setSelectedOfftaker(null);
-                                    }
-                                }}
-                            >
-                                <MenuItem value="">{lang("invoice.selectProject") || "Select Project"}</MenuItem>
-                                {projectOptions
-                                    .filter((opt) => opt.value !== "")
-                                    .map((option) => (
-                                        <MenuItem key={option.value} value={option.value}>
-                                            {option.label}
-                                        </MenuItem>
-                                    ))}
-                            </Select>
-                            {errors.project && <FormHelperText>{errors.project}</FormHelperText>}
-                        </FormControl>
-
-                        <FormControl fullWidth error={!!errors.offtaker}>
-                            <InputLabel id="testimonial-offtaker-select">{lang("testimonial.offtaker") || "Offtaker"}</InputLabel>
-                            <Select
-                                labelId="testimonial-offtaker-select"
-                                value={selectedOfftaker?.value || ""}
-                                label={lang("testimonial.offtaker") || "Offtaker"}
-                                onChange={(e) => {
-                                    const value = e.target.value;
-                                    const option = offtakerOptions.find((opt) => opt.value === value) || null;
-                                    setSelectedOfftaker(option);
-                                    if (errors.offtaker) setErrors((prev) => ({ ...prev, offtaker: "" }));
-                                }}
-                            >
-                                <MenuItem value="">{lang("testimonial.selectOfftaker") || "Select Offtaker"}</MenuItem>
-                                {offtakerOptions.map((option) => (
-                                    <MenuItem key={option.value} value={option.value}>
-                                        {option.label}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                            {errors.offtaker && <FormHelperText>{errors.offtaker}</FormHelperText>}
-                        </FormControl>
-
-                        <Box>
-                            <TextField
-                                fullWidth
-                                type="file"
-                                inputProps={{ accept: "image/*" }}
-                                label={lang("testimonial.image") || "Upload Image"}
-                                InputLabelProps={{ shrink: true }}
-                                onChange={(e) => {
-                                    const file = (e.target.files && e.target.files[0]) || null;
-                                    applyImageSelection(file);
-                                    clearError("image");
-                                }}
-                                error={!!errors.image}
-                                helperText={errors.image}
-                            />
-
-                            {(imagePreviewUrl || image) && (
-                                <Box sx={{ mt: 1 }}>
-                                    <img
-                                        src={imagePreviewUrl || image}
-                                        alt="preview"
-                                        style={{
-                                            width: 160,
-                                            height: 100,
-                                            objectFit: "cover",
-                                            borderRadius: 6,
-                                            border: "1px solid #eee",
-                                        }}
-                                    />
-                                </Box>
+                        {/* Project Searchable Autocomplete */}
+                        <Autocomplete
+                            options={projectOptions}
+                            value={selectedProject}
+                            onChange={(e, newValue) => {
+                                setSelectedProject(newValue);
+                                if (errors.project) setErrors((prev) => ({ ...prev, project: "" }));
+                                if (newValue?.id) {
+                                    fetchProjectOfftaker(newValue.id);
+                                } else {
+                                    setOfftakerOptions([]);
+                                    setSelectedOfftaker(null);
+                                }
+                            }}
+                            getOptionLabel={(option) => option?.project_name || ""}
+                            isOptionEqualToValue={(option, value) => option?.id === value?.id}
+                            renderInput={(params) => (
+                                <TextField
+                                    {...params}
+                                    label={lang("invoice.project") || "Project"}
+                                    placeholder={lang("invoice.searchProject") || "Search project..."}
+                                    error={!!errors.project}
+                                    helperText={errors.project}
+                                />
                             )}
-                        </Box>
+                            fullWidth
+                        />
+
+                        {/* User Type Radio Buttons */}
+                        {selectedProject && (
+                            <FormControl component="fieldset">
+                                <FormLabel component="legend">{lang("testimonial.userType") || "User Type"}</FormLabel>
+                                <RadioGroup
+                                    row
+                                    value={userType}
+                                    onChange={(e) => {
+                                        setUserType(e.target.value);
+                                        // Clear the user error when switching
+                                        if (errors.user) setErrors((prev) => ({ ...prev, user: "" }));
+                                    }}
+                                >
+                                    <FormControlLabel
+                                        value="offtaker"
+                                        control={<Radio />}
+                                        label={lang("testimonial.offtaker") || "Offtaker"}
+                                    />
+                                    <FormControlLabel
+                                        value="investor"
+                                        control={<Radio />}
+                                        label={lang("authentication.becomeInvestor") || "Investor"}
+                                    />
+                                </RadioGroup>
+                            </FormControl>
+                        )}
+
+                        {/* Offtaker Field - Disabled, auto-selected based on project */}
+                        {selectedProject && userType === "offtaker" && (
+                            <TextField
+                                label={lang("testimonial.offtaker") || "Offtaker"}
+                                className={isDarkMode ? "text-white" : "text-black"}
+                                value={selectedOfftaker?.full_name || selectedOfftaker?.email || ""}
+                                disabled={isDarkMode ? false : true}
+                                fullWidth
+                                error={!!errors.user}
+                                helperText={
+                                    errors.user ||
+                                    (lang("testimonial.offtakerAutoSelectHint") || "Offtaker will be auto-selected according to the project")
+                                }
+                                InputProps={{
+                                    readOnly: true
+                                }}
+                            />
+                        )}
+
+                        {/* Investor Searchable Autocomplete - shown when userType is "investor" */}
+                        {selectedProject && userType === "investor" && (
+                            <Autocomplete
+                                options={investorOptions}
+                                value={selectedInvestor}
+                                onChange={(e, newValue) => {
+                                    setSelectedInvestor(newValue);
+                                    if (errors.user) setErrors((prev) => ({ ...prev, user: "" }));
+                                }}
+                                getOptionLabel={(option) => option?.full_name || option?.email || ""}
+                                isOptionEqualToValue={(option, value) => option?.id === value?.id}
+                                renderInput={(params) => (
+                                    <TextField
+                                        {...params}
+                                        label={lang("authentication.becomeInvestor") || "Investor"}
+                                        placeholder={lang("testimonial.searchInvestor") || "Search investor..."}
+                                        error={!!errors.user}
+                                        helperText={errors.user}
+                                    />
+                                )}
+                                fullWidth
+                            />
+                        )}
 
                         <TextField
                             label={lang("testimonial.description") || "Description"}
