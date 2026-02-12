@@ -8,9 +8,11 @@ import { ROLES } from '../../src/constants/roles.js';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
-import { uploadToS3, isS3Enabled } from '../services/s3Service.js';
+import { uploadToS3, isS3Enabled, buildUploadUrl } from '../services/s3Service.js';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import { sendEmailUsingTemplate } from '../utils/email.js';
+
 
 const router = express.Router();
 
@@ -134,7 +136,6 @@ router.post('/', authenticateToken, upload.single('file'), async (req, res) => {
     if (!offtaker_id && invoice_id != "") {
       return res.status(400).json({ success: false, message: 'offtaker_id is required' });
     }
-    console.log("req.body", req.body);
 
     // Handle screenshot upload - prefer uploaded file, upload to S3 if enabled
     let uploadedPath = ss_url || null;
@@ -166,13 +167,15 @@ router.post('/', authenticateToken, upload.single('file'), async (req, res) => {
       }
     }
 
+    const paymentStatus = parseInt(created_by) === ROLES.SUPER_ADMIN ? 1 : parseInt(status ?? 0);
+
     const created = await prisma.payments.create({
       data: {
         invoice_id: parseInt(invoice_id ?? 0),
         offtaker_id: parseInt(offtaker_id),
         ss_url: uploadedPath || '',
         amount: parseFloat(amount) || 0,
-        status: parseInt(status ?? 0),
+        status: paymentStatus,
         created_by: parseInt(created_by)
       }
     });
@@ -186,21 +189,25 @@ router.post('/', authenticateToken, upload.single('file'), async (req, res) => {
       });
     }
 
-    if (created && created_by !== ROLES.SUPER_ADMIN) {
+    if (created && parseInt(created_by) !== ROLES.SUPER_ADMIN) {
 
       const newInvoice = await prisma.invoices.findUnique({
         where: { id: created.invoice_id },
+        include: { users: true }
+      });
+
+      const AdminUser = await prisma.users.findUnique({
+        where: { id: parseInt(created_by) },
       });
 
       const lang = await getUserLanguage(created.offtaker_id);
       const creatorName = await getUserFullName(created_by);
 
       const notification_message = t(lang, 'notification_msg.payment_made', {
-        invoice_number: newInvoice.invoice_prefix + "-" + newInvoice.invoice_number,
+        invoice_number: newInvoice?.invoice_prefix + "-" + newInvoice?.invoice_number,
         created_by: creatorName,
         amount: created?.amount,
       });
-
 
       const title = t(lang, 'notification_msg.payment_title');
 
@@ -213,11 +220,54 @@ router.post('/', authenticateToken, upload.single('file'), async (req, res) => {
         actionUrl: `/admin/finance/payments`,
         created_by: parseInt(created_by),
       });
+
+      if(AdminUser?.email) {
+        const templateData = { 
+          full_name: newInvoice?.users?.full_name || '',
+          user_email: newInvoice?.users?.email || '',
+          user_phone: newInvoice?.users?.phone_number || '',
+          invoice_number: newInvoice?.invoice_prefix + "-" + newInvoice?.invoice_number,
+          total_amount: created?.amount || '',
+          current_date: new Date().toLocaleDateString(),
+        }
+
+        const attachments = [];
+        if (created.ss_url) {
+          const fileUrl = buildUploadUrl(created.ss_url);
+          if (fileUrl) {
+            attachments.push({
+              filename: path.basename(fileUrl),
+              path: fileUrl,
+            });
+          }
+        }
+
+        // Send email to admin
+        sendEmailUsingTemplate({
+          to: AdminUser.email,
+          templateSlug: 'payment_issued_by_offtaker_to_admin',
+          templateData,
+          language: lang || 'en',
+          attachments,
+        })
+        .then((result) => {
+          if (result.success) {
+            console.log(`Payment notification email sent to ${AdminUser.email}`);
+          } else {
+            console.warn(`Could not send payment notification email: ${result.error}`);
+          }
+        })
+        .catch((error) => {
+          console.error('Failed to send payment notification email:', error.message);
+        });
+      }
+
     } else {
       // For admin created payments,
 
       const newInvoice = await prisma.invoices.findUnique({
         where: { id: created.invoice_id },
+        include: { users: true }
       });
 
       const lang = await getUserLanguage(created.offtaker_id);
@@ -240,6 +290,46 @@ router.post('/', authenticateToken, upload.single('file'), async (req, res) => {
         actionUrl: `/offtaker/payments`,
         created_by: parseInt(created_by),
       });
+
+      if (newInvoice?.users?.email) {
+        const templateData = {
+          full_name: newInvoice?.users?.full_name || '',
+          invoice_number: newInvoice?.invoice_prefix + "-" + newInvoice?.invoice_number,
+          total_amount: created?.amount || '',
+          current_date: new Date().toLocaleDateString(),
+          company_name: "WeShare Energy",
+        }
+
+        const attachments = [];
+        if (created.ss_url) {
+          const fileUrl = buildUploadUrl(created.ss_url);
+          if (fileUrl) {
+            attachments.push({
+              filename: path.basename(fileUrl),
+              path: fileUrl,
+            });
+          }
+        }
+
+        // Send email to offtaker
+        sendEmailUsingTemplate({
+          to: newInvoice?.users?.email,
+          templateSlug: 'payment_done_for_offtaker_by_admin',
+          templateData,
+          language: lang || 'en',
+          attachments,
+        })
+        .then((result) => {
+          if (result.success) {
+            console.log(`Contract email sent to ${newInvoice?.users?.email}`);
+          } else {
+            console.warn(`Could not send contract email: ${result.error}`);
+          }
+        })
+        .catch((error) => {
+          console.error('Failed to send contract email:', error.message);
+        });
+      }
     }
 
     res.json({ success: true, data: created });
@@ -291,7 +381,7 @@ router.put('/:id/mark-as-paid', authenticateToken, async (req, res) => {
     // Get the payment to find associated invoice
     const payment = await prisma.payments.findFirst({
       where: { id: parseInt(id) },
-      include: { invoices: true }
+      include: { invoices: true, users: true}
     });
 
     if (!payment) {
@@ -332,6 +422,33 @@ router.put('/:id/mark-as-paid', authenticateToken, async (req, res) => {
         actionUrl: `/offtaker/payments`,
         created_by: userId,
       });
+
+      if(payment.users?.email) {
+        const templateData = {
+            full_name: payment.users?.full_name || '',
+            invoice_number: payment.invoices?.invoice_prefix + "-" + payment.invoices?.invoice_number,
+            total_amount: payment.amount || '',
+            current_date: new Date().toLocaleDateString(),
+          }
+
+          // Send email to offtaker
+          sendEmailUsingTemplate({
+            to: payment.users?.email,
+            templateSlug: 'payment_approved_by_admin_for_offtaker',
+            templateData,
+            language: lang || 'en',
+          })
+          .then((result) => {
+            if (result.success) {
+              console.log(`Contract email sent to ${payment.users?.email}`);
+            } else {
+              console.warn(`Could not send contract email: ${result.error}`);
+            }
+          })
+          .catch((error) => {
+            console.error('Failed to send contract email:', error.message);
+          });
+        }
     }
 
     res.json({ success: true, data: updated });

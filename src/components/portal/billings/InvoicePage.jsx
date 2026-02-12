@@ -8,6 +8,7 @@ import PaymentModal from "@/components/portal/billings/PaymentModal";
 import { showSuccessToast } from "@/utils/topTost";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Project from "@/components/widgetsList/Project";
+import { buildUploadUrl } from '../../../../server/services/s3Service.js';
 
 const InvoicePage = ({ invoiceId }) => {
   const { user } = useAuth();

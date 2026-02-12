@@ -302,7 +302,7 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
         cities: true,
         project_status: true,
         offtaker: {
-          select: { id: true, full_name: true, email: true },
+          select: { id: true, full_name: true, email: true, phone_number: true },
         },
         interested_investors: {
           select: { id: true, full_name: true, email: true, phone_number: true },
@@ -321,6 +321,35 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
       // Send notification to each admin
       for (const admin of adminUsers) {
         const lang = await getUserLanguage(admin.id);
+
+        if(admin.email){
+          const templateData = {
+            full_name: project.offtaker?.full_name || '',
+            user_email: project.offtaker?.email || '',
+            user_phone: project.offtaker?.phone_number || '',
+            project_name: project.project_name || '',
+            project_description: project.project_description || '',
+            company_name: 'WeShare Energy',
+            address_1: project.address_1 || '',
+            zipcode: project.zipcode || '',
+            system_capacity: project.project_size || '',
+            current_date: new Date().toLocaleDateString(),
+            site_url: process.env.SITE_URL || 'https://weshare.com',
+            support_email: "support@weshare.com",
+            support_phone: "+1 (555) 123-4567",
+          };
+
+          sendEmailUsingTemplate({
+            to: admin.email,
+            templateSlug: 'project_created_by_offtaker',
+            templateData,
+            language: lang
+          }).then(() => {
+            console.log('Project creation email sent successfully to:', admin.email);
+          }).catch((err) => {
+            console.error('Failed to send project creation email:', err);
+          });
+        }
 
         const notification_title = t(lang, 'notification_msg.project_created_title', {
           project_name: project.project_name
@@ -365,35 +394,37 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
           actionUrl: `/offtaker/projects`,
           created_by: createdByInt,
         });
+
+        // Send email notification for new project creation
+        if (project && project.offtaker?.email) {
+          const templateData = {
+            full_name: project.offtaker.full_name || 'User',
+            user_email: project.offtaker.email || '',
+            user_phone: project.offtaker.phone_number || '',
+            project_name: project.project_name || '',
+            project_code: project.product_code || '',
+            project_description: project.project_description || '',
+            company_name: 'WeShare Energy',
+            address_1: project.address_1 || '',
+            zipcode: project.zipcode || '',
+            current_date: new Date().toLocaleDateString(),
+            site_url: process.env.SITE_URL || 'https://weshare.com',
+            support_email: "support@weshare.com",
+            support_phone: "+1 (555) 123-4567",
+          };
+
+          sendEmailUsingTemplate({
+            to: project.offtaker.email,
+            templateSlug: 'project_created_for_offtaker',
+            templateData,
+            language: project.offtaker.language
+          }).then(() => {
+            console.log('Project creation email sent successfully to:', project.offtaker.email);
+          }).catch((err) => {
+            console.error('Failed to send project creation email:', err);
+          });
+        }
       }
-    }
-
-    // Send email notification for new project creation
-    if (project && project.offtaker?.email) {
-      const templateData = {
-        full_name: project.offtaker.full_name || 'User',
-        user_email: project.offtaker.email || '',
-        user_phone: project.offtaker.phone_number || '',
-        project_name: project.project_name || '',
-        project_code: project.product_code || '',
-        project_description: project.project_description || '',
-        company_name: 'WeShare Energy',
-        address_1: project.address_1 || '',
-        zipcode: project.zipcode || '',
-        current_date: new Date().toLocaleDateString(),
-        site_url: process.env.SITE_URL || 'https://weshare.com',
-      };
-
-      sendEmailUsingTemplate({
-        to: project.offtaker.email,
-        templateSlug: '	project_created_for_offtaker',
-        templateData,
-        language: project.offtaker.language
-      }).then(() => {
-        console.log('Project creation email sent successfully to:', project.offtaker.email);
-      }).catch((err) => {
-        console.error('Failed to send project creation email:', err);
-      });
     }
 
     res.status(201).json({
