@@ -19,6 +19,7 @@ import ElectricityConsumption from "@/components/admin/projectsCreate/projectVie
 import EnergyChart from "@/components/admin/projectsCreate/projectViewSection/MonthChart";
 import { FiZap } from "react-icons/fi";
 import { CloudSun, Compass, Droplets, SunriseIcon, Thermometer, Wind } from 'lucide-react';
+import { ROLES } from "@/constants/roles";
 
 // Dynamically import ApexCharts to avoid SSR issues
 const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
@@ -629,11 +630,11 @@ const ProjectDetail = ({ projectId }) => {
                   </div>
                   <div>
                     <p>
-                      {lang("home.exchangeHub.cumulativeRevenue") ||
-                        "Cumulative Revenue"}
+                      {lang("home.exchangeHub.paybackPeriod") + " (" + lang("home.exchangeHub.years") + ")" ||
+                        "Payback Period"}
                       :
                     </p>
-                    <h4>${formatNumber(project.cumulative_revenue || "0")}</h4>
+                    <h4>{project.payback_period || "0"} {lang("home.exchangeHub.years") || "Years"}</h4>
                   </div>
                 </div>
                 <div className="rightStatsBox">
@@ -675,157 +676,159 @@ const ProjectDetail = ({ projectId }) => {
                 </div>
               </div>
 
-              <hr />
 
               {/* Analytics */}
-              <div className="analytics">
-                {/* <div className="chart-container"> */}
-                <ElectricityConsumption
-                  data={electricityConsumptionData}
-                  loading={electricityConsumptionDataLoading}
-                  selectedMonthYear={electricityConsumptionDate}
-                  onMonthYearChange={setElectricityConsumptionDate}
-                />
-                {/* </div> */}
+              {project.project_status_id === PROJECT_STATUS.RUNNING && (
+                <>
+                  <hr />
+                  <div className="analytics">
+                    {/* <div className="chart-container"> */}
+                    <ElectricityConsumption
+                      data={electricityConsumptionData}
+                      loading={electricityConsumptionDataLoading}
+                      selectedMonthYear={electricityConsumptionDate}
+                      onMonthYearChange={setElectricityConsumptionDate}
+                    />
+                    {/* </div> */}
 
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 10,
-                    marginBottom: 10,
-                    padding: "0px 0px 0px 24px",
-                  }}
-                >
-                  <div
-                    style={{
-                      width: 32,
-                      height: 32,
-                      borderRadius: "999px",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      backgroundColor: "#eff6ff",
-                      color: "#2563eb",
-                    }}
-                  >
-                    <FiZap />
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 10,
+                        marginBottom: 10,
+                        padding: "0px 0px 0px 24px",
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: 32,
+                          height: 32,
+                          borderRadius: "999px",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          backgroundColor: "#eff6ff",
+                          color: "#2563eb",
+                        }}
+                      >
+                        <FiZap />
+                      </div>
+                      <div
+                        style={{
+                          fontSize: 15,
+                          fontWeight: 600,
+                          color: "#111827",
+                        }}
+                      >
+                        {lang(
+                          "projectView.energyProduction.real_time_energy_production",
+                          "Daily Power Profile (Load, PV & Grid)"
+                        )}
+                      </div>
+                    </div>
+
+                    <ProjectOverviewChart
+                      projectId={project.id}
+                      readings={projectChartData || []}
+                      loading={chartDataLoading}
+                      selectedDate={selectedDate}
+                      onDateChange={setSelectedDate}
+                    />
+
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 10,
+                        marginBottom: 10,
+                        padding: "0px 0px 0px 24px",
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: 32,
+                          height: 32,
+                          borderRadius: "999px",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          backgroundColor: "#eff6ff",
+                          color: "#2563eb",
+                        }}
+                      >
+                        <FiZap />
+                      </div>
+                      <div
+                        style={{
+                          fontSize: 15,
+                          fontWeight: 600,
+                          color: "#111827",
+                        }}
+                      >
+                        {lang(
+                          "projectView.energyProduction.monthly_real_time_energy_production",
+                          "Daily Power Profile (Load, PV & Grid)"
+                        )}
+                      </div>
+                    </div>
+
+                    <EnergyChart
+                      chartMonthData={chartMonthData}
+                      selectedMonthYear={selectedMonthYear}
+                      onMonthYearChange={setSelectedMonthYear}
+                      monthlyChartDataLoading={monthlyChartDataLoading}
+                    />
+
                   </div>
-                  <div
-                    style={{
-                      fontSize: 15,
-                      fontWeight: 600,
-                      color: "#111827",
-                    }}
-                  >
-                    {lang(
-                      "projectView.energyProduction.real_time_energy_production",
-                      "Daily Power Profile (Load, PV & Grid)"
-                    )}
-                  </div>
-                </div>
 
-                <ProjectOverviewChart
-                  projectId={project.id}
-                  readings={projectChartData || []}
-                  loading={chartDataLoading}
-                  selectedDate={selectedDate}
-                  onDateChange={setSelectedDate}
-                />
-
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 10,
-                    marginBottom: 10,
-                    padding: "0px 0px 0px 24px",
-                  }}
-                >
-                  <div
-                    style={{
-                      width: 32,
-                      height: 32,
-                      borderRadius: "999px",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      backgroundColor: "#eff6ff",
-                      color: "#2563eb",
-                    }}
-                  >
-                    <FiZap />
-                  </div>
-                  <div
-                    style={{
-                      fontSize: 15,
-                      fontWeight: 600,
-                      color: "#111827",
-                    }}
-                  >
-                    {lang(
-                      "projectView.energyProduction.monthly_real_time_energy_production",
-                      "Daily Power Profile (Load, PV & Grid)"
-                    )}
-                  </div>
-                </div>
-
-                <EnergyChart
-                  chartMonthData={chartMonthData}
-                  selectedMonthYear={selectedMonthYear}
-                  onMonthYearChange={setSelectedMonthYear}
-                  monthlyChartDataLoading={monthlyChartDataLoading}
-                />
-
-              </div>
-              <hr />
-
-              {/* Index Section */}
-              <div className="">
-                <div className="ownership-section">
-                  <h4>
-                    {lang("home.exchangeHub.binh_dinh") ||
-                      "Transaction & Ownership History"}
-                  </h4>
-                  <div className="row g-3">
-                    <div className="col-4">
-                      <InfoCard
-                        icon={CloudSun}
-                        label={lang('projectView.projectInformation.weather', 'Weather')}
-                        value={`${project?.project_data?.[0]?.cond_txtd ?? '-'} ~ ${project?.project_data?.[0]?.cond_txtn ?? '-'}`}
-                        color={getAutoRandomColor()}
-                      />
-                    </div>
-                    <div className="col-4">
-                      <InfoCard
-                        icon={SunriseIcon}
-                        label={lang('projectView.projectInformation.sunshine', 'Sunshine')}
-                        value={`${project?.project_data?.[0]?.sr ?? '-'} ~ ${project?.project_data?.[0]?.ss ?? '-'}`}
-                        color={getAutoRandomColor()}
-                      />
-                    </div>
-                    <div className="col-4">
-                      <InfoCard icon={Thermometer} label={lang('projectView.projectInformation.temp', 'Temp')} value={
-                        project?.project_data?.[0]?.tmp_min != null && project?.project_data?.[0]?.tmp_max != null
-                          ? `${project.project_data[0].tmp_min} ℃ ~ ${project.project_data[0].tmp_max} ℃`
-                          : project?.tmp_min != null
-                            ? `${project.tmp_min} ℃`
-                            : '-'
-                      } color={getAutoRandomColor()}
-                      />
-                    </div>
-                    <div className="col-4">
-                      <InfoCard icon={Droplets} label={lang('projectView.projectInformation.humidity', 'Humidity')} value={project?.project_data?.[0]?.hum ?? '-'} color={getAutoRandomColor()} />
-                    </div>
-                    <div className="col-4">
-                      <InfoCard icon={Compass} label={lang('projectView.projectInformation.wind_direction', 'Wind Direction')} value={project?.project_data?.[0]?.wind_dir ?? '-'} color={getAutoRandomColor()} />
-                    </div>
-                    <div className="col-4">
-                      <InfoCard icon={Wind} label={lang('projectView.projectInformation.wind_speed', 'Wind Speed')} value={project?.project_data?.[0]?.wind_spd ?? '-'} color={getAutoRandomColor()} />
+                  <div>
+                    <div className="ownership-section">
+                      {/* <h4>
+                        {lang("home.exchangeHub.binh_dinh") ||
+                          "Transaction & Ownership History"}
+                      </h4> */}
+                      <div className="row g-3">
+                        <div className="col-4">
+                          <InfoCard
+                            icon={CloudSun}
+                            label={lang('projectView.projectInformation.weather', 'Weather')}
+                            value={`${project?.project_data?.[0]?.cond_txtd ?? '-'} ~ ${project?.project_data?.[0]?.cond_txtn ?? '-'}`}
+                            color={getAutoRandomColor()}
+                          />
+                        </div>
+                        <div className="col-4">
+                          <InfoCard
+                            icon={SunriseIcon}
+                            label={lang('projectView.projectInformation.sunshine', 'Sunshine')}
+                            value={`${project?.project_data?.[0]?.sr ?? '-'} ~ ${project?.project_data?.[0]?.ss ?? '-'}`}
+                            color={getAutoRandomColor()}
+                          />
+                        </div>
+                        <div className="col-4">
+                          <InfoCard icon={Thermometer} label={lang('projectView.projectInformation.temp', 'Temp')} value={
+                            project?.project_data?.[0]?.tmp_min != null && project?.project_data?.[0]?.tmp_max != null
+                              ? `${project.project_data[0].tmp_min} ℃ ~ ${project.project_data[0].tmp_max} ℃`
+                              : project?.tmp_min != null
+                                ? `${project.tmp_min} ℃`
+                                : '-'
+                          } color={getAutoRandomColor()}
+                          />
+                        </div>
+                        <div className="col-4">
+                          <InfoCard icon={Droplets} label={lang('projectView.projectInformation.humidity', 'Humidity')} value={project?.project_data?.[0]?.hum ?? '-'} color={getAutoRandomColor()} />
+                        </div>
+                        <div className="col-4">
+                          <InfoCard icon={Compass} label={lang('projectView.projectInformation.wind_direction', 'Wind Direction')} value={project?.project_data?.[0]?.wind_dir ?? '-'} color={getAutoRandomColor()} />
+                        </div>
+                        <div className="col-4">
+                          <InfoCard icon={Wind} label={lang('projectView.projectInformation.wind_speed', 'Wind Speed')} value={project?.project_data?.[0]?.wind_spd ?? '-'} color={getAutoRandomColor()} />
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
+                </>
+              )}
             </div>
 
             {/* Right Section */}
@@ -845,134 +848,70 @@ const ProjectDetail = ({ projectId }) => {
                 </div>
 
                 {/* Conditional invest button */}
-                {!user ? (
-                  <button
-                    className="btn btn-primary-custom"
-                    onClick={() => router.push("/investor/login")}
-                  >
-                    {lang("home.exchangeHub.signInToInvest") ||
-                      "Sign In to Invest"}
-                  </button>
-                ) : (
-                  (() => {
-                    const isInvestor = user && user.role === 4;
-                    if (!isInvestor) return null;
-                    if (hasExpressedInterest) {
-                      return null;
-                    }
-                    return (
-                      <button
-                        className="btn btn-primary-custom"
-                        onClick={handleInvestClick}
-                        disabled={checkingInterest}
-                      >
-                        {lang("home.exchangeHub.investNow") || "Invest Now"}
-                      </button>
-                    );
-                  })()
+                {project.project_status_id === PROJECT_STATUS.UPCOMING && (
+                  !user ? (
+                    <button
+                      className="btn btn-primary-custom"
+                      onClick={() => router.push("/investor/login")}
+                    >
+                      {lang("home.exchangeHub.signInToInvest") ||
+                        "Sign In to Invest"}
+                    </button>
+                  ) : (
+                    (() => {
+                      const isInvestor = user && user.role === ROLES.INVESTOR;
+                      if (!isInvestor) return null;
+                      if (hasExpressedInterest) {
+                        return null;
+                      }
+                      return (
+                        <button
+                          className="btn btn-primary-custom"
+                          onClick={handleInvestClick}
+                          disabled={checkingInterest}
+                        >
+                          {lang("home.exchangeHub.investNow") || "Invest Now"}
+                        </button>
+                      );
+                    })()
+                  )
                 )}
+
               </div>
 
               {/* Testimonials */}
-              <div className="testimonial-rightBox">
-                <h3>
-                  {lang("home.exchangeHub.testimonials") ||
-                    "Offtaker & Investor Testimonials"}
-                </h3>
-
-                {/* NEW: show up to 3 testimonials related to this project */}
-                {testimonials.length > 0 ? (
-                  testimonials.map((t, idx) => (
-                    <div className="testi-card" key={t.id || idx}>
-                      <img
-                        src={buildUploadUrl(t?.image) || "/images/avatar/user-img.png"}
-                        alt="testimonial"
-                        onError={(e) => {
-                          e.target.src = "/images/avatar/user-img.png";
-                        }}
-                      />
-                      <h4>{t.project?.project_name || project.project_name}</h4>
-                      <div className="designation">
-                        {t.offtaker?.fullName ||
-                          t.offtaker_fullName ||
-                          "Offtaker"}
+              {project.project_status_id === PROJECT_STATUS.RUNNING && (
+                <div className="testimonial-rightBox">
+                  {/* NEW: show up to 3 testimonials related to this project */}
+                  <h3>
+                    {lang("home.exchangeHub.testimonials") ||
+                      "Offtaker & Investor Testimonials"}
+                  </h3>
+                  {testimonials.length > 0 ? (
+                    testimonials.map((t, idx) => (
+                      <div className="testi-card" key={t.id || idx}>
+                        <img
+                          src={buildUploadUrl(t?.users?.user_image) || "/images/avatar/profile_demo_img.jpg"}
+                          alt="testimonial"
+                          onError={(e) => {
+                            e.target.src = "/images/avatar/user-img.png";
+                          }}
+                        />
+                        <h4>{t.project?.project_name || project.project_name}</h4>
+                        <div className="designation">
+                          {t.users?.full_name || t.users?.fullName}
+                          {t.users?.role_id === ROLES.OFFTAKER ? " (Offtaker)" : " (Investor)"}
+                        </div>
+                        <p>{t.description}</p>
                       </div>
-                      <p>{t.description}</p>
-                    </div>
-                  ))
-                ) : (
-                  <>
-                    {/* fallback static testimonials if none found */}
+                    ))
+                  ) : (
                     <div className="testi-card">
-                      <img
-                        src={
-                          project.offtaker?.profile_image ||
-                          "/images/avatar/user-img.png"
-                        }
-                        alt="testimonial"
-                        onError={(e) => {
-                          e.target.src = "/images/avatar/user-img.png";
-                        }}
-                      />
-                      <h4>
-                        {project.offtaker?.company_name ||
-                          project.offtaker?.fullName ||
-                          "Greenfield Holdings"}
-                      </h4>
-                      <div className="designation">
-                        {lang("home.exchangeHub.offtaker") || "Offtaker"}
-                      </div>
-                      <p>
-                        "Partnering with this solar project has significantly
-                        reduced our energy expenses while ensuring a stable and
-                        eco-friendly power supply. The system's consistent
-                        performance has made it a dependable asset for our
-                        operations."
-                      </p>
+                      <p>{lang("home.exchangeHub.noTestimonials") || "No testimonials for this project"}</p>
                     </div>
-
-                    <div className="testi-card">
-                      <img
-                        src="/img/test-img.png"
-                        alt="testimonial"
-                        onError={(e) => {
-                          e.target.src = "/images/avatar/user-img.png";
-                        }}
-                      />
-                      <h4>Sarah Johnson</h4>
-                      <div className="designation">
-                        {lang("home.exchangeHub.investor") || "Investor"}
-                      </div>
-                      <p>
-                        "Investing in this project has been a rewarding
-                        decision. The ROI has steadily improved each year, and
-                        the transparency in performance tracking gives me
-                        complete confidence in the asset's long-term value."
-                      </p>
-                    </div>
-
-                    <div className="testi-card">
-                      <img
-                        src="/images/avatar/user-img.png"
-                        alt="testimonial"
-                        onError={(e) => {
-                          e.target.src = "/img/test-img.png";
-                        }}
-                      />
-                      <h4>Cameron Williamson</h4>
-                      <div className="designation">
-                        {lang("home.exchangeHub.investor") || "Investor"}
-                      </div>
-                      <p>
-                        "This solar project offers excellent returns with
-                        minimal risk. The professional management and reliable
-                        offtaker make it a standout investment in my renewable
-                        energy portfolio."
-                      </p>
-                    </div>
-                  </>
-                )}
-              </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>

@@ -181,7 +181,7 @@ const HomeFooter = () => {
                       height={20}
                     />
                   </span>
-                  {footerData?.site_email ? footerData.site_email : ""}
+                  {footerData?.site_email ? footerData.site_email : "support@weshare.com"}
                 </li>
                 <li className="mb-4 fs-18 fw-300 text-white">
                   <span className="me-3">

@@ -16,6 +16,13 @@ export default function AddModal({ open, onClose }) {
   const fileInputRef = useRef(null);
   // console.log("user", user);
 
+  // Helper function to get date + 1 year in YYYY-MM-DD format
+  const getDefaultCloseDate = () => {
+    const today = new Date();
+    today.setFullYear(today.getFullYear() + 1);
+    return today.toISOString().split('T')[0];
+  };
+
   const [project, setProjects] = useState({
     name : '',
     project_slug : '',
@@ -30,7 +37,7 @@ export default function AddModal({ open, onClose }) {
     lease_term : '',
     project_description : '',
     project_size : '',
-    project_close_date : '',
+    project_close_date : getDefaultCloseDate(),
     project_location : '',
     start_date : '',
     created_by : (user && (user.id ?? user.user?.id)) ? String(user.id ?? user.user?.id) : "",
@@ -346,6 +353,7 @@ export default function AddModal({ open, onClose }) {
 
       showSuccessToast("Project created successfully");
       window.dispatchEvent(new Event("projectCreated"));
+      
       closeModal();
 
       // reset
@@ -363,7 +371,7 @@ export default function AddModal({ open, onClose }) {
         lease_term: "",
         project_description: "",
         project_size: "",
-        project_close_date: "",
+        project_close_date: getDefaultCloseDate(),
         project_location: "",
         start_date: "",
         created_by: "",
@@ -690,7 +698,8 @@ export default function AddModal({ open, onClose }) {
                   />
                   {fieldErrors.start_date && <div className="mt-1 text-sm text-red-600">{fieldErrors.start_date}</div>}
                 </div>
-                <div className="flex flex-col" data-field="project_close_date">
+                {/* Hide this field from user but still send it to API not show in form  */}
+                <div className="flex flex-col" data-field="project_close_date" style={{ display: "none" }}>
                   <label className="mb-1 text-sm font-medium">
                     {lang("projects.projectEndDate", "Project End Date")}
                   </label>
@@ -700,6 +709,7 @@ export default function AddModal({ open, onClose }) {
                     onChange={(e) => handleChange(e)}
                     type="date"
                     className={`input-field ${fieldErrors.project_close_date ? "border-red-500" : ""}`}
+                    disabled
                   />
                   {fieldErrors.project_close_date && <div className="mt-1 text-sm text-red-600">{fieldErrors.project_close_date}</div>}
                 </div>

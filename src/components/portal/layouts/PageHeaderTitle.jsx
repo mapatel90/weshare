@@ -22,7 +22,7 @@ const PageHeaderTitle = () => {
     ) {
         title = "Proect details";
         breadcrumb = [
-            { name: lang("menu.contracts", "Project"), href: "/offtaker/projects" },
+            { name: lang("menu.projects", "Project"), href: "/offtaker/projects" },
             { name: lang("menu.details", "Details"), href: null }
         ];
     }

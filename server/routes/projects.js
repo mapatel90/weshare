@@ -240,8 +240,9 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
       weshare_price_kwh,
       created_by,
       project_status_id = 1,
+      payback_period,
+      fund_progress,
     } = req.body;
-    console.log("req.body", req.body);
 
     if (!name || !project_type_id) {
       return res.status(400).json({
@@ -284,9 +285,7 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
         investor_profit,
         weshare_profit,
         project_size: project_size || "",
-        project_close_date: project_close_date
-          ? new Date(project_close_date)
-          : null,
+        project_close_date: project_close_date ? new Date(project_close_date) : null,
         project_start_date: start_date ? new Date(start_date) : null,
         project_location: project_location || "",
         weshare_price_kwh: parseFloat(weshare_price_kwh) || null,
@@ -294,6 +293,18 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
         ...(project_status_id && {
           project_status: { connect: { id: parseInt(project_status_id) } },
         }),
+        payback_period:
+          payback_period !== undefined &&
+            payback_period !== null &&
+            `${payback_period}` !== ""
+            ? parseInt(payback_period)
+            : null,
+        fund_progress:
+          fund_progress !== undefined &&
+            fund_progress !== null &&
+            `${fund_progress}` !== ""
+            ? parseFloat(fund_progress)
+            : null,
         updated_at: new Date()
       },
       include: {
@@ -806,7 +817,9 @@ router.get("/", async (req, res) => {
       offtaker_id,
       project_id,
       downloadAll,
-      solisStatus
+      solisStatus,
+      start_date,
+      end_date
     } = req.query;
     const pageInt = parseInt(page);
     const offtakerIdInt = offtaker_id ? parseInt(offtaker_id) : null;
@@ -855,6 +868,21 @@ router.get("/", async (req, res) => {
         where.project_status_id = status_array[0];
       } else if (status_array.length > 1) {
         where.project_status_id = { in: status_array };
+      }
+    }
+
+    // Filter by date range (created_at)
+    if (start_date || end_date) {
+      where.created_at = {};
+      if (start_date) {
+        const startDateObj = new Date(start_date);
+        startDateObj.setHours(0, 0, 0, 0);
+        where.created_at.gte = startDateObj;
+      }
+      if (end_date) {
+        const endDateObj = new Date(end_date);
+        endDateObj.setHours(23, 59, 59, 999);
+        where.created_at.lte = endDateObj;
       }
     }
 
@@ -1051,6 +1079,8 @@ router.put("/:id", authenticateToken, async (req, res) => {
       evn_price_kwh,
       project_status_id,
       solis_plant_id,
+      payback_period,
+      fund_progress,
     } = req.body;
 
 
@@ -1125,6 +1155,16 @@ router.put("/:id", authenticateToken, async (req, res) => {
           : { project_status: { disconnect: true } })),
       ...(weshare_price_kwh !== undefined && { weshare_price_kwh: parseFloat(weshare_price_kwh) || null }),
       ...(evn_price_kwh !== undefined && { evn_price_kwh: parseFloat(evn_price_kwh) || null }),
+      ...(payback_period !== undefined && {
+        payback_period: payback_period !== null && `${payback_period}` !== ""
+          ? parseInt(payback_period)
+          : null,
+      }),
+      ...(fund_progress !== undefined && {
+        fund_progress: fund_progress !== null && `${fund_progress}` !== ""
+          ? parseFloat(fund_progress)
+          : null,
+      }),
     };
 
     if (project_slug !== undefined) {

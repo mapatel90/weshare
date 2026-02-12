@@ -100,11 +100,66 @@ router.post("/", async (req, res) => {
 // List with optional filters + pagination
 router.get("/", async (req, res) => {
   try {
-    const { projectId, userId, page = 1, limit = 25 } = req.query;
+    const { 
+      projectId, 
+      userId, 
+      page = 1, 
+      limit = 25,
+      search,
+      project_status_id,
+      start_date,
+      end_date
+    } = req.query;
+    
     const where = { is_deleted: 0 };
 
     if (projectId) where.project_id = Number(projectId);
     if (userId) where.user_id = Number(userId);
+
+    // Build project filter conditions for nested filtering
+    const projectWhere = {};
+
+    // Search functionality - search across project_name, product_code, offtaker name
+    const trimmedSearch = typeof search === "string" ? search.trim() : "";
+    if (trimmedSearch) {
+      projectWhere.OR = [
+        { project_name: { contains: trimmedSearch, mode: "insensitive" } },
+        { product_code: { contains: trimmedSearch, mode: "insensitive" } },
+        { project_location: { contains: trimmedSearch, mode: "insensitive" } },
+        { project_description: { contains: trimmedSearch, mode: "insensitive" } },
+        { offtaker: { full_name: { contains: trimmedSearch, mode: "insensitive" } } },
+      ];
+    }
+
+    // Filter by project status
+    if (project_status_id !== undefined && project_status_id !== "") {
+      const status_array = String(project_status_id).split(',').map(s => parseInt(s.trim())).filter(s => !isNaN(s));
+      if (status_array.length === 1) {
+        projectWhere.project_status_id = status_array[0];
+      } else if (status_array.length > 1) {
+        projectWhere.project_status_id = { in: status_array };
+      }
+    }
+
+    // Filter by date range (project created_at)
+    if (start_date || end_date) {
+      projectWhere.created_at = {};
+      if (start_date) {
+        const startDateObj = new Date(start_date);
+        startDateObj.setHours(0, 0, 0, 0);
+        projectWhere.created_at.gte = startDateObj;
+      }
+      if (end_date) {
+        const endDateObj = new Date(end_date);
+        endDateObj.setHours(23, 59, 59, 999);
+        projectWhere.created_at.lte = endDateObj;
+      }
+    }
+
+    // Apply project filters if any exist
+    if (Object.keys(projectWhere).length > 0) {
+      where.projects = projectWhere;
+    }
 
     const take = Number(limit);
     const skip = (Number(page) - 1) * take;

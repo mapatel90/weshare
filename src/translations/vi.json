@@ -786,7 +786,8 @@
       "notes": "Ghi chú",
       "investNow": "Đầu tư ngay",
       "investor": "Nhà đầu tư",
-      "interestSubmitted": "Bạn đã bày tỏ sự quan tâm tới dự án này."
+      "interestSubmitted": "Bạn đã bày tỏ sự quan tâm tới dự án này.",
+      "noTestimonials": "Không có đánh giá cho dự án này"
     },
     "solarLease": {
       "title": "Biến bất động sản của bạn thành cho thuê năng lượng mặt trời",
@@ -992,11 +993,17 @@
     "askingPrice": "Giá chào bán",
     "leaseTerm": "Thời hạn thuê",
     "productCode": "Mã sản phẩm",
+    "projectCode": "Mã dự án",
     "projectDescription": "Mô tả dự án",
     "askingPriceRequired": "Giá chào bán là bắt buộc",
     "leaseTermRequired": "Thời hạn thuê là bắt buộc",
     "productCodeRequired": "Mã sản phẩm là bắt buộc",
+    "paybackPeriod": "Thời gian hoàn vốn",
+    "paybackPeriodPlaceholder": "Nhập thời gian hoàn vốn (năm)",
     "year": "năm",
+    "fundProgress": "Tiến độ đầu tư",
+    "fundProgressPlaceholder": "Nhập tiến độ đầu tư (0-100)",
+    "fundProgressHelp": "Tiến độ đầu tư phải là một số từ 0 đến 100",
     "onlynumbersWithoutdesimal": "Chỉ cho phép nhập số (ví dụ: 123456)",
     "projectImage": "Hình ảnh dự án",
     "projectImagePlaceholder": "Nhập URL hình ảnh dự án",
@@ -1423,7 +1430,9 @@
     "five": "Năm",
     "testimonialCreatedSuccessfully": "Lời chứng thực đã được tạo thành công",
     "testimonialUpdatedSuccessfully": "Lời chứng thực đã được cập nhật thành công",
-    "testimonialDeletedSuccessfully": "Lời chứng thực đã xóa thành công"
+    "testimonialDeletedSuccessfully": "Lời chứng thực đã xóa thành công",
+    "userType": "Loại người dùng",
+    "offtakerAutoSelectHint": "Người nhận sẽ được tự động chọn dựa trên dự án"
   },
   "blog": {
     "title": "Quản lý blog",

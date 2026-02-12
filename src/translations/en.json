@@ -756,7 +756,7 @@
       "accumulative": "Accumulative",
       "generation": "Generation",
       "roi": "ROI",
-      "roi_monthly": "ROI Monthly",
+      "roi_monthly": "ROI (Monthly)",
       "leaseTermRemaining": "Lease Term Remaining",
       "cumulativeRevenue": "Cumulative Revenue",
       "askingPrice": "Asking Price",
@@ -797,6 +797,7 @@
       "expectedGeneration": "Expected Generation",
       "expectedROI": "Expected ROI",
       "paybackPeriod": "Payback Period",
+      "paybackPeriodPlaceholder": "Enter payback period in years",
       "leaseTerm": "Lease Term",
       "fundProgress": "Fund Progress",
       "timeLeft": "Time left",
@@ -816,7 +817,8 @@
       "signInToInvest": "Sign In to Invest",
       "submit": "Submit",
       "notes": "Notes",
-      "interestSubmitted": "You have already expressed interest for this project."
+      "interestSubmitted": "You have already expressed interest for this project.",
+      "noTestimonials": "No testimonials for this project"
     },
     "solarLease": {
       "title": "Turn your Property Into a Solar Lease",
@@ -1022,6 +1024,7 @@
     "askingPrice": "Asking Price",
     "leaseTerm": "Lease Term",
     "productCode": "Product Code",
+    "projectCode": "Project Code",
     "projectDescription": "Project Description",
     "askingPriceRequired": "Asking price is required",
     "leaseTermRequired": "Lease term is required",
@@ -1484,7 +1487,9 @@
     "five": "Five",
     "testimonialCreatedSuccessfully": "Testimonial Created Successfully",
     "testimonialUpdatedSuccessfully": "Testimonial Updated Successfully",
-    "testimonialDeletedSuccessfully": "Testimonial Deleted Successfully"
+    "testimonialDeletedSuccessfully": "Testimonial Deleted Successfully",
+    "userType": "User Type",
+    "offtakerAutoSelectHint": "Offtaker will be auto-fill according to the project"
   },
   "blog": {
     "addBlog": "Add Blog",

@@ -30,6 +30,7 @@ import Link from 'next/link'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { useRouter, usePathname } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
+import { ROLES } from '@/constants/roles'
 
 const HomeNavbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -123,10 +124,10 @@ const HomeNavbar = () => {
 
   const handleProfile = () => {
     // Navigate to dashboard based on user role
-    if (user?.role === 3) {
-      router.push('/offtaker/projects')
-    } else if (user?.role === 4) {
-      router.push('/investor/projects')
+    if (user?.role === ROLES.OFFTAKER) {
+      router.push('/offtaker/myprofile')
+    } else if (user?.role === ROLES.INVESTOR) {
+      router.push('/investor/myprofile')
     } else {
       router.push('/admin/dashboards')
     }
@@ -135,9 +136,9 @@ const HomeNavbar = () => {
   
   const handleProjects = () => {
     // Navigate to dashboard based on user role
-    if (user?.role === 3) {
+    if (user?.role === ROLES.OFFTAKER) {
       router.push('/offtaker/projects')
-    } else if (user?.role === 4) {
+    } else if (user?.role === ROLES.INVESTOR) {
       router.push('/investor/projects')
     } else {
       router.push('/admin/projects/list')

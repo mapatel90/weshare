@@ -13,6 +13,7 @@ import {
   Button,
   CircularProgress,
   InputAdornment,
+  Autocomplete,
 } from "@mui/material";
 
 const ProjectForm = ({
@@ -113,7 +114,68 @@ const ProjectForm = ({
           </h6>
         </div>
         <div className="card-body">
+
+          { /* Show Solis Plant ID only in edit mode (when formData.id exists) */}
+          {formData?.id ? (
+            <div className="row">
+              <div className="col-md-12 mb-3">
+                <TextField
+                  fullWidth
+                  label={lang("projects.solisPlantId", "Solis Plant ID")}
+                  name="solis_plant_id"
+                  value={formData.solis_plant_id || ""}
+                  onChange={handleInputChange}
+                  onBlur={handleSolisPlantIdBlur}
+                  placeholder={lang(
+                    "projects.solisPlantIdPlaceholder",
+                    "Enter Solis plant id"
+                  )}
+                  error={!!solisPlantIdError}
+                  helperText={solisPlantIdError}
+                />
+              </div>
+            </div>
+          ) : null}
+
           <div className="row">
+            <div className="col-md-3 mb-3">
+              <FormControl fullWidth error={!!error.project_type_id}>
+                <InputLabel id="project-type-select-label">
+                  {lang("projects.projectType", "Project Type")} *
+                </InputLabel>
+                <Select
+                  labelId="project-type-select-label"
+                  name="project_type_id"
+                  value={formData.project_type_id || ""}
+                  label={`${lang("projects.projectType", "Project Type")} *`}
+                  onChange={handleInputChange}
+                >
+                  <MenuItem value="">
+                    {lang("projects.projectType", "Project Type")}
+                  </MenuItem>
+                  {projectTypes.map((t) => (
+                    <MenuItem key={t.id} value={t.id}>
+                      {t.type_name}
+                    </MenuItem>
+                  ))}
+                </Select>
+                {error.project_type_id && (
+                  <FormHelperText>{error.project_type_id}</FormHelperText>
+                )}
+              </FormControl>
+            </div>
+
+            <div className="col-md-3 mb-3">
+              <TextField
+                fullWidth
+                label={lang("projects.productCode", "Product Code")}
+                name="product_code"
+                value={formData.product_code || ""}
+                onChange={handleInputChange}
+                error={!!error.product_code}
+                helperText={error.product_code}
+              />
+            </div>
             <div className="col-md-6 mb-3">
               <TextField
                 fullWidth
@@ -157,34 +219,9 @@ const ProjectForm = ({
               />
             </div>
 
-            <div className="col-md-4 mb-3">
-              <FormControl fullWidth error={!!error.project_type_id}>
-                <InputLabel id="project-type-select-label">
-                  {lang("projects.projectType", "Project Type")} *
-                </InputLabel>
-                <Select
-                  labelId="project-type-select-label"
-                  name="project_type_id"
-                  value={formData.project_type_id || ""}
-                  label={`${lang("projects.projectType", "Project Type")} *`}
-                  onChange={handleInputChange}
-                >
-                  <MenuItem value="">
-                    {lang("projects.projectType", "Project Type")}
-                  </MenuItem>
-                  {projectTypes.map((t) => (
-                    <MenuItem key={t.id} value={t.id}>
-                      {t.type_name}
-                    </MenuItem>
-                  ))}
-                </Select>
-                {error.project_type_id && (
-                  <FormHelperText>{error.project_type_id}</FormHelperText>
-                )}
-              </FormControl>
-            </div>
 
-            <div className="col-md-4 mb-3">
+
+            <div className="col-md-3 mb-3">
               <FormControl fullWidth>
                 <InputLabel id="investor-select-label">
                   {lang("projects.selectInvestor", "Select Investor")}
@@ -209,49 +246,33 @@ const ProjectForm = ({
               </FormControl>
             </div>
 
-            <div className="col-md-4 mb-3">
-              <FormControl fullWidth error={!!error.offtaker}>
-                <InputLabel id="offtaker-select-label">
-                  {lang("projects.selectOfftaker", "Select Offtaker")}
-                </InputLabel>
-                <Select
-                  labelId="offtaker-select-label"
-                  name="offtaker"
-                  value={formData.offtaker}
-                  label={lang("projects.selectOfftaker", "Select Offtaker")}
-                  onChange={handleOfftakerChange}
-                  disabled={loadingOfftakers}
-                >
-                  <MenuItem value="">
-                    {lang("projects.selectOfftaker", "Select Offtaker")}
-                  </MenuItem>
-                  {offtakers.map((offtaker) => (
-                    <MenuItem key={offtaker.id} value={offtaker.id}>
-                      {offtaker.full_name}
-                    </MenuItem>
-                  ))}
-                </Select>
-                {error.offtaker && (
-                  <FormHelperText>{error.offtaker}</FormHelperText>
+            <div className="col-md-3 mb-3">
+              <Autocomplete
+                options={offtakers}
+                value={offtakers.find((o) => String(o.id) === String(formData.offtaker)) || null}
+                onChange={(e, newValue) => {
+                  handleOfftakerChange({
+                    target: { name: "offtaker", value: newValue ? newValue.id : "" },
+                  });
+                }}
+                getOptionLabel={(option) => option.full_name || ""}
+                isOptionEqualToValue={(option, value) => String(option.id) === String(value.id)}
+                disabled={loadingOfftakers}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label={lang("projects.selectOfftaker", "Select Offtaker")}
+                    placeholder={lang("projects.searchOfftaker", "Search Offtaker...")}
+                    error={!!error.offtaker}
+                    helperText={error.offtaker || ""}
+                  />
                 )}
-              </FormControl>
+              />
             </div>
           </div>
 
           {/* Row: asking_price, project_size, project_close_date,  */}
           <div className="row mb-3">
-            <div className="col-md-3 mb-3">
-              <TextField
-                fullWidth
-                label={lang("projects.askingPrice", "Asking Price")}
-                name="asking_price"
-                value={formData.asking_price || ""}
-                onChange={handleInputChange}
-                inputMode="decimal"
-                error={!!error.asking_price}
-                helperText={error.asking_price}
-              />
-            </div>
             <div className="col-md-3 mb-3">
               <TextField
                 fullWidth
@@ -271,6 +292,18 @@ const ProjectForm = ({
                 )}
                 error={!!error.project_size}
                 helperText={error.project_size}
+              />
+            </div>
+            <div className="col-md-3 mb-3">
+              <TextField
+                fullWidth
+                label={lang("projects.askingPrice", "Asking Price")}
+                name="asking_price"
+                value={formData.asking_price || ""}
+                onChange={handleInputChange}
+                inputMode="decimal"
+                error={!!error.asking_price}
+                helperText={error.asking_price}
               />
             </div>
             <div className="col-md-3 mb-3">
@@ -311,7 +344,7 @@ const ProjectForm = ({
             </div>
           </div>
 
-          {/* row:lease_term, product_code,project_location */}
+          {/* row:lease_term, product_code, payback_period, fund_progress */}
           <div className="row">
             <div className="col-md-3 mb-3">
               <TextField
@@ -331,12 +364,41 @@ const ProjectForm = ({
             <div className="col-md-3 mb-3">
               <TextField
                 fullWidth
-                label={lang("projects.productCode", "Product Code")}
-                name="product_code"
-                value={formData.product_code || ""}
+                label={`${lang("projects.paybackPeriod", "Payback Period")} ${lang(
+                  "projects.year",
+                  "year"
+                )}`}
+                name="payback_period"
+                value={formData.payback_period || ""}
                 onChange={handleInputChange}
-                error={!!error.product_code}
-                helperText={error.product_code}
+                inputMode="numeric"
+                placeholder={lang(
+                  "projects.paybackPeriodPlaceholder",
+                  "Enter payback period in years"
+                )}
+                error={!!error.payback_period}
+                helperText={error.payback_period}
+              />
+            </div>
+            <div className="col-md-3 mb-3">
+              <TextField
+                fullWidth
+                label={lang("projects.fundProgress", "Fund Progress")}
+                name="fund_progress"
+                value={formData.fund_progress || ""}
+                onChange={handleInputChange}
+                inputMode="decimal"
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">%</InputAdornment>
+                  ),
+                }}
+                placeholder={lang(
+                  "projects.fundProgressPlaceholder",
+                  "Enter fund progress (0-100)"
+                )}
+                error={!!error.fund_progress}
+                helperText={error.fund_progress || lang("projects.fundProgressHelp", "Value must be between 0 and 100")}
               />
             </div>
             <div className="col-md-3 mb-3">
@@ -352,7 +414,29 @@ const ProjectForm = ({
                 helperText={error.project_close_date}
               />
             </div>
-            <div className="col-md-3 mb-3">
+          </div>
+
+
+          <div className="row">
+            <div className="col-md-12 mb-3">
+              <TextField
+                fullWidth
+                label={lang(
+                  "projects.projectDescription",
+                  "Project Description"
+                )}
+                name="project_description"
+                value={formData.project_description || ""}
+                onChange={handleInputChange}
+                multiline
+                rows={4}
+              />
+            </div>
+          </div>
+
+          {/* row: project_close_date, project_location */}
+          <div className="row">
+            <div className="col-md-12 mb-3">
               <TextField
                 fullWidth
                 label={lang("projects.projectLocation", "Project Location")}
@@ -374,45 +458,6 @@ const ProjectForm = ({
               />
             </div>
           </div>
-
-          <div className="row">
-            <div className="col-md-12 mb-3">
-              <TextField
-                fullWidth
-                label={lang(
-                  "projects.projectDescription",
-                  "Project Description"
-                )}
-                name="project_description"
-                value={formData.project_description || ""}
-                onChange={handleInputChange}
-                multiline
-                rows={4}
-              />
-            </div>
-          </div>
-
-          { /* Show Solis Plant ID only in edit mode (when formData.id exists) */}
-          {formData?.id ? (
-            <div className="row">
-              <div className="col-md-12 mb-3">
-                <TextField
-                  fullWidth
-                  label={lang("projects.solisPlantId", "Solis Plant ID")}
-                  name="solis_plant_id"
-                  value={formData.solis_plant_id || ""}
-                  onChange={handleInputChange}
-                  onBlur={handleSolisPlantIdBlur}
-                  placeholder={lang(
-                    "projects.solisPlantIdPlaceholder",
-                    "Enter Solis plant id"
-                  )}
-                  error={!!solisPlantIdError}
-                  helperText={solisPlantIdError}
-                />
-              </div>
-            </div>
-          ) : null}
         </div>
       </div>
 

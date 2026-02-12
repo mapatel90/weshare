@@ -14,6 +14,7 @@ import {
     CircularProgress,
 } from "@mui/material";
 import { buildUploadUrl } from '@/utils/common'
+import { ROLES } from '@/constants/roles'
 
 const UserForm = ({ initialData = {}, onSubmit, includePassword = false, excludeId = null, roles = [] }) => {
     const { lang } = useLanguage()
@@ -141,7 +142,7 @@ const UserForm = ({ initialData = {}, onSubmit, includePassword = false, exclude
         if (!formData.userRole) newErrors.userRole = 'User role is required'
 
         // QR code validation for investor role (role id 4)
-        if (formData.userRole === 4 || formData.userRole === '4') {
+        if (formData.userRole === ROLES.INVESTOR || formData.userRole === '4') {
             if (!isEditing && !qrCodeFile) {
                 newErrors.qrCode = 'QR code is required for investor'
             }
@@ -193,9 +194,9 @@ const UserForm = ({ initialData = {}, onSubmit, includePassword = false, exclude
                 return
             }
 
-            setQrCodeFile(file)
-            setQrCodePreview(URL.createObjectURL(file))
-            if (errors.qrCode) setErrors(prev => ({ ...prev, qrCode: '' }))
+        setQrCodeFile(file)
+        setQrCodePreview(URL.createObjectURL(file))
+        if (errors.qrCode) setErrors(prev => ({ ...prev, qrCode: '' }))
         }
     }
 
@@ -412,7 +413,7 @@ const UserForm = ({ initialData = {}, onSubmit, includePassword = false, exclude
                                     </div>
 
                                     {/* QR Code Upload - Only for Investor Role (id: 4) */}
-                                    {(formData.userRole === 4 || formData.userRole === '4') && (
+                                    {(formData.userRole === ROLES.INVESTOR || formData.userRole === '4') && (
                                         <div className="col-md-3 mb-3">
                                             <div>
                                                 <input
@@ -438,7 +439,7 @@ const UserForm = ({ initialData = {}, onSubmit, includePassword = false, exclude
                                     {qrCodePreview && (
                                         <div className="mt-2 position-relative" style={{ width: '150px' }}>
                                             <img
-                                                src={buildUploadUrl(qrCodePreview)}
+                                                src={qrCodePreview.startsWith('blob:') ? qrCodePreview : buildUploadUrl(qrCodePreview)}
                                                 alt="QR Code Preview"
                                                 style={{ width: '100%', height: 'auto', border: '1px solid #ddd', borderRadius: '4px' }}
                                             />

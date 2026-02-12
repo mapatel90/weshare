@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { apiGet } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePriceWithCurrency } from "@/hooks/usePriceWithCurrency";
+import { ROLES } from '@/constants/roles';
 
 const statusColors = {
   Paid: "status-installation",
@@ -50,7 +51,7 @@ export default function BillingCard( { lang } ) {
                     limit: "5",
                 });
 
-                if (user.role === 3) {
+                if (user.role === ROLES.OFFTAKER) {
                     params.append("offtaker_id", String(user.id));
                 }
 
