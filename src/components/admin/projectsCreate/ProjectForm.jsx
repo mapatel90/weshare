@@ -258,10 +258,10 @@ const ProjectForm = ({
             <div className="col-md-3 mb-3">
               <Autocomplete
                 options={offtakers}
-                value={offtakers.find((o) => String(o.id) === String(formData.offtaker)) || null}
+                value={offtakers.find((o) => String(o.id) === String(formData.offtaker_id)) || null}
                 onChange={(e, newValue) => {
                   handleOfftakerChange({
-                    target: { name: "offtaker", value: newValue ? newValue.id : "" },
+                    target: { name: "offtaker_id", value: newValue ? newValue.id : "" },
                   });
                 }}
                 getOptionLabel={(option) => option.full_name || ""}
@@ -270,10 +270,10 @@ const ProjectForm = ({
                 renderInput={(params) => (
                   <TextField
                     {...params}
-                    label={lang("projects.selectOfftaker", "Select Offtaker")}
+                    label={`${lang("projects.selectOfftaker", "Select Offtaker")} *`}
                     placeholder={lang("projects.searchOfftaker", "Search Offtaker...")}
-                    error={!!error.offtaker}
-                    helperText={error.offtaker || ""}
+                    error={!!error.offtaker_id}
+                    helperText={error.offtaker_id || ""}
                   />
                 )}
               />
@@ -480,6 +480,7 @@ const ProjectForm = ({
           </div>
           <div className="card-body">
             <div className="row">
+              {/* row: address_1 */}
               <div className="col-md-6 mb-3">
                 <TextField
                   fullWidth
@@ -493,6 +494,7 @@ const ProjectForm = ({
                   )}
                 />
               </div>
+              {/* row: address_2 */}
               <div className="col-md-6 mb-3">
                 <TextField
                   fullWidth
@@ -506,7 +508,7 @@ const ProjectForm = ({
                   )}
                 />
               </div>
-
+              {/* row: country_id */}
               <div className="col-md-3 mb-3">
                 <FormControl fullWidth error={!!error.country_id}>
                   <InputLabel id="country-select-label">
@@ -535,7 +537,7 @@ const ProjectForm = ({
                   )}
                 </FormControl>
               </div>
-
+              {/* row: state_id */}
               <div className="col-md-3 mb-3">
                 <FormControl fullWidth error={!!error.state_id}>
                   <InputLabel id="state-select-label">
@@ -564,7 +566,7 @@ const ProjectForm = ({
                   )}
                 </FormControl>
               </div>
-
+              {/* row: city_id */}
               <div className="col-md-3 mb-3">
                 <FormControl fullWidth error={!!error.city_id}>
                   <InputLabel id="city-select-label">
@@ -594,6 +596,7 @@ const ProjectForm = ({
                 </FormControl>
               </div>
 
+              {/* row: zipcode */}
               <div className="col-md-3 mb-3">
                 <TextField
                   fullWidth
@@ -607,6 +610,7 @@ const ProjectForm = ({
                   )}
                 />
               </div>
+              {/* row: investorProfit */}
 
               <div className="col-md-3 mb-3">
                 <TextField
@@ -623,6 +627,7 @@ const ProjectForm = ({
                 />
               </div>
 
+              {/* row: investorProfit */}
               <div className="col-md-3 mb-3">
                 <TextField
                   fullWidth
@@ -642,6 +647,7 @@ const ProjectForm = ({
                 />
               </div>
 
+              {/* row: project_status_id */}
               <div className="col-md-3 mb-3">
                 <FormControl fullWidth error={!!error.project_status_id}>
                   <InputLabel id="status-select-label">
