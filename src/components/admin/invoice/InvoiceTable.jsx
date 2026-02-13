@@ -6,11 +6,10 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { FiEdit3, FiTrash2, FiEye, FiDownload } from "react-icons/fi";
 import { showSuccessToast } from "@/utils/topTost";
 import Swal from "sweetalert2";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { usePriceWithCurrency } from "@/hooks/usePriceWithCurrency";
 import { Autocomplete, Chip, IconButton, Stack, TextField } from "@mui/material";
-import { downloadInvoicePDF } from "./InvoicePdf";
+import { buildUploadUrl } from "@/utils/common";
 import { PROJECT_STATUS } from "@/constants/project_status";
 import usePermissions from "@/hooks/usePermissions";
 
@@ -194,6 +193,43 @@ const InvoiceTable = () => {
     }
   };
 
+  const handleDownload = async (invoice) => {
+    const fileUrl = buildUploadUrl(invoice?.invoice_pdf);
+    if (!fileUrl) {
+      Swal.fire({
+        title: "Invoice PDF not available",
+        icon: "info",
+      });
+      return;
+    }
+
+    try {
+      const response = await fetch(fileUrl);
+      if (!response.ok) {
+        throw new Error("Download failed");
+      }
+
+      const blob = await response.blob();
+      const objectUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      const baseName = `${invoice?.invoice_prefix || "INV"}-${
+        invoice?.invoice_number || "invoice"
+      }`;
+      link.href = objectUrl;
+      link.download = `${baseName}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(objectUrl);
+    } catch (error) {
+      console.error("Failed to download invoice PDF:", error);
+      Swal.fire({
+        title: "Unable to download invoice PDF",
+        icon: "error",
+      });
+    }
+  };
+
   const columns = [
     {
       id: "invoice_display",
@@ -371,7 +407,7 @@ const InvoiceTable = () => {
           </Link>
           <IconButton
             size="small"
-            onClick={() => downloadInvoicePDF(row.original.id, priceWithCurrency)}
+            onClick={() => handleDownload(row.original)}
             sx={{
               color: "#2e7d32",
               transition: "transform 0.2s ease",

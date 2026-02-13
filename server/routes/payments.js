@@ -241,6 +241,15 @@ router.post('/', authenticateToken, upload.single('file'), async (req, res) => {
             });
           }
         }
+        if (newInvoice?.invoice_pdf) {
+          const fileUrl = buildUploadUrl(newInvoice.invoice_pdf);
+          if (fileUrl) {
+            attachments.push({
+              filename: path.basename(fileUrl),
+              path: fileUrl,
+            });
+          }
+        }
 
         // Send email to admin
         sendEmailUsingTemplate({
@@ -303,6 +312,15 @@ router.post('/', authenticateToken, upload.single('file'), async (req, res) => {
         const attachments = [];
         if (created.ss_url) {
           const fileUrl = buildUploadUrl(created.ss_url);
+          if (fileUrl) {
+            attachments.push({
+              filename: path.basename(fileUrl),
+              path: fileUrl,
+            });
+          }
+        }
+        if (newInvoice?.invoice_pdf) {
+          const fileUrl = buildUploadUrl(newInvoice.invoice_pdf);
           if (fileUrl) {
             attachments.push({
               filename: path.basename(fileUrl),
@@ -431,12 +449,24 @@ router.put('/:id/mark-as-paid', authenticateToken, async (req, res) => {
             current_date: new Date().toLocaleDateString(),
           }
 
+          const attachments = [];
+          if (payment.invoices?.invoice_pdf) {
+            const fileUrl = buildUploadUrl(payment.invoices.invoice_pdf);
+            if (fileUrl) {
+              attachments.push({
+                filename: path.basename(fileUrl),
+                path: fileUrl,
+              });
+            }
+          }
+
           // Send email to offtaker
           sendEmailUsingTemplate({
             to: payment.users?.email,
             templateSlug: 'payment_approved_by_admin_for_offtaker',
             templateData,
             language: lang || 'en',
+            attachments,
           })
           .then((result) => {
             if (result.success) {

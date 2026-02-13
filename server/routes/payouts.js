@@ -10,6 +10,7 @@ import fs from 'fs';
 import { uploadToS3, isS3Enabled, deleteFromS3, extractUploadKey, buildUploadUrl } from '../services/s3Service.js';
 import { PAYOUT_STATUS } from '../../src/constants/payout_status.js';
 import { getDateTimeInTZ } from '../../src/utils/common.js';
+import { sendEmailUsingTemplate } from '../utils/email.js';
 
 const router = express.Router();
 
@@ -255,6 +256,54 @@ router.post("/create", authenticateToken, uploadPayoutDoc.single('document'), as
             },
         });
 
+        if(payout){
+            const investorUser = await prisma.users.findUnique({
+                where: { id: investor_id }
+            });
+
+            if (investorUser?.email) {
+                const lang = await getUserLanguage(investor_id);
+                const templateData = {
+                    full_name: investorUser?.full_name || '',
+                    invoice_number: `${invoice.invoice_prefix}-${invoice.invoice_number}`,
+                    invoice_amount: invoice_amount || '',
+                    project_name: invoice.projects?.project_name || '',
+                    payout_amount: payout_amount || '',
+                    current_date: new Date().toLocaleDateString(),
+                    status: 'Pending',
+                };
+
+                const attachments = [];
+                if (payout.document) {
+                    const fileUrl = buildUploadUrl(payout.document);
+                    if (fileUrl) {
+                        attachments.push({
+                            filename: path.basename(fileUrl),
+                            path: fileUrl,
+                        });
+                    }
+                }
+
+                sendEmailUsingTemplate({
+                    to: investorUser.email,
+                    templateSlug: 'email_for_payout_created_by_admin_to_investor',
+                    templateData,
+                    language: lang || 'en',
+                    attachments,
+                })
+                .then((result) => {
+                    if (result.success) {
+                        console.log(`Payout email sent to ${investorUser.email}`);
+                    } else {
+                        console.warn(`Could not send payout email: ${result.error}`);
+                    }
+                })
+                .catch((error) => {
+                    console.error('Failed to send payout email:', error.message);
+                });
+            }
+        }
+
         // Increment payout number
         // const newNumber = String(Number(next_payout_number) + 1).padStart(3, "0");
         // await settingsService.set("next_payout_number", newNumber);
@@ -393,8 +442,51 @@ router.post("/update", authenticateToken, uploadPayoutDoc.single('document'), as
                     created_at: new Date(),
                 },
             });
-        }
 
+            // Send payout paid email to investor
+            if (updatedPayout?.users?.email) {
+                const templateData = {
+                    full_name: updatedPayout?.users?.full_name || '',
+                    payout_number: `${updatedPayout?.payout_prefix}-${updatedPayout?.payout_number}`,
+                    project_name: updatedPayout?.projects?.project_name || '',
+                    invoice_amount: updatedPayout?.invoice_amount || '',
+                    payout_amount: updatedPayout?.payout_amount || '',
+                    transaction_id: updatedPayout?.transaction_id || 'N/A',
+                    payout_date: updatedPayout?.payout_date ? new Date(updatedPayout.payout_date).toLocaleDateString() : new Date().toLocaleDateString(),
+                    current_date: new Date().toLocaleDateString(),
+                    status: 'Paid',
+                };
+
+                const attachments = [];
+                if (updatedPayout?.document) {
+                    const fileUrl = buildUploadUrl(updatedPayout?.document);
+                    if (fileUrl) {
+                        attachments.push({
+                            filename: path.basename(fileUrl),
+                            path: fileUrl,
+                        });
+                    }
+                }
+
+                sendEmailUsingTemplate({
+                    to: updatedPayout?.users?.email,
+                    templateSlug: 'email_for_payout_paid_successfully',
+                    templateData,
+                    language: lang || 'en',
+                    attachments,
+                })
+                .then((result) => {
+                    if (result.success) {
+                        console.log(`Payout paid email sent to ${updatedPayout?.users?.email}`);
+                    } else {
+                        console.warn(`Could not send payout paid email: ${result.error}`);
+                    }
+                })
+                .catch((error) => {
+                    console.error('Failed to send payout paid email:', error.message);
+                });
+            }
+        }
 
         return res.json({ success: true, message: "Payout updated successfully", data: updatedPayout });
     } catch (error) {
