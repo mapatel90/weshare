@@ -238,6 +238,7 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
       start_date,
       evn_price_kwh,
       weshare_price_kwh,
+      capex_per_kwp,
       created_by,
       project_status_id = 1,
       payback_period,
@@ -290,6 +291,7 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
         project_location: project_location || "",
         weshare_price_kwh: parseFloat(weshare_price_kwh) || null,
         evn_price_kwh: parseFloat(evn_price_kwh) || null,
+        capex_per_kwp: parseFloat(capex_per_kwp) || null,
         ...(project_status_id && {
           project_status: { connect: { id: parseInt(project_status_id) } },
         }),
@@ -1077,6 +1079,7 @@ router.put("/:id", authenticateToken, async (req, res) => {
       project_location,
       weshare_price_kwh,
       evn_price_kwh,
+      capex_per_kwp,
       project_status_id,
       solis_plant_id,
       payback_period,
@@ -1155,6 +1158,7 @@ router.put("/:id", authenticateToken, async (req, res) => {
           : { project_status: { disconnect: true } })),
       ...(weshare_price_kwh !== undefined && { weshare_price_kwh: parseFloat(weshare_price_kwh) || null }),
       ...(evn_price_kwh !== undefined && { evn_price_kwh: parseFloat(evn_price_kwh) || null }),
+      ...(capex_per_kwp !== undefined && { capex_per_kwp: parseFloat(capex_per_kwp) || null }),
       ...(payback_period !== undefined && {
         payback_period: payback_period !== null && `${payback_period}` !== ""
           ? parseInt(payback_period)

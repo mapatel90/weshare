@@ -62,6 +62,7 @@ const ProjectEditContent = ({ projectId }) => {
         project_location: '',
         evn_price_kwh: '',
         weshare_price_kwh: '',
+        capex_per_kwp: '',
         project_status_id: '',
         payback_period: '',
         fund_progress: ''
@@ -296,6 +297,7 @@ const ProjectEditContent = ({ projectId }) => {
                         project_location: p.project_location || '',
                         evn_price_kwh: p.evn_price_kwh !== undefined && p.evn_price_kwh !== null ? String(p.evn_price_kwh) : '',
                         weshare_price_kwh: p.weshare_price_kwh !== undefined && p.weshare_price_kwh !== null ? String(p.weshare_price_kwh) : '',
+                        capex_per_kwp: p.capex_per_kwp !== undefined && p.capex_per_kwp !== null ? String(p.capex_per_kwp) : '',
                         solis_plant_id: p.solis_plant_id || '', // ← add Solis Plant ID into form
                         project_status_id: p.project_status?.id || p.project_status_id || (statusRes?.data?.[0]?.id ?? ''),
                         payback_period: p.payback_period !== undefined && p.payback_period !== null ? String(p.payback_period) : '',
@@ -549,6 +551,7 @@ const ProjectEditContent = ({ projectId }) => {
                 project_location: formData.project_location || '',
                 evn_price_kwh: formData.evn_price_kwh && formData.evn_price_kwh !== '' ? parseFloat(formData.evn_price_kwh) : null,
                 weshare_price_kwh: formData.weshare_price_kwh && formData.weshare_price_kwh !== '' ? parseFloat(formData.weshare_price_kwh) : null,
+                capex_per_kwp: formData.capex_per_kwp && formData.capex_per_kwp !== '' ? parseFloat(formData.capex_per_kwp) : null,
                 solis_plant_id: formData.solis_plant_id || '', // ← include when updating
                 project_status_id: formData.project_status_id !== '' && formData.project_status_id !== undefined && formData.project_status_id !== null
                     ? Number(formData.project_status_id)

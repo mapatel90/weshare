@@ -374,6 +374,7 @@ model projects {
   project_location     String?                @db.VarChar(500)
   weshare_price_kwh    Float?
   evn_price_kwh        Float?
+  capex_per_kwp        Float?
   solis_plant_id       String?                @db.VarChar(255)
   address_1            String?                @db.VarChar(255)
   address_2            String?                @db.VarChar(255)

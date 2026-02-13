@@ -198,7 +198,7 @@ const ProjectForm = ({
               />
             </div>
             {/* row: project_slug */}
-            <div className="col-md-6 mb-3">
+            <div className="col-md-3 mb-3">
               <TextField
                 fullWidth
                 label={`${lang("projects.projectSlugPlaceholder", "Project Slug")} *`}
@@ -311,6 +311,25 @@ const ProjectForm = ({
                 inputMode="decimal"
                 error={!!error.asking_price}
                 helperText={error.asking_price}
+              />
+            </div>
+            {/* row: capex_per_kwp */}
+            <div className="col-md-3 mb-3">
+              <TextField
+                fullWidth
+                label={lang("projects.capex_per_kwp", "CAPEX per kWp")}
+                name="capex_per_kwp"
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">{lang("projects.perKwp", "per kWp")}</InputAdornment>
+                  ),
+                }}
+                value={formData.capex_per_kwp || ""}
+                onChange={handleInputChange}
+                inputMode="decimal"
+                placeholder={lang("projects.capex_per_kwp_placeholder", "Enter CAPEX per kWp")}
+                error={!!error.capex_per_kwp}
+                helperText={error.capex_per_kwp}
               />
             </div>
             {/* row: evn_price_kwh */}
