@@ -171,7 +171,7 @@
     "termsConditions": "Terms & Conditions",
     "fees": "Fees",
     "registerAs": "Register as",
-    "becomeOfftaker": "Offtaker",
+    "dashboard": "Offtaker",
     "becomeInvestor": "Investor",
     "termsPolicy": "Terms & Policy",
     "resetYourPassword": "Reset Your Password",
@@ -521,7 +521,10 @@
     "trees": "Trees",
     "projectSummary": "Project Summary",
     "projectStartDate": "Project Start Date",
-    "uploadDocuments": "Upload Documents / Image"
+    "uploadDocuments": "Upload Documents / Image",
+    "installedCapacity": "Installed Capacity",
+    "dailyYield": "Daily Yield",
+    "weshare_price": "WeShare Price"
   },
   "table": {
     "serialNumber": "#",
@@ -836,7 +839,8 @@
       "viewAll": "View All News",
       "news1Title": "The Future Shines at Greenfield Academy with New Solar Initiative",
       "news2Title": "Solar Revolution: How WeShare is Transforming Energy Investment",
-      "news3Title": "Community Solar Projects Reach New Milestone in 2024"
+      "news3Title": "Community Solar Projects Reach New Milestone in 2024",
+      "noNews": "No news found"
     },
     "energy": {
       "title": "Ready to invest<br />in clean energy?",

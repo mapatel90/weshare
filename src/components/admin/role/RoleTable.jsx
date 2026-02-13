@@ -233,8 +233,22 @@ const RoleTable = () => {
             >
               <FiEdit3 size={18} />
             </IconButton>
+            <IconButton
+              size="small"
+              onClick={() => handleDelete(row.id)}
+              sx={{
+                color: "#d32f2f",
+                transition: "transform 0.2s ease",
+                "&:hover": {
+                  backgroundColor: "rgba(211, 47, 47, 0.08)",
+                  transform: "scale(1.1)",
+                },
+              }}
+            >
+              <FiTrash2 size={18} />
+            </IconButton>
             {user?.role === ROLES.SUPER_ADMIN &&
-              ![ROLES.OFFTAKER, ROLES.INVESTOR].includes(row.id) && (
+              ![ROLES.OFFTAKER, ROLES.INVESTOR, ROLES.SUPER_ADMIN].includes(row.id) && (
                 <IconButton
                   size="small"
                   onClick={() => handlePermission(row.id)}
@@ -250,20 +264,6 @@ const RoleTable = () => {
                   <BsShieldFillExclamation size={18} />
                 </IconButton>
               )}
-            <IconButton
-              size="small"
-              onClick={() => handleDelete(row.id)}
-              sx={{
-                color: "#d32f2f",
-                transition: "transform 0.2s ease",
-                "&:hover": {
-                  backgroundColor: "rgba(211, 47, 47, 0.08)",
-                  transform: "scale(1.1)",
-                },
-              }}
-            >
-              <FiTrash2 size={18} />
-            </IconButton>
           </Stack>
         );
       },

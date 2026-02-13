@@ -293,9 +293,9 @@ const StatCardsGrid = ({
     >
       <StatCard
         icon={Sun}
-        title={lang('dashboard.capacity')}
-        value={`${formatNumber(project?.project_size)} kWh`}
-        subtitle={`${lang('reports.capacityPrice', 'Capacity Price')}:  ${formatPrice(pricePerKwh)} / kWh`}
+        title={lang('dashboard.installedCapacity')}
+        value={`${formatNumber(project?.project_size)} kwp`}
+        subtitle={`${lang('dashboard.weshare_price', 'Capacity Price')}:  ${formatPrice(pricePerKwh)} / kwp`}
         color="linear-gradient(to bottom right, #fbbf24, #f97316)"
         isDark={isDark}
       />

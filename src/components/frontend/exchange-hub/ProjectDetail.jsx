@@ -883,10 +883,12 @@ const ProjectDetail = ({ projectId }) => {
               {project.project_status_id === PROJECT_STATUS.RUNNING && (
                 <div className="testimonial-rightBox">
                   {/* NEW: show up to 3 testimonials related to this project */}
-                  <h3>
-                    {lang("home.exchangeHub.testimonials") ||
-                      "Offtaker & Investor Testimonials"}
-                  </h3>
+                  {testimonials.length > 0 ? (
+                    <h3>
+                      {lang("home.exchangeHub.testimonials") ||
+                        "Offtaker & Investor Testimonials"}
+                    </h3>
+                  ) : null}
                   {testimonials.length > 0 ? (
                     testimonials.map((t, idx) => (
                       <div className="testi-card" key={t.id || idx}>
@@ -905,11 +907,7 @@ const ProjectDetail = ({ projectId }) => {
                         <p>{t.description}</p>
                       </div>
                     ))
-                  ) : (
-                    <div className="testi-card">
-                      <p>{lang("home.exchangeHub.noTestimonials") || "No testimonials for this project"}</p>
-                    </div>
-                  )}
+                  ) : (null)}
                 </div>
               )}
             </div>
