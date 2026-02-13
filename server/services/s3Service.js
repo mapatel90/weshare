@@ -160,9 +160,12 @@ export const uploadToS3 = async (
     const baseName = path.basename(fileName, ext);
     const sanitizedName = baseName.replace(/[^a-zA-Z0-9-_]/g, '_');
 
-    // Build S3 key with optional folder path
+    // Determine environment prefix (development or production)
+    const envFolder = process.env.NODE_ENV === 'production' ? 'production' : 'development';
+
+    // Build S3 key with environment prefix and optional folder path
     const folder = options.folder || config.folderPath || 'uploads';
-    const fileKey = `${folder}/${sanitizedName}_${timestamp}${ext}`;
+    const fileKey = `${envFolder}/${folder}/${sanitizedName}_${timestamp}${ext}`;
 
     // Upload to S3 (ACL removed - bucket policy controls access)
     const uploadCommand = new PutObjectCommand({
