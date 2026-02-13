@@ -38,7 +38,7 @@ export default function RootLayout({ children }) {
                   </NavigationProvider>
                 </SettingSideBarProvider>
                 {/* <ThemeCustomizer /> */}
-                <GlobalLoader />
+                {/* <GlobalLoader /> */}
                 <DynamicFavicon />
               </AuthProvider>
             </SettingsProvider>

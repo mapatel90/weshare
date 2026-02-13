@@ -6,7 +6,7 @@ import Link from "next/link";
 import AOS from "aos";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { apiGet } from "@/lib/api";
-import { buildUploadUrl, getFullImageUrl } from "@/utils/common";
+import { buildUploadUrl, formatEnergyUnit, getFullImageUrl } from "@/utils/common";
 import { useRouter } from "next/navigation";
 import { getPrimaryProjectImage } from "@/utils/projectUtils";
 import { PROJECT_STATUS } from "@/constants/project_status";
@@ -18,33 +18,39 @@ const ProjectsSection = () => {
   const { lang } = useLanguage();
   const router = useRouter();
 
+  const formatNumber = (num) => {
+    if (!num) return "0";
+    return parseFloat(num).toLocaleString("en-US");
+  };
+
   useEffect(() => {
     AOS.init({ duration: 1000, once: true });
-    fetchProjects();
   }, []);
 
-  const fetchProjects = async () => {
+  // Fetch projects when tab changes
+  useEffect(() => {
+    fetchProjects(activeTab);
+  }, [activeTab]);
+
+  const fetchProjects = async (tab) => {
     try {
       setLoading(true);
-      const response = await apiGet(`/api/projects?limit=3&project_status_id=${PROJECT_STATUS.UPCOMING},${PROJECT_STATUS.RUNNING}`, { showLoader: false });
+      // Open for Lease = UPCOMING, For Resale = RUNNING
+      const statusId = tab === "open" ? PROJECT_STATUS.UPCOMING : PROJECT_STATUS.RUNNING;
+      const response = await apiGet(`/api/projects?limit=3&project_status_id=${statusId}`, { showLoader: false });
       if (response.success && response.data) {
         setProjects(response.data);
+      } else {
+        setProjects([]);
       }
     } catch (error) {
       console.error("Error fetching projects:", error);
+      setProjects([]);
     } finally {
       setLoading(false);
     }
   };
 
-  const getProjectMainImage = (project) => {
-    const cover = getPrimaryProjectImage(project);
-    console.log("cover", cover);
-    if (!cover) {
-      return getFullImageUrl('/uploads/general/noimage_2.png');
-    }
-    return cover ? getFullImageUrl(cover) : getFullImageUrl('/uploads/general/noimage_2.png');
-  };
 
   return (
     <section className="projectSection">
@@ -150,8 +156,7 @@ const ProjectsSection = () => {
                               height={16}
                             />
                           </span>
-                          {project.project_size
-                            ? `${project.project_size}kwp`
+                          {project.project_size? `${formatEnergyUnit(project.project_size)}`
                             : "N/A"}
                         </div>
 
@@ -177,7 +182,7 @@ const ProjectsSection = () => {
                             {lang("home.projects.expectedRevenue")}
                           </p>
                           <span className="fw-600 text-secondary-color">
-                            ${project.asking_price || "0"}
+                            {project.asking_price ? `${formatEnergyUnit(project.asking_price)}` : "0"}
                           </span>
                         </div>
 

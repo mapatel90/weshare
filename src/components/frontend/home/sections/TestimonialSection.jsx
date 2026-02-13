@@ -5,11 +5,13 @@ import Image from 'next/image'
 import AOS from 'aos'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { apiGet } from '@/lib/api'
-import { getFullImageUrl } from '@/utils/common'
+import { buildUploadUrl } from '@/utils/common'
+import { ROLES } from '@/constants/roles'
 
 const TestimonialSection = () => {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [testimonials, setTestimonials] = useState([])
+  console.log("testimonials", testimonials)
   // track which nav button is active after click: 'prev' | 'next' | null
   const [activeNav, setActiveNav] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -25,14 +27,15 @@ const TestimonialSection = () => {
       const response = await apiGet(`/api/testimonials`)
       if (response) {
         const data = await response
+        console.log("data", data)
         // Transform API data to match component structure
         const transformedData = data.map(item => ({
           id: item.id,
-          name: item.offtaker?.fullName || 'Anonymous',
-          role: item.project?.project_name || 'Customer',
+          name: item.users?.full_name,
+          role: item.users?.role_id === ROLES.OFFTAKER ? lang('authentication.becomeOfftaker') : lang('authentication.becomeInvestor'),
           text: item.description || '',
           rating: item.review_status || 5,
-          image: item.offtaker?.user_image || item.image || '/images/avatar/user-img.png'
+          image: item.users?.user_image
           }))
         setTestimonials(transformedData.length > 0 ? transformedData : getDefaultTestimonials())
       } else {
@@ -147,7 +150,7 @@ const TestimonialSection = () => {
                         overflow: 'hidden'
                       }}>
                         <Image
-                          src={getFullImageUrl(testimonial?.image)}
+                          src={buildUploadUrl(testimonial?.image)}
                           alt={testimonial.name}
                           fill
                           style={{
@@ -164,7 +167,7 @@ const TestimonialSection = () => {
                     <div className='testimonials-res' style={{ padding: '50px 60px' }}>
                       {/* Quote Icon */}
                       <div className="mb-4">
-                        <img src={getFullImageUrl('/images/testimonial_svg.svg')} alt="Testimonial logo" />
+                        <img src={'/images/testimonial_svg.svg'} alt="Testimonial logo" />
                       </div>
 
                       {/* Name and Role */}

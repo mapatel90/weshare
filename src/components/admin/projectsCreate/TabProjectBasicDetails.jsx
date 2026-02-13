@@ -189,6 +189,13 @@ const TabProjectBasicDetails = ({ setFormData, formData, error, setError }) => {
         const offtakerId = e.target.value
         setFormData(prev => ({ ...prev, offtaker_id: offtakerId }))
 
+        // Clear offtaker error when value changes
+        setError(prev => {
+            const next = { ...prev }
+            delete next.offtaker_id
+            return next
+        })
+
         if (offtakerId) {
             try {
                 const offtaker = await fetchOfftakerById(offtakerId)
@@ -314,7 +321,7 @@ const TabProjectBasicDetails = ({ setFormData, formData, error, setError }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        const requiredFields = ['project_name', 'project_type_id'];
+        const requiredFields = ['project_name', 'project_type_id', 'product_code', 'offtaker_id', 'project_size', 'asking_price', 'lease_term', 'payback_period','project_location'];
         const errors = {};
 
         requiredFields.forEach(field => {

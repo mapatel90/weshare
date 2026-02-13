@@ -1,47 +1,80 @@
 'use client'
 
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import Image from 'next/image'
 import AOS from 'aos'
 import { useLanguage } from '@/contexts/LanguageContext'
+import { apiGet } from '@/lib/api'
 
 const PortfolioSection = () => {
   const { lang } = useLanguage()
-  
+  const [portfolioData, setPortfolioData] = useState(null)
+  const [loading, setLoading] = useState(true)
+
+  // Format large numbers with K, M, B suffixes
+  const formatNumber = (num, decimals = 1) => {
+    if (!num || num === 0) return '0'
+    if (num >= 1000000000) return (num / 1000000000).toFixed(decimals) + 'B'
+    if (num >= 1000000) return (num / 1000000).toFixed(decimals) + 'M'
+    if (num >= 1000) return (num / 1000).toFixed(decimals) + 'K'
+    return num.toFixed(decimals)
+  }
+
+  // Format currency
+  const formatCurrency = (num) => {
+    if (!num || num === 0) return '$0'
+    return '$' + formatNumber(num)
+  }
+
   useEffect(() => {
     AOS.init({ duration: 1000, once: true })
+    fetchPortfolioStats()
   }, [])
+
+  const fetchPortfolioStats = async () => {
+    try {
+      setLoading(true)
+      const response = await apiGet('/api/dashboard/portfolio-stats', { showLoader: false })
+      if (response.success && response.data) {
+        setPortfolioData(response.data)
+      }
+    } catch (error) {
+      console.error('Error fetching portfolio stats:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const stats = [
     {
       icon: '/images/icons/port-icon1.svg',
-      value: '8479.2K',
+      value: portfolioData ? formatNumber(portfolioData.totalKwh?.value) : '0',
       label: lang('home.portfolio.totalKwh'),
-      growth: '+2.4%'
+      growth: portfolioData?.totalKwh?.growth || '+0%'
     },
     {
       icon: '/images/icons/port-icon2.svg',
-      value: '$5.6M',
+      value: portfolioData ? formatCurrency(portfolioData.totalIncome?.value) : '$0',
       label: lang('home.portfolio.totalIncome'),
-      growth: '+8.7'
+      growth: portfolioData?.totalIncome?.growth || '+0%'
     },
     {
       icon: '/images/icons/port-icon3.svg',
-      value: '2.6M',
+      value: portfolioData ? formatCurrency(portfolioData.totalSavings?.value) : '$0',
       label: lang('home.portfolio.totalSavings'),
-      growth: '+3.0'
+      growth: portfolioData?.totalSavings?.growth || '+0%'
     },
     {
       icon: '/images/icons/port-icon4.svg',
-      value: '19.2%',
+      value: portfolioData ? `${(portfolioData.averageROI?.value || 0).toFixed(1)}%` : '0%',
       label: lang('home.portfolio.averageROI'),
-      growth: '+1.8'
+      growth: portfolioData?.averageROI?.growth || '+0%'
     },
     {
       icon: '/images/icons/port-icon5.svg',
-      value: '900K tons',
+      value: portfolioData ? `${formatNumber(portfolioData.co2Avoided?.value)} tons` : '0 tons',
       label: lang('home.portfolio.co2Avoided'),
-      growth: '+2.4%'
+      growth: portfolioData?.co2Avoided?.growth || '+0%'
     }
   ]
 
@@ -75,7 +108,13 @@ const PortfolioSection = () => {
                   </div>
                 </div>
                 <div>
-                  <h3 className="mb-0">{stat.value}</h3>
+                  {loading ? (
+                    <h3 className="mb-0 placeholder-glow">
+                      <span className="placeholder col-6"></span>
+                    </h3>
+                  ) : (
+                    <h3 className="mb-0">{stat.value}</h3>
+                  )}
                   <small className="tw-300">{stat.label}</small>
                 </div>
               </div>
