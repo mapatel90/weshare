@@ -30,6 +30,9 @@ const ProjectCard = ({ project, activeTab }) => {
   const [investNotes, setInvestNotes] = useState("");
   const [submittingInvest, setSubmittingInvest] = useState(false);
 
+  // Use calculated_roi from API response (already calculated in projects list endpoint)
+  const calculatedRoi = project?.calculated_roi || project?.investor_profit || "0";
+
   // Safety check
   if (!project) {
     console.error("ProjectCard: No project data provided");
@@ -450,7 +453,7 @@ const ProjectCard = ({ project, activeTab }) => {
           </div>
           <div className="stat">
             <h4 className="text-secondary-color">
-              {project.investor_profit || "11.2"}%
+              {calculatedRoi}%
             </h4>
             <p>{lang("home.exchangeHub.roi") || "ROI"}</p>
           </div>

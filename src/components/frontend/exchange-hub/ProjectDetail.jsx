@@ -57,6 +57,10 @@ const ProjectDetail = ({ projectId }) => {
   const [selectedMonthYear, setSelectedMonthYear] = useState(new Date().toISOString().slice(0, 7));
   const [monthlyChartDataLoading, setMonthlyChartDataLoading] = useState(true);
 
+  // Calculated ROI
+  const [calculatedRoi, setCalculatedRoi] = useState(null);
+  const [roiLoading, setRoiLoading] = useState(false);
+
   const checkInterest = async () => {
     if (!user || !project) {
       setHasExpressedInterest(false);
@@ -201,6 +205,36 @@ const ProjectDetail = ({ projectId }) => {
     fetchTestimonials();
   }, [fetchTestimonials]);
 
+  // Fetch calculated ROI when project is loaded
+  const fetchCalculatedRoi = useCallback(async () => {
+    if (!project?.id) return;
+
+    try {
+      setRoiLoading(true);
+      const response = await apiGet(`/api/projects/${project.id}/calculate-roi`, {
+        showLoader: false,
+        includeAuth: false,
+      });
+
+      if (response?.success && response.data) {
+        // Use calculated ROI if > 0, otherwise fallback to investor_profit
+        const roi = parseFloat(response.data.roi);
+        setCalculatedRoi(roi > 0 ? response.data.roi : response.data.fallbackRoi);
+      } else {
+        setCalculatedRoi(project.investor_profit || "0");
+      }
+    } catch (e) {
+      console.error("Error fetching calculated ROI:", e);
+      setCalculatedRoi(project.investor_profit || "0");
+    } finally {
+      setRoiLoading(false);
+    }
+  }, [project?.id, project?.investor_profit]);
+
+  useEffect(() => {
+    fetchCalculatedRoi();
+  }, [fetchCalculatedRoi]);
+
   // Format numbers
   const formatNumber = (num) => {
     if (num === undefined || num === null || num === "") return "0";
@@ -292,99 +326,6 @@ const ProjectDetail = ({ projectId }) => {
       loadEnergyDayWiseData();
     }
   }, [project?.id, selectedMonthYear])
-  // KWh & Revenue Chart Data
-  const kwhRevenueChartOptions = useMemo(
-    () => ({
-      chart: {
-        type: "bar",
-        height: 350,
-        toolbar: {
-          show: false,
-        },
-      },
-      plotOptions: {
-        bar: {
-          horizontal: false,
-          columnWidth: "55%",
-          borderRadius: 4,
-        },
-      },
-      dataLabels: {
-        enabled: false,
-      },
-      stroke: {
-        show: true,
-        width: 2,
-        colors: ["transparent"],
-      },
-      xaxis: {
-        categories: [
-          "Jan",
-          "Feb",
-          "Mar",
-          "Apr",
-          "June",
-          "Jul",
-          "Aug",
-          "Sept",
-          "Oct",
-          "Nov",
-          "Dec",
-        ],
-      },
-      yaxis: {
-        title: {
-          text: "kWh",
-        },
-      },
-      fill: {
-        opacity: 1,
-        colors: ["#FFA726"],
-      },
-      tooltip: {
-        y: {
-          formatter: function (val) {
-            return formatNumber(val) + " kWh";
-          },
-        },
-      },
-      colors: ["#FFA726"],
-    }),
-    []
-  );
-
-  const kwhRevenueChartSeries = useMemo(() => {
-    if (!projectChartData || !Array.isArray(projectChartData)) {
-      return [
-        {
-          name: "KWh Generated",
-          data: Array(11).fill(0),
-        },
-      ];
-    }
-
-    // Group data by month
-    const monthlyMap = new Map();
-    projectChartData.forEach((item) => {
-      const month = item.month || 0;
-      if (!monthlyMap.has(month)) {
-        monthlyMap.set(month, 0);
-      }
-      monthlyMap.set(month, (monthlyMap.get(month) || 0) + (item.total_kw || 0));
-    });
-
-    // Create array for all 11 months (0-10 for the chart)
-    const data = Array(11)
-      .fill(0)
-      .map((_, i) => monthlyMap.get(i) || 0);
-
-    return [
-      {
-        name: "KWh Generated",
-        data,
-      },
-    ];
-  }, [projectChartData]);
 
   // change Invest Now button to open modal (and add submit handler)
   const handleInvestClick = () => {
@@ -625,8 +566,16 @@ const ProjectDetail = ({ projectId }) => {
                     <h4>{formatNumber(project.project_size)} kWp</h4>
                   </div>
                   <div>
-                    <p>{lang("home.exchangeHub.roi_monthly") || "ROI"}:</p>
-                    <h4>{project.investor_profit || "0"}%</h4>
+                    <p>{lang("home.exchangeHub.roi_monthly") || "Monthly ROI"}:</p>
+                    <h4>
+                      {roiLoading ? (
+                        <span className="placeholder-glow">
+                          <span className="placeholder col-4"></span>
+                        </span>
+                      ) : (
+                        `${calculatedRoi || project.investor_profit || "0"}%`
+                      )}
+                    </h4>
                   </div>
                   <div>
                     <p>
