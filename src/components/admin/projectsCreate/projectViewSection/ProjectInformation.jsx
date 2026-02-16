@@ -126,6 +126,10 @@ const ProjectInformation = ({ project = {}, isDark = false }) => {
                   height: '200px',
                   objectFit: 'cover'
                 }}
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = "/uploads/general/noimage.jpeg";
+                }}
               />
             </div>
           </div>
