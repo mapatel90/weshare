@@ -23,7 +23,10 @@ const AllReports = ({ title }) => {
       try {
         setLoading(true);
         setError(null);
-        const res = await apiGet("/api/inverter-data?limit=5");
+        // how to daynemmic randomproject id pass to the api
+        const projectId = 1;
+        const res = await apiGet(`/api/inverter-data?limit=5&projectId=${projectId}`);
+        // above projectId is the project id of the project that is running
         const list = res?.data || [];
         setReports(list.slice(0, 5)); // Show first 5 reports
       } catch (err) {
@@ -49,7 +52,7 @@ const AllReports = ({ title }) => {
           isExpanded ? "card-expand" : ""
         } ${refreshKey ? "card-loading" : ""}`}
       >
-        <CardHeader title={cardTitle} viewHref="/admin/reports/saving" />
+        <CardHeader title={cardTitle} viewHref="/admin/reports/saving-report" />
         <div className="card-body custom-card-action p-0">
           {loading ? (
             <div className="p-4 text-center text-muted">{lang("common.loading", "Loading...")}</div>
