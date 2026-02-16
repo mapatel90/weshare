@@ -63,7 +63,7 @@ const normalizeApiProject = (project) => {
   };
 
   const coverImage = getPrimaryProjectImage(project);
-  const normalizedCover = coverImage ? buildUploadUrl(coverImage) : buildUploadUrl("/uploads/general/noimage.jpeg");
+  const normalizedCover = coverImage;
 
   const status_id = project?.project_status_id ?? null;
   const STATUS_LABELS = {
@@ -526,12 +526,14 @@ const SolarProjectTable = () => {
                     {/* Image and status badge */}
                     <div className="relative w-full h-36 sm:h-44 md:h-40 lg:h-36 xl:h-40 overflow-hidden">
                       <img
-                        src={
-                          buildUploadUrl(project.project_image) ||
-                          buildUploadUrl("/uploads/general/noimage.jpeg")
-                        }
+                        src={buildUploadUrl(project.project_image) || "/uploads/general/noimage.jpeg"}
                         alt={project.project_name}
                         className="object-cover w-full h-full"
+                        onError={(e) => {
+                          // Handle AccessDenied, 404, or any image load error
+                          e.target.onerror = null; // Prevent infinite loop
+                          e.target.src = "/uploads/general/noimage.jpeg";
+                        }}
                       />
                       <span
                         className={`absolute top-2 right-2 px-3 py-1 text-xs font-semibold rounded-full shadow ${getStatusColor(

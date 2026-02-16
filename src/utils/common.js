@@ -281,8 +281,52 @@ export const isS3Url = (url = "") => {
   return /^https:\/\/.+\.s3(\.[a-z0-9-]+)?\.amazonaws\.com\//i.test(url);
 };
 
+
+
+export const getS3Config = async () => {
+  try {
+    const settings = await prisma.settings.findMany({
+      where: {
+        key: {
+          in: Object.values(S3_KEYS),
+        },
+      },
+    });
+
+    const settingsMap = {};
+    settings.forEach((setting) => {
+      settingsMap[setting.key] = setting.value;
+    });
+
+    // Check if S3 is enabled and configured
+    if (
+      settingsMap[S3_KEYS.ENABLED] !== '1' ||
+      !settingsMap[S3_KEYS.ACCESS_KEY_ID] ||
+      !settingsMap[S3_KEYS.SECRET_ACCESS_KEY] ||
+      !settingsMap[S3_KEYS.REGION] ||
+      !settingsMap[S3_KEYS.BUCKET_NAME]
+    ) {
+      throw new Error('S3 is not configured or enabled in settings');
+    }
+
+    return {
+      accessKeyId: settingsMap[S3_KEYS.ACCESS_KEY_ID],
+      secretAccessKey: decrypt(settingsMap[S3_KEYS.SECRET_ACCESS_KEY]),
+      region: settingsMap[S3_KEYS.REGION],
+      bucketName: settingsMap[S3_KEYS.BUCKET_NAME],
+      folderPath: settingsMap[S3_KEYS.FOLDER_PATH] || '',
+      publicUrl: settingsMap[S3_KEYS.PUBLIC_URL] || null,
+      fileVisibility: settingsMap[S3_KEYS.FILE_VISIBILITY] || 'private',
+      signedUrlExpiry: parseInt(settingsMap[S3_KEYS.SIGNED_URL_EXPIRY]) || 3600,
+    };
+  } catch (error) {
+    console.error('Error getting S3 config:', error);
+    throw error;
+  }
+};
+
 export const buildUploadUrl = (key = "") => {
-  if (!key) return null;
+  if (!key || typeof key !== "string") return null;
 
   // Already an S3 URL
   if (isS3Url(key)) {
