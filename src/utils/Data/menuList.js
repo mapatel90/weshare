@@ -5,6 +5,7 @@ export const menuList = [
     path: "/admin/dashboards",
     icon: "feather-airplay",
     permission: "dashboards",
+    permission_action: ['view'],
     dropdownMenu: false,
   },
   {
@@ -13,12 +14,14 @@ export const menuList = [
     path: "#",
     icon: "feather-briefcase",
     permission: "projects",
+    permission_action: ["view", "create", "edit", "delete"],
     dropdownMenu: [
       {
         id: 1,
         name: "List",
+        permission: "projects",
+        permission_action: ["view", "create", "edit", "delete"],
         path: "/admin/projects/list",
-        permission: "project_list",
         subdropdownMenu: false,
       },
       {
@@ -26,6 +29,7 @@ export const menuList = [
         name: "Type",
         path: "/admin/projects/type",
         permission: "project_type",
+        permission_action: ["view", "create", "edit", "delete"],
         subdropdownMenu: false,
       },
     ],
@@ -36,6 +40,7 @@ export const menuList = [
     path: "/admin/users/list",
     icon: "feather-users",
     permission: "users",
+    permission_action: ["view", "create", "edit", "delete"],
     dropdownMenu: false,
   },
   {
@@ -50,6 +55,7 @@ export const menuList = [
         name: "Type",
         path: "/admin/inverter/type",
         permission: "inverter_type",
+        permission_action: ["view", "create", "edit", "delete"],
         subdropdownMenu: false,
       },
       {
@@ -57,6 +63,7 @@ export const menuList = [
         name: "company",
         path: "/admin/inverter/company",
         permission: "inverter_company",
+        permission_action: ["view", "create", "edit", "delete"],
         subdropdownMenu: false,
       },
       {
@@ -64,6 +71,7 @@ export const menuList = [
         name: "list",
         path: "/admin/inverter/list",
         permission: "inverter_list",
+        permission_action: ["view", "create", "edit", "delete"],
         subdropdownMenu: false,
       },
     ],
@@ -80,6 +88,7 @@ export const menuList = [
         name: "invoices",
         path: "/admin/finance/invoice",
         permission: "invoices",
+        permission_action: ["view", "create", "edit", "delete"],
         subdropdownMenu: false,
       },
       {
@@ -87,6 +96,7 @@ export const menuList = [
         name: "payments",
         path: "/admin/finance/payments",
         permission: "payments",
+        permission_action: ["view", "create", "edit", "delete"],
         subdropdownMenu: false,
       },
       {
@@ -94,6 +104,7 @@ export const menuList = [
         name: "payouts",
         path: "/admin/finance/payouts",
         permission: "payouts",
+        permission_action: ["view", "create", "edit", "delete"],
         subdropdownMenu: false,
       },
     ],
@@ -104,6 +115,7 @@ export const menuList = [
     path: "/admin/contract/list",
     icon: "feather-shield",
     permission: "contracts",
+    permission_action: ["view", "create", "edit", "delete"],
     dropdownMenu: false,
   },
   {
@@ -112,6 +124,7 @@ export const menuList = [
     path: "/admin/lease-request/list",
     icon: "feather-repeat",
     permission: "lease_requests",
+    permission_action: ["view", "create", "edit", "delete"],
     dropdownMenu: false,
   },
   {
@@ -120,6 +133,7 @@ export const menuList = [
     path: "/admin/blog/list",
     icon: "feather-youtube",
     permission: "blog",
+    permission_action: ["view", "create", "edit", "delete"],
     dropdownMenu: false,
   },
   {
@@ -128,6 +142,7 @@ export const menuList = [
     path: "/admin/news/list",
     icon: "feather-bell",
     permission: "news",
+    permission_action: ["view", "create", "edit", "delete"],
     dropdownMenu: false,
   },
   {
@@ -136,6 +151,7 @@ export const menuList = [
     path: "/admin/testimonial/list",
     icon: "feather-star",
     permission: "testimonials",
+    permission_action: ["view", "create", "edit", "delete"],
     dropdownMenu: false,
   },
   {
@@ -144,6 +160,7 @@ export const menuList = [
     path: "/admin/contact-us/list",
     icon: "feather-globe",
     permission: "contact_us",
+    permission_action: ["view", "delete"],
     dropdownMenu: false,
   },
   {
@@ -152,6 +169,7 @@ export const menuList = [
     path: "/admin/notification/list",
     icon: "feather-tag",
     permission: "notifications",
+    permission_action: ["view", "create", "edit", "delete"],
     dropdownMenu: false,
   },
   {
@@ -166,6 +184,7 @@ export const menuList = [
         name: "Inverter evn report",
         path: "/admin/reports/inverter-evn",
         permission: "inverter_evn_report",
+        permission_action: ["view"],
         subdropdownMenu: false,
       },
       {
@@ -173,6 +192,7 @@ export const menuList = [
         name: "Project evn report",
         path: "/admin/reports/project-env",
         permission: "project_evn_report",
+        permission_action: ["view"],
         subdropdownMenu: false,
       },
       {
@@ -180,6 +200,7 @@ export const menuList = [
         name: "Saving Report",
         path: "/admin/reports/saving-report",
         permission: "saving_report",
+        permission_action: ["view"],
         subdropdownMenu: false,
       },
       // {
@@ -208,32 +229,23 @@ export const menuList = [
         name: "general",
         path: "/admin/settings/general",
         permission: "general_settings",
+        permission_action: ["view"],
         subdropdownMenu: false,
       },
-      // {
-      //   id: 2,
-      //   name: "seo",
-      //   path: "/admin/settings/seo",
-      //   subdropdownMenu: false,
-      // },
       {
         id: 2,
         name: "Roles Management",
         path: "/admin/settings/role",
         permission: "roles_management",
+        permission_action: ["view", "create", "edit", "delete"],
         subdropdownMenu: false,
       },
-      // {
-      //     id: 4,
-      //     name: "Tags",
-      //     path: "/admin/settings/tags",
-      //     subdropdownMenu: false
-      // },
       {
         id: 3,
         name: "SMTP",
         path: "/admin/settings/smtp",
         permission: "smtp_settings",
+        permission_action: ["view"],
         subdropdownMenu: false,
       },
       {
@@ -241,62 +253,23 @@ export const menuList = [
         name: "Email Templates",
         path: "/admin/email_template/list",
         permission: "email_templates",
+        permission_action: ["view", "create", "edit", "delete"],
         subdropdownMenu: false,
       },
-      // {
-      //     id: 6,
-      //     name: "Tasks",
-      //     path: "/admin/settings/tasks",
-      //     subdropdownMenu: false
-      // },
-      // {
-      //     id: 7,
-      //     name: "Leads",
-      //     path: "/admin/settings/leads",
-      //     subdropdownMenu: false
-      // },
-      // {
-      //     id: 8,
-      //     name: "Support",
-      //     path: "/admin/settings/support",
-      //     subdropdownMenu: false
-      // },
       {
         id: 5,
         name: "Finance",
         path: "/admin/settings/finance",
         permission: "finance_settings",
+        permission_action: ["view"],
         subdropdownMenu: false,
       },
-      // {
-      //   id: 10,
-      //   name: "Gateways",
-      //   path: "/admin/settings/gateways",
-      //   subdropdownMenu: false,
-      // },
-      // {
-      //   id: 11,
-      //   name: "Customers",
-      //   path: "/admin/settings/customers",
-      //   subdropdownMenu: false,
-      // },
-      // {
-      //   id: 12,
-      //   name: "Localization",
-      //   path: "/admin/settings/localization",
-      //   subdropdownMenu: false,
-      // },
-      // {
-      //   id: 13,
-      //   name: "reCAPTCHA",
-      //   path: "/admin/settings/recaptcha",
-      //   subdropdownMenu: false,
-      // },
       {
         id: 6,
         name: "Miscellaneous",
         path: "/admin/settings/miscellaneous",
         permission: "miscellaneous",
+        permission_action: ["view"],
         subdropdownMenu: false,
       },
     ],

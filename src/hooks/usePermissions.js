@@ -34,7 +34,8 @@ import { ROLES } from '@/constants/roles';
 import { CAPABILITIES } from '@/constants/permissions';
 
 export const usePermissions = () => {
-  const { user } = useAuth();
+  const auth = useAuth();
+  const user = auth?.user || null;
 
   // Get permissions from user object
   const permissions = useMemo(() => {
@@ -144,6 +145,11 @@ export const usePermissions = () => {
    * @returns {Array} Filtered menu items
    */
   const filterMenuByPermissions = useCallback((menuItems) => {
+    // Return empty array if menuItems is not valid or user not loaded yet
+    if (!menuItems || !Array.isArray(menuItems)) {
+      return [];
+    }
+
     const filterRecursive = (items) => {
       return items
       .map(item => {

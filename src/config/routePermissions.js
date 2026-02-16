@@ -9,33 +9,27 @@ export const routePermissions = [
     exact: false,
   },
 
-  // Projects
+  // Projects - uses 'projects' module (not project_list)
   {
     path: '/admin/projects/list',
-    module: MODULES.PROJECT_LIST,
+    module: MODULES.PROJECTS,
     capability: CAPABILITIES.VIEW,
     exact: false,
   },
   {
     path: '/admin/projects/create',
-    module: MODULES.PROJECT_LIST,
+    module: MODULES.PROJECTS,
     capability: CAPABILITIES.CREATE,
     exact: true,
   },
   {
     path: '/admin/projects/edit',
-    module: MODULES.PROJECT_LIST,
+    module: MODULES.PROJECTS,
     capability: CAPABILITIES.EDIT,
     exact: false,
   },
   {
-    path: '/admin/projects/list',
-    module: MODULES.PROJECT_LIST,
-    capability: CAPABILITIES.VIEW,
-    exact: false,
-  },
-  {
-    path: '/admin/projects/list',
+    path: '/admin/projects/type',
     module: MODULES.PROJECT_TYPE,
     capability: CAPABILITIES.VIEW,
     exact: false,

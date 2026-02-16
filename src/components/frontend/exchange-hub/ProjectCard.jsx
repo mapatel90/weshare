@@ -22,7 +22,6 @@ const ProjectCard = ({ project, activeTab }) => {
   const { lang } = useLanguage();
   const router = useRouter();
   const { user, logout, loading: authLoading } = useAuth();
-  // Added missing states for invest modal & form
   const [showInvestModal, setShowInvestModal] = useState(false);
   const [investFullName, setInvestFullName] = useState("");
   const [investEmail, setInvestEmail] = useState("");
@@ -63,9 +62,9 @@ const ProjectCard = ({ project, activeTab }) => {
       };
     }
 
-    if (status === PROJECT_STATUS.PENDING) {
+    if (status === PROJECT_STATUS.IN_PROGRESS) {
       return {
-        text: lang("project_status.pending") || "Pending",
+        text: lang("PROJECT_STATUS.IN_PROGRESS") || "Pending",
         icon: "🔵",
         class: "badge-pending",
       };
@@ -291,7 +290,7 @@ const ProjectCard = ({ project, activeTab }) => {
                 <span className="progress-label">
                   {lang("home.exchangeHub.fundProgress") || "Fund Progress"}:{" "}
                   <strong className="text-secondary-color">
-                    {console.log("project.fund_progress", project?.fund_progress)}
+             
                     {project?.fund_progress || "45"}%
                   </strong>
                 </span>

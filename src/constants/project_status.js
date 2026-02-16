@@ -1,5 +1,5 @@
 export const PROJECT_STATUS = {
-    PENDING: 1,
+    IN_PROGRESS: 1,
     UPCOMING: 2,
     RUNNING: 3,
 };

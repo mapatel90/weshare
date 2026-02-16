@@ -262,9 +262,9 @@ const ProjectDetail = ({ projectId }) => {
         icon: "🟢",
         class: "badge-running",
       };
-    } if (status === PROJECT_STATUS.PENDING) {
+    } if (status === PROJECT_STATUS.IN_PROGRESS) {
       return {
-        text: lang("project_status.pending") || "Pending",
+        text: lang("PROJECT_STATUS.IN_PROGRESS") || "Pending",
         icon: "🔵",
         class: "badge-pending",
       };

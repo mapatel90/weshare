@@ -51,7 +51,7 @@ const ContractDetails = () => {
   const projectName = project?.project_name || "-";
   const projectStatusId = project?.project_status_id;
   const projectStatus = 
-    projectStatusId === PROJECT_STATUS.PENDING ? lang("common.pending", "Pending") :
+    projectStatusId === PROJECT_STATUS.IN_PROGRESS ? lang("common.in_progress", "In Progress") :
     projectStatusId === PROJECT_STATUS.UPCOMING ? lang("common.upcoming", "Upcoming") :
     projectStatusId === PROJECT_STATUS.RUNNING ? lang("common.running", "Running") : "-";
   const projectType = project?.project_types?.type_name || "-";

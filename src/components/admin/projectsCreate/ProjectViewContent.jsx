@@ -17,6 +17,7 @@ import ElectricityCostBarChart from "./projectViewSection/ElectricityCostBarChar
 import ElectricityCostOverviewChart from "./projectViewSection/ElectricityCostOverviewChart";
 import ElectricityConsumption from "./projectViewSection/ElectricityConsumption";
 import usePermissions from "@/hooks/usePermissions";
+import { PROJECT_STATUS } from "@/constants/project_status";
 
 
 // -------- NUMBER FORMATTER ----------
@@ -578,33 +579,46 @@ const ProjectViewContent = ({ projectId = "" }) => {
                     padding: "8px 16px",
                     borderRadius: "9999px",
                     backgroundColor:
-                      project.status === 1
+                      project.project_status_id === PROJECT_STATUS.UPCOMING
                         ? isDark
-                          ? "rgba(34, 197, 94, 0.2)"
-                          : "#dcfce7"
-                        : isDark
-                          ? "rgba(239, 68, 68, 0.2)"
-                          : "#fee2e2",
+                          ? "rgba(199, 17, 17, 0.92)"
+                          : "rgba(199, 17, 17, 0.92)"
+                        : project.project_status_id === PROJECT_STATUS.IN_PROGRESS
+                          ? isDark
+                            ? "rgba(255, 255, 255)"
+                            : "rgba(255, 255, 255)"
+                          : project.project_status_id === PROJECT_STATUS.RUNNING
+                            ? isDark
+                              ? "rgba(255, 255, 255)"
+                              : "rgba(255, 255, 255)"
+                            : "#fee2e2",
                     color:
-                      project.status === 1
+                      project.project_status_id === PROJECT_STATUS.UPCOMING
                         ? isDark
-                          ? "#22c55e"
-                          : "#166534"
-                        : isDark
-                          ? "#ef4444"
-                          : "#991b1b",
+                          ? "rgb(246, 240, 240)"
+                          : "rgb(246, 240, 240)"
+                        : project.project_status_id === PROJECT_STATUS.IN_PROGRESS
+                          ? isDark
+                            ? "#ffa21d"
+                            : "#ffa21d"
+                          : project.project_status_id === PROJECT_STATUS.RUNNING
+                            ? isDark
+                              ? "#10b981"
+                              : "#10b981"
+                            : "#991b1b",
                     fontWeight: "600",
                     margin: 0,
                     fontSize: "14px",
                     whiteSpace: "nowrap",
                   }}
                 >
-                  {project.status === 1
-                    ? lang("projectView.projectInformation.active")
-                    : lang("projectView.projectInformation.inactive")}
+                  {project.project_status_id === PROJECT_STATUS.UPCOMING
+                    ? lang("project_status.upcoming", "Upcoming")
+                    : project.project_status_id === PROJECT_STATUS.IN_PROGRESS
+                      ? lang("project_status.in_progress", "In Progress")
+                      : lang("project_status.running", "Running")}
                 </p>
               </div>
-
               {/* Inverter Dropdown */}
               <div style={{ width: isMobile ? "100%" : "auto" }}>
                 {projectInvertersLoading ? (

@@ -8,10 +8,12 @@ import Swal from "sweetalert2";
 import { FiEdit3, FiTrash2 } from "react-icons/fi";
 import { IconButton, Stack } from "@mui/material";
 import Link from "next/link";
+import usePermissions from "@/hooks/usePermissions";
 
 const EmailTemplateTable = () => {
   const { lang } = useLanguage();
-
+  const { canEdit, canDelete } = usePermissions();
+  const showActionColumn = canEdit("email_templates") || canDelete("email_templates");
   const [templateData, setTemplateData] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -115,49 +117,55 @@ const EmailTemplateTable = () => {
           return date ? date.toLocaleDateString() : "";
         },
       },
-      {
-        accessorKey: "actions",
-        header: () => lang("common.actions") || "Actions",
-        meta: { disableSort: true },
-        cell: ({ row }) => (
-          <Stack direction="row" spacing={1} sx={{ flexWrap: "nowrap" }}>
-            <Link href={`/admin/email_template/edit/${row.original.id}`}>
-              <IconButton
-                size="small"
-                onClick={() => handleEdit(row.original.id)}
-                sx={{
-                  color: "#1976d2",
-                  transition: "transform 0.2s ease",
-                  "&:hover": {
-                    backgroundColor: "rgba(25, 118, 210, 0.08)",
-                    transform: "scale(1.1)",
-                  },
-                }}
-                title={lang("common.edit") || "Edit"}
-              >
-                <FiEdit3 size={18} />
-              </IconButton>
-            </Link>
-            <IconButton
-              size="small"
-              onClick={() => handleDelete(row.original.id)}
-              sx={{
-                color: "#d32f2f",
-                transition: "transform 0.2s ease",
-                "&:hover": {
-                  backgroundColor: "rgba(211, 47, 47, 0.08)",
-                  transform: "scale(1.1)",
-                },
-              }}
-              title={lang("common.delete") || "Delete"}
-            >
-              <FiTrash2 size={18} />
-            </IconButton>
-          </Stack>
-        ),
-      },
+      ...(showActionColumn ? [
+        {
+          accessorKey: "actions",
+          header: () => lang("common.actions") || "Actions",
+          meta: { disableSort: true },
+          cell: ({ row }) => (
+            <Stack direction="row" spacing={1} sx={{ flexWrap: "nowrap" }}>
+              {canEdit("email_templates") && (
+                <Link href={`/admin/email_template/edit/${row.original.id}`}>
+                  <IconButton
+                    size="small"
+                    onClick={() => handleEdit(row.original.id)}
+                    sx={{
+                      color: "#1976d2",
+                      transition: "transform 0.2s ease",
+                      "&:hover": {
+                        backgroundColor: "rgba(25, 118, 210, 0.08)",
+                        transform: "scale(1.1)",
+                      },
+                    }}
+                    title={lang("common.edit") || "Edit"}
+                  >
+                    <FiEdit3 size={18} />
+                  </IconButton>
+                </Link>
+              )}
+              {canDelete("email_templates") && (
+                <IconButton
+                  size="small"
+                  onClick={() => handleDelete(row.original.id)}
+                  sx={{
+                    color: "#d32f2f",
+                    transition: "transform 0.2s ease",
+                    "&:hover": {
+                      backgroundColor: "rgba(211, 47, 47, 0.08)",
+                      transform: "scale(1.1)",
+                    },
+                  }}
+                  title={lang("common.delete") || "Delete"}
+                >
+                  <FiTrash2 size={18} />
+                </IconButton>
+              )}
+            </Stack>
+          ),
+        },
+      ] : []),
     ],
-    [lang],
+    [lang, showActionColumn],
   );
 
   return <Table data={templateData} columns={columns} loading={loading} />;

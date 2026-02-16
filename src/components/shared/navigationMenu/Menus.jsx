@@ -15,7 +15,6 @@ const Menus = () => {
     const [activeChild, setActiveChild] = useState("");
     const pathName = usePathname();
     const { lang } = useLanguage();
-    const { canView } = usePermissions();
     const { filterMenuByPermissions } = usePermissions();
     const handleMainMenu = (e, name) => {
         if (openDropdown === name) {
@@ -68,11 +67,10 @@ const Menus = () => {
         <>
             {filterMenuByPermissions(menuList).map(({ dropdownMenu, id, name, path, icon }) => {
                 const menuKey = name.toLowerCase().replace(/\s+/g, '');
-                const hasMenuAccess = canView(menuKey);
+                // hasMenuAccess check removed - filterMenuByPermissions already handles this
                 const isMenuActive = activeParent === menuKey || pathName === path || pathName.startsWith(`${path}/`);
 
                 return (
-                    hasMenuAccess && (
                     <li
                         key={id}
                         onClick={(e) => handleMainMenu(e, menuKey)}
@@ -148,7 +146,6 @@ const Menus = () => {
                             })}
                         </ul>
                     </li>
-                    )
                 );
             })}
         </>

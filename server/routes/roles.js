@@ -1,8 +1,7 @@
 import express from 'express';
 import prisma from '../utils/prisma.js';
 import { authenticateToken } from '../middleware/auth.js';
-import { PERMISSION_KEYS } from '../../src/utils/permissionUtils.js';
-import { extractModules } from '../../src/utils/permissionUtils.js';
+import { PERMISSION_KEYS, extractModulesWithActions } from '../../src/utils/permissionUtils.js';
 import { menuList } from '../../src/utils/Data/menuList.js';
 import { ROLES } from '../../src/constants/roles.js';
 
@@ -130,11 +129,11 @@ router.post('/', authenticateToken, async (req, res) => {
       }
     });
 
-    const modules = extractModules(menuList);
+    const modulesWithActions = extractModulesWithActions(menuList);
     const permissionRows = [];
 
-    for (const module of modules) {
-      for (const key of PERMISSION_KEYS) {
+    for (const { module, actions } of modulesWithActions) {
+      for (const key of actions) {
         permissionRows.push({
           role_id: lastRoleId,
           module,
@@ -219,9 +218,9 @@ router.put('/:id', authenticateToken, async (req, res) => {
     const isInvestor = parseInt(id) === ROLES.INVESTOR;
 
     if (!isOfftaker && !isInvestor) {
-      const modules = extractModules(menuList);
-      for (const module of modules) {
-        for (const key of PERMISSION_KEYS) {
+      const modulesWithActions = extractModulesWithActions(menuList);
+      for (const { module, actions } of modulesWithActions) {
+        for (const key of actions) {
           const value = isSuperAdmin
             ? 1
             : module === "settings"
@@ -286,6 +285,11 @@ router.delete('/:id', authenticateToken, async (req, res) => {
     await prisma.roles.update({
       where: { id: parseInt(id) },
       data: { is_deleted: 1 }
+    });
+
+    // Delete role permissions
+    await prisma.roles_permissions.deleteMany({
+      where: { role_id: parseInt(id) }
     });
 
     res.json({

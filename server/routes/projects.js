@@ -895,9 +895,9 @@ router.get("/", async (req, res) => {
       prisma.projects.findMany({
         where,
         include: {
-          offtaker: { select: { id: true, full_name: true, email: true, phone_number: true } },
+          offtaker: { select: { id: true, full_name: true, username: true, email: true, phone_number: true } },
           investor: {
-            select: { id: true, full_name: true, email: true, phone_number: true }
+            select: { id: true, full_name: true, username: true, email: true, phone_number: true }
           },
           cities: true,
           states: true,

@@ -67,7 +67,7 @@ const normalizeApiProject = (project) => {
 
   const status_id = project?.project_status_id ?? null;
   const STATUS_LABELS = {
-    [PROJECT_STATUS.PENDING]: "Pending",
+    [PROJECT_STATUS.IN_PROGRESS]: "Pending",
     [PROJECT_STATUS.UPCOMING]: "Upcoming",
     [PROJECT_STATUS.RUNNING]: "Running",
   };
@@ -232,7 +232,7 @@ const SolarProjectTable = () => {
 
   const getStatusColor = (statusId) => {
     switch (statusId) {
-      case PROJECT_STATUS.PENDING:
+      case PROJECT_STATUS.IN_PROGRESS:
         return "bg-gray-100 text-gray-700 border-gray-300";
       case PROJECT_STATUS.UPCOMING:
         return "bg-amber-100 text-amber-700 border-amber-300";
@@ -431,8 +431,8 @@ const SolarProjectTable = () => {
                     <span className="text-sm font-medium">
                       {statusFilter === "All"
                         ? lang("projects.status", "Status")
-                        : statusFilter === PROJECT_STATUS.PENDING
-                          ? lang("project_status.pending", "Pending")
+                        : statusFilter === PROJECT_STATUS.IN_PROGRESS
+                          ? lang("PROJECT_STATUS.IN_PROGRESS", "Pending")
                           : statusFilter === PROJECT_STATUS.UPCOMING
                             ? lang("project_status.upcoming", "Upcoming")
                             : statusFilter === PROJECT_STATUS.RUNNING
@@ -461,16 +461,16 @@ const SolarProjectTable = () => {
 
                       <button
                         onClick={() => {
-                          setStatusFilter(PROJECT_STATUS.PENDING);
+                          setStatusFilter(PROJECT_STATUS.IN_PROGRESS);
                           setStatusDropdownOpen(false);
                           setCurrentPage(1);
                         }}
-                        className={`w-full text-left px-3 py-2 text-sm ${statusFilter === PROJECT_STATUS.PENDING
+                        className={`w-full text-left px-3 py-2 text-sm ${statusFilter === PROJECT_STATUS.IN_PROGRESS
                           ? "bg-slate-100"
                           : "hover:bg-gray-50"
                           }`}
                       >
-                        {lang("project_status.pending", "Pending")}
+                        {lang("PROJECT_STATUS.IN_PROGRESS", "Pending")}
                       </button>
                       <button
                         onClick={() => {

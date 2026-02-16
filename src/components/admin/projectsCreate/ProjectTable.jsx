@@ -293,7 +293,12 @@ const ProjectTable = () => {
       cell: (info) => {
         const offtaker = info.getValue();
         if (!offtaker) return "-";
-        return `${offtaker.full_name || ""}`.trim();
+        return (
+          <div>
+            <div>{offtaker.full_name || ""}</div>
+            <small className="text-muted">({offtaker?.username || ""})</small>
+          </div>
+        );
       },
     },
     {
@@ -302,7 +307,12 @@ const ProjectTable = () => {
       cell: (info) => {
         const investor = info.getValue();
         if (!investor) return "-";
-        return `${investor.full_name || ""}`.trim();
+        return (
+          <div>
+            <div>{investor.full_name || ""}</div>
+            <small className="text-muted">({investor?.username || ""})</small>
+          </div>
+        );
       },
     },
     {
@@ -317,20 +327,18 @@ const ProjectTable = () => {
 
         if (isUrl) {
           return (
-            <a
-              href={location}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="gap-1 d-inline-flex align-items-center text-primary"
-              onClick={(e) => e.stopPropagation()}
-              style={{ textDecoration: "none" }}
-            >
-              <FiMapPin size={16} />
-              <span className="text-decoration-underline">
-                {lang("projects.viewLocation", "View Location")}
-              </span>
-              <FiExternalLink size={14} />
-            </a>
+            <div className="d-flex justify-content-center w-100">
+              <a
+                href={location}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary"
+                onClick={(e) => e.stopPropagation()}
+                style={{ textDecoration: "none" }}
+              >
+                <FiMapPin size={16} />
+              </a>
+            </div>
           );
         }
 

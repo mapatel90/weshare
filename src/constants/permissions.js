@@ -1,14 +1,12 @@
 /**
  * Permission Modules - Maps to modules in the database
  * These should match the module names in roles_permissions table
+ * NOTE: Only leaf-level (actual page) modules - parent modules removed
  */
 export const MODULES = {
-  // Main Menu Modules
+  // Single page modules (no dropdown)
   DASHBOARDS: 'dashboards',
-  PROJECTS: 'projects',
   USERS: 'users',
-  INVERTER: 'inverter',
-  FINANCE: 'finance',
   CONTRACTS: 'contracts',
   LEASE_REQUESTS: 'lease_requests',
   BLOG: 'blog',
@@ -16,29 +14,27 @@ export const MODULES = {
   TESTIMONIALS: 'testimonials',
   CONTACT_US: 'contact_us',
   NOTIFICATIONS: 'notifications',
-  REPORTS: 'reports',
-  SETTINGS: 'settings',
   
-  // Sub-modules for Projects
-  PROJECT_LIST: 'project_list',
+  // Projects sub-modules
+  PROJECTS: 'projects',  // For project list page
   PROJECT_TYPE: 'project_type',
   
-  // Sub-modules for Inverter
+  // Inverter sub-modules
   INVERTER_TYPE: 'inverter_type',
   INVERTER_COMPANY: 'inverter_company',
   INVERTER_LIST: 'inverter_list',
   
-  // Sub-modules for Finance
+  // Finance sub-modules
   INVOICES: 'invoices',
   PAYMENTS: 'payments',
   PAYOUTS: 'payouts',
   
-  // Sub-modules for Reports
+  // Reports sub-modules
   INVERTER_EVN_REPORT: 'inverter_evn_report',
   PROJECT_EVN_REPORT: 'project_evn_report',
   SAVING_REPORT: 'saving_report',
   
-  // Sub-modules for Settings
+  // Settings sub-modules
   GENERAL_SETTINGS: 'general_settings',
   ROLES_MANAGEMENT: 'roles_management',
   SMTP_SETTINGS: 'smtp_settings',
@@ -74,10 +70,7 @@ export const CAPABILITY_LABELS = {
  */
 export const MODULE_LABELS = {
   [MODULES.DASHBOARDS]: 'Dashboards',
-  [MODULES.PROJECTS]: 'Projects',
   [MODULES.USERS]: 'Users',
-  [MODULES.INVERTER]: 'Inverter',
-  [MODULES.FINANCE]: 'Finance',
   [MODULES.CONTRACTS]: 'Contracts',
   [MODULES.LEASE_REQUESTS]: 'Lease Requests',
   [MODULES.BLOG]: 'Blog',
@@ -85,9 +78,7 @@ export const MODULE_LABELS = {
   [MODULES.TESTIMONIALS]: 'Testimonials',
   [MODULES.CONTACT_US]: 'Contact Us',
   [MODULES.NOTIFICATIONS]: 'Notifications',
-  [MODULES.REPORTS]: 'Reports',
-  [MODULES.SETTINGS]: 'Settings',
-  [MODULES.PROJECT_LIST]: 'Project List',
+  [MODULES.PROJECTS]: 'Projects',
   [MODULES.PROJECT_TYPE]: 'Project Type',
   [MODULES.INVERTER_TYPE]: 'Inverter Type',
   [MODULES.INVERTER_COMPANY]: 'Inverter Company',

@@ -5,9 +5,11 @@ import topTost from '@/utils/topTost'
 import { SettingSidebarContext } from '@/contentApi/settingSideBarProvider'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { Button } from "@mui/material"
+import usePermissions from '@/hooks/usePermissions'
 
 const RoleHeaderSetting = ({ onAddRole, isSubmitting = false }) => {
     const { lang } = useLanguage()
+    const { canCreate } = usePermissions();
     const x = useContext(SettingSidebarContext)
 
     return (
@@ -19,15 +21,7 @@ const RoleHeaderSetting = ({ onAddRole, isSubmitting = false }) => {
             </div>
             <div className="page-header-right ms-auto">
                 <div className="d-flex align-items-center gap-3 page-header-right-items-wrapper">
-                    {/* <button 
-                        type="button"
-                        className="btn btn-primary"
-                        onClick={onAddRole}
-                        disabled={isSubmitting}
-                    >
-                        <FiPlus size={16} className='me-2' />
-                        {lang('roles.addRole')}
-                    </button> */}
+                    {canCreate("roles_management") && (
                     <Button 
                         variant="primary"
                         className="common-orange-color"
@@ -37,6 +31,7 @@ const RoleHeaderSetting = ({ onAddRole, isSubmitting = false }) => {
                         <FiPlus size={16} className='me-2' />
                         {lang('roles.addRole')}
                     </Button>
+                    )}
                 </div>
             </div>
         </div>
