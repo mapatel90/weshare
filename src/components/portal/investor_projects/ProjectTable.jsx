@@ -504,9 +504,14 @@ const ProjectTable = () => {
                     {/* Image and status badge */}
                     <div className="relative w-full h-36 sm:h-44 md:h-40 lg:h-36 xl:h-40 overflow-hidden">
                       <img
-                        src={project.project_image || getFullImageUrl("/uploads/general/noimage.jpeg")}
+                        src={project.project_image || "/uploads/general/noimage.jpeg"}
                         alt={project.projectName}
                         className="object-cover w-full h-full"
+                        onError={(e) => {
+                          // Handle AccessDenied (403), 404, or any image load error
+                          e.target.onerror = null;
+                          e.target.src = "/uploads/general/noimage.jpeg";
+                        }}
                       />
                       <span className={`absolute top-2 right-2 px-3 py-1 text-xs font-semibold rounded-full shadow ${getStatusColor(project.status)}`}>{project.status}</span>
                     </div>

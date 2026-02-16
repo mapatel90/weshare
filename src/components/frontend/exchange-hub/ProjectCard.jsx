@@ -90,10 +90,10 @@ const ProjectCard = ({ project, activeTab }) => {
 
   const getDefaultImageUrl = () => {
     const cover = getPrimaryProjectImage(project);
-    if (!cover) return getFullImageUrl("/uploads/general/noimage_2.png");
+    if (!cover) return "/uploads/general/noimage.jpeg";
     return (
       buildUploadUrl(cover) ||
-      getFullImageUrl("/uploads/general/noimage_2.png")
+      "/uploads/general/noimage.jpeg"
     );
   };
 
@@ -170,12 +170,16 @@ const ProjectCard = ({ project, activeTab }) => {
         <div className="solar-card-with-image">
           {/* Solar Panel Image */}
           <div className="card-image-container">
-            <Image
+            <img
               src={getDefaultImageUrl()}
               alt={project?.project_name || "Solar Project"}
               width={500}
               height={250}
               className="card-image"
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = "/uploads/general/noimage.jpeg";
+              }}
             />
             {/* Reliability Badge */}
             <div
