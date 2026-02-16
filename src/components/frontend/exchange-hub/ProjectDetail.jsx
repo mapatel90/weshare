@@ -484,7 +484,7 @@ const ProjectDetail = ({ projectId }) => {
                   alt={project.project_name}
                   className="main-img"
                   onError={(e) => {
-                    e.target.src = "/images/banner/banner-img.png";
+                    e.target.src = "/uploads/general/noimage.jpeg";
                   }}
                 />
                 <span
