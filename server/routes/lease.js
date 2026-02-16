@@ -31,12 +31,23 @@ router.post('/', async (req, res) => {
       full_name: String(fullName).trim(),
       email: String(email).trim(),
       phone_number: phoneNumber ? String(phoneNumber).trim() : null,
-      country_id: countryId ? Number(countryId) : null,
-      state_id: stateId ? Number(stateId) : null,
-      city_id: cityId ? Number(cityId) : null,
+      ...(countryId && {
+        countries: {
+          connect: { id: Number(countryId) }
+        }
+      }),
+      ...(stateId && {
+        states: {
+          connect: { id: Number(stateId) }
+        }
+      }),
+      ...(cityId && {
+        cities: {
+          connect: { id: Number(cityId) }
+        }
+      }),
       address: address ? String(address).trim() : null,
       subject: subject ? String(subject).trim() : null,
-      created_by: created_by ? Number(created_by) : null,
       message: String(message).trim()
     }
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Sun, Users, Activity, DollarSign, TrendingUp, MapPin, CloudSun, SunriseIcon, Thermometer, Droplets, Compass, Wind, Cloud, Leaf, Trees, } from 'lucide-react';
 import { getPrimaryProjectImage } from '@/utils/projectUtils';
-import { getFullImageUrl } from '@/utils/common';
+import { buildUploadUrl, getFullImageUrl } from '@/utils/common';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 const InfoCard = ({ icon: Icon, label, value, color, isDark = false }) => {
@@ -119,7 +119,7 @@ const ProjectInformation = ({ project = {}, isDark = false }) => {
               }}
             >
               <img
-                src={getDefaultImageUrl(project)}
+                src={buildUploadUrl(project?.project_images?.[0]?.path)}
                 alt="Project"
                 style={{
                   width: '100%',

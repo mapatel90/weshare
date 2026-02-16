@@ -115,7 +115,7 @@ export const menuList = [
     path: "/admin/contract/list",
     icon: "feather-shield",
     permission: "contracts",
-    permission_action: ["view", "create", "edit", "delete"],
+    permission_action: ["view","edit", "delete"],
     dropdownMenu: false,
   },
   {
@@ -124,7 +124,7 @@ export const menuList = [
     path: "/admin/lease-request/list",
     icon: "feather-repeat",
     permission: "lease_requests",
-    permission_action: ["view", "create", "edit", "delete"],
+    permission_action: ["view", "edit", "delete"],
     dropdownMenu: false,
   },
   {
