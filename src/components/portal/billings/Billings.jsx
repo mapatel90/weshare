@@ -5,11 +5,12 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { apiGet, apiPost } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
-import { downloadInvoicePDF } from "@/components/admin/invoice/InvoicePdf";
+import Swal from "sweetalert2";
 import { usePriceWithCurrency } from "@/hooks/usePriceWithCurrency";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { PROJECT_STATUS } from "@/constants/project_status";
 import { ROLES } from "@/constants/roles";
+import { buildUploadUrl } from "@/utils/common";
 import { Autocomplete, TextField } from "@mui/material";
 
 const statusColors = {
@@ -123,6 +124,9 @@ const Billings = () => {
               id: inv?.id ?? idx,
               projectId: inv?.projects?.id ?? null,
               projectName: inv?.projects?.project_name || "—",
+              invoicePrefix: inv?.invoice_prefix || "",
+              invoiceNumber: inv?.invoice_number || "",
+              invoicePdf: inv?.invoice_pdf || "",
               invoiceName: inv?.invoice_number
                 ? `${inv?.invoice_prefix || ""}-${inv.invoice_number}`.trim()
                 : "—",
@@ -258,8 +262,41 @@ const Billings = () => {
 
   const filteredInvoices = invoices;
 
-  const handleDownload = async (invoiceId) => {
-    await downloadInvoicePDF(invoiceId, priceWithCurrency);
+  const handleDownload = async (invoice) => {
+    const fileUrl = buildUploadUrl(invoice?.invoicePdf);
+    if (!fileUrl) {
+      Swal.fire({
+        title: "Invoice PDF not available",
+        icon: "info",
+      });
+      return;
+    }
+
+    try {
+      const response = await fetch(fileUrl);
+      if (!response.ok) {
+        throw new Error("Download failed");
+      }
+
+      const blob = await response.blob();
+      const objectUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      const baseName = `${invoice?.invoicePrefix || "INV"}-${
+        invoice?.invoiceNumber || "invoice"
+      }`;
+      link.href = objectUrl;
+      link.download = `${baseName}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(objectUrl);
+    } catch (error) {
+      console.error("Failed to download invoice PDF:", error);
+      Swal.fire({
+        title: "Unable to download invoice PDF",
+        icon: "error",
+      });
+    }
   };
 
   const handleView = (invoiceId) => {
@@ -425,15 +462,17 @@ const Billings = () => {
                               onClick={() => setDropdownOpen(null)}
                             />
                             <div className="absolute right-0 z-20 w-32 mt-2 bg-white border rounded shadow-lg dropdown-action-menu">
-                              <button
-                                className="block w-full px-4 py-2 text-left text-blue-600 hover:bg-gray-100"
-                                onClick={() => {
-                                  handleDownload(inv.id);
-                                  setDropdownOpen(null);
-                                }}
-                              >
-                                {lang("common.download", "Download")}
-                              </button>
+                              {inv.invoicePdf && (
+                                <button
+                                  className="block w-full px-4 py-2 text-left text-blue-600 hover:bg-gray-100"
+                                  onClick={() => {
+                                    handleDownload(inv);
+                                    setDropdownOpen(null);
+                                  }}
+                                >
+                                  {lang("common.download", "Download")}
+                                </button>
+                              )}
                               <button
                                 className="block w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100"
                                 onClick={() => {

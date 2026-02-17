@@ -16,7 +16,7 @@ const router = express.Router();
  */
 router.get('/', authenticateToken, async (req, res) => {
   try {
-    const { page = 1, limit = 20, unreadOnly, moduleType } = req.query;
+    const { page = 1, limit = 20, unreadOnly, moduleType, search } = req.query;
     const userId = req.user.id; // From authenticateToken middleware
     console.log("userId", userId);
 
@@ -26,6 +26,7 @@ router.get('/', authenticateToken, async (req, res) => {
       limit: parseInt(limit),
       unreadOnly: unreadOnly === 'true',
       moduleType,
+      search,
     });
 
     if (result.success) {

@@ -14,6 +14,7 @@ const Notification = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
+    const [searchTerm, setSearchTerm] = useState('');
     const { lang } = useLanguage();
 
     const typeIcons = {
@@ -57,7 +58,16 @@ const Notification = () => {
         setLoading(true);
         setError('');
         try {
-            const response = await apiGet(`/api/notifications?page=${page}&limit=${PAGE_SIZE}`, {
+            const params = new URLSearchParams({
+                page: String(page),
+                limit: String(PAGE_SIZE),
+            });
+
+            if (searchTerm && searchTerm.trim()) {
+                params.append('search', searchTerm.trim());
+            }
+
+            const response = await apiGet(`/api/notifications?${params.toString()}`, {
                 includeAuth: true,
                 showLoader: false,
             });
@@ -102,20 +112,39 @@ const Notification = () => {
         fetchNotifications();
     }, []);
 
+    useEffect(() => {
+        setCurrentPage(1);
+        fetchNotifications(1);
+    }, [searchTerm]);
+
+    const handleSearchChange = (value) => {
+        setSearchTerm(value);
+    };
+
     return (
         <div className="p-6 bg-white rounded-xl shadow-md">
-            <div className="notification-count" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div className="notification-count" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                 <div>
                     <strong>{totalCount}</strong> {lang("notification.title")}{totalCount === 1 ? '' : 's'}
                     {unreadCount > 0 && <span style={{ marginLeft: 8, color: '#d97706' }}>({unreadCount} unread)</span>}
                 </div>
-                <button
-                    type="button"
-                    onClick={() => fetchNotifications(currentPage)}
-                    className="text-sm text-blue-600 hover:text-blue-800"
-                >
-                    {lang("common.refresh")}
-                </button>
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <input
+                        type="text"
+                        placeholder={lang("common.search", "Search notifications...")}
+                        value={searchTerm}
+                        onChange={(e) => handleSearchChange(e.target.value)}
+                        className="px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-200"
+                        style={{ minWidth: '250px' }}
+                    />
+                    <button
+                        type="button"
+                        onClick={() => fetchNotifications(currentPage)}
+                        className="text-sm text-blue-600 hover:text-blue-800"
+                    >
+                        {lang("common.refresh")}
+                    </button>
+                </div>
             </div>
             {error && (
                 <div className="mt-2 text-sm text-red-600">

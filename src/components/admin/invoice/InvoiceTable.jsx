@@ -405,20 +405,22 @@ const InvoiceTable = () => {
               <FiEye size={18} />
             </IconButton>
           </Link>
-          <IconButton
-            size="small"
-            onClick={() => handleDownload(row.original)}
-            sx={{
-              color: "#2e7d32",
-              transition: "transform 0.2s ease",
-              "&:hover": {
-                backgroundColor: "rgba(46, 125, 50, 0.08)",
-                transform: "scale(1.1)",
-              },
-            }}
-          >
-            <FiDownload size={18} />
-          </IconButton>
+          {row.original.invoice_pdf && (
+            <IconButton
+              size="small"
+              onClick={() => handleDownload(row.original)}
+              sx={{
+                color: "#2e7d32",
+                transition: "transform 0.2s ease",
+                "&:hover": {
+                  backgroundColor: "rgba(46, 125, 50, 0.08)",
+                  transform: "scale(1.1)",
+                },
+              }}
+            >
+              <FiDownload size={18} />
+            </IconButton>
+          )}
         </Stack>
       ),
       meta: {

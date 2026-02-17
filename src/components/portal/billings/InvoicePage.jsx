@@ -8,7 +8,8 @@ import PaymentModal from "@/components/portal/billings/PaymentModal";
 import { showSuccessToast } from "@/utils/topTost";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Project from "@/components/widgetsList/Project";
-import { buildUploadUrl } from '../../../../server/services/s3Service.js';
+import Swal from "sweetalert2";
+import { buildUploadUrl } from "@/utils/common";
 
 const InvoicePage = ({ invoiceId }) => {
   const { user } = useAuth();
@@ -160,6 +161,7 @@ const InvoicePage = ({ invoiceId }) => {
               status: apiInv?.status,
               project: apiInv?.projects?.project_name || "—",
               qr_code_url: apiInv?.qr_code_url || "",
+              pdf: apiInv?.invoice_pdf || "",
             },
             client: {
               name: apiInv?.users?.full_name || "—",
@@ -288,24 +290,41 @@ const InvoicePage = ({ invoiceId }) => {
     }
   };
 
-  const handleDownloadPDF = () => {
-    if (!invoiceData) return;
+  const handleDownloadPDF = async () => {
+    const fileUrl = buildUploadUrl(invoice?.pdf);
+    if (!fileUrl) {
+      Swal.fire({
+        title: "Invoice PDF not available",
+        icon: "info",
+      });
+      return;
+    }
 
-    const element = document.getElementById("invoice-content");
-    if (!element) return;
+    try {
+      const response = await fetch(fileUrl);
+      if (!response.ok) {
+        throw new Error("Download failed");
+      }
 
-    const opt = {
-      margin: 10,
-      filename: `${invoice?.prefix || ""}-${invoice?.number || "invoice"}.pdf`,
-      image: { type: "jpeg", quality: 0.98 },
-      html2canvas: { scale: 2 },
-      jsPDF: { orientation: "portrait", unit: "mm", format: "a4" },
-    };
-
-    // Dynamically import html2pdf
-    import("html2pdf.js").then((html2pdf) => {
-      html2pdf.default().set(opt).from(element).save();
-    });
+      const blob = await response.blob();
+      const objectUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      const baseName = `${invoice?.prefix || "INV"}-${
+        invoice?.number || invoiceId || "invoice"
+      }`;
+      link.href = objectUrl;
+      link.download = `${baseName}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(objectUrl);
+    } catch (error) {
+      console.error("Failed to download invoice PDF:", error);
+      Swal.fire({
+        title: "Unable to download invoice PDF",
+        icon: "error",
+      });
+    }
   };
 
   return (
@@ -358,9 +377,9 @@ const InvoicePage = ({ invoiceId }) => {
             <tbody>
               {(items || []).map((item, idx) => (
                 <tr key={item.id} className={idx % 2 ? "bg-white" : "bg-gray-50"}>
-                  <td className="px-4 py-2 whitespace-nowrap">
+                  <td className="px-4 py-2">
                     <div className="font-semibold">{item.title}</div>
-                    <div className="text-xs text-gray-500">{item.desc}</div>
+                    <div className="text-xs text-gray-500 whitespace-pre-line">{item.desc}</div>
                   </td>
                   <td className="px-4 py-2 whitespace-nowrap">{item.unit}</td>
                   <td className="px-4 py-2 whitespace-nowrap">{item.price}</td>
@@ -410,13 +429,15 @@ const InvoicePage = ({ invoiceId }) => {
         </div>
         </div>
         <div className="flex justify-end gap-2 mt-4">
-          <button
-            className="px-6 py-2 font-bold text-white bg-gray-600 rounded shadow hover:bg-gray-700"
-            type="button"
-            onClick={handleDownloadPDF}
-          >
-            {lang("common.downloadPdf")}
-          </button>
+          {invoice?.pdf && (
+            <button
+              className="px-6 py-2 font-bold text-white bg-gray-600 rounded shadow hover:bg-gray-700"
+              type="button"
+              onClick={handleDownloadPDF}
+            >
+              {lang("common.downloadPdf")}
+            </button>
+          )}
           {!hasPayment && invoice?.status !== 1 && (
             <button
               className="px-6 py-2 font-bold text-white rounded shadow theme-btn-org-color"
