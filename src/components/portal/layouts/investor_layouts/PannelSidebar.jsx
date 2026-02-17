@@ -34,7 +34,7 @@ function PannelSidebar() {
             <div className="menu-section">
                 <Link
                     href="/investor/dashboard"
-                    className={`menu-header menu-item${activeMenu === 'dashboard' ? ' active' : ''}`}
+                    className={`menu-item${activeMenu === 'dashboard' ? ' active' : ''}`}
                     onClick={handleClose}
                     style={{ cursor: 'pointer' }}
                 >
@@ -43,7 +43,7 @@ function PannelSidebar() {
                 <div className="menu-section">
                     <Link
                         href="/investor/projects"
-                        className={`menu-header menu-item${activeMenu === 'projects' ? ' active' : ''}`}
+                        className={`menu-item${activeMenu === 'projects' ? ' active' : ''}`}
                         onClick={handleClose}
                     >{lang("offtaker_login.sidebar.myprojects")}</Link>
                 </div>
