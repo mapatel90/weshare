@@ -7,6 +7,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import { showSuccessToast } from "@/utils/topTost";
 import { useLanguage } from "@/contexts/LanguageContext";
+import Swal from "sweetalert2";
+import { buildUploadUrl } from "@/utils/common";
 
 const InvoiceViewContant = ({ invoiceId }) => {
   const [invoiceData, setInvoiceData] = useState("");
@@ -154,6 +156,7 @@ const InvoiceViewContant = ({ invoiceId }) => {
               created: formatDate(apiInv?.invoice_date),
               due: formatDate(apiInv?.due_date),
               qr_code_url: apiInv?.qr_code_url || "",
+              pdf: apiInv?.invoice_pdf || "",
             },
             client: {
               name: apiInv?.users?.full_name || "—",
@@ -275,25 +278,41 @@ const InvoiceViewContant = ({ invoiceId }) => {
     }
   };
 
-  const handleDownloadPDF = () => {
-    if (!invoiceData) return;
+  const handleDownloadPDF = async () => {
+    const fileUrl = buildUploadUrl(invoice?.pdf);
+    if (!fileUrl) {
+      Swal.fire({
+        title: "Invoice PDF not available",
+        icon: "info",
+      });
+      return;
+    }
 
-    const element = document.getElementById("invoice-content-body");
-    if (!element) return;
+    try {
+      const response = await fetch(fileUrl);
+      if (!response.ok) {
+        throw new Error("Download failed");
+      }
 
-    const filename = `${invoice?.prefix || "INV"}-${invoice?.number || invoiceId || "invoice"}.pdf`;
-
-    const opt = {
-      margin: 10,
-      filename,
-      image: { type: "jpeg", quality: 0.98 },
-      html2canvas: { scale: 2 },
-      jsPDF: { orientation: "portrait", unit: "mm", format: "a4" },
-    };
-
-    import("html2pdf.js").then((html2pdf) => {
-      html2pdf.default().set(opt).from(element).save();
-    });
+      const blob = await response.blob();
+      const objectUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      const baseName = `${invoice?.prefix || "INV"}-${
+        invoice?.number || invoiceId || "invoice"
+      }`;
+      link.href = objectUrl;
+      link.download = `${baseName}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(objectUrl);
+    } catch (error) {
+      console.error("Failed to download invoice PDF:", error);
+      Swal.fire({
+        title: "Unable to download invoice PDF",
+        icon: "error",
+      });
+    }
   };
 
   return (
@@ -404,13 +423,15 @@ const InvoiceViewContant = ({ invoiceId }) => {
         </div>
         </div>
         <div className="d-flex justify-content-end gap-2 mt-3">
-          <button
-            className="btn btn-secondary fw-bold px-4 py-2 rounded shadow"
-            type="button"
-            onClick={handleDownloadPDF}
-          >
-            {lang("common.downloadPdf")}
-          </button>
+          {invoice?.pdf && (
+            <button
+              className="btn btn-secondary fw-bold px-4 py-2 rounded shadow"
+              type="button"
+              onClick={handleDownloadPDF}
+            >
+              {lang("common.downloadPdf")}
+            </button>
+          )}
           {!hasPayment && invoiceData?.status !== 1 && (
           <button
             className="btn text-white fw-bold px-4 py-2 rounded shadow common-orange-color"

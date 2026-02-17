@@ -111,6 +111,7 @@ export const createBulkNotifications = async ({
  * @param {number} [options.limit=20] - Items per page
  * @param {boolean} [options.unreadOnly=false] - Only fetch unread notifications
  * @param {string} [options.moduleType] - Filter by module type
+ * @param {string} [options.search] - Search term for title and message
  * @returns {Promise<Object>} Result object with notifications and pagination info
  */
 export const getNotificationsByUser = async ({
@@ -119,6 +120,7 @@ export const getNotificationsByUser = async ({
   limit = 20,
   unreadOnly = false,
   moduleType = null,
+  search = null,
 }) => {
   try {
     if (!userId) {
@@ -133,6 +135,14 @@ export const getNotificationsByUser = async ({
       ...(unreadOnly && { is_read: 0 }),
       ...(moduleType && { module_type: moduleType }),
     };
+
+    // Add search condition if search term provided
+    if (search && search.trim()) {
+      where.OR = [
+        { title: { contains: search.trim(), mode: 'insensitive' } },
+        { message: { contains: search.trim(), mode: 'insensitive' } },
+      ];
+    }
 
     // Fetch notifications and count
     const [notifications, total] = await Promise.all([

@@ -106,26 +106,9 @@ export const downloadPaymentPDF = async (paymentId, priceWithCurrency) => {
 
           <div>
             <p style="margin: 0; font-size: 13px; color: #6b7280;">Status</p>
-            <span style="
-              display: inline-flex;
-              align-items: center;
-              gap: 8px;
-              margin-top: 14px;
-              padding: 0px 10px 4px 0px;
-              font-size: 13px;
-              font-weight: 600;
-              color: ${s.text};
-              background: ${s.bg};
-              border: 1px solid ${s.border};
-              border-radius: 999px;
-            ">
-              <span style="
-                border-radius: 50%;
-                background: ${s.border};
-                display: inline-block;
-              "></span>
+            <p style="margin: 4px 0 0; font-size: 16px; font-weight: 600; color: ${s.text};">
               ${invoiceStatus}
-            </span>
+            </p>
           </div>
         </div>
 
