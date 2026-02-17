@@ -4,4 +4,5 @@ export const ROLES = {
     OFFTAKER: 3,
     INVESTOR: 4,
     FINANCE_STAFF: 5,
+    TESTING: 10,
 };

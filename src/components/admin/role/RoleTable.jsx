@@ -30,6 +30,7 @@ import { Close as CloseIcon } from "@mui/icons-material";
 import { BsShieldFillExclamation } from "react-icons/bs";
 import { ROLES } from "@/constants/roles";
 import { useAuth } from "@/contexts/AuthContext";
+import usePermissions from "@/hooks/usePermissions";
 
 const RoleTable = () => {
   const { lang } = useLanguage();
@@ -43,6 +44,8 @@ const RoleTable = () => {
   const [status, setStatus] = useState("");
   const [editingRole, setEditingRole] = useState(null);
   const [error, setError] = useState("");
+  const { canEdit, canDelete } = usePermissions();
+  const showActionColumn = canEdit("roles_management") || canDelete("roles_management");
 
   /** ✅ Fetch all roles */
   const fetchRoles = async () => {
@@ -212,63 +215,69 @@ const RoleTable = () => {
         );
       },
     },
-    {
-      accessorKey: "actions",
-      header: () => lang("table.actions"),
-      cell: (info) => {
-        const row = info.row.original;
-        return (
-          <Stack direction="row" spacing={1} sx={{ flexWrap: "nowrap" }}>
-            <IconButton
-              size="small"
-              onClick={() => handleEdit(row)}
-              sx={{
-                color: "#1976d2",
-                transition: "transform 0.2s ease",
-                "&:hover": {
-                  backgroundColor: "rgba(25, 118, 210, 0.08)",
-                  transform: "scale(1.1)",
-                },
-              }}
-            >
-              <FiEdit3 size={18} />
-            </IconButton>
-            <IconButton
-              size="small"
-              onClick={() => handleDelete(row.id)}
-              sx={{
-                color: "#d32f2f",
-                transition: "transform 0.2s ease",
-                "&:hover": {
-                  backgroundColor: "rgba(211, 47, 47, 0.08)",
-                  transform: "scale(1.1)",
-                },
-              }}
-            >
-              <FiTrash2 size={18} />
-            </IconButton>
-            {user?.role === ROLES.SUPER_ADMIN &&
-              ![ROLES.OFFTAKER, ROLES.INVESTOR, ROLES.SUPER_ADMIN].includes(row.id) && (
+    ...(showActionColumn ? [
+      {
+        accessorKey: "actions",
+        header: () => lang("table.actions"),
+        cell: (info) => {
+          const row = info.row.original;
+          return (
+            <Stack direction="row" spacing={1} sx={{ flexWrap: "nowrap" }}>
+              {canEdit("roles_management") && (
                 <IconButton
                   size="small"
-                  onClick={() => handlePermission(row.id)}
+                  onClick={() => handleEdit(row)}
                   sx={{
-                    color: "#2e7d32",
+                    color: "#1976d2",
+                    transition: "transform 0.2s ease",
                     "&:hover": {
-                      backgroundColor: "rgba(46, 125, 50, 0.08)",
+                      backgroundColor: "rgba(25, 118, 210, 0.08)",
                       transform: "scale(1.1)",
                     },
                   }}
-                  title="Manage Permissions"
                 >
-                  <BsShieldFillExclamation size={18} />
+                  <FiEdit3 size={18} />
                 </IconButton>
               )}
-          </Stack>
-        );
+              {canDelete("roles_management") && (
+                <IconButton
+                  size="small"
+                  onClick={() => handleDelete(row.id)}
+                  sx={{
+                    color: "#d32f2f",
+                    transition: "transform 0.2s ease",
+                    "&:hover": {
+                      backgroundColor: "rgba(211, 47, 47, 0.08)",
+                      transform: "scale(1.1)",
+                    },
+                  }}
+                >
+                  <FiTrash2 size={18} />
+                </IconButton>
+              )}
+              {user?.role === ROLES.SUPER_ADMIN &&
+                ![ROLES.OFFTAKER, ROLES.INVESTOR, ROLES.SUPER_ADMIN].includes(row.id) && (
+                  <IconButton
+                    size="small"
+                    onClick={() => handlePermission(row.id)}
+                    sx={{
+                      color: "#2e7d32",
+                      "&:hover": {
+                        backgroundColor: "rgba(46, 125, 50, 0.08)",
+                        transform: "scale(1.1)",
+                      },
+                    }}
+                    title="Manage Permissions"
+                  >
+                    <BsShieldFillExclamation size={18} />
+                  </IconButton>
+                )}
+            </Stack>
+          );
+        },
+        meta: { disableSort: true },
       },
-      meta: { disableSort: true },
-    },
+    ] : []),
   ];
 
   return (

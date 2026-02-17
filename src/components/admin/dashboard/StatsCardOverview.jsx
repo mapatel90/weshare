@@ -7,17 +7,19 @@ import { apiGet } from '@/lib/api';
 // React Icons
 import { FiUsers, FiCpu } from "react-icons/fi";
 import { MdSolarPower, MdDocumentScanner, MdVerifiedUser, MdTrendingUp } from "react-icons/md";
+import usePermissions from '@/hooks/usePermissions';
 
 
 const StatsCardOverview = () => {
     const { lang } = useLanguage();
+    const { canView } = usePermissions();
     const statsConfig = [
-        { key: 'projects', title: lang('navigation.projects', 'Projects'), icon: <MdSolarPower size={26} /> },
-        { key: 'users', title: lang('navigation.users', 'Users'), icon: <FiUsers size={26} /> },
-        { key: 'project_inverters', title: lang('inverter.project_inverter', 'Project Inverters'), icon: <FiCpu size={26} /> },
-        { key: 'contracts', title: lang('offtaker_login.sidebar.contracts', 'Contracts'), icon: <MdDocumentScanner size={26} /> },
-        { key: 'lease_request', title: lang('leaseRequest.title', 'Lease Requests'), icon: <MdVerifiedUser size={26} /> },
-        { key: 'interested_investors', title: lang('home.exchangeHub.investor'), icon: <MdTrendingUp size={26} /> },
+        ...(canView("projects") ? [{ key: 'projects', title: lang('navigation.projects', 'Projects'), icon: <MdSolarPower size={26} /> }] : []),
+        ...(canView("users") ? [{ key: 'users', title: lang('navigation.users', 'Users'), icon: <FiUsers size={26} /> }] : []),
+        ...(canView("project_inverters") ? [{ key: 'project_inverters', title: lang('inverter.project_inverter', 'Project Inverters'), icon: <FiCpu size={26} /> }] : []),
+        ...(canView("contracts") ? [{ key: 'contracts', title: lang('offtaker_login.sidebar.contracts', 'Contracts'), icon: <MdDocumentScanner size={26} /> }] : []),
+        ...(canView("lease_requests") ? [{ key: 'lease_request', title: lang('leaseRequest.title', 'Lease Requests'), icon: <MdVerifiedUser size={26} /> }] : []),
+        ...(canView("interested_investors") ? [{ key: 'interested_investors', title: lang('home.exchangeHub.investor'), icon: <MdTrendingUp size={26} /> }] : []),
     ];
     const [stats, setStats] = useState({
         projects: 0,

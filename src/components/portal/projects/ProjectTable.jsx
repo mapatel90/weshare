@@ -63,11 +63,11 @@ const normalizeApiProject = (project) => {
   };
 
   const coverImage = getPrimaryProjectImage(project);
-  const normalizedCover = coverImage ? buildUploadUrl(coverImage) : buildUploadUrl("/uploads/general/noimage.jpeg");
+  const normalizedCover = coverImage;
 
   const status_id = project?.project_status_id ?? null;
   const STATUS_LABELS = {
-    [PROJECT_STATUS.PENDING]: "Pending",
+    [PROJECT_STATUS.IN_PROGRESS]: "Pending",
     [PROJECT_STATUS.UPCOMING]: "Upcoming",
     [PROJECT_STATUS.RUNNING]: "Running",
   };
@@ -232,7 +232,7 @@ const SolarProjectTable = () => {
 
   const getStatusColor = (statusId) => {
     switch (statusId) {
-      case PROJECT_STATUS.PENDING:
+      case PROJECT_STATUS.IN_PROGRESS:
         return "bg-gray-100 text-gray-700 border-gray-300";
       case PROJECT_STATUS.UPCOMING:
         return "bg-amber-100 text-amber-700 border-amber-300";
@@ -431,8 +431,8 @@ const SolarProjectTable = () => {
                     <span className="text-sm font-medium">
                       {statusFilter === "All"
                         ? lang("projects.status", "Status")
-                        : statusFilter === PROJECT_STATUS.PENDING
-                          ? lang("project_status.pending", "Pending")
+                        : statusFilter === PROJECT_STATUS.IN_PROGRESS
+                          ? lang("PROJECT_STATUS.IN_PROGRESS", "Pending")
                           : statusFilter === PROJECT_STATUS.UPCOMING
                             ? lang("project_status.upcoming", "Upcoming")
                             : statusFilter === PROJECT_STATUS.RUNNING
@@ -461,16 +461,16 @@ const SolarProjectTable = () => {
 
                       <button
                         onClick={() => {
-                          setStatusFilter(PROJECT_STATUS.PENDING);
+                          setStatusFilter(PROJECT_STATUS.IN_PROGRESS);
                           setStatusDropdownOpen(false);
                           setCurrentPage(1);
                         }}
-                        className={`w-full text-left px-3 py-2 text-sm ${statusFilter === PROJECT_STATUS.PENDING
+                        className={`w-full text-left px-3 py-2 text-sm ${statusFilter === PROJECT_STATUS.IN_PROGRESS
                           ? "bg-slate-100"
                           : "hover:bg-gray-50"
                           }`}
                       >
-                        {lang("project_status.pending", "Pending")}
+                        {lang("PROJECT_STATUS.IN_PROGRESS", "Pending")}
                       </button>
                       <button
                         onClick={() => {
@@ -526,12 +526,14 @@ const SolarProjectTable = () => {
                     {/* Image and status badge */}
                     <div className="relative w-full h-36 sm:h-44 md:h-40 lg:h-36 xl:h-40 overflow-hidden">
                       <img
-                        src={
-                          buildUploadUrl(project.project_image) ||
-                          buildUploadUrl("/uploads/general/noimage.jpeg")
-                        }
+                        src={buildUploadUrl(project.project_image) || "/uploads/general/noimage.jpeg"}
                         alt={project.project_name}
                         className="object-cover w-full h-full"
+                        onError={(e) => {
+                          // Handle AccessDenied, 404, or any image load error
+                          e.target.onerror = null; // Prevent infinite loop
+                          e.target.src = "/uploads/general/noimage.jpeg";
+                        }}
                       />
                       <span
                         className={`absolute top-2 right-2 px-3 py-1 text-xs font-semibold rounded-full shadow ${getStatusColor(

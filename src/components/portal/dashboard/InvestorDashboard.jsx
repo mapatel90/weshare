@@ -17,6 +17,7 @@ import EnergyChart from "@/components/admin/projectsCreate/projectViewSection/Mo
 import { sortByNameAsc, useDarkMode } from "@/utils/common";
 import { useLanguage } from "@/contexts/LanguageContext";
 import ElectricityConsumption from "@/components/admin/projectsCreate/projectViewSection/ElectricityConsumption";
+import { PROJECT_STATUS } from "@/constants/project_status";
 
 function DashboardView() {
   const { user } = useAuth();
@@ -96,7 +97,7 @@ function DashboardView() {
       setProjectsLoading(true);
       setProjectsError(null);
       try {
-        let apiUrl = "/api/investors?page=1&limit=50";
+        let apiUrl = `/api/investors?project_status_id=${PROJECT_STATUS.RUNNING}&page=1&limit=50`;
         if (user?.id) {
           apiUrl += `&userId=${user.id}`;
         }

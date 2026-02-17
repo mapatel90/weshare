@@ -206,7 +206,7 @@ const ContractsDetails = ({ contractId }) => {
                   label={lang("projects.status", "Status")}
                   value={
                     contract.projects?.project_status_id ===
-                    PROJECT_STATUS.PENDING
+                    PROJECT_STATUS.IN_PROGRESS
                       ? lang("common.pending", "Pending")
                       : contract.projects?.project_status_id ===
                           PROJECT_STATUS.UPCOMING

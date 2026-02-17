@@ -238,6 +238,7 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
       start_date,
       evn_price_kwh,
       weshare_price_kwh,
+      capex_per_kwp,
       created_by,
       project_status_id = 1,
       payback_period,
@@ -290,6 +291,7 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
         project_location: project_location || "",
         weshare_price_kwh: parseFloat(weshare_price_kwh) || null,
         evn_price_kwh: parseFloat(evn_price_kwh) || null,
+        capex_per_kwp: parseFloat(capex_per_kwp) || null,
         ...(project_status_id && {
           project_status: { connect: { id: parseInt(project_status_id) } },
         }),
@@ -893,9 +895,9 @@ router.get("/", async (req, res) => {
       prisma.projects.findMany({
         where,
         include: {
-          offtaker: { select: { id: true, full_name: true, email: true, phone_number: true } },
+          offtaker: { select: { id: true, full_name: true, username: true, email: true, phone_number: true } },
           investor: {
-            select: { id: true, full_name: true, email: true, phone_number: true }
+            select: { id: true, full_name: true, username: true, email: true, phone_number: true }
           },
           cities: true,
           states: true,
@@ -915,6 +917,61 @@ router.get("/", async (req, res) => {
       Promise.resolve(null),
     ]);
 
+    // Calculate ROI for each project
+    // Get previous month date range (UTC)
+    const now = new Date();
+    const prevMonthYear = now.getMonth() === 0 ? now.getFullYear() - 1 : now.getFullYear();
+    const prevMonthNum = now.getMonth() === 0 ? 11 : now.getMonth() - 1;
+    const prevMonthStart = new Date(Date.UTC(prevMonthYear, prevMonthNum, 1, 0, 0, 0, 0));
+    const lastDayOfPrevMonth = new Date(Date.UTC(prevMonthYear, prevMonthNum + 1, 0)).getUTCDate();
+    const prevMonthEnd = new Date(Date.UTC(prevMonthYear, prevMonthNum, lastDayOfPrevMonth, 23, 59, 59, 999));
+
+    // Get project IDs
+    const projectIds = projects.map(p => p.id);
+
+    // Fetch energy data for all projects in one query
+    const energyDataByProject = await prisma.project_energy_days_data.groupBy({
+      by: ['project_id'],
+      where: {
+        project_id: { in: projectIds },
+        date: {
+          gte: prevMonthStart,
+          lte: prevMonthEnd,
+        },
+      },
+      _sum: {
+        energy: true,
+      },
+    });
+
+    // Create a map for quick lookup
+    const energyMap = new Map();
+    energyDataByProject.forEach(item => {
+      energyMap.set(item.project_id, item._sum.energy || 0);
+    });
+
+    // Add calculated ROI to each project
+    const projectsWithRoi = projects.map(project => {
+      const totalEnergy = energyMap.get(project.id) || 0;
+      const wesharePrice = parseFloat(project.weshare_price_kwh) || 0;
+      const projectSize = parseFloat(project.project_size) || 0;
+      const capexPerKwp = parseFloat(project.capex_per_kwp) || 0;
+
+      let calculatedRoi = 0;
+      const capexValue = projectSize * capexPerKwp;
+
+      if (capexValue > 0 && totalEnergy > 0) {
+        const weshareAmount = totalEnergy * wesharePrice;
+        calculatedRoi = (weshareAmount * 100) / capexValue;
+      }
+
+      return {
+        ...project,
+        calculated_roi: calculatedRoi > 0 ? calculatedRoi.toFixed(2) : (project.investor_profit || "0"),
+        prev_month_energy: totalEnergy.toFixed(2),
+      };
+    });
+
     // Fetch dropdown lists (all non-deleted)
     const offtakerList = await prisma.users.findMany({
       where: { is_deleted: 0, role_id: { in: [3] } },
@@ -933,7 +990,7 @@ router.get("/", async (req, res) => {
 
     res.json({
       success: true,
-      data: projects,
+      data: projectsWithRoi,
       offtakerList,
       projectList,
       pagination: {
@@ -1077,6 +1134,7 @@ router.put("/:id", authenticateToken, async (req, res) => {
       project_location,
       weshare_price_kwh,
       evn_price_kwh,
+      capex_per_kwp,
       project_status_id,
       solis_plant_id,
       payback_period,
@@ -1155,6 +1213,7 @@ router.put("/:id", authenticateToken, async (req, res) => {
           : { project_status: { disconnect: true } })),
       ...(weshare_price_kwh !== undefined && { weshare_price_kwh: parseFloat(weshare_price_kwh) || null }),
       ...(evn_price_kwh !== undefined && { evn_price_kwh: parseFloat(evn_price_kwh) || null }),
+      ...(capex_per_kwp !== undefined && { capex_per_kwp: parseFloat(capex_per_kwp) || null }),
       ...(payback_period !== undefined && {
         payback_period: payback_period !== null && `${payback_period}` !== ""
           ? parseInt(payback_period)
@@ -1412,7 +1471,6 @@ router.delete("/:id", authenticateToken, async (req, res) => {
   }
 });
 
-
 // Project Chart Data Is Get
 router.post("/chart-data", async (req, res) => {
   try {
@@ -1545,7 +1603,6 @@ router.post("/chart_year_data", async (req, res) => {
   }
 });
 
-
 router.post("/electricity/monthly-cost-chart", async (req, res) => {
   try {
     const { projectId, year } = req.body;
@@ -1636,7 +1693,6 @@ router.post("/electricity/monthly-cost-chart", async (req, res) => {
     });
   }
 });
-
 
 router.post('/electricity/overview-chart', async (req, res) => {
   try {
@@ -1924,7 +1980,6 @@ router.post('/dropdown/project', authenticateToken, async (req, res) => {
     });
   }
 });
-
 
 router.get("/report/project-day-data", authenticateToken, async (req, res) => {
   try {
@@ -2450,6 +2505,82 @@ router.post('/report/project-energy-data', authenticateToken, async (req, res) =
   }
 });
 
+// GET /api/projects/roi - Calculate ROI based on previous month energy
+router.get("/:id/calculate-roi", async (req, res) => {
+  try {
+    const projectId = parseInt(req.params.id);
+
+    if (isNaN(projectId)) {
+      return res.status(400).json({ success: false, message: "Invalid project ID" });
+    }
+
+    // Get project details
+    const project = await prisma.projects.findFirst({
+      where: { id: projectId, is_deleted: 0 },
+      select: {
+        id: true,
+        project_size: true,
+        weshare_price_kwh: true,
+        capex_per_kwp: true,
+        investor_profit: true,
+      },
+    });
+
+    if (!project) {
+      return res.status(404).json({ success: false, message: "Project not found" });
+    }
+
+    // Get previous month date range (UTC)
+    const now = new Date();
+    const prevMonthYear = now.getMonth() === 0 ? now.getFullYear() - 1 : now.getFullYear();
+    const prevMonthNum = now.getMonth() === 0 ? 11 : now.getMonth() - 1; // 0-indexed (Jan=0)
+    
+    // Create UTC dates for start and end of previous month
+    const prevMonthStart = new Date(Date.UTC(prevMonthYear, prevMonthNum, 1, 0, 0, 0, 0));
+    const lastDayOfPrevMonth = new Date(Date.UTC(prevMonthYear, prevMonthNum + 1, 0)).getUTCDate();
+    const prevMonthEnd = new Date(Date.UTC(prevMonthYear, prevMonthNum, lastDayOfPrevMonth, 23, 59, 59, 999));
+    // Sum energy from previous month
+    const energyData = await prisma.project_energy_days_data.aggregate({
+      where: {
+        project_id: projectId,
+        date: {
+          gte: prevMonthStart,
+          lte: prevMonthEnd,
+        },
+      },
+      _sum: {
+        energy: true,
+      },
+    });
+
+    const totalEnergy = energyData._sum.energy || 0;
+    const wesharePrice = parseFloat(project.weshare_price_kwh) || 0;
+    const projectSize = parseFloat(project.project_size) || 0;
+    const capexPerKwp = parseFloat(project.capex_per_kwp) || 0;
+
+    // Calculate ROI: (energy × weshare_price × 100) / (project_size × capex_per_kwp)
+    let calculatedRoi = 0;
+    const capexValue = projectSize * capexPerKwp;
+    if (capexValue > 0 && totalEnergy > 0) {
+      const weshareAmount = totalEnergy * wesharePrice;
+      calculatedRoi = (weshareAmount * 100) / capexValue;
+    }
+
+    res.json({
+      success: true,
+      data: {
+        roi: calculatedRoi.toFixed(2),
+        totalEnergy: totalEnergy.toFixed(2),
+        weshareAmount: (totalEnergy * wesharePrice).toFixed(2),
+        capexValue: capexValue.toFixed(2),
+        fallbackRoi: project.investor_profit || "0",
+      },
+    });
+  } catch (error) {
+    console.error("Calculate ROI error:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+});
 
 // Project_status
 router.get('/status', async (req, res) => {
@@ -2472,7 +2603,6 @@ router.get('/status', async (req, res) => {
     });
   }
 });
-
 
 // This /:identifier api set last in code  
 router.get("/:identifier", async (req, res) => {
@@ -2508,12 +2638,14 @@ router.get("/:identifier", async (req, res) => {
         .json({ success: false, message: "Project not found" });
     }
 
+    // Calculate ROI
+    // const calculatedRoi = await (project.id);
+
     res.json({ success: true, data: project });
   } catch (error) {
     console.error("Get project by identifier error:", error);
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 });
-
 
 export default router;

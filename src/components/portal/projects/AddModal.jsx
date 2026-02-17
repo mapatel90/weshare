@@ -104,8 +104,6 @@ export default function AddModal({ open, onClose }) {
   async function handleChange(e) {
     
     const { name, value } = e.target;
-    console.log("Name", name);
-    console.log("Value", value);
     setProjects(prev => ({ 
       ...prev, 
       [name]: value 
@@ -387,8 +385,6 @@ export default function AddModal({ open, onClose }) {
       setLoading(false);
     }
   }
-
-  console.log("project", project);
 
   return (
     <>

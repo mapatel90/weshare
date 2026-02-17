@@ -22,13 +22,15 @@ const ProjectCard = ({ project, activeTab }) => {
   const { lang } = useLanguage();
   const router = useRouter();
   const { user, logout, loading: authLoading } = useAuth();
-  // Added missing states for invest modal & form
   const [showInvestModal, setShowInvestModal] = useState(false);
   const [investFullName, setInvestFullName] = useState("");
   const [investEmail, setInvestEmail] = useState("");
   const [investPhone, setInvestPhone] = useState("");
   const [investNotes, setInvestNotes] = useState("");
   const [submittingInvest, setSubmittingInvest] = useState(false);
+
+  // Use calculated_roi from API response (already calculated in projects list endpoint)
+  const calculatedRoi = project?.calculated_roi || project?.investor_profit || "0";
 
   // Safety check
   if (!project) {
@@ -60,9 +62,9 @@ const ProjectCard = ({ project, activeTab }) => {
       };
     }
 
-    if (status === PROJECT_STATUS.PENDING) {
+    if (status === PROJECT_STATUS.IN_PROGRESS) {
       return {
-        text: lang("project_status.pending") || "Pending",
+        text: lang("PROJECT_STATUS.IN_PROGRESS") || "Pending",
         icon: "🔵",
         class: "badge-pending",
       };
@@ -88,10 +90,10 @@ const ProjectCard = ({ project, activeTab }) => {
 
   const getDefaultImageUrl = () => {
     const cover = getPrimaryProjectImage(project);
-    if (!cover) return getFullImageUrl("/uploads/general/noimage_2.png");
+    if (!cover) return "/uploads/general/noimage.jpeg";
     return (
       buildUploadUrl(cover) ||
-      getFullImageUrl("/uploads/general/noimage_2.png")
+      "/uploads/general/noimage.jpeg"
     );
   };
 
@@ -168,12 +170,16 @@ const ProjectCard = ({ project, activeTab }) => {
         <div className="solar-card-with-image">
           {/* Solar Panel Image */}
           <div className="card-image-container">
-            <Image
+            <img
               src={getDefaultImageUrl()}
               alt={project?.project_name || "Solar Project"}
               width={500}
               height={250}
               className="card-image"
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = "/uploads/general/noimage.jpeg";
+              }}
             />
             {/* Reliability Badge */}
             <div
@@ -288,7 +294,7 @@ const ProjectCard = ({ project, activeTab }) => {
                 <span className="progress-label">
                   {lang("home.exchangeHub.fundProgress") || "Fund Progress"}:{" "}
                   <strong className="text-secondary-color">
-                    {console.log("project.fund_progress", project?.fund_progress)}
+             
                     {project?.fund_progress || "45"}%
                   </strong>
                 </span>
@@ -450,7 +456,7 @@ const ProjectCard = ({ project, activeTab }) => {
           </div>
           <div className="stat">
             <h4 className="text-secondary-color">
-              {project.investor_profit || "11.2"}%
+              {calculatedRoi}%
             </h4>
             <p>{lang("home.exchangeHub.roi") || "ROI"}</p>
           </div>

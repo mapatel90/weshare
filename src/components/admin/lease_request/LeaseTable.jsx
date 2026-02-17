@@ -22,6 +22,7 @@ import {
   FormControl,
   InputLabel,
 } from "@mui/material";
+import usePermissions from "@/hooks/usePermissions";
 
 const LeaseTable = () => {
   const { lang } = useLanguage();
@@ -38,6 +39,8 @@ const LeaseTable = () => {
   const [states, setStates] = useState([]);
   const [cities, setCities] = useState([]);
   const [loadingOptions, setLoadingOptions] = useState(false);
+  const { canDelete, canEdit } = usePermissions();
+  const showActionColumn = canEdit("lease_requests") || canDelete("lease_requests");
 
   const fetchLeases = async () => {
     try {
@@ -256,29 +259,30 @@ const LeaseTable = () => {
             >
               <FiEye size={16} />
             </IconButton>
-
-            <IconButton
-              size="small"
-              onClick={() => handleEdit(row.original)}
-              sx={{ color: "#1976d2" }}
-            >
-              {/* reuse edit icon visually - FiEye kept for minimal imports; replace with FiEdit if desired */}
-              <FiEdit size={16} />
-            </IconButton>
-
-            <IconButton
-              size="small"
-              onClick={() => handleDelete(row.original.id)}
-              sx={{ color: "#d32f2f" }}
-              disabled={deleting}
-            >
-              <FiTrash2 size={16} />
-            </IconButton>
+            {canEdit("lease_requests") && (
+              <IconButton
+                size="small"
+                onClick={() => handleEdit(row.original)}
+                sx={{ color: "#1976d2" }}
+              >
+                <FiEdit size={16} />
+              </IconButton>
+            )}
+            {canDelete("lease_requests") && (
+              <IconButton
+                size="small"
+                onClick={() => handleDelete(row.original.id)}
+                sx={{ color: "#d32f2f" }}
+                disabled={deleting}
+              >
+                <FiTrash2 size={16} />
+              </IconButton>
+            )}
           </Stack>
         ),
       },
     ],
-    [lang, deleting]
+    [lang, deleting, canEdit, canDelete]
   );
 
   return (

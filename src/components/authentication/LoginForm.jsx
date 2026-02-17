@@ -74,56 +74,45 @@ const LoginForm = ({ registerPath, resetPath }) => {
       isValid = false;
     }
 
-    // Role check based on pathname
-    let expectedRole = null;
-
-    if (pathname === "/offtaker/login") {
-      expectedRole = ROLES.OFFTAKER;
-    } else if (pathname === "/investor/login") {
-      expectedRole = ROLES.INVESTOR;
-    } else if (pathname === "/admin/login") {
-      expectedRole = [ROLES.SUPER_ADMIN, ROLES.STAFF_ADMIN];
-    }
-
-
     if (!isValid) {
       setLoading(false);
       return;
     }
 
-    // 🔥 Handle Remember Me before login API
-    // const remember = document.getElementById("rememberMe").checked;
     const remember = rememberMe;
-
-    // if (remember) {
-    //     localStorage.setItem(storageKey, JSON.stringify({ username, password }));
-    // } else {
-    //     localStorage.removeItem(storageKey);
-    // }
-
     const result = await login(username, password, remember);
 
     if (result.success) {
-      console.log(result.user?.role);
-      console.log(expectedRole);
-      if (expectedRole && (
-          Array.isArray(expectedRole)
-            ? !expectedRole.includes(result.user?.role)
-            : result.user?.role !== expectedRole
-        )
-      ) {
+      const userRole = result.user?.role;
+
+      // Role validation based on login page
+      if (pathname === "/offtaker/login" && userRole !== ROLES.OFFTAKER) {
         setError("You do not have permission to access this area.");
         setLoading(false);
         return;
+      }
+
+      if (pathname === "/investor/login" && userRole !== ROLES.INVESTOR) {
+        setError("You do not have permission to access this area.");
+        setLoading(false);
+        return;
+      }
+
+      // Admin login - OFFTAKER and INVESTOR not allowed, baki badha roles allowed
+      if (pathname === "/admin/login" && (userRole === ROLES.OFFTAKER || userRole === ROLES.INVESTOR)) {
+        setError("You do not have permission to access this area.");
+        setLoading(false);
+        return;
+      }
+
+      // Redirect based on role
+      if (userRole === ROLES.OFFTAKER) {
+        window.location.href = "/offtaker/dashboard";
+      } else if (userRole === ROLES.INVESTOR) {
+        window.location.href = "/investor/dashboard";
       } else {
-        // Redirect based on role
-        if (result.user?.role === ROLES.OFFTAKER) {
-          window.location.href = "/offtaker/dashboard";
-        } else if (result.user?.role === ROLES.INVESTOR) {
-          window.location.href = "/investor/dashboard";
-        } else {
-          window.location.href = "/admin/dashboards";
-        }
+        // Baki badha roles admin dashboard par
+        window.location.href = "/admin/dashboards";
       }
     } else {
       setError(result.message);

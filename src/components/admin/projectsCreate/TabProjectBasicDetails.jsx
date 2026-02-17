@@ -411,6 +411,7 @@ const TabProjectBasicDetails = ({ setFormData, formData, error, setError }) => {
                 project_size: formData.project_size || '',
                 evn_price_kwh: formData.evn_price_kwh && formData.evn_price_kwh !== '' ? parseFloat(formData.evn_price_kwh) : null,
                 weshare_price_kwh: formData.weshare_price_kwh && formData.weshare_price_kwh !== '' ? parseFloat(formData.weshare_price_kwh) : null,
+                capex_per_kwp: formData.capex_per_kwp && formData.capex_per_kwp !== '' ? parseFloat(formData.capex_per_kwp) : null,
                 project_close_date: formData.project_close_date || null,
                 project_location: formData.project_location || '',
                 project_status_id: formData.project_status_id !== '' && formData.project_status_id !== undefined && formData.project_status_id !== null

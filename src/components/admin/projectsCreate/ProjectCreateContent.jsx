@@ -34,6 +34,7 @@ const ProjectCreateContent = () => {
         project_location: '',
         evn_price_kwh: '',
         weshare_price_kwh: '',
+        capex_per_kwp: '',
         project_status_id: '',
         payback_period: '',
         fund_progress: ''

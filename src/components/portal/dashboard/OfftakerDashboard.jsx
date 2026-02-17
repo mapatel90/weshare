@@ -22,6 +22,7 @@ import ElectricityCostOverviewChart from "@/components/admin/projectsCreate/proj
 import ElectricityCostBarChart from "@/components/admin/projectsCreate/projectViewSection/ElectricityCostBarChart";
 import { sortByNameAsc } from "@/utils/common";
 import ElectricityConsumption from "@/components/admin/projectsCreate/projectViewSection/ElectricityConsumption";
+import { PROJECT_STATUS } from "@/constants/project_status";
 
 
 function DashboardView() {
@@ -87,7 +88,7 @@ function DashboardView() {
       setProjectsLoading(true);
       setProjectsError(null);
       try {
-        let apiUrl = "/api/projects?page=1&limit=50";
+        let apiUrl = `/api/projects?project_status_id=${PROJECT_STATUS.RUNNING}&page=1&limit=50`;
         if (user?.id) {
           apiUrl += `&offtaker_id=${user.id}`;
         }
