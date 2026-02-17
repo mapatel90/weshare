@@ -508,45 +508,30 @@ router.post('/forgot-password', async (req, res) => {
       }
     });
 
-
-    const verifyLink = `${process.env.FRONTEND_URL || ''}/verify-email/${verificationToken}`;
-      const loginUrl = `${process.env.FRONTEND_URL || ''}/offtaker/login`;
-      
+    if(user.email) {  
       const templateData = {
-        user_name: newUser.full_name,
-        user_email: newUser.email,
-        account_type: 'Offtaker',
-        current_date: new Date().toLocaleDateString(),
-        verify_link: verifyLink,
-        login_url: loginUrl,
+        full_name: user.full_name,
+        user_email: user.email,
+        company_name: 'WeShare Energy',
+        reset_password_url: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/reset-password?token=${resetToken}`,
       };
 
       sendEmailUsingTemplate({
-        to: newUser.email,
-        templateSlug: 'email_to_offtaker_on_sign_up',
+        to: user.email,
+        templateSlug: 'reset_password_for_user',
         templateData,
-        language: language || 'en'
+        language: user.language || 'en'
       })
         .then((result) => {
           if (result.success) {
-            console.log(`✅ Welcome email sent to ${newUser.email}`);
+            console.log(`✅ Reset password email sent to ${user.email}`);
           } else {
-            console.warn(`⚠️ Could not send welcome email: ${result.error}`);
+            console.warn(`⚠️ Could not send reset password email: ${result.error}`);
           }
         })
         .catch((error) => {
-          console.error('❌ Failed to send welcome email:', error.message);
+          console.error('❌ Failed to send reset password email:', error.message);
         });
-
-    // Send email with reset link
-    const emailResult = await sendPasswordResetEmail(user.email, resetToken);
-
-    if (!emailResult.success) {
-      console.error('Failed to send email:', emailResult.error);
-      return res.status(500).json({
-        success: false,
-        message: 'Failed to send password reset email. Please try again later.'
-      });
     }
 
     res.json({
