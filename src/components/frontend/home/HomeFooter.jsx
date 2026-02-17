@@ -288,7 +288,7 @@ const HomeFooter = () => {
           </p>
           <div className="footer-links d-flex gap-3">
             <Link href="/frontend/privacy_policy">{lang("home.footer.privacyPolicy")}</Link>
-            <Link href="#">{lang("home.footer.termsOfService")}</Link>
+            <Link href="/frontend/terms_of_service">{lang("home.footer.termsOfService")}</Link>
           </div>
         </div>
       </div>

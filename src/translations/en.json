@@ -1883,6 +1883,12 @@
     "policy": "Policy",
     "message2": "Last Updated on 31st October, 2025"
   },
+  "termsOfService": {
+    "title": "Terms of Service",
+    "terms": "Terms of",
+    "service": "Service",
+    "message2": "Last Updated on 31st October, 2025"
+  },
   "profile": {
     "preferences": "Preferences",
     "language": "Language",
