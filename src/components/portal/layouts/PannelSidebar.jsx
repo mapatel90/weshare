@@ -35,7 +35,7 @@ function PannelSidebar() {
             <div className="menu-section">
                 <Link
                     href="/offtaker/dashboard"
-                    className={`menu-header menu-item${activeMenu === 'dashboard' ? ' active' : ''}`}
+                    className={`menu-item${activeMenu === 'dashboard' ? ' active' : ''}`}
                     onClick={handleClose}
                 >{lang("offtaker_login.sidebar.dashboard")}</Link>
                 <div className="menu-section">

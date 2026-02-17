@@ -156,8 +156,6 @@ const Notification = () => {
                 <table className="min-w-full text-sm">
                     <thead className="bg-gray-50">
                         <tr>
-
-                            <th>{lang("menu.type")}</th>
                             <th>{lang("leaseRequest.messageTable")}</th>
                             <th>{lang("common.time")}</th>
                             <th>{lang("common.action")}</th>
@@ -175,9 +173,6 @@ const Notification = () => {
                         ) : (
                             notifications.map((note, idx) => (
                                 <tr key={note.id} className={idx % 2 ? "bg-white" : "bg-gray-50"}>
-                                    <td className="notification-type text-center">
-                                        {typeIcons[note.module_type] || typeIcons.default}
-                                    </td>
                                     <td className="notification-message">
                                         {note.action_url ? (
                                             <Link href={note.action_url} className="block hover:text-blue-600">

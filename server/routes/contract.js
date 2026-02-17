@@ -360,7 +360,7 @@ router.get("/", async (req, res) => {
         { contract_title: { contains: trimmedSearch, mode: "insensitive" } },
         { projects: { project_name: { contains: trimmedSearch, mode: "insensitive" } } },
         { users: { full_name: { contains: trimmedSearch, mode: "insensitive" } } },
-        { interested_investors: { fullName: { contains: trimmedSearch, mode: "insensitive" } } },
+        { interested_investors: { full_name: { contains: trimmedSearch, mode: "insensitive" } } },
       ];
 
       if (dateRange) {
@@ -384,9 +384,22 @@ router.get("/", async (req, res) => {
 
     const skip = (Number(page) - 1) * (limitNumber || 20);
 
+    // Sort options
+    const { sortBy } = req.query;
+    let orderBy = { created_at: 'desc' }; // default
+    if (sortBy === 'oldest') {
+      orderBy = { created_at: 'asc' };
+    } else if (sortBy === 'newest') {
+      orderBy = { created_at: 'desc' };
+    } else if (sortBy === 'az') {
+      orderBy = { contract_title: 'asc' };
+    } else if (sortBy === 'za') {
+      orderBy = { contract_title: 'desc' };
+    }
+
     const data = await prisma.contracts.findMany({
       where,
-      orderBy: { created_at: 'desc' },
+      orderBy,
       skip: fetchAll ? 0 : skip,
       take: fetchAll ? undefined : limitNumber,
       include: {
@@ -397,6 +410,9 @@ router.get("/", async (req, res) => {
             countries: true,
             project_types: true,
             interested_investors: true,
+            project_images: true,
+            offtaker: { select: { full_name: true, email: true } },
+            investor: { select: { full_name: true, email: true } },
           },
         },
         users: true,
@@ -423,9 +439,7 @@ router.get("/", async (req, res) => {
       orderBy: { full_name: "asc" },
     });
 
-    const effectiveLimit = limitNumber || totalCount;
-    const returnedCount = fetchAll ? totalCount : Math.min(totalCount, effectiveLimit);
-    const pageSize = 20;
+    const effectiveLimit = limitNumber || 20;
 
     return res.json({
       success: true,
@@ -435,9 +449,9 @@ router.get("/", async (req, res) => {
       investorList,
       pagination: {
         page: Number(page),
-        limit: fetchAll ? totalCount : effectiveLimit,
-        total: returnedCount,
-        pages: Math.max(1, Math.ceil(returnedCount / pageSize)),
+        limit: effectiveLimit,
+        total: totalCount,
+        totalPages: Math.max(1, Math.ceil(totalCount / effectiveLimit)),
       },
     });
   } catch (error) {
