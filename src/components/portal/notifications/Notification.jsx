@@ -15,6 +15,8 @@ const Notification = () => {
     const [error, setError] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [searchTerm, setSearchTerm] = useState('');
+    const [sortBy, setSortBy] = useState('created_at');
+    const [sortOrder, setSortOrder] = useState('desc');
     const { lang } = useLanguage();
 
     const typeIcons = {
@@ -61,6 +63,8 @@ const Notification = () => {
             const params = new URLSearchParams({
                 page: String(page),
                 limit: String(PAGE_SIZE),
+                sortBy: sortBy,
+                sortOrder: sortOrder,
             });
 
             if (searchTerm && searchTerm.trim()) {
@@ -115,10 +119,24 @@ const Notification = () => {
     useEffect(() => {
         setCurrentPage(1);
         fetchNotifications(1);
-    }, [searchTerm]);
+    }, [searchTerm, sortBy, sortOrder]);
 
     const handleSearchChange = (value) => {
         setSearchTerm(value);
+    };
+
+    const handleSort = (column) => {
+        if (sortBy === column) {
+            setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+        } else {
+            setSortBy(column);
+            setSortOrder('desc');
+        }
+    };
+
+    const getSortIndicator = (column) => {
+        if (sortBy !== column) return '↕';
+        return sortOrder === 'asc' ? '↑' : '↓';
     };
 
     return (
@@ -156,8 +174,20 @@ const Notification = () => {
                 <table className="min-w-full text-sm">
                     <thead className="bg-gray-50">
                         <tr>
-                            <th>{lang("leaseRequest.messageTable")}</th>
-                            <th>{lang("common.time")}</th>
+                            <th 
+                                onClick={() => handleSort('title')}
+                                style={{ cursor: 'pointer', userSelect: 'none' }}
+                                className="hover:bg-gray-100"
+                            >
+                                {lang("leaseRequest.messageTable")} {getSortIndicator('title')}
+                            </th>
+                            <th 
+                                onClick={() => handleSort('created_at')}
+                                style={{ cursor: 'pointer', userSelect: 'none' }}
+                                className="hover:bg-gray-100"
+                            >
+                                {lang("common.time")} {getSortIndicator('created_at')}
+                            </th>
                             <th>{lang("common.action")}</th>
                         </tr>
                     </thead>

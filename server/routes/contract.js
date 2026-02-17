@@ -11,6 +11,7 @@ import { getUserLanguage, t } from '../utils/i18n.js';
 import { getUserFullName } from '../utils/common.js';
 import { sendEmailUsingTemplate } from '../utils/email.js';
 import { PROJECT_STATUS } from '../../src/constants/project_status.js';
+import { ROLES } from '../../src/constants/roles.js';
 import { uploadToS3, deleteFromS3, isS3Enabled, buildUploadUrl } from '../services/s3Service.js';
 import { getAdminUsers } from '../utils/constants.js';
 
@@ -430,12 +431,12 @@ router.get("/", async (req, res) => {
     });
 
     const offtakerList = await prisma.users.findMany({
-      where: { is_deleted: 0, role_id: offtaker?.id ?? 3 },
+      where: { is_deleted: 0, role_id: offtaker?.id ?? ROLES.OFFTAKER },
       orderBy: { full_name: "asc" },
     });
 
-    const investorList = await prisma.interested_investors.findMany({
-      where: { is_deleted: 0 },
+    const investorList = await prisma.users.findMany({
+      where: { is_deleted: 0, role_id: ROLES.INVESTOR },
       orderBy: { full_name: "asc" },
     });
 
