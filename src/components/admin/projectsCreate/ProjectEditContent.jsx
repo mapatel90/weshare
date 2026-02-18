@@ -41,7 +41,7 @@ const ProjectEditContent = ({ projectId }) => {
         project_name: '',
         project_slug: '',
         project_type_id: '',
-        offtaker: '',
+        offtaker_id: '',
         investorId: '',
         investorName: '',
         address_1: '',
@@ -276,7 +276,7 @@ const ProjectEditContent = ({ projectId }) => {
                         project_name: p.project_name || '',
                         project_slug: p.project_slug || '',
                         project_type_id: p.project_type_id || p.projectType?.id || '',
-                        offtaker: String(p.offtaker_id || ''),
+                        offtaker_id: String(p.offtaker_id || ''),
                         investorId: p.investor_id ? String(p.investor_id) : '',
                         investorName: investorName || '',
                         address_1: p.address_1 || '',
@@ -330,7 +330,7 @@ const ProjectEditContent = ({ projectId }) => {
 
             // Frontend guard: prevent RUNNING (3) without investor & offtaker
             if (numericValue === PROJECT_STATUS.RUNNING) {
-                if (!formData.offtaker) {
+                if (!formData.offtaker_id) {
                     showErrorToast(
                         lang(
                             'projects.statusRequiresOfftaker',
@@ -439,7 +439,7 @@ const ProjectEditContent = ({ projectId }) => {
 
     const handleOfftakerChange = async (e) => {
         const offtakerId = e.target.value
-        setFormData(prev => ({ ...prev, offtaker: offtakerId }))
+        setFormData(prev => ({ ...prev, offtaker_id: offtakerId }))
         if (offtakerId) {
             try {
                 const offtaker = await fetchOfftakerById(offtakerId)
@@ -466,7 +466,7 @@ const ProjectEditContent = ({ projectId }) => {
     }
 
     const saveProject = async () => {
-        const requiredFields = ['project_name', 'project_type_id', 'offtaker']
+        const requiredFields = ['project_name', 'project_type_id', 'offtaker_id']
         const errors = {}
         requiredFields.forEach(field => { if (!formData[field]) { errors[field] = lang('validation.required', 'Required') } })
 
@@ -532,7 +532,7 @@ const ProjectEditContent = ({ projectId }) => {
                 name: formData.project_name,
                 project_slug: formData.project_slug || generateSlug(formData.project_name),
                 project_type_id: Number(formData.project_type_id),
-                ...(formData.offtaker && { offtaker_id: Number(formData.offtaker) }),
+                ...(formData.offtaker_id && { offtaker_id: Number(formData.offtaker_id) }),
                 address_1: formData.address_1 || '',
                 address_2: formData.address_2 || '',
                 ...(formData.country_id && { country_id: Number(formData.country_id) }),
