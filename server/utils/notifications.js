@@ -112,6 +112,8 @@ export const createBulkNotifications = async ({
  * @param {boolean} [options.unreadOnly=false] - Only fetch unread notifications
  * @param {string} [options.moduleType] - Filter by module type
  * @param {string} [options.search] - Search term for title and message
+ * @param {string} [options.sortBy='created_at'] - Field to sort by (title, created_at, is_read)
+ * @param {string} [options.sortOrder='desc'] - Sort order (asc or desc)
  * @returns {Promise<Object>} Result object with notifications and pagination info
  */
 export const getNotificationsByUser = async ({
@@ -121,6 +123,8 @@ export const getNotificationsByUser = async ({
   unreadOnly = false,
   moduleType = null,
   search = null,
+  sortBy = 'created_at',
+  sortOrder = 'desc',
 }) => {
   try {
     if (!userId) {
@@ -144,13 +148,20 @@ export const getNotificationsByUser = async ({
       ];
     }
 
+    // Validate and set sort order
+    const validSortOrder = sortOrder?.toLowerCase() === 'asc' ? 'asc' : 'desc';
+    const validSortBy = ['title', 'created_at', 'is_read', 'module_type'].includes(sortBy) ? sortBy : 'created_at';
+
     // Fetch notifications and count
+    const orderByObject = {};
+    orderByObject[validSortBy] = validSortOrder;
+
     const [notifications, total] = await Promise.all([
       prisma.notifications.findMany({
         where,
         skip: offset,
         take: parseInt(limit),
-        orderBy: { created_at: 'desc' },
+        orderBy: orderByObject,
       }),
       prisma.notifications.count({ where }),
     ]);

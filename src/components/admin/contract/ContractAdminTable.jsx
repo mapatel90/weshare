@@ -39,16 +39,6 @@ const ContractAdminTable = () => {
     fetchContracts();
   }, [projectFilter, statusFilter, offtakerFilter, investorFilter, searchTerm, startDate, endDate]);
 
-  const filteredData = useMemo(() => {
-    return contracts.filter((d) => {
-      if (projectFilter && String(d.projectId) !== projectFilter) return false;
-      if (statusFilter && String(d.status) !== statusFilter) return false;
-      if (offtakerFilter && String(d.offtakerId) !== offtakerFilter) return false;
-      if (investorFilter && String(d.investorId) !== investorFilter) return false;
-      return true;
-    });
-  }, [projectFilter, statusFilter, offtakerFilter, investorFilter, contracts]);
-
 
   const fetchContracts = async () => {
     setLoading(true);
@@ -473,18 +463,18 @@ const ContractAdminTable = () => {
           </div>
         )}
 
-        {error && <div className="text-red-600">Error: {error}</div>}
+        {/* {error && <div className="text-red-600">Error: {error}</div>}
 
         {hasLoadedOnce && filteredData.length === 0 && !error && !loading && (
           <div className="text-center py-6 text-gray-600">
             {lang("common.noData", "No Data")}
           </div>
-        )}
+        )} */}
 
         {hasLoadedOnce && (
           <>
             <Table
-              data={filteredData}
+              data={contracts}
               columns={columns}
               disablePagination={false}
               onSearchChange={setSearchTerm}
