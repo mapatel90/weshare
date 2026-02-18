@@ -121,6 +121,47 @@ export default function AuthProvider({ children }) {
     checkAuth(false)
   }, [checkAuth])
 
+  /**
+   * 🔄 Keep authentication state in sync across multiple tabs/windows.
+   * When user logs in or logs out in one tab (localStorage changes),
+   * other tabs will automatically update their auth state and redirect.
+   */
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const handleStorageChange = (event) => {
+      if (event.key === 'accessToken') {
+        const newToken = event.newValue;
+
+        // Token removed → treat as logout in this tab as well
+        if (!newToken) {
+          setUser(null);
+          localStorage.removeItem('cachedUser');
+
+          // Avoid redirect loop if we are already on login page
+          if (!pathname.startsWith('/login')) {
+            router.push('/login');
+          }
+          return;
+        }
+
+        // Token changed/added → re-check auth to sync with latest login
+        checkAuth(true);
+      }
+
+      if (event.key === 'cachedUser' && !event.newValue) {
+        // User cache cleared in another tab → ensure local user cleared
+        setUser(null);
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, [checkAuth, pathname, router])
+
   const login = async (username, password, rememberMe) => {
     try {
       // Use API helper for login (without auth token)
