@@ -335,7 +335,7 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
       for (const admin of adminUsers) {
         const lang = await getUserLanguage(admin.id);
 
-        if(admin.email){
+        if (admin.email) {
           const templateData = {
             full_name: project.offtaker?.full_name || '',
             user_email: project.offtaker?.email || '',
@@ -929,7 +929,7 @@ router.get("/", async (req, res) => {
     // Get project IDs
     const projectIds = projects.map(p => p.id);
 
-    // Fetch energy data for all projects in one query
+    // Fetch energy data for previous month (for ROI calculation)
     const energyDataByProject = await prisma.project_energy_days_data.groupBy({
       by: ['project_id'],
       where: {
@@ -944,15 +944,32 @@ router.get("/", async (req, res) => {
       },
     });
 
-    // Create a map for quick lookup
+    // Fetch total energy data for all time (for cumulative revenue calculation)
+    const totalEnergyDataByProject = await prisma.project_energy_days_data.groupBy({
+      by: ['project_id'],
+      where: {
+        project_id: { in: projectIds },
+      },
+      _sum: {
+        energy: true,
+      },
+    });
+
+    // Create a map for quick lookup (previous month energy for ROI)
     const energyMap = new Map();
     energyDataByProject.forEach(item => {
       energyMap.set(item.project_id, item._sum.energy || 0);
     });
 
-    // Add calculated ROI to each project
-    const projectsWithRoi = projects.map(project => {
-      const totalEnergy = energyMap.get(project.id) || 0;
+    // Create a map for total energy (all time for cumulative revenue)
+    const totalEnergyMap = new Map();
+    totalEnergyDataByProject.forEach(item => {
+      totalEnergyMap.set(item.project_id, item._sum.energy || 0);
+    });
+
+      const projectsWithRoi = projects.map(project => {
+      const totalEnergy = energyMap.get(project.id) || 0; 
+      const totalEnergyAllTime = totalEnergyMap.get(project.id) || 0; 
       const wesharePrice = parseFloat(project.weshare_price_kwh) || 0;
       const projectSize = parseFloat(project.project_size) || 0;
       const capexPerKwp = parseFloat(project.capex_per_kwp) || 0;
@@ -965,10 +982,14 @@ router.get("/", async (req, res) => {
         calculatedRoi = (weshareAmount * 100) / capexValue;
       }
 
+      // Calculate cumulative revenue: total energy (all time) × weshare_price_kwh
+      const cumulativeRevenue = totalEnergyAllTime * wesharePrice;
+
       return {
         ...project,
         calculated_roi: calculatedRoi > 0 ? calculatedRoi.toFixed(2) : (project.investor_profit || "0"),
         prev_month_energy: totalEnergy.toFixed(2),
+        cumulative_revenue: cumulativeRevenue > 0 ? cumulativeRevenue.toFixed(2) : "0",
       };
     });
 
@@ -2534,7 +2555,7 @@ router.get("/:id/calculate-roi", async (req, res) => {
     const now = new Date();
     const prevMonthYear = now.getMonth() === 0 ? now.getFullYear() - 1 : now.getFullYear();
     const prevMonthNum = now.getMonth() === 0 ? 11 : now.getMonth() - 1; // 0-indexed (Jan=0)
-    
+
     // Create UTC dates for start and end of previous month
     const prevMonthStart = new Date(Date.UTC(prevMonthYear, prevMonthNum, 1, 0, 0, 0, 0));
     const lastDayOfPrevMonth = new Date(Date.UTC(prevMonthYear, prevMonthNum + 1, 0)).getUTCDate();

@@ -166,6 +166,7 @@ const HomeFooter = () => {
           </div>
 
           {/* Contact & Settings */}
+          {console.log("footerData",footerData?.site_email,footerData?.site_phone,locationNames)}
           <div className="col-md-6 col-lg-3">
             <div className="contactBox">
               <h6 className="fs-24 text-secondary-color fw-600 mb-3">

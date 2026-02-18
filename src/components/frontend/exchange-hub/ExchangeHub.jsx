@@ -121,10 +121,10 @@ const ExchangeHub = () => {
 
     // ROI filter
     if (filters.minROI) {
-      filtered = filtered.filter(p => parseFloat(p.investor_profit || 0) >= parseFloat(filters.minROI))
+      filtered = filtered.filter(p => parseFloat(p.calculated_roi || 0) >= parseFloat(filters.minROI))
     }
     if (filters.maxROI) {
-      filtered = filtered.filter(p => parseFloat(p.investor_profit || 0) <= parseFloat(filters.maxROI))
+      filtered = filtered.filter(p => parseFloat(p.calculated_roi || 0) <= parseFloat(filters.maxROI))
     }
 
     // Price filter
@@ -142,12 +142,11 @@ const ExchangeHub = () => {
     if (filters.maxCapacity) {
       filtered = filtered.filter(p => parseFloat(p.project_size || 0) <= parseFloat(filters.maxCapacity))
     }
-
     // Sorting
     if (sortBy === 'roi-high') {
-      filtered.sort((a, b) => parseFloat(b.investor_profit || 0) - parseFloat(a.investor_profit || 0))
+      filtered.sort((a, b) => parseFloat(b.calculated_roi || 0) - parseFloat(a.calculated_roi || 0))
     } else if (sortBy === 'roi-low') {
-      filtered.sort((a, b) => parseFloat(a.investor_profit || 0) - parseFloat(b.investor_profit || 0))
+      filtered.sort((a, b) => parseFloat(a.calculated_roi || 0) - parseFloat(b.calculated_roi || 0))
     } else if (sortBy === 'price-low') {
       filtered.sort((a, b) => parseFloat(a.asking_price || 0) - parseFloat(b.asking_price || 0))
     } else if (sortBy === 'price-high') {

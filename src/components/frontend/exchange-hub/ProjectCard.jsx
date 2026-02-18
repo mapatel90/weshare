@@ -480,7 +480,11 @@ const ProjectCard = ({ project, activeTab }) => {
                 "Cumulative Revenue"}
             </span>
             <span className="fw-500 text-black">
-              ${formatNumber(project?.cumulative_revenue || "155000")}
+              {formatShort(
+                project?.cumulative_revenue 
+                  ? parseFloat(project.cumulative_revenue)
+                  : 0
+              )}
             </span>
           </p>
           <p>
@@ -496,7 +500,7 @@ const ProjectCard = ({ project, activeTab }) => {
               </span>
             </span>
             <span className="fw-500 text-black">
-              ${formatNumber(project?.asking_price || "128000")}
+              {formatShort(project?.asking_price || "128000")}
             </span>
           </p>
         </div>

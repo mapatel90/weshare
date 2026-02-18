@@ -324,7 +324,8 @@ a.normalBtn img,
   gap: 16px;
   margin: 0 0 24px;
   text-align: center;
-  height: 50px;
+  height: auto;
+  min-height: 50px;
 }
 
 .stat-image {
@@ -566,6 +567,9 @@ a.normalBtn img,
     grid-template-columns: 1fr;
     gap: 8px;
     text-align: left;
+    height: auto;
+    min-height: auto;
+    margin: 0 0 20px;
   }
 
   .stat-image {
@@ -575,6 +579,10 @@ a.normalBtn img,
     padding: 10px;
     border: 1px solid #e6e6e6;
     border-radius: 4px;
+    width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+    word-wrap: break-word;
   }
 
   .stat-image h4 {
@@ -694,10 +702,17 @@ a.normalBtn img,
 
   .stats-image {
     margin: 16px 0;
+    height: auto;
+    min-height: auto;
+    gap: 6px;
   }
 
   .stat-image {
     padding: 8px 10px;
+    width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+    word-wrap: break-word;
   }
 
   .stat-image h4 {
@@ -835,7 +850,8 @@ a.normalBtn img,
   margin: 20px 0;
   gap: 12px;
   text-align: center;
-  height: 120px;
+  height: auto;
+  min-height: 120px;
 }
 
 .solar-card .stat {
@@ -848,6 +864,8 @@ a.normalBtn img,
   flex-direction: column;
   justify-content: center;
   transition: all 0.2s ease;
+  overflow: hidden;
+  word-wrap: break-word;
 }
 
 .solar-card .stat:hover {
@@ -1234,14 +1252,52 @@ a.normalBtn img,
   .solar-card .stats {
     grid-template-columns: 1fr;
     gap: 8px;
+    height: auto;
+    min-height: auto;
+    margin: 16px 0;
   }
 
   .solar-card .stat {
-    min-height: 60px;
+    min-height: 70px;
+    padding: 12px 10px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .solar-card .stat h4 {
+    font-size: 15px;
+    margin: 0px 0 6px;
+  }
+
+  .solar-card .stat p {
+    font-size: 11px;
+  }
+
+  .solar-card .details {
+    margin: 16px 0;
+    padding: 14px 12px;
+  }
+
+  .solar-card .details p {
+    margin: 10px 0;
+    font-size: 12px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .solar-card .details p > span:first-child {
+    flex: 1;
+    min-width: 140px;
+  }
+
+  .solar-card .details p > span:last-child {
+    flex-shrink: 0;
+    text-align: right;
   }
 
   .projectSection .nav-pills {
     flex-wrap: wrap;
+    gap: 0px;
   }
 
   .projectSection .nav-pills .nav-link {
