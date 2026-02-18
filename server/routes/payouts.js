@@ -323,10 +323,10 @@ router.post("/create", authenticateToken, uploadPayoutDoc.single('document'), as
     }
 });
 
-// Update payout (transaction_id, document)
+// Update payout (transaction_id, document, status, reason)
 router.post("/update", authenticateToken, uploadPayoutDoc.single('document'), async (req, res) => {
     try {
-        const { id, transaction_id, mark_as_paid } = req.body;
+        const { id, transaction_id, mark_as_paid, status, reason } = req.body;
         if (!id) {
             return res.status(400).json({ success: false, message: "Payout ID is required" });
         }
@@ -404,9 +404,19 @@ router.post("/update", authenticateToken, uploadPayoutDoc.single('document'), as
             updateData.document = documentUrl;
         }
 
+        // Mark as paid
         if (mark_as_paid === "true" || mark_as_paid === true) {
             updateData.payout_date = getDateTimeInTZ("Asia/Ho_Chi_Minh");
             updateData.status = PAYOUT_STATUS.PAYOUT;
+        }
+
+        // Explicit status update (e.g. cancel)
+        if (status) {
+            updateData.status = status;
+        }
+
+        if (reason) {
+            updateData.reason = reason;
         }
 
         // Update payout

@@ -1804,7 +1804,13 @@
     "uploaded_image_is_required": "Vui lòng tải lên hình ảnh tài liệu",
     "add_details": "Thêm chi tiết",
     "transaction_id_is_required": "Mã giao dịch là bắt buộc",
-    "payout_paid":"Khoản thanh toán đã được đánh dấu là đã thanh toán"
+    "payout_paid":"Khoản thanh toán đã được đánh dấu là đã thanh toán",
+    "cancel_payout_title": "Hủy thanh toán",
+    "cancel_reason_label": "Lý do hủy thanh toán",
+    "cancel_reason_placeholder": "Nhập lý do hủy thanh toán...",
+    "cancel_reason_required": "Vui lòng nhập lý do hủy thanh toán.",
+    "payout_cancelled_successfully": "Thanh toán đã được hủy thành công",
+    "payout_cancel_failed": "Không thể hủy thanh toán. Vui lòng thử lại."
   },
   "company": {
     "companydetails": "Chi tiết công ty",

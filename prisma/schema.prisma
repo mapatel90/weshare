@@ -570,6 +570,7 @@ model payouts {
   transaction_id  String? // bank txn id / stripe id
   payout_date     DateTime?
   created_at      DateTime @default(now())
+  reason          String?  @db.VarChar(500)
 
   invoices  invoices    @relation(fields: [invoice_id], references: [id])
   users     users       @relation(fields: [investor_id], references: [id])
