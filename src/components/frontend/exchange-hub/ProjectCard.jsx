@@ -464,7 +464,7 @@ const ProjectCard = ({ project, activeTab }) => {
             <h4 className="text-secondary-color">
               {calculatedRoi}%
             </h4>
-            <p>{lang("home.exchangeHub.roi") || "ROI"}</p>
+            <p>{lang("home.exchangeHub.roi_monthly") || "ROI"}</p>
           </div>
         </div>
 

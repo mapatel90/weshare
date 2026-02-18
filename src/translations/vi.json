@@ -808,7 +808,8 @@
       "interestSubmitted": "Bạn đã bày tỏ sự quan tâm tới dự án này.",
       "noTestimonials": "Không có đánh giá cho dự án này",
       "estimatedAnnualGeneration": "Sản lượng phát điện dự kiến hàng năm",
-      "estimatedROI": "Lợi nhuận dự kiến (ROI)"
+      "estimatedROI": "Lợi nhuận dự kiến (ROI)",
+      "roi_monthly": "ROI (Tháng)"
     },
     "solarLease": {
       "title": "Biến bất động sản của bạn thành cho thuê năng lượng mặt trời",
