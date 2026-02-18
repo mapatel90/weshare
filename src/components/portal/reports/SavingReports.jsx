@@ -34,6 +34,7 @@ const SavingReports = () => {
   const [appliedEndDate, setAppliedEndDate] = useState("");
   const [groupBy, setGroupBy] = useState("");
   const [appliedGroupBy, setAppliedGroupBy] = useState("");
+  const [downloadLoading, setDownloadLoading] = useState(false);
   const isSubmitDisabled = !projectFilter;
 
   const fetch_project_list = async () => {
@@ -239,7 +240,7 @@ const SavingReports = () => {
 
   const downloadCSV = async () => {
     try {
-      setLoading(true);
+      setDownloadLoading(true);
 
       // Build params for CSV export (fetch all data, no pagination)
       // Use applied filters for CSV export
@@ -360,7 +361,7 @@ const SavingReports = () => {
       console.error("Failed to export CSV:", err);
       setError(err?.message || "Failed to export CSV");
     } finally {
-      setLoading(false);
+      setDownloadLoading(false);
     }
   };
 
@@ -379,7 +380,16 @@ const SavingReports = () => {
 
 
   return (
-    <div className="p-6 bg-white rounded-3xl shadow-md">
+    <div className="p-6 bg-white rounded-3xl shadow-md relative">
+      {/* Fullscreen CSV Download Loader */}
+      {downloadLoading && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 rounded-3xl">
+          <div className="bg-white rounded-lg p-8 flex flex-col items-center gap-4 shadow-lg">
+            <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
+            <p className="text-gray-700 font-medium">{lang("common.downloading", "Downloading...")}</p>
+          </div>
+        </div>
+      )}
       <div className="d-flex items-center justify-content-between gap-2 mb-4 mt-4 w-full flex-wrap">
         <div className="filter-button flex flex-wrap items-center gap-2">
 

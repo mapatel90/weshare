@@ -413,7 +413,16 @@ const RoiReports = () => {
   );
 
   return (
-    <div className="p-6 bg-white rounded-3xl shadow-md">
+    <div className="p-6 bg-white rounded-3xl shadow-md relative">
+      {/* Fullscreen CSV Download Loader */}
+      {loading && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 rounded-3xl">
+          <div className="bg-white rounded-lg p-8 flex flex-col items-center gap-4 shadow-lg">
+            <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
+            <p className="text-gray-700 font-medium">{lang("common.downloading", "Downloading...")}</p>
+          </div>
+        </div>
+      )}
       {/* Filter Section */}
       <div className="d-flex items-center justify-content-between gap-2 mb-4 mt-4 w-full flex-wrap">
         <div className="filter-button flex flex-wrap gap-2">

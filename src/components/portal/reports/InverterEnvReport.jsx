@@ -266,9 +266,10 @@ const InverterEnvReport = () => {
   // -----------------------------
   const handleDownloadCSV = async () => {
     try {
-
+      setLoading(true);
       if (!projectFilter || !inverterFilter) {
         alert("Please select both Project and Inverter to download CSV");
+        setLoading(false);
         return;
       }
 
@@ -353,6 +354,8 @@ const InverterEnvReport = () => {
       document.body.removeChild(link);
     } catch (err) {
       console.error("CSV download failed", err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -404,7 +407,16 @@ const InverterEnvReport = () => {
   // UI Rendering
   // -----------------------------
   return (
-    <div className="p-6 bg-white rounded-3xl shadow-md">
+    <div className="p-6 bg-white rounded-3xl shadow-md relative">
+      {/* Fullscreen CSV Download Loader */}
+      {loading && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 rounded-3xl">
+          <div className="bg-white rounded-lg p-8 flex flex-col items-center gap-4 shadow-lg">
+            <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
+            <p className="text-gray-700 font-medium">{lang("common.downloading", "Downloading...")}</p>
+          </div>
+        </div>
+      )}
       <div className="d-flex items-center justify-content-between gap-2 mb-4 mt-4 w-full flex-wrap">
         <div className="filter-button flex items-center gap-2 flex-wrap">
           <Autocomplete

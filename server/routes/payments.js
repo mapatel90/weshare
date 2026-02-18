@@ -110,6 +110,48 @@ router.get('/', authenticateToken, async (req, res) => {
   }
 });
 
+// Get total payment amount for offtaker (paid payments only)
+router.post('/offtaker/total', authenticateToken, async (req, res) => {
+  try {
+    const { offtakerId } = req.body;
+    // const offtakerId = offtakerId || req.user?.id;
+
+    if (!offtakerId) {
+      return res.status(400).json({
+        success: false,
+        message: "User ID is required"
+      });
+    }
+
+    const result = await prisma.payments.aggregate({
+      where: {
+        offtaker_id: parseInt(offtakerId),
+        status: 1,
+        is_deleted: 0
+      },
+      _sum: {
+        amount: true
+      }
+    });
+
+    const total = result._sum?.amount || 0;
+
+    res.json({
+      success: true,
+      data: {
+        total: Number(total)
+      }
+    });
+  } catch (error) {
+    console.error("Get payment total error:", error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: error.message
+    });
+  }
+});
+
 // Get single payment by ID (with relations)
 router.get('/:id', authenticateToken, async (req, res) => {
   try {

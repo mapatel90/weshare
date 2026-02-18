@@ -78,6 +78,54 @@ router.get('/', authenticateToken, async (req, res) => {
     }
 });
 
+// Get total payout amount for paid payouts (investor endpoint)
+router.post('/investor/total', authenticateToken, async (req, res) => {
+    try {
+        const { investorId } = req.body;
+        // const investorId = userId || req.user?.id;
+
+        if (!investorId) {
+            return res.status(400).json({
+                success: false,
+                message: "User ID is required"
+            });
+        }
+
+        // Get sum of all payouts with status = PAYOUT_STATUS.PAYOUT for this investor
+        const result = await prisma.payouts.aggregate({
+            where: {
+                investor_id: parseInt(investorId),
+                status: PAYOUT_STATUS.PAYOUT
+            },
+            _sum: {
+                payout_amount: true
+            }
+        });
+
+        const total = result._sum?.payout_amount || 0;
+
+        res.json({
+            success: true,
+            data: {
+                total: Number(total),
+                count: await prisma.payouts.count({
+                    where: {
+                        investor_id: parseInt(investorId),
+                        status: PAYOUT_STATUS.PAYOUT
+                    }
+                })
+            }
+        });
+    } catch (error) {
+        console.error("Get payout total error:", error);
+        res.status(500).json({
+            success: false,
+            message: 'Internal server error',
+            error: error.message
+        });
+    }
+});
+
 router.get('/:id', authenticateToken, async (req, res) => {
     try {
         const payoutId = parseInt(req.params.id);

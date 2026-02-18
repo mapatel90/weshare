@@ -206,16 +206,16 @@ router.post('/', authenticateToken, upload.single('qrCode'), async (req, res) =>
 
     // Check if email already exists
     // email is not a unique field in the schema, use findFirst instead of findFirst
-    const existingUser = await prisma.users.findFirst({
-      where: { email }
-    });
+    // const existingUser = await prisma.users.findFirst({
+    //   where: { email }
+    // });
 
-    if (existingUser) {
-      return res.status(409).json({
-        success: false,
-        message: 'Email already in use'
-      });
-    }
+    // if (existingUser) {
+    //   return res.status(409).json({
+    //     success: false,
+    //     message: 'Email already in use'
+    //   });
+    // }
 
     // Hash password
     const saltRounds = 12;

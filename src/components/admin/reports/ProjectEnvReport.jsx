@@ -5,12 +5,13 @@ import Table from "@/components/shared/table/Table";
 import { apiGet, apiPost } from '@/lib/api';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { PROJECT_STATUS } from '@/constants/project_status';
-import { Autocomplete, TextField } from '@mui/material';
+import { Autocomplete, TextField, CircularProgress, Box } from '@mui/material';
 
 const ProjectEnvReport = () => {
     const PAGE_SIZE = 50;
     const { lang } = useLanguage();
     const [loading, setLoading] = useState(true);
+    const [csvLoading, setCsvLoading] = useState(false);
     const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
     const [search, setSearch] = useState('');
     const [pagination, setPagination] = useState({
@@ -194,7 +195,7 @@ const ProjectEnvReport = () => {
 
     const downloadCSV = async () => {
         try {
-            setLoading(true);
+            setCsvLoading(true);
 
             // Build params for CSV export (fetch all data, no pagination)
             const params = new URLSearchParams();
@@ -283,12 +284,30 @@ const ProjectEnvReport = () => {
             console.error("Failed to export CSV:", err);
             setError(err?.message || "Failed to export CSV");
         } finally {
-            setLoading(false);
+            setCsvLoading(false);
         }
     };
 
     return (
         <>
+            {csvLoading && (
+                <Box
+                    sx={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                        zIndex: 9999,
+                    }}
+                >
+                    <CircularProgress size={60} sx={{ color: '#fff' }} />
+                </Box>
+            )}
             <div className="p-6 bg-white rounded-3xl shadow-md">
                 <div className="d-flex items-center justify-content-between gap-2 mb-4 mt-4 w-full flex-wrap">
                     <div
