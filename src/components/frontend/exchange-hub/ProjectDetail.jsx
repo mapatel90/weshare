@@ -540,9 +540,7 @@ const ProjectDetail = ({ projectId }) => {
                 <p style={{ whiteSpace: "pre-line" }}>
                   {project.project_description ||
                     project.description ||
-                    `This ${formatNumber(
-                      project.project_size
-                    )} kWp solar power project stands as a reliable and high-performing renewable energy asset, generating approximately ${formatNumber(
+                    `This ${formatNumber(project.project_size)} kWp solar power project stands as a reliable and high-performing renewable energy asset, generating approximately ${formatNumber(
                       accumulative
                     )} kWh annually. With a strong ROI of ${project.investor_profit
                     }% and ${project.lease_term || "eight"
@@ -558,22 +556,19 @@ const ProjectDetail = ({ projectId }) => {
               <div className="stats-view">
                 <div className="leftStatsBox">
                   <div>
-                    <p>
-                      {lang("home.exchangeHub.installedCapacity") ||
-                        "Installed Capacity"}
-                      :
-                    </p>
+                    {console.log(project.project_status_id)}
+                    <p> {project.project_status_id === PROJECT_STATUS.UPCOMING ? lang("home.exchangeHub.installCapacity") : lang("home.exchangeHub.installedCapacity")} : </p>
                     <h4>{formatNumber(project.project_size)} kWp</h4>
                   </div>
                   <div>
-                    <p>{lang("home.exchangeHub.roi_monthly") || "Monthly ROI"}:</p>
+                    <p>{lang("home.exchangeHub.estimatedROI") || "Monthly ROI"}:</p>
                     <h4>
                       {roiLoading ? (
                         <span className="placeholder-glow">
                           <span className="placeholder col-4"></span>
                         </span>
                       ) : (
-                        `${calculatedRoi || project.investor_profit || "0"}%`
+                        `${calculatedRoi || "0"}%`
                       )}
                     </h4>
                   </div>
@@ -589,11 +584,11 @@ const ProjectDetail = ({ projectId }) => {
                 <div className="rightStatsBox">
                   <div>
                     <p>
-                      {lang("home.exchangeHub.annualGeneration") ||
+                      {project.project_status_id === PROJECT_STATUS.UPCOMING ? lang("home.exchangeHub.estimatedAnnualGeneration") : lang("home.exchangeHub.annualGeneration") ||
                         "Annual Generation"}
                       :
                     </p>
-                    <h4>{formatNumber(accumulative)} kWh</h4>
+                    <h4>{formatNumber(accumulative)} KWP</h4>
                   </div>
                   <div>
                     <p>

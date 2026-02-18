@@ -789,9 +789,12 @@
       "ratings": "Xếp hạng",
       "targetInvestment": "Mục tiêu đầu tư",
       "expectedGeneration": "Sản lượng dự kiến",
+      "installCapacity": "Công suất lắp đặt",
+      "installedCapacity": "Công suất đã được lắp đặt",
       "expectedROI": "Lợi nhuận dự kiến (ROI)",
       "paybackPeriod": "Thời gian hoàn vốn",
       "leaseTerm": "Thời hạn thuê",
+      "extendable": "Kéo dài được",
       "fundProgress": "Tiến độ huy động vốn",
       "timeLeft": "Thời gian còn lại",
       "investEarly": "Đầu tư sớm",
@@ -803,7 +806,9 @@
       "investNow": "Đầu tư ngay",
       "investor": "Nhà đầu tư",
       "interestSubmitted": "Bạn đã bày tỏ sự quan tâm tới dự án này.",
-      "noTestimonials": "Không có đánh giá cho dự án này"
+      "noTestimonials": "Không có đánh giá cho dự án này",
+      "estimatedAnnualGeneration": "Sản lượng phát điện dự kiến hàng năm",
+      "estimatedROI": "Lợi nhuận dự kiến (ROI)"
     },
     "solarLease": {
       "title": "Biến bất động sản của bạn thành cho thuê năng lượng mặt trời",
@@ -1684,6 +1689,7 @@
     "capacity": "Công suất (kWp)",
     "roi": "Tỷ suất lợi nhuận đầu tư (%)",
     "leaseTerm": "Thời hạn thuê (năm)",
+    "extendable": "Kéo dài được",
     "status": "Trạng thái",
     "actions": "Các hành động",
     "viewDetails": "Xem chi tiết",

@@ -80,13 +80,19 @@ const ProjectCard = ({ project, activeTab }) => {
   const badge = getReliabilityBadge();
 
   // Format numbers
-  const formatNumber = (num) => {
-    if (!num) return "0";
-    return parseFloat(num).toLocaleString("en-US");
-  };
+  // const formatNumber = (num) => {
+  //   if (!num) return "0";
+  //   return parseFloat(num).toLocaleString("en-US");
+  // };
+
+  const formatNumber = (value, suffix = '') => {
+    if (value === null || value === undefined || value === '') return '-'
+    const num = Number(value)
+    return Number.isNaN(num) ? '-' : num.toLocaleString() + suffix
+  }
 
   // Calculate accumulative generation with fallback
-  const accumulative = formatEnergyUnit(project.project_size) || 0;
+  const accumulative = formatNumber(project.project_size, " KWP") || 0;
 
   const getDefaultImageUrl = () => {
     const cover = getPrimaryProjectImage(project);
@@ -259,8 +265,8 @@ const ProjectCard = ({ project, activeTab }) => {
                   {accumulative ? accumulative : project?.project_size}
                 </h4>
                 <p>
-                  {lang("home.exchangeHub.expectedGeneration") ||
-                    "Expected Generation"}
+                  {lang("home.exchangeHub.installCapacity") ||
+                    "Install Capacity"}
                 </p>
               </div>
             </div>
@@ -279,7 +285,7 @@ const ProjectCard = ({ project, activeTab }) => {
               <div className="detail-divider"></div>
               <div className="detail-item">
                 <span className="label">
-                  {lang("home.exchangeHub.leaseTerm") || "Lease Term"}
+                  {lang("home.exchangeHub.extendable") || "Extendable"}
                 </span>
                 <span className="value">
                   {project?.lease_term || "15"}{" "}
