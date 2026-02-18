@@ -782,6 +782,7 @@
       "generation": "Generation",
       "roi": "ROI",
       "roi_monthly": "ROI (Monthly)",
+      "estimatedROI": "Estimated ROI",
       "leaseTermRemaining": "Lease Term Remaining",
       "cumulativeRevenue": "Cumulative Revenue",
       "askingPrice": "Asking Price",
@@ -820,10 +821,12 @@
       "ratings": "Ratings",
       "targetInvestment": "Target Investment",
       "expectedGeneration": "Expected Generation",
+      "installCapacity": "Install Capacity",
       "expectedROI": "Expected ROI",
       "paybackPeriod": "Payback Period",
       "paybackPeriodPlaceholder": "Enter payback period in years",
       "leaseTerm": "Lease Term",
+      "extendable": "Extendable",
       "fundProgress": "Fund Progress",
       "timeLeft": "Time left",
       "investEarly": "Invest Early",
@@ -843,7 +846,8 @@
       "submit": "Submit",
       "notes": "Notes",
       "interestSubmitted": "You have already expressed interest for this project.",
-      "noTestimonials": "No testimonials for this project"
+      "noTestimonials": "No testimonials for this project",
+      "estimatedAnnualGeneration": "Estimated Annual Generation"
     },
     "solarLease": {
       "title": "Turn your Property Into a Solar Lease",
@@ -1348,6 +1352,7 @@
     "total": "Total",
     "weshare_profite": "Weshare Profite",
     "offtaker_profite": "Offtaker Profite",
+    "investor_profite": "Investor Profite",
     "createInvoice": "Create Invoice",
     "updateInvoice": "Update Invoice",
     "invoiceCreatedSuccessfully": "Invoice Created Successfully",
@@ -1866,7 +1871,13 @@
     "uploaded_image_is_required": "Please upload document image",
     "add_details": "Add Details",
     "transaction_id_is_required": "Transaction ID is required",
-    "payout_paid": "Payout Marked as Payed"
+    "payout_paid": "Payout Marked as Payed",
+    "cancel_payout_title": "Cancel Payout",
+    "cancel_reason_label": "Reason for cancellation",
+    "cancel_reason_placeholder": "Enter cancel reason...",
+    "cancel_reason_required": "Please enter a cancel reason.",
+    "payout_cancelled_successfully": "Payout cancelled successfully",
+    "payout_cancel_failed": "Failed to cancel payout. Please try again."
   },
   "company": {
     "companydetails": "Company Details",

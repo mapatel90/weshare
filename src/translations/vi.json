@@ -796,9 +796,12 @@
       "ratings": "Xếp hạng",
       "targetInvestment": "Mục tiêu đầu tư",
       "expectedGeneration": "Sản lượng dự kiến",
+      "installCapacity": "Công suất lắp đặt",
+      "installedCapacity": "Công suất đã được lắp đặt",
       "expectedROI": "Lợi nhuận dự kiến (ROI)",
       "paybackPeriod": "Thời gian hoàn vốn",
       "leaseTerm": "Thời hạn thuê",
+      "extendable": "Kéo dài được",
       "fundProgress": "Tiến độ huy động vốn",
       "timeLeft": "Thời gian còn lại",
       "investEarly": "Đầu tư sớm",
@@ -810,7 +813,10 @@
       "investNow": "Đầu tư ngay",
       "investor": "Nhà đầu tư",
       "interestSubmitted": "Bạn đã bày tỏ sự quan tâm tới dự án này.",
-      "noTestimonials": "Không có đánh giá cho dự án này"
+      "noTestimonials": "Không có đánh giá cho dự án này",
+      "estimatedAnnualGeneration": "Sản lượng phát điện dự kiến hàng năm",
+      "estimatedROI": "Lợi nhuận dự kiến (ROI)",
+      "roi_monthly": "ROI (Tháng)"
     },
     "solarLease": {
       "title": "Biến bất động sản của bạn thành cho thuê năng lượng mặt trời",
@@ -1691,6 +1697,7 @@
     "capacity": "Công suất (kWp)",
     "roi": "Tỷ suất lợi nhuận đầu tư (%)",
     "leaseTerm": "Thời hạn thuê (năm)",
+    "extendable": "Kéo dài được",
     "status": "Trạng thái",
     "actions": "Các hành động",
     "viewDetails": "Xem chi tiết",
@@ -1805,7 +1812,13 @@
     "uploaded_image_is_required": "Vui lòng tải lên hình ảnh tài liệu",
     "add_details": "Thêm chi tiết",
     "transaction_id_is_required": "Mã giao dịch là bắt buộc",
-    "payout_paid":"Khoản thanh toán đã được đánh dấu là đã thanh toán"
+    "payout_paid":"Khoản thanh toán đã được đánh dấu là đã thanh toán",
+    "cancel_payout_title": "Hủy thanh toán",
+    "cancel_reason_label": "Lý do hủy thanh toán",
+    "cancel_reason_placeholder": "Nhập lý do hủy thanh toán...",
+    "cancel_reason_required": "Vui lòng nhập lý do hủy thanh toán.",
+    "payout_cancelled_successfully": "Thanh toán đã được hủy thành công",
+    "payout_cancel_failed": "Không thể hủy thanh toán. Vui lòng thử lại."
   },
   "company": {
     "companydetails": "Chi tiết công ty",

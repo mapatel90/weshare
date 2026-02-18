@@ -6,9 +6,9 @@ import { apiDelete, apiGet, apiPost, apiUpload } from "@/lib/api";
 import { PROJECT_STATUS } from "@/constants/project_status";
 import Table from "@/components/shared/table/Table";
 import { usePriceWithCurrency } from "@/hooks/usePriceWithCurrency";
-import { FiDownload, FiEdit, FiEye, FiTrash2 } from "react-icons/fi";
+import { FiDownload, FiEdit, FiEye, FiTrash2, FiX } from "react-icons/fi";
 import { BsQrCode } from "react-icons/bs";
-import { Autocomplete, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Stack, TextField } from "@mui/material";
+import { Autocomplete, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Menu, MenuItem, ListItemIcon, ListItemText, Stack, TextField } from "@mui/material";
 import Link from "next/link";
 import { downloadPayoutPDF } from "./PayoutPdf";
 import { ROLES } from "@/constants/roles";
@@ -43,6 +43,10 @@ const PayoutsPage = () => {
     const [errors, setErrors] = useState({});
     const [showQRModal, setShowQRModal] = useState(false);
     const [selectedQRCode, setSelectedQRCode] = useState(null);
+    const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
+    const [cancelReason, setCancelReason] = useState("");
+    const [cancelLoading, setCancelLoading] = useState(false);
+    const [cancelPayoutId, setCancelPayoutId] = useState(null);
     const priceWithCurrency = usePriceWithCurrency();
     const { canEdit, canDelete } = usePermissions();
 
@@ -179,6 +183,57 @@ const PayoutsPage = () => {
         setTxModalOpen(true);
     };
 
+    const handleOpenCancelDialog = (payoutId) => {
+        setCancelPayoutId(payoutId);
+        setCancelReason("");
+        setCancelDialogOpen(true);
+    };
+
+    const handleCloseCancelDialog = () => {
+        if (cancelLoading) return;
+        setCancelDialogOpen(false);
+        setCancelReason("");
+        setCancelPayoutId(null);
+    };
+
+    const handleConfirmCancel = async () => {
+        if (!cancelPayoutId) return;
+        if (!cancelReason.trim()) {
+            Swal.fire({
+                icon: "warning",
+                title: lang("common.validationError", "Validation Error"),
+                text: lang("payouts.cancel_reason_required", "Please enter a cancel reason."),
+            });
+            return;
+        }
+
+        try {
+            setCancelLoading(true);
+            const formData = new FormData();
+            formData.append("id", String(cancelPayoutId));
+            formData.append("status", PAYOUT_STATUS.CANCELLED);
+            formData.append("reason", cancelReason.trim());
+
+            const res = await apiUpload("/api/payouts/update", formData);
+            if (res?.success) {
+                showSuccessToast(lang("payouts.payout_cancelled_successfully", "Payout cancelled successfully"));
+                setCancelDialogOpen(false);
+                setCancelReason("");
+                setCancelPayoutId(null);
+                fetchPayouts();
+            }
+        } catch (err) {
+            console.error("Error cancelling payout:", err);
+            Swal.fire({
+                icon: "error",
+                title: lang("common.error", "Error"),
+                text: lang("payouts.payout_cancel_failed", "Failed to cancel payout. Please try again."),
+            });
+        } finally {
+            setCancelLoading(false);
+        }
+    };
+
     const validate = () => {
         const newErrors = {};
         if (selectedPayout && !selectedPayout.transaction_id) {
@@ -273,10 +328,21 @@ const PayoutsPage = () => {
             {
                 id: "invoices",
                 header: () => lang("invoice.invoiceNumber", "Invoice Number"),
-                accessorFn: (row) => {
-                    const prefix = row.invoices?.invoice_prefix || "";
-                    const number = row.invoices?.invoice_number || "";
-                    return prefix && number ? `${prefix}-${number}` : "N/A";
+                cell: ({ row }) => {
+                    const prefix = row.original.invoices?.invoice_prefix || "";
+                    const number = row.original.invoices?.invoice_number || "";
+                    const display = prefix && number ? `${prefix}-${number}` : "N/A";
+                    if (!row.original.invoices?.id) return display;
+                    return (
+                        <Link
+                            href={`/admin/finance/invoice/view/${row.original.invoices.id}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{ color: '#1976d2', textDecoration: 'none', fontWeight: 500 }}
+                        >
+                            {display}
+                        </Link>
+                    );
                 },
             },
             {
@@ -351,14 +417,28 @@ const PayoutsPage = () => {
                 header: () => "Payment",
                 cell: ({ row }) => {
                     const data = row.original;
-                    if (data.status === PAYOUT_STATUS.PAYOUT) return <Chip
-                        label="Paid"
-                        sx={{
-                            backgroundColor: "#28a745",
-                            color: "#fff",
-                            fontWeight: "bold"
-                        }}
-                    />;
+                    if (data.status === PAYOUT_STATUS.PAYOUT)
+                        return (
+                            <Chip
+                                label="Paid"
+                                sx={{
+                                    backgroundColor: "#28a745",
+                                    color: "#fff",
+                                    fontWeight: "bold",
+                                }}
+                            />
+                        );
+                    if (data.status === PAYOUT_STATUS.CANCELLED)
+                        return (
+                            <Chip
+                                label={lang("common.cancelled", "Cancelled")}
+                                sx={{
+                                    backgroundColor: "#f44336",
+                                    color: "#fff",
+                                    fontWeight: "bold",
+                                }}
+                            />
+                        );
                     return (
                         <Button
                             size="small"
@@ -379,83 +459,141 @@ const PayoutsPage = () => {
                 },
             },
             {
+                accessorKey: "status",
+                header: () => lang("invoice.status", "Status"),
+                cell: (info) => {
+                    const status = info.getValue();
+                    if (status === PAYOUT_STATUS.PAYOUT) {
+                        return <span className="badge bg-soft-success text-success">
+                            {lang("payouts.payouts", "Paid")}
+                        </span>;
+                    } else if (status === PAYOUT_STATUS.PENDING) {
+                        return <span className="badge bg-soft-warning text-warning">
+                            {lang("common.pending", "Pending")}
+                        </span>;
+                    } else if (status === PAYOUT_STATUS.CANCELLED) {
+                        return (
+                            <span className="badge bg-soft-danger text-danger">
+                                {lang("common.cancelled", "Cancelled")}
+                            </span>
+                        );
+                    }
+                },
+            },
+            {
                 accessorKey: "actions",
                 header: () => lang("invoice.actions"),
-                cell: ({ row }) => (
-                    <Stack direction="row" spacing={1} sx={{ flexWrap: "nowrap" }}>
-                        {canEdit("payouts") && (
+                cell: ({ row }) => {
+                    const data = row.original;
+                    const [anchorEl, setAnchorEl] = React.useState(null);
+                    const open = Boolean(anchorEl);
+
+                    const handleMenuOpen = (event) => {
+                        setAnchorEl(event.currentTarget);
+                    };
+
+                    const handleMenuClose = () => {
+                        setAnchorEl(null);
+                    };
+
+                    const handleEdit = () => {
+                        handleMenuClose();
+                        window.dispatchEvent(
+                            new CustomEvent("payout:open-edit", {
+                                detail: data,
+                            }),
+                        );
+                    };
+
+                    const handleDeleteClick = () => {
+                        handleMenuClose();
+                        handleDelete(data.id);
+                    };
+
+                    const handleCancelClick = () => {
+                        handleMenuClose();
+                        handleOpenCancelDialog(data.id);
+                    };
+
+                    return (
+                        <Stack direction="row" spacing={1} sx={{ flexWrap: "nowrap", alignItems: "center" }}>
+                            <Link
+                                href={`/admin/finance/payouts/view/${data.id}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                <IconButton
+                                    size="small"
+                                    sx={{
+                                        color: "#1976d2",
+                                        transition: "transform 0.2s ease",
+                                        "&:hover": {
+                                            backgroundColor: "rgba(25, 118, 210, 0.08)",
+                                            transform: "scale(1.1)",
+                                        },
+                                    }}
+                                >
+                                    <FiEye size={18} />
+                                </IconButton>
+                            </Link>
                             <IconButton
                                 size="small"
-                                onClick={() => {
-                                    // Dispatch event to open edit modal with payout data
-                                    window.dispatchEvent(
-                                        new CustomEvent("payout:open-edit", {
-                                            detail: row.original, // WHOLE payout row send karo
-                                        })
-                                    );
-                                }}
+                                onClick={() => downloadPayoutPDF(data.id, priceWithCurrency)}
                                 sx={{
-                                    color: "#ed6c02",
+                                    color: "#2e7d32",
                                     transition: "transform 0.2s ease",
                                     "&:hover": {
-                                        backgroundColor: "rgba(237, 108, 2, 0.08)",
+                                        backgroundColor: "rgba(46, 125, 50, 0.08)",
                                         transform: "scale(1.1)",
                                     },
                                 }}
                             >
-                                <FiEdit size={18} />
+                                <FiDownload size={18} />
                             </IconButton>
-                        )}
-                        {canDelete("payouts") && (
-                            <IconButton
-                                size="small"
-                                onClick={() => handleDelete(row.original.id)}
-                                sx={{
-                                    color: "#d32f2f",
-                                    transition: "transform 0.2s ease",
-                                    "&:hover": {
-                                        backgroundColor: "rgba(211, 47, 47, 0.08)",
-                                        transform: "scale(1.1)",
-                                    },
-                                }}
-                            ><FiTrash2 size={18} />
-                            </IconButton>
-                        )}
-                        <Link
-                            href={`/admin/finance/payouts/view/${row.original.id}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >
-                            <IconButton
-                                size="small"
-                                sx={{
-                                    color: "#1976d2",
-                                    transition: "transform 0.2s ease",
-                                    "&:hover": {
-                                        backgroundColor: "rgba(25, 118, 210, 0.08)",
-                                        transform: "scale(1.1)",
-                                    },
-                                }}
+                            {data.status !== PAYOUT_STATUS.CANCELLED && (
+                                <IconButton
+                                    size="small"
+                                    onClick={handleMenuOpen}
+                                    sx={{
+                                        color: "#555",
+                                    }}
+                                >
+                                    <span style={{ fontSize: 18, lineHeight: 1 }}>⋯</span>
+                                </IconButton>
+                            )}
+                            <Menu
+                                anchorEl={anchorEl}
+                                open={open}
+                                onClose={handleMenuClose}
+                                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                                transformOrigin={{ vertical: "top", horizontal: "right" }}
                             >
-                                <FiEye size={18} />
-                            </IconButton>
-                        </Link>
-                        <IconButton
-                            size="small"
-                            onClick={() => downloadPayoutPDF(row.original.id, priceWithCurrency)}
-                            sx={{
-                                color: "#2e7d32",
-                                transition: "transform 0.2s ease",
-                                "&:hover": {
-                                    backgroundColor: "rgba(46, 125, 50, 0.08)",
-                                    transform: "scale(1.1)",
-                                },
-                            }}
-                        >
-                            <FiDownload size={18} />
-                        </IconButton>
-                    </Stack>
-                ),
+                                {canEdit("payouts") && (
+                                    <MenuItem onClick={handleEdit}>
+                                        <ListItemIcon>
+                                            <FiEdit size={16} />
+                                        </ListItemIcon>
+                                        <ListItemText primary={lang("common.edit", "Edit")} />
+                                    </MenuItem>
+                                )}
+                                {canDelete("payouts") && (
+                                    <MenuItem onClick={handleDeleteClick}>
+                                        <ListItemIcon>
+                                            <FiTrash2 size={16} />
+                                        </ListItemIcon>
+                                        <ListItemText primary={lang("common.delete", "Delete")} />
+                                    </MenuItem>
+                                )}
+                                <MenuItem onClick={handleCancelClick} disabled={data.status === PAYOUT_STATUS.CANCELLED || data.status === PAYOUT_STATUS.PAYOUT}>
+                                    <ListItemIcon>
+                                        <FiX size={16} />
+                                    </ListItemIcon>
+                                    <ListItemText primary={lang("common.cancel", "Cancel Payout")} />
+                                </MenuItem>
+                            </Menu>
+                        </Stack>
+                    );
+                },
                 meta: {
                     disableSort: true,
                 },
@@ -622,6 +760,35 @@ const PayoutsPage = () => {
                 lang={lang}
                 showTxId={!selectedPayout?.transaction_id}
             />
+
+            {/* Cancel Payout Modal */}
+            <Dialog open={cancelDialogOpen} onClose={handleCloseCancelDialog} maxWidth="sm" fullWidth>
+                <DialogTitle>{lang("payouts.cancel_payout_title", "Cancel Payout")}</DialogTitle>
+                <DialogContent dividers>
+                    <TextField
+                        label={lang("payouts.cancel_reason_label", "Reason for cancellation")}
+                        placeholder={lang("payouts.cancel_reason_placeholder", "Enter cancel reason...")}
+                        value={cancelReason}
+                        onChange={(e) => setCancelReason(e.target.value)}
+                        fullWidth
+                        multiline
+                        minRows={3}
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCloseCancelDialog} disabled={cancelLoading}>
+                        {lang("common.close", "Close")}
+                    </Button>
+                    <Button
+                        onClick={handleConfirmCancel}
+                        color="error"
+                        variant="contained"
+                        disabled={cancelLoading}
+                    >
+                        {lang("common.save", "Save")}
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </>
     );
 };

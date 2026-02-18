@@ -5,6 +5,7 @@ import { createNotification } from "../utils/notifications.js";
 import { getUserLanguage, t } from "../utils/i18n.js";
 import { getUserFullName } from "../utils/common.js";
 import { getAdminUserId, getAdminUsers } from "../utils/constants.js";
+import { ROLES } from "../../src/constants/roles.js";
 
 const router = express.Router();
 
@@ -15,6 +16,16 @@ router.post("/", async (req, res) => {
       return res
         .status(400)
         .json({ success: false, message: "fullName and email are required" });
+    }
+
+    // check user role is investor
+    const user = await prisma.users.findFirst({
+      where: { id: userId },
+      select: { role_id: true },
+    });
+    
+    if (user?.role_id !== ROLES.INVESTOR) {
+      return res.status(400).json({ success: false, message: "Access denied. This action is allowed only for investors." });
     }
 
     const created = await prisma.interested_investors.create({
@@ -100,17 +111,17 @@ router.post("/", async (req, res) => {
 // List with optional filters + pagination
 router.get("/", async (req, res) => {
   try {
-    const { 
-      projectId, 
-      userId, 
-      page = 1, 
+    const {
+      projectId,
+      userId,
+      page = 1,
       limit = 25,
       search,
       project_status_id,
       start_date,
       end_date
     } = req.query;
-    
+
     const where = { is_deleted: 0 };
 
     if (projectId) where.project_id = Number(projectId);

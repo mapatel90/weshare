@@ -12,6 +12,8 @@ import Link from "next/link";
 import { ROLES } from "@/constants/roles";
 import { downloadPayoutPDF } from "./PayoutPdf";
 import { buildUploadUrl } from "@/utils/common";
+import { PAYOUT_STATUS } from "@/constants/payout_status";
+import Swal from "sweetalert2";
 
 
 const PayoutsPage = () => {
@@ -121,6 +123,44 @@ const PayoutsPage = () => {
         }
     }, [pageIndex, pageSize]);
 
+
+    const handleDownload = async (invoice) => {
+        console.log("invoice", invoice);
+        const fileUrl = buildUploadUrl(invoice?.invoice_pdf);
+        if (!fileUrl) {
+            Swal.fire({
+                title: "Invoice PDF not available",
+                icon: "info",
+            });
+            return;
+        }
+
+        try {
+            const response = await fetch(fileUrl);
+            if (!response.ok) {
+                throw new Error("Download failed");
+            }
+
+            const blob = await response.blob();
+            const objectUrl = window.URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            const baseName = `${invoice?.invoice_prefix || "INV"}-${invoice?.invoice_number || "invoice"
+                }`;
+            link.href = objectUrl;
+            link.download = `${baseName}.pdf`;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(objectUrl);
+        } catch (error) {
+            console.error("Failed to download invoice PDF:", error);
+            Swal.fire({
+                title: "Download invoice pdf is not available.",
+                icon: "error",
+            });
+        }
+    };
+
     // -----------------------------
     // Table Columns
     // -----------------------------
@@ -141,10 +181,20 @@ const PayoutsPage = () => {
             {
                 id: "invoices",
                 header: () => lang("invoice.invoiceNumber", "Invoice Number"),
-                accessorFn: (row) => {
-                    const prefix = row.invoices?.invoice_prefix || "";
-                    const number = row.invoices?.invoice_number || "";
-                    return prefix && number ? `${prefix}-${number}` : "N/A";
+                cell: ({ row }) => {
+                    const prefix = row.original.invoices?.invoice_prefix || "";
+                    const number = row.original.invoices?.invoice_number || "";
+                    const display = prefix && number ? `${prefix}-${number}` : "N/A";
+                    if (!row.original.invoices?.id) return "N/A";
+                    return (
+                        <p
+                            onClick={() => handleDownload(row.original.invoices)}
+                            title="Download invoice pdf"
+                            style={{ color: '#1976d2', textDecoration: 'none', fontWeight: 500, cursor: 'pointer' }}
+                        >
+                            {display}
+                        </p>
+                    );
                 },
             },
             {
@@ -168,21 +218,57 @@ const PayoutsPage = () => {
                 },
             },
             {
+                accessorKey: "status",
+                header: () => lang("invoice.status", "Status"),
+                cell: (info) => {
+                    const status = info.getValue();
+                    if (status === PAYOUT_STATUS.PAYOUT) {
+                        return <span className="badge bg-soft-success text-success">
+                            {lang("payouts.payouts", "Paid")}
+                        </span>;
+                    } else if (status === PAYOUT_STATUS.PENDING) {
+                        return <span className="badge bg-soft-warning text-warning">
+                            {lang("common.pending", "Pending")}
+                        </span>;
+                    }
+                    else if (status === PAYOUT_STATUS.CANCELLED) {
+                        return <span className="badge bg-soft-danger text-danger">
+                            {lang("common.cancelled", "Cancelled")}
+                        </span>;
+                    }
+                },
+            },
+            {
                 id: "document",
-                header: () => lang("payouts.uploaded_image", "Document"),
+                header: () => (
+                    <div className="text-center">
+                        {lang("payouts.uploaded_image", "Document")}
+                    </div>
+                ),
                 cell: ({ row }) => {
-                    const docUrl = row.original.document; // check DB field name
-
-                    if (!docUrl) return "N/A";
+                    const docUrl = row.original.document;
 
                     return (
-                        <Button
-                            size="small"
-                            // variant="outlined"
-                            onClick={() => handleViewDocument(docUrl)} // direct call
-                        >
-                            {lang("navigation.view", "View")}
-                        </Button>
+                        <div className="d-flex justify-content-center align-items-center">
+                            {!docUrl ? (
+                                <span className="text-muted fw-bold">-</span>
+                            ) : (
+                                <Button
+                                    size="small"
+                                    title="View document"
+                                    onClick={() => handleViewDocument(docUrl)}
+                                    style={{
+                                        color: "#1976d2",
+                                        fontWeight: 500,
+                                        cursor: "pointer",
+                                        padding: 0,
+                                        minWidth: "auto",
+                                    }}
+                                >
+                                    {lang("navigation.view", "View")}
+                                </Button>
+                            )}
+                        </div>
                     );
                 },
             },
@@ -206,6 +292,7 @@ const PayoutsPage = () => {
                                         transform: "scale(1.1)",
                                     },
                                 }}
+                                title="View payout"
                             >
                                 <FiEye size={18} />
                             </IconButton>
@@ -221,6 +308,7 @@ const PayoutsPage = () => {
                                     transform: "scale(1.1)",
                                 },
                             }}
+                            title="Download payout pdf"
                         >
                             <FiDownload size={18} />
                         </IconButton>

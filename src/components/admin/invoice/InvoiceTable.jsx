@@ -309,7 +309,7 @@ const InvoiceTable = () => {
     },
     {
       id: "investor_profit",
-      header: () => lang("invoice.offtaker_profite"),
+      header: () => lang("invoice.investor_profite"),
       cell: ({ row }) => {
         const data = row.original; // always fresh row
         const offtakerProfite = data?.projects?.investor_profit || 0;

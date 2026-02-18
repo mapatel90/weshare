@@ -168,54 +168,65 @@ const HomeFooter = () => {
           {/* Contact & Settings */}
           <div className="col-md-6 col-lg-3">
             <div className="contactBox">
-              <h6 className="fs-24 text-secondary-color fw-600 mb-3">
-                {lang("home.footer.contactSettings")}
-              </h6>
-              <ul className="list-unstyled text-white-50 small mb-4">
-                <li className="mb-4 fs-18 fw-300 text-white">
-                  <span className="me-3">
-                    <Image
-                      src="/images/icons/email.svg"
-                      alt="email"
-                      width={20}
-                      height={20}
-                    />
-                  </span>
-                  {footerData?.site_email ? footerData.site_email : "support@weshare.com"}
-                </li>
-                <li className="mb-4 fs-18 fw-300 text-white">
-                  <span className="me-3">
-                    <Image
-                      src="/images/icons/phone-w.svg"
-                      alt="phone"
-                      width={20}
-                      height={20}
-                    />
-                  </span>
-                  {footerData?.site_phone ? footerData.site_phone : ""}
-                </li>
-                <li className="fs-18 fw-300 text-white">
-                  <span className="me-3">
-                    <Image
-                      src="/images/icons/location-w.svg"
-                      alt="location"
-                      width={20}
-                      height={20}
-                    />
-                  </span>
-                  {locationNames.city ||
-                  locationNames.state ||
-                  locationNames.country
-                    ? `${locationNames.city || ""}${
-                        locationNames.state ? `, ${locationNames.state}` : ""
-                      }${
-                        locationNames.country
-                          ? `, ${locationNames.country}`
-                          : ""
-                      }`
-                    : ""}
-                </li>
-              </ul>
+              {(footerData?.site_email || footerData?.site_phone || locationNames.city || locationNames.state || locationNames.country) && (
+                <>
+                  <h6 className="fs-24 text-secondary-color fw-600 mb-3">
+                    {lang("home.footer.contactSettings")}
+                  </h6>
+
+                  <ul className="list-unstyled text-white-50 small mb-4">
+                    {/* Email */}
+                    {footerData?.site_email && (
+                      <li className="mb-4 fs-18 fw-300 text-white">
+                        <span className="me-3">
+                          <Image
+                            src="/images/icons/email.svg"
+                            alt="email"
+                            width={20}
+                            height={20}
+                          />
+                        </span>
+                        {footerData.site_email}
+                      </li>
+                    )}
+
+                    {/* Phone */}
+                    {footerData?.site_phone && (
+                      <li className="mb-4 fs-18 fw-300 text-white">
+                        <span className="me-3">
+                          <Image
+                            src="/images/icons/phone-w.svg"
+                            alt="phone"
+                            width={20}
+                            height={20}
+                          />
+                        </span>
+                        {footerData.site_phone}
+                      </li>
+                    )}
+
+                    {/* Location */}
+                    {(locationNames.city ||
+                      locationNames.state ||
+                      locationNames.country) && (
+                        <li className="fs-18 fw-300 text-white">
+                          <span className="me-3">
+                            <Image
+                              src="/images/icons/location-w.svg"
+                              alt="location"
+                              width={20}
+                              height={20}
+                            />
+                          </span>
+                          {`${locationNames.city || ""}${locationNames.state ? `, ${locationNames.state}` : ""
+                            }${locationNames.country ? `, ${locationNames.country}` : ""
+                            }`}
+                        </li>
+                      )}
+                  </ul>
+                </>
+              )}
+
 
               <div className="footer-dropdown mb-3">
                 <label className="fs-18 fw-300 text-secondary-color d-block mb-1">
