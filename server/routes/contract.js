@@ -288,6 +288,67 @@ router.post("/", authenticateToken, upload.single('document'), async (req, res) 
   }
 });
 
+// Get contract count for investor
+router.post('/count', authenticateToken, async (req, res) => {
+  try {
+    const { investorId, offtakerId } = req.body;
+
+    let whereCondition = {
+      is_deleted: 0
+    };
+
+    // If investorId is present
+    if (investorId) {
+      whereCondition.investor_id = parseInt(investorId);
+    }
+    // Else check for offtakerId
+    else if (offtakerId) {
+      whereCondition.offtaker_id = parseInt(offtakerId);
+    } 
+    else {
+      return res.status(400).json({
+        success: false,
+        message: "InvestorId or OfftakerId is required"
+      });
+    }
+
+    // Count all contracts for this investor (not deleted)
+    const totalCount = await prisma.contracts.count({
+      where: whereCondition
+    });
+
+    // Count by status
+    const acceptedCount = await prisma.contracts.count({
+      where: { ...whereCondition, status: 1 }
+    });
+
+    const rejectedCount = await prisma.contracts.count({
+      where: { ...whereCondition, status: 2 }
+    });
+
+    const cancelledCount = await prisma.contracts.count({
+      where: { ...whereCondition, status: 3 }
+    });
+
+    res.json({
+      success: true,
+      data: {
+        count: totalCount,
+        accepted: acceptedCount,
+        rejected: rejectedCount,
+        cancelled: cancelledCount
+      }
+    });
+  } catch (error) {
+    console.error("Get contract count error:", error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: error.message
+    });
+  }
+});
+
 // List contracts (filterable, pagination, search)
 router.get("/", async (req, res) => {
   try {

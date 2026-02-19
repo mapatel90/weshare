@@ -12,6 +12,7 @@ import AllContracts from "./sections/AllContractsInvestor";
 import SolarEnergyFlow from "@/components/admin/projectsCreate/projectViewSection/Animated";
 import { apiGet, apiPost } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
+import Summary from "./sections/Summary";
 import EnergyYearChart from "@/components/admin/projectsCreate/projectViewSection/YearChart";
 import EnergyChart from "@/components/admin/projectsCreate/projectViewSection/MonthChart";
 import { sortByNameAsc, useDarkMode } from "@/utils/common";
@@ -31,6 +32,16 @@ function DashboardView() {
   const [projectsLoading, setProjectsLoading] = useState(false);
   const [projectsError, setProjectsError] = useState(null);
   const [selectedProject, setSelectedProject] = useState(null);
+
+  const [runningProjects, setRunningProjects] = useState(0);
+  const [payoutTotal, setPayoutTotal] = useState(0);
+  const [totalContracts, setTotalContracts] = useState(0);
+  const [contractStatuses, setContractStatuses] = useState({
+    accepted: 0,
+    rejected: 0,
+    cancelled: 0
+  });
+  const [summaryLoading, setSummaryLoading] = useState(true);
 
   const [inverters, setInverters] = useState([]);
   const [invertersLoading, setInvertersLoading] = useState(false);
@@ -105,13 +116,16 @@ function DashboardView() {
         if (res?.success && Array.isArray(res?.data)) {
           const normalized = res.data.map(normalizeInvestorProject);
           setProjects(normalized);
+          setRunningProjects(normalized.length);
         } else {
           setProjects([]);
+          setRunningProjects(0);
         }
       } catch (err) {
         console.error("Failed to load investor projects", err);
         setProjectsError("Unable to load projects");
         setProjects([]);
+        setRunningProjects(0);
       } finally {
         setProjectsLoading(false);
       }
@@ -119,6 +133,41 @@ function DashboardView() {
 
     if (user) {
       fetchProjects();
+    }
+  }, [user?.id]);
+
+  // Fetch summary data (payout total and contracts)
+  useEffect(() => {
+    const fetchSummaryData = async () => {
+      try {
+        setSummaryLoading(true);
+        const payload = user?.id ? { investorId: user.id } : {};
+        
+        // Fetch payout data
+        const payoutRes = await apiPost("/api/payouts/investor/total", payload);
+        if (payoutRes?.success) {
+          setPayoutTotal(payoutRes.data?.total ?? 0);
+        }
+
+        // Fetch contracts data
+        const contractRes = await apiPost("/api/contracts/count", payload);
+        if (contractRes?.success) {
+          setTotalContracts(contractRes.data?.count ?? 0);
+          setContractStatuses({
+            accepted: contractRes.data?.accepted ?? 0,
+            rejected: contractRes.data?.rejected ?? 0,
+            cancelled: contractRes.data?.cancelled ?? 0
+          });
+        }
+      } catch (err) {
+        console.error("Failed to load summary data:", err);
+      } finally {
+        setSummaryLoading(false);
+      }
+    };
+
+    if (user?.id) {
+      fetchSummaryData();
     }
   }, [user?.id]);
 
@@ -392,6 +441,19 @@ function DashboardView() {
     <div>
       {projects.length > 0 && (
         <>
+          <Summary
+            lang={lang}
+            totalProjects={projects.length}
+            runningProjects={runningProjects}
+            payoutTotal={payoutTotal}
+            totalContracts={totalContracts}
+            contractStatuses={contractStatuses}
+            summaryLoading={summaryLoading}
+            showRunningProjects={false}
+            projectsDescription={lang("dashboard.all_your_investments", "All your investments") ?? "All your investments"}
+            payoutDescription={lang("dashboard.total_earnings_received", "Total earnings received") ?? "Total earnings received"}
+          />
+
           <div
             className="d-flex justify-content-end gap-2 mb-3"
             style={{ position: "relative" }}

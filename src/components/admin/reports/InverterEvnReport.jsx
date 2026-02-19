@@ -5,7 +5,7 @@ import Table from "@/components/shared/table/Table";
 import { apiGet } from "@/lib/api";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { formatEnergyUnit, sortByNameAsc } from "@/utils/common";
-import { Autocomplete, TextField } from "@mui/material";
+import { Autocomplete, TextField, CircularProgress, Box } from "@mui/material";
 
 const InverterEvnReport = () => {
   const PAGE_SIZE = 50; // default rows per table page
@@ -18,6 +18,7 @@ const InverterEvnReport = () => {
   const [endDate, setEndDate] = useState(""); // YYYY-MM-DD
   const [reportsData, setReportsData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [csvLoading, setCsvLoading] = useState(false);
   const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
   const [error, setError] = useState(null);
   const [pagination, setPagination] = useState({
@@ -104,12 +105,18 @@ const InverterEvnReport = () => {
       const mappedData = items.map((item) => ({
         id: item.id,
         projectId: item.project_id ?? item.project_id ?? null,
-        inverterId: item.project_inverter_id ?? item.project_inverter_id ?? null,
-        projectName: item.projects?.project_name || `Project ${item.projectId ?? item.project_id ?? ""}`,
+        inverterId:
+          item.project_inverter_id ?? item.project_inverter_id ?? null,
+        projectName:
+          item.projects?.project_name ||
+          `Project ${item.projectId ?? item.project_id ?? ""}`,
         inverterName: item.project_inverters?.inverter_name,
         date: item.date,
         time: item.time ?? "",
-        generatedKW: item.generate_kw != null ? formatEnergyUnit(Number(item.generate_kw)) : "",
+        generatedKW:
+          item.generate_kw != null
+            ? formatEnergyUnit(Number(item.generate_kw))
+            : "",
         Acfrequency: item.ac_frequency ?? "",
         DailyYield:
           item.daily_yield !== undefined && item.daily_yield !== null
@@ -136,7 +143,8 @@ const InverterEvnReport = () => {
 
       const nextPage = res?.pagination?.page ?? pageIndex + 1;
       const nextLimit = res?.pagination?.limit ?? pageSize;
-      const nextPages = res?.pagination?.pages ?? Math.max(1, Math.ceil(total / nextLimit));
+      const nextPages =
+        res?.pagination?.pages ?? Math.max(1, Math.ceil(total / nextLimit));
 
       setPagination({
         page: nextPage,
@@ -170,7 +178,9 @@ const InverterEvnReport = () => {
         });
         const res = await apiGet(`/api/inverter-data?${params.toString()}`);
         setProjectList(Array.isArray(res?.projectList) ? res.projectList : []);
-        setInverterList(Array.isArray(res?.inverterList) ? res.inverterList : []);
+        setInverterList(
+          Array.isArray(res?.inverterList) ? res.inverterList : [],
+        );
       } catch (err) {
         console.error("Failed to load dropdown lists", err);
       }
@@ -198,7 +208,15 @@ const InverterEvnReport = () => {
     }, 120000); // 2 minutes
 
     return () => clearInterval(interval);
-  }, [appliedProject, appliedInverter, appliedStartDate, appliedEndDate, searchTerm, pageIndex, pageSize]);
+  }, [
+    appliedProject,
+    appliedInverter,
+    appliedStartDate,
+    appliedEndDate,
+    searchTerm,
+    pageIndex,
+    pageSize,
+  ]);
 
   // Filter inverters based on selected project
   const filteredInverterList = useMemo(() => {
@@ -208,7 +226,7 @@ const InverterEvnReport = () => {
     }
     // Filter inverters that belong to the selected project
     return inverterList.filter(
-      (inverter) => String(inverter.project_id) === String(projectFilter)
+      (inverter) => String(inverter.project_id) === String(projectFilter),
     );
   }, [projectFilter, inverterList]);
 
@@ -216,7 +234,9 @@ const InverterEvnReport = () => {
   useEffect(() => {
     if (!inverterFilter) return;
 
-    const available = new Set((filteredInverterList || []).map((i) => String(i.id)));
+    const available = new Set(
+      (filteredInverterList || []).map((i) => String(i.id)),
+    );
     if (!available.has(inverterFilter)) {
       setInverterFilter("");
     }
@@ -255,6 +275,7 @@ const InverterEvnReport = () => {
   // -----------------------------
   const handleDownloadCSV = async () => {
     try {
+      setCsvLoading(true);
       const params = new URLSearchParams();
       if (appliedProject) params.append("projectId", appliedProject);
       if (appliedInverter) params.append("inverterId", appliedInverter);
@@ -329,6 +350,8 @@ const InverterEvnReport = () => {
       document.body.removeChild(link);
     } catch (err) {
       console.error("CSV download failed", err);
+    } finally {
+      setCsvLoading(false);
     }
   };
 
@@ -371,119 +394,145 @@ const InverterEvnReport = () => {
         meta: { disableSort: true },
       },
     ],
-    [lang]
+    [lang],
   );
 
   // -----------------------------
   // UI Rendering
   // -----------------------------
   return (
-    <div className="p-6 bg-white rounded-3xl shadow-md">
-      <div className="d-flex items-center justify-content-between gap-2 mb-4 mt-4 w-full flex-wrap">
-        <div
-          className="filter-button"
-          style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "nowrap" }}
+    <>
+      {csvLoading && (
+        <Box
+          sx={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            zIndex: 9999,
+          }}
         >
-          <Autocomplete
-            size="small"
-            options={projectList}
-            value={
-              projectList.find(
-                (p) => String(p.id ?? p.project_id) === String(projectFilter)
-              ) || null
-            }
-            onChange={(e, newValue) => {
-              setProjectFilter(newValue ? String(newValue.id ?? newValue.project_id) : "");
+          <CircularProgress size={60} sx={{ color: "#fff" }} />
+        </Box>
+      )}
+      <div className="p-6 bg-white rounded-3xl shadow-md">
+        <div className="d-flex items-center justify-content-between gap-2 mb-4 mt-4 w-full flex-wrap">
+          <div
+            className="filter-button"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "12px",
+              flexWrap: "nowrap",
             }}
-            getOptionLabel={(option) =>
-              option.project_name ||
-              option.projectName ||
-              `Project ${option.id ?? option.project_id ?? ""}`
-            }
-            isOptionEqualToValue={(option, value) =>
-              String(option.id ?? option.project_id) ===
-              String(value.id ?? value.project_id)
-            }
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label={lang("reports.allprojects")}
-                placeholder={lang("reports.allprojects")}
-              />
-            )}
-            sx={{ minWidth: 260, mr: 2 }}
-          />
+          >
+            <Autocomplete
+              size="small"
+              options={projectList}
+              value={
+                projectList.find(
+                  (p) => String(p.id ?? p.project_id) === String(projectFilter),
+                ) || null
+              }
+              onChange={(e, newValue) => {
+                setProjectFilter(
+                  newValue ? String(newValue.id ?? newValue.project_id) : "",
+                );
+              }}
+              getOptionLabel={(option) =>
+                option.project_name ||
+                option.projectName ||
+                `Project ${option.id ?? option.project_id ?? ""}`
+              }
+              isOptionEqualToValue={(option, value) =>
+                String(option.id ?? option.project_id) ===
+                String(value.id ?? value.project_id)
+              }
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label={lang("reports.allprojects")}
+                  placeholder={lang("reports.allprojects")}
+                />
+              )}
+              sx={{ minWidth: 260, mr: 2 }}
+            />
 
-          <Autocomplete
-            size="small"
-            options={sortByNameAsc(filteredInverterList, "name")}
-            value={
-              sortByNameAsc(filteredInverterList, "name").find(
-                (i) => String(i.id) === String(inverterFilter)
-              ) || null
-            }
-            onChange={(e, newValue) => {
-              setInverterFilter(newValue ? String(newValue.id) : "");
-            }}
-            getOptionLabel={(option) => option?.name || ""}
-            isOptionEqualToValue={(option, value) =>
-              String(option.id) === String(value.id)
-            }
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label={lang("reports.allinverters")}
-                placeholder={lang("reports.allinverters")}
-              />
-            )}
-            sx={{ minWidth: 260, mr: 2 }}
-            disabled={!projectFilter}
-          />
+            <Autocomplete
+              size="small"
+              options={sortByNameAsc(filteredInverterList, "name")}
+              value={
+                sortByNameAsc(filteredInverterList, "name").find(
+                  (i) => String(i.id) === String(inverterFilter),
+                ) || null
+              }
+              onChange={(e, newValue) => {
+                setInverterFilter(newValue ? String(newValue.id) : "");
+              }}
+              getOptionLabel={(option) => option?.name || ""}
+              isOptionEqualToValue={(option, value) =>
+                String(option.id) === String(value.id)
+              }
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label={lang("reports.allinverters")}
+                  placeholder={lang("reports.allinverters")}
+                />
+              )}
+              sx={{ minWidth: 260, mr: 2 }}
+              disabled={!projectFilter}
+            />
 
-          <input
-            type="date"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-            className="theme-btn-blue-color border rounded-md px-3 py-2 me-2 text-sm"
-            placeholder={lang("common.startDate") || "Start Date"}
-            style={{ minWidth: 170 }}
-          />
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="theme-btn-blue-color border rounded-md px-3 py-2 me-2 text-sm"
+              placeholder={lang("common.startDate") || "Start Date"}
+              style={{ minWidth: 170 }}
+            />
 
-          <input
-            type="date"
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
-            min={startDate || undefined}
-            className="theme-btn-blue-color border rounded-md px-3 py-2 me-2 text-sm"
-            placeholder={lang("common.endDate") || "End Date"}
-            style={{ minWidth: 170 }}
-          />
+            <input
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              min={startDate || undefined}
+              className="theme-btn-blue-color border rounded-md px-3 py-2 me-2 text-sm"
+              placeholder={lang("common.endDate") || "End Date"}
+              style={{ minWidth: 170 }}
+            />
+
+            <button
+              onClick={handleSubmit}
+              disabled={isSubmitDisabled}
+              className={`theme-btn-blue-color border rounded-md px-4 py-2 text-sm ${
+                isSubmitDisabled ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+            >
+              {lang("common.submit")}
+            </button>
+          </div>
 
           <button
-            onClick={handleSubmit}
-            disabled={isSubmitDisabled}
-            className={`theme-btn-blue-color border rounded-md px-4 py-2 text-sm ${
-              isSubmitDisabled ? "opacity-50 cursor-not-allowed" : ""
-            }`}
+            onClick={handleDownloadCSV}
+            className="common-grey-color border rounded-3 btn"
           >
-            {lang("common.submit")}
+            {lang("reports.downloadcsv")}
           </button>
         </div>
 
-        <button
-          onClick={handleDownloadCSV}
-          className="common-grey-color border rounded-3 btn"
-        >
-          {lang("reports.downloadcsv")}
-        </button>
-      </div>
+        <div className="overflow-x-auto relative">
+          {!hasLoadedOnce && loading && (
+            <div className="text-center py-6 text-gray-600">Loading...</div>
+          )}
 
-      <div className="overflow-x-auto relative">
-        {!hasLoadedOnce && loading && (
-          <div className="text-center py-6 text-gray-600">Loading...</div>
-        )}
-
-        {error && <div className="text-red-600">Error: {error}</div>}
+          {error && <div className="text-red-600">Error: {error}</div>}
           <>
             {/* Keep the table mounted so search input state is retained */}
             <Table
@@ -498,8 +547,9 @@ const InverterEvnReport = () => {
               initialPageSize={pageSize}
             />
           </>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

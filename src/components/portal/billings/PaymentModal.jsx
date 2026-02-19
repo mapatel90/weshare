@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { Autocomplete, TextField } from "@mui/material";
 import { apiGet } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -43,7 +44,7 @@ const PaymentModal = ({
       if (!isOpen) return;
 
       try {
-        let url = "/api/invoice?status=0";
+        let url = "/api/invoice?status=0&limit=100";
         
         // Filter invoices by offtaker if user is an offtaker
         if (user?.role === roles.OFFTAKER && user?.id) {
@@ -52,6 +53,7 @@ const PaymentModal = ({
         
         const response = await apiGet(url);
         const list = response?.data;
+        console.log("Fetched invoices:", list);
 
         const paidInvoiceIds = Array.isArray(payments)
           ? payments.map((p) => String(p.invoice_id))
@@ -143,24 +145,30 @@ const PaymentModal = ({
             <label className="form-label fw-semibold">
               {lang("invoice.invoiceNumber", "Invoice Number")}
             </label>
-            <select
-              value={selectedInvoice}
-              onChange={(e) => {
-                setSelectedInvoice(e.target.value);
+            <Autocomplete
+              size="small"
+              options={invoiceOptions}
+              value={
+                invoiceOptions.find((opt) => opt.value === selectedInvoice) ||
+                null
+              }
+              onChange={(e, newValue) => {
+                setSelectedInvoice(newValue ? newValue.value : "");
                 setErrors((prev) => ({ ...prev, invoice: "" }));
               }}
-              className={`form-select ${errors.invoice ? "is-invalid" : ""}`}
+              getOptionLabel={(option) => option?.label || ""}
+              isOptionEqualToValue={(option, value) =>
+                option?.value === value?.value
+              }
               disabled={!!invoiceNumber}
-            >
-              <option value="" disabled>
-                {lang("payments.selectInvoice", "Select Invoice")}
-              </option>
-              {invoiceOptions.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  placeholder={lang("payments.selectInvoice", "Select Invoice")}
+                  error={!!errors.invoice}
+                />
+              )}
+            />
             {errors.invoice && (
               <div className="text-danger small mt-1">{errors.invoice}</div>
             )}
