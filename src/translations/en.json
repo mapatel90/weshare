@@ -328,7 +328,8 @@
     "reasonRequired": "Reason is required.",
     "showing": "Showing",
     "allStatus": "All Status",
-    "noContractsFound": "No contracts found"
+    "noContractsFound": "No contracts found",
+    "pleaseSelectProjectAfterDownloadingCSV": "Please select project after downloading CSV"
   },
   "messages": {
     "cannotUndoDelete": "You won't be able to revert this!",
@@ -1707,7 +1708,15 @@
     "energy": "Energy",
     "evnCost": "EVN Cost",
     "weshareCost": "WeShare Cost",
-    "savingCost": "Saving Cost"
+    "savingCost": "Saving Cost",
+    "monthEnergy": "Energy",
+    "monthRevenue": "Revenue",
+    "monthRoi": "ROI",
+    "capexValue": "Capex Value",
+    "wesharePrice": "Weshare Price (kWh)",
+    "askingPrice": "Asking Price",
+    "projectName": "Project Name",
+    "month": "Month"
   },
   "projectView": {
     "projectInformation": {

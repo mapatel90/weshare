@@ -308,7 +308,8 @@
     "reasonRequired": "Lý do là bắt buộc.",
     "enterReason": "Nhập lý do...",
     "page": "Trang",
-    "allStatus": "Tất cả trạng thái"
+    "allStatus": "Tất cả trạng thái",
+    "pleaseSelectProjectAfterDownloadingCSV": "Vui lòng chọn dự án sau khi tải xuống CSV"
   },
   "messages": {
     "cannotUndoDelete": "Bạn sẽ không thể hoàn tác điều này!",
@@ -1649,7 +1650,15 @@
     "energy": "Năng lượng",
     "evnCost": "Chi phí EVN",
     "weshareCost": "Chi phí WeShare",
-    "savingCost": "Chi phí tiết kiệm"
+    "savingCost": "Chi phí tiết kiệm",
+    "monthEnergy": "Năng lượng",
+    "monthRevenue": "Doanh thu",
+    "monthRoi": "ROI",
+    "capexValue": "Chi phí cài đặt",
+    "wesharePrice": "Giá chia sẻ (kWh)",
+    "askingPrice": "Giá chào bán",
+    "projectName": "Tên dự án",
+    "month": "Tháng"
   },
   "projectView": {
     "projectInformation": {

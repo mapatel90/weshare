@@ -5,17 +5,17 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Table from "@/components/shared/table/Table";
 import { Autocomplete, TextField } from "@mui/material";
+import { PROJECT_STATUS } from "@/constants/project_status";
+import { ROLES } from "@/constants/roles";
+import { formatShort } from "@/utils/common";
+import { showErrorToast } from "@/utils/topTost";
 
 const RoiReports = () => {
   const { user } = useAuth();
   const { lang } = useLanguage();
-
   const PAGE_SIZE = 50;
-
   const [reportsData, setReportsData] = useState([]);
-  const [allowedIds, setAllowedIds] = useState(null);
   const [projectFilter, setProjectFilter] = useState("");
-  const [inverterFilter, setInverterFilter] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
   const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
@@ -27,81 +27,39 @@ const RoiReports = () => {
     pages: 0,
   });
   const [projectList, setProjectList] = useState([]);
-  const [inverterList, setInverterList] = useState([]);
   const [appliedProjectFilter, setAppliedProjectFilter] = useState("");
-  const [appliedInverterFilter, setAppliedInverterFilter] = useState("");
   const [appliedSearchTerm, setAppliedSearchTerm] = useState("");
   const [pageIndex, setPageIndex] = useState(0);
   const isSubmitDisabled = !projectFilter;
-
-  // 1) Load allowed project IDs (Investor Logic)
-  useEffect(() => {
-    if (!user?.id) return setAllowedIds(null);
-
-    apiGet(`/api/investors?page=1&limit=50&userId=${user.id}`)
-      .then((res) => {
-        if (!res?.success) return setAllowedIds([]);
-
-        const normalized = res.data
-          .map((item) =>
-            Number(
-              item?.project_id ||
-              item?.project?.id
-            )
-          )
-          .filter(Boolean);
-
-        setAllowedIds(normalized);
-      })
-      .catch(() => setAllowedIds([]));
-  }, [user?.id]);
 
   // Fetch Project List
   const fetchProjectList = async () => {
     try {
       setLoading(true);
       setError(null);
-
-      const res = await apiPost("/api/projects/dropdown/project", { 
-        offtaker_id: user?.id, 
-        project_status_id: 2 // RUNNING status
-      });
-
-      if (res && res.data) {
-        setProjectList(res.data);
-      } else if (Array.isArray(res)) {
-        setProjectList(res);
+      if (user.role === ROLES.OFFTAKER) {
+        const res_offtaker = await apiPost("/api/projects/dropdown/project", {
+          offtaker_id: user?.id,
+          project_status_id: PROJECT_STATUS.RUNNING
+        });
+        if (res_offtaker && res_offtaker.success) {
+          setProjectList(res_offtaker.data);
+        }
       } else {
-        setProjectList([]);
+        const res_investor = await apiPost("/api/projects/dropdown/project", {
+          investor_id: user?.id,
+          project_status_id: PROJECT_STATUS.RUNNING
+        });
+        console.log("res_investor", res_investor);
+        if (res_investor && res_investor.success) {
+          setProjectList(res_investor.data);
+        }
       }
     } catch (err) {
       console.error("Failed to fetch projects:", err);
       setProjectList([]);
     } finally {
       setLoading(false);
-    }
-  };
-
-  // Fetch Inverter List based on selected project
-  const fetchInverterList = async (projectId) => {
-    try {
-      if (!projectId) {
-        setInverterList([]);
-        return;
-      }
-
-      const res = await apiGet(`/api/project-inverters?project_id=${projectId}`);
-
-      if (Array.isArray(res?.data)) {
-        setInverterList(res.data);
-      } else if (Array.isArray(res)) {
-        setInverterList(res);
-      } else {
-        setInverterList([]);
-      }
-    } catch (err) {
-      console.error("Error fetching inverter list:", err);
-      setInverterList([]);
     }
   };
 
@@ -117,77 +75,47 @@ const RoiReports = () => {
       });
 
       if (appliedProjectFilter) params.append("projectId", appliedProjectFilter);
-      if (appliedInverterFilter) params.append("inverterId", appliedInverterFilter);
       if (appliedSearchTerm) params.append("search", appliedSearchTerm);
+      if (appliedProjectFilter) {
 
-      const res = await apiGet(`/api/inverter-data?${params.toString()}`);
-      const items = Array.isArray(res?.data) ? res.data : [];
-      console.log("Fetched ROI reports", items);
+        const res = await apiGet(`/api/projects/report/roi-data?${params.toString()}`);
+        const items = Array.isArray(res?.data) ? res.data : [];
 
-      // Restrict to investor-allowed projects
-      const allowed = Array.isArray(allowedIds) ? allowedIds : null;
-      const filteredItems = items.filter((item) => {
-        if (!allowed) return true;
-        const pid = Number(item.project_id ?? item.projectId ?? item?.project?.id);
-        return allowed.includes(pid);
-      });
+        const mappedData = items.map((item, idx) => ({
+          id: item.id ?? idx,
+          projectId: item.project_id ?? null,
+          projectName: item.project_name || `Project ${item.project_id ?? ""}`,
+          askingPrice: item.asking_price || "0",
+          month_energy: item.month_energy || "0",
+          revenue: item.revenue || "0",
+          monthRevenue: item.month_revenue || "0",
+          monthRoi: item.month_roi || "0",
+          month: item.month || "",
+          weshare_price: item.weshare_price || "0",
+          capexValue: item.capexValue || "0",
+        }));
 
-      const mappedData = filteredItems.map((item, idx) => ({
-        id: item.id ?? idx,
-        projectId: item.project_id ?? item.projectId ?? item?.project?.id ?? null,
-        inverterId: item.project_inverter_id ?? null,
-        projectName: item.projects?.project_name || item?.project?.project_name || `Project ${item.project_id ?? ""}`,
-        inverterName: item.project_inverters?.inverter_name || "-",
-        date: item.date,
-        time: item.time ?? "",
-        generatedKW:
-          item.generate_kw !== undefined && item.generate_kw !== null
-            ? (Number(item.generate_kw) / 1000).toFixed(2) + " kwh"
-            : "",
-        Acfrequency: item.ac_frequency ?? "",
-        DailyYield:
-          item.daily_yield !== undefined && item.daily_yield !== null
-            ? item.daily_yield + " kwh"
-            : "",
-        AnnualYield:
-          item.annual_yield !== undefined && item.annual_yield !== null
-            ? item.annual_yield + " kwh"
-            : "",
-        TotalYield:
-          item.total_yield !== undefined && item.total_yield !== null
-            ? item.total_yield + " kwh"
-            : "",
-      }));
+        setReportsData(mappedData);
 
-      setReportsData(mappedData);
+        setProjectList(res?.projectList);
 
-      // Dropdown lists: restrict to investor-allowed
-      const resProjects = Array.isArray(res?.projectList) ? res.projectList : [];
-      const resInverters = Array.isArray(res?.inverterList) ? res.inverterList : [];
-
-      const allowedProjectSet = new Set((allowed ?? []).map(String));
-      const investorProjects = resProjects.filter((p) => allowedProjectSet.has(String(p.id ?? p.project_id)));
-      setProjectList(investorProjects);
-
-      const investorInverters = resInverters.filter((inv) => allowedProjectSet.has(String(inv.project_id)));
-      setInverterList(investorInverters);
-
-      // Set pagination from server response
-      if (res.pagination) {
-        setPagination({
-          page: res.pagination.page || pageIndex + 1,
-          limit: res.pagination.limit || PAGE_SIZE,
-          total: res.pagination.total || mappedData.length,
-          pages: res.pagination.pages || Math.max(1, Math.ceil(mappedData.length / PAGE_SIZE)),
-        });
-      } else {
-        // Fallback if no pagination in response
-        setPagination({
-          page: pageIndex + 1,
-          limit: PAGE_SIZE,
-          total: mappedData.length,
-          pages: Math.max(1, Math.ceil(mappedData.length / PAGE_SIZE)),
-        });
+        // Set pagination from server response
+        if (res.pagination) {
+          setPagination({
+            page: res.pagination.page || pageIndex + 1,
+            limit: res.pagination.limit || PAGE_SIZE,
+            total: res.pagination.total || mappedData.length,
+            pages: res.pagination.pages || Math.max(1, Math.ceil(mappedData.length / PAGE_SIZE)),
+          });
+        } else {
+          // Fallback if no pagination in response
+          setPagination({
+            page: pageIndex + 1,
+            limit: PAGE_SIZE,
+            total: mappedData.length,
+            pages: Math.max(1, Math.ceil(mappedData.length / PAGE_SIZE)),
+          });
+        }
       }
     } catch (err) {
       setError(err?.message || "Failed to load reports");
@@ -205,7 +133,7 @@ const RoiReports = () => {
     }, 120000);
 
     return () => clearInterval(interval);
-  }, [appliedProjectFilter, appliedInverterFilter, appliedSearchTerm, allowedIds, pageIndex]);
+  }, [appliedProjectFilter, appliedSearchTerm, pageIndex]);
 
   // Fetch project list on component mount
   useEffect(() => {
@@ -213,18 +141,6 @@ const RoiReports = () => {
       fetchProjectList();
     }
   }, [user?.id]);
-
-  // Fetch inverter list when project filter changes
-  useEffect(() => {
-    if (projectFilter) {
-      fetchInverterList(projectFilter);
-      // Reset inverter filter when project changes
-      setInverterFilter("");
-    } else {
-      setInverterList([]);
-      setInverterFilter("");
-    }
-  }, [projectFilter]);
 
   // 3) Handle submit to apply filters
   const handleSubmit = () => {
@@ -240,19 +156,11 @@ const RoiReports = () => {
     setPageIndex(0);
     setSearchTerm('');
     setAppliedProjectFilter(projectFilter);
-    setAppliedInverterFilter(inverterFilter);
     setAppliedSearchTerm(searchTerm);
   };
 
   // 4) Server-side filtered data
   const filteredData = reportsData;
-
-  // Reset inverter filter when project changes
-  useEffect(() => {
-    if (!inverterFilter) return;
-    const available = new Set((inverterList || []).map((i) => String(i.id)));
-    if (!available.has(inverterFilter)) setInverterFilter("");
-  }, [projectFilter, inverterList, inverterFilter]);
 
   const handleSearchChange = (value) => {
     setPageIndex(0);
@@ -273,9 +181,14 @@ const RoiReports = () => {
     return "";
   };
 
-  // CSV Download - Fetch all records
   const handleDownloadCSV = async () => {
     try {
+      // Require applied filters like the table
+      if (!appliedProjectFilter) {
+        showErrorToast(lang("common.pleaseSelectProject", "Please select project after downloading CSV"));
+        return;
+      }
+
       setLoading(true);
 
       // Build params to fetch all data for CSV export
@@ -285,56 +198,33 @@ const RoiReports = () => {
       });
 
       if (appliedProjectFilter) params.append("projectId", appliedProjectFilter);
-      if (appliedInverterFilter) params.append("inverterId", appliedInverterFilter);
       if (appliedSearchTerm) params.append("search", appliedSearchTerm);
 
-      const res = await apiGet(`/api/inverter-data?${params.toString()}`);
+      // Use the same ROI report API as the table
+      const res = await apiGet(`/api/projects/report/roi-data?${params.toString()}`);
       const items = Array.isArray(res?.data) ? res.data : [];
 
-      // Restrict to investor-allowed projects
-      const allowed = Array.isArray(allowedIds) ? allowedIds : null;
-      const filteredItems = items.filter((item) => {
-        if (!allowed) return true;
-        const pid = Number(item.project_id ?? item.projectId ?? item?.project?.id);
-        return allowed.includes(pid);
-      });
-
-      // Map data for CSV
-      const csvData = filteredItems.map((item) => ({
-        projectName: item.projects?.project_name || item?.project?.project_name || `Project ${item.project_id ?? ""}`,
-        inverterName: item.project_inverters?.inverter_name || "-",
-        date: item.date || "",
-        time: item.time ?? "",
-        generatedKW:
-          item.generate_kw !== undefined && item.generate_kw !== null
-            ? (Number(item.generate_kw) / 1000).toFixed(2) + " kwh"
-            : "",
-        Acfrequency: item.ac_frequency ?? "",
-        DailyYield:
-          item.daily_yield !== undefined && item.daily_yield !== null
-            ? item.daily_yield + " kwh"
-            : "",
-        AnnualYield:
-          item.annual_yield !== undefined && item.annual_yield !== null
-            ? item.annual_yield + " kwh"
-            : "",
-        TotalYield:
-          item.total_yield !== undefined && item.total_yield !== null
-            ? item.total_yield + " kwh"
-            : "",
+      const csvData = items.map((item, idx) => ({
+        projectName: item.project_name || `Project ${item.project_id ?? idx ?? ""}`,
+        month: item.month || "",
+        askingPrice: item.asking_price || "0",
+        capexValue: item.capexValue ?? item.capex_value ?? "0",
+        monthEnergy: item.month_energy || "0",
+        wesharePrice: item.weshare_price || "0",
+        monthRevenue: item.month_revenue || "0",
+        monthRoi: item.month_roi || "0",
       }));
 
       // Define CSV headers
       const headers = [
-        lang("projects.projectName"),
-        lang("inverter.inverterName"),
-        lang("common.date"),
-        lang("common.time"),
-        lang("common.generatedKW"),
-        lang("common.acFrequency"),
-        lang("reports.dailyYield"),
-        lang("reports.annualYield"),
-        lang("reports.totalYield"),
+        lang("projects.projectName", "Project Name"),
+        lang("reports.month", "Month"),
+        lang("projects.askingPrice", "Asking Price"),
+        lang("projects.capexValue", "Capex Value"),
+        lang("reports.monthEnergy", "Energy"),
+        lang("projects.wesharePrice", "Weshare Price (kWh)"),
+        lang("reports.monthRevenue", "Month Revenue"),
+        lang("reports.monthRoi", "ROI"),
       ];
 
       // Convert data to CSV rows
@@ -343,14 +233,13 @@ const RoiReports = () => {
         ...csvData.map((row) => {
           const values = [
             `"${(row.projectName || "-").replace(/"/g, '""')}"`,
-            `"${(row.inverterName || "-").replace(/"/g, '""')}"`,
-            row.date ? `"${formatDateDDMMYYYY(row.date)}"` : '"-"',
-            row.time ? `"${row.time}"` : '"-"',
-            row.generatedKW ? `"${row.generatedKW}"` : '"-"',
-            row.Acfrequency ? `"${row.Acfrequency}"` : '"-"',
-            row.DailyYield ? `"${row.DailyYield}"` : '"-"',
-            row.AnnualYield ? `"${row.AnnualYield}"` : '"-"',
-            row.TotalYield ? `"${row.TotalYield}"` : '"-"',
+            `"${(row.month || "-").replace(/"/g, '""')}"`,
+            row.askingPrice ?? "0",
+            row.capexValue ?? "0",
+            row.monthEnergy ?? "0",
+            row.wesharePrice ?? "0",
+            row.monthRevenue ?? "0",
+            `${parseFloat(row.monthRoi || 0).toFixed(2)}%`,
           ];
           return values.join(",");
         }),
@@ -386,28 +275,65 @@ const RoiReports = () => {
     }
   };
 
+  // Format currency helper
+  const formatCurrency = (value) => {
+    if (!value || value === "0") return "0.00";
+    const num = parseFloat(value);
+    return isNaN(num) ? "0.00" : num.toFixed(2);
+  };
+
+  // Format percentage helper
+  const formatPercentage = (value) => {
+    if (!value || value === "0") return "0.00%";
+    const num = parseFloat(value);
+    return isNaN(num) ? "0.00%" : `${num.toFixed(2)}%`;
+  };
+
   // Columns definition
   const columns = useMemo(
     () => [
       {
         accessorKey: "projectName",
-        header: () => lang("projects.projectName"),
+        header: () => lang("projects.projectName", "Project Name"),
       },
       {
-        accessorKey: "inverterName",
-        header: () => lang("inverter.inverterName"),
+        accessorKey: "month",
+        header: () => lang("reports.month", "Month"),
       },
       {
-        accessorKey: "date",
-        header: () => lang("common.date"),
-        cell: ({ row }) => formatDateDDMMYYYY(row.original.date),
+        accessorKey: "askingPrice",
+        header: () => lang("projects.askingPrice", "Asking Price"),
+        cell: ({ row }) => formatCurrency(row.original.askingPrice),
       },
-      { accessorKey: "time", header: () => lang("common.time") },
-      { accessorKey: "generatedKW", header: () => lang("common.generatedKW") },
-      { accessorKey: "Acfrequency", header: () => lang("common.acFrequency") },
-      { accessorKey: "DailyYield", header: () => lang("reports.dailyYield") },
-      { accessorKey: "AnnualYield", header: () => lang("reports.annualYield") },
-      { accessorKey: "TotalYield", header: () => lang("reports.totalYield"), meta: { disableSort: true } },
+      {
+        accessorKey: "capexValue",
+        header: () => lang("projects.capexValue", "Capex Value"),
+        cell: ({ row }) => {
+          const value = parseFloat(row.original.capexValue);
+          return isNaN(value) ? "0.00" : value.toFixed(2);
+        },
+      },
+      {
+        accessorKey: "month_energy",
+        header: () => lang("reports.monthEnergy", "Energy"),
+        cell: ({ row }) => formatShort(row.original.month_energy),
+      },
+      {
+        accessorKey: "weshare_price",
+        header: () => lang("projects.wesharePrice", "Weshare Price (kWh)"),
+        cell: ({ row }) => row.original.weshare_price,
+      },
+
+      {
+        accessorKey: "monthRevenue",
+        header: () => lang("reports.monthRevenue", "Revenue"),
+        cell: ({ row }) => row.original.monthRevenue,
+      },
+      {
+        accessorKey: "monthRoi",
+        header: () => lang("reports.monthRoi", "ROI"),
+        cell: ({ row }) => (formatPercentage(row.original.monthRoi)),
+      }
     ],
     [lang]
   );
@@ -455,35 +381,6 @@ const RoiReports = () => {
             sx={{ minWidth: 260 }}
           />
 
-          <Autocomplete
-            size="small"
-            options={[...inverterList].sort((a, b) => {
-              const nameA = (a.inverter_name ?? a.name ?? "").toLowerCase();
-              const nameB = (b.inverter_name ?? b.name ?? "").toLowerCase();
-              return nameA.localeCompare(nameB);
-            })}
-            value={
-              inverterList.find((i) => String(i.id) === String(inverterFilter)) || null
-            }
-            onChange={(e, newValue) => {
-              setInverterFilter(newValue ? String(newValue.id) : "");
-            }}
-            getOptionLabel={(option) =>
-              option.inverter_name ?? option.name ?? `Inverter ${option.id}`
-            }
-            isOptionEqualToValue={(option, value) =>
-              String(option.id) === String(value.id)
-            }
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label={lang("reports.allinverters")}
-                placeholder="Search inverter..."
-              />
-            )}
-            sx={{ minWidth: 260 }}
-          />
-
           <button
             onClick={handleSubmit}
             disabled={isSubmitDisabled}
@@ -494,8 +391,8 @@ const RoiReports = () => {
         </div>
 
         <button
-          onClick={handleDownloadCSV}
           className="common-grey-color border rounded-3 btn"
+          onClick={handleDownloadCSV}
         >
           {lang("reports.downloadcsv")}
         </button>

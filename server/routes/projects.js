@@ -967,9 +967,9 @@ router.get("/", async (req, res) => {
       totalEnergyMap.set(item.project_id, item._sum.energy || 0);
     });
 
-      const projectsWithRoi = projects.map(project => {
-      const totalEnergy = energyMap.get(project.id) || 0; 
-      const totalEnergyAllTime = totalEnergyMap.get(project.id) || 0; 
+    const projectsWithRoi = projects.map(project => {
+      const totalEnergy = energyMap.get(project.id) || 0;
+      const totalEnergyAllTime = totalEnergyMap.get(project.id) || 0;
       const wesharePrice = parseFloat(project.weshare_price_kwh) || 0;
       const projectSize = parseFloat(project.project_size) || 0;
       const capexPerKwp = parseFloat(project.capex_per_kwp) || 0;
@@ -2160,6 +2160,7 @@ router.get("/report/saving-data", authenticateToken, async (req, res) => {
     const {
       projectId,
       offtaker_id,
+      investor_id,
       search,
       downloadAll,
       limit,
@@ -2177,6 +2178,7 @@ router.get("/report/saving-data", authenticateToken, async (req, res) => {
       projects: {
         is_deleted: 0,
         ...(offtaker_id ? { offtaker_id: Number(offtaker_id) } : {}),
+        ...(investor_id ? { investor_id: Number(investor_id) } : {}),
       },
     };
 
@@ -2522,6 +2524,227 @@ router.post('/report/project-energy-data', authenticateToken, async (req, res) =
     res.status(500).json({
       success: false,
       message: "Failed to fetch project energy data",
+    });
+  }
+});
+
+// GET /api/projects/report/roi-data - ROI Reports month-wise with calculations
+router.get("/report/roi-data", authenticateToken, async (req, res) => {
+  try {
+    const {
+      projectId,
+      search,
+      downloadAll,
+      limit,
+      page,
+      startDate,
+      endDate,
+    } = req.query;
+
+    const parsedLimit = Number(limit);
+    const limitNumber =
+      !Number.isNaN(parsedLimit) && parsedLimit > 0 ? parsedLimit : 50;
+    const parsedPage = Number(page);
+    const pageNumber =
+      !Number.isNaN(parsedPage) && parsedPage > 0 ? parsedPage : 1;
+
+    const fetchAll = downloadAll === "1" || downloadAll === "true";
+
+    // Build project filter
+    let projectWhere = {
+      is_deleted: 0,
+      project_status_id: PROJECT_STATUS.RUNNING,
+    };
+
+    if (projectId) {
+      projectWhere.id = Number(projectId);
+    }
+
+    // Search functionality for project name
+    const trimmedSearch = typeof search === "string" ? search.trim() : "";
+    if (trimmedSearch) {
+      projectWhere.project_name = {
+        contains: trimmedSearch,
+        mode: "insensitive",
+      };
+    }
+
+    // Fetch projects
+    const projects = await prisma.projects.findMany({
+      where: projectWhere,
+      select: {
+        id: true,
+        project_name: true,
+        project_size: true,
+        asking_price: true,
+        weshare_price_kwh: true,
+        capex_per_kwp: true,
+      },
+      orderBy: { project_name: "asc" },
+    });
+
+    if (!projects.length) {
+      return res.status(200).json({
+        success: true,
+        data: [],
+        projectList: [],
+        pagination: {
+          page: pageNumber,
+          limit: limitNumber,
+          total: 0,
+          pages: 0,
+        },
+      });
+    }
+
+    const projectIds = projects.map((p) => p.id);
+
+    // Build date filter for energy data
+    let energyDateFilter = {};
+    if (startDate || endDate) {
+      if (startDate) {
+        energyDateFilter.gte = new Date(`${startDate}T00:00:00.000Z`);
+      }
+      if (endDate) {
+        const end = new Date(`${endDate}T23:59:59.999Z`);
+        energyDateFilter.lte = end;
+      }
+    }
+
+    // Fetch all energy data for these projects (grouped by month)
+    const allEnergyData = await prisma.project_energy_days_data.findMany({
+      where: {
+        project_id: { in: projectIds },
+        ...(Object.keys(energyDateFilter).length > 0 && { date: energyDateFilter }),
+      },
+      select: {
+        project_id: true,
+        date: true,
+        energy: true,
+      },
+      orderBy: { date: "asc" },
+    });
+
+    // Calculate total revenue (all time) for each project
+    const totalEnergyByProject = await prisma.project_energy_days_data.groupBy({
+      by: ['project_id'],
+      where: {
+        project_id: { in: projectIds },
+      },
+      _sum: {
+        energy: true,
+      },
+    });
+
+    const totalEnergyMap = new Map();
+    totalEnergyByProject.forEach((item) => {
+      totalEnergyMap.set(item.project_id, item._sum.energy || 0);
+    });
+
+    // Group energy data by project and month
+    const monthGroups = {};
+
+    allEnergyData.forEach((row) => {
+      const date = new Date(row.date);
+      const year = date.getFullYear();
+      const month = date.getMonth(); // 0-11
+      const monthKey = `${row.project_id}-${year}-${month}`;
+
+      if (!monthGroups[monthKey]) {
+        monthGroups[monthKey] = {
+          project_id: row.project_id,
+          year: year,
+          month: month,
+          energy: 0,
+        };
+      }
+
+      monthGroups[monthKey].energy += Number(row.energy) || 0;
+    });
+
+    // Build month-wise report data
+    const reportData = [];
+
+    Object.values(monthGroups).forEach((monthData) => {
+      const project = projects.find((p) => p.id === monthData.project_id);
+      if (!project) return;
+
+      const wesharePrice = parseFloat(project.weshare_price_kwh) || 0;
+      const askingPrice = parseFloat(project.asking_price) || 0;
+      const capexPerKwp = parseFloat(project.capex_per_kwp) || 0;
+      const monthEnergy = monthData.energy || 0;
+      const totalEnergy = totalEnergyMap.get(project.id) || 0;
+      const capexValue = project.project_size * capexPerKwp;
+      const totalRevenue = totalEnergy * wesharePrice;
+      const monthRevenue = monthEnergy * wesharePrice;
+
+      // Calculate Month ROI: (month revenue * 100) / asking_price
+      let monthRoi = 0;
+      if (askingPrice > 0 && monthEnergy > 0) {
+        const weshareAmount = monthEnergy * wesharePrice;
+        monthRoi = (weshareAmount * 100) / capexValue;
+      }
+
+      // Format month as MM/YYYY
+      const monthStr = String(monthData.month + 1).padStart(2, '0');
+      const yearStr = String(monthData.year);
+
+      reportData.push({
+        id: `${project.id}-${monthData.year}-${monthData.month}`,
+        project_id: project.id,
+        project_name: project.project_name,
+        asking_price: askingPrice.toFixed(2),
+        revenue: totalRevenue.toFixed(2),
+        month_energy: monthEnergy.toFixed(2),
+        month_revenue: monthRevenue.toFixed(2),
+        month_roi: monthRoi.toFixed(2),
+        weshare_price: wesharePrice,
+        month: `${monthStr}/${yearStr}`,
+        capexValue: capexValue.toFixed(2),
+        year: monthData.year,
+        month_num: monthData.month + 1,
+      });
+    });
+
+    // Sort by year desc, then month desc (newest first)
+    reportData.sort((a, b) => {
+      if (b.year !== a.year) return b.year - a.year;
+      return b.month_num - a.month_num;
+    });
+
+    // Apply pagination
+    const totalCount = reportData.length;
+    const paginatedData = fetchAll
+      ? reportData
+      : reportData.slice((pageNumber - 1) * limitNumber, pageNumber * limitNumber);
+
+    // Fetch project list for dropdown
+    const projectList = await prisma.projects.findMany({
+      where: { is_deleted: 0, project_status_id: PROJECT_STATUS.RUNNING },
+      orderBy: { project_name: "asc" },
+      select: {
+        id: true,
+        project_name: true,
+      },
+    });
+
+    res.status(200).json({
+      success: true,
+      data: paginatedData,
+      projectList,
+      pagination: {
+        page: pageNumber,
+        limit: limitNumber,
+        total: totalCount,
+        pages: Math.max(1, Math.ceil(totalCount / limitNumber)),
+      },
+    });
+  } catch (error) {
+    console.error("ROI Reports error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch ROI reports",
+      error: error.message,
     });
   }
 });

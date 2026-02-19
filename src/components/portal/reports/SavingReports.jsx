@@ -7,6 +7,7 @@ import Table from "@/components/shared/table/Table";
 import { formatMonthYear, formatShort } from "@/utils/common";
 import { PROJECT_STATUS } from "@/constants/project_status";
 import { Autocomplete, TextField } from "@mui/material";
+import { ROLES } from "@/constants/roles";
 
 const SavingReports = () => {
   const PAGE_SIZE = 50; // show 50 rows per page
@@ -39,9 +40,16 @@ const SavingReports = () => {
 
   const fetch_project_list = async () => {
     try {
-      const res = await apiPost("/api/projects/dropdown/project", { offtaker_id: user?.id, project_status_id: PROJECT_STATUS.RUNNING });
-      if (res && res.success) {
-        setProjectList(res.data);
+      if (user.role === ROLES.OFFTAKER) {
+        const res_offtaker = await apiPost("/api/projects/dropdown/project", { offtaker_id: user?.id, project_status_id: PROJECT_STATUS.RUNNING });
+        if (res_offtaker && res_offtaker.success) {
+          setProjectList(res_offtaker.data);
+        }
+      } else {
+        const res_investor = await apiPost("/api/projects/dropdown/project", { investor_id: user?.id, project_status_id: PROJECT_STATUS.RUNNING });
+        if (res_investor && res_investor.success) {
+          setProjectList(res_investor.data);
+        }
       }
     } catch (error) {
       console.error("Error fetching project list:", error);
@@ -96,7 +104,11 @@ const SavingReports = () => {
         params.append("groupBy", appliedGroupBy);
       }
 
-      params.append("offtaker_id", user?.id);
+      if (user.role === ROLES.OFFTAKER) {
+        params.append("offtaker_id", user?.id);
+      } else {
+        params.append("investor_id", user?.id);
+      }
 
       const res = await apiGet(`/api/projects/report/saving-data?${params.toString()}`);
 
@@ -269,8 +281,11 @@ const SavingReports = () => {
       // Fetch all data for CSV (set a high limit or fetch without pagination)
       params.append("page", "1");
       params.append("limit", "10000"); // Large limit to get all data
-
-      params.append("offtaker_id", user?.id);
+      if (user.role === ROLES.OFFTAKER) {
+        params.append("offtaker_id", user?.id);
+      } else {
+        params.append("investor_id", user?.id);
+      }
 
       const res = await apiGet(`/api/projects/report/saving-data?${params.toString()}`);
 
@@ -427,7 +442,7 @@ const SavingReports = () => {
               ].find((g) => g.value === groupBy) || null
             }
             onChange={(e, newValue) => {
-              const newGroupBy = newValue ? newValue.value : "day";
+              const newGroupBy = newValue ? newValue.value : "";
               setGroupBy(newGroupBy);
               if (appliedGroupBy !== newGroupBy && appliedProject) {
                 setSearchTerm("");
