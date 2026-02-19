@@ -23,7 +23,7 @@ function PannelSidebar() {
         setActiveMenu(lastSegment);
         
         // Auto-open reports submenu if on a reports page
-        if (lastSegment === 'roi-reports' || lastSegment === 'investment-summary-reports' || lastSegment === 'saving-reports') {
+        if (lastSegment === 'roi-reports' || lastSegment === 'capital-recovery-reports' || lastSegment === 'saving-reports') {
             setReportsOpen(true);
         }
     }, [pathname]);
@@ -63,7 +63,7 @@ function PannelSidebar() {
                 </div>
                 <div className="menu-section">
                     <div
-                        className={`menu-item${activeMenu === 'roi-reports' || activeMenu === 'investment-summary-reports' ? ' active' : ''}`}
+                        className={`menu-item${activeMenu === 'roi-reports' || activeMenu === 'capital-recovery-reports' ? ' active' : ''}`}
                         onClick={() => setReportsOpen(!reportsOpen)}
                         style={{ cursor: 'pointer' }}
                     >
@@ -72,7 +72,7 @@ function PannelSidebar() {
                     </div>
                     <div className={`submenu${reportsOpen ? ' show' : ''}`}>
                         <Link href="/investor/reports/roi-reports" className={`menu-item${activeMenu === 'roi-reports' ? ' active' : ''}`} onClick={handleClose}>{lang("menu.roireports")}</Link>
-                        <Link href="/investor/reports/investment-summary-reports" className={`menu-item${activeMenu === 'investment-summary-reports' ? ' active' : ''}`} onClick={handleClose}>{lang("menu.investmentsummaryreports")}</Link>
+                        <Link href="/investor/reports/capital-recovery-reports" className={`menu-item${activeMenu === 'capital-recovery-reports' ? ' active' : ''}`} onClick={handleClose}>{lang("menu.capitalrecoveryreports")}</Link>
                         <Link href="/investor/reports/saving-reports" className={`menu-item${activeMenu === 'saving-reports' ? ' active' : ''}`} onClick={handleClose}>{lang("menu.savingreports")}</Link>
                     </div>
                 </div>

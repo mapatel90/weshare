@@ -468,7 +468,8 @@
     "cashflowreports": "Báo cáo dòng tiền",
     "investmentsummaryreports": "Báo cáo tóm tắt đầu tư",
     "payouts": "khoản thanh toán",
-    "company": "Công ty"
+    "company": "Công ty",
+    "capitalrecoveryreports": "Báo cáo khôi phục vốn"
   },
   "dashboard": {
     "all_your_investments": "Tất cả khoản đầu tư của bạn",

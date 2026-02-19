@@ -13,6 +13,7 @@ import { getUserFullName } from "../utils/common.js";
 import { sendEmailUsingTemplate } from "../utils/email.js";
 import { uploadToS3, deleteFromS3, isS3Enabled } from '../services/s3Service.js';
 import { PROJECT_STATUS } from "../../src/constants/project_status.js";
+import { PAYOUT_STATUS } from "../../src/constants/payout_status.js";
 import { getAdminUserId, getAdminUsers, getNotificationRecipients, USER_ROLES } from "../utils/constants.js";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -2744,6 +2745,114 @@ router.get("/report/roi-data", authenticateToken, async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Failed to fetch ROI reports",
+      error: error.message,
+    });
+  }
+});
+
+// GET /api/projects/report/capital-recovery
+// Investor report: list projects for logged-in investor with total payout + capital recovery %
+router.get("/report/capital-recovery", authenticateToken, async (req, res) => {
+  try {
+    const { search, downloadAll, limit, page } = req.query;
+
+    const investorId = Number(req.user?.id);
+    if (!investorId) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized",
+      });
+    }
+
+    const parsedLimit = Number(limit);
+    const limitNumber =
+      !Number.isNaN(parsedLimit) && parsedLimit > 0 ? parsedLimit : 50;
+    const parsedPage = Number(page);
+    const pageNumber =
+      !Number.isNaN(parsedPage) && parsedPage > 0 ? parsedPage : 1;
+    const fetchAll = downloadAll === "1" || downloadAll === "true";
+
+    const trimmedSearch = typeof search === "string" ? search.trim() : "";
+
+    const whereProjects = {
+      is_deleted: 0,
+      investor_id: investorId,
+      ...(trimmedSearch
+        ? {
+            project_name: {
+              contains: trimmedSearch,
+              mode: "insensitive",
+            },
+          }
+        : {}),
+    };
+
+    const totalCount = await prisma.projects.count({ where: whereProjects });
+
+    const projects = await prisma.projects.findMany({
+      where: whereProjects,
+      select: {
+        id: true,
+        project_name: true,
+        asking_price: true,
+      },
+      orderBy: { project_name: "asc" },
+      skip: fetchAll ? 0 : (pageNumber - 1) * limitNumber,
+      take: fetchAll ? undefined : limitNumber,
+    });
+
+    const projectIds = projects.map((p) => p.id);
+
+    // Sum payouts per project (only status = PAYOUT)
+    const payoutsByProject = projectIds.length
+      ? await prisma.payouts.groupBy({
+          by: ["project_id"],
+          where: {
+            investor_id: investorId,
+            project_id: { in: projectIds },
+            status: PAYOUT_STATUS.PAYOUT,
+          },
+          _sum: {
+            payout_amount: true,
+          },
+        })
+      : [];
+
+    const payoutSumMap = new Map(
+      payoutsByProject.map((g) => [g.project_id, Number(g._sum?.payout_amount || 0)])
+    );
+
+    const data = projects.map((p) => {
+      const askingPrice = parseFloat(p.asking_price || "0") || 0;
+      const totalPayout = payoutSumMap.get(p.id) || 0;
+      const capitalRecovery =
+        askingPrice > 0 ? (totalPayout * 100) / askingPrice : 0;
+
+      return {
+        id: p.id,
+        project_id: p.id,
+        project_name: p.project_name,
+        asking_price: askingPrice.toFixed(2),
+        total_payout: totalPayout.toFixed(2),
+        capital_recovery: capitalRecovery.toFixed(2),
+      };
+    });
+
+    return res.status(200).json({
+      success: true,
+      data,
+      pagination: {
+        page: pageNumber,
+        limit: limitNumber,
+        total: totalCount,
+        pages: Math.max(1, Math.ceil(totalCount / limitNumber)),
+      },
+    });
+  } catch (error) {
+    console.error("Capital recovery report error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch capital recovery report",
       error: error.message,
     });
   }

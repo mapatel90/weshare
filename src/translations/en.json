@@ -486,7 +486,8 @@
     "investmentsummaryreports": "Investment Summary Reports",
     "emailTemplates": "Email Templates",
     "payouts": "Payouts",
-    "company": "Company"
+    "company": "Company",
+    "capitalrecoveryreports": "Capital Recovery Reports"
   },
   "dashboard": {
     "all_your_investments": "All your investments",
