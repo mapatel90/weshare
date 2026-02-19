@@ -140,8 +140,8 @@ model invoices {
   tax_id                Int?     @default(0)
   tax_amount            Float     @default(0)
   total_amount          Float     @default(0)
-  notes                 String?    @db.VarChar(255)
-  terms_and_conditions  String?    @db.VarChar(255)
+  notes                 String?    @db.Text
+  terms_and_conditions  String?    @db.Text
   qr_code_url           String?    @db.VarChar(900)
   invoice_pdf           String?    @db.VarChar(900)
   status                Int       @default(0)
@@ -570,7 +570,7 @@ model payouts {
   transaction_id  String? // bank txn id / stripe id
   payout_date     DateTime?
   created_at      DateTime @default(now())
-  reason          String?  @db.VarChar(500)
+  reason          String?  @db.Text
 
   invoices  invoices    @relation(fields: [invoice_id], references: [id])
   users     users       @relation(fields: [investor_id], references: [id])
