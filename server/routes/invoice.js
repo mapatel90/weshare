@@ -370,13 +370,13 @@ router.post("/", authenticateToken, async (req, res) => {
 
     const parsedItems = Array.isArray(items)
       ? items
-          .map((it) => ({
-            item: it?.item || "",
-            description: it?.description || "",
-            unit: Number(it?.unit) || 0,
-            price: Number(it?.price) || 0,
-          }))
-          .filter((it) => it.item)
+        .map((it) => ({
+          item: it?.item || "",
+          description: it?.description || "",
+          unit: Number(it?.unit) || 0,
+          price: Number(it?.price) || 0,
+        }))
+        .filter((it) => it.item)
       : [];
 
     const itemsTotal = parsedItems.reduce(
@@ -439,6 +439,23 @@ router.post("/", authenticateToken, async (req, res) => {
     });
 
     if (created) {
+
+      const response = await fetch(`${process.env.MICROSERVICE_URL}/invoice/regenerate`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${req.headers.authorization}`,   // any non-blank token
+        },
+        body: JSON.stringify({
+          invoice_id: created.id,
+          offtaker_id: created.offtaker_id,
+        }),
+      });
+      if (response.ok) {
+        console.log("Invoice pdf generated successfully");
+      } else {
+        console.error("Failed to generate invoice pdf");
+      }
       const offtakerUser = await prisma.users.findUnique({
         where: { id: created.offtaker_id },
       });
@@ -580,14 +597,14 @@ router.put("/:id", authenticateToken, async (req, res) => {
 
     const parsedItems = Array.isArray(items)
       ? items
-          .map((it) => ({
-            item: it?.item || "",
-            description: it?.description || "",
-            unit: Number(it?.unit) || 0,
-            price: Number(it?.price) || 0,
-            id: it?.id,
-          }))
-          .filter((it) => it.item)
+        .map((it) => ({
+          item: it?.item || "",
+          description: it?.description || "",
+          unit: Number(it?.unit) || 0,
+          price: Number(it?.price) || 0,
+          id: it?.id,
+        }))
+        .filter((it) => it.item)
       : [];
 
     const itemsTotal = parsedItems.reduce(
@@ -648,11 +665,28 @@ router.put("/:id", authenticateToken, async (req, res) => {
           })),
         });
       }
-
       return inv;
     });
 
     if (updated) {
+      // Generate invoice pdf
+      const response = await fetch(`${process.env.MICROSERVICE_URL}/invoice/regenerate`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${req.headers.authorization}`,
+        },
+        body: JSON.stringify({
+          invoice_id: updated.id,
+          offtaker_id: updated.offtaker_id,
+        }),
+      });
+      if (response.ok) {
+        console.log("Invoice pdf generated successfully");
+      } else {
+        console.error("Failed to generate invoice pdf");
+      }
+
       const userId = req.user?.id;
       const lang = await getUserLanguage(updated.offtaker_id);
       const updaterName = await getUserFullName(userId);
