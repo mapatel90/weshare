@@ -490,11 +490,23 @@ router.post("/", authenticateToken, async (req, res) => {
           current_date: new Date().toLocaleDateString(),
         };
 
+        const attachments = [];
+        if (created.invoice_pdf) {
+          const pdfUrl = buildUploadUrl(created.invoice_pdf);
+          if (pdfUrl) {
+            attachments.push({
+              filename: `${created.invoice_prefix}-${created.invoice_number}.pdf`,
+              path: pdfUrl
+            });
+          }
+        }
+
         sendEmailUsingTemplate({
           to: offtakerUser.email,
           templateSlug: "invoice_created_for_offtaker",
           templateData,
           language: offtakerUser.language || "en",
+          attachments: attachments
         })
           .then((result) => {
             if (result.success) {

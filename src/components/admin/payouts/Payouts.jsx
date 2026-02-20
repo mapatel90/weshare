@@ -108,6 +108,7 @@ const PayoutsPage = () => {
             }
 
             const response = await apiGet(`/api/payouts?${params.toString()}`);
+            console.log("Fetched payouts:", response);
 
             if (response?.success) {
                 setPayouts(response.data);
@@ -308,6 +309,42 @@ const PayoutsPage = () => {
         }
     }, [pageIndex, pageSize]);
 
+    const handleDownload = async (payout) => {
+        const fileUrl = buildUploadUrl(payout?.payout_pdf);
+        if (!fileUrl) {
+          Swal.fire({
+            title: "Payout PDF not available",
+            icon: "info",
+          });
+          return;
+        }
+    
+        try {
+          const response = await fetch(fileUrl);
+          if (!response.ok) {
+            throw new Error("Download failed");
+          }
+    
+          const blob = await response.blob();
+          const objectUrl = window.URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          const baseName = `${payout?.payout_prefix || "INV"}-${
+            payout?.payout_number || "Payout"
+          }`;
+          link.href = objectUrl;
+          link.download = `${baseName}.pdf`;
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+          window.URL.revokeObjectURL(objectUrl);
+        } catch (error) {
+          console.error("Failed to download payout PDF:", error);
+          Swal.fire({
+            title: "Unable to download payout PDF",
+            icon: "error",
+          });
+        }
+    };
     // -----------------------------
     // Table Columns
     // -----------------------------
@@ -538,7 +575,7 @@ const PayoutsPage = () => {
                             </Link>
                             <IconButton
                                 size="small"
-                                onClick={() => downloadPayoutPDF(data.id, priceWithCurrency)}
+                                onClick={() => handleDownload(data)}
                                 sx={{
                                     color: "#2e7d32",
                                     transition: "transform 0.2s ease",

@@ -60,13 +60,12 @@ const Billings = () => {
     return num.toLocaleString("en-US", { style: "currency", currency: "USD" });
   };
 
-  const statusLabel = (value) => {
-    if (typeof value === "string") return value;
-    const map = {
-      0: "Pending",
-      1: "Paid",
+  const getStatusColorClass = (statusValue) => {
+    const colorMap = {
+      0: "bg-gray-200 text-gray-700", // Pending Verification
+      1: "bg-green-100 text-green-700", // Paid
     };
-    return map[value] ?? "Pending";
+    return colorMap[statusValue] ?? "bg-gray-200 text-gray-700";
   };
 
   useEffect(() => {
@@ -136,7 +135,7 @@ const Billings = () => {
               subAmount: priceWithCurrency(inv?.sub_amount),
               taxAmount: priceWithCurrency(inv?.tax_amount),
               amount: inv?.total_amount ?? inv?.amount ?? 0,
-              status: statusLabel(inv?.status),
+              status: inv?.status,
               download: true,
             };
           });
@@ -438,10 +437,10 @@ const Billings = () => {
                   <td className="px-2 py-2 whitespace-nowrap">
                     <span
                       className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                        statusColors[inv.status]
+                        getStatusColorClass(inv.status)
                       }`}
                     >
-                      {inv.status}
+                      {inv.status === 1 ? lang("invoice.paid", "Paid") : lang("common.pending", "Pending")}
                     </span>
                   </td>
                   <td className="px-2 py-2 whitespace-nowrap">

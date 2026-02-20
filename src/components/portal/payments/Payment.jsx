@@ -15,12 +15,6 @@ import { ROLES } from "@/constants/roles";
 import { Autocomplete, TextField } from "@mui/material";
 import { buildUploadUrl } from "@/utils/common";
 
-const statusColors = {
-  Paid: "bg-green-100 text-green-700",
-  "Pending Verification": "bg-gray-200 text-gray-700",
-  Unfunded: "bg-orange-100 text-orange-700",
-};
-
 const Payments = () => {
   const [payments, setPayments] = useState([]);
   const [projects, setProjects] = useState([]);
@@ -41,6 +35,15 @@ const Payments = () => {
   const priceWithCurrency = usePriceWithCurrency();
   const { user } = useAuth();
   const { lang } = useLanguage();
+
+  // Status color mapping function based on numeric status
+  const getStatusColorClass = (statusValue) => {
+    const colorMap = {
+      0: "bg-gray-200 text-gray-700", // Pending Verification
+      1: "bg-green-100 text-green-700", // Paid
+    };
+    return colorMap[statusValue] ?? "bg-gray-200 text-gray-700";
+  };
 
   // Fetch payments from API with server-side search, date filters, and pagination
   const fetchPayments = async (
@@ -101,7 +104,7 @@ const Payments = () => {
               ? new Date(payment.invoices.due_date).toLocaleDateString("en-US")
               : "N/A",
             amount: payment.amount || 0,
-            status: payment.status === 1 ? "Paid" : "Pending Verification",
+            status: payment.status,
             ss_url: payment.ss_url || "",
             download: true,
           }));
@@ -342,7 +345,7 @@ const Payments = () => {
               <TextField
                 size="small"
                 type="date"
-                label="Payment Date"
+                label={lang("payments.paymentDate", "Payment Date")}
                 value={paymentDate}
                 onChange={(e) => setPaymentDate(e.target.value)}
                 InputLabelProps={{
@@ -424,10 +427,13 @@ const Payments = () => {
                       </td>
                       <td className="px-2 py-2 whitespace-nowrap">
                         <span
-                          className={`px-3 py-1 rounded-full text-xs font-semibold ${statusColors[payment.status]
-                            }`}
+                          className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                            getStatusColorClass(payment.status)
+                          }`}
                         >
-                          {payment.status}
+                          {payment.status === 1
+                            ? lang("invoice.paid", "Paid")
+                            : lang("common.pending_verification", "Pending")}
                         </span>
                       </td>
                       <td className="px-2 py-2 text-center">

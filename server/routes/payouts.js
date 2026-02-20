@@ -305,6 +305,23 @@ router.post("/create", authenticateToken, uploadPayoutDoc.single('document'), as
         });
 
         if(payout){
+            const response = await fetch(`${process.env.MICROSERVICE_URL}/payout/regenerate`, {
+                method: "POST",
+                headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${req.headers.authorization}`,   // any non-blank token
+                },
+                body: JSON.stringify({
+                payout_id: payout.id,
+                }),
+            });
+
+            if(response.ok){
+                console.log(`Payout regeneration triggered for payout ID: ${payout.id}`);
+            } else {
+                console.warn(`Failed to trigger payout regeneration for payout ID: ${payout.id}`);
+            }
+
             const investorUser = await prisma.users.findUnique({
                 where: { id: investor_id }
             });
@@ -328,6 +345,15 @@ router.post("/create", authenticateToken, uploadPayoutDoc.single('document'), as
                         attachments.push({
                             filename: path.basename(fileUrl),
                             path: fileUrl,
+                        });
+                    }
+                }
+                if(payout.payout_pdf) {
+                    const pdfUrl = buildUploadUrl(payout.payout_pdf);
+                    if (pdfUrl) {
+                        attachments.push({
+                            filename: path.basename(pdfUrl),
+                            path: pdfUrl,
                         });
                     }
                 }
@@ -522,6 +548,16 @@ router.post("/update", authenticateToken, uploadPayoutDoc.single('document'), as
                         attachments.push({
                             filename: path.basename(fileUrl),
                             path: fileUrl,
+                        });
+                    }
+                }
+
+                if(updatedPayout?.payout_pdf) {
+                    const pdfUrl = buildUploadUrl(updatedPayout?.payout_pdf);
+                    if (pdfUrl) {
+                        attachments.push({
+                            filename: path.basename(pdfUrl),
+                            path: pdfUrl,
                         });
                     }
                 }

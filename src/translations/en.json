@@ -178,6 +178,9 @@
     "welcomeBack": "Welcome back Log in to your admin account"
   },
   "common": {
+    "unread": "unread",
+    "groupBy": "Group by",
+    "pending_verification": "Pending Verification",
     "reset": "Reset",
     "editEmailTemplate": "Edit Email Template",
     "addEmailTemplate": "Add Email Template",
@@ -501,6 +504,7 @@
     "running_projects": "Running Projects",
     "payout_total": "Payout Total",
     "payment_total": "Payment Total",
+    "active_and_generating_energy": "Active & generating energy",
     "total_contracts": "Total Contracts",
     "activeProjects": "Active Projects",
     "completedProjects": "Completed Projects",

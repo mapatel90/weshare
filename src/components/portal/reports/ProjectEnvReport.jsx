@@ -318,7 +318,7 @@ const ProjectEnvReport = () => {
                         <TextField
                             size="small"
                             type="date"
-                            label={lang("common.startDate", "Start Date")}
+                            label={lang("projects.startDate", "Start Date")}
                             value={startDate}
                             onChange={(e) => setStartDate(e.target.value)}
                             InputLabelProps={{
@@ -336,7 +336,7 @@ const ProjectEnvReport = () => {
                         <TextField
                             size="small"
                             type="date"
-                            label={lang("common.endDate", "End Date")}
+                            label={lang("projects.endDate", "End Date")}
                             value={endDate}
                             onChange={(e) => setEndDate(e.target.value)}
                             inputProps={{

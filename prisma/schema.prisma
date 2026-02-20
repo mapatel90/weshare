@@ -571,6 +571,7 @@ model payouts {
   payout_date     DateTime?
   created_at      DateTime @default(now())
   reason          String?  @db.Text
+  payout_pdf      String?  @db.VarChar(900)
 
   invoices  invoices    @relation(fields: [invoice_id], references: [id])
   users     users       @relation(fields: [investor_id], references: [id])
