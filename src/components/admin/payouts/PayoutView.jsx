@@ -9,6 +9,7 @@ import TransactionDialog from "./TransactionDialog";
 import { PAYOUT_STATUS } from "@/constants/payout_status";
 import { showSuccessToast } from "@/utils/topTost";
 import { downloadPayoutPDF } from "./PayoutPdf";
+import { buildUploadUrl } from "@/utils/common";
 
 const PayoutView = ({ payout_id }) => {
     const { lang } = useLanguage();
@@ -89,6 +90,43 @@ const PayoutView = ({ payout_id }) => {
         };
         fetchCompanySettings();
     }, []);
+
+    const handleDownload = async (payout) => {
+        const fileUrl = buildUploadUrl(payout?.payout_pdf);
+        if (!fileUrl) {
+            Swal.fire({
+            title: "Payout PDF not available",
+            icon: "info",
+            });
+            return;
+        }
+    
+        try {
+            const response = await fetch(fileUrl);
+            if (!response.ok) {
+            throw new Error("Download failed");
+            }
+    
+            const blob = await response.blob();
+            const objectUrl = window.URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            const baseName = `${payout?.payout_prefix || "INV"}-${
+            payout?.payout_number || "Payout"
+            }`;
+            link.href = objectUrl;
+            link.download = `${baseName}.pdf`;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(objectUrl);
+        } catch (error) {
+            console.error("Failed to download payout PDF:", error);
+            Swal.fire({
+            title: "Unable to download payout PDF",
+            icon: "error",
+            });
+        }
+    };
 
     useEffect(() => {
         const fetchPayout = async () => {
@@ -244,7 +282,7 @@ const PayoutView = ({ payout_id }) => {
                 <button
                     className="btn btn-secondary fw-bold px-4 py-2 rounded shadow"
                     type="button"
-                    onClick={() => downloadPayoutPDF(payoutData.id, priceWithCurrency)}
+                    onClick={() => handleDownload(payoutData)}
                 >
                     {lang("common.downloadPdf")}
                 </button>

@@ -166,6 +166,8 @@
   },
   "common": {
     "entries": "Mục",
+    "unread": "chưa đọc",
+    "pending_verification": "Đang chờ xác minh",
     "reset": "Đặt lại",
     "editEmailTemplate": "Chỉnh sửa mẫu email",
     "addEmailTemplate": "Thêm mẫu email",
@@ -490,6 +492,7 @@
     "activeProjects": "Dự án đang hoạt động",
     "running_projects": "Dự án đang chạy",
     "payout_total": "Tổng thanh toán",
+    "active_and_generating_energy": "Đang hoạt động và tạo ra năng lượng",
     "payment_total": "Tổng thanh toán",
     "total_contracts": "Tổng hợp đồng",
     "total_payments_made": "Tổng số thanh toán đã thực hiện",

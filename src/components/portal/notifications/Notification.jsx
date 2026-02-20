@@ -144,7 +144,7 @@ const Notification = () => {
             <div className="notification-count" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                 <div>
                     <strong>{totalCount}</strong> {lang("notification.title")}{totalCount === 1 ? '' : 's'}
-                    {unreadCount > 0 && <span style={{ marginLeft: 8, color: '#d97706' }}>({unreadCount} unread)</span>}
+                    {unreadCount > 0 && <span style={{ marginLeft: 8, color: '#d97706' }}>({unreadCount} {lang("common.unread")})</span>}
                 </div>
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                     <input

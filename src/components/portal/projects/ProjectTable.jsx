@@ -47,6 +47,30 @@ const formatPercent = (value) => {
   return Number.isNaN(number) ? `${value}` : `${number}%`;
 };
 
+const formatCompactAmount = (value) => {
+  if (value === null || value === undefined || value === "") return "—";
+
+  const numericValue =
+    typeof value === "number"
+      ? value
+      : Number(String(value).replace(/[^\d.-]/g, ""));
+
+  if (Number.isNaN(numericValue)) return value;
+
+  const abs = Math.abs(numericValue);
+  const formatWithUnit = (divisor, unit) => {
+    const compact = numericValue / divisor;
+    const hasDecimal = Math.abs(compact % 1) > 0;
+    return `${hasDecimal ? compact.toFixed(1).replace(/\.0$/, "") : compact}${unit}`;
+  };
+
+  if (abs >= 1_000_000_000) return formatWithUnit(1_000_000_000, "b");
+  if (abs >= 1_000_000) return formatWithUnit(1_000_000, "m");
+  if (abs >= 1_000) return formatWithUnit(1_000, "k");
+
+  return `${numericValue}`;
+};
+
 const normalizeApiProject = (project) => {
   const formatDateForDisplay = (iso) => {
     if (!iso) return "—";
@@ -84,9 +108,7 @@ const normalizeApiProject = (project) => {
     status: statusLabel,
     statusCode: status_id,
     expectedROI: formatPercent(project?.expected_roi ?? project?.roi),
-    targetInvestment: formatCurrency(
-      project?.asking_price ?? project?.asking_price
-    ),
+    targetInvestment: formatCompactAmount(project?.asking_price),
     paybackPeriod: project?.lease_term ? String(project.lease_term) : "—",
     startDate: formatDateForDisplay(project?.createdAt),
     endDate: formatDateForDisplay(project?.project_close_date),

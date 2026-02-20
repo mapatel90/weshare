@@ -79,7 +79,7 @@ function Summary({
 					key: "running-projects",
 					label: lang?.("dashboard.running_projects", "Running Projects") ?? "Running Projects",
 					value: summaryLoading ? "—" : formatNumber(runningProjects),
-					description: "Active & generating energy",
+					description: lang?.("dashboard.active_and_generating_energy", "Active & generating energy") ?? "Active & generating energy",
 					color: "#777b86",
                     textColor: "#1f2937",
 					hoverShadow: "rgba(34, 197, 94, 0.12)",
