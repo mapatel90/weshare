@@ -10,6 +10,7 @@ import './styles/exchange-hub-custom.css'
 import { useAuth } from '@/contexts/AuthContext'
 import { useRouter } from 'next/navigation'
 import { PROJECT_STATUS } from '@/constants/project_status'
+import { ROLES } from '@/constants/roles'
 
 const ExchangeHub = () => {
   const [activeTab, setActiveTab] = useState('lease')
@@ -453,17 +454,37 @@ const ExchangeHub = () => {
               </div>
 
               {/* Action Buttons */}
-              <div className="buttons flex-column gap-3 mt-5">
-                {user ? (
-                  <></>
-                ) : (
-                  <button className="btn btn-primary-custom w-100" onClick={() => router.push('/register')}>{lang('home.exchangeHub.signUpToInvest') || 'Sign Up to Invest'}</button>
-                )}
-                <button className="btn btn-primary-custom transparentBtn tc-102C41 border-1 w-100">
-                  <img className="me-2" src="/images/icon/reports-grey.svg" alt="arrow" onError={(e) => e.target.style.display = 'none'} />
-                  {lang('home.exchangeHub.listYourProject') || 'List Your Project'}
-                </button>
-              </div>
+              {user ? (
+                <>
+                  {user?.role == ROLES.OFFTAKER || user?.role == ROLES.INVESTOR ? (
+                    <div className="buttons d-flex flex-column gap-3 mt-5">
+                      <button
+                        className="btn btn-primary-custom transparentBtn tc-102C41 border-1 w-100"
+                        onClick={() => user?.role == ROLES.OFFTAKER ? router.push("/offtaker/projects") : router.push("/investor/projects")}
+                      >
+                        <img
+                          className="me-2"
+                          src="/images/icon/reports-grey.svg"
+                          alt="reports"
+                          onError={(e) => {
+                            e.currentTarget.style.display = "none";
+                          }}
+                        />
+                        {lang("home.exchangeHub.listYourProject") || "List Your Project"}
+                      </button>
+                    </div>
+                  ) : null}
+                </>
+              ) : (
+                <div className="buttons d-flex flex-column gap-3 mt-5">
+                  <button
+                    className="btn btn-primary-custom w-100"
+                    onClick={() => router.push("/register")}
+                  >
+                    {lang("home.exchangeHub.signUpToInvest") || "Sign Up to Invest"}
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>

@@ -43,6 +43,10 @@ function DashboardView() {
   });
   const [summaryLoading, setSummaryLoading] = useState(true);
 
+  // Capital recovery (per project) for this investor
+  const [capitalRecoveryItems, setCapitalRecoveryItems] = useState([]);
+  const [capitalRecoveryLoading, setCapitalRecoveryLoading] = useState(false);
+
   const [inverters, setInverters] = useState([]);
   const [invertersLoading, setInvertersLoading] = useState(false);
   const [invertersError, setInvertersError] = useState(null);
@@ -108,9 +112,9 @@ function DashboardView() {
       setProjectsLoading(true);
       setProjectsError(null);
       try {
-        let apiUrl = `/api/investors?project_status_id=${PROJECT_STATUS.RUNNING}&page=1&limit=50`;
+        let apiUrl = `/api/projects?project_status_id=${PROJECT_STATUS.RUNNING}&page=1&limit=50`;
         if (user?.id) {
-          apiUrl += `&userId=${user.id}`;
+          apiUrl += `&investor_id=${user.id}`;
         }
         const res = await apiGet(apiUrl);
         if (res?.success && Array.isArray(res?.data)) {
@@ -171,6 +175,34 @@ function DashboardView() {
     }
   }, [user?.id]);
 
+  // Fetch capital recovery data for all projects for this investor
+  useEffect(() => {
+    const fetchCapitalRecovery = async () => {
+      if (!user?.id) {
+        setCapitalRecoveryItems([]);
+        return;
+      }
+      try {
+        setCapitalRecoveryLoading(true);
+        const res = await apiGet(
+          "/api/projects/report/capital-recovery?limit=1000&page=1&downloadAll=true"
+        );
+        if (res?.success && Array.isArray(res?.data)) {
+          setCapitalRecoveryItems(res.data);
+        } else {
+          setCapitalRecoveryItems([]);
+        }
+      } catch (error) {
+        console.error("Failed to load capital recovery data:", error);
+        setCapitalRecoveryItems([]);
+      } finally {
+        setCapitalRecoveryLoading(false);
+      }
+    };
+
+    fetchCapitalRecovery();
+  }, [user?.id]);
+
   // Auto-select first project when projects load
   useEffect(() => {
     if (projects.length > 0 && !selectedProject) {
@@ -191,6 +223,54 @@ function DashboardView() {
     }, 0);
     return hasSize ? sum : null;
   }, [projects]);
+
+  // Capital recovery for current scope (all projects / selected project)
+  const capitalRecoveryForAllProjects = useMemo(() => {
+    if (!capitalRecoveryItems.length) return null;
+
+    let totalPayout = 0;
+    let totalAsking = 0;
+
+    capitalRecoveryItems.forEach((item) => {
+      console.log("item", item);
+      const payout = Number(item.total_payout ?? item.totalPayout ?? 0);
+      const asking = Number(item.asking_price ?? item.askingPrice ?? 0);
+      if (!Number.isNaN(payout)) {
+        totalPayout += payout;
+      }
+      if (!Number.isNaN(asking)) {
+        totalAsking += asking;
+      }
+    });
+
+    if (totalAsking <= 0) return null;
+    return (totalPayout * 100) / totalAsking;
+  }, [capitalRecoveryItems]);
+
+  const capitalRecoveryForSelectedProject = useMemo(() => {
+    if (!selectedProject?.id || !capitalRecoveryItems.length) return null;
+    const found = capitalRecoveryItems.find(
+      (item) =>
+        Number(item.project_id ?? item.projectId ?? item.id) ===
+        Number(selectedProject.id)
+    );
+    if (!found) return null;
+    const value = Number(
+      found.capital_recovery ?? found.capitalRecovery ?? 0
+    );
+    return Number.isNaN(value) ? null : value;
+  }, [selectedProject?.id, capitalRecoveryItems]);
+
+  const capitalRecoveryForScope = useMemo(() => {
+    if (selectedProject?.id && capitalRecoveryForSelectedProject !== null) {
+      return capitalRecoveryForSelectedProject;
+    }
+    return capitalRecoveryForAllProjects;
+  }, [
+    selectedProject?.id,
+    capitalRecoveryForSelectedProject,
+    capitalRecoveryForAllProjects,
+  ]);
 
   useEffect(() => {
     const fetchInverters = async () => {
@@ -503,28 +583,6 @@ function DashboardView() {
                       overflowY: "auto",
                     }}
                   >
-                    <li
-                      key="all-projects"
-                      role="button"
-                      tabIndex={0}
-                      style={{
-                        padding: "8px 16px",
-                        cursor: "pointer",
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        background: selectedProject ? undefined : "#eef2ff",
-                        fontWeight: selectedProject ? 400 : 600,
-                        color: "#111827",
-                      }}
-                      onClick={() => {
-                        setSelectedProject(null);
-                        setShowProjectsDropdown(false);
-                        setSelectedInverter(null);
-                      }}
-                    >
-                      <span>All Projects</span>
-                    </li>
                     <li style={{ padding: "4px 0" }}>
                       <hr
                         style={{
@@ -700,6 +758,8 @@ function DashboardView() {
             selectedProject={selectedProject}
             selectedInverter={selectedInverter}
             totalProjectSize={totalProjectSize}
+            capitalRecovery={capitalRecoveryForScope}
+            capitalRecoveryLoading={capitalRecoveryLoading}
             lang={lang}
           />
 

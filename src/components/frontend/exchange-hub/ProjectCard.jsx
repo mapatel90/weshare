@@ -6,6 +6,7 @@ import "./styles/exchange-hub-custom.css";
 import "./styles/responsive.css";
 import {
   buildUploadUrl,
+  convertEnergyToKwh,
   formatEnergyUnit,
   formatShort,
   getFullImageUrl,
@@ -17,6 +18,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import InvestDialog from "./InvestDialog";
 import { apiPost } from "@/lib/api";
 import { showSuccessToast } from "@/utils/topTost";
+import { ROLES } from "@/constants/roles";
 
 const ProjectCard = ({ project, activeTab }) => {
   const { lang } = useLanguage();
@@ -93,6 +95,7 @@ const ProjectCard = ({ project, activeTab }) => {
 
   // Calculate accumulative generation with fallback
   const accumulative = formatNumber(project.project_size, " KWP") || 0;
+  console.log("accumulative::", accumulative);
 
   const getDefaultImageUrl = () => {
     const cover = getPrimaryProjectImage(project);
@@ -218,7 +221,7 @@ const ProjectCard = ({ project, activeTab }) => {
               >
                 {project?.project_name || "Solar Farm A"}
               </h3>
-              <div className="rating">
+              {/* <div className="rating">
                 <span className="text-rating">
                   {lang("home.exchangeHub.ratings") || "Ratings"}:
                 </span>
@@ -226,7 +229,7 @@ const ProjectCard = ({ project, activeTab }) => {
                   {"⭐".repeat(4)}
                   {"☆".repeat(1)}
                 </div>
-              </div>
+              </div> */}
             </div>
 
             {/* ID */}
@@ -285,7 +288,7 @@ const ProjectCard = ({ project, activeTab }) => {
               <div className="detail-divider"></div>
               <div className="detail-item">
                 <span className="label">
-                  {lang("home.exchangeHub.extendable") || "Extendable"}
+                  {lang("home.exchangeHub.leaseTerm")+" "+lang("home.exchangeHub.extendable") || "Extendable"}
                 </span>
                 <span className="value">
                   {project?.lease_term || "15"}{" "}
@@ -325,7 +328,8 @@ const ProjectCard = ({ project, activeTab }) => {
 
             {/* Action Buttons */}
             <div className="buttons-image">
-              {project?.project_status_id === PROJECT_STATUS.UPCOMING &&
+              {console.log("hasAlreadyInvested::", hasAlreadyInvested)}
+              {project?.project_status_id === PROJECT_STATUS.UPCOMING && user?.role === ROLES.INVESTOR &&
                 !hasAlreadyInvested &&
                 getTimeLeft(project?.project_close_date) !== "Expired" ? (
                 <button
@@ -449,15 +453,15 @@ const ProjectCard = ({ project, activeTab }) => {
         {/* Stats - 3 Columns */}
         <div className="stats">
           <div className="stat">
-            <h4>{formatNumber(project.project_size || 1200)} kWp</h4>
-            <p>{lang("home.exchangeHub.systemSize") || "System Size"}</p>
+            <h4>{formatNumber(project.project_size || 0)} KWP</h4>
+            <p>{lang("home.exchangeHub.installedCapacity") || "Install Capacity"}</p>
           </div>
           <div className="stat">
             <h4 className="text-secondary-color">
-              {formatNumber(accumulative)} kWh
+              {formatEnergyUnit(project.total_energy)}
             </h4>
             <p>
-              {lang("home.exchangeHub.accumulativeGeneration") ||"Accumulative"}
+              {lang("home.exchangeHub.totalGeneration") ||"Accumulative"}
             </p>
           </div>
           <div className="stat">

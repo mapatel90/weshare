@@ -598,6 +598,7 @@ router.post("/offtaker/summary/data", authenticateToken, async (req, res) => {
     });
 
     const allowedProjectIds = ownedProjects.map((p) => p.id);
+    console.log("allowedProjectIds::", allowedProjectIds);
 
     /* ----------------------------------------------------
        STEP 2: Security check

@@ -14,7 +14,7 @@ import { apiGet } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import { getPrimaryProjectImage } from "@/utils/projectUtils";
-import { buildUploadUrl, getFullImageUrl } from "@/utils/common";
+import { buildUploadUrl, formatEnergyUnit, getFullImageUrl } from "@/utils/common";
 import { PROJECT_STATUS } from "@/constants/project_status";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { ROLES } from "@/constants/roles";
@@ -75,7 +75,7 @@ const normalizeApiProject = (project) => {
     : buildUploadUrl("/uploads/general/noimage.jpeg");
 
   return {
-    projectId: project.projects?.id ?? null,  // Raw numeric ID for URLs
+    projectId: project.data?.id ?? null,  // Raw numeric ID for URLs
     id: project.projects?.id ? `#${project.projects.id}` : project.projects?.project_code ?? "—",
     project_image: coverImage,
     projectName: project.projects?.project_name ?? "—",
@@ -135,11 +135,11 @@ const ProjectTable = () => {
       const params = new URLSearchParams();
       params.append("page", "1");
       params.append("limit", "50");
-      
+
       if (user?.id) {
-        params.append("userId", user.id);
+        params.append("investor_id", user.id);
       }
-      
+
       // Apply server-side filters
       if (filters.search && filters.search.trim()) {
         params.append("search", filters.search.trim());
@@ -154,9 +154,9 @@ const ProjectTable = () => {
         params.append("end_date", filters.endDate);
       }
 
-      const response = await apiGet(`/api/investors?${params.toString()}`);
+      const response = await apiGet(`/api/projects?${params.toString()}`);
       if (response?.success) {
-        const normalized = response.data.map(normalizeApiProject);
+        const normalized = response?.data;
         setAllProjects(normalized);
       } else {
         setAllProjects([]);
@@ -407,13 +407,13 @@ const ProjectTable = () => {
                   >
                     <Filter className="w-4 h-4" />
                     <span className="text-sm font-medium">
-                      {statusFilter === "All" 
+                      {statusFilter === "All"
                         ? lang("projects.status", "Status")
-                        : statusFilter === PROJECT_STATUS.IN_PROGRESS 
+                        : statusFilter === PROJECT_STATUS.IN_PROGRESS
                           ? lang("PROJECT_STATUS.IN_PROGRESS", "Pending")
-                          : statusFilter === PROJECT_STATUS.UPCOMING 
+                          : statusFilter === PROJECT_STATUS.UPCOMING
                             ? lang("project_status.upcoming", "Upcoming")
-                            : statusFilter === PROJECT_STATUS.RUNNING 
+                            : statusFilter === PROJECT_STATUS.RUNNING
                               ? lang("project_status.running", "Running")
                               : lang("projects.status", "Status")
                       }
@@ -443,8 +443,8 @@ const ProjectTable = () => {
                           setCurrentPage(1);
                         }}
                         className={`w-full text-left px-3 py-2 text-sm ${statusFilter === PROJECT_STATUS.UPCOMING
-                            ? "bg-slate-100"
-                            : "hover:bg-gray-50"
+                          ? "bg-slate-100"
+                          : "hover:bg-gray-50"
                           }`}
                       >
                         {lang("home.exchangeHub.upcoming", "Upcoming")}
@@ -457,8 +457,8 @@ const ProjectTable = () => {
                           setCurrentPage(1);
                         }}
                         className={`w-full text-left px-3 py-2 text-sm ${statusFilter === PROJECT_STATUS.IN_PROGRESS
-                            ? "bg-slate-100"
-                            : "hover:bg-gray-50"
+                          ? "bg-slate-100"
+                          : "hover:bg-gray-50"
                           }`}
                       >
                         {lang("PROJECT_STATUS.IN_PROGRESS", "Pending")}
@@ -471,8 +471,8 @@ const ProjectTable = () => {
                           setCurrentPage(1);
                         }}
                         className={`w-full text-left px-3 py-2 text-sm ${statusFilter === PROJECT_STATUS.RUNNING
-                            ? "bg-slate-100"
-                            : "hover:bg-gray-50"
+                          ? "bg-slate-100"
+                          : "hover:bg-gray-50"
                           }`}
                       >
                         {lang("project_status.running", "Running")}
@@ -504,8 +504,8 @@ const ProjectTable = () => {
                     {/* Image and status badge */}
                     <div className="relative w-full h-36 sm:h-44 md:h-40 lg:h-36 xl:h-40 overflow-hidden">
                       <img
-                        src={project.project_image || "/uploads/general/noimage.jpeg"}
-                        alt={project.projectName}
+                        src={buildUploadUrl(project.project_images?.[0]?.path) || "/uploads/general/noimage.jpeg"}
+                        alt={project.project_name}
                         className="object-cover w-full h-full"
                         onError={(e) => {
                           // Handle AccessDenied (403), 404, or any image load error
@@ -513,18 +513,18 @@ const ProjectTable = () => {
                           e.target.src = "/uploads/general/noimage.jpeg";
                         }}
                       />
-                      <span className={`absolute top-2 right-2 px-3 py-1 text-xs font-semibold rounded-full shadow ${getStatusColor(project.status)}`}>{project.status}</span>
+                      <span className={`absolute top-2 right-2 px-3 py-1 text-xs font-semibold rounded-full shadow ${getStatusColor(project.project_status_id)}`}>{project.project_status?.name}</span>
                     </div>
                     {/* Card content */}
                     <div className="p-3 md:p-4 flex flex-col flex-1">
                       <h2
                         className="text-lg font-bold text-slate-900 mb-1 w-[220px] h-10 leading-5 overflow-hidden break-words line-clamp-2"
-                        title={project.projectName}
+                        title={project.project_name}
                       >
-                        {project.projectName}
+                        {project.project_name}
                       </h2>
                       <div className="text-xs text-gray-500 mb-1">ID: {project.product_code}</div>
-                      <div className="text-sm text-gray-600 mb-2">Offtaker: <span className="font-medium">{project.offtaker_name}</span></div>
+                      <div className="text-sm text-gray-600 mb-2">Offtaker: <span className="font-medium">{project.offtaker.full_name}</span></div>
                       {/* Ratings */}
                       {/* <div className="flex items-center gap-2 mb-2">
                         <span className="text-xs text-gray-500 font-semibold">Ratings:</span>
@@ -538,27 +538,27 @@ const ProjectTable = () => {
                       {/* Stats boxes */}
                       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 mb-3" style={{ height: "95px" }}>
                         <div className="bg-gray-50 rounded-lg p-2 text-center" style={{ wordWrap: "break-word" }}>
-                          <div className="text-base font-bold text-slate-900">{project.targetInvestment}</div>
+                          <div className="text-base font-bold text-slate-900">{project.asking_price}</div>
                           <div className="text-xs text-gray-500">Target Investment</div>
                         </div>
                         <div className="bg-gray-50 rounded-lg p-2 text-center">
-                          <div className="text-base font-bold text-amber-600">{project.expectedGeneration} kWh/year</div>
-                          <div className="text-xs text-gray-500">Expected Generation</div>
+                          <div className="text-base font-bold text-amber-600">{formatEnergyUnit(project.total_energy)}</div>
+                          <div className="text-xs text-gray-500">{lang("home.exchangeHub.totalGeneration", "Total Generation")}</div>
                         </div>
                         <div className="bg-gray-50 rounded-lg p-2 text-center">
-                          <div className="text-base font-bold text-orange-600">{project.expectedROI}</div>
-                          <div className="text-xs text-gray-500">Expected ROI</div>
+                          <div className="text-base font-bold text-orange-600">{formatPercent(project.calculated_roi)}</div>
+                          <div className="text-xs text-gray-500">ROI</div>
                         </div>
                       </div>
                       {/* Payback/Lease info */}
                       <div className="flex flex-col md:flex-row gap-2 bg-gray-100 rounded-lg p-2 mb-3 text-center text-xs font-medium text-gray-700">
                         <div className="flex-1 md:border-r border-gray-300">
                           <div>Payback Period</div>
-                          <div className="text-lg font-bold text-slate-900">{project.paybackPeriod}</div>
+                          <div className="text-lg font-bold text-slate-900">{project?.payback_period}</div>
                         </div>
                         <div className="flex-1">
                           <div>Lease Term</div>
-                          <div className="text-lg font-bold text-slate-900">15 years</div>
+                          <div className="text-lg font-bold text-slate-900">{project?.lease_term} years</div>
                         </div>
                       </div>
                       {/* Action buttons */}
@@ -628,7 +628,7 @@ const ProjectTable = () => {
                   >
                     <ChevronLeft className="w-4 h-4" />
                   </button>
-                  
+
                   <div className="flex items-center gap-1">
                     {Array.from({ length: totalPages }, (_, i) => i + 1)
                       .filter((page) => {
@@ -644,11 +644,10 @@ const ProjectTable = () => {
                           )}
                           <button
                             onClick={() => setCurrentPage(page)}
-                            className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
-                              currentPage === page
+                            className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${currentPage === page
                                 ? "bg-slate-800 text-white"
                                 : "hover:bg-gray-100 text-gray-700"
-                            }`}
+                              }`}
                           >
                             {page}
                           </button>
