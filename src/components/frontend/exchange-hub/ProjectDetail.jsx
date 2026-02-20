@@ -790,7 +790,7 @@ const ProjectDetail = ({ projectId }) => {
                     {lang("home.exchangeHub.targetInvestment") ||
                       "Target Investment"}
                   </p>
-                  <h2>${formatNumber(project.asking_price || "0")}</h2>
+                  <h2>{formatPrice(project.asking_price || "-")}</h2>
                 </div>
 
                 {/* Conditional invest button */}
