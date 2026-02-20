@@ -296,7 +296,7 @@ const ProjectTable = () => {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
                   type="text"
-                  placeholder="Search here..."
+                  placeholder={lang("home.exchangeHub.searchPlaceholder", "Search here...")}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-slate-500 focus:border-transparent outline-none"
@@ -323,7 +323,7 @@ const ProjectTable = () => {
                 >
                   <Calendar className="w-4 h-4" />
                   <span className="text-sm font-medium">
-                    Start Date - End Date
+                    {lang("projects.startDate", "Start Date")} - {lang("projects.endDate", "End Date")}
                   </span>
                   <ChevronDown className="w-4 h-4" />
                 </button>
@@ -333,7 +333,7 @@ const ProjectTable = () => {
                     <div className="space-y-3">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Start Date
+                        {lang("projects.startDate", "Start Date")}
                         </label>
                         <input
                           type="date"
@@ -344,7 +344,7 @@ const ProjectTable = () => {
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                          End Date
+                          {lang("projects.endDate", "End Date")}
                         </label>
                         <input
                           type="date"
@@ -391,7 +391,7 @@ const ProjectTable = () => {
                 <button className="flex items-center gap-2 px-4 py-2.5 bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition-colors">
                   {/* <div className="relative"> */}
                   <MapPin className="w-4 h-4" />
-                  <span className="text-sm font-medium">Location</span>
+                  <span className="text-sm font-medium">{lang("leaseRequest.location", "Location")}</span>
                   <ChevronDown className="w-4 h-4" />
                   {/* </div> */}
                 </button>
@@ -410,7 +410,7 @@ const ProjectTable = () => {
                       {statusFilter === "All"
                         ? lang("projects.status", "Status")
                         : statusFilter === PROJECT_STATUS.IN_PROGRESS
-                          ? lang("PROJECT_STATUS.IN_PROGRESS", "Pending")
+                          ? lang("project_status.in_progress", "In Progress")
                           : statusFilter === PROJECT_STATUS.UPCOMING
                             ? lang("project_status.upcoming", "Upcoming")
                             : statusFilter === PROJECT_STATUS.RUNNING
@@ -434,7 +434,7 @@ const ProjectTable = () => {
                           : "hover:bg-gray-50"
                           }`}
                       >
-                        All
+                        {lang("common.all", "All")}
                       </button>
                       <button
                         onClick={() => {
@@ -461,7 +461,7 @@ const ProjectTable = () => {
                           : "hover:bg-gray-50"
                           }`}
                       >
-                        {lang("PROJECT_STATUS.IN_PROGRESS", "Pending")}
+                        {lang("project_status.in_progress", "In Progress")}
                       </button>
 
                       <button
@@ -523,8 +523,8 @@ const ProjectTable = () => {
                       >
                         {project.project_name}
                       </h2>
-                      <div className="text-xs text-gray-500 mb-1">ID: {project.product_code}</div>
-                      <div className="text-sm text-gray-600 mb-2">Offtaker: <span className="font-medium">{project.offtaker.full_name}</span></div>
+                      <div className="text-xs text-gray-500 mb-1">{lang("projecttablelabel.code", "ID")}: {project.product_code}</div>
+                      <div className="text-sm text-gray-600 mb-2">{lang("projecttablelabel.offtaker", "Offtaker")}: <span className="font-medium">{project.offtaker.full_name}</span></div>
                       {/* Ratings */}
                       {/* <div className="flex items-center gap-2 mb-2">
                         <span className="text-xs text-gray-500 font-semibold">Ratings:</span>
@@ -539,7 +539,7 @@ const ProjectTable = () => {
                       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 mb-3" style={{ height: "95px" }}>
                         <div className="bg-gray-50 rounded-lg p-2 text-center" style={{ wordWrap: "break-word" }}>
                           <div className="text-base font-bold text-slate-900">{project.asking_price}</div>
-                          <div className="text-xs text-gray-500">Target Investment</div>
+                          <div className="text-xs text-gray-500">{lang("home.exchangeHub.targetInvestment", "Target Investment")}</div>
                         </div>
                         <div className="bg-gray-50 rounded-lg p-2 text-center">
                           <div className="text-base font-bold text-amber-600">{formatEnergyUnit(project.total_energy)}</div>
@@ -547,18 +547,18 @@ const ProjectTable = () => {
                         </div>
                         <div className="bg-gray-50 rounded-lg p-2 text-center">
                           <div className="text-base font-bold text-orange-600">{formatPercent(project.calculated_roi)}</div>
-                          <div className="text-xs text-gray-500">ROI</div>
+                          <div className="text-xs text-gray-500">{lang("home.exchangeHub.roi", "ROI")}</div>
                         </div>
                       </div>
                       {/* Payback/Lease info */}
                       <div className="flex flex-col md:flex-row gap-2 bg-gray-100 rounded-lg p-2 mb-3 text-center text-xs font-medium text-gray-700">
                         <div className="flex-1 md:border-r border-gray-300">
-                          <div>Payback Period</div>
+                          <div>{lang("home.exchangeHub.paybackPeriod", "Payback Period")}</div>
                           <div className="text-lg font-bold text-slate-900">{project?.payback_period}</div>
                         </div>
                         <div className="flex-1">
-                          <div>Lease Term</div>
-                          <div className="text-lg font-bold text-slate-900">{project?.lease_term} years</div>
+                          <div>{lang("home.exchangeHub.leaseTerm", "Lease Term")}  {lang("home.exchangeHub.extendable", "Extendable")}</div>
+                          <div className="text-lg font-bold text-slate-900">{project?.lease_term} {lang("home.exchangeHub.years", "years")}</div>
                         </div>
                       </div>
                       {/* Action buttons */}
@@ -645,8 +645,8 @@ const ProjectTable = () => {
                           <button
                             onClick={() => setCurrentPage(page)}
                             className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${currentPage === page
-                                ? "bg-slate-800 text-white"
-                                : "hover:bg-gray-100 text-gray-700"
+                              ? "bg-slate-800 text-white"
+                              : "hover:bg-gray-100 text-gray-700"
                               }`}
                           >
                             {page}

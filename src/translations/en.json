@@ -26,6 +26,7 @@
     "contracts": "Contracts",
     "reports": "Reports",
     "savingReports": "Saving Reports",
+    "capitalRecoveryReports": "Capital Recovery Reports",
     "conjunctionReports": "Conjunction Reports",
     "roiReports": "ROI Reports",
     "cashflowReports": "Cash Flow Reports",
@@ -178,6 +179,9 @@
     "welcomeBack": "Welcome back Log in to your admin account"
   },
   "common": {
+    "entries": "Entries",
+    "show": "Show",
+    "of": "of",
     "reset": "Reset",
     "editEmailTemplate": "Edit Email Template",
     "addEmailTemplate": "Add Email Template",
@@ -329,7 +333,8 @@
     "showing": "Showing",
     "allStatus": "All Status",
     "noContractsFound": "No contracts found",
-    "pleaseSelectProjectAfterDownloadingCSV": "Please select project after downloading CSV"
+    "pleaseSelectProjectAfterDownloadingCSV": "Please select project after downloading CSV",
+    "groupBy": "Group By"
   },
   "messages": {
     "cannotUndoDelete": "You won't be able to revert this!",
@@ -405,6 +410,8 @@
     "inverter-env-reports": "Inverter ENV Reports",
     "project-env-reports": "Project ENV Reports",
     "saving-reports": "Saving Reports",
+    "capital-recovery-reports": "Capital Recovery Reports",
+    "roi-reports": "ROI Reports",
     "applications": "Applications",
     "billings": "Billings",
     "contracts": "Contracts",
@@ -1719,7 +1726,9 @@
     "wesharePrice": "Weshare Price (kWh)",
     "askingPrice": "Asking Price",
     "projectName": "Project Name",
-    "month": "Month"
+    "month": "Month",
+    "totalPayout": "Total Payout",
+    "capitalRecovery": "Capital Recovery"
   },
   "projectView": {
     "projectInformation": {
@@ -1837,7 +1846,8 @@
   "project_status": {
     "upcoming": "Upcoming",
     "running": "Running",
-    "pending": "Pending"
+    "pending": "Pending",
+    "in_progress": "In Progress"
   },
   "project_documents": {
     "title": "Title",
