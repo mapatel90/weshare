@@ -586,7 +586,7 @@ const ProjectDetail = ({ projectId }) => {
                 <div className="rightStatsBox">
                   <div>
                     <p>
-                      {project.project_status_id === PROJECT_STATUS.UPCOMING ? lang("home.exchangeHub.estimatedAnnualGeneration") : lang("home.exchangeHub.annualGeneration") ||
+                      {project.project_status_id === PROJECT_STATUS.UPCOMING ? lang("home.exchangeHub.estimatedAnnualGeneration") : lang("home.exchangeHub.totalGeneration") ||
                         "Total Generation"}
                       :
                     </p>
