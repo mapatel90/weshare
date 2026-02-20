@@ -7,9 +7,8 @@ import { usePriceWithCurrency } from "@/hooks/usePriceWithCurrency";
 import { ROLES } from '@/constants/roles';
 
 const statusColors = {
-  Paid: "status-installation",
-  Unpaid: "status-upcoming",
-  Pending: "status-upcoming",
+  1: "status-installation",
+  0: "status-upcoming",
 };
 
 export default function BillingCard( { lang } ) {
@@ -70,7 +69,7 @@ export default function BillingCard( { lang } ) {
                             : "—",
                         period: formatDate(inv?.invoice_date),
                         amount: inv?.total_amount ?? inv?.amount ?? 0,
-                        status: statusLabel(inv?.status),
+                        status: inv?.status,
                     }));
 
                     setInvoices(normalized);
@@ -125,7 +124,7 @@ export default function BillingCard( { lang } ) {
                                 <td>{priceWithCurrency(inv.amount)}</td>
                                 <td>
                                     <span className={`status-badge ${statusColors[inv.status] || "status-upcoming"}`}>
-                                        {inv.status}
+                                        {inv.status === 0 ? lang("common.pending", "Pending") : lang("invoice.paid", "Paid")}
                                     </span>
                                 </td>
                             </tr>

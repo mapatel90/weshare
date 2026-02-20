@@ -504,6 +504,25 @@ router.post("/update", authenticateToken, uploadPayoutDoc.single('document'), as
             },
         });
 
+        if(updatedPayout){
+            const response = await fetch(`${process.env.MICROSERVICE_URL}/payout/regenerate`, {
+                method: "POST",
+                headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${req.headers.authorization}`,   // any non-blank token
+                },
+                body: JSON.stringify({
+                payout_id: id,
+                }),
+            });
+
+            if(response.ok){
+                console.log(`Payout regeneration triggered for payout ID: ${id}`);
+            } else {
+                console.warn(`Failed to trigger payout regeneration for payout ID: ${id}`);
+            }
+        }
+
         const lang = await getUserLanguage(updatedPayout?.investor_id);
         const creatorName = await getUserFullName(1);
 
