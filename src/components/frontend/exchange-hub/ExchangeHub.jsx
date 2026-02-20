@@ -456,11 +456,11 @@ const ExchangeHub = () => {
               {/* Action Buttons */}
               {user ? (
                 <>
-                  {user.role_id === ROLES.OFFTAKER && (
+                  {user?.role == ROLES.OFFTAKER || user?.role == ROLES.INVESTOR ? (
                     <div className="buttons d-flex flex-column gap-3 mt-5">
                       <button
                         className="btn btn-primary-custom transparentBtn tc-102C41 border-1 w-100"
-                        onClick={() => router.push("/list-project")}
+                        onClick={() => user?.role == ROLES.OFFTAKER ? router.push("/offtaker/projects") : router.push("/investor/projects")}
                       >
                         <img
                           className="me-2"
@@ -473,7 +473,7 @@ const ExchangeHub = () => {
                         {lang("home.exchangeHub.listYourProject") || "List Your Project"}
                       </button>
                     </div>
-                  )}
+                  ) : null}
                 </>
               ) : (
                 <div className="buttons d-flex flex-column gap-3 mt-5">
