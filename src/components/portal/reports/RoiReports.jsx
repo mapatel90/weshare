@@ -31,6 +31,7 @@ const RoiReports = () => {
   const [appliedSearchTerm, setAppliedSearchTerm] = useState("");
   const [pageIndex, setPageIndex] = useState(0);
   const isSubmitDisabled = !projectFilter;
+  const isAdminUser = [ROLES.SUPER_ADMIN, ROLES.STAFF_ADMIN].includes(user?.role);
 
   // Fetch Project List
   const fetchProjectList = async () => {
@@ -45,14 +46,18 @@ const RoiReports = () => {
         if (res_offtaker && res_offtaker.success) {
           setProjectList(res_offtaker.data);
         }
-      } else {
+      } else if (user.role === ROLES.INVESTOR) {
         const res_investor = await apiPost("/api/projects/dropdown/project", {
           investor_id: user?.id,
           project_status_id: PROJECT_STATUS.RUNNING
         });
-        console.log("res_investor", res_investor);
         if (res_investor && res_investor.success) {
           setProjectList(res_investor.data);
+        }
+      } else {
+        const res = await apiPost("/api/projects/dropdown/project", {project_status_id: PROJECT_STATUS.RUNNING});
+        if (res && res.success) {
+          setProjectList(res.data);
         }
       }
     } catch (err) {
@@ -339,19 +344,34 @@ const RoiReports = () => {
   );
 
   return (
-    <div className="p-6 bg-white rounded-3xl shadow-md relative">
+    <div
+      className="p-6 bg-white rounded-3xl shadow-md relative"
+      style={isAdminUser ? { padding: "24px", backgroundColor: "#fff", borderRadius: "24px", boxShadow: "0 4px 12px rgba(0,0,0,0.08)", position: "relative" } : undefined}
+    >
       {/* Fullscreen CSV Download Loader */}
       {loading && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 rounded-3xl">
-          <div className="bg-white rounded-lg p-8 flex flex-col items-center gap-4 shadow-lg">
-            <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
-            <p className="text-gray-700 font-medium">{lang("common.downloading", "Downloading...")}</p>
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 rounded-3xl"
+          style={isAdminUser ? { position: "fixed", top: 0, right: 0, bottom: 0, left: 0, backgroundColor: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1050 } : undefined}
+        >
+          <div
+            className="bg-white rounded-lg p-8 flex flex-col items-center gap-4 shadow-lg"
+            style={isAdminUser ? { backgroundColor: "#fff", borderRadius: "8px", padding: "32px", display: "flex", flexDirection: "column", alignItems: "center", gap: "16px", boxShadow: "0 10px 25px rgba(0,0,0,0.15)" } : undefined}
+          >
+            <div
+              className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"
+              style={isAdminUser ? { width: "48px", height: "48px", border: "4px solid #bfdbfe", borderTopColor: "#2563eb", borderRadius: "50%", animation: "spin 1s linear infinite" } : undefined}
+            ></div>
+            <p className="text-gray-700 font-medium" style={isAdminUser ? { color: "#374151", fontWeight: 500, margin: 0 } : undefined}>{lang("common.downloading", "Downloading...")}</p>
           </div>
         </div>
       )}
       {/* Filter Section */}
-      <div className="d-flex items-center justify-content-between gap-2 mb-4 mt-4 w-full flex-wrap">
-        <div className="filter-button flex flex-wrap gap-2">
+      <div
+        className="d-flex items-center justify-content-between gap-2 mb-4 mt-4 w-full flex-wrap"
+        style={isAdminUser ? { display: "flex", alignItems: "center", justifyContent: "space-between", gap: "8px", marginTop: "16px", marginBottom: "16px", width: "100%", flexWrap: "wrap" } : undefined}
+      >
+        <div className="filter-button flex flex-wrap gap-2 d-flex" style={isAdminUser ? { display: "flex", flexWrap: "wrap", gap: "8px", alignItems: "center" } : undefined}>
           <Autocomplete
             size="small"
             options={projectList}
@@ -385,6 +405,7 @@ const RoiReports = () => {
             onClick={handleSubmit}
             disabled={isSubmitDisabled}
             className={`theme-btn-blue-color border rounded-md px-4 py-2 text-sm ${isSubmitDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
+            style={isAdminUser ? { padding: "8px 16px", fontSize: "14px", opacity: isSubmitDisabled ? 0.5 : 1, cursor: isSubmitDisabled ? "not-allowed" : "pointer" } : undefined}
           >
             {lang("common.submit", "Submit")}
           </button>
@@ -399,12 +420,12 @@ const RoiReports = () => {
       </div>
 
       {/* Table Section */}
-      <div className="overflow-x-auto relative">
+      <div className="overflow-x-auto relative" style={isAdminUser ? { overflowX: "auto", position: "relative" } : undefined}>
         {!hasLoadedOnce && loading && (
-          <div className="text-center py-6 text-gray-600">Loading...</div>
+          <div className="text-center py-6 text-gray-600" style={isAdminUser ? { textAlign: "center", padding: "24px 0", color: "#4b5563" } : undefined}>Loading...</div>
         )}
 
-        {error && <div className="text-red-600">Error: {error}</div>}
+        {error && <div className="text-red-600" style={isAdminUser ? { color: "#dc2626" } : undefined}>Error: {error}</div>}
 
         {hasLoadedOnce && (
           <>
@@ -420,7 +441,10 @@ const RoiReports = () => {
               initialPageSize={PAGE_SIZE}
             />
             {loading && (
-              <div className="absolute inset-0 bg-white/70 flex items-center justify-center text-gray-600">
+              <div
+                className="absolute inset-0 bg-white/70 flex items-center justify-center text-gray-600"
+                style={isAdminUser ? { position: "absolute", top: 0, right: 0, bottom: 0, left: 0, backgroundColor: "rgba(255,255,255,0.7)", display: "flex", alignItems: "center", justifyContent: "center", color: "#4b5563" } : undefined}
+              >
                 Refreshing...
               </div>
             )}

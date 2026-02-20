@@ -554,7 +554,7 @@ function DashboardView() {
             summaryLoading={summaryLoading}
             showRunningProjects={true}
             projectsDescription={lang("dashboard.all_project", "All Projects") ?? "All Projects"}
-            payoutLabel={lang("dashboard.payout_total", "Payout Total") ?? "Payout Total"}
+            payoutLabel={lang("dashboard.payment_total", "Payment Total") ?? "Payment Total"}
             payoutDescription={lang("dashboard.total_payments_made", "Total payments made") ?? "Total payments made"}
           />
           <div
