@@ -1,6 +1,8 @@
+import { useLanguage } from '@/contexts/LanguageContext';
 import React from 'react'
 
 const TablePagination = ({table, serverSideTotal = null}) => {
+    const { lang } = useLanguage();
     const pagination = table.getState().pagination;
     const pageIndex = pagination.pageIndex;
     const pageSize = pagination.pageSize;
@@ -25,7 +27,7 @@ const TablePagination = ({table, serverSideTotal = null}) => {
         <div className="row gy-2">
             <div className="col-sm-12 col-md-5 p-0">
                 <div className="dataTables_info text-lg-start text-center" id="proposalList_info" role="status" aria-live="polite">
-                    Showing {start} to {end} of {total} entries
+                    {lang("common.showing", "Showing")} {start} {lang("common.to", "to")} {end} {lang("common.of", "of")} {total} {lang("common.entries", "entries")}
                 </div>
             </div>
             <div className="col-sm-12 col-md-7 p-0">
@@ -35,7 +37,7 @@ const TablePagination = ({table, serverSideTotal = null}) => {
                             onClick={handlePrevious}
                             disabled={!table.getCanPreviousPage()}
                         >
-                            <a href="#" className="page-link">Previous</a></li>
+                            <a href="#" className="page-link">{lang("common.previous", "Previous")}</a></li>
                         <li className="paginate_button page-item active">
                             <a href="#" aria-controls="proposalList" data-dt-idx="0" tabIndex="0" className="page-link">
                                 {table.getState().pagination.pageIndex + 1}
@@ -46,7 +48,7 @@ const TablePagination = ({table, serverSideTotal = null}) => {
                             onClick={handleNext}
                             disabled={!table.getCanNextPage()}
                         >
-                            <a href="#" className="page-link">Next</a>
+                            <a href="#" className="page-link">{lang("common.next", "Next")}</a>
                         </li>
                     </ul>
                 </div>

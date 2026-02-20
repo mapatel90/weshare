@@ -6,7 +6,7 @@ import CapitalRecoverReport from '@/components/portal/reports/CapitalRecoverRepo
 const page = () => {
     return (
         <>
-            <DynamicTitle titleKey="projects.projectlist" />
+            <DynamicTitle titleKey="page_title.capitalRecoveryReports" />
             <div className='row'>
                <CapitalRecoverReport />
             </div>

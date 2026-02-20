@@ -26,6 +26,7 @@
     "contracts": "Hợp đồng",
     "reports": "Báo cáo",
     "savingReports": "Báo cáo tiết kiệm",
+    "capitalRecoveryReports": "Báo cáo khôi phục vốn",
     "conjunctionReports": "Báo cáo kết hợp",
     "roiReports": "Báo cáo ROI",
     "cashflowReports": "Báo cáo dòng tiền",
@@ -164,8 +165,8 @@
     "welcomeBack": "Chào mừng bạn trở lại Đăng nhập vào tài khoản quản trị của bạn"
   },
   "common": {
+    "entries": "Mục",
     "unread": "chưa đọc",
-    "groupBy": "Nhóm theo",
     "pending_verification": "Đang chờ xác minh",
     "reset": "Đặt lại",
     "editEmailTemplate": "Chỉnh sửa mẫu email",
@@ -311,8 +312,12 @@
     "reasonRequired": "Lý do là bắt buộc.",
     "enterReason": "Nhập lý do...",
     "page": "Trang",
+    "showing": "Hiển thị",
+    "of": "của",
     "allStatus": "Tất cả trạng thái",
-    "pleaseSelectProjectAfterDownloadingCSV": "Vui lòng chọn dự án sau khi tải xuống CSV"
+    "show": "Hiển thị",
+    "pleaseSelectProjectAfterDownloadingCSV": "Vui lòng chọn dự án sau khi tải xuống CSV",
+    "groupBy": "Nhóm theo"
   },
   "messages": {
     "cannotUndoDelete": "Bạn sẽ không thể hoàn tác điều này!",
@@ -390,6 +395,8 @@
     "inverter-env-reports": "báo cáo môi trường biến tần",
     "project-env-reports": "báo cáo môi trường dự án",
     "saving-reports": "báo cáo tiết kiệm",
+    "capital-recovery-reports": "báo cáo khôi phục vốn",
+    "roi-reports": "báo cáo ROI",
     "invoices": "Hóa đơn",
     "applications": "Ứng dụng",
     "billings": "Hóa đơn",
@@ -823,7 +830,8 @@
       "noTestimonials": "Không có đánh giá cho dự án này",
       "estimatedAnnualGeneration": "Tổng sản lượng phát điện dự kiến",
       "estimatedROI": "Lợi nhuận dự kiến (ROI)",
-      "roi_monthly": "ROI (Tháng)"
+      "roi_monthly": "ROI (Tháng)",
+      "totalGeneration":"Tổng thế hệ"
     },
     "solarLease": {
       "title": "Biến bất động sản của bạn thành cho thuê năng lượng mặt trời",
@@ -1664,7 +1672,9 @@
     "wesharePrice": "Giá chia sẻ (kWh)",
     "askingPrice": "Giá chào bán",
     "projectName": "Tên dự án",
-    "month": "Tháng"
+    "month": "Tháng",
+    "totalPayout": "Tổng thanh toán",
+    "capitalRecovery": "Khôi phục vốn"
   },
   "projectView": {
     "projectInformation": {
@@ -1781,7 +1791,8 @@
   "project_status": {
     "upcoming": "Sắp diễn ra",
     "running": "Đang chạy",
-    "pending": "Đang chờ"
+    "pending": "Đang chờ",
+    "in_progress": "Đang tiến hành"
   },
   "project_documents": {
     "title": "Tiêu đề",
