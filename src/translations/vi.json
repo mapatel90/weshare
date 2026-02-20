@@ -803,7 +803,7 @@
       "expectedROI": "Lợi nhuận dự kiến (ROI)",
       "paybackPeriod": "Thời gian hoàn vốn",
       "leaseTerm": "Thời hạn thuê",
-      "extendable": "Kéo dài được",
+      "extendable": "(Kéo dài được)",
       "fundProgress": "Tiến độ huy động vốn",
       "timeLeft": "Thời gian còn lại",
       "investEarly": "Đầu tư sớm",
@@ -816,7 +816,7 @@
       "investor": "Nhà đầu tư",
       "interestSubmitted": "Bạn đã bày tỏ sự quan tâm tới dự án này.",
       "noTestimonials": "Không có đánh giá cho dự án này",
-      "estimatedAnnualGeneration": "Sản lượng phát điện dự kiến hàng năm",
+      "estimatedAnnualGeneration": "Tổng sản lượng phát điện dự kiến",
       "estimatedROI": "Lợi nhuận dự kiến (ROI)",
       "roi_monthly": "ROI (Tháng)"
     },

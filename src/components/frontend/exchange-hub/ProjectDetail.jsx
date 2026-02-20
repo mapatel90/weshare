@@ -9,7 +9,7 @@ import ProjectOverviewChart from "../../admin/projectsCreate/projectViewSection/
 import AOS from "aos";
 import "aos/dist/aos.css";
 import "./styles/exchange-hub-custom.css";
-import { buildUploadUrl, getFullImageUrl } from "@/utils/common";
+import { buildUploadUrl, convertEnergyToKwh, formatEnergyUnit, getFullImageUrl } from "@/utils/common";
 import { getPrimaryProjectImage } from "@/utils/projectUtils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
@@ -20,6 +20,7 @@ import EnergyChart from "@/components/admin/projectsCreate/projectViewSection/Mo
 import { FiZap } from "react-icons/fi";
 import { CloudSun, Compass, Droplets, SunriseIcon, Thermometer, Wind } from 'lucide-react';
 import { ROLES } from "@/constants/roles";
+import { useFormatPrice, usePriceWithCurrency } from "@/hooks/useFormatPrice";
 
 // Dynamically import ApexCharts to avoid SSR issues
 const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
@@ -27,6 +28,7 @@ const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
 const ProjectDetail = ({ projectId }) => {
   const { lang } = useLanguage();
   const [project, setProject] = useState(null);
+  const formatPrice = useFormatPrice();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [testimonials, setTestimonials] = useState([]);
@@ -585,10 +587,10 @@ const ProjectDetail = ({ projectId }) => {
                   <div>
                     <p>
                       {project.project_status_id === PROJECT_STATUS.UPCOMING ? lang("home.exchangeHub.estimatedAnnualGeneration") : lang("home.exchangeHub.annualGeneration") ||
-                        "Annual Generation"}
+                        "Total Generation"}
                       :
                     </p>
-                    <h4>{formatNumber(accumulative)} KWP</h4>
+                    <h4>{formatEnergyUnit(project.total_energy)}</h4>
                   </div>
                   <div>
                     <p>
@@ -606,7 +608,7 @@ const ProjectDetail = ({ projectId }) => {
                       {lang("home.exchangeHub.askingPrice") || "Asking Price"}:
                     </p>
                     <h4>
-                      ${formatNumber(project.asking_price || "0")}
+                      {formatPrice(project.asking_price || "0")}
                       <span>
                         {" "}
                         (

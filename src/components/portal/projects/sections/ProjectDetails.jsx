@@ -71,6 +71,10 @@ const ProjectDetails = ({ project_id }) => {
     const [existingReview, setExistingReview] = useState(null);
     const [reviewLoading, setReviewLoading] = useState(false);
 
+    // Capital recovery state
+    const [capitalRecoveryItems, setCapitalRecoveryItems] = useState([]);
+    const [capitalRecoveryLoading, setCapitalRecoveryLoading] = useState(false);
+
     // Fetch existing review for the selected project
     const fetchExistingReview = async (projectId) => {
         if (!projectId) {
@@ -121,6 +125,34 @@ const ProjectDetails = ({ project_id }) => {
         }
     }, [selectedProject?.id]);
 
+    // Fetch capital recovery data for the selected project
+    useEffect(() => {
+        const fetchCapitalRecovery = async () => {
+            if (!user?.id || !selectedProject?.id) {
+                setCapitalRecoveryItems([]);
+                return;
+            }
+            try {
+                setCapitalRecoveryLoading(true);
+                const res = await apiGet(
+                    `/api/projects/report/capital-recovery?limit=1000&page=1&downloadAll=true`
+                );
+                if (res?.success && Array.isArray(res?.data)) {
+                    setCapitalRecoveryItems(res.data);
+                } else {
+                    setCapitalRecoveryItems([]);
+                }
+            } catch (error) {
+                console.error("Failed to load capital recovery data:", error);
+                setCapitalRecoveryItems([]);
+            } finally {
+                setCapitalRecoveryLoading(false);
+            }
+        };
+
+        fetchCapitalRecovery();
+    }, [user?.id, selectedProject?.id]);
+
 
     // compute total project size (sum of all projects' project_size)
     const totalProjectSize = useMemo(() => {
@@ -135,6 +167,21 @@ const ProjectDetails = ({ project_id }) => {
         }, 0);
         return has ? sum : null;
     }, [projects]);
+
+    // Capital recovery for selected project
+    const capitalRecoveryForSelectedProject = useMemo(() => {
+        if (!selectedProject?.id || !capitalRecoveryItems.length) return null;
+        const found = capitalRecoveryItems.find(
+            (item) =>
+                Number(item.project_id ?? item.projectId ?? item.id) ===
+                Number(selectedProject.id)
+        );
+        if (!found) return null;
+        const value = Number(
+            found.capital_recovery ?? found.capitalRecovery ?? 0
+        );
+        return Number.isNaN(value) ? null : value;
+    }, [selectedProject?.id, capitalRecoveryItems]);
 
     // NEW: fetch inverters when a project is selected
     useEffect(() => {
@@ -586,6 +633,8 @@ const ProjectDetails = ({ project_id }) => {
                 <>
                     <OverViewCards
                         inverterLatest={inverterLatest}
+                        capitalRecovery={capitalRecoveryForSelectedProject}
+                        capitalRecoveryLoading={capitalRecoveryLoading}
                         inverterLatestLoading={inverterLatestLoading}
                         selectedProject={selectedProject}
                         selectedInverter={selectedInverter}

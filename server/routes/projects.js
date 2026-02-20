@@ -819,6 +819,7 @@ router.get("/", async (req, res) => {
       project_status_id,
       offtaker_id,
       project_id,
+      investor_id,
       downloadAll,
       solisStatus,
       start_date,
@@ -827,6 +828,7 @@ router.get("/", async (req, res) => {
     const pageInt = parseInt(page);
     const offtakerIdInt = offtaker_id ? parseInt(offtaker_id) : null;
     const projectIdInt = project_id ? parseInt(project_id) : null;
+    const investorIdInt = investor_id ? parseInt(investor_id) : null;
     const limitInt = parseInt(limit);
     const offset = (pageInt - 1) * limitInt;
 
@@ -862,6 +864,11 @@ router.get("/", async (req, res) => {
     // Filter by project
     if (projectIdInt) {
       where.id = projectIdInt;
+    }
+
+    // Filter by investor
+    if (investorIdInt) {
+      where.investor_id = investorIdInt;
     }
 
     // Filter by status (supports single value or comma-separated values)
@@ -990,6 +997,7 @@ router.get("/", async (req, res) => {
         ...project,
         calculated_roi: calculatedRoi > 0 ? calculatedRoi.toFixed(2) : (project.investor_profit || "0"),
         prev_month_energy: totalEnergy.toFixed(2),
+        total_energy: totalEnergyAllTime.toFixed(2),
         cumulative_revenue: cumulativeRevenue > 0 ? cumulativeRevenue.toFixed(2) : "0",
       };
     });
@@ -2984,6 +2992,13 @@ router.get("/:identifier", async (req, res) => {
         project_inverters: true,
       },
     });
+
+    const total_energy_data = await prisma.project_energy_days_data.aggregate({
+      where: { project_id: project.id },
+      _sum: { energy: true },
+    });
+    const totalEnergy = total_energy_data._sum.energy || 0;
+    project.total_energy = totalEnergy.toFixed(2);
 
     if (!project) {
       return res

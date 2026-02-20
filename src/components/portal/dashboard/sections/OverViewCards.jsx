@@ -1,5 +1,7 @@
 import React from "react";
 import { formatEnergyUnit } from "@/utils/common";
+import { useAuth } from "@/contexts/AuthContext";
+import { ROLES } from "@/constants/roles";
 
 // -------- HELPERS (similar to admin StatCards) ----------
 const formatNumber = (value) => {
@@ -49,14 +51,80 @@ const renderEnergyDisplay = (value) => {
   );
 };
 
+// Simple circular progress for Capital Recovery %
+const CircularProgress = ({
+  percentage = 0,
+  size = 100,
+  strokeWidth = 12,
+  isDark,
+  lang,
+}) => {
+  const safePercentage = Number.isFinite(Number(percentage))
+    ? Math.max(0, Math.min(200, Number(percentage)))
+    : 0;
+
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference - (safePercentage / 100) * circumference;
+
+  return (
+    <svg width={size} height={size}>
+      <circle
+        cx={size / 2}
+        cy={size / 2}
+        r={radius}
+        stroke="#e5e7eb"
+        strokeWidth={strokeWidth}
+        fill="none"
+      />
+      <circle
+        cx={size / 2}
+        cy={size / 2}
+        r={radius}
+        stroke="#f97316"
+        strokeWidth={strokeWidth}
+        fill="none"
+        strokeDasharray={circumference}
+        strokeDashoffset={offset}
+        strokeLinecap="round"
+        transform={`rotate(-90 ${size / 2} ${size / 2})`}
+      />
+      <text
+        x="50%"
+        y="45%"
+        textAnchor="middle"
+        dominantBaseline="middle"
+        fontWeight="700"
+        fill={isDark ? "#fff" : "#111"}
+      >
+        <tspan x="50%" dy="-10" fontSize="18">
+          {safePercentage.toFixed(2)}%
+        </tspan>
+
+        <tspan x="50%" dy="25" fontSize="18" fontWeight="400">
+          {lang ? lang("common.capital", "Capital") : "Capital"}
+        </tspan>
+
+        <tspan x="50%" dy="15" fontSize="16" fontWeight="400">
+          {lang ? lang("common.Recovered", "Recovered") : "Recovered"}
+        </tspan>
+      </text>
+    </svg>
+  );
+};
+
 export default function OverViewCards({
   inverterLatest = null,
   inverterLatestLoading = false,
   selectedProject = null,
   selectedInverter = null,
   totalProjectSize = null, // NEW
+  // Capital recovery (percentage) for current scope
+  capitalRecovery = null,
+  capitalRecoveryLoading = false,
   lang,
 }) {
+  const { user } = useAuth();
   const isProjectSelected = !!selectedProject;
   const isInverterSelected = !!selectedInverter;
 
@@ -66,9 +134,9 @@ export default function OverViewCards({
     : [];
   const selectedInverterData = isInverterSelected
     ? projectInverters.find(
-        (inv) =>
-          String(inv.id) === String(selectedInverter?.id)
-      )
+      (inv) =>
+        String(inv.id) === String(selectedInverter?.id)
+    )
     : null;
 
   const dailyYieldMetric = selectedInverterData
@@ -142,8 +210,17 @@ export default function OverViewCards({
     totalYieldSubtitle = `No total yield data for ${contextLabel.toLowerCase()}`;
   }
 
+  // Capital Recovery display (percentage)
+  let capitalRecoveryPercent = 0;
+  let capitalRecoverySubtitle = lang(
+    "reports.capitalRecovery",
+    "Capital Recovery"
+  );
+  const num = Number(capitalRecovery);
+  capitalRecoveryPercent = Number.isNaN(num) ? 0 : num;
   return (
-    <div className="stats-grid">
+
+    <div className={`stats-grid ${user?.role === ROLES.INVESTOR ? "grid-investor" : "grid-default"}`}>
       <div className="stat-card blue">
         <div className="stat-icon flex items-center gap-2">
           <img
@@ -197,6 +274,21 @@ export default function OverViewCards({
         <div className="stat-value">{renderEnergyDisplay(totalYieldValue)}</div>
         <div className="stat-label">{totalYieldSubtitle}</div>
       </div>
+
+      {/* Capital Recovery circular progress */}
+      {user?.role === ROLES.INVESTOR && (
+        <div className="stat-card orange flex items-center justify-center">
+          <div className="flex items-center justify-center">
+            <CircularProgress
+              percentage={capitalRecoveryPercent}
+              size={140}
+              strokeWidth={10}
+              isDark={false}
+              lang={lang}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

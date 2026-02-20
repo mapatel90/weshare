@@ -816,6 +816,7 @@
       "sortCapacityHigh": "Capacity: High to Low",
       "sortCapacityLow": "Capacity: Low to High",
       "accumulativeGeneration": "Accumulative Generation",
+      "totalGeneration": "Total Generation",
       "highReliability": "High Reliability",
       "moderateReliability": "Moderate Reliability",
       "premiumReliability": "Premium Reliability",
@@ -828,7 +829,7 @@
       "paybackPeriod": "Payback Period",
       "paybackPeriodPlaceholder": "Enter payback period in years",
       "leaseTerm": "Lease Term",
-      "extendable": "Extendable",
+      "extendable": "(Extendable)",
       "fundProgress": "Fund Progress",
       "timeLeft": "Time left",
       "investEarly": "Invest Early",
@@ -849,7 +850,7 @@
       "notes": "Notes",
       "interestSubmitted": "You have already expressed interest for this project.",
       "noTestimonials": "No testimonials for this project",
-      "estimatedAnnualGeneration": "Estimated Annual Generation"
+      "estimatedAnnualGeneration": "Estimated total Generation"
     },
     "solarLease": {
       "title": "Turn your Property Into a Solar Lease",
