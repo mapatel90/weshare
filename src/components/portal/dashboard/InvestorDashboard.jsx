@@ -531,6 +531,7 @@ function DashboardView() {
             summaryLoading={summaryLoading}
             showRunningProjects={false}
             projectsDescription={lang("dashboard.all_your_investments", "All your investments") ?? "All your investments"}
+            payoutLabel={lang("dashboard.payout_total", "Payout Total") ?? "Payout Total"}
             payoutDescription={lang("dashboard.total_earnings_received", "Total earnings received") ?? "Total earnings received"}
           />
 

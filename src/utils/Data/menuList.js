@@ -203,6 +203,14 @@ export const menuList = [
         permission_action: ["view"],
         subdropdownMenu: false,
       },
+      {
+        id: 4,
+        name: "ROI Report",
+        path: "/admin/reports/roi",
+        permission: "roi_report",
+        permission_action: ["view"],
+        subdropdownMenu: false,
+      }
       // {
       //   id: 3,
       //   name: "roireports",
