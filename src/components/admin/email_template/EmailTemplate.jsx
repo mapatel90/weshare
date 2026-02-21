@@ -43,17 +43,19 @@ const SettingsEmailTemplate = ({ Id }) => {
   const [fieldErrors, setFieldErrors] = useState({
     title: "",
     slug: "",
-    subject: "",
+    subject_en: "",
   });
 
-  const subjectInputRef = useRef(null);
+  const subjectEnInputRef = useRef(null);
+  const subjectViInputRef = useRef(null);
   const editorEnRef = useRef(null);
   const editorViRef = useRef(null);
 
   const [formData, setFormData] = useState({
     title: "",
     slug: "",
-    subject: "",
+    subject_en: "",
+    subject_vi: "",
     content_en: "",
     content_vi: "",
   });
@@ -66,12 +68,13 @@ const SettingsEmailTemplate = ({ Id }) => {
     setFormData({
       title: data?.title || "",
       slug: data?.slug || "",
-      subject: data?.subject || "",
+      subject_en: data?.subject_en ?? data?.subject ?? "",
+      subject_vi: data?.subject_vi ?? data?.subject_vn ?? "",
       content_en: data?.content_en || "",
       content_vi: data?.content_vi || "",
     });
     setError("");
-    setFieldErrors({ title: "", slug: "", subject: "" });
+    setFieldErrors({ title: "", slug: "", subject_en: "" });
   };
 
   const fetchTemplate = async (id) => {
@@ -159,8 +162,8 @@ const SettingsEmailTemplate = ({ Id }) => {
       ...prev,
       [field]: value,
     }));
-    if (field === "subject" && fieldErrors.subject && value.trim() !== "") {
-      setFieldErrors((prev) => ({ ...prev, subject: "" }));
+    if (field === "subject_en" && fieldErrors.subject_en && value.trim() !== "") {
+      setFieldErrors((prev) => ({ ...prev, subject_en: "" }));
     }
   };
 
@@ -171,8 +174,10 @@ const SettingsEmailTemplate = ({ Id }) => {
       return;
     }
 
-    if (focusedField === "subject") {
-      insertPlaceholderInSubject(placeholder);
+    if (focusedField === "subject_en") {
+      insertPlaceholderInSubject("subject_en", placeholder);
+    } else if (focusedField === "subject_vi") {
+      insertPlaceholderInSubject("subject_vi", placeholder);
     } else if (focusedField === "content_en") {
       insertPlaceholderInEnglish(placeholder);
     } else if (focusedField === "content_vi") {
@@ -181,16 +186,17 @@ const SettingsEmailTemplate = ({ Id }) => {
   };
 
   // Insert placeholder into subject field
-  const insertPlaceholderInSubject = (placeholder) => {
-    const input = subjectInputRef.current?.querySelector("input");
+  const insertPlaceholderInSubject = (field, placeholder) => {
+    const inputRef = field === "subject_vi" ? subjectViInputRef : subjectEnInputRef;
+    const input = inputRef.current?.querySelector("input");
     if (input) {
       const start = input.selectionStart || 0;
       const end = input.selectionEnd || 0;
-      const text = formData.subject;
+      const text = formData[field] || "";
       const newText =
         text.substring(0, start) + placeholder + text.substring(end);
 
-      setFormData((prev) => ({ ...prev, subject: newText }));
+      setFormData((prev) => ({ ...prev, [field]: newText }));
 
       setTimeout(() => {
         input.focus();
@@ -198,7 +204,7 @@ const SettingsEmailTemplate = ({ Id }) => {
         input.setSelectionRange(newPos, newPos);
       }, 0);
     } else {
-      setFormData((prev) => ({ ...prev, subject: prev.subject + placeholder }));
+      setFormData((prev) => ({ ...prev, [field]: (prev[field] || "") + placeholder }));
     }
   };
 
@@ -242,7 +248,7 @@ const SettingsEmailTemplate = ({ Id }) => {
     const nextErrors = {
       title: "",
       slug: "",
-      subject: "",
+      subject_en: "",
     };
 
     if (!formData.title || formData.title.trim() === "") {
@@ -253,13 +259,12 @@ const SettingsEmailTemplate = ({ Id }) => {
       nextErrors.slug = lang("email.slugRequired", "Slug is required");
     }
 
-    if (!formData.subject || formData.subject.trim() === "") {
-      nextErrors.subject = lang("email.subjectRequired", "Subject is required");
+    if (!formData.subject_en || formData.subject_en.trim() === "") {
+      nextErrors.subject_en = lang("email.subjectRequired", "Subject is required");
     }
-
     setFieldErrors(nextErrors);
 
-    if (nextErrors.title || nextErrors.slug || nextErrors.subject) {
+    if (nextErrors.title || nextErrors.slug || nextErrors.subject_en) {
       return;
     }
 
@@ -356,15 +361,15 @@ const SettingsEmailTemplate = ({ Id }) => {
 
               <Grid item xs={12}>
                 <Typography variant="body2" className="mb-1 fw-semibold" color={isDark ? "white" : "black"}>
-                  {lang("contactUs.subject") || "Subject"} <span style={{ color: "red" }}>*</span>
+                  {lang("contactUs.subject_en") || "Subject (English)"} <span style={{ color: "red" }}>*</span>
                 </Typography>
                 <TextField
-                  ref={subjectInputRef}
-                  value={formData.subject}
-                  onChange={handleChange("subject")}
-                  onFocus={() => setFocusedField("subject")}
-                  error={!!fieldErrors.subject}
-                  helperText={fieldErrors.subject}
+                  ref={subjectEnInputRef}
+                  value={formData.subject_en}
+                  onChange={handleChange("subject_en")}
+                  onFocus={() => setFocusedField("subject_en")}
+                  error={!!fieldErrors.subject_en}
+                  helperText={fieldErrors.subject_en}
                   fullWidth
                   disabled={loading || fetching}
                   placeholder={lang("email.subjectPlaceholder") || "Enter email subject"}
@@ -431,6 +436,21 @@ const SettingsEmailTemplate = ({ Id }) => {
                     }}
                   />
                 )}
+              </Grid>
+
+              <Grid item xs={12}>
+                <Typography variant="body2" className="mb-1 fw-semibold" color={isDark ? "white" : "black"}>
+                  {lang("contactUs.subject_vi") || "Subject (Vietnamese)"}
+                </Typography>
+                <TextField
+                  ref={subjectViInputRef}
+                  value={formData.subject_vi}
+                  onChange={handleChange("subject_vi")}
+                  onFocus={() => setFocusedField("subject_vi")}
+                  fullWidth
+                  disabled={loading || fetching}
+                  placeholder={lang("email.subjectPlaceholder") || "Enter email subject"}
+                />
               </Grid>
 
               {/* Content VI */}

@@ -201,8 +201,9 @@ export const sendEmailUsingTemplate = async ({ to, templateSlug, templateData = 
 
     const rawContent = replacePlaceholders(template[contentField] || template.content_en, completeTemplateData);
 
-    // const content = template[contentField] || template.content_en;
-    const subject = replacePlaceholders(template.subject, completeTemplateData);
+    const subjectField = language === 'vi' ? 'subject_vi' : 'subject_en';
+    const subjectTemplate = template[subjectField] || template.subject_en || template.subject_vi || '';
+    const subject = replacePlaceholders(subjectTemplate, completeTemplateData);
     // const html = replacePlaceholders(content, templateData);
 
     const finalHtml = await buildEmailLayout({

@@ -179,6 +179,13 @@
     "welcomeBack": "Welcome back Log in to your admin account"
   },
   "common": {
+    "resendVerificationEmail": "Resend Verification Email",
+    "verificationFailed": "Verification Failed",
+    "goToLogin": "Go to Login",
+    "redirectingToLogin": "Redirecting you to login page...",
+    "emailVerifiedSuccessfully": "Email Verified Successfully!",
+    "verifyingEmail": "Verifying Your Email",
+    "verifyingEmailMessage": "Please wait while we verify your email address...",
     "select": "Select...",
     "searchInverter": "Search inverter...",
     "searchProject": "Search project...",
@@ -1570,6 +1577,8 @@
     "email": "Email Address*",
     "phoneNumber": "Phone Number*",
     "subject": "Subject",
+    "subject_en": "Subject (English)",
+    "subject_vi": "Subject (Vietnamese)",
     "message": "Your message here",
     "sendMessage": "Send Message",
     "needhelp": "Need Any Help?",

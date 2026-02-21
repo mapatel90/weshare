@@ -34,9 +34,9 @@ router.get("/:id", authenticateToken, async (req, res) => {
 // Add template
 router.post("/", authenticateToken, async (req, res) => {
   try {
-    const { title, slug, subject, content_en, content_vi, created_by } = req.body;
+    const { title, slug, subject_en, subject_vi, content_en, content_vi, created_by } = req.body;
 
-    if (!title || !slug || !subject) {
+    if (!title || !slug || !subject_en) {
       return res.status(400).json({ success: false, message: "Required fields missing" });
     }
 
@@ -49,7 +49,8 @@ router.post("/", authenticateToken, async (req, res) => {
       data: {
         title,
         slug,
-        subject,
+        subject_en,
+        subject_vi,
         content_en: content_en || null,
         content_vi: content_vi || null,
         created_by: created_by ? parseInt(created_by) : null,
@@ -66,7 +67,7 @@ router.post("/", authenticateToken, async (req, res) => {
 router.put("/:id", authenticateToken, async (req, res) => {
   try {
     const id = parseInt(req.params.id);
-    const { title, slug, subject, content_en, content_vi } = req.body;
+    const { title, slug, subject_en, subject_vi, content_en, content_vi } = req.body;
 
     const existing = await prisma.email_template.findUnique({ where: { id } });
     if (!existing) {
@@ -90,7 +91,8 @@ router.put("/:id", authenticateToken, async (req, res) => {
       data: {
         title,
         slug,
-        subject,
+        subject_en,
+        subject_vi,
         content_en,
         content_vi,
       },

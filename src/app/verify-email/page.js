@@ -6,9 +6,11 @@ import { apiGet, apiPost } from '@/lib/api';
 import { Box, Container, Typography, Button, CircularProgress, Alert } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ErrorIcon from '@mui/icons-material/Error';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function VerifyEmailPage() {
   const router = useRouter();
+  const { lang } = useLanguage();
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
 
@@ -38,7 +40,7 @@ export default function VerifyEmailPage() {
         // Redirect to login after 3 seconds
         setTimeout(() => {
           router.push('/login');
-        }, 3000);
+        }, 12000);
       } else {
         setStatus('error');
         setMessage(response.message);
@@ -74,12 +76,12 @@ export default function VerifyEmailPage() {
 
   return (
     <Box
+      className="loginSection"
       sx={{
         minHeight: '100vh',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
         padding: 2
       }}
     >
@@ -103,10 +105,10 @@ export default function VerifyEmailPage() {
             <>
               <CircularProgress size={60} sx={{ color: '#F6A623', mb: 3 }} />
               <Typography variant="h5" sx={{ fontWeight: 600, mb: 2 }}>
-                Verifying Your Email
+                {lang("common.verifyingEmail", "Verifying Your Email")}
               </Typography>
               <Typography variant="body1" color="text.secondary">
-                Please wait while we verify your email address...
+                {lang("common.verifyingEmailMessage", "Please wait while we verify your email address...")}
               </Typography>
             </>
           )}
@@ -115,13 +117,13 @@ export default function VerifyEmailPage() {
             <>
               <CheckCircleIcon sx={{ fontSize: 80, color: '#4caf50', mb: 3 }} />
               <Typography variant="h5" sx={{ fontWeight: 600, color: '#4caf50', mb: 2 }}>
-                Email Verified Successfully!
+                {lang("common.emailVerifiedSuccessfully", "Email Verified Successfully!")}
               </Typography>
               <Alert severity="success" sx={{ mb: 3 }}>
                 {message}
               </Alert>
               <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-                Redirecting you to login page...
+                {lang("common.redirectingToLogin", "Redirecting you to login page...")}
               </Typography>
               <Button
                 variant="contained"
@@ -134,7 +136,7 @@ export default function VerifyEmailPage() {
                   fontWeight: 600
                 }}
               >
-                Go to Login
+                {lang("common.goToLogin", "Go to Login")}
               </Button>
             </>
           )}
@@ -143,7 +145,7 @@ export default function VerifyEmailPage() {
             <>
               <ErrorIcon sx={{ fontSize: 80, color: '#f44336', mb: 3 }} />
               <Typography variant="h5" sx={{ fontWeight: 600, color: '#f44336', mb: 2 }}>
-                Verification Failed
+                {lang("common.verificationFailed", "Verification Failed")}
               </Typography>
               <Alert severity="error" sx={{ mb: 3 }}>
                 {message}
@@ -162,7 +164,7 @@ export default function VerifyEmailPage() {
                     fontWeight: 600
                   }}
                 >
-                  {resending ? 'Sending...' : 'Resend Verification Email'}
+                  {resending ? 'Sending...' : lang("common.resendVerificationEmail", "Resend Verification Email")}
                 </Button>
                 <Button
                   variant="contained"
@@ -175,7 +177,7 @@ export default function VerifyEmailPage() {
                     fontWeight: 600
                   }}
                 >
-                  Back to Login
+                  {lang("authentication.backToLogin", "Back to Login")}
                 </Button>
               </Box>
             </>

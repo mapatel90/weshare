@@ -100,10 +100,18 @@ const EmailTemplateTable = () => {
         ),
       },
       {
-        accessorKey: "subject",
-        header: () => lang("contactUs.subject") || "Subject",
+        accessorKey: "subject_en",
+        header: () => lang("contactUs.subject_en") || "Subject (English)",
         cell: ({ row }) => {
-          const text = row.original.subject || "";
+          const text = row.original.subject_en || row.original.subject || "";
+          return text.length > 50 ? `${text.slice(0, 50)}…` : text;
+        },
+      },
+      {
+        accessorKey: "subject_vi",
+        header: () => lang("contactUs.subject_vi") || "Subject (Vietnamese)",
+        cell: ({ row }) => {
+          const text = row.original.subject_vi || row.original.subject_vn || "";
           return text.length > 50 ? `${text.slice(0, 50)}…` : text;
         },
       },

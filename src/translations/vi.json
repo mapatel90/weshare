@@ -165,6 +165,13 @@
     "welcomeBack": "Chào mừng bạn trở lại Đăng nhập vào tài khoản quản trị của bạn"
   },
   "common": {
+    "resendVerificationEmail": "Gửi lại email xác minh",
+    "verificationFailed": "Xác minh thất bại",
+    "goToLogin": "Đi đến đăng nhập",
+    "redirectingToLogin": "Đang chuyển hướng bạn đến trang đăng nhập...",
+    "emailVerifiedSuccessfully": "Email đã được xác minh thành công!",
+    "verifyingEmail": "Đang xác minh Email của bạn",
+    "verifyingEmailMessage": "Vui lòng đợi trong khi chúng tôi xác minh địa chỉ email của bạn...",
     "select": "Chọn...",
     "searchInverter": "Tìm kiếm biến tần...",
     "searchProject": "Tìm kiếm dự án...",
@@ -1513,6 +1520,8 @@
     "email": "Địa chỉ email*",
     "phoneNumber": "Số điện thoại*",
     "subject": "Chủ đề",
+    "subject_en": "Chủ đề (tiếng Anh)",
+    "subject_vi": "Chủ đề (tiếng Việt)",
     "message": "Tin nhắn của bạn ở đây",
     "sendMessage": "Gửi tin nhắn",
     "needhelp": "Cần bất kỳ sự giúp đỡ nào?",

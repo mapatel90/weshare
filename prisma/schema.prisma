@@ -549,7 +549,8 @@ model email_template {
   slug        String   @db.VarChar(255)
   content_en  String?
   content_vi  String?
-  subject     String   @db.VarChar(255)
+  subject_en  String?  @db.VarChar(255)
+  subject_vi  String?   @db.VarChar(255)
   created_by  Int?
   created_at  DateTime @default(now())
 }
