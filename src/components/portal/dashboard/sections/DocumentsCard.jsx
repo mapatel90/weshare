@@ -25,7 +25,7 @@ function DocumentsCard( { lang } ) {
                             ? new Date(payment.invoices.invoice_date).toLocaleDateString("en-US", { month: "long", year: "numeric" })
                             : "N/A",
                         amount: payment.amount || 0,
-                        status: payment.status === 1 ? "Paid" : "Pending",
+                        status: payment.status,
                     }));
                     setPayments(formattedPayments);
                 }
@@ -67,8 +67,8 @@ function DocumentsCard( { lang } ) {
                                 <td>{payment.period}</td>
                                 <td>{priceWithCurrency(payment.amount)}</td>
                                 <td>
-                                    <span className={`status-badge ${payment.status === lang("invoice.paid", "Paid") ? "status-installation" : "status-upcoming"}`}>
-                                        {payment.status}
+                                    <span className={`status-badge ${payment.status === 0 ? "status-upcoming" : "status-installation"}`}>
+                                        {payment.status === 0 ? lang("common.pending", "Pending") : lang("invoice.paid", "Paid")}
                                     </span>
                                 </td>
                             </tr>

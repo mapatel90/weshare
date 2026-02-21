@@ -20,7 +20,6 @@ import TransactionDialog from "./TransactionDialog";
 import { buildUploadUrl } from "@/utils/common";
 import usePermissions from "@/hooks/usePermissions";
 
-
 const PayoutsPage = () => {
     const PAGE_SIZE = 50;
     const [pageSize, setPageSize] = useState(PAGE_SIZE);

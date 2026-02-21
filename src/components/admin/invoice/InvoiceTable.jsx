@@ -171,7 +171,15 @@ const InvoiceTable = () => {
     }
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (invoice) => {
+    if (Number(invoice?.status) === 1) {
+      await Swal.fire({
+        title: "You can not delete this invoice.",
+        icon: "error",
+      });
+      return;
+    }
+
     const result = await Swal.fire({
       title: lang("messages.confirmDelete"),
       icon: "warning",
@@ -183,7 +191,7 @@ const InvoiceTable = () => {
     });
     if (!result.isConfirmed) return;
     try {
-      const res = await apiDelete(`/api/invoice/${id}`);
+      const res = await apiDelete(`/api/invoice/${invoice?.id}`);
       if (res.success) {
         showSuccessToast(lang("invoice.invoiceDeletedSuccessfully"));
         fetchInvoices();
@@ -373,7 +381,7 @@ const InvoiceTable = () => {
           {canDelete("invoices") && (
             <IconButton
               size="small"
-              onClick={() => handleDelete(row.original.id)}
+              onClick={() => handleDelete(row.original)}
               sx={{
                 color: "#d32f2f",
                 transition: "transform 0.2s ease",

@@ -52,18 +52,18 @@ const AllContracts = ({ title }) => {
     let bgColor = "#f5f5f5";
     let borderColor = "#d5d5d5";
     let textColor = "#666666";
-    let statusText = "Pending";
+    let statusText = lang('common.pending', 'Pending');
 
     if (status === 1) {
       bgColor = "#16a34a15";
       borderColor = "#16a34a30";
       textColor = "#15803d";
-      statusText = "Approved";
+      statusText = lang('common.approved', 'Approved');
     } else if (status === 2) {
       bgColor = "#dc262615";
       borderColor = "#dc262630";
       textColor = "#b91c1c";
-      statusText = "Rejected";
+      statusText = lang('common.rejected', 'Rejected');
     }
 
     return { bgColor, borderColor, textColor, statusText };
