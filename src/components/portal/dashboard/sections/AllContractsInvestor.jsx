@@ -25,45 +25,16 @@ const AllContracts = ({ title }) => {
       try {
         setLoading(true);
         setError(null);
-        // Investor-specific: fetch investor records, then fetch contracts per investorId
+        // Fetch only contracts belonging to the logged-in user
         if (!user?.id) {
           setContracts([]);
           setLoading(false);
           return;
         }
 
-        const investorRes = await apiGet(`/api/investors?page=1&limit=50&userId=${user.id}`);
-        const investorIds = Array.isArray(investorRes?.data)
-          ? investorRes.data.map((inv) => inv?.id).filter(Boolean)
-          : [];
-
-        if (!investorIds.length) {
-          setContracts([]);
-          setLoading(false);
-          return;
-        }
-
-        const contractResponses = await Promise.all(
-          investorIds.map((investorId) =>
-            apiGet(`/api/contracts?investorId=${investorId}&limit=6`).catch(() => ({ data: [] }))
-          )
-        );
-
-        const merged = contractResponses.flatMap((res) =>
-          Array.isArray(res?.data) ? res.data : []
-        );
-
-        const uniqueById = [];
-        const seen = new Set();
-        merged.forEach((c) => {
-          const key = c?.id ?? c?.contract_id ?? `${c?.contract_title ?? ""}-${c?.contract_date ?? ""}`;
-          if (!seen.has(key)) {
-            seen.add(key);
-            uniqueById.push(c);
-          }
-        });
-
-        setContracts(uniqueById.slice(0, 6)); // Show first 6 contracts
+        const contractRes = await apiGet(`/api/contracts?investorId=${user.id}&limit=6`);
+        const merged = Array.isArray(contractRes?.data) ? contractRes.data : [];
+        setContracts(merged.slice(0, 6)); // Show first 6 contracts
       } catch (err) {
         setError("Failed to load contracts");
       } finally {

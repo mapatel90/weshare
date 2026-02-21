@@ -302,7 +302,7 @@ const Payments = () => {
                   <TextField
                     {...params}
                     label={lang("reports.allprojects", "All Projects")}
-                    placeholder="Search project..."
+                    placeholder={lang("common.searchProject", "Search project...")}
                   />
                 )}
                 sx={{ minWidth: 260 }}
@@ -330,7 +330,7 @@ const Payments = () => {
                   <TextField
                     {...params}
                     label={lang("invoice.allStatus", "All Status")}
-                    placeholder="Select status..."
+                    placeholder={lang("common.selectStatus", "Select status...")}
                   />
                 )}
                 sx={{ minWidth: 200 }}

@@ -179,6 +179,10 @@
     "welcomeBack": "Welcome back Log in to your admin account"
   },
   "common": {
+    "select": "Select...",
+    "searchInverter": "Search inverter...",
+    "searchProject": "Search project...",
+    "selectStatus": "Select status...",
     "entries": "Entries",
     "show": "Show",
     "of": "of",

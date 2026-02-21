@@ -309,7 +309,7 @@ const ProjectEnvReport = () => {
                                 <TextField
                                     {...params}
                                     label={lang("dashboard.all_project", "All Projects")}
-                                    placeholder="Search project..."
+                                    placeholder={lang("common.searchProject", "Select project...")}
                                 />
                             )}
                             sx={{ minWidth: 260 }}

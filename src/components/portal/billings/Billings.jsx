@@ -319,7 +319,7 @@ const Billings = () => {
               <TextField
                 {...params}
                 label={lang("dashboard.all_project", "All Projects")}
-                placeholder="Search project..."
+                placeholder={lang("common.searchProject", "Select project...")}
               />
             )}
             sx={{ minWidth: 260 }}
@@ -358,7 +358,7 @@ const Billings = () => {
               <TextField
                 {...params}
                 label={lang("invoice.allStatus", "All Status")}
-                placeholder="Select status..."
+                placeholder={lang("common.selectStatus", "Select status...")}
               />
             )}
             sx={{ minWidth: 200 }}

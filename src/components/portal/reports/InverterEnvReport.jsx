@@ -432,7 +432,7 @@ const InverterEnvReport = () => {
               <TextField
                 {...params}
                 label={lang("reports.allprojects", "All Projects")}
-                placeholder="Search project..."
+                placeholder={lang("common.searchProject", "Search project...")}
               />
             )}
             sx={{ minWidth: 260 }}
@@ -455,7 +455,7 @@ const InverterEnvReport = () => {
               <TextField
                 {...params}
                 label={lang("reports.allinverters", "All Inverters")}
-                placeholder="Search inverter..."
+                placeholder={lang("common.searchInverter", "Search inverter...")}
               />
             )}
             sx={{ minWidth: 260 }}

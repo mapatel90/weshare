@@ -422,7 +422,7 @@ const SavingReports = () => {
               <TextField
                 {...params}
                 label={lang("reports.allprojects", "All Projects")}
-                placeholder="Search project..."
+                placeholder={lang("common.searchProject", "Search project...")}
               />
             )}
             sx={{ minWidth: 260 }}
@@ -454,7 +454,7 @@ const SavingReports = () => {
               <TextField
                 {...params}
                 label={lang("common.groupBy", "Group By")}
-                placeholder="Select..."
+                placeholder={lang("common.select", "Select...")}
               />
             )}
             sx={{ minWidth: 180 }}

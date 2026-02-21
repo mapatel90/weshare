@@ -454,7 +454,7 @@ const SolarProjectTable = () => {
                       {statusFilter === "All"
                         ? lang("projects.status", "Status")
                         : statusFilter === PROJECT_STATUS.IN_PROGRESS
-                          ? lang("PROJECT_STATUS.IN_PROGRESS", "Pending")
+                          ? lang("common.pending", "Pending")
                           : statusFilter === PROJECT_STATUS.UPCOMING
                             ? lang("project_status.upcoming", "Upcoming")
                             : statusFilter === PROJECT_STATUS.RUNNING
