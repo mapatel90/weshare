@@ -91,7 +91,6 @@ router.get('/statscount', authenticateToken, async (req, res) => {
             prisma.lease_requests.count({ where: { is_deleted: 0 } }),
             prisma.interested_investors.count({ where: { is_deleted: 0 } }),
             prisma.project_inverters.count({ where: { is_deleted: 0 } }),
-            prisma.invoices.count({ where: { is_deleted: 0 } }),
             prisma.payouts.aggregate({
                 _sum: {
                     payout_amount: true
