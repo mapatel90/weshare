@@ -1328,6 +1328,7 @@
     "status": "Trạng thái",
     "actions": "Hành động",
     "paid": "Đã thanh toán",
+    "pending": "Chờ thanh toán",
     "unpaid": "Chưa thanh toán",
     "selectProject": "Chọn dự án",
     "selectOfftaker": "Chọn Offtaker",
