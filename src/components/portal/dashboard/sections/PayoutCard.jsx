@@ -41,8 +41,8 @@ export default function PayoutCard() {
     }, [user?.id]);
 
     const formatStatus = (status) => {
-        if (status === PAYOUT_STATUS.PAYOUT) return 'payout';
-        if (status === PAYOUT_STATUS.PENDING) return 'Pending';
+        if (status === PAYOUT_STATUS.PAYOUT) return lang("invoice.paid", "Paid");
+        if (status === PAYOUT_STATUS.PENDING) return lang("invoice.pending", "Pending");
         return status || '-';
     };
 
@@ -103,11 +103,11 @@ export default function PayoutCard() {
                 <table>
                     <thead>
                         <tr>
-                            <th className="border-b text-uppercase">{lang("payouts.payout", "Payout")}</th>
+                            <th className="border-b text-uppercase">{lang("payouts.payouts", "Payout")}</th>
                             <th className="border-b text-uppercase">{lang("projects.projectName", "Project Name")}</th>
-                            <th className="border-b text-uppercase">{lang("payouts.amount", "Amount")}</th>
-                            <th className="border-b text-uppercase">{lang("payouts.date", "Date")}</th>
-                            <th className="border-b text-uppercase">{lang("payouts.status", "Status")}</th>
+                            <th className="border-b text-uppercase">{lang("common.amount", "Amount")}</th>
+                            <th className="border-b text-uppercase">{lang("common.date", "Date")}</th>
+                            <th className="border-b text-uppercase">{lang("common.status", "Status")}</th>
                         </tr>
                     </thead>
                     <tbody>
