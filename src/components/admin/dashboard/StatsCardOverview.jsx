@@ -6,8 +6,9 @@ import { apiGet } from '@/lib/api';
 
 // React Icons
 import { FiUsers, FiCpu } from "react-icons/fi";
-import { MdSolarPower, MdDocumentScanner, MdVerifiedUser, MdTrendingUp } from "react-icons/md";
+import { MdSolarPower, MdDocumentScanner, MdVerifiedUser, MdTrendingUp, MdPayments } from "react-icons/md";
 import usePermissions from '@/hooks/usePermissions';
+import { useFormatPrice } from '@/hooks/useFormatPrice';
 
 
 const StatsCardOverview = () => {
@@ -16,10 +17,10 @@ const StatsCardOverview = () => {
     const statsConfig = [
         ...(canView("projects") ? [{ key: 'projects', title: lang('navigation.projects', 'Projects'), icon: <MdSolarPower size={26} /> }] : []),
         ...(canView("users") ? [{ key: 'users', title: lang('navigation.users', 'Users'), icon: <FiUsers size={26} /> }] : []),
-        ...(canView("project_inverters") ? [{ key: 'project_inverters', title: lang('inverter.project_inverter', 'Project Inverters'), icon: <FiCpu size={26} /> }] : []),
         ...(canView("contracts") ? [{ key: 'contracts', title: lang('offtaker_login.sidebar.contracts', 'Contracts'), icon: <MdDocumentScanner size={26} /> }] : []),
         ...(canView("lease_requests") ? [{ key: 'lease_request', title: lang('leaseRequest.title', 'Lease Requests'), icon: <MdVerifiedUser size={26} /> }] : []),
         ...(canView("interested_investors") ? [{ key: 'interested_investors', title: lang('home.exchangeHub.investor'), icon: <MdTrendingUp size={26} /> }] : []),
+        ...(canView("payouts") ? [{ key: 'payouts', title: lang('common.totalPayouts', 'Total Payouts'), icon: <MdPayments size={26} /> }] : []),
     ];
     const [stats, setStats] = useState({
         projects: 0,
@@ -27,15 +28,18 @@ const StatsCardOverview = () => {
         project_inverters: 0,
         contracts: 0,
         lease_request: 0,
-        interested_investors: 0
+        interested_investors: 0,
+        payouts: 0
     });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const formatPrice = useFormatPrice();
 
     useEffect(() => {
         const fetchStats = async () => {
             try {
                 const res = await apiGet('/api/dashboard/statscount');
+                console.log("res.data", res.data);
                 if (res.data) setStats(res.data);
                 else setError('Failed to fetch stats');
             } catch (err) {
@@ -155,7 +159,7 @@ const StatsCardOverview = () => {
                                                     lineHeight: "1.2"
                                                 }}
                                             >
-                                                {stats[key]}
+                                                {key === 'payouts' ? formatPrice(stats[key]) : stats[key]}
                                             </div>
                                         </div>
                                     </div>

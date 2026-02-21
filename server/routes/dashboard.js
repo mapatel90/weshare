@@ -1,6 +1,7 @@
 import express from 'express';
 import prisma from '../utils/prisma.js';
 import { authenticateToken } from '../middleware/auth.js';
+import { PAYOUT_STATUS } from '../../src/constants/payout_status.js';
 
 const router = express.Router();
 
@@ -82,7 +83,7 @@ router.get('/portfolio-stats', async (req, res) => {
 // GET /api/dashboard/statscount
 router.get('/statscount', authenticateToken, async (req, res) => {
     try {
-        const [projects, users, inverters, contracts, lease_request, interested_investors, project_inverters] = await Promise.all([
+        const [projects, users, inverters, contracts, lease_request, interested_investors, project_inverters, payouts] = await Promise.all([
             prisma.projects.count({ where: { is_deleted: 0 } }),
             prisma.users.count({ where: { is_deleted: 0 } }),
             prisma.inverters.count({ where: { is_deleted: 0 } }),
@@ -90,6 +91,15 @@ router.get('/statscount', authenticateToken, async (req, res) => {
             prisma.lease_requests.count({ where: { is_deleted: 0 } }),
             prisma.interested_investors.count({ where: { is_deleted: 0 } }),
             prisma.project_inverters.count({ where: { is_deleted: 0 } }),
+            prisma.invoices.count({ where: { is_deleted: 0 } }),
+            prisma.payouts.aggregate({
+                _sum: {
+                    payout_amount: true
+                },
+                where: {
+                    status: PAYOUT_STATUS.PAYOUT
+                }
+            })
         ]);
         res.json({
             success: true,
@@ -101,6 +111,7 @@ router.get('/statscount', authenticateToken, async (req, res) => {
                 lease_request,
                 interested_investors,
                 project_inverters,
+                payouts: payouts._sum.payout_amount || 0,
             },
         });
     } catch (error) {

@@ -341,7 +341,8 @@
     "allStatus": "All Status",
     "noContractsFound": "No contracts found",
     "pleaseSelectProjectAfterDownloadingCSV": "Please select project after downloading CSV",
-    "groupBy": "Group By"
+    "groupBy": "Group By",
+    "totalPayouts": "Total Payouts"
   },
   "messages": {
     "cannotUndoDelete": "You won't be able to revert this!",

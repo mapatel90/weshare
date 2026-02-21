@@ -321,7 +321,8 @@
     "allStatus": "Tất cả trạng thái",
     "show": "Hiển thị",
     "pleaseSelectProjectAfterDownloadingCSV": "Vui lòng chọn dự án sau khi tải xuống CSV",
-    "groupBy": "Nhóm theo"
+    "groupBy": "Nhóm theo",
+    "totalPayouts": "Tổng thanh toán"
   },
   "messages": {
     "cannotUndoDelete": "Bạn sẽ không thể hoàn tác điều này!",
