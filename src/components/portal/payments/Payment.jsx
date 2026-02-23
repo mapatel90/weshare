@@ -35,6 +35,7 @@ const Payments = () => {
   const priceWithCurrency = usePriceWithCurrency();
   const { user } = useAuth();
   const { lang } = useLanguage();
+  const isOfftaker = user?.role === ROLES.OFFTAKER;
 
   // Status color mapping function based on numeric status
   const getStatusColorClass = (statusValue) => {
@@ -61,6 +62,11 @@ const Payments = () => {
         page: page.toString(),
         pageSize: pageSize.toString(),
       });
+
+      // If user is offtaker, automatically filter by their ID
+      if (isOfftaker && user?.id) {
+        params.append("offtakerId", user?.id);
+      }
 
       if (paymentDateVal) {
         params.append("paymentDate", paymentDateVal);

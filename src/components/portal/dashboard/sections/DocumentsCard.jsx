@@ -3,17 +3,30 @@
 import React, { useState, useEffect } from 'react';
 import { apiGet } from "@/lib/api";
 import { usePriceWithCurrency } from "@/hooks/usePriceWithCurrency";
+import { useAuth } from "@/contexts/AuthContext";
+import { ROLES } from "@/constants/roles";
 
 function DocumentsCard( { lang } ) {
     const [payments, setPayments] = useState([]);
     const [loading, setLoading] = useState(true);
     const priceWithCurrency = usePriceWithCurrency();
+    const { user } = useAuth();
 
     useEffect(() => {
         const fetchPayments = async () => {
             try {
                 setLoading(true);
-                const response = await apiGet('/api/payments?page=1&pageSize=5', { includeAuth: true });
+                const params = new URLSearchParams({
+                    page: '1',
+                    pageSize: '5'
+                });
+                    
+                // If user is offtaker, filter by their ID
+                if (user?.role === ROLES.OFFTAKER && user?.id) {
+                    params.append('offtakerId', user?.id);
+                }
+                
+                const response = await apiGet(`/api/payments?${params.toString()}`, { includeAuth: true });
                 
                 if (response?.success && Array.isArray(response?.data)) {
                     const formattedPayments = response.data.map((payment) => ({
@@ -37,7 +50,7 @@ function DocumentsCard( { lang } ) {
         };
 
         fetchPayments();
-    }, []);
+    }, [user?.id, user?.role]);
 
     return (
          <div className="billing-card">

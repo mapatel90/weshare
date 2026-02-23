@@ -40,7 +40,8 @@ const upload = multer({ storage });
 // List payments (exclude soft-deleted) with search and date filters
 router.get('/', authenticateToken, async (req, res) => {
   try {
-    const { search = '', paymentDate = '', projectId = '', status = '', page = 1, pageSize = 10 } = req.query;
+    const { search = '', paymentDate = '', projectId = '', status = '', offtakerId = '', page = 1, pageSize = 10 } = req.query;
+    console.log("Query params:", offtakerId);
     const pageNum = parseInt(page);
     const limit = parseInt(pageSize);
     const skip = (pageNum - 1) * limit;
@@ -75,12 +76,16 @@ router.get('/', authenticateToken, async (req, res) => {
     // Build status condition
     const statusCondition = status !== '' ? { status: parseInt(status) } : {};
 
+    // Build offtaker condition (for filtering by specific offtaker)
+    const offtakerCondition = offtakerId ? { offtaker_id: parseInt(offtakerId) } : {};
+
     const whereClause = {
       is_deleted: 0,
       ...searchCondition,
       ...dateCondition,
       ...projectCondition,
-      ...statusCondition
+      ...statusCondition,
+      ...offtakerCondition
     };
 
     // Get total count for pagination
