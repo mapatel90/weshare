@@ -727,13 +727,13 @@ router.get('/verify-email/:token', async (req, res) => {
         })
           .then((result) => {
             if (result.success) {
-              console.log(`✅ Welcome email sent to ${user.email}`);
+              console.log(`Welcome email sent to ${user.email}`);
             } else {
-              console.warn(`⚠️ Could not send welcome email: ${result.error}`);
+              console.warn(`Could not send welcome email: ${result.error}`);
             }
           })
           .catch((error) => {
-            console.error('❌ Failed to send welcome email:', error.message);
+            console.error('Failed to send welcome email:', error.message);
           });
       } else if (user.role_id === USER_ROLES.INVESTOR) {
         const loginUrl = `${process.env.FRONTEND_URL || ''}/investor/login`;
@@ -753,13 +753,13 @@ router.get('/verify-email/:token', async (req, res) => {
         })
           .then((result) => {
             if (result.success) {
-              console.log(`✅ Welcome email sent to ${user.email}`);
+              console.log(`Welcome email sent to ${user.email}`);
             } else {
-              console.warn(`⚠️ Could not send welcome email: ${result.error}`);
+              console.warn(`Could not send welcome email: ${result.error}`);
             }
           })
           .catch((error) => {
-            console.error('❌ Failed to send welcome email:', error.message);
+            console.error('Failed to send welcome email:', error.message);
           });
       }
     }

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { apiGet, apiPost } from '@/lib/api';
 import { Box, Container, Typography, Button, CircularProgress, Alert } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -11,32 +11,21 @@ import { useLanguage } from '@/contexts/LanguageContext';
 export default function VerifyEmailPage() {
   const router = useRouter();
   const { lang } = useLanguage();
+  const searchParams = useSearchParams();
+  const token = searchParams.get('token');
+
   const [status, setStatus] = useState('verifying'); // verifying, success, error
-  const [message, setMessage] = useState(''); // always store a plain string
+  const [message, setMessage] = useState('');
   const [resending, setResending] = useState(false);
-  const [token, setToken] = useState(null);
 
   useEffect(() => {
-    try {
-      // Safely read token from URL on the client
-      if (typeof window !== 'undefined') {
-        const urlParams = new URLSearchParams(window.location.search);
-        const t = urlParams.get('token');
-        setToken(t);
-
-        if (t) {
-          verifyEmail(t);
-        } else {
-          setStatus('error');
-          setMessage('Verification token is missing. Please check your email link.');
-        }
-      }
-    } catch (err) {
-      console.error('Error reading verification token from URL', err);
+    if (token) {
+      verifyEmail(token);
+    } else {
       setStatus('error');
-      setMessage('Something went wrong while reading your verification link.');
+      setMessage('Verification token is missing. Please check your email link.');
     }
-  }, []);
+  }, [token]);
 
   const verifyEmail = async (verificationToken) => {
     try {
@@ -45,24 +34,20 @@ export default function VerifyEmailPage() {
         includeAuth: false
       });
 
-      if (response && response.success) {
+      if (response.success) {
         setStatus('success');
-        // Ensure message is always a string
-        const msg = response.message ?? lang("common.emailVerifiedSuccessfully", "Email verified successfully.");
-        setMessage(typeof msg === 'string' ? msg : JSON.stringify(msg));
+        setMessage(response.message);
         // Redirect to login after 3 seconds
         setTimeout(() => {
           router.push('/login');
         }, 12000);
       } else {
         setStatus('error');
-        const msg = response?.message ?? lang("authentication.invalidOrExpiredToken", "Invalid or expired verification link.");
-        setMessage(typeof msg === 'string' ? msg : JSON.stringify(msg));
+        setMessage(response.message);
       }
     } catch (error) {
       setStatus('error');
-      const msg = error?.message || 'Failed to verify email. The link may be invalid or expired.';
-      setMessage(typeof msg === 'string' ? msg : String(msg));
+      setMessage(error.message || 'Failed to verify email. The link may be invalid or expired.');
     }
   };
 
