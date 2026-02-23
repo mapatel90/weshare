@@ -12,7 +12,7 @@ export default function VerifyEmailPage() {
   const router = useRouter();
   const { lang } = useLanguage();
   const [status, setStatus] = useState('verifying'); // verifying, success, error
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState(''); // always store a plain string
   const [resending, setResending] = useState(false);
   const [token, setToken] = useState(null);
 
@@ -45,20 +45,24 @@ export default function VerifyEmailPage() {
         includeAuth: false
       });
 
-      if (response.success) {
+      if (response && response.success) {
         setStatus('success');
-        setMessage(response.message);
+        // Ensure message is always a string
+        const msg = response.message ?? lang("common.emailVerifiedSuccessfully", "Email verified successfully.");
+        setMessage(typeof msg === 'string' ? msg : JSON.stringify(msg));
         // Redirect to login after 3 seconds
         setTimeout(() => {
           router.push('/login');
         }, 12000);
       } else {
         setStatus('error');
-        setMessage(response.message);
+        const msg = response?.message ?? lang("authentication.invalidOrExpiredToken", "Invalid or expired verification link.");
+        setMessage(typeof msg === 'string' ? msg : JSON.stringify(msg));
       }
     } catch (error) {
       setStatus('error');
-      setMessage(error.message || 'Failed to verify email. The link may be invalid or expired.');
+      const msg = error?.message || 'Failed to verify email. The link may be invalid or expired.';
+      setMessage(typeof msg === 'string' ? msg : String(msg));
     }
   };
 
