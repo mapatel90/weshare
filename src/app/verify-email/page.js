@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { apiGet } from '@/lib/api';
+import { apiGet, apiPost } from '@/lib/api';
 
 export default function VerifyEmailPage() {
   const router = useRouter();
@@ -13,6 +13,7 @@ export default function VerifyEmailPage() {
   // Simple string state (no TypeScript types in this JS file)
   const [status, setStatus] = useState('verifying'); // 'verifying' | 'success' | 'error'
   const [message, setMessage] = useState('');
+  const [resending, setResending] = useState(false);
 
   useEffect(() => {
     if (!token) {
@@ -54,6 +55,29 @@ export default function VerifyEmailPage() {
 
     verifyEmail();
   }, [token, router]);
+
+  const handleResendVerification = async () => {
+    const email = window.prompt('Please enter your email address:');
+    if (!email) return;
+
+    try {
+      setResending(true);
+      const response = await apiPost('/api/auth/resend-verification', { email }, {
+        showLoader: false,
+        includeAuth: false
+      });
+
+      if (response?.success) {
+        window.alert('Verification email sent! Please check your inbox.');
+      } else {
+        window.alert(response?.message || 'Failed to resend verification email');
+      }
+    } catch (error) {
+      window.alert(error?.message || 'Failed to resend verification email');
+    } finally {
+      setResending(false);
+    }
+  };
 
   return (
     <div
@@ -190,6 +214,31 @@ export default function VerifyEmailPage() {
                 Verification failed
               </p>
               <p style={{ margin: 0, textAlign: 'center' }}>{message}</p>
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  marginTop: '16px'
+                }}
+              >
+                <button
+                  type="button"
+                  onClick={handleResendVerification}
+                  disabled={resending}
+                  style={{
+                    border: '1px solid #F6A623',
+                    background: 'transparent',
+                    color: '#F6A623',
+                    borderRadius: '6px',
+                    padding: '10px 16px',
+                    cursor: resending ? 'not-allowed' : 'pointer',
+                    fontWeight: 600,
+                    opacity: resending ? 0.7 : 1
+                  }}
+                >
+                  {resending ? 'Sending...' : 'Resend Verification Email'}
+                </button>
+              </div>
             </>
           )}
         </div>
