@@ -329,7 +329,10 @@
     "show": "Hiển thị",
     "pleaseSelectProjectAfterDownloadingCSV": "Vui lòng chọn dự án sau khi tải xuống CSV",
     "groupBy": "Nhóm theo",
-    "totalPayouts": "Tổng thanh toán"
+    "totalPayouts": "Tổng thanh toán",
+    "totalInvoiceAmount": "Tổng số tiền hóa đơn",
+    "total_invoice_amount": "Tổng số tiền hóa đơn",
+    "weshareTotalRevenue": "Tổng doanh thu WeShare"
   },
   "messages": {
     "cannotUndoDelete": "Bạn sẽ không thể hoàn tác điều này!",

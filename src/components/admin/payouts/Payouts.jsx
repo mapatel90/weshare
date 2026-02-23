@@ -107,7 +107,6 @@ const PayoutsPage = () => {
             }
 
             const response = await apiGet(`/api/payouts?${params.toString()}`);
-            console.log("Fetched payouts:", response);
 
             if (response?.success) {
                 setPayouts(response.data);

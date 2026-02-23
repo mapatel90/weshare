@@ -558,7 +558,6 @@ const ProjectDetail = ({ projectId }) => {
               <div className="stats-view">
                 <div className="leftStatsBox">
                   <div>
-                    {console.log(project.project_status_id)}
                     <p> {project.project_status_id === PROJECT_STATUS.UPCOMING ? lang("home.exchangeHub.installCapacity") : lang("home.exchangeHub.installedCapacity")} : </p>
                     <h4>{formatNumber(project.project_size)} kWp</h4>
                   </div>

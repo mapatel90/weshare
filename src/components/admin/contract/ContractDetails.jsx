@@ -22,7 +22,6 @@ const ContractDetails = () => {
       try {
         const res = await apiGet("/api/contracts?id=" + contractId);
         if (res?.success && res?.data) {
-          console.log("Fetched contract data:", res.data);
           const payload = Array.isArray(res.data) ? res.data[0] : res.data;
           setData(payload || null);
         } else {

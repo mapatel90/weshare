@@ -28,7 +28,6 @@ const AllProjects = ({ title }) => {
         setLoading(true);
         setError(null);
         const res = await apiGet("/api/projects?limit=5&page=1");
-        console.log('Fetched projects:', res);
         const list = Array.isArray(res?.data) ? res.data : [];
         setProjects(list.slice(0, 5)); // Show first 5 projects
       } catch (err) {

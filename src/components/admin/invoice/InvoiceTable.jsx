@@ -62,7 +62,6 @@ const InvoiceTable = () => {
       const response = await apiGet(`/api/invoice?${params.toString()}`);
       if (response?.success && response?.data) {
         const payload = response.data;
-        console.log("Fetched invoices:", payload);
         let invoices = Array.isArray(payload?.invoices)
           ? payload.invoices
           : Array.isArray(payload)
@@ -107,7 +106,6 @@ const InvoiceTable = () => {
         project_status_id: PROJECT_STATUS.RUNNING,
       });
       if (response?.success && Array.isArray(response?.data)) {
-        console.log("Fetched projects for invoice filter:", response);
         setProjectList(response.data);
       } else {
         setProjectList([]);

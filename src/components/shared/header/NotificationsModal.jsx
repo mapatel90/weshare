@@ -101,7 +101,6 @@ const NotificationsModal = () => {
 
     // Handle notification click
     const handleNotificationClick = async (notification) => {
-        console.log("notification", notification);
         if (notification.is_read === 0) {
             await markAsRead(notification.id);
         }

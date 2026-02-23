@@ -68,7 +68,6 @@ const MyProfile = () => {
             try {
                 setLoading(true)
                 const response = await apiGet(`/api/users/${user.id}`)
-                console.log("response", response);
 
                 if (response.success) {
                     const userData = response.data
@@ -229,7 +228,6 @@ const MyProfile = () => {
 
             // Create FormData for file upload
             const formData = new FormData()
-            console.log("profileData", profileData);
             formData.append('full_name', profileData.fullName)
             formData.append('email', profileData.email)
             formData.append('phone_number', profileData.phoneNumber || '')

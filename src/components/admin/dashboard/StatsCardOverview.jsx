@@ -3,10 +3,8 @@
 import React, { useEffect, useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { apiGet } from '@/lib/api';
-
-// React Icons
-import { FiUsers, FiCpu } from "react-icons/fi";
-import { MdSolarPower, MdDocumentScanner, MdVerifiedUser, MdTrendingUp, MdPayments } from "react-icons/md";
+import { FiUsers } from "react-icons/fi";
+import { MdSolarPower, MdVerifiedUser, MdPayments } from "react-icons/md";  
 import usePermissions from '@/hooks/usePermissions';
 import { useFormatPrice } from '@/hooks/useFormatPrice';
 
@@ -17,19 +15,19 @@ const StatsCardOverview = () => {
     const statsConfig = [
         ...(canView("projects") ? [{ key: 'projects', title: lang('navigation.projects', 'Projects'), icon: <MdSolarPower size={26} /> }] : []),
         ...(canView("users") ? [{ key: 'users', title: lang('navigation.users', 'Users'), icon: <FiUsers size={26} /> }] : []),
-        ...(canView("contracts") ? [{ key: 'contracts', title: lang('offtaker_login.sidebar.contracts', 'Contracts'), icon: <MdDocumentScanner size={26} /> }] : []),
         ...(canView("lease_requests") ? [{ key: 'lease_request', title: lang('leaseRequest.title', 'Lease Requests'), icon: <MdVerifiedUser size={26} /> }] : []),
-        ...(canView("interested_investors") ? [{ key: 'interested_investors', title: lang('home.exchangeHub.investor'), icon: <MdTrendingUp size={26} /> }] : []),
+        ...(canView("total_invoice_amount") ? [{ key: 'total_invoice_amount', title: lang('common.total_invoice_amount', 'total Invoice Amount'), icon: <MdPayments size={26} /> }] : []),
         ...(canView("payouts") ? [{ key: 'payouts', title: lang('common.totalPayouts', 'Total Payouts'), icon: <MdPayments size={26} /> }] : []),
+        ...(canView("weshare_total_revenue") ? [{ key: 'weshare_total_revenue', title: lang('common.weshareTotalRevenue', 'WeShare Total Revenue'), icon: <MdPayments size={26} /> }] : []),
     ];
     const [stats, setStats] = useState({
         projects: 0,
         users: 0,
         project_inverters: 0,
-        contracts: 0,
         lease_request: 0,
-        interested_investors: 0,
-        payouts: 0
+        payouts: 0,
+        total_invoice_amount: 0,
+        weshare_total_revenue: 0
     });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -39,7 +37,6 @@ const StatsCardOverview = () => {
         const fetchStats = async () => {
             try {
                 const res = await apiGet('/api/dashboard/statscount');
-                console.log("res.data", res.data);
                 if (res.data) setStats(res.data);
                 else setError('Failed to fetch stats');
             } catch (err) {
@@ -159,7 +156,7 @@ const StatsCardOverview = () => {
                                                     lineHeight: "1.2"
                                                 }}
                                             >
-                                                {key === 'payouts' ? formatPrice(stats[key]) : stats[key]}
+                                                {key === 'payouts' || key === 'total_invoice_amount' || key === 'weshare_total_revenue' ? formatPrice(stats[key]) : stats[key]}
                                             </div>
                                         </div>
                                     </div>

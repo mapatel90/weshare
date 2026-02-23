@@ -53,7 +53,6 @@ const PaymentModal = ({
         
         const response = await apiGet(url);
         const list = response?.data;
-        console.log("Fetched invoices:", list);
 
         const paidInvoiceIds = Array.isArray(payments)
           ? payments.map((p) => String(p.invoice_id))
