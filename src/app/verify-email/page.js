@@ -4,9 +4,11 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { apiGet, apiPost } from '@/lib/api';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function VerifyEmailPage() {
   const router = useRouter();
+  const { lang } = useLanguage();
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
 
@@ -47,8 +49,7 @@ export default function VerifyEmailPage() {
         console.error('Error verifying email:', error);
         setStatus('error');
         setMessage(
-          error?.message ||
-            'Failed to verify email. The link may be invalid or expired.'
+          error?.message || lang('common.verifyingEmails', 'Failed to verify email. The link may be invalid or expired.')
         );
       }
     };
@@ -57,7 +58,7 @@ export default function VerifyEmailPage() {
   }, [token, router]);
 
   const handleResendVerification = async () => {
-    const email = window.prompt('Please enter your email address:');
+    const email = window.prompt(lang('authentication.enterEmail', 'Please enter your email address:'));
     if (!email) return;
 
     try {
@@ -68,12 +69,12 @@ export default function VerifyEmailPage() {
       });
 
       if (response?.success) {
-        window.alert('Verification email sent! Please check your inbox.');
+        window.alert(lang('messages.success', 'Verification email sent! Please check your inbox.'));
       } else {
-        window.alert(response?.message || 'Failed to resend verification email');
+        window.alert(response?.message || lang('common.resendVerificationEmail', 'Failed to resend verification email'));
       }
     } catch (error) {
-      window.alert(error?.message || 'Failed to resend verification email');
+      window.alert(error?.message || lang('common.resendVerificationEmail', 'Failed to resend verification email'));
     } finally {
       setResending(false);
     }
@@ -159,12 +160,12 @@ export default function VerifyEmailPage() {
           }}
         >
           <h1 style={{ margin: '0 0 16px', fontSize: '22px', textAlign: 'center' }}>
-            Email Verification
+            {lang('page_title.verifyEmail', 'Email Verification')}
           </h1>
 
           {status === 'verifying' && (
             <p style={{ margin: 0, textAlign: 'center' }}>
-              Verifying your email address, please wait...
+              {lang('common.verifyingEmailMessage', 'Verifying your email address, please wait...')}
             </p>
           )}
 
@@ -178,11 +179,11 @@ export default function VerifyEmailPage() {
                   fontWeight: 600
                 }}
               >
-                Email verified successfully!
+                {lang('common.emailVerifiedSuccessfully', 'Email verified successfully!')}
               </p>
               <p style={{ margin: 0, textAlign: 'center' }}>{message}</p>
               <p style={{ marginTop: '12px', textAlign: 'center', fontSize: '14px' }}>
-                You will be redirected to the login page shortly. If not,{' '}
+                {lang('common.redirectingToLogin', 'You will be redirected to the login page shortly. If not,')} {' '}
                 <button
                   type="button"
                   onClick={() => router.push('/login')}
@@ -194,7 +195,7 @@ export default function VerifyEmailPage() {
                     padding: 0
                   }}
                 >
-                  click here
+                  {lang('common.goToLogin', 'click here')}
                 </button>
                 .
               </p>
@@ -211,7 +212,7 @@ export default function VerifyEmailPage() {
                   fontWeight: 600
                 }}
               >
-                Verification failed
+                {lang('common.verificationFailed', 'Verification failed')}
               </p>
               <p style={{ margin: 0, textAlign: 'center' }}>{message}</p>
               <div
@@ -236,7 +237,7 @@ export default function VerifyEmailPage() {
                     opacity: resending ? 0.7 : 1
                   }}
                 >
-                  {resending ? 'Sending...' : 'Resend Verification Email'}
+                  {resending ? lang('common.saving', 'Sending...') : lang('common.resendVerificationEmail', 'Resend Verification Email')}
                 </button>
               </div>
             </>
