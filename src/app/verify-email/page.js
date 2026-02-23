@@ -9,7 +9,8 @@ export default function VerifyEmailPage() {
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
 
-  const [status, setStatus] = useState<'verifying' | 'success' | 'error'>('verifying');
+  // Simple string state (no TypeScript types in this JS file)
+  const [status, setStatus] = useState('verifying'); // 'verifying' | 'success' | 'error'
   const [message, setMessage] = useState('');
 
   useEffect(() => {
