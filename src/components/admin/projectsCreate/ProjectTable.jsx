@@ -18,6 +18,7 @@ import { showSuccessToast, showErrorToast } from "@/utils/topTost";
 import { apiGet, apiPut, apiDelete, apiPost } from "@/lib/api";
 import { useLanguage } from "@/contexts/LanguageContext";
 import usePermissions from "@/hooks/usePermissions";
+import { PROJECT_STATUS } from "@/constants/project_status";
 
 const StatusDropdown = memo(({ value, onChange, options, disabled }) => {
   const statusOptions = Array.isArray(options) ? options : [];
@@ -214,12 +215,28 @@ const ProjectTable = () => {
     }
   };
 
+  const getProjectStatusLabel = (status) => {
+    const statusId = Number(status?.id);
+
+    if (statusId === PROJECT_STATUS.IN_PROGRESS) {
+      return lang("common.pending", "Pending");
+    }
+    if (statusId === PROJECT_STATUS.UPCOMING) {
+      return lang("project_status.upcoming", "Upcoming");
+    }
+    if (statusId === PROJECT_STATUS.RUNNING) {
+      return lang("project_status.running", "Running");
+    }
+
+    return status?.status_name || status?.name || `Status ${status?.id ?? ""}`;
+  };
+
   const statusOptions = useMemo(() => {
     return (projectStatusList || []).map((s) => ({
-      label: s?.name ?? `Status ${s?.id}`,
+      label: getProjectStatusLabel(s),
       value: String(s?.id),
     }));
-  }, [projectStatusList]);
+  }, [projectStatusList, lang]);
 
   const handleSearchChange = (value) => {
     setPageIndex(0);
@@ -511,7 +528,7 @@ const ProjectTable = () => {
             options={projectStatusList}
             value={projectStatusList.find((p) => String(p.id) === String(statusFilter)) || null}
             onChange={(e, newValue) => setStatusFilter(newValue ? newValue.id : "")}
-            getOptionLabel={(option) => option.name || `Status ${option.id}`}
+            getOptionLabel={(option) => getProjectStatusLabel(option)}
             isOptionEqualToValue={(option, value) => String(option.id) === String(value.id)}
             renderInput={(params) => (
               <TextField {...params} label={lang("invoice.allStatus", "All Status")} placeholder={lang("common.selectStatus", "Select status...")} />

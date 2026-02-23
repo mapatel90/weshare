@@ -355,7 +355,7 @@ const Investor = ({ projectId, onInvestorMarked, handleSaveAction }) => {
   return (
     <div className="investor-management">
       <div className="d-flex justify-content-between align-items-center mb-3">
-        <h6 className="fw-bold mb-0">{lang("investor.investors", "Investors")}</h6>
+        <h6 className="fw-bold mb-0">{lang("common.investors", "Investors")}</h6>
         {!projectHasInvestor && (
           <Button
             variant="contained"

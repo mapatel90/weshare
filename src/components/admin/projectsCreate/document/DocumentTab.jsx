@@ -188,7 +188,7 @@ const DocumentTab = ({ projectId, handleCloseForm }) => {
         },
         {
             accessorKey: "document",
-            header: () => lang("project_documents.file", "File"),
+            header: () => lang("common.file", "File"),
             cell: (info) => {
                 const row = info.row.original;
                 return row.document ? (

@@ -426,7 +426,7 @@ const Contract = ({ projectId, handleCloseForm, handleSaveAction }) => {
     },
     {
       accessorKey: "contractType",
-      header: () => lang("contract.type", "Type"),
+      header: () => lang("menu.type", "Type"),
       cell: (info) => {
         const v = info.getValue() || "-";
         const row = info.row?.original || {};
@@ -453,7 +453,7 @@ const Contract = ({ projectId, handleCloseForm, handleSaveAction }) => {
     },
     {
       accessorKey: "partyName",
-      header: () => lang("contract.partyName", "Party Name"),
+      header: () => lang("common.partyName", "Party Name"),
       cell: (info) => {
         const row = info.row?.original || {};
         let name = "-";
@@ -627,7 +627,7 @@ const Contract = ({ projectId, handleCloseForm, handleSaveAction }) => {
     <div className="contract-management">
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h6 className="fw-bold mb-0">
-          {lang("contract.contracts", "Contracts")}
+          {lang("menu.contracts", "Contracts")}
         </h6>
         {allowAdd && (
           <Button

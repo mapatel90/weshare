@@ -180,6 +180,8 @@
     "welcomeBack": "Welcome back Log in to your admin account"
   },
   "common": {
+    "file": "File",
+    "investors": "Investors",
     "read": "Read",
     "unknown": "Unknown",
     "resendVerificationEmail": "Resend Verification Email",
@@ -1666,6 +1668,7 @@
     }
   },
   "investor": {
+    "addInvestor": "Add Investor",
     "fullName": "Full Name",
     "email": "Email",
     "phone": "Phone Number",
