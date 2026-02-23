@@ -272,34 +272,34 @@ export default function AddModal({ open, onClose }) {
 
     // Required fields
     if (!project?.name || project?.name.trim() === "")
-      errors.name = "Project name is required";
+      errors.name = lang("validation.projectRequired", "Project name is required");
     if (!project?.project_type_id || project?.project_type_id === "")
-      errors.project_type_id = "Project type is required";
+      errors.project_type_id = lang("validation.projectTypeRequired", "Project type is required");
     if (!project?.project_description || project?.project_description.trim() === "")
-      errors.project_description = "Description is required";
+      errors.project_description = lang("validation.projectDescriptionRequired", "Description is required");
     if (!project?.lease_term || project?.lease_term.trim() === "")
-      errors.lease_term = "Lease Term is required";
+      errors.lease_term = lang("validation.projectLeaseTermRequired", "Lease Term is required");
     if (!project?.project_size || project?.project_size.trim() === "")
-      errors.project_size = "Installed Capacity is required";
+      errors.project_size = lang("validation.projectInstalledCapacityRequired", "Installed Capacity is required");
     if (!project?.project_location || project?.project_location.trim() === "")
-      errors.project_location = "Location is required";
+      errors.project_location = lang("validation.projectLocationRequired", "Location is required");
     if (!project?.start_date || project?.start_date.trim() === "")
-      errors.start_date = "Project Start Date is required";
+      errors.start_date = lang("validation.projectStartDateRequired", "Project Start Date is required");
     if (!project?.project_close_date || project?.project_close_date.trim() === "")
-      errors.project_close_date = "Project End Date is required";
+      errors.project_close_date = lang("validation.projectEndDateRequired", "Project End Date is required");
 
     // Numeric validation
     const numberRegex = /^[0-9]*\.?[0-9]*$/;
     if (project?.lease_term && project.lease_term.trim() !== "" && !numberRegex.test(project.lease_term))
-      errors.lease_term = "Lease Term must be a valid number";
+      errors.lease_term = lang("validation.leaseTermMustBeValidNumber", "Lease Term must be a valid number");
     if (project?.project_size && project.project_size.trim() !== "" && !numberRegex.test(project.project_size))
-      errors.project_size = "Installed Capacity must be a valid number";
+      errors.project_size = lang("validation.installedCapacityMustBeValidNumber", "Installed Capacity must be a valid number");
 
     // Date validation - check if end date is after start date
     if (project?.start_date && project?.project_close_date) {
       const start = new Date(project.start_date);
       const end = new Date(project.project_close_date);
-      if (end < start) errors.project_close_date = "Project End Date must be after Start Date";
+      if (end < start) errors.project_close_date = lang("validation.projectEndDateMustBeAfterStartDate", "Project End Date must be after Start Date");
     }
 
     setFieldErrors(errors);
