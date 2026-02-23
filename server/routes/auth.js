@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import prisma from '../utils/prisma.js';
 import redis from '../utils/redis.js';
-import { sendPasswordResetEmail, sendPasswordResetConfirmationEmail, sendEmailVerificationEmail, sendEmailUsingTemplate } from '../utils/email.js';
+import { sendPasswordResetConfirmationEmail, sendEmailUsingTemplate } from '../utils/email.js';
 import { USER_ROLES } from '../utils/constants.js';
 
 
@@ -132,74 +132,6 @@ router.post('/register', async (req, res) => {
         language: true
       }
     });
-
-    // Send welcome email using template for Offtakers (role_id = 3)
-    // if (role_id === USER_ROLES.OFFTAKER) {
-    //   const verifyLink = `${process.env.FRONTEND_URL || ''}/verify-email/${verificationToken}`;
-    //   const loginUrl = `${process.env.FRONTEND_URL || ''}/offtaker/login`;
-      
-    //   const templateData = {
-    //     full_name: newUser.full_name,
-    //     user_email: newUser.email,
-    //     account_type: 'Offtaker',
-    //     current_date: new Date().toLocaleDateString(),
-    //     verify_link: verifyLink,
-    //     login_url: loginUrl,
-    //   };
-
-    //   sendEmailUsingTemplate({
-    //     to: newUser.email,
-    //     templateSlug: 'email_to_offtaker_on_sign_up',
-    //     templateData,
-    //     language: language || 'en'
-    //   })
-    //     .then((result) => {
-    //       if (result.success) {
-    //         console.log(`✅ Welcome email sent to ${newUser.email}`);
-    //       } else {
-    //         console.warn(`⚠️ Could not send welcome email: ${result.error}`);
-    //       }
-    //     })
-    //     .catch((error) => {
-    //       console.error('❌ Failed to send welcome email:', error.message);
-    //     });
-    // } else if (role_id === USER_ROLES.INVESTOR) {
-    //   // Send welcome email for Investors (role_id = 4)
-    //   const loginUrl = `${process.env.FRONTEND_URL || ''}/investor/login`;
-      
-    //   const templateData = {
-    //     full_name: newUser.full_name,
-    //     user_email: newUser.email,
-    //     current_date: new Date().toLocaleDateString(),
-    //     login_url: loginUrl,
-    //   };
-
-    //   sendEmailUsingTemplate({
-    //     to: newUser.email,
-    //     templateSlug: 'email_to_investor_on_sign_up',
-    //     templateData,
-    //     language: language || 'en'
-    //   })
-    //     .then((result) => {
-    //       if (result.success) {
-    //         console.log(`✅ Welcome email sent to ${newUser.email}`);
-    //       } else {
-    //         console.warn(`⚠️ Could not send welcome email: ${result.error}`);
-    //       }
-    //     })
-    //     .catch((error) => {
-    //       console.error('❌ Failed to send welcome email:', error.message);
-    //     });
-    // } else {
-    //   // Send verification email for other roles (don't block registration if email fails)
-    //   sendEmailVerificationEmail(newUser.email, newUser.full_name, verificationToken, language || 'en')
-    //     .then(() => {
-    //       console.log(`✅ Verification email sent to ${newUser.email}`);
-    //     })
-    //     .catch((error) => {
-    //       console.error('❌ Failed to send verification email:', error.message);
-    //     });
-    // }
 
     if(newUser.email) {
       // Send verification email for all users (don't block registration if email fails)
@@ -891,9 +823,6 @@ router.post('/resend-verification', async (req, res) => {
         email_verify_expires: tokenExpiry
       }
     });
-
-    // Send verification email
-    // await sendEmailVerificationEmail(user.email, user.full_name, verificationToken);
 
     if(user.email) {
       // Send verification email for all users (don't block registration if email fails)

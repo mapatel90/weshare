@@ -107,14 +107,14 @@ const EmailTemplateTable = () => {
           return text.length > 50 ? `${text.slice(0, 50)}…` : text;
         },
       },
-      {
-        accessorKey: "subject_vi",
-        header: () => lang("contactUs.subject_vi") || "Subject (Vietnamese)",
-        cell: ({ row }) => {
-          const text = row.original.subject_vi || row.original.subject_vn || "";
-          return text.length > 50 ? `${text.slice(0, 50)}…` : text;
-        },
-      },
+      // {
+      //   accessorKey: "subject_vi",
+      //   header: () => lang("contactUs.subject_vi") || "Subject (Vietnamese)",
+      //   cell: ({ row }) => {
+      //     const text = row.original.subject_vi || row.original.subject_vn || "";
+      //     return text.length > 50 ? `${text.slice(0, 50)}…` : text;
+      //   },
+      // },
       {
         accessorKey: "created_at",
         header: () => lang("common.createdAt") || "Created",

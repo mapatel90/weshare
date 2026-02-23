@@ -1,7 +1,6 @@
 import express from "express";
 import prisma from "../utils/prisma.js";
 import { authenticateToken } from "../middleware/auth.js";
-import { sendInvoiceEmail } from "../utils/email.js";
 import { sendEmailUsingTemplate } from '../utils/email.js';
 import { createNotification } from "../utils/notifications.js";
 import { getUserLanguage, t } from "../utils/i18n.js";
