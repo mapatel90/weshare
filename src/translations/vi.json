@@ -562,6 +562,10 @@
   "table": {
     "serialNumber": "#",
     "actions": "Hành động",
+    "qr_code": "Mã QR",
+    "ViewQRCode": "Xem mã QR",
+    "scan_qr_code": "Quét mã QR để thanh toán",
+    "no_qr_code_available": "Không có mã QR",
     "noDataFound": "Không tìm thấy dữ liệu",
     "loading": "Đang tải...",
     "showingEntries": "Hiển thị {{start}} đến {{end}} trong tổng số {{total}} mục",

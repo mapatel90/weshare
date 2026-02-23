@@ -13,13 +13,13 @@ import { buildUploadUrl } from '@/utils/common'
 import usePermissions from '@/hooks/usePermissions'
 
 // Status mapping
-const statusMapping = {
-  0: { label: 'Inactive', color: 'danger' },
-  1: { label: 'Active', color: 'success' }
-}
 
 const UsersTable = () => {
   const { lang } = useLanguage();
+  const statusMapping = {
+    0: { label: lang("common.inactive", "Inactive"), color: 'danger' },
+    1: { label: lang("common.active", "Active"), color: 'success' }
+  }
   const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(true)
   const [pagination, setPagination] = useState({
