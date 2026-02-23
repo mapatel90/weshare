@@ -178,6 +178,7 @@
     "searchInverter": "Tìm kiếm biến tần...",
     "searchProject": "Tìm kiếm dự án...",
     "selectStatus": "Chọn trạng thái...",
+    "selectOfftaker": "Chọn người nhận hàng...",
     "entries": "Mục",
     "unread": "chưa đọc",
     "pending_verification": "Đang chờ xác minh",
@@ -988,6 +989,11 @@
     "deliveryRate": "Tỷ lệ giao hàng"
   },
   "projects": {
+    "defaultImage": "Mặc định",
+    "galleryHint": "Định dạng PNG, JPG, mỗi định dạng tối đa 5MB.",
+    "dropImages": "Kéo và thả hình ảnh vào đây, hoặc nhấp chuột để xem.",
+    "saveNext": "Lưu & Tiếp theo",
+    "saveandclose": "Lưu & Đóng",
     "costVND": "Chi phí (VND)",
     "solisPlantIdPlaceholder": "Nhập mã nhà máy Solis",
     "solisPlantId": "Mã nhà máy Solis",
@@ -1744,6 +1750,7 @@
     "code": "Mã",
     "type": "loại",
     "inverter": "Biến tần",
+    "investor": "Nhà đầu tư",
     "projectID": "Mã dự án",
     "offtaker": "Bên nhận hàng",
     "location": "Vị trí",

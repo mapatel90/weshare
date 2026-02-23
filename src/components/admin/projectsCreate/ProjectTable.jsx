@@ -480,7 +480,7 @@ const ProjectTable = () => {
               <TextField
                 {...params}
                 label={lang("invoice.allOfftaker", "All Offtakers")}
-                placeholder="Search off taker..."
+                placeholder={lang("common.selectOfftaker", "Select offtaker...")}
               />
             )}
             sx={{ minWidth: 260 }}
@@ -501,7 +501,7 @@ const ProjectTable = () => {
             onChange={(e, newValue) => setSolisStatusFilter(newValue ? newValue.value : "")}
             getOptionLabel={(option) => option.label || ""}
             renderInput={(params) => (
-              <TextField {...params} label={lang("projects.allSolisStatus", "All Solis Status")} placeholder="Search status..." />
+              <TextField {...params} label={lang("projects.allSolisStatus", "All Solis Status")} placeholder={lang("common.selectStatus", "Select status...")} />
             )}
             sx={{ minWidth: 200 }}
           />
@@ -514,7 +514,7 @@ const ProjectTable = () => {
             getOptionLabel={(option) => option.name || `Status ${option.id}`}
             isOptionEqualToValue={(option, value) => String(option.id) === String(value.id)}
             renderInput={(params) => (
-              <TextField {...params} label={lang("invoice.allStatus", "All Status")} placeholder="Search status..." />
+              <TextField {...params} label={lang("invoice.allStatus", "All Status")} placeholder={lang("common.selectStatus", "Select status...")} />
             )}
             disabled={loadingStatuses}
             sx={{ minWidth: 260 }}

@@ -57,6 +57,7 @@ const TabProjectBasicDetails = ({ setFormData, formData, error, setError }) => {
             try {
                 const res = await apiGet('/api/projects/status')
                 if (res?.success && Array.isArray(res.data)) {
+                    console.log('Loaded project statuses:', res.data)
                     // Create form: hide RUNNING status so user only sees first 2 statuses
                     const filtered = res.data.filter(status => status.id !== PROJECT_STATUS.RUNNING)
                     setProjectStatuses(filtered)

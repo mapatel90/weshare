@@ -3,6 +3,7 @@ import { FiSave, FiUpload, FiX, FiStar, FiArrowRight } from "react-icons/fi";
 import { useDropzone } from "react-dropzone";
 import { buildUploadUrl, getFullImageUrl } from "@/utils/common";
 import { check_project_solis_plant_id_exists } from "@/utils/projectUtils";
+import { PROJECT_STATUS } from "@/constants/project_status";
 import {
   TextField,
   Select,
@@ -103,6 +104,16 @@ const ProjectForm = ({
     } else {
       setSolisPlantIdError("");
     }
+  };
+
+  const getProjectStatusLabel = (status) => {
+    const statusId = Number(status?.id);
+
+    if (statusId === PROJECT_STATUS.IN_PROGRESS) return lang("common.pending", "Pending");
+    if (statusId === PROJECT_STATUS.UPCOMING) return lang("project_status.upcoming", "Upcoming");
+    if (statusId === PROJECT_STATUS.RUNNING) return lang("project_status.running", "Running");
+
+    return status?.status_name || status?.name || String(status?.id || "");
   };
 
   return (
@@ -271,7 +282,7 @@ const ProjectForm = ({
                   <TextField
                     {...params}
                     label={`${lang("projects.selectOfftaker", "Select Offtaker")} *`}
-                    placeholder={lang("projects.searchOfftaker", "Search Offtaker...")}
+                    placeholder={lang("common.selectOfftaker", "Search Offtaker...")}
                     error={!!error.offtaker_id}
                     helperText={error.offtaker_id || ""}
                   />
@@ -685,7 +696,7 @@ const ProjectForm = ({
                     </MenuItem>
                     {projectStatuses.map((status) => (
                       <MenuItem key={status.id} value={status.id}>
-                        {status.name}
+                        {getProjectStatusLabel(status)}
                       </MenuItem>
                     ))}
                   </Select>
@@ -892,7 +903,7 @@ const ProjectForm = ({
                           >
                             <FiX size={14} />{" "}
                             <span className="ms-1">
-                              {lang("projects.remove", "Remove")}
+                              {lang("common.remove", "Remove")}
                             </span>
                           </button>
                         </div>

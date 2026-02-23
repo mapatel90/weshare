@@ -193,6 +193,7 @@
     "searchInverter": "Search inverter...",
     "searchProject": "Search project...",
     "selectStatus": "Select status...",
+    "selectOfftaker": "Select offtaker...",
     "entries": "Entries",
     "show": "Show",
     "of": "of",
@@ -1011,6 +1012,10 @@
     "deliveryRate": "Delivery Rate"
   },
   "projects": {
+    "defaultImage": "Default",
+    "galleryHint": "PNG, JPG up to 5MB each",
+    "dropImages": "Drag & drop images here, or click to browse",
+    "saveNext": "Save & Next",
     "costVND": "Cost (VND)",
     "solisPlantIdPlaceholder": "Enter Solis Plant ID",
     "solisPlantId": "Solis Plant ID",
@@ -1790,6 +1795,7 @@
     "name": "Name",
     "code,": "Code",
     "type": "Type",
+    "investor": "Investor",
     "inverter": "Inverter",
     "projectID": "Project ID",
     "offtaker": "Offtaker",
