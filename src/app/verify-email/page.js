@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { apiGet, apiPost } from '@/lib/api';
 import { Box, Container, Typography, Button, CircularProgress, Alert } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -11,21 +11,32 @@ import { useLanguage } from '@/contexts/LanguageContext';
 export default function VerifyEmailPage() {
   const router = useRouter();
   const { lang } = useLanguage();
-  const searchParams = useSearchParams();
-  const token = searchParams.get('token');
-
   const [status, setStatus] = useState('verifying'); // verifying, success, error
   const [message, setMessage] = useState('');
   const [resending, setResending] = useState(false);
+  const [token, setToken] = useState(null);
 
   useEffect(() => {
-    if (token) {
-      verifyEmail(token);
-    } else {
+    try {
+      // Safely read token from URL on the client
+      if (typeof window !== 'undefined') {
+        const urlParams = new URLSearchParams(window.location.search);
+        const t = urlParams.get('token');
+        setToken(t);
+
+        if (t) {
+          verifyEmail(t);
+        } else {
+          setStatus('error');
+          setMessage('Verification token is missing. Please check your email link.');
+        }
+      }
+    } catch (err) {
+      console.error('Error reading verification token from URL', err);
       setStatus('error');
-      setMessage('Verification token is missing. Please check your email link.');
+      setMessage('Something went wrong while reading your verification link.');
     }
-  }, [token]);
+  }, []);
 
   const verifyEmail = async (verificationToken) => {
     try {
