@@ -35,7 +35,7 @@ const TestimonialSection = () => {
           rating: item.review_status || 5,
           image: item.users?.user_image
           }))
-        setTestimonials(transformedData.length > 0 ? transformedData : getDefaultTestimonials())
+        setTestimonials(transformedData.length > 0 ? transformedData : [])
       } else {
         // setTestimonials(getDefaultTestimonials())
       }
