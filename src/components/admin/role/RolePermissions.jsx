@@ -231,7 +231,7 @@ const RolePermissions = ({ roleId }) => {
                   }}
                 >
                   
-                  {moduleConfig.label}
+                  {lang(`roles_modules.${moduleConfig.module}`) || moduleConfig.label}
                 </TableCell>
                 <TableCell>
                   <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
@@ -273,7 +273,7 @@ const RolePermissions = ({ roleId }) => {
                             )
                           }
                         >
-                          {capability.charAt(0).toUpperCase() + capability.slice(1)}
+                          {lang(`roles_capabilities.${capability}`) || capability.charAt(0).toUpperCase() + capability.slice(1)}
                         </Typography>
                         {capability === "view_own" && (
                           <Tooltip title="User can only view records they created or are assigned to">

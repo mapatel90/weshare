@@ -1947,5 +1947,41 @@
     "secretKeyAlreadySet": "Mã Secret Access Key đã được đặt. Vui lòng để trống để giữ nguyên, hoặc nhập giá trị mới để cập nhật.",
     "secretKeyWillBeEncrypted": "Mã Secret Access Key sẽ được mã hóa trước khi lưu trữ vào cơ sở dữ liệu",
     "leaveBlankToKeepExisting": "Vui lòng để trống để giữ nguyên"
+  },
+  "roles_modules": {
+    "dashboards": "Bảng điều khiển",
+    "users": "Người dùng",
+    "contracts": "Hợp đồng",
+    "lease_requests": "Yêu cầu cho thuê",
+    "blog": "Blog",
+    "news": "Tin tức",
+    "testimonials": "Lời chứng thực",
+    "contact_us": "Liên hệ với chúng tôi",
+    "notifications": "Thông báo",
+    "projects": "Dự án",
+    "project_type": "Loại dự án",
+    "inverter_type": "Loại biến tần",
+    "inverter_company": "Công ty biến tần",
+    "inverter_list": "Danh sách biến tần",
+    "invoices": "Hóa đơn",
+    "payments": "Thanh toán",
+    "payouts": "Thanh toán",
+    "inverter_evn_report": "Báo cáo môi trường biến tần",
+    "project_evn_report": "Báo cáo môi trường dự án",
+    "saving_report": "Báo cáo tiết kiệm",
+    "general_settings": "Cài đặt tổng quát",
+    "roles_management": "Quản lý vai trò",
+    "smtp_settings": "Cài đặt SMTP",
+    "email_templates": "Mẫu email",
+    "finance_settings": "Cài đặt tài chính",
+    "miscellaneous": "Linh tinh",
+    "roi_report": "Báo cáo ROI"
+  },
+  "roles_capabilities": {
+    "view": "Xem",
+    "create": "Tạo",
+    "edit": "Sửa",
+    "delete": "Xóa",
+    "view_all_templates": "Xem tất cả mẫu"
   }
 }

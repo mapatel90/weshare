@@ -2005,5 +2005,40 @@
     "secretKeyAlreadySet": "Secret key is already set. Leave blank to keep existing, or enter new value to update.",
     "secretKeyWillBeEncrypted": "Secret key will be encrypted before storing in database",
     "leaveBlankToKeepExisting": "Leave blank to keep existing"
+  },
+  "roles_modules": {
+    "dashboards": "Dashboards",
+    "users": "Users",
+    "contracts": "Contracts",
+    "lease_requests": "Lease Requests",
+    "blog": "Blog",
+    "news": "News",
+    "testimonials": "Testimonials",
+    "contact_us": "Contact Us",
+    "notifications": "Notifications",
+    "projects": "Projects",
+    "project_type": "Project Type",
+    "inverter_type": "Inverter Type",
+    "inverter_company": "Inverter Company",
+    "inverter_list": "Inverter List",
+    "invoices": "Invoices",
+    "payments": "Payments",
+    "payouts": "Payouts",
+    "inverter_evn_report": "Inverter EVN Report",
+    "project_evn_report": "Project EVN Report",
+    "saving_report": "Saving Report",
+    "general_settings": "General Settings",
+    "roles_management": "Roles Management",
+    "smtp_settings": "SMTP Settings",
+    "email_templates": "Email Templates",
+    "finance_settings": "Finance Settings",
+    "miscellaneous": "Miscellaneous",
+    "roi_report": "ROI Report"
+  },
+  "roles_capabilities": {
+    "view": "View",
+    "create": "Create",
+    "edit": "Edit",
+    "delete": "Delete"
   }
 }
