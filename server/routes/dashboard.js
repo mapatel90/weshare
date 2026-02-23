@@ -83,7 +83,7 @@ router.get('/portfolio-stats', async (req, res) => {
 // GET /api/dashboard/statscount
 router.get('/statscount', authenticateToken, async (req, res) => {
     try {
-        const [projects, users, inverters, contracts, lease_request, interested_investors, project_inverters, payouts] = await Promise.all([
+        const [projects, users, inverters, contracts, lease_request, interested_investors, project_inverters, payouts, total_invoice_amount] = await Promise.all([
             prisma.projects.count({ where: { is_deleted: 0 } }),
             prisma.users.count({ where: { is_deleted: 0 } }),
             prisma.inverters.count({ where: { is_deleted: 0 } }),
@@ -98,8 +98,61 @@ router.get('/statscount', authenticateToken, async (req, res) => {
                 where: {
                     status: PAYOUT_STATUS.PAYOUT
                 }
+            }),
+            prisma.invoices.aggregate({
+                _sum: {
+                    total_amount: true
+                },
+                where: {
+                    status: 1,
+                    is_deleted: 0,
+                }
             })
         ]);
+
+        // Calculate weshare_total_revenue
+        // Step 1: Get invoices grouped by project_id where status = 1
+        const invoicesByProject = await prisma.invoices.groupBy({
+            by: ['project_id'],
+            where: {
+                status: 1,
+                is_deleted: 0,
+            },
+            _sum: {
+                total_amount: true,
+            },
+        });
+
+        // Step 2: Get projects with weshare_profit
+        const projectsWithProfit = await prisma.projects.findMany({
+            where: { is_deleted: 0 },
+            select: {
+                id: true,
+                weshare_profit: true,
+            },
+        });
+
+        // Step 3: Create a map of project_id to weshare_profit
+        const profitMap = new Map();
+        projectsWithProfit.forEach(project => {
+            const profitPercent = parseFloat(project.weshare_profit) || 0;
+            profitMap.set(project.id, profitPercent);
+        });
+
+        // Step 4: Calculate weshare_total_revenue
+        // For each project: (sum of invoice total_amount) * (weshare_profit / 100)
+        let weshare_total_revenue = 0;
+        invoicesByProject.forEach(invoiceGroup => {
+            const projectId = invoiceGroup.project_id;
+            const invoiceSum = invoiceGroup._sum.total_amount || 0;
+            const weshareProfitPercent = profitMap.get(projectId) || 0;
+            
+            // Calculate: invoice_sum * (weshare_profit / 100)
+            const projectRevenue = invoiceSum * (weshareProfitPercent / 100);
+            weshare_total_revenue += projectRevenue;
+
+        });
+
         res.json({
             success: true,
             data: {
@@ -111,6 +164,8 @@ router.get('/statscount', authenticateToken, async (req, res) => {
                 interested_investors,
                 project_inverters,
                 payouts: payouts._sum.payout_amount || 0,
+                total_invoice_amount: total_invoice_amount._sum.total_amount || 0,
+                weshare_total_revenue: weshare_total_revenue,
             },
         });
     } catch (error) {

@@ -232,7 +232,6 @@ function DashboardView() {
     let totalAsking = 0;
 
     capitalRecoveryItems.forEach((item) => {
-      console.log("item", item);
       const payout = Number(item.total_payout ?? item.totalPayout ?? 0);
       const asking = Number(item.asking_price ?? item.askingPrice ?? 0);
       if (!Number.isNaN(payout)) {

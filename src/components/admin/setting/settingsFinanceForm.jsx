@@ -222,7 +222,7 @@ const SettingsFinanceForm = () => {
     try {
       setIsSubmitting(true)
 
-      console.log('Form Data to Save:', formData);
+      
 
       // Prepend INV- to invoice_number_prefix and PAYOUT- to payout_number_prefix when sending to API
       const settingsToUpdate = {

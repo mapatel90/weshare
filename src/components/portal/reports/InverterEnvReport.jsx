@@ -484,7 +484,6 @@ const InverterEnvReport = () => {
         )} */}
 
         {error && <div className="text-red-600">Error: {error}</div>}
-        {console.log("filteredData", filteredData)}
         {/* {filteredData.length === 0 && !error && (
           <div className="text-center py-6 text-gray-600">
             {lang("common.noData")}

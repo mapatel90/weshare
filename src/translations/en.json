@@ -349,7 +349,10 @@
     "noContractsFound": "No contracts found",
     "pleaseSelectProjectAfterDownloadingCSV": "Please select project after downloading CSV",
     "groupBy": "Group By",
-    "totalPayouts": "Total Payouts"
+    "totalPayouts": "Total Payouts",
+    "totalInvoiceAmount": "Total Invoice Amount",
+    "total_invoice_amount": "Total Invoice Amount",
+    "weshareTotalRevenue": "WeShare Total Revenue"
   },
   "messages": {
     "cannotUndoDelete": "You won't be able to revert this!",

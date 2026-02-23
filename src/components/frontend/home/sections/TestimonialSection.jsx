@@ -11,7 +11,6 @@ import { ROLES } from '@/constants/roles'
 const TestimonialSection = () => {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [testimonials, setTestimonials] = useState([])
-  console.log("testimonials", testimonials)
   // track which nav button is active after click: 'prev' | 'next' | null
   const [activeNav, setActiveNav] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -27,7 +26,6 @@ const TestimonialSection = () => {
       const response = await apiGet(`/api/testimonials`)
       if (response) {
         const data = await response
-        console.log("data", data)
         // Transform API data to match component structure
         const transformedData = data.map(item => ({
           id: item.id,

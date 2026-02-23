@@ -89,7 +89,6 @@ const Contract = ({ projectId, handleCloseForm, handleSaveAction }) => {
       // Replace with your actual API endpoints for offtakers/investors
       const offtakerRes = await apiGet(`/api/projects/${projectId}`);
       const investorRes = await apiGet('/api/investors?projectId=' + projectId);
-      console.log("investorRes", investorRes?.data);
       setProjectData(offtakerRes?.data || null); // Store project details
       setOfftakerList(offtakerRes?.data.offtaker || {});
       setInvestorList(investorRes?.data || []);

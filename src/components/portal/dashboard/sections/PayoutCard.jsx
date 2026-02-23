@@ -47,7 +47,6 @@ export default function PayoutCard() {
     };
 
     const getStatusClass = (status) => {
-        console.log(status);
         if (status === PAYOUT_STATUS.PAYOUT) {
             return 'bg-green-100 text-green-700';
         }

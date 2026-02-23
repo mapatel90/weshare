@@ -136,8 +136,6 @@ const getMaxKwh = (data = []) => {
   if (rawMax > 100 && rawMax <= 500) step = 50;
   else if (rawMax > 500) step = 100;
 
-  console.log("rawMax", rawMax, "step", step);
-
   return Math.ceil(rawMax / step) * step;
 };
 

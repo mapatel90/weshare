@@ -363,8 +363,6 @@ const SettingGeneralForm = () => {
         site_email: trimmedEmail, // save trimmed value (possibly empty)
       };
 
-      console.log("settingsToUpdate", settingsToUpdate);
-
       await updateSettings(settingsToUpdate);
       // Make sure local form state reflects the saved image and favicon
       setFormData((prev) => ({

@@ -71,7 +71,6 @@ const CompanyTable = () => {
   const fetchcompanys = async () => {
     try {
       const response = await apiGet("/api/inverter-company/");
-      console.log("response", response);
       if (response.success && response.data.company) {
         setICompanyData(response.data.company);
       }

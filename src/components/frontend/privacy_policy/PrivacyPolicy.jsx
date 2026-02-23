@@ -5,7 +5,6 @@ import React from "react";
 
 const PrivacyPolicy = () => {
   const { lang, currentLanguage } = useLanguage();
-  console.log(currentLanguage);
   return (
     <>
       {currentLanguage === "vi" ? (

@@ -125,7 +125,6 @@ const PayoutsPage = () => {
 
 
     const handleDownload = async (invoice) => {
-        console.log("invoice", invoice);
         const fileUrl = buildUploadUrl(invoice?.invoice_pdf);
         if (!fileUrl) {
             Swal.fire({
@@ -162,7 +161,6 @@ const PayoutsPage = () => {
     };
 
     const handlePayoutDownload = async (payout) => {
-        console.log("Downloading payout PDF for payout ID:", payout);
         const fileUrl = buildUploadUrl(payout?.payout_pdf);
         if (!fileUrl) {
             Swal.fire({

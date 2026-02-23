@@ -95,7 +95,6 @@ const ProjectCard = ({ project, activeTab }) => {
 
   // Calculate accumulative generation with fallback
   const accumulative = formatNumber(project.project_size, " KWP") || 0;
-  console.log("accumulative::", accumulative);
 
   const getDefaultImageUrl = () => {
     const cover = getPrimaryProjectImage(project);
@@ -328,7 +327,6 @@ const ProjectCard = ({ project, activeTab }) => {
 
             {/* Action Buttons */}
             <div className="buttons-image">
-              {console.log("hasAlreadyInvested::", hasAlreadyInvested)}
               {project?.project_status_id === PROJECT_STATUS.UPCOMING && user?.role === ROLES.INVESTOR &&
                 !hasAlreadyInvested &&
                 getTimeLeft(project?.project_close_date) !== "Expired" ? (

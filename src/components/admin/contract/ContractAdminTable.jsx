@@ -237,7 +237,6 @@ const ContractAdminTable = () => {
       header: () => lang("contract.document", "Document"),
       cell: (info) => {
         const v = info.getValue();
-        console.log("VALUE", v);
         return v ? (
           <a href={buildUploadUrl(v)} target="_blank" rel="noreferrer">
             {lang("common.view", "View")}

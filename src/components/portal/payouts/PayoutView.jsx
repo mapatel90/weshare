@@ -83,7 +83,6 @@ const PayoutView = ({ payout_id }) => {
     };
 
     const handlePayoutDownload = async (payout) => {
-        console.log("Downloading payout PDF for payout ID:", payout);
         const fileUrl = buildUploadUrl(payout?.payout_pdf);
         if (!fileUrl) {
             Swal.fire({

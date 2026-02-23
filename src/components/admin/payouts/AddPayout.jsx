@@ -172,7 +172,6 @@ const AddPayout = () => {
                 if (selectedFile) {
                     formData.append('document', selectedFile);
                 }
-                console.log('ee')
                 const res = await apiUpload("/api/payouts/update", formData);
                 if (res?.success) {
                     window.dispatchEvent(new Event("payout:refresh"));

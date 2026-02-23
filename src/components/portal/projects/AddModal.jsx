@@ -14,7 +14,6 @@ export default function AddModal({ open, onClose }) {
   const { user } = useAuth() || {};
   const { lang } = useLanguage();
   const fileInputRef = useRef(null);
-  // console.log("user", user);
 
   // Helper function to get date + 1 year in YYYY-MM-DD format
   const getDefaultCloseDate = () => {
