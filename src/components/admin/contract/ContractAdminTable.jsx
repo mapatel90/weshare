@@ -284,7 +284,7 @@ const ContractAdminTable = () => {
           </span>
         ) : info.getValue() == 1 ? (
           <span className="badge bg-soft-success text-success">
-            {lang("common.actives", "Approved")}
+            {lang("common.approve", "Approved")}
           </span>
         ) : info.getValue() == 2 ? (
           <span className="badge bg-soft-danger text-danger">

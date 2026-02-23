@@ -180,6 +180,8 @@
     "welcomeBack": "Welcome back Log in to your admin account"
   },
   "common": {
+    "read": "Read",
+    "unknown": "Unknown",
     "resendVerificationEmail": "Resend Verification Email",
     "verificationFailed": "Verification Failed",
     "goToLogin": "Go to Login",
@@ -1979,5 +1981,29 @@
     "grid": "Grid's",
     "load": "Load",
     "pv": "PV"
+  },
+  "s3settings": {
+    "title": "AWS S3 Configuration",
+    "description": "Configure AWS S3 integration for file storage. All credentials are encrypted before storage.",
+    "awsAccessKeyId": "AWS Access Key ID",
+    "awsSecretAccessKey": "AWS Secret Access Key",
+    "awsRegion": "AWS Region",
+    "s3BucketName": "S3 Bucket Name",
+    "s3FolderPath": "S3 Folder Path",
+    "s3PublicUrl": "S3 Public URL",
+    "s3FileVisibility": "S3 File Visibility",
+    "s3SignedUrlExpiry": "S3 Signed URL Expiry",
+    "timeBeforeSignedUrlsExpire": "Time before signed URLs expire",
+    "public": "Public",
+    "private": "Private",
+    "publicDescription": "Files accessible to anyone with URL",
+    "privateDescription": "Requires signed URLs",
+    "defaultFolderForUploads": "Default folder for uploads",
+    "cloudFrontOrCustomDomainUrl": "CloudFront or custom domain URL",
+    "validating": "Validating....",
+    "testS3Connection": "Test S3 Connection",
+    "secretKeyAlreadySet": "Secret key is already set. Leave blank to keep existing, or enter new value to update.",
+    "secretKeyWillBeEncrypted": "Secret key will be encrypted before storing in database",
+    "leaveBlankToKeepExisting": "Leave blank to keep existing"
   }
 }

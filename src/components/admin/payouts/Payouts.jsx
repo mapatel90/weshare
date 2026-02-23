@@ -402,7 +402,7 @@ const PayoutsPage = () => {
             },
             {
                 id: "qr_code",
-                header: () => "QR Code",
+                header: () => lang("table.qr_code", "QR Code"),
                 cell: ({ row }) => {
                     const qrCode = row.original.users?.qr_code;
 
@@ -449,13 +449,13 @@ const PayoutsPage = () => {
             },
             {
                 id: "markAsPay",
-                header: () => "Payment",
+                header: () => lang("navigation.payment", "Payment"),
                 cell: ({ row }) => {
                     const data = row.original;
                     if (data.status === PAYOUT_STATUS.PAYOUT)
                         return (
                             <Chip
-                                label="Paid"
+                                label={lang("invoice.paid", "Paid")}
                                 sx={{
                                     backgroundColor: "#28a745",
                                     color: "#fff",

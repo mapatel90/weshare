@@ -284,7 +284,7 @@ const PaymentsPage = () => {
       cell: (info) => {
         const status = info.getValue();
         const config = {
-          Paid: { label: lang("payments.paid", "Paid"), color: "#17c666" },
+          Paid: { label: lang("invoice.paid", "Paid"), color: "#17c666" },
           "Pending Verification": {
             label: lang("common.pendingVerification", "Pending Verification"),
             color: "#ea4d4d",
@@ -338,7 +338,7 @@ const PaymentsPage = () => {
 
         const rowActions = [
           {
-            label: "Download PDF",
+            label: lang("common.download", "Download"),
             icon: <FiDownload />,
             onClick: async () => {
               await handleDownload(paymentId);

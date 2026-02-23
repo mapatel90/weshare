@@ -263,9 +263,9 @@ const NotificationTable = () => {
       cell: ({ row }) => {
         const isRead = row.getValue("status");
         const config = {
-          0: { label: "Unread", color: "#ff9800" },
-          1: { label: "Read", color: "#4caf50" },
-        }[isRead] || { label: "Unknown", color: "#999" };
+          0: { label: lang("common.unread", "Unread"), color: "#ff9800" },
+          1: { label: lang("common.read", "Read"), color: "#4caf50" },
+        }[isRead] || { label: lang("common.unknown", "Unknown"), color: "#999" };
 
         return (
           <Chip

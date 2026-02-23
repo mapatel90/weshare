@@ -283,7 +283,7 @@ const NewsTable = () => {
       },
       {
         accessorKey: "image",
-        header: () => lang("news.image") || "Image",
+        header: () => lang("news.image"),
         cell: ({ row }) => {
           const src = row.original.image;
           if (!src) return "";
@@ -423,7 +423,7 @@ const NewsTable = () => {
             />
 
             <TextField
-              label={lang("news.slug") || "Slug"}
+              label={lang("news.slug")}
               value={newsSlug}
               disabled
               error={!!errors.newsSlug}

@@ -25,6 +25,7 @@ const AWS_REGIONS = [
 ];
 
 const SettingS3Form = () => {
+  alert('SettingS3Form');
   const { lang } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [validating, setValidating] = useState(false);
@@ -157,10 +158,9 @@ const SettingS3Form = () => {
             <div className="card mb-0">
               <div className="card-body">
                 <div className="mb-4">
-                  <h5 className="fw-bold mb-2">AWS S3 Configuration</h5>
+                  <h5 className="fw-bold mb-2">{lang("s3settings.title", "AWS S3 Configuration")}</h5>
                   <p className="fs-12 text-muted">
-                    Configure AWS S3 integration for file storage. All
-                    credentials are encrypted before storage.
+                    {lang("s3settings.description", "Configure AWS S3 integration for file storage. All credentials are encrypted before storage.")}
                   </p>
                 </div>
 
@@ -168,7 +168,7 @@ const SettingS3Form = () => {
                   {/* AWS Access Key ID */}
                   <div className="col-lg-6 mb-4">
                     <InputTopLabel
-                      label="AWS Access Key ID"
+                      label={lang("s3settings.awsAccessKeyId", "AWS Access Key ID")}
                       type="text"
                       name="aws_access_key_id"
                       value={formData.aws_access_key_id}
@@ -182,7 +182,7 @@ const SettingS3Form = () => {
                   {/* AWS Secret Access Key */}
                   <div className="col-lg-6 mb-4">
                     <InputTopLabel
-                      label="AWS Secret Access Key"
+                      label={lang("s3settings.awsSecretAccessKey", "AWS Secret Access Key")}
                       type="password"
                       name="aws_secret_access_key"
                       value={formData.aws_secret_access_key}
@@ -199,7 +199,7 @@ const SettingS3Form = () => {
                   {/* AWS Region */}
                   <div className="col-lg-6 mb-4">
                     <SelectTopLabel
-                      label="AWS Region"
+                      label={lang("s3settings.awsRegion", "AWS Region")}
                       name="aws_region"
                       value={formData.aws_region}
                       onChange={handleChange}
@@ -217,7 +217,7 @@ const SettingS3Form = () => {
                   {/* S3 Bucket Name */}
                   <div className="col-lg-6 mb-4">
                     <InputTopLabel
-                      label="S3 Bucket Name"
+                      label={lang("s3settings.s3BucketName", "S3 Bucket Name")}
                       type="text"
                       name="s3_bucket_name"
                       value={formData.s3_bucket_name}
@@ -231,7 +231,7 @@ const SettingS3Form = () => {
                   {/* S3 Folder Path */}
                   <div className="col-lg-6 mb-4">
                     <InputTopLabel
-                      label="S3 Folder Path"
+                      label={lang("s3settings.s3FolderPath", "S3 Folder Path")} 
                       type="text"
                       name="s3_folder_path"
                       value={formData.s3_folder_path}
@@ -246,7 +246,7 @@ const SettingS3Form = () => {
                   {/* S3 Public URL */}
                   <div className="col-lg-6 mb-4">
                     <InputTopLabel
-                      label="S3 Public URL"
+                      label={lang("s3settings.s3PublicUrl", "S3 Public URL")}
                       type="url"
                       name="s3_public_url"
                       value={formData.s3_public_url}
@@ -262,7 +262,7 @@ const SettingS3Form = () => {
                   {/* File Visibility */}
                   <div className="col-lg-6 mb-4">
                     <label className="form-label fw-semibold">
-                      File Visibility
+                      {lang("s3settings.s3FileVisibility", "File Visibility")}
                     </label>
                     <div className="d-flex gap-4">
                       <div className="form-check">
@@ -279,10 +279,10 @@ const SettingS3Form = () => {
                           className="form-check-label"
                           htmlFor="visibility_public"
                         >
-                          Public
+                          {lang("s3settings.public", "Public")}
                         </label>
                         <small className="d-block text-muted">
-                          Files accessible to anyone with URL
+                          {lang("s3settings.publicDescription", "Files accessible to anyone with URL")}
                         </small>
                       </div>
                       <div className="form-check">
@@ -299,10 +299,10 @@ const SettingS3Form = () => {
                           className="form-check-label"
                           htmlFor="visibility_private"
                         >
-                          Private
+                          {lang("s3settings.private", "Private")}
                         </label>
                         <small className="d-block text-muted">
-                          Requires signed URLs
+                          {lang("s3settings.privateDescription", "Requires signed URLs")}
                         </small>
                       </div>
                     </div>
@@ -312,7 +312,7 @@ const SettingS3Form = () => {
                   {formData.file_visibility === 'private' && (
                     <div className="col-lg-6 mb-4">
                       <InputTopLabel
-                        label="Signed URL Expiry (seconds)"
+                        label={lang("s3settings.s3SignedUrlExpiry", "Signed URL Expiry") + " (seconds)"}
                         type="number"
                         name="signed_url_expiry"
                         value={formData.signed_url_expiry}
@@ -321,7 +321,7 @@ const SettingS3Form = () => {
                         max="604800"
                       />
                       <small className="text-muted">
-                        Time before signed URLs expire (3600 = 1 hour, max: 7
+                        {lang("s3settings.timeBeforeSignedUrlsExpire", "Time before signed URLs expire")} (3600 = 1 hour, max: 7
                         days)
                       </small>
                     </div>

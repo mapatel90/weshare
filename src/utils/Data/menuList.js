@@ -181,7 +181,7 @@ export const menuList = [
     dropdownMenu: [
       {
         id: 1,
-        name: "Inverter evn report",
+        name: "inverter-env-reports",
         path: "/admin/reports/inverter-evn",
         permission: "inverter_evn_report",
         permission_action: ["view"],
@@ -189,7 +189,7 @@ export const menuList = [
       },
       {
         id: 2,
-        name: "Project evn report",
+        name: "project-env-reports",
         path: "/admin/reports/project-env",
         permission: "project_evn_report",
         permission_action: ["view"],
@@ -197,7 +197,7 @@ export const menuList = [
       },
       {
         id: 3,
-        name: "Saving Report",
+        name: "saving-reports",
         path: "/admin/reports/saving-report",
         permission: "saving_report",
         permission_action: ["view"],
@@ -205,7 +205,7 @@ export const menuList = [
       },
       {
         id: 4,
-        name: "ROI Report",
+        name: "roi-reports",
         path: "/admin/reports/roi",
         permission: "roi_report",
         permission_action: ["view"],
@@ -258,7 +258,7 @@ export const menuList = [
       },
       {
         id: 4,
-        name: "Email Templates",
+        name: "email_template",
         path: "/admin/email_template/list",
         permission: "email_templates",
         permission_action: ["view", "create", "edit", "delete"],

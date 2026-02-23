@@ -2,8 +2,10 @@
 
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const S3SettingsForm = () => {
+  const { lang } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [validating, setValidating] = useState(false);
   const [fetching, setFetching] = useState(true);
@@ -158,11 +160,10 @@ const S3SettingsForm = () => {
     <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md">
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-gray-800">
-          AWS S3 Configuration
+          {lang("s3settings.title", "AWS S3 Configuration")}
         </h2>
         <p className="text-gray-600 mt-2">
-          Configure AWS S3 integration for file storage. All credentials are
-          encrypted before storage.
+          {lang("s3settings.description", "Configure AWS S3 integration for file storage. All credentials are encrypted before storage.")}
         </p>
       </div>
 
@@ -182,7 +183,7 @@ const S3SettingsForm = () => {
         {/* AWS Access Key ID */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            AWS Access Key ID <span className="text-red-500">*</span>
+            {lang("s3settings.awsAccessKeyId", "AWS Access Key ID")} <span className="text-red-500">*</span>
           </label>
           <input
             type="text"
@@ -198,7 +199,7 @@ const S3SettingsForm = () => {
         {/* AWS Secret Access Key */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            AWS Secret Access Key <span className="text-red-500">*</span>
+            {lang("s3settings.awsSecretAccessKey", "AWS Secret Access Key")} <span className="text-red-500">*</span>
           </label>
           <input
             type="password"
@@ -217,7 +218,7 @@ const S3SettingsForm = () => {
         {/* AWS Region */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            AWS Region <span className="text-red-500">*</span>
+            {lang("s3settings.awsRegion", "AWS Region")} <span className="text-red-500">*</span>
           </label>
           <select
             name="aws_region"
@@ -237,7 +238,7 @@ const S3SettingsForm = () => {
         {/* S3 Bucket Name */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            S3 Bucket Name <span className="text-red-500">*</span>
+            {lang("s3settings.s3BucketName", "S3 Bucket Name")} <span className="text-red-500">*</span>
           </label>
           <input
             type="text"
@@ -253,7 +254,7 @@ const S3SettingsForm = () => {
         {/* S3 Folder Path */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            S3 Folder Path (Optional)
+            {lang("s3settings.s3FolderPath", "S3 Folder Path")} (Optional)
           </label>
           <input
             type="text"
@@ -271,7 +272,7 @@ const S3SettingsForm = () => {
         {/* S3 Public URL */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            S3 Public URL (Optional)
+            {lang("s3settings.s3PublicUrl", "S3 Public URL")} (Optional)
           </label>
           <input
             type="url"
@@ -289,7 +290,7 @@ const S3SettingsForm = () => {
         {/* File Visibility */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            File Visibility
+            {lang("s3settings.s3FileVisibility", "File Visibility")}
           </label>
           <div className="flex gap-6">
             <label className="flex items-center">
@@ -302,7 +303,7 @@ const S3SettingsForm = () => {
                 className="mr-2"
               />
               <span className="text-gray-700">
-                Public (files accessible to anyone with URL)
+                {lang("s3settings.public", "Public")} (files accessible to anyone with URL)
               </span>
             </label>
             <label className="flex items-center">
@@ -315,7 +316,7 @@ const S3SettingsForm = () => {
                 className="mr-2"
               />
               <span className="text-gray-700">
-                Private (requires signed URLs)
+                {lang("s3settings.private", "Private")} (requires signed URLs)
               </span>
             </label>
           </div>
@@ -325,7 +326,7 @@ const S3SettingsForm = () => {
         {formData.file_visibility === 'private' && (
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Signed URL Expiry (seconds)
+              {lang("s3settings.s3SignedUrlExpiry", "Signed URL Expiry")} (seconds)
             </label>
             <input
               type="number"
@@ -337,7 +338,7 @@ const S3SettingsForm = () => {
               className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
             <p className="text-sm text-gray-500 mt-1">
-              Time before signed URLs expire (3600 = 1 hour, max: 7 days)
+              {lang("s3settings.timeBeforeSignedUrlsExpire", "Time before signed URLs expire")} (3600 = 1 hour, max: 7 days)
             </p>
           </div>
         )}

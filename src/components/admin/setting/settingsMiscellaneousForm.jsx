@@ -145,186 +145,12 @@ const SettingsMiscellaneousForm = () => {
                 <div className="content-area-body">
                     <div className="mb-0 card">
                         <div className="card-body">
-                            {/* <div className="mb-5">
-                                <label className="form-label">Require client to be logged in to view contract </label>
-                                <SelectDropdown
-                                    options={options}
-                                    defaultSelect={"yes"}
-                                    selectedOption={selectedOption}
-                                    onSelectOption={(option) => setSelectedOption(option)}
-                                />
-                                <small className="form-text text-muted">Require client to be logged in to view contract [Ex: Yes/No]</small>
-                            </div>
-                            <div className="mb-5">
-                                <label className="form-label">Show setup menu item only when hover with mouse on main sidebar area </label>
-                                <SelectDropdown
-                                    options={options}
-                                    defaultSelect={"no"}
-                                    selectedOption={selectedOption}
-                                    onSelectOption={(option) => setSelectedOption(option)}
-                                />
-                                <small className="form-text text-muted">Show setup menu item only when hover with mouse on main sidebar area [Ex: Yes/No]</small>
-                            </div>
-                            <div className="mb-5">
-                                <label className="form-label">Show help menu item on setup menu </label>
-                                <SelectDropdown
-                                    options={options}
-                                    defaultSelect={"yes"}
-                                    selectedOption={selectedOption}
-                                    onSelectOption={(option) => setSelectedOption(option)}
-                                />
-                                <small className="form-text text-muted">Show help menu item on setup menu [Ex: Yes/No]</small>
-                            </div>
-                            <div className="mb-5">
-                                <label className="form-label">Allow non-admin staff members to create Lead Status in Lead create/edit area? </label>
-                                <SelectDropdown
-                                    options={options}
-                                    defaultSelect={"no"}
-                                    selectedOption={selectedOption}
-                                    onSelectOption={(option) => setSelectedOption(option)}
-                                />
-                                <small className="form-text text-muted">Allow non-admin staff members to create Lead Status in Lead create/edit area? [Ex: Yes/No]</small>
-                            </div>
-                            <div className="mb-5">
-                                <label className="form-label">Allow non-admin staff members to create Lead Source in Lead create/edit area? </label>
-                                <SelectDropdown
-                                    options={options}
-                                    defaultSelect={"yes"}
-                                    selectedOption={selectedOption}
-                                    onSelectOption={(option) => setSelectedOption(option)}
-                                />
-                                <small className="form-text text-muted">Allow non-admin staff members to create Lead Source in Lead create/edit area? [Ex: Yes/No]</small>
-                            </div>
-                            <div className="mb-5">
-                                <label className="form-label">Allow non-admin staff members to create Customer Group in Customer create/edit area? </label>
-                                <SelectDropdown
-                                    options={options}
-                                    defaultSelect={"no"}
-                                    selectedOption={selectedOption}
-                                    onSelectOption={(option) => setSelectedOption(option)}
-                                />
-                                <small className="form-text text-muted">Allow non-admin staff members to create Customer Group in Customer create/edit area? [Ex: Yes/No]</small>
-                            </div>
-                            <div className="mb-5">
-                                <label className="form-label">Allow non-admin staff members to create Service in Ticket create/edit area? </label>
-                                <SelectDropdown
-                                    options={options}
-                                    defaultSelect={"yes"}
-                                    selectedOption={selectedOption}
-                                    onSelectOption={(option) => setSelectedOption(option)}
-                                />
-                                <small className="form-text text-muted">Allow non-admin staff members to create Service in Ticket create/edit area? [Ex: Yes/No]</small>
-                            </div>
-                            <div className="mb-5">
-                                <label className="form-label">Allow non-admin staff members to save predefined replies from ticket message </label>
-                                <SelectDropdown
-                                    options={options}
-                                    defaultSelect={"no"}
-                                    selectedOption={selectedOption}
-                                    onSelectOption={(option) => setSelectedOption(option)}
-                                />
-                                <small className="form-text text-muted">Allow non-admin staff members to save predefined replies from ticket message [Ex: Yes/No]</small>
-                            </div>
-                            <div className="mb-5">
-                                <label className="form-label">Allow non-admin staff members to create Contract type in Contract create/edit area? </label>
-                                <SelectDropdown
-                                    options={options}
-                                    defaultSelect={"yes"}
-                                    selectedOption={selectedOption}
-                                    onSelectOption={(option) => setSelectedOption(option)}
-                                />
-                                <small className="form-text text-muted">Allow non-admin staff members to create Contract type in Contract create/edit area? [Ex: Yes/No]</small>
-                            </div>
-                            <div className="mb-5">
-                                <label className="form-label">Allow non-admin staff members to create Expense Category in Expense create/edit area? </label>
-                                <SelectDropdown
-                                    options={options}
-                                    defaultSelect={"no"}
-                                    selectedOption={selectedOption}
-                                    onSelectOption={(option) => setSelectedOption(option)}
-                                />
-                                <small className="form-text text-muted">Allow non-admin staff members to create Expense Category in Expense create/edit area? [Ex: Yes/No]</small>
-                            </div> */}
-                            
-                            {/*<hr className="my-5" />
-                             <div className="mb-5">
-                                <h4 className="fw-bold">Pusher.com</h4>
-                                <div className="fs-12 text-muted">Pusher notification setup</div>
-                            </div>
-                            <InputTopLabel
-                                label={"App ID"}
-                                placeholder={"App ID"}
-                                info={"App ID [Ex: THEMEOCEAN]"}
-                            />
-                            <InputTopLabel
-                                label={"App key"}
-                                placeholder={"App key"}
-                                info={"App key [Ex: G-THEMEOCEAN-2024]"}
-                            />
-                            <InputTopLabel
-                                label={"App Secret "}
-                                placeholder={"App Secret "}
-                                info={"App Secret  [Ex: 25DFSDDSF584DSF5245DFSF575]"}
-                            />
-                            <InputTopLabel
-                                label={"Cluster"}
-                                placeholder={"Cluster"}
-                                info={"Cluster https://pusher.com/docs/clusters"}
-                            />
-                
-                       
-                            <div className="mb-5">
-                                <label className="form-label">Enable Real Time Notifications </label>
-                                <SelectDropdown
-                                    options={options}
-                                    defaultSelect={"yes"}
-                                    selectedOption={selectedOption}
-                                    onSelectOption={(option) => setSelectedOption(option)}
-                                />
-                                <small className="form-text text-muted">Enable Real Time Notifications [Ex: Yes/No]</small>
-                            </div>
-                            <div className="mb-0">
-                                <label className="form-label"> Enable Desktop Notifications </label>
-                                <SelectDropdown
-                                    options={options}
-                                    defaultSelect={"no"}
-                                    selectedOption={selectedOption}
-                                    onSelectOption={(option) => setSelectedOption(option)}
-                                />
-                                <small className="form-text text-muted">Enable Desktop Notifications [Ex: Yes/No]</small>
-                            </div>
-                            <hr className="my-5" />
-                            <div className="mb-5">
-                                <h4 className="fw-bold">E-Sign</h4>
-                                <div className="fs-12 text-muted">E-Sign setup</div>
-                            </div>
-                            <div className="mb-5">
-                                <label className="form-label">Require digital signature and identity confirmation on accept </label>
-                                <SelectDropdown
-                                    options={options}
-                                    defaultSelect={"yes"}
-                                    selectedOption={selectedOption}
-                                    onSelectOption={(option) => setSelectedOption(option)}
-                                />
-                                <small className="form-text text-muted">Require digital signature and identity confirmation on accept [Ex: Yes/No]</small>
-                            </div>
-                            <div className="mb-0">
-                                <label className="form-label">Require digital signature and identity confirmation on accept </label>
-                                <SelectDropdown
-                                    options={options}
-                                    defaultSelect={"no"}
-                                    selectedOption={selectedOption}
-                                    onSelectOption={(option) => setSelectedOption(option)}
-                                />
-                                <small className="form-text text-muted">Require digital signature and identity confirmation on accept [Ex: Yes/No]</small>
-                            </div> */}
-
                             {/* AWS S3 Storage Settings */}
                             {/* <hr className="my-5" /> */}
                             <div className="mb-4">
-                                <h4 className="fw-bold">AWS S3 Storage</h4>
+                                <h4 className="fw-bold">{lang("s3settings.title", "AWS S3 Storage")}</h4>
                                 <div className="fs-12 text-muted">
-                                    Configure AWS S3 integration for file storage. All credentials are encrypted before storage.
+                                    {lang("s3settings.description", "Configure AWS S3 integration for file storage. All credentials are encrypted before storage.")}
                                 </div>
                             </div>
 
@@ -340,7 +166,7 @@ const SettingsMiscellaneousForm = () => {
                                         {/* AWS Access Key ID */}
                                         <div className="mb-4 col-lg-6">
                                             <InputTopLabel
-                                                label="AWS Access Key ID"
+                                                label={lang("s3settings.awsAccessKeyId", "AWS Access Key ID")}
                                                 type="text"
                                                 name="aws_access_key_id"
                                                 value={s3FormData.aws_access_key_id}
@@ -354,26 +180,26 @@ const SettingsMiscellaneousForm = () => {
                                         {/* AWS Secret Access Key */}
                                         <div className="mb-4 col-lg-6">
                                             <InputTopLabel
-                                                label="AWS Secret Access Key"
+                                                label={lang("s3settings.awsSecretAccessKey", "AWS Secret Access Key")}
                                                 type="password"
                                                 name="aws_secret_access_key"
                                                 value={s3FormData.aws_secret_access_key}
                                                 onChange={handleS3Change}
-                                                placeholder={hasExistingSecretKey ? "Leave blank to keep existing" : "wJalrXUtnFEMI/K7MDENG/bPxRfiCY"}
+                                                placeholder={hasExistingSecretKey ? lang("s3settings.leaveBlankToKeepExisting", "Leave blank to keep existing") : "wJalrXUtnFEMI/K7MDENG/bPxRfiCY"}
                                                 required={!hasExistingSecretKey}
                                                 star={!hasExistingSecretKey ? "*" : ""}
                                             />
                                             <small className="text-muted">
                                                 {hasExistingSecretKey
-                                                    ? "Secret key is already set. Leave blank to keep existing, or enter new value to update."
-                                                    : "Secret key will be encrypted before storing in database"}
+                                                    ? lang("s3settings.secretKeyAlreadySet", "Secret key is already set. Leave blank to keep existing, or enter new value to update.")
+                                                    : lang("s3settings.secretKeyWillBeEncrypted", "Secret key will be encrypted before storing in database")}
                                             </small>
                                         </div>
 
                                         {/* AWS Region */}
                                         <div className="mb-4 col-lg-6">
                                             <SelectTopLabel
-                                                label="AWS Region"
+                                                label={lang("s3settings.awsRegion", "AWS Region")}
                                                 name="aws_region"
                                                 value={s3FormData.aws_region}
                                                 onChange={handleS3Change}
@@ -386,7 +212,7 @@ const SettingsMiscellaneousForm = () => {
                                         {/* S3 Bucket Name */}
                                         <div className="mb-4 col-lg-6">
                                             <InputTopLabel
-                                                label="S3 Bucket Name"
+                                                label={lang("s3settings.s3BucketName", "S3 Bucket Name")}
                                                 type="text"
                                                 name="s3_bucket_name"
                                                 value={s3FormData.s3_bucket_name}
@@ -400,7 +226,7 @@ const SettingsMiscellaneousForm = () => {
                                         {/* S3 Folder Path */}
                                         <div className="mb-4 col-lg-6">
                                             <InputTopLabel
-                                                label="S3 Folder Path"
+                                                label={lang("s3settings.s3FolderPath", "S3 Folder Path")}
                                                 type="text"
                                                 name="s3_folder_path"
                                                 value={s3FormData.s3_folder_path}
@@ -408,14 +234,14 @@ const SettingsMiscellaneousForm = () => {
                                                 placeholder="uploads"
                                             />
                                             <small className="text-muted">
-                                                Default folder for uploads (default: uploads)
+                                                {lang("s3settings.defaultFolderForUploads", "Default folder for uploads")} (default: uploads)
                                             </small>
                                         </div>
 
                                         {/* S3 Public URL */}
                                         <div className="mb-4 col-lg-6">
                                             <InputTopLabel
-                                                label="S3 Public URL"
+                                                label={lang("s3settings.s3PublicUrl", "S3 Public URL")}
                                                 type="url"
                                                 name="s3_public_url"
                                                 value={s3FormData.s3_public_url}
@@ -423,14 +249,14 @@ const SettingsMiscellaneousForm = () => {
                                                 placeholder="https://my-bucket.s3.amazonaws.com"
                                             />
                                             <small className="text-muted">
-                                                CloudFront or custom domain URL (optional)
+                                                {lang("s3settings.cloudFrontOrCustomDomainUrl", "CloudFront or custom domain URL")} (optional)
                                             </small>
                                         </div>
 
                                         {/* File Visibility */}
                                         <div className="mb-4 col-lg-6">
                                             <label className="form-label fw-semibold">
-                                                File Visibility
+                                                {lang("s3settings.s3FileVisibility", "File Visibility")}
                                             </label>
                                             <div className="gap-4 d-flex">
                                                 <div className="form-check">
@@ -447,7 +273,7 @@ const SettingsMiscellaneousForm = () => {
                                                         className="form-check-label"
                                                         htmlFor="visibility_public"
                                                     >
-                                                        Public
+                                                        {lang("s3settings.public", "Public")}
                                                     </label>
                                                 </div>
                                                 <div className="form-check">
@@ -464,7 +290,7 @@ const SettingsMiscellaneousForm = () => {
                                                         className="form-check-label"
                                                         htmlFor="visibility_private"
                                                     >
-                                                        Private (Signed URLs)
+                                                        {lang("s3settings.private", "Private")} (Signed URLs)
                                                     </label>
                                                 </div>
                                             </div>
@@ -474,7 +300,7 @@ const SettingsMiscellaneousForm = () => {
                                         {s3FormData.file_visibility === 'private' && (
                                             <div className="mb-4 col-lg-6">
                                                 <InputTopLabel
-                                                    label="Signed URL Expiry (seconds)"
+                                                    label={lang("s3settings.s3SignedUrlExpiry", "Signed URL Expiry")} 
                                                     type="number"
                                                     name="signed_url_expiry"
                                                     value={s3FormData.signed_url_expiry}
@@ -483,7 +309,7 @@ const SettingsMiscellaneousForm = () => {
                                                     max="604800"
                                                 />
                                                 <small className="text-muted">
-                                                    Time before signed URLs expire (3600 = 1 hour)
+                                                    {lang("s3settings.timeBeforeSignedUrlsExpire", "Time before signed URLs expire")} (3600 = 1 hour)
                                                 </small>
                                             </div>
                                         )}
@@ -503,10 +329,10 @@ const SettingsMiscellaneousForm = () => {
                                                         className="spinner-border spinner-border-sm me-2"
                                                         role="status"
                                                     ></span>
-                                                    Validating...
+                                                    {lang("s3settings.validating", "Validating")}...
                                                 </>
                                             ) : (
-                                                'Test S3 Connection'
+                                                lang("s3settings.testS3Connection", "Test S3 Connection")
                                             )}
                                         </button>
                                     </div>

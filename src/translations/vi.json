@@ -165,6 +165,8 @@
     "welcomeBack": "Chào mừng bạn trở lại Đăng nhập vào tài khoản quản trị của bạn"
   },
   "common": {
+    "read": "Đã đọc",
+    "unknown": "Không xác định",
     "resendVerificationEmail": "Gửi lại email xác minh",
     "verificationFailed": "Xác minh thất bại",
     "goToLogin": "Đi đến đăng nhập",
@@ -412,6 +414,10 @@
     "saving-reports": "báo cáo tiết kiệm",
     "capital-recovery-reports": "báo cáo khôi phục vốn",
     "roi-reports": "báo cáo ROI",
+    "inverter-evn":"biến tần evn",
+    "project-env":"dự án evn",
+    "saving-report":"báo cáo tiết kiệm",
+    "roi-report":"báo cáo ROI",
     "invoices": "Hóa đơn",
     "applications": "Ứng dụng",
     "billings": "Hóa đơn",
@@ -1917,5 +1923,29 @@
     "grid": "Lưới điện của",
     "load": "Tải",
     "pv": "PV"
+  },
+  "s3settings": {
+    "title": "Cấu hình AWS S3",
+    "description": "Cấu hình AWS S3 để lưu trữ tệp. Tất cả thông tin đăng nhập đều được mã hóa trước khi lưu trữ.",
+    "awsAccessKeyId": "Mã Access Key AWS",
+    "awsSecretAccessKey": "Mã Secret Access Key AWS",
+    "awsRegion": "Vùng AWS",
+    "s3BucketName": "Tên Bucket S3",
+    "s3FolderPath": "Đường dẫn Folder S3",
+    "s3PublicUrl": "URL Công khai S3",
+    "s3FileVisibility": "Sự hiện diện của tệp S3",
+    "s3SignedUrlExpiry": "Thời gian hết hạn URL đã ký S3",
+    "timeBeforeSignedUrlsExpire": "Thời gian trước khi URL đã ký hết hạn",
+    "public": "Công khai",
+    "private": "Riêng tư",
+    "publicDescription": "Tệp có thể truy cập bởi bất kỳ ai với URL",
+    "privateDescription": "Yêu cầu URL đã ký",
+    "defaultFolderForUploads": "Thư mục mặc định cho tải lên",
+    "cloudFrontOrCustomDomainUrl": "URL CloudFront hoặc domain tùy chỉnh",
+    "validating": "Đang xác thực....",
+    "testS3Connection": "Kiểm tra kết nối S3",
+    "secretKeyAlreadySet": "Mã Secret Access Key đã được đặt. Vui lòng để trống để giữ nguyên, hoặc nhập giá trị mới để cập nhật.",
+    "secretKeyWillBeEncrypted": "Mã Secret Access Key sẽ được mã hóa trước khi lưu trữ vào cơ sở dữ liệu",
+    "leaveBlankToKeepExisting": "Vui lòng để trống để giữ nguyên"
   }
 }

@@ -10,6 +10,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const Table = ({
   data,
@@ -24,6 +25,7 @@ const Table = ({
   emptyMessage = "No data available",
 }) => {
   // const [data] = useState([...Data])
+  const { lang } = useLanguage();
   const [sorting, setSorting] = useState([]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [internalPagination, setInternalPagination] = useState({
@@ -136,7 +138,7 @@ const Table = ({
                             colSpan={table.getVisibleLeafColumns().length || 1}
                             className="text-center py-4 text-muted"
                           >
-                            {emptyMessage}
+                            {lang("common.noData", "No Data")}
                           </td>
                         </tr>
                       ) : (
