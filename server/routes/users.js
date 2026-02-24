@@ -1,5 +1,7 @@
 import express from 'express';
 import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
+import { sendEmailUsingTemplate } from '../utils/email.js';
 import prisma from '../utils/prisma.js';
 import { authenticateToken } from '../middleware/auth.js';
 import multer from 'multer';
@@ -242,6 +244,11 @@ router.post('/', authenticateToken, upload.single('qrCode'), async (req, res) =>
       }
     }
 
+    // Generate email verification token
+    const verificationToken = crypto.randomBytes(32).toString('hex');
+    const tokenExpiry = new Date();
+    tokenExpiry.setHours(tokenExpiry.getHours() + 24); // 24 hours expiry
+
     // Create user
     const newUser = await prisma.users.create({
       data: {
@@ -258,6 +265,9 @@ router.post('/', authenticateToken, upload.single('qrCode'), async (req, res) =>
         state_id: stateId ? parseInt(stateId) : null,
         country_id: countryId ? parseInt(countryId) : null,
         zipcode,
+        email_verified: 0,
+        email_verify_token: verificationToken,
+        email_verify_expires: tokenExpiry,
         qr_code: qrCodePath,
         status: parseInt(status),
         language: language ? language : "en",
@@ -282,6 +292,32 @@ router.post('/', authenticateToken, upload.single('qrCode'), async (req, res) =>
         created_at: true
       }
     });
+
+    if(newUser.email) {
+      // Send verification email for all users (don't block registration if email fails)
+      const templateData = {
+        full_name: newUser.full_name,
+        company_name: 'WeShare Energy',
+        verify_link: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/verify-email?token=${verificationToken}`,
+      }
+
+      sendEmailUsingTemplate({
+        to: newUser.email,
+        templateSlug: 'verify_email_after_sign_up',
+        templateData,
+        language: newUser.language || 'en'
+      })
+        .then((result) => {
+          if (result.success) {
+            console.log(`✅ Verification email sent to ${newUser.email}`);
+          } else {
+            console.warn(`⚠️ Could not send verification email: ${result.error}`);
+          }
+        })
+        .catch((error) => {
+          console.error('❌ Failed to send verification email:', error.message);
+        });
+    }
 
     res.status(201).json({
       success: true,
