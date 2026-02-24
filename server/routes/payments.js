@@ -13,7 +13,6 @@ import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import { sendEmailUsingTemplate } from '../utils/email.js';
 
-
 const router = express.Router();
 
 const __filename = fileURLToPath(import.meta.url);
@@ -247,7 +246,7 @@ router.post('/', authenticateToken, upload.single('file'), async (req, res) => {
         where: { id: parseInt(created_by) },
       });
 
-      const lang = await getUserLanguage(created.offtaker_id);
+      const lang = await getUserLanguage(created_by);
       const creatorName = await getUserFullName(created_by);
 
       const notification_message = t(lang, 'notification_msg.payment_made', {
@@ -259,7 +258,7 @@ router.post('/', authenticateToken, upload.single('file'), async (req, res) => {
       const title = t(lang, 'notification_msg.payment_title');
 
       await createNotification({
-        userId: '1',
+        userId: ROLES.SUPER_ADMIN,
         title: title,
         message: notification_message,
         moduleType: "Payment",

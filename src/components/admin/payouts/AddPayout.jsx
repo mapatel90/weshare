@@ -11,6 +11,7 @@ import { PROJECT_STATUS } from "@/constants/project_status";
 import { usePriceWithCurrency } from "@/hooks/usePriceWithCurrency";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { buildUploadUrl } from "@/utils/common";
+import { showErrorToast } from "@/utils/topTost";
 
 const AddPayout = () => {
     const { lang } = useLanguage();
@@ -176,6 +177,8 @@ const AddPayout = () => {
                 if (res?.success) {
                     window.dispatchEvent(new Event("payout:refresh"));
                     handleClose();
+                } else {
+                    showErrorToast(res?.message || "Something went wrong");
                 }
             } else {
                 // Add mode
@@ -189,10 +192,19 @@ const AddPayout = () => {
                 if (res?.success) {
                     window.dispatchEvent(new Event("payout:refresh"));
                     handleClose();
+                } else {
+                    showErrorToast(res?.message || "Something went wrong");
                 }
             }
         } catch (err) {
             console.error(editId ? "Update payout error" : "Create payout error", err);
+
+            const message =
+                err?.response?.data?.message ||
+                err?.message ||
+                "Server error occurred";
+
+                showErrorToast(message);
         } finally {
             setLoading(false);
         }
