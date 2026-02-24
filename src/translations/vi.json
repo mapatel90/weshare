@@ -634,6 +634,16 @@
     "permissionDenied": "Bạn không có quyền thực hiện hành động này.",
     "sessionExpired": "Phiên của bạn đã hết hạn. Vui lòng đăng nhập lại."
   },
+  "errors": {
+    "accessDenied": {
+      "title": "Truy cập bị từ chối",
+      "message": "Xin lỗi, bạn không có quyền truy cập trang này. Vui lòng liên hệ quản trị viên nếu bạn cho rằng đây là lỗi.",
+      "goBack": "Quay lại",
+      "goToDashboard": "Về Bảng điều khiển",
+      "errorCodeLabel": "Mã lỗi: 403 - Bị cấm",
+      "permissionHint": "Bạn không có quyền cần thiết để xem tài nguyên này."
+    }
+  },
   "footer": {
     "copyright": "© 2024 Sunshare. Tất cả quyền được bảo lưu.",
     "poweredBy": "Được cung cấp bởi",

@@ -1,8 +1,11 @@
 'use client';
 
 import Link from 'next/link';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const AccessDeniedPage = () => {
+  const { lang } = useLanguage();
+
   return (
     <div className="container-fluid px-3" style={{ minHeight: '100vh' }}>
       <div className="row align-items-center justify-content-center" style={{ minHeight: '100vh' }}>
@@ -19,11 +22,15 @@ const AccessDeniedPage = () => {
               </div>
 
               <div className="display-1 fw-bold text-danger mb-1">403</div>
-              <div className="h4 fw-semibold mb-2">Access Denied</div>
+              <div className="h4 fw-semibold mb-2">
+                {lang('errors.accessDenied.title', 'Access Denied')}
+              </div>
 
               <p className="text-muted mb-4">
-                Sorry, you don&apos;t have permission to access this page. Please contact your
-                administrator if you believe this is an error.
+                {lang(
+                  'errors.accessDenied.message',
+                  "Sorry, you don't have permission to access this page. Please contact your administrator if you believe this is an error."
+                )}
               </p>
 
               <div className="d-grid gap-2 d-sm-flex justify-content-sm-center">
@@ -32,11 +39,11 @@ const AccessDeniedPage = () => {
                   className="btn btn-outline-secondary"
                   onClick={() => window.history.back()}
                 >
-                  ← Go Back
+                  ← {lang('errors.accessDenied.goBack', 'Go Back')}
                 </button>
 
                 <Link className="btn btn-primary" href="/admin/dashboards">
-                  Go to Dashboard
+                  {lang('errors.accessDenied.goToDashboard', 'Go to Dashboard')}
                 </Link>
               </div>
 
@@ -45,9 +52,14 @@ const AccessDeniedPage = () => {
               <div className="small text-muted">
                 <div className="d-flex align-items-center justify-content-center gap-2 mb-1">
                   <span aria-hidden>ℹ️</span>
-                  <span>Error Code: 403 - Forbidden</span>
+                  <span>{lang('errors.accessDenied.errorCodeLabel', 'Error Code: 403 - Forbidden')}</span>
                 </div>
-                <div>You don&apos;t have the required permissions to view this resource.</div>
+                <div>
+                  {lang(
+                    'errors.accessDenied.permissionHint',
+                    "You don't have the required permissions to view this resource."
+                  )}
+                </div>
               </div>
             </div>
           </div>

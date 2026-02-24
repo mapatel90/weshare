@@ -648,6 +648,16 @@
     "permissionDenied": "You don't have permission to perform this action.",
     "sessionExpired": "Your session has expired. Please login again."
   },
+  "errors": {
+    "accessDenied": {
+      "title": "Access Denied",
+      "message": "Sorry, you don't have permission to access this page. Please contact your administrator if you believe this is an error.",
+      "goBack": "Go Back",
+      "goToDashboard": "Go to Dashboard",
+      "errorCodeLabel": "Error Code: 403 - Forbidden",
+      "permissionHint": "You don't have the required permissions to view this resource."
+    }
+  },
   "footer": {
     "copyright": "© 2024 Sunshare. All rights reserved.",
     "poweredBy": "Powered by",
