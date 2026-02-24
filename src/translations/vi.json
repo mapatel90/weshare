@@ -1814,6 +1814,7 @@
     "payment_title": "Thông báo thanh toán",
     "project_created_title": "Dự án mới đã được tạo",
     "project_created": "Dự án mới \"{{project_name}}\" được tạo bởi \"{{created_by}}\".",
+    "offtaker_project_created": "Dự án mới \"{{project_name}}\" được tạo bởi \"{{created_by}}\".",
     "invoice_created": "Hóa đơn mới \"{{invoice_number}}\" được tạo bởi \"{{created_by}}\".",
     "payment_made": "Thanh toán \"{{amount}}\" được thực hiện bởi \"{{created_by}}\" cho hóa đơn \"{{invoice_number}}\".",
     "contract_title": "Hợp đồng đã được tạo",
