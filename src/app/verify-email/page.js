@@ -8,7 +8,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function VerifyEmailPage() {
   const router = useRouter();
-  const { lang } = useLanguage();
+  const { lang, changeLanguage } = useLanguage();
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
 
@@ -20,7 +20,9 @@ export default function VerifyEmailPage() {
   useEffect(() => {
     if (!token) {
       setStatus('error');
-      setMessage('Verification token is missing. Please check your email link.');
+      setMessage(
+        lang('common.verificationMissingToken', 'Verification token is missing. Please check your email link.')
+      );
       return;
     }
 
@@ -31,9 +33,16 @@ export default function VerifyEmailPage() {
           includeAuth: false
         });
 
+        const responseLanguage = response?.language === 'vi' ? 'vi' : 'en';
+        if (response?.language) {
+          changeLanguage(responseLanguage);
+        }
+
         if (response && response.success) {
           setStatus('success');
-          setMessage(response.message || 'Email verified successfully. You can now login.');
+          setMessage(
+            lang('common.emailVerifiedSuccessMessage', 'Email verified successfully. You can now login.')
+          );
           // Redirect after a short delay
           setTimeout(() => {
             router.push('/login');
@@ -42,20 +51,27 @@ export default function VerifyEmailPage() {
           setStatus('error');
           setMessage(
             (response && response.message) ||
-              'Invalid or expired verification link. Please request a new one.'
+              lang(
+                'common.verificationInvalidLink',
+                'Invalid or expired verification link. Please request a new one.'
+              )
           );
         }
       } catch (error) {
         console.error('Error verifying email:', error);
         setStatus('error');
         setMessage(
-          error?.message || lang('common.verifyingEmails', 'Failed to verify email. The link may be invalid or expired.')
+          error?.message ||
+            lang(
+              'common.verifyEmailFailed',
+              'Failed to verify email. The link may be invalid or expired.'
+            )
         );
       }
     };
 
     verifyEmail();
-  }, [token, router]);
+  }, [token, router, changeLanguage, lang]);
 
   const handleResendVerification = async () => {
     const email = window.prompt(lang('authentication.enterEmail', 'Please enter your email address:'));
@@ -69,12 +85,20 @@ export default function VerifyEmailPage() {
       });
 
       if (response?.success) {
-        window.alert(lang('messages.success', 'Verification email sent! Please check your inbox.'));
+        window.alert(
+          lang('common.verificationEmailSent', 'Verification email sent! Please check your inbox.')
+        );
       } else {
-        window.alert(response?.message || lang('common.resendVerificationEmail', 'Failed to resend verification email'));
+        window.alert(
+          response?.message ||
+            lang('common.resendVerificationEmailFailed', 'Failed to resend verification email')
+        );
       }
     } catch (error) {
-      window.alert(error?.message || lang('common.resendVerificationEmail', 'Failed to resend verification email'));
+      window.alert(
+        error?.message ||
+          lang('common.resendVerificationEmailFailed', 'Failed to resend verification email')
+      );
     } finally {
       setResending(false);
     }
@@ -212,9 +236,8 @@ export default function VerifyEmailPage() {
                   fontWeight: 600
                 }}
               >
-                {lang('common.verificationFailed', 'Verification failed')}
+                {lang('common.verificationFailed', 'Verification failed (Invalid or expired token)')}
               </p>
-              <p style={{ margin: 0, textAlign: 'center' }}>{message}</p>
               <div
                 style={{
                   display: 'flex',

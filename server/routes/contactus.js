@@ -1,6 +1,8 @@
 import express from 'express';
 import prisma from '../utils/prisma.js';
 import { authenticateToken } from '../middleware/auth.js';
+import { sendEmailUsingTemplate } from '../utils/email.js';
+import { ROLES } from '../../src/constants/roles.js';
 
 const router = express.Router();
 
@@ -104,6 +106,40 @@ router.post('/', async (req, res) => {
         created_at: new Date(),
       }
     });
+
+    if(newMessage.email){
+      const templateData = {
+        full_name: newMessage.full_name,
+        user_email: newMessage.email,
+        user_phone: newMessage.phone_number,
+        subject: newMessage.subject,
+        message: newMessage.message,
+        current_date: newMessage.created_at.toLocaleDateString(),
+        company_name: "WeShare Energy",
+      };
+
+      const user = await prisma.users.findFirst({
+      where: {
+        role_id: ROLES.SUPER_ADMIN,
+        is_deleted: 0
+      }
+      });
+
+      sendEmailUsingTemplate({
+        to: user.email,
+        templateSlug: 'contact_us_mail_generated',
+        templateData,
+        language: user.language || 'en'
+      }).then((result) => {
+        if (result.success) {
+          console.log(`Contact us email sent to ${user.email}`);
+        } else {
+          console.warn(`Could not send contact us email: ${result.error}`);
+        }
+      }).catch((error) => {
+        console.error('Failed to send contact us email:', error.message);
+      });
+    }
 
     res.status(201).json({
       success: true,
