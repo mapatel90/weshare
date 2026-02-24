@@ -177,10 +177,6 @@ router.post('/register', async (req, res) => {
 // Login user
 router.post('/login', async (req, res) => {
   try {
-    // Debug logging
-    // console.log('Request headers:', req.headers);
-    // console.log('Request body:', req.body);
-
     // Check if body exists
     if (!req.body) {
       return res.status(400).json({
@@ -659,8 +655,6 @@ router.get('/verify-email/:token', async (req, res) => {
   try {
     const { token } = req.params;
 
-    console.log("token", token);
-
     if (!token) {
       return res.status(400).json({
         success: false,
@@ -676,8 +670,6 @@ router.get('/verify-email/:token', async (req, res) => {
       }
     });
 
-    console.log("user", user);
-
     if (!user) {
       return res.status(400).json({
         success: false,
@@ -689,7 +681,8 @@ router.get('/verify-email/:token', async (req, res) => {
     if (user.email_verify_expires && new Date() > user.email_verify_expires) {
       return res.status(400).json({
         success: false,
-        message: 'Verification token has expired. Please request a new one.'
+        message: 'Verification token has expired. Please request a new one.',
+        language: user.language || 'en'
       });
     }
 
@@ -766,7 +759,8 @@ router.get('/verify-email/:token', async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Email verified successfully! You can now login.'
+      message: 'Email verified successfully! You can now login.',
+      language: user.language || 'en'
     });
 
   } catch (error) {
@@ -852,7 +846,7 @@ router.post('/resend-verification', async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Verification email sent successfully. Please check your inbox.'
+      message: 'Verification email sent successfully. Please check your inbox.',
     });
 
   } catch (error) {
