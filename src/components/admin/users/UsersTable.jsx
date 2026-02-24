@@ -16,15 +16,17 @@ import usePermissions from '@/hooks/usePermissions'
 
 const UsersTable = () => {
   const { lang } = useLanguage();
+  const PAGE_SIZE = 50;
   const statusMapping = {
     0: { label: lang("common.inactive", "Inactive"), color: 'danger' },
     1: { label: lang("common.active", "Active"), color: 'success' }
   }
   const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(true)
+  const [pageSize, setPageSize] = useState(PAGE_SIZE);
   const [pagination, setPagination] = useState({
     page: 1,
-    limit: 10,
+    limit: PAGE_SIZE,
     total: 0,
     pages: 0
   })
@@ -41,12 +43,12 @@ const UsersTable = () => {
 
 
   // Fetch users
-  const fetchUsers = async (page = 1, search = '', role = '', status = '') => {
+  const fetchUsers = async (page = 1, pageSize = PAGE_SIZE, search = '', role = '', status = '') => {
     try {
       setLoading(true)
       const params = new URLSearchParams({
         page: page.toString(),
-        limit: pagination.limit.toString(),
+        limit: pageSize.toString(),
         ...(search && { search }),
         ...(role && { role }),
         ...(status !== '' && { status })
@@ -96,7 +98,7 @@ const UsersTable = () => {
         })
 
         // Refresh the table
-        await fetchUsers(pagination.page, filters.search, filters.role, filters.status)
+        await fetchUsers(pagination.page, pageSize, filters.search, filters.role, filters.status)
       }
     } catch (error) {
       console.error('Error deleting user:', error)
@@ -112,12 +114,15 @@ const UsersTable = () => {
 
   // Load users on component mount
   useEffect(() => {
-    fetchUsers()
+    fetchUsers(1, pageSize)
   }, [])
 
-  // Pagination handler
-  const handlePageChange = (page) => {
-    fetchUsers(page, filters.search, filters.role, filters.status)
+  // Pagination handler (for Table component)
+  const handlePaginationChange = (nextPagination) => {
+    const newPage = nextPagination.pageIndex + 1 // Convert 0-based to 1-based
+    const newPageSize = nextPagination.pageSize
+    setPageSize(newPageSize)
+    fetchUsers(newPage, newPageSize, filters.search, filters.role, filters.status)
   }
 
   // QR Code handler
@@ -294,7 +299,15 @@ const UsersTable = () => {
     <div>
       {/* Table */}
       <div className="position-relative">
-        <Table data={users} columns={columns} />
+        <Table 
+          data={users} 
+          columns={columns}
+          serverSideTotal={pagination.total}
+          pageIndex={pagination.page - 1}
+          pageSize={pagination.limit}
+          onPaginationChange={handlePaginationChange}
+          initialPageSize={pagination.limit}
+        />
       </div>
 
       {/* QR Code Modal */}
@@ -332,53 +345,6 @@ const UsersTable = () => {
                   {lang("modal.close")}
                 </button>
               </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Pagination */}
-      {pagination.pages > 1 && (
-        <div className="card-footer">
-          <div className="row align-items-center">
-            <div className="col-md-6">
-              <div className="dataTables_info">
-                Showing {((pagination.page - 1) * pagination.limit) + 1} to {Math.min(pagination.page * pagination.limit, pagination.total)} of {pagination.total} entries
-              </div>
-            </div>
-            <div className="col-md-6">
-              <nav aria-label="Page navigation">
-                <ul className="pagination justify-content-end mb-0">
-                  <li className={`page-item ${pagination.page === 1 ? 'disabled' : ''}`}>
-                    <button
-                      className="page-link"
-                      onClick={() => handlePageChange(pagination.page - 1)}
-                      disabled={pagination.page === 1}
-                    >
-                      Previous
-                    </button>
-                  </li>
-                  {[...Array(pagination.pages)].map((_, index) => (
-                    <li key={index} className={`page-item ${pagination.page === index + 1 ? 'active' : ''}`}>
-                      <button
-                        className="page-link"
-                        onClick={() => handlePageChange(index + 1)}
-                      >
-                        {index + 1}
-                      </button>
-                    </li>
-                  ))}
-                  <li className={`page-item ${pagination.page === pagination.pages ? 'disabled' : ''}`}>
-                    <button
-                      className="page-link"
-                      onClick={() => handlePageChange(pagination.page + 1)}
-                      disabled={pagination.page === pagination.pages}
-                    >
-                      Next
-                    </button>
-                  </li>
-                </ul>
-              </nav>
             </div>
           </div>
         </div>
