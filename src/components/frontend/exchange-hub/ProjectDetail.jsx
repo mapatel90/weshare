@@ -569,7 +569,7 @@ const ProjectDetail = ({ projectId }) => {
                           <span className="placeholder col-4"></span>
                         </span>
                       ) : (
-                        `${project.project_status_id === PROJECT_STATUS.UPCOMING ? project.estimated_roi || "0" : calculatedRoi}%`
+                        `${project.project_status_id === PROJECT_STATUS.UPCOMING ? (project.estimated_roi ?? 0) : (calculatedRoi ?? 0)}%`
                       )}
                     </h4>
                   </div>
