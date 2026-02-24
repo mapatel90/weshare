@@ -792,6 +792,8 @@
       "signIn": "Sign In"
     },
     "projects": {
+      "estimatedROI": "Estimated ROI",
+      "estimatedROIPlaceholder": "Enter estimated ROI",
       "statusRequiresOfftaker": "Project must be assigned to an offtaker before status to Running.",
       "statusRequiresInvestor": "Project must be assigned to an investor before status to Running.",
       "title": "Featured Projects",

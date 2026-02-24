@@ -219,19 +219,19 @@ const ProjectDetail = ({ projectId }) => {
       });
 
       if (response?.success && response.data) {
-        // Use calculated ROI if > 0, otherwise fallback to investor_profit
         const roi = parseFloat(response.data.roi);
-        setCalculatedRoi(roi > 0 ? response.data.roi : response.data.fallbackRoi);
+        const estimated_roi = response.data.estimated_roi;
+        setCalculatedRoi(roi > 0 ? response.data.roi : estimated_roi);
       } else {
-        setCalculatedRoi(project.investor_profit || "0");
+        setCalculatedRoi(project.estimated_roi || "0");
       }
     } catch (e) {
       console.error("Error fetching calculated ROI:", e);
-      setCalculatedRoi(project.investor_profit || "0");
+      setCalculatedRoi(project.estimated_roi || "0");
     } finally {
       setRoiLoading(false);
     }
-  }, [project?.id, project?.investor_profit]);
+  }, [project?.id, project?.estimated_roi]);
 
   useEffect(() => {
     fetchCalculatedRoi();
@@ -569,7 +569,7 @@ const ProjectDetail = ({ projectId }) => {
                           <span className="placeholder col-4"></span>
                         </span>
                       ) : (
-                        `${calculatedRoi || "0"}%`
+                        `${project.project_status_id === PROJECT_STATUS.UPCOMING ? project.estimated_roi || "0" : calculatedRoi}%`
                       )}
                     </h4>
                   </div>

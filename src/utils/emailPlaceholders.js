@@ -47,6 +47,8 @@ export const EMAIL_PLACEHOLDERS = [
   { key: "[total_amount]", label: "Total Invoice Amount", description: "Final payable amount" },
   { key: "[currency]", label: "Currency", description: "Invoice currency (VND, USD, etc.)" },
   { key: "[reset_password_url]", label: "Reset Password URL", description: "Password reset URL" },
+  { key: "[subject]", label: "Subject", description: "lease request subject" },
+  { key: "[message]", label: "Message", description: "lease request message" },
 ];
 
 // Test/Preview values for local testing

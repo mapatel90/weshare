@@ -110,7 +110,7 @@ const TabProjectBasicDetails = ({ setFormData, formData, error, setError }) => {
                 const numberRegex = /^[0-9]*\.?[0-9]*$/
                 const intRegex = /^\d+$/
                 let isValid = true
-                if (name === 'investorProfit' || name === 'weshareprofite' || name === 'asking_price') {
+                if (name === 'investorProfit' || name === 'weshareprofite' || name === 'asking_price' || name === 'estimated_roi') {
                     isValid = value === '' || numberRegex.test(value)
                 } else if (name === 'lease_term' || name === 'payback_period') {
                     isValid = value === '' || intRegex.test(value)
@@ -354,6 +354,10 @@ const TabProjectBasicDetails = ({ setFormData, formData, error, setError }) => {
             errors.asking_price = lang('projects.onlynumbers', 'Only numbers are allowed (e.g. 1234.56)');
         }
 
+        if (formData.estimated_roi && !numberRegex.test(formData.estimated_roi)) {
+            errors.estimated_roi = lang('projects.onlynumbers', 'Only numbers are allowed (e.g. 1234.56)');
+        }
+
         if (formData.lease_term && !intRegex.test(String(formData.lease_term))) {
             errors.lease_term = lang('projects.onlynumbersWithoutdesimal', 'Only numbers are allowed (e.g. 123456)');
         }
@@ -405,6 +409,7 @@ const TabProjectBasicDetails = ({ setFormData, formData, error, setError }) => {
                 lease_term: formData.lease_term ? Number(formData.lease_term) : null,
                 product_code: formData.product_code || '',
                 project_description: formData.project_description || '',
+                estimated_roi: formData.estimated_roi && formData.estimated_roi !== '' ? parseFloat(formData.estimated_roi) : null,
                 investor_profit: formData.investorProfit || '0',
                 weshare_profit: formData.weshareprofite || '0',
                 // project_image not handled client-side anymore; keep value if present

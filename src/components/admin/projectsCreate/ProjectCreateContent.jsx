@@ -29,6 +29,7 @@ const ProjectCreateContent = () => {
         lease_term: '',
         product_code: '',
         project_description: '',
+        estimated_roi: '',
         project_size: '',
         project_close_date: getNextYearDate(),
         project_location: '',
