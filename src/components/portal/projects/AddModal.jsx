@@ -107,6 +107,13 @@ export default function AddModal({ open, onClose }) {
       ...prev, 
       [name]: value 
     }));
+
+    setFieldErrors((prev) => {
+      if (!prev[name]) return prev; // nothing to clear
+      const newErrors = { ...prev };
+      delete newErrors[name];
+      return newErrors;
+    });
   }
   
   // check project name uniqueness on blur
