@@ -101,7 +101,6 @@ router.post('/', async (req, res) => {
         message,
         project_id: 2,
         status: 1, // 1 = read/responded
-        created_by: created_by ? Number(created_by) : null,
         created_at: new Date(),
       }
     });
