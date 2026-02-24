@@ -214,7 +214,7 @@ router.post("/", authenticateToken, upload.single('document'), async (req, res) 
         });
 
         // Send email to investor
-        const investor = await prisma.interested_investors.findFirst({ where: { user_id: Number(investorId), project_id: Number(projectId), is_deleted: 0 } });
+        const investor = await prisma.interested_investors.findFirst({ where: { user_id: Number(investorId), project_id: Number(projectId), is_deleted: 0 }, include: { users: true } });
         if (investor?.email) {
           const contractUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/investor/contracts/details/${created.id}`;
           const templateData = {
@@ -649,6 +649,7 @@ router.put("/:id/status", authenticateToken, upload.single('file'), async (req, 
   try {
     const id = Number(req.params.id);
     const { status, reason } = req.body;
+    console.log(`Updating contract ${id} status to ${status} with reason: ${reason || 'N/A'}`);
 
     const existing = await prisma.contracts.findFirst({ where: { id }, include: { projects: true, users: true, interested_investors: true } });
     if (!existing || existing.is_deleted) {
@@ -790,7 +791,7 @@ router.put("/:id/status", authenticateToken, upload.single('file'), async (req, 
       // Send email to investor if exists
       if (existing.investor_id) {
         const investor = await prisma.interested_investors.findFirst({
-          where: { user_id: Number(existing.investor_id), project_id: Number(existing.project_id), is_deleted: 0 }
+          where: { user_id: Number(existing.investor_id), project_id: Number(existing.project_id), is_deleted: 0 }, include: { users: true }
         });
 
         if (investor?.email) {
@@ -826,7 +827,7 @@ router.put("/:id/status", authenticateToken, upload.single('file'), async (req, 
             to: investor.email,
             templateSlug: 'contract_approved_for_investor',
             templateData,
-            language: investor.language || 'en',
+            language: investor.users?.language || 'en',
             attachments: investorAttachments,
           })
             .then((result) => {
@@ -923,8 +924,9 @@ router.put("/:id/status", authenticateToken, upload.single('file'), async (req, 
       // Send email to investor if exists
       if (existing.investor_id) {
         const investor = await prisma.interested_investors.findFirst({
-          where: { user_id: Number(existing.investor_id), project_id: Number(existing.project_id), is_deleted: 0 }
+          where: { user_id: Number(existing.investor_id), project_id: Number(existing.project_id), is_deleted: 0 }, include: { users: true }
         });
+        console.log('existing', existing);
         if (investor?.email) {
           const templateData = {
             full_name: investor.full_name || 'Investor',
@@ -932,7 +934,7 @@ router.put("/:id/status", authenticateToken, upload.single('file'), async (req, 
             contract_title: existing.contract_title || 'N/A',
             project_name: existing?.projects?.project_name || 'N/A',
             solis_id: existing?.projects?.solis_plant_id || 'N/A',
-            rejection_reason: existing.rejectreason || 'No reason provided',
+            rejection_reason: updated.rejectreason || 'No reason provided',
             site_url: process.env.FRONTEND_URL || 'http://localhost:3000',
             company_name: 'WeShare Energy',
             company_logo: `${process.env.NEXT_PUBLIC_URL || ''}/images/main_logo.png`,
@@ -946,7 +948,7 @@ router.put("/:id/status", authenticateToken, upload.single('file'), async (req, 
             to: investor.email,
             templateSlug: 'contract_rejected_for_investor',
             templateData,
-            language: investor.language || 'en',
+            language: investor.users?.language || 'en',
           })
             .then((result) => {
               if (result.success) {
@@ -1038,7 +1040,7 @@ router.put("/:id/status", authenticateToken, upload.single('file'), async (req, 
       // Send email to investor if exists
       if (existing?.investor_id) {
         const investor = await prisma.interested_investors.findFirst({
-          where: { user_id: Number(existing.investor_id), project_id: Number(existing.project_id), is_deleted: 0 }
+          where: { user_id: Number(existing.investor_id), project_id: Number(existing.project_id), is_deleted: 0 }, include: { users: true }
         });
         if (investor?.email) {
           const templateData = {
@@ -1059,9 +1061,9 @@ router.put("/:id/status", authenticateToken, upload.single('file'), async (req, 
 
           sendEmailUsingTemplate({
             to: investor.email,
-            templateSlug: '	contract_cancelled_for_investor',
+            templateSlug: 'contract_cancelled_for_investor',
             templateData,
-            language: investor.language || 'en',
+            language: investor.users?.language || 'en',
           })
             .then((result) => {
               if (result.success) {

@@ -447,19 +447,19 @@ router.put('/:id', authenticateToken, upload.single('qrCode'), async (req, res) 
     }
 
     // Check if email is being changed and if it's already taken
-    if (email && email !== existingUser.email) {
-      // email is not unique in schema, use findFirst
-      const emailExists = await prisma.users.findFirst({
-        where: { email }
-      });
+    // if (email && email !== existingUser.email) {
+    //   // email is not unique in schema, use findFirst
+    //   const emailExists = await prisma.users.findFirst({
+    //     where: { email }
+    //   });
 
-      if (emailExists) {
-        return res.status(409).json({
-          success: false,
-          message: 'Email already in use'
-        });
-      }
-    }
+    //   if (emailExists) {
+    //     return res.status(409).json({
+    //       success: false,
+    //       message: 'Email already in use'
+    //     });
+    //   }
+    // }
 
     // Build update data
     const updateData = {
