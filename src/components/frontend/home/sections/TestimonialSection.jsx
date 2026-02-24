@@ -27,13 +27,16 @@ const TestimonialSection = () => {
       if (response) {
         const data = await response
         // Transform API data to match component structure
-        const transformedData = data.map(item => ({
-          id: item.id,
-          name: item.users?.full_name,
-          role: item.users?.role_id === ROLES.OFFTAKER ? lang('authentication.becomeOfftaker') : lang('authentication.becomeInvestor'),
-          text: item.description || '',
-          rating: item.review_status || 5,
-          image: item.users?.user_image
+        // Filter out testimonials where users is null or missing required fields
+        const transformedData = data
+          .filter(item => item.users && item.users.full_name && item.description)
+          .map(item => ({
+            id: item.id,
+            name: item.users?.full_name || 'Anonymous',
+            role: item.users?.role_id === ROLES.OFFTAKER ? lang('authentication.becomeOfftaker') : lang('authentication.becomeInvestor'),
+            text: item.description || '',
+            rating: item.review_status || 5,
+            image: item.users?.user_image || null
           }))
         setTestimonials(transformedData.length > 0 ? transformedData : [])
       } else {
@@ -148,8 +151,8 @@ const TestimonialSection = () => {
                         overflow: 'hidden'
                       }}>
                         <Image
-                          src={buildUploadUrl(testimonial?.image)}
-                          alt={testimonial.name}
+                          src={buildUploadUrl(testimonial?.image) || '/images/avatar/user-img.png'}
+                          alt={testimonial.name || 'Testimonial'}
                           fill
                           style={{
                             objectFit: 'cover',
@@ -176,7 +179,7 @@ const TestimonialSection = () => {
                         marginBottom: '10px',
                         lineHeight: '1.2'
                       }}>
-                        {testimonial.name}
+                        {testimonial.name || 'Anonymous'}
                       </h3>
                       <p style={{
                         fontSize: '20px',
@@ -184,7 +187,7 @@ const TestimonialSection = () => {
                         color: '#757575',
                         marginBottom: '28px'
                       }}>
-                        {testimonial.role}
+                        {testimonial.role || ''}
                       </p>
 
                       {/* Testimonial Text */}

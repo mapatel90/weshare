@@ -1,124 +1,71 @@
 'use client';
 
-import React from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import {
-  Box,
-  Card,
-  CardContent,
-  Typography,
-  Button,
-  Stack,
-  Divider,
-} from '@mui/material';
-import ShieldOutlinedIcon from '@mui/icons-material/ShieldOutlined';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import HomeIcon from '@mui/icons-material/Home';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const AccessDeniedPage = () => {
-  const router = useRouter();
+  const { lang } = useLanguage();
 
   return (
-    <Box
-      minHeight="100vh"
-      display="flex"
-      alignItems="center"
-      justifyContent="center"
-      px={2}
-    >
-      <Card sx={{ maxWidth: 620, width: '100%' }}>
-        <CardContent sx={{ p: { xs: 3, sm: 5 }, textAlign: 'center' }}>
-          {/* Icon */}
-          <Box
-            sx={{
-              width: 100,
-              height: 100,
-              mx: 'auto',
-              mb: 3,
-              borderRadius: '50%',
-              bgcolor: 'error.light',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <ShieldOutlinedIcon sx={{ fontSize: 48, color: 'error.main' }} />
-          </Box>
+    <div className="container-fluid px-3" style={{ minHeight: '100vh' }}>
+      <div className="row align-items-center justify-content-center" style={{ minHeight: '100vh' }}>
+        <div className="col-12 col-md-10 col-lg-6 col-xl-5">
+          <div className="card shadow-sm">
+            <div className="card-body text-center p-4 p-sm-5">
+              <div
+                className="d-flex align-items-center justify-content-center mx-auto mb-3 rounded-circle"
+                style={{ width: 96, height: 96, background: 'rgba(220, 53, 69, 0.12)' }}
+              >
+                <span className="text-danger" style={{ fontSize: 44, lineHeight: 1 }}>
+                  🛡️
+                </span>
+              </div>
 
-          {/* 403 */}
-          <Typography
-            variant="h1"
-            fontWeight={800}
-            color="error.main"
-            mb={1}
-          >
-            403
-          </Typography>
+              <div className="display-1 fw-bold text-danger mb-1">403</div>
+              <div className="h4 fw-semibold mb-2">
+                {lang('errors.accessDenied.title', 'Access Denied')}
+              </div>
 
-          <Typography variant="h5" fontWeight={700} mb={1}>
-            Access Denied
-          </Typography>
+              <p className="text-muted mb-4">
+                {lang(
+                  'errors.accessDenied.message',
+                  "Sorry, you don't have permission to access this page. Please contact your administrator if you believe this is an error."
+                )}
+              </p>
 
-          <Typography
-            variant="body2"
-            color="text.secondary"
-            mb={4}
-            px={{ xs: 0, sm: 4 }}
-          >
-            Sorry, you don't have permission to access this page.
-            Please contact your administrator if you believe this is an error.
-          </Typography>
+              <div className="d-grid gap-2 d-sm-flex justify-content-sm-center">
+                <button
+                  type="button"
+                  className="btn btn-outline-secondary"
+                  onClick={() => window.history.back()}
+                >
+                  ← {lang('errors.accessDenied.goBack', 'Go Back')}
+                </button>
 
-          {/* Actions */}
-          <Stack
-            direction={{ xs: 'column', sm: 'row' }}
-            spacing={2}
-            justifyContent="center"
-          >
-            <Button
-              variant="outlined"
-              color="inherit"
-              startIcon={<ArrowBackIcon />}
-              onClick={() => router.back()}
-            >
-              Go Back
-            </Button>
+                <Link className="btn btn-primary" href="/admin/dashboards">
+                  {lang('errors.accessDenied.goToDashboard', 'Go to Dashboard')}
+                </Link>
+              </div>
 
-            <Button
-              component={Link}
-              href="/admin/dashboards"
-              variant="contained"
-              startIcon={<HomeIcon />}
-            >
-              Go to Dashboard
-            </Button>
-          </Stack>
+              <hr className="my-4" />
 
-          <Divider sx={{ my: 4 }} />
-
-          {/* Footer info */}
-          <Box color="text.secondary" fontSize={12}>
-            <Typography
-              variant="caption"
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-              gap={0.5}
-              mb={0.5}
-            >
-              <InfoOutlinedIcon fontSize="inherit" />
-              Error Code: 403 - Forbidden
-            </Typography>
-
-            <Typography variant="caption">
-              You don't have the required permissions to view this resource.
-            </Typography>
-          </Box>
-        </CardContent>
-      </Card>
-    </Box>
+              <div className="small text-muted">
+                <div className="d-flex align-items-center justify-content-center gap-2 mb-1">
+                  <span aria-hidden>ℹ️</span>
+                  <span>{lang('errors.accessDenied.errorCodeLabel', 'Error Code: 403 - Forbidden')}</span>
+                </div>
+                <div>
+                  {lang(
+                    'errors.accessDenied.permissionHint',
+                    "You don't have the required permissions to view this resource."
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 

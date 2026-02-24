@@ -290,7 +290,7 @@ const ContractAdminTable = () => {
           <span className="badge bg-soft-danger text-danger">
             {lang("common.rejected", "Rejected")}
           </span>
-        ) : info.getValue() == 4 ? (
+        ) : info.getValue() == 3 ? (
           <span className="badge bg-soft-info text-info">
             {lang("common.cancel", "Cancel")}
           </span>
@@ -361,7 +361,7 @@ const ContractAdminTable = () => {
               { value: "0", label: lang("common.pending", "Pending") },
               { value: "1", label: lang("common.approved", "Approved") },
               { value: "2", label: lang("common.rejected", "Rejected") },
-              { value: "4", label: lang("common.cancel", "Cancel") },
+              { value: "3", label: lang("common.cancel", "Cancel") },
             ]}
             value={
               statusFilter === ""
@@ -372,8 +372,8 @@ const ContractAdminTable = () => {
                     ? { value: "1", label: lang("common.approved", "Approved") }
                     : statusFilter === "2"
                       ? { value: "2", label: lang("common.rejected", "Rejected") }
-                      : statusFilter === "4"
-                        ? { value: "4", label: lang("common.cancel", "Cancel") }
+                      : statusFilter === "3"
+                        ? { value: "3", label: lang("common.cancel", "Cancel") }
                         : null
             }
             onChange={(e, newValue) => {
