@@ -32,8 +32,8 @@ const ProjectCard = ({ project, activeTab }) => {
   const [submittingInvest, setSubmittingInvest] = useState(false);
 
   // Use calculated_roi from API response (already calculated in projects list endpoint)
-  const calculatedRoi = project?.calculated_roi || project?.investor_profit || "0";
-
+  const calculatedRoi = project?.calculated_roi || "0";
+  
   // Safety check
   if (!project) {
     console.error("ProjectCard: No project data provided");

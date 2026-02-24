@@ -1002,7 +1002,7 @@ router.get("/", async (req, res) => {
 
       return {
         ...project,
-        calculated_roi: calculatedRoi > 0 ? calculatedRoi.toFixed(2) : (project.investor_profit || "0"),
+        calculated_roi: calculatedRoi > 0 ? calculatedRoi.toFixed(2) : "0",
         prev_month_energy: totalEnergy.toFixed(2),
         total_energy: totalEnergyAllTime.toFixed(2),
         cumulative_revenue: cumulativeRevenue > 0 ? cumulativeRevenue.toFixed(2) : "0",
