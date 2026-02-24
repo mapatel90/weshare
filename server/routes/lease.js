@@ -1,8 +1,11 @@
 import express from 'express';
 import prisma from '../utils/prisma.js';
 import { authenticateToken } from '../middleware/auth.js';
+import { sendEmailUsingTemplate } from '../utils/email.js';
+import { getUsersByRole } from '../utils/constants.js';
+import { ROLES } from '../../src/constants/roles.js';
 
-const router = express.Router();    
+const router = express.Router();
 
 router.post('/', async (req, res) => {
   try {
@@ -55,6 +58,42 @@ router.post('/', async (req, res) => {
       data: payload
     })
 
+
+    if (record) {
+      const templateData = {
+        full_name: payload.full_name,
+        user_email: payload.email,
+        user_phone: payload.phone_number,
+        subject: payload.subject,
+        message: payload.message,
+        company_name: 'WeShare Energy',
+        current_date: new Date().toLocaleDateString(),
+      };
+
+      // get admin 
+     const user = await prisma.users.findFirst({
+      where: {
+        role_id: ROLES.SUPER_ADMIN,
+        is_deleted: 0
+      }
+     })
+
+      sendEmailUsingTemplate({
+        to: user.email,
+        templateSlug: 'lease_request_generate',
+        templateData,
+        language: user.language || 'vi',
+      }).then((result) => {
+        if (result.success) {
+          console.log(`Lease request email sent to ${email}`);
+        } else {
+          console.warn(`Could not send lease request email: ${result.error}`);
+        }
+      }).catch((error) => {
+          console.error('Failed to send lease request email:', error.message);
+      });
+    }
+
     return res.status(201).json({
       success: true,
       data: record
@@ -82,7 +121,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
       address,
       subject,
       message
-    } = req.body || {}  
+    } = req.body || {}
     // Basic validation
     if (!fullName || !email || !message) {
       return res.status(400).json({
@@ -93,7 +132,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
 
     const payload = {
       full_name: String(fullName).trim(),
-      email: String(email).trim(),  
+      email: String(email).trim(),
       phone_number: phoneNumber ? String(phoneNumber).trim() : null,
       country_id: countryId ? Number(countryId) : null,
       state_id: stateId ? Number(stateId) : null,
@@ -119,7 +158,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
       message: 'Server error',
       error: err.message
     })
-  } 
+  }
 })
 
 router.get('/', async (req, res) => {
@@ -154,7 +193,7 @@ router.delete('/:id', authenticateToken, async (req, res) => {
 
     const record = await prisma.lease_requests.findFirst({
       where: { id: Number(id) }
-    })  
+    })
     if (!record || record.is_deleted) {
       return res.status(404).json({
         success: false,

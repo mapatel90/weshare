@@ -324,6 +324,28 @@ const ProjectForm = ({
                 helperText={error.asking_price}
               />
             </div>
+            {/* row: estimated_roi */}
+            <div className="col-md-3 mb-3">
+              <TextField
+                fullWidth
+                label={lang("projects.estimated_roi", "Estimated ROI (%)")}
+                name="estimated_roi"
+                value={formData.estimated_roi || ""}
+                onChange={handleInputChange}
+                inputMode="decimal"
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">%</InputAdornment>
+                  ),
+                }}
+                placeholder={lang(
+                  "projects.estimated_roi_placeholder",
+                  "Enter estimated ROI"
+                )}
+                error={!!error.estimated_roi}
+                helperText={error.estimated_roi}
+              />
+            </div>
             {/* row: capex_per_kwp */}
             <div className="col-md-3 mb-3">
               <TextField
@@ -445,20 +467,6 @@ const ProjectForm = ({
                 />
               </div>
             ) : null}
-            {/* row: project_close_date */}
-            <div className="col-md-3 mb-3">
-              <TextField
-                fullWidth
-                type="date"
-                label={lang("projects.projectCloseDate", "Project Close Date")}
-                name="project_close_date"
-                value={formData.project_close_date || ""}
-                onChange={handleInputChange}
-                InputLabelProps={{ shrink: true }}
-                error={!!error.project_close_date}
-                helperText={error.project_close_date}
-              />
-            </div>
             {/* row: project_description */}
             <div className="col-md-12 mb-3">
               <TextField
@@ -474,8 +482,22 @@ const ProjectForm = ({
                 rows={4}
               />
             </div>
+            {/* row: project_close_date */}
+            <div className="col-md-3 mb-3">
+              <TextField
+                fullWidth
+                type="date"
+                label={lang("projects.projectCloseDate", "Project Close Date")}
+                name="project_close_date"
+                value={formData.project_close_date || ""}
+                onChange={handleInputChange}
+                InputLabelProps={{ shrink: true }}
+                error={!!error.project_close_date}
+                helperText={error.project_close_date}
+              />
+            </div>
             {/* row: project_location */}
-            <div className="col-md-12 mb-3">
+            <div className="col-md-9 mb-3">
               <TextField
                 fullWidth
                 label={lang("projects.projectLocation", "Project Location")}

@@ -220,6 +220,7 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
       name,
       project_slug,
       project_type_id,
+      estimated_roi,
       offtaker_id,
       address_1,
       address_2,
@@ -276,6 +277,12 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
         ...(city_id && { cities: { connect: { id: parseInt(city_id) } } }),
         zipcode: zipcode || "",
         asking_price: asking_price || "",
+        estimated_roi:
+          estimated_roi !== undefined &&
+            estimated_roi !== null &&
+            `${estimated_roi}` !== ""
+            ? parseFloat(estimated_roi)
+            : null,
         lease_term:
           lease_term !== undefined &&
             lease_term !== null &&
@@ -1146,6 +1153,7 @@ router.put("/:id", authenticateToken, async (req, res) => {
       name,
       project_slug,
       project_type_id,
+      estimated_roi,
       offtaker_id,
       address_1,
       address_2,
@@ -1216,6 +1224,12 @@ router.put("/:id", authenticateToken, async (req, res) => {
           : { cities: { disconnect: true } })),
       ...(zipcode !== undefined && { zipcode }),
       ...(asking_price !== undefined && { asking_price: asking_price || "" }),
+      ...(estimated_roi !== undefined && {
+        estimated_roi:
+          estimated_roi !== null && `${estimated_roi}` !== ""
+            ? parseFloat(estimated_roi)
+            : null,
+      }),
       ...(lease_term !== undefined && {
         lease_term:
           lease_term !== null && `${lease_term}` !== ""
@@ -2884,6 +2898,7 @@ router.get("/:id/calculate-roi", async (req, res) => {
         weshare_price_kwh: true,
         capex_per_kwp: true,
         investor_profit: true,
+        estimated_roi: true,
       },
     });
 
@@ -2934,7 +2949,7 @@ router.get("/:id/calculate-roi", async (req, res) => {
         totalEnergy: totalEnergy.toFixed(2),
         weshareAmount: (totalEnergy * wesharePrice).toFixed(2),
         capexValue: capexValue.toFixed(2),
-        fallbackRoi: project.investor_profit || "0",
+        fallbackRoi: project.estimated_roi || "0",
       },
     });
   } catch (error) {
