@@ -140,25 +140,28 @@ const Notification = () => {
     };
 
     return (
-        <div className="p-6 bg-white rounded-xl shadow-md">
-            <div className="notification-count" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+        <div className="p-4 sm:p-6 bg-white rounded-xl shadow-md">
+            <div className="notification-count flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-4">
                 <div>
                     <strong>{totalCount}</strong> {lang("notification.title")}{totalCount === 1 ? '' : 's'}
-                    {unreadCount > 0 && <span style={{ marginLeft: 8, color: '#d97706' }}>({unreadCount} {lang("common.unread")})</span>}
+                    {unreadCount > 0 && (
+                        <span className="ml-2 text-sm text-amber-600">
+                            ({unreadCount} {lang("common.unread")})
+                        </span>
+                    )}
                 </div>
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <div className="flex flex-col gap-2 xs:flex-row xs:items-center">
                     <input
                         type="text"
                         placeholder={lang("common.search", "Search notifications...")}
                         value={searchTerm}
                         onChange={(e) => handleSearchChange(e.target.value)}
-                        className="px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-200"
-                        style={{ minWidth: '250px' }}
+                        className="w-full xs:w-64 px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-200"
                     />
                     <button
                         type="button"
                         onClick={() => fetchNotifications(currentPage)}
-                        className="text-sm text-blue-600 hover:text-blue-800"
+                        className="self-start text-sm text-blue-600 hover:text-blue-800"
                     >
                         {lang("common.refresh")}
                     </button>
@@ -170,54 +173,115 @@ const Notification = () => {
                 </div>
             )}
 
-            <div className="overflow-x-auto border">
-                <table className="min-w-full text-sm">
-                    <thead className="bg-gray-50">
-                        <tr>
-                            <th 
-                                onClick={() => handleSort('title')}
-                                style={{ cursor: 'pointer', userSelect: 'none' }}
-                                className="hover:bg-gray-100"
+            {loading && (
+                <div className="py-6 text-center text-sm text-gray-500">
+                    Loading notifications...
+                </div>
+            )}
+
+            {!loading && notifications.length === 0 && (
+                <div className="py-6 text-center text-sm text-gray-500">
+                    {lang("notification.noNotifications")}
+                </div>
+            )}
+
+            {!loading && notifications.length > 0 && (
+                <>
+                    {/* Desktop table */}
+                    <div className="hidden md:block overflow-x-auto border">
+                        <table className="min-w-full text-sm">
+                            <thead className="bg-gray-50">
+                                <tr>
+                                    <th
+                                        onClick={() => handleSort('title')}
+                                        style={{ cursor: 'pointer', userSelect: 'none' }}
+                                        className="px-4 py-2 text-left hover:bg-gray-100"
+                                    >
+                                        {lang("leaseRequest.messageTable")} {getSortIndicator('title')}
+                                    </th>
+                                    <th
+                                        onClick={() => handleSort('created_at')}
+                                        style={{ cursor: 'pointer', userSelect: 'none' }}
+                                        className="px-4 py-2 text-left hover:bg-gray-100 whitespace-nowrap"
+                                    >
+                                        {lang("common.time")} {getSortIndicator('created_at')}
+                                    </th>
+                                    <th className="px-4 py-2 text-center">{lang("common.action")}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {notifications.map((note, idx) => (
+                                    <tr key={note.id} className={idx % 2 ? "bg-white" : "bg-gray-50"}>
+                                        <td className="notification-message px-4 py-3">
+                                            {note.action_url ? (
+                                                <Link href={note.action_url} className="block hover:text-blue-600">
+                                                    <div className="font-medium">{note.title || 'Notification'}</div>
+                                                    {note.message && (
+                                                        <div className="text-gray-600 text-xs mt-1">
+                                                            {note.message}
+                                                        </div>
+                                                    )}
+                                                </Link>
+                                            ) : (
+                                                <>
+                                                    <div className="font-medium">{note.title || 'Notification'}</div>
+                                                    {note.message && (
+                                                        <div className="text-gray-600 text-xs mt-1">
+                                                            {note.message}
+                                                        </div>
+                                                    )}
+                                                </>
+                                            )}
+                                        </td>
+                                        <td className="notification-time px-4 py-3 whitespace-nowrap">
+                                            {formatTime(note.created_at)}
+                                        </td>
+                                        <td className="notification-delete px-4 py-3 text-center">
+                                            <button
+                                                type="button"
+                                                onClick={() => handleDelete(note.id)}
+                                                className="text-red-500 hover:text-red-700"
+                                                title="Delete notification"
+                                            >
+                                                <DeleteForeverOutlinedIcon fontSize="small" />
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {/* Mobile cards */}
+                    <div className="md:hidden space-y-3">
+                        {notifications.map((note) => (
+                            <div
+                                key={note.id}
+                                className="flex flex-col gap-2 rounded-lg border bg-white p-3 shadow-sm"
                             >
-                                {lang("leaseRequest.messageTable")} {getSortIndicator('title')}
-                            </th>
-                            <th 
-                                onClick={() => handleSort('created_at')}
-                                style={{ cursor: 'pointer', userSelect: 'none' }}
-                                className="hover:bg-gray-100"
-                            >
-                                {lang("common.time")} {getSortIndicator('created_at')}
-                            </th>
-                            <th>{lang("common.action")}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {loading ? (
-                            <tr>
-                                <td colSpan="4" className="text-center py-6">Loading notifications...</td>
-                            </tr>
-                        ) : notifications.length === 0 ? (
-                            <tr>
-                                <td colSpan="4" className="text-center py-6">{lang("notification.noNotifications")}</td>
-                            </tr>
-                        ) : (
-                            notifications.map((note, idx) => (
-                                <tr key={note.id} className={idx % 2 ? "bg-white" : "bg-gray-50"}>
-                                    <td className="notification-message">
-                                        {note.action_url ? (
-                                            <Link href={note.action_url} className="block hover:text-blue-600">
-                                                <div className="font-medium">{note.title || 'Notification'}</div>
-                                                {note.message && <div className="text-gray-600 text-xs mt-1">{note.message}</div>}
-                                            </Link>
-                                        ) : (
-                                            <>
-                                                <div className="font-medium">{note.title || 'Notification'}</div>
-                                                {note.message && <div className="text-gray-600 text-xs mt-1">{note.message}</div>}
-                                            </>
+                                <div className="flex items-start justify-between gap-2">
+                                    <div className="flex-1">
+                                        <div className="font-medium text-sm">
+                                            {note.title || 'Notification'}
+                                        </div>
+                                        {note.message && (
+                                            <div className="mt-1 text-xs text-gray-600">
+                                                {note.message}
+                                            </div>
                                         )}
-                                    </td>
-                                    <td className="notification-time whitespace-nowrap">{formatTime(note.created_at)}</td>
-                                    <td className="notification-delete text-center">
+                                        {note.action_url && (
+                                            <Link
+                                                href={note.action_url}
+                                                className="mt-2 inline-flex text-xs text-blue-600 hover:text-blue-800"
+                                            >
+                                                {lang("common.viewDetails", "View details")}
+                                            </Link>
+                                        )}
+                                    </div>
+                                    <div className="flex flex-col items-end gap-1">
+                                        <span className="text-[11px] text-gray-500">
+                                            {formatTime(note.created_at)}
+                                        </span>
                                         <button
                                             type="button"
                                             onClick={() => handleDelete(note.id)}
@@ -226,15 +290,15 @@ const Notification = () => {
                                         >
                                             <DeleteForeverOutlinedIcon fontSize="small" />
                                         </button>
-                                    </td>
-                                </tr>
-                            ))
-                        )}
-                    </tbody>
-                </table>
-            </div>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </>
+            )}
 
-            <div className="flex items-center justify-between mt-4 text-sm">
+            <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between text-sm">
                 <div>
                     {pagination?.total !== undefined ? (
                         <span>
@@ -245,7 +309,7 @@ const Notification = () => {
                         <span>{lang("home.exchangeHub.showing")}: {notifications.length}</span>
                     )}
                 </div>
-                <div className="space-x-2">
+                <div className="flex gap-2 sm:justify-end">
                     <button
                         type="button"
                         className="px-3 py-1 border rounded disabled:opacity-50"
