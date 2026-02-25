@@ -9,7 +9,7 @@ import ProjectOverviewChart from "../../admin/projectsCreate/projectViewSection/
 import AOS from "aos";
 import "aos/dist/aos.css";
 import "./styles/exchange-hub-custom.css";
-import { buildUploadUrl, convertEnergyToKwh, formatEnergyUnit, getFullImageUrl } from "@/utils/common";
+import { buildUploadUrl, convertEnergyToKwh, formatEnergyUnit, getDuration, getFullImageUrl } from "@/utils/common";
 import { getPrimaryProjectImage } from "@/utils/projectUtils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
@@ -150,7 +150,7 @@ const ProjectDetail = ({ projectId }) => {
         showLoader: false,
         includeAuth: false,
       });
-
+      console.log("response::", response.data);
       if (response && response.success && response.data) {
         setProject(response.data);
       } else if (response && response.data) {
@@ -598,8 +598,7 @@ const ProjectDetail = ({ projectId }) => {
                       :
                     </p>
                     <h4>
-                      {project.lease_term || "0"}{" "}
-                      {lang("home.exchangeHub.years") || "Years"}
+                      {getDuration(project?.project_start_date, project?.project_close_date)}
                     </h4>
                   </div>
                   <div>

@@ -423,6 +423,8 @@ const TabProjectBasicDetails = ({ setFormData, formData, error, setError }) => {
                 weshare_price_kwh: formData.weshare_price_kwh && formData.weshare_price_kwh !== '' ? parseFloat(formData.weshare_price_kwh) : null,
                 capex_per_kwp: formData.capex_per_kwp && formData.capex_per_kwp !== '' ? parseFloat(formData.capex_per_kwp) : null,
                 project_close_date: formData.project_close_date || null,
+                project_expire_date: formData.project_expire_date || null,
+                project_start_date: formData.project_start_date || null,
                 project_location: formData.project_location || '',
                 project_status_id: formData.project_status_id !== '' && formData.project_status_id !== undefined && formData.project_status_id !== null
                     ? Number(formData.project_status_id)

@@ -273,6 +273,41 @@ export const getTimeLeft = (closeDate) => {
   return `${days} days`
 }
 
+export const getDuration = (startDate, endDate) => {
+  console.log("startDate", startDate);
+  console.log("endDate", endDate);
+  if (!endDate) return '-'
+
+  const start = startDate ? new Date(startDate) : new Date()
+  const end = new Date(endDate)
+
+  if (isNaN(start.getTime()) || isNaN(end.getTime())) return '-'
+
+  if (end <= start) return 'Expired'
+
+  const diffMs = end - start
+  const dayMs = 1000 * 60 * 60 * 24
+  const days = Math.ceil(diffMs / dayMs)
+
+  const years = Math.floor(days / 365)
+  const months = Math.floor((days % 365) / 30)
+
+  if (years > 0) {
+    return months > 0
+      ? `${years}y ${months}m`
+      : `${years} year${years > 1 ? 's' : ''}`
+  }
+
+  if (months > 0) {
+    return `${months} month${months > 1 ? 's' : ''}`
+  }
+
+  if (days === 1) return '1 day'
+
+  console.log("days", days);
+  return `${days} days`
+}
+
 const UPLOAD_URL = process.env.NEXT_PUBLIC_UPLOAD_URL;
 
 export const isS3Url = (url = "") => {
