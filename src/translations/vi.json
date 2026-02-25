@@ -1753,6 +1753,7 @@
     "projectName": "Tên dự án",
     "month": "Tháng",
     "totalPayout": "Tổng thanh toán",
+    "totalInvoiceAmount": "Tổng số tiền hóa đơn",
     "capitalRecovery": "Khôi phục vốn"
   },
   "projectView": {

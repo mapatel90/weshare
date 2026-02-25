@@ -1796,6 +1796,7 @@
     "projectName": "Project Name",
     "month": "Month",
     "totalPayout": "Total Payout",
+    "totalInvoiceAmount": "Total Invoice Amount",
     "capitalRecovery": "Capital Recovery"
   },
   "projectView": {

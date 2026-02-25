@@ -2817,11 +2817,11 @@ router.get("/report/capital-recovery", authenticateToken, async (req, res) => {
       investor_id: investorId,
       ...(trimmedSearch
         ? {
-            project_name: {
-              contains: trimmedSearch,
-              mode: "insensitive",
-            },
-          }
+          project_name: {
+            contains: trimmedSearch,
+            mode: "insensitive",
+          },
+        }
         : {}),
     };
 
@@ -2844,27 +2844,44 @@ router.get("/report/capital-recovery", authenticateToken, async (req, res) => {
     // Sum payouts per project (only status = PAYOUT)
     const payoutsByProject = projectIds.length
       ? await prisma.payouts.groupBy({
-          by: ["project_id"],
-          where: {
-            investor_id: investorId,
-            project_id: { in: projectIds },
-            status: PAYOUT_STATUS.PAYOUT,
-          },
-          _sum: {
-            payout_amount: true,
-          },
-        })
+        by: ["project_id"],
+        where: {
+          investor_id: investorId,
+          project_id: { in: projectIds },
+          status: PAYOUT_STATUS.PAYOUT,
+        },
+        _sum: {
+          payout_amount: true,
+        },
+      })
       : [];
 
     const payoutSumMap = new Map(
       payoutsByProject.map((g) => [g.project_id, Number(g._sum?.payout_amount || 0)])
     );
 
+    // invoice total amount by project
+    const invoiceTotalAmountByProject = await prisma.invoices.groupBy({
+      by: ["project_id"],
+      where: {
+        status: 1,
+        is_deleted: 0,
+        project_id: { in: projectIds },
+      },
+      _sum: {
+        total_amount: true,
+      },
+    });
+
+    const invoiceTotalAmountMap = new Map(
+      invoiceTotalAmountByProject.map((g) => [g.project_id, Number(g._sum?.total_amount || 0)])
+    );
+
     const data = projects.map((p) => {
       const askingPrice = parseFloat(p.asking_price || "0") || 0;
       const totalPayout = payoutSumMap.get(p.id) || 0;
-      const capitalRecovery =
-        askingPrice > 0 ? (totalPayout * 100) / askingPrice : 0;
+      const invoiceTotalAmount = invoiceTotalAmountMap.get(p.id) || 0;
+      const capitalRecovery = askingPrice > 0 ? (invoiceTotalAmount * 100) / askingPrice : 0;
 
       return {
         id: p.id,
@@ -2872,6 +2889,7 @@ router.get("/report/capital-recovery", authenticateToken, async (req, res) => {
         project_name: p.project_name,
         asking_price: askingPrice.toFixed(2),
         total_payout: totalPayout.toFixed(2),
+        invoice_total_amount: invoiceTotalAmount.toFixed(2),
         capital_recovery: capitalRecovery.toFixed(2),
       };
     });
