@@ -1,12 +1,10 @@
-'use client'
-import React, { useState } from 'react'
-import { FiAlignRight, FiArrowLeft } from 'react-icons/fi'
+"use client"
+import React from 'react'
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { useLanguage } from '@/contexts/LanguageContext'
 
 const PageHeader = ({ children }) => {
-    const [openSidebar, setOpenSidebar] = useState(false)
     const pathName = usePathname()
     const { lang } = useLanguage()
     let folderName = ""
@@ -34,25 +32,16 @@ const PageHeader = ({ children }) => {
                     <h5 className="m-b-10 text-capitalize">{folderName}</h5>
                 </div>
                 <ul className="breadcrumb">
-                    <li className="breadcrumb-item"><Link href="/">{lang('navigation.home', 'Home')}</Link></li>
+                    <li className="breadcrumb-item">
+                        <Link href="/">{lang('navigation.home', 'Home')}</Link>
+                    </li>
                     <li className="breadcrumb-item text-capitalize">{fileName}</li>
                 </ul>
             </div>
-            <div className="page-header-right ms-auto">
-                <div className={`page-header-right-items ${openSidebar ? "page-header-right-open" : ""}`}>
-                    <div className="d-flex d-md-none">
-                        <Link href="#" onClick={() => setOpenSidebar(false)} className="page-header-right-close-toggle">
-                            <FiArrowLeft size={16} className="me-2" />
-                            <span>{lang('common.back')}</span>
-                        </Link>
-                    </div>
-                    {children}
-                </div>
-                <div className="d-md-none d-flex align-items-center">
-                    <Link href="#" onClick={() => setOpenSidebar(true)} className="page-header-right-open-toggle">
-                        <FiAlignRight className="fs-20" />
-                    </Link>
-                </div>
+
+            {/* Always show right-side content (e.g. + Add Type button) on the bar itself */}
+            <div className="page-header-right ms-auto d-flex align-items-center flex-wrap gap-2 justify-content-end">
+                {children}
             </div>
         </div>
     )
