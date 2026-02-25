@@ -221,6 +221,7 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
       project_slug,
       project_type_id,
       estimated_roi,
+      expected_revenue,
       offtaker_id,
       address_1,
       address_2,
@@ -282,6 +283,12 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
             estimated_roi !== null &&
             `${estimated_roi}` !== ""
             ? parseFloat(estimated_roi)
+            : null,
+        expected_revenue:
+          expected_revenue !== undefined &&
+            expected_revenue !== null &&
+            `${expected_revenue}` !== ""
+            ? parseFloat(expected_revenue)
             : null,
         lease_term:
           lease_term !== undefined &&
@@ -1154,6 +1161,7 @@ router.put("/:id", authenticateToken, async (req, res) => {
       project_slug,
       project_type_id,
       estimated_roi,
+      expected_revenue,
       offtaker_id,
       address_1,
       address_2,
@@ -1228,6 +1236,12 @@ router.put("/:id", authenticateToken, async (req, res) => {
         estimated_roi:
           estimated_roi !== null && `${estimated_roi}` !== ""
             ? parseFloat(estimated_roi)
+            : null,
+      }),
+      ...(expected_revenue !== undefined && {
+        expected_revenue:
+          expected_revenue !== null && `${expected_revenue}` !== ""
+            ? parseFloat(expected_revenue)
             : null,
       }),
       ...(lease_term !== undefined && {

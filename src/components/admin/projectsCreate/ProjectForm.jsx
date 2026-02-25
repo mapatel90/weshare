@@ -209,7 +209,7 @@ const ProjectForm = ({
               />
             </div>
             {/* row: project_slug */}
-            <div className="col-md-3 mb-3">
+            <div className={formData?.id ? "col-md-3 mb-3" : "col-md-8 mb-3"}>
               <TextField
                 fullWidth
                 label={`${lang("projects.projectSlugPlaceholder", "Project Slug")} *`}
@@ -266,7 +266,7 @@ const ProjectForm = ({
               </div>
             ) : null}
             {/* row: offtaker */}
-            <div className="col-md-3 mb-3">
+            <div className={formData?.id ? "col-md-3 mb-3" : "col-md-4 mb-3"}>
               <Autocomplete
                 options={offtakers}
                 value={offtakers.find((o) => String(o.id) === String(formData.offtaker_id)) || null}
@@ -290,7 +290,7 @@ const ProjectForm = ({
               />
             </div>
             {/* row: project_size */}
-            <div className="col-md-3 mb-3">
+            <div className={formData?.id ? "col-md-3 mb-3" : "col-md-4 mb-3"}>
               <TextField
                 fullWidth
                 label={lang("projects.projectSize", "Project Size (kW)")}
@@ -312,7 +312,7 @@ const ProjectForm = ({
               />
             </div>
             {/* row: asking_price */}
-            <div className="col-md-3 mb-3">
+            <div className={formData?.id ? "col-md-3 mb-3" : "col-md-4 mb-3"}>
               <TextField
                 fullWidth
                 label={lang("projects.askingPrice", "Asking Price")}
@@ -324,30 +324,8 @@ const ProjectForm = ({
                 helperText={error.asking_price}
               />
             </div>
-            {/* row: estimated_roi */}
-            <div className="col-md-3 mb-3">
-              <TextField
-                fullWidth
-                label={lang("projects.estimated_roi", "Estimated ROI (%)")}
-                name="estimated_roi"
-                value={formData.estimated_roi || ""}
-                onChange={handleInputChange}
-                inputMode="decimal"
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">%</InputAdornment>
-                  ),
-                }}
-                placeholder={lang(
-                  "projects.estimated_roi_placeholder",
-                  "Enter estimated ROI"
-                )}
-                error={!!error.estimated_roi}
-                helperText={error.estimated_roi}
-              />
-            </div>
             {/* row: capex_per_kwp */}
-            <div className="col-md-3 mb-3">
+            <div className={formData?.id ? "col-md-3 mb-3" : "col-md-4 mb-3"}>
               <TextField
                 fullWidth
                 label={lang("projects.capex_per_kwp", "CAPEX per kWp")}
@@ -407,66 +385,6 @@ const ProjectForm = ({
                 />
               </div>
             ) : null}
-            {/* row: lease_term */}
-            <div className="col-md-3 mb-3">
-              <TextField
-                fullWidth
-                label={`${lang("projects.leaseTerm", "Lease Term")} ${lang(
-                  "projects.year",
-                  "year"
-                )}`}
-                name="lease_term"
-                value={formData.lease_term || ""}
-                onChange={handleInputChange}
-                inputMode="numeric"
-                error={!!error.lease_term}
-                helperText={error.lease_term}
-              />
-            </div>
-            {/* row: payback_period */}
-            <div className="col-md-3 mb-3">
-              <TextField
-                fullWidth
-                label={`${lang("projects.paybackPeriod", "Payback Period")} ${lang(
-                  "projects.year",
-                  "year"
-                )}`}
-                name="payback_period"
-                value={formData.payback_period || ""}
-                onChange={handleInputChange}
-                inputMode="numeric"
-                placeholder={lang(
-                  "projects.paybackPeriodPlaceholder",
-                  "Enter payback period in years"
-                )}
-                error={!!error.payback_period}
-                helperText={error.payback_period}
-              />
-            </div>
-            {/* row: fund_progress */}
-            {formData?.id ? (
-              <div className="col-md-3 mb-3">
-                <TextField
-                  fullWidth
-                  label={lang("projects.fundProgress", "Fund Progress")}
-                  name="fund_progress"
-                  value={formData.fund_progress || ""}
-                  onChange={handleInputChange}
-                  inputMode="decimal"
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">%</InputAdornment>
-                    ),
-                  }}
-                  placeholder={lang(
-                    "projects.fundProgressPlaceholder",
-                    "Enter fund progress (0-100)"
-                  )}
-                  error={!!error.fund_progress}
-                  helperText={error.fund_progress || lang("projects.fundProgressHelp", "Value must be between 0 and 100")}
-                />
-              </div>
-            ) : null}
             {/* row: project_description */}
             <div className="col-md-12 mb-3">
               <TextField
@@ -517,6 +435,118 @@ const ProjectForm = ({
                   )
                 }
               />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Upcoming & Running Project Information */}
+      <div className="col-md-12">
+        <div className="card">
+          <div className="card-header">
+            <h6 className="card-title mb-0">
+              {lang("projects.upcomingRunningProjectInformation", "Upcoming & Running Project Information")}
+            </h6>
+          </div>
+          <div className="card-body">
+            <div className="row">
+              {/* row: lease_term */}
+              <div className="col-md-3 mb-3">
+                <TextField
+                  fullWidth
+                  label={`${lang("projects.leaseTerm", "Lease Term")} ${lang(
+                    "projects.year",
+                    "year"
+                  )}`}
+                  name="lease_term"
+                  value={formData.lease_term || ""}
+                  onChange={handleInputChange}
+                  inputMode="numeric"
+                  error={!!error.lease_term}
+                  helperText={error.lease_term}
+                />
+              </div>
+              {/* row: payback_period */}
+              <div className="col-md-3 mb-3">
+                <TextField
+                  fullWidth
+                  label={`${lang("projects.paybackPeriod", "Payback Period")} ${lang(
+                    "projects.year",
+                    "year"
+                  )}`}
+                  name="payback_period"
+                  value={formData.payback_period || ""}
+                  onChange={handleInputChange}
+                  inputMode="numeric"
+                  placeholder={lang(
+                    "projects.paybackPeriodPlaceholder",
+                    "Enter payback period in years"
+                  )}
+                  error={!!error.payback_period}
+                  helperText={error.payback_period}
+                />
+              </div>
+              {/* row: estimated_roi */}
+              <div className="col-md-3 mb-3">
+                <TextField
+                  fullWidth
+                  label={lang("projects.estimated_roi", "Estimated ROI (%)")}
+                  name="estimated_roi"
+                  value={formData.estimated_roi || ""}
+                  onChange={handleInputChange}
+                  inputMode="decimal"
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">%</InputAdornment>
+                    ),
+                  }}
+                  placeholder={lang(
+                    "projects.estimated_roi_placeholder",
+                    "Enter estimated ROI"
+                  )}
+                  error={!!error.estimated_roi}
+                  helperText={error.estimated_roi}
+                />
+              </div>
+              {/* row: expected_revenue */}
+              <div className="col-md-3 mb-3">
+                <TextField
+                  fullWidth
+                  label={lang("projects.expected_revenue", "Expected Revenue")}
+                  name="expected_revenue"
+                  value={formData.expected_revenue || ""}
+                  onChange={handleInputChange}
+                  inputMode="decimal"
+                  placeholder={lang(
+                    "projects.expected_revenue_placeholder",
+                    "Enter expected revenue"
+                  )}
+                  error={!!error.expected_revenue}
+                  helperText={error.expected_revenue}
+                />
+              </div>
+              {/* row: fund_progress */}
+              <div className="col-md-3 mb-3">
+                <TextField
+                  fullWidth
+                  label={lang("projects.fundProgress", "Fund Progress")}
+                  name="fund_progress"
+                  value={formData.fund_progress || ""}
+                  onChange={handleInputChange}
+                  inputMode="decimal"
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">%</InputAdornment>
+                    ),
+                  }}
+                  placeholder={lang(
+                    "projects.fundProgressPlaceholder",
+                    "Enter fund progress (0-100)"
+                  )}
+                  error={!!error.fund_progress}
+                  helperText={error.fund_progress || lang("projects.fundProgressHelp", "Value must be between 0 and 100")}
+                />
+              </div>
             </div>
           </div>
         </div>

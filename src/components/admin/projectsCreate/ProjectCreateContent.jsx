@@ -30,6 +30,7 @@ const ProjectCreateContent = () => {
         product_code: '',
         project_description: '',
         estimated_roi: '',
+        expected_revenue: '',
         project_size: '',
         project_close_date: getNextYearDate(),
         project_location: '',

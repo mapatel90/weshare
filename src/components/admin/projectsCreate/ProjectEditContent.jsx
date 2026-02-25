@@ -55,6 +55,7 @@ const ProjectEditContent = ({ projectId }) => {
         product_code: '',
         project_description: '',
         estimated_roi: '',
+        expected_revenue: '',
         investorProfit: '',
         weshareprofite: '',
         project_image: '',
@@ -289,6 +290,7 @@ const ProjectEditContent = ({ projectId }) => {
                         product_code: p.product_code || '',
                         project_description: p.project_description || '',
                         estimated_roi: p.estimated_roi !== undefined && p.estimated_roi !== null ? String(p.estimated_roi) : '',
+                        expected_revenue: p.expected_revenue !== undefined && p.expected_revenue !== null ? String(p.expected_revenue) : '',
                         investorProfit: p.investor_profit || '',
                         weshareprofite: p.weshare_profit || '',
                         project_image: p.project_image || '',
@@ -374,7 +376,7 @@ const ProjectEditContent = ({ projectId }) => {
                 const numberRegex = /^[0-9]*\.?[0-9]*$/
                 const intRegex = /^\d+$/
                 let isValid = true
-                if (name === 'investorProfit' || name === 'weshareprofite' || name === 'asking_price' || name === 'project_size') {
+                if (name === 'investorProfit' || name === 'weshareprofite' || name === 'asking_price' || name === 'project_size' || name === 'expected_revenue') {
                     isValid = value === '' || numberRegex.test(value)
                 } else if (name === 'lease_term' || name === 'payback_period') {
                     isValid = value === '' || intRegex.test(value)
@@ -504,6 +506,9 @@ const ProjectEditContent = ({ projectId }) => {
         if (formData.estimated_roi && !numberRegex.test(formData.estimated_roi)) {
             errors.estimated_roi = lang('projects.onlynumbers', 'Only numbers are allowed (e.g. 1234.56)')
         }
+        if (formData.expected_revenue && !numberRegex.test(formData.expected_revenue)) {
+            errors.expected_revenue = lang('projects.onlynumbers', 'Only numbers are allowed (e.g. 1234.56)')
+        }
         if (formData.lease_term && !intRegex.test(String(formData.lease_term))) {
             errors.lease_term = lang('projects.onlynumbersWithoutdesimal', 'Only numbers are allowed (e.g. 123456)')
         }
@@ -547,6 +552,7 @@ const ProjectEditContent = ({ projectId }) => {
                 product_code: formData.product_code || '',
                 project_description: formData.project_description || '',
                 estimated_roi: formData.estimated_roi && formData.estimated_roi !== '' ? parseFloat(formData.estimated_roi) : null,
+                expected_revenue: formData.expected_revenue && formData.expected_revenue !== '' ? parseFloat(formData.expected_revenue) : null,
                 investor_profit: formData.investorProfit || '0',
                 weshare_profit: formData.weshareprofite || '0',
                 project_image: formData.project_image || '',

@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { apiUpload } from "@/lib/api";
+import { apiPost, apiPut } from "@/lib/api";
 import { showSuccessToast, showErrorToast } from "@/utils/topTost";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -73,21 +73,21 @@ const ReviewModal = ({ open, onClose, selectedProject, existingReview, onReviewU
 
         try {
             setReviewSubmitting(true);
-            const form = new FormData();
-            form.append("project", selectedProject?.id || "");
-            form.append("user", user?.id || "");
-            form.append("offtaker", user?.id || ""); // For update API compatibility
-            form.append("description", reviewDescription);
-            form.append("review_status", reviewStatus);
-            if (user?.id) form.append("created_by", user.id);
+
+            const payload = {
+                project: selectedProject?.id || "",
+                user: user?.id || "",
+                description: reviewDescription,
+                review_status: reviewStatus,
+            };
 
             let res;
             if (isEditMode) {
                 // Update existing review
-                res = await apiUpload(`/api/testimonials/${existingReview.id}`, form, { method: "PUT" });
+                res = await apiPut(`/api/testimonials/${existingReview.id}`, payload);
             } else {
                 // Create new review
-                res = await apiUpload("/api/testimonials", form);
+                res = await apiPost("/api/testimonials", payload);
             }
 
             if (res?.id || res?.data || res?.success) {

@@ -461,7 +461,7 @@ const ProjectDetails = ({ project_id }) => {
             <>
                 <div
                     className="d-flex justify-content-end gap-2 mb-3"
-                    style={{ position: "relative" }}
+                    style={{ position: "relative", marginTop:'1%' }}
                 >
                     {/* Review Button */}
                     <button
