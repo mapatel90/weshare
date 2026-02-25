@@ -129,7 +129,7 @@ const SolarProjectTable = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState(""); // debounced search for API calls
   const [currentPage, setCurrentPage] = useState(1);
-  const [entriesPerPage, setEntriesPerPage] = useState(5);
+  const [entriesPerPage, setEntriesPerPage] = useState(12);
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
   const [statusFilter, setStatusFilter] = useState("All");
   const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
@@ -679,10 +679,10 @@ const SolarProjectTable = () => {
                     }}
                     className="px-2 py-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-slate-500 focus:border-transparent outline-none"
                   >
-                    <option value={5}>5</option>
-                    <option value={10}>10</option>
-                    <option value={20}>20</option>
-                    <option value={50}>50</option>
+                    <option value={12}>12</option>
+                    <option value={24}>24</option>
+                    <option value={48}>48</option>
+                    <option value={96}>96</option>
                   </select>
                   <span>{lang("common.entries", "entries")}</span>
                   <span className="ml-2">
