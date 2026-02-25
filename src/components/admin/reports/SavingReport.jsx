@@ -399,11 +399,8 @@ const SavingReports = () => {
           <CircularProgress size={60} sx={{ color: '#fff' }} />
         </Box>
       )}
-      <div className="d-flex items-center justify-content-between gap-2 mb-4 mt-4 w-full flex-wrap">
-        <div
-          className="filter-button"
-          style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "nowrap" }}
-        >
+      <div className="d-flex items-start lg:items-center justify-content-between gap-2 mb-4 mt-4 w-full flex-wrap">
+        <div className="filter-button d-flex items-center gap-2 w-full flex-wrap lg:flex-nowrap lg:w-auto">
           {/* Project */}
           <Autocomplete
             size="small"
@@ -425,7 +422,7 @@ const SavingReports = () => {
                 placeholder={lang("reports.allprojects")}
               />
             )}
-            sx={{ minWidth: 260 }}
+            sx={{ width: { xs: "100%", sm: 260 } }}
           />
 
           {/* Group By */}
@@ -456,7 +453,7 @@ const SavingReports = () => {
                 placeholder={lang("common.groupBy", "Group By")}
               />
             )}
-            sx={{ minWidth: 200 }}
+            sx={{ width: { xs: "100%", sm: 200 } }}
           />
 
           {/* Start Date */}
@@ -464,7 +461,7 @@ const SavingReports = () => {
             type="date"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
-            className="theme-btn-blue-color border rounded-md px-3 py-2 me-2 text-sm"
+            className="theme-btn-blue-color border rounded-md px-3 py-2 me-0 lg:me-2 text-sm w-full sm:w-auto"
             style={{ minWidth: 170 }}
           />
 
@@ -474,7 +471,7 @@ const SavingReports = () => {
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
             min={startDate || undefined}
-            className="theme-btn-blue-color border rounded-md px-3 py-2 me-2 text-sm"
+            className="theme-btn-blue-color border rounded-md px-3 py-2 me-0 lg:me-2 text-sm w-full sm:w-auto"
             style={{ minWidth: 170 }}
           />
 
@@ -482,7 +479,7 @@ const SavingReports = () => {
           <button
             onClick={handleSubmit}
             disabled={isSubmitDisabled}
-            className={`theme-btn-blue-color border rounded-md px-5 py-2 text-sm whitespace-nowrap
+            className={`theme-btn-blue-color border rounded-md px-5 py-2 text-sm whitespace-nowrap w-full sm:w-auto
     ${isSubmitDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
           >
             {lang("common.submit")}
@@ -494,7 +491,7 @@ const SavingReports = () => {
         <button
           onClick={downloadCSV}
           disabled={csvLoading}
-          className="common-grey-color border rounded-3 btn"
+          className="common-grey-color border rounded-3 btn w-full sm:w-auto"
         >
           {lang("reports.downloadcsv")}
         </button>

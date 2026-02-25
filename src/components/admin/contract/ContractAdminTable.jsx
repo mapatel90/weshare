@@ -6,7 +6,7 @@ import Table from "@/components/shared/table/Table";
 import { FiEye } from "react-icons/fi";
 import { showErrorToast } from "@/utils/topTost";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Autocomplete, TextField } from "@mui/material";
+import { Autocomplete, Box, TextField } from "@mui/material";
 import { buildUploadUrl } from "@/utils/common";
 
 const ContractAdminTable = () => {
@@ -325,7 +325,22 @@ const ContractAdminTable = () => {
   return (
     <div className="contract-admin-table p-6 bg-white rounded-3xl shadow-md">
       <div className="d-flex items-center justify-content-between gap-2 mb-4 mt-4 w-full">
-        <div className="filter-button" style={{ display: "flex", gap: "1.5%", flexWrap: "nowrap", alignItems: "center" }}>
+        <Box
+          className="filter-button"
+          sx={{
+            display: "grid",
+            width: "100%",
+            gap: 1.5,
+            gridTemplateColumns: {
+              xs: "1fr",
+              sm: "1fr",
+              md: "repeat(2, minmax(220px, 1fr))",
+              lg: "repeat(3, minmax(200px, 1fr))",
+              xl: "repeat(6, minmax(160px, 1fr))",
+            },
+            alignItems: "center",
+          }}
+        >
           <Autocomplete
             size="small"
             options={projectList}
@@ -352,7 +367,7 @@ const ContractAdminTable = () => {
                 placeholder="Search project..."
               />
             )}
-            sx={{ minWidth: 200, flex: "0 0 auto" }}
+            sx={{ width: "100%" }}
           />
 
           <Autocomplete
@@ -388,7 +403,7 @@ const ContractAdminTable = () => {
                 placeholder="Search status..."
               />
             )}
-            sx={{ minWidth: 160, flex: "0 0 auto" }}
+            sx={{ width: "100%" }}
             clearOnEscape
           />
 
@@ -410,7 +425,7 @@ const ContractAdminTable = () => {
                 placeholder="Search offtaker..."
               />
             )}
-            sx={{ minWidth: 180, flex: "0 0 auto" }}
+            sx={{ width: "100%" }}
           />
 
           <Autocomplete
@@ -431,7 +446,7 @@ const ContractAdminTable = () => {
                 placeholder="Search investor..."
               />
             )}
-            sx={{ minWidth: 180, flex: "0 0 auto" }}
+            sx={{ width: "100%" }}
           />
 
           <TextField
@@ -440,7 +455,7 @@ const ContractAdminTable = () => {
             onChange={(e) => setStartDate(e.target.value)}
             size="small"
             InputLabelProps={{ shrink: true }}
-            sx={{ minWidth: 150, flex: "0 0 auto" }}
+            sx={{ width: "100%" }}
           />
 
           <TextField
@@ -450,9 +465,9 @@ const ContractAdminTable = () => {
             inputProps={{ min: startDate || undefined }}
             size="small"
             InputLabelProps={{ shrink: true }}
-            sx={{ minWidth: 150, flex: "0 0 auto" }}
+            sx={{ width: "100%" }}
           />
-        </div>
+        </Box>
       </div>
 
       <div className="overflow-x-auto relative">

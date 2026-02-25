@@ -640,7 +640,7 @@ const PayoutsPage = () => {
         <>
             <div className="p-6 bg-white rounded-3xl shadow-md">
                 <div className="d-flex items-center justify-content-between gap-2 mb-4 mt-4 w-full flex-wrap">
-                    <div style={{ display: "flex", gap: "2%" }}>
+                    <div className="d-flex flex-column flex-md-row align-items-stretch align-items-md-center gap-2 gap-md-3 w-100">
                         <Autocomplete
                             size="small"
                             options={projectList}
@@ -668,14 +668,13 @@ const PayoutsPage = () => {
                                     placeholder="Search project..."
                                 />
                             )}
-                            sx={{ minWidth: 260 }}
+                            sx={{ width: { xs: "100%", md: 260 } }}
                         />
                         <Autocomplete
                             size="small"
-                            fullWidth
                             options={investorList}
                             value={investorFilter}
-                            sx={{ minWidth: 260 }}
+                            sx={{ width: { xs: "100%", md: 260 } }}
                             onChange={(e, newValue) => {
                                 setPageIndex(0);
                                 setInvestorFilter(newValue);   // store full object

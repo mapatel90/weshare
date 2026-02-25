@@ -483,7 +483,7 @@ const ProjectTable = () => {
     <div className="p-6 bg-white shadow-md rounded-3xl">
       {/* Filters */}
       <div className="flex-wrap items-center w-full gap-2 mt-4 mb-4 d-flex justify-content-between">
-        <div className="filter-button" style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+        <div className="filter-button d-flex flex-column flex-md-row align-items-stretch align-items-md-center gap-2 gap-md-3 w-100">
           <Autocomplete
             size="small"
             options={offtakerList}
@@ -500,7 +500,7 @@ const ProjectTable = () => {
                 placeholder={lang("common.selectOfftaker", "Select offtaker...")}
               />
             )}
-            sx={{ minWidth: 260 }}
+            sx={{ width: { xs: "100%", md: 260 } }}
           />
 
           <Autocomplete
@@ -520,7 +520,7 @@ const ProjectTable = () => {
             renderInput={(params) => (
               <TextField {...params} label={lang("projects.allSolisStatus", "All Solis Status")} placeholder={lang("common.selectStatus", "Select status...")} />
             )}
-            sx={{ minWidth: 200 }}
+            sx={{ width: { xs: "100%", md: 200 } }}
           />
 
           <Autocomplete
@@ -534,7 +534,7 @@ const ProjectTable = () => {
               <TextField {...params} label={lang("invoice.allStatus", "All Status")} placeholder={lang("common.selectStatus", "Select status...")} />
             )}
             disabled={loadingStatuses}
-            sx={{ minWidth: 260 }}
+            sx={{ width: { xs: "100%", md: 260 } }}
           />
         </div>
       </div>

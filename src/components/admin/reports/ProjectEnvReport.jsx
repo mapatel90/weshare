@@ -309,11 +309,8 @@ const ProjectEnvReport = () => {
                 </Box>
             )}
             <div className="p-6 bg-white rounded-3xl shadow-md">
-                <div className="d-flex items-center justify-content-between gap-2 mb-4 mt-4 w-full flex-wrap">
-                    <div
-                        className="filter-button"
-                        style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "nowrap" }}
-                    >
+                <div className="d-flex items-start lg:items-center justify-content-between gap-2 mb-4 mt-4 w-full flex-wrap">
+                    <div className="filter-button d-flex items-center gap-2 w-full flex-wrap lg:flex-nowrap lg:w-auto">
                         <Autocomplete
                             size="small"
                             options={projects}
@@ -332,14 +329,14 @@ const ProjectEnvReport = () => {
                                     placeholder={lang("dashboard.all_project", "All Projects")}
                                 />
                             )}
-                            sx={{ minWidth: 260, mr: 2 }}
+                            sx={{ width: { xs: "100%", sm: 260 }, mr: { xs: 0, lg: 2 } }}
                         />
 
                         <input
                             type="date"
                             value={startDate}
                             onChange={(e) => setStartDate(e.target.value)}
-                            className="theme-btn-blue-color border rounded-md px-3 py-2 me-2 text-sm"
+                            className="theme-btn-blue-color border rounded-md px-3 py-2 me-0 lg:me-2 text-sm w-full sm:w-auto"
                             placeholder={lang("common.startDate") || "Start Date"}
                             style={{ minWidth: 170 }}
                         />
@@ -349,14 +346,14 @@ const ProjectEnvReport = () => {
                             value={endDate}
                             onChange={(e) => setEndDate(e.target.value)}
                             min={startDate || undefined}
-                            className="theme-btn-blue-color border rounded-md px-3 py-2 me-2 text-sm"
+                            className="theme-btn-blue-color border rounded-md px-3 py-2 me-0 lg:me-2 text-sm w-full sm:w-auto"
                             placeholder={lang("common.endDate") || "End Date"}
                             style={{ minWidth: 170 }}
                         />
                         <button
                             onClick={handleSubmit}
                             disabled={isSubmitDisabled}
-                            className={`theme-btn-blue-color border rounded-md px-4 py-2 text-sm ${isSubmitDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
+                            className={`theme-btn-blue-color border rounded-md px-4 py-2 text-sm w-full sm:w-auto ${isSubmitDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
                         >
                             {lang("common.submit")}
                         </button>
@@ -364,8 +361,8 @@ const ProjectEnvReport = () => {
                     <button
                         onClick={downloadCSV}
                         disabled={loading || !hasLoadedOnce}
-                        className="theme-btn-blue-color border rounded-md px-3 me-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
-                        style={{ display: "inline", float: "right" }}
+                        className="theme-btn-blue-color border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 w-full sm:w-auto"
+                        style={{ display: "inline" }}
                     >
                         {lang("reports.downloadcsv")}
                     </button>

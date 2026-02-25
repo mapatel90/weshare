@@ -421,16 +421,8 @@ const InverterEvnReport = () => {
         </Box>
       )}
       <div className="p-6 bg-white rounded-3xl shadow-md">
-        <div className="d-flex items-center justify-content-between gap-2 mb-4 mt-4 w-full flex-wrap">
-          <div
-            className="filter-button"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "12px",
-              flexWrap: "nowrap",
-            }}
-          >
+        <div className="d-flex items-start lg:items-center justify-content-between gap-2 mb-4 mt-4 w-full flex-wrap">
+          <div className="filter-button d-flex items-center gap-2 w-full flex-wrap lg:flex-nowrap lg:w-auto">
             <Autocomplete
               size="small"
               options={projectList}
@@ -460,7 +452,7 @@ const InverterEvnReport = () => {
                   placeholder={lang("reports.allprojects")}
                 />
               )}
-              sx={{ minWidth: 260, mr: 2 }}
+              sx={{ width: { xs: "100%", sm: 260 }, mr: { xs: 0, lg: 2 } }}
             />
 
             <Autocomplete
@@ -485,7 +477,7 @@ const InverterEvnReport = () => {
                   placeholder={lang("reports.allinverters")}
                 />
               )}
-              sx={{ minWidth: 260, mr: 2 }}
+              sx={{ width: { xs: "100%", sm: 260 }, mr: { xs: 0, lg: 2 } }}
               disabled={!projectFilter}
             />
 
@@ -493,7 +485,7 @@ const InverterEvnReport = () => {
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="theme-btn-blue-color border rounded-md px-3 py-2 me-2 text-sm"
+              className="theme-btn-blue-color border rounded-md px-3 py-2 me-0 lg:me-2 text-sm w-full sm:w-auto"
               placeholder={lang("common.startDate") || "Start Date"}
               style={{ minWidth: 170 }}
             />
@@ -503,7 +495,7 @@ const InverterEvnReport = () => {
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
               min={startDate || undefined}
-              className="theme-btn-blue-color border rounded-md px-3 py-2 me-2 text-sm"
+              className="theme-btn-blue-color border rounded-md px-3 py-2 me-0 lg:me-2 text-sm w-full sm:w-auto"
               placeholder={lang("common.endDate") || "End Date"}
               style={{ minWidth: 170 }}
             />
@@ -511,7 +503,7 @@ const InverterEvnReport = () => {
             <button
               onClick={handleSubmit}
               disabled={isSubmitDisabled}
-              className={`theme-btn-blue-color border rounded-md px-4 py-2 text-sm ${
+              className={`theme-btn-blue-color border rounded-md px-4 py-2 text-sm w-full sm:w-auto ${
                 isSubmitDisabled ? "opacity-50 cursor-not-allowed" : ""
               }`}
             >
@@ -521,7 +513,7 @@ const InverterEvnReport = () => {
 
           <button
             onClick={handleDownloadCSV}
-            className="common-grey-color border rounded-3 btn"
+            className="common-grey-color border rounded-3 btn w-full sm:w-auto"
           >
             {lang("reports.downloadcsv")}
           </button>

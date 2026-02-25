@@ -7,10 +7,8 @@ const page = () => {
     usePageTitle('projects.projecttype');
     return (
         <>
-            <div className='main-content'>
-                <div className='row'>
-                    <ProjectTypePage />
-                </div>
+            <div className='row'>
+                <ProjectTypePage />
             </div>
         </>
     )

@@ -438,7 +438,7 @@ const InvoiceTable = () => {
   return (
     <div className="p-6 bg-white shadow-md rounded-3xl">
       <div className="flex-wrap items-center w-full gap-2 mt-4 mb-4 d-flex justify-content-between">
-        <div className="filter-button" style={{ display: "flex", gap: "2%" }}>
+        <div className="filter-button d-flex flex-column flex-md-row align-items-stretch align-items-md-center gap-2 gap-md-3 w-100">
           <Autocomplete
             size="small"
             options={projectList}
@@ -466,12 +466,11 @@ const InvoiceTable = () => {
                 placeholder="Search project..."
               />
             )}
-            sx={{ minWidth: 260 }}
+            sx={{ width: { xs: "100%", md: 260 } }}
           />
 
           <Autocomplete
             size="small"
-            fullWidth
             options={offtakerList}
             value={
               offtakerList.find((o) => o.id === offtakerFilter) || null
@@ -489,7 +488,7 @@ const InvoiceTable = () => {
                 placeholder="Search offtaker..."
               />
             )}
-            sx={{ minWidth: 260 }}
+            sx={{ width: { xs: "100%", md: 260 } }}
           />
         </div>
       </div>

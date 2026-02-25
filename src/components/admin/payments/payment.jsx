@@ -393,7 +393,7 @@ const PaymentsPage = () => {
         <div className="row">
           <div className="p-6 bg-white rounded-3xl shadow-md">
             <div className="d-flex items-center justify-content-between gap-2 mb-4 mt-4 w-full flex-wrap">
-              <div className="filter-button" style={{ display: "flex", gap: "2%" }}>
+              <div className="filter-button d-flex flex-column flex-md-row align-items-stretch align-items-md-center gap-2 gap-md-3 w-100">
                 <Autocomplete
                   size="small"
                   options={projectList}
@@ -421,7 +421,7 @@ const PaymentsPage = () => {
                       placeholder="Search project..."
                     />
                   )}
-                  sx={{ minWidth: 260 }}
+                  sx={{ width: { xs: "100%", md: 260 } }}
                 />
 
                 <Autocomplete
@@ -450,7 +450,7 @@ const PaymentsPage = () => {
                       placeholder="Search status..."
                     />
                   )}
-                  sx={{ minWidth: 200 }}
+                  sx={{ width: { xs: "100%", md: 200 } }}
                   clearOnEscape
                 />
 
@@ -460,7 +460,7 @@ const PaymentsPage = () => {
                   onChange={(e) => setPaymentDateFilter(e.target.value)}
                   size="small"
                   InputLabelProps={{ shrink: true }}
-                  sx={{ minWidth: 180 }}
+                  sx={{ width: { xs: "100%", md: 180 } }}
                 />
               </div>
             </div>
