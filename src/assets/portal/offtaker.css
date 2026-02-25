@@ -7,6 +7,33 @@
   font-size: 1rem;
 }
 
+
+@media (max-width: 768px) {
+  .header-wrapper {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .header-left {
+    flex-wrap: wrap;
+  }
+
+  .header-title {
+    font-size: 18px;
+  }
+
+  .breadcrumb-offtaker {
+    flex-wrap: wrap;
+    row-gap: 4px;
+  }
+
+  .header-right {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
+
 @media (max-width: 600px) {
   .notification-thead th {
     font-size: 0.85rem;
@@ -1042,6 +1069,33 @@ td {
   padding: 30px;
   color: #9ca3af;
   font-size: 13px;
+}
+
+/* Mobile adjustments for page header title and breadcrumb */
+@media (max-width: 768px) {
+  .header-wrapper {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .header-left {
+    flex-wrap: wrap;
+  }
+
+  .header-title {
+    font-size: 18px;
+  }
+
+  .breadcrumb-offtaker {
+    flex-wrap: wrap;
+    row-gap: 4px;
+  }
+
+  .header-right {
+    width: 100%;
+    justify-content: flex-end;
+  }
 }
 
 /* Overlay for mobile */

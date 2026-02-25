@@ -6,10 +6,11 @@ import Link from "next/link";
 import AOS from "aos";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { apiGet } from "@/lib/api";
-import { buildUploadUrl, formatEnergyUnit, getFullImageUrl } from "@/utils/common";
+import { buildUploadUrl, formatCurrency, formatEnergyUnit, getFullImageUrl } from "@/utils/common";
 import { useRouter } from "next/navigation";
 import { getPrimaryProjectImage } from "@/utils/projectUtils";
 import { PROJECT_STATUS } from "@/constants/project_status";
+import { useFormatPrice } from "@/hooks/useFormatPrice";
 
 const ProjectsSection = () => {
   const [activeTab, setActiveTab] = useState("open");
@@ -17,6 +18,7 @@ const ProjectsSection = () => {
   const [loading, setLoading] = useState(true);
   const { lang } = useLanguage();
   const router = useRouter();
+  const formatPrice = useFormatPrice();
 
   const formatNumber = (num) => {
     if (!num) return "0";
@@ -169,7 +171,7 @@ const ProjectsSection = () => {
                           </div>
                           <div className="w-45 caterogy-items items-2">
                             <h6 className="mb-0 fw-600 text-title secondaryTextColor">
-                              {project.investor_profit || "0"}%
+                              {activeTab === "open" ? project.estimated_roi : project.calculated_roi || "0"}%
                             </h6>
                             <small className="text-muted">
                               {lang("home.projects.roi")}
@@ -182,7 +184,7 @@ const ProjectsSection = () => {
                             {lang("home.projects.expectedRevenue")}
                           </p>
                           <span className="fw-600 text-secondary-color">
-                            {project.asking_price ? `${formatEnergyUnit(project.asking_price)}` : "0"}
+                            {project.cumulative_revenue ? `${formatPrice(project.cumulative_revenue)}` : "0"}
                           </span>
                         </div>
 
