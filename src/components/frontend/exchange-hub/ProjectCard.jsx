@@ -10,6 +10,7 @@ import {
   convertEnergyToKwh,
   formatEnergyUnit,
   formatShort,
+  getDuration,
   getFullImageUrl,
   getTimeLeft,
 } from "@/utils/common";
@@ -34,7 +35,7 @@ const ProjectCard = ({ project, activeTab }) => {
 
   // Use calculated_roi from API response (already calculated in projects list endpoint)
   const calculatedRoi = project?.calculated_roi || "0";
-  
+
   // Safety check
   if (!project) {
     console.error("ProjectCard: No project data provided");
@@ -288,11 +289,10 @@ const ProjectCard = ({ project, activeTab }) => {
               <div className="detail-divider"></div>
               <div className="detail-item">
                 <span className="label">
-                  {lang("home.exchangeHub.leaseTerm")+" "+lang("home.exchangeHub.extendable") || "Extendable"}
+                  {lang("home.exchangeHub.leaseTerm") + " " + lang("home.exchangeHub.extendable") || "Extendable"}
                 </span>
                 <span className="value">
-                  {project?.lease_term || "15"}{" "}
-                  {lang("home.exchangeHub.years") || "years"}
+                  {project.project_status_id === PROJECT_STATUS.UPCOMING ? project.lease_term + " " + lang("home.exchangeHub.years") || "Years" : getDuration(project?.project_start_date, project?.project_close_date)}
                 </span>
               </div>
             </div>
@@ -303,7 +303,7 @@ const ProjectCard = ({ project, activeTab }) => {
                 <span className="progress-label">
                   {lang("home.exchangeHub.fundProgress") || "Fund Progress"}:{" "}
                   <strong className="text-secondary-color">
-             
+
                     {project?.fund_progress || "45"}%
                   </strong>
                 </span>
@@ -460,7 +460,7 @@ const ProjectCard = ({ project, activeTab }) => {
               {formatEnergyUnit(project.total_energy)}
             </h4>
             <p>
-              {lang("home.exchangeHub.accumulativeGeneration") ||"Accumulative"}
+              {lang("home.exchangeHub.accumulativeGeneration") || "Accumulative"}
             </p>
           </div>
           <div className="stat">
@@ -490,7 +490,7 @@ const ProjectCard = ({ project, activeTab }) => {
             </span>
             <span className="fw-500 text-black">
               {formatShort(
-                project?.cumulative_revenue 
+                project?.cumulative_revenue
                   ? parseFloat(project.cumulative_revenue)
                   : 0
               )}
