@@ -136,6 +136,9 @@ const ProjectViewContent = ({ projectId = "" }) => {
     };
     loadProjectInverters();
   }, [projectId]);
+  
+
+
 
   // ------------------- Load Latest Inverter Data for this project (default) -------------------
   useEffect(() => {

@@ -262,6 +262,7 @@ function DashboardView() {
 
   const capitalRecoveryForScope = useMemo(() => {
     if (selectedProject?.id && capitalRecoveryForSelectedProject !== null) {
+      console.log("capitalRecoveryForSelectedProject", capitalRecoveryForSelectedProject);
       return capitalRecoveryForSelectedProject;
     }
     return capitalRecoveryForAllProjects;
