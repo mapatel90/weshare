@@ -56,15 +56,11 @@ const ExchangeHub = () => {
 
   useEffect(() => {
     fetchProjects(1, true)
-  }, [activeTab])
+  }, [activeTab, searchQuery, filters, sortBy])
 
   useEffect(() => {
     fetchActiveInvestorsCount()
   }, [])
-
-  useEffect(() => {
-    applyFiltersAndSearch()
-  }, [searchQuery, filters, sortBy, allProjects])
 
   // Refresh AOS when projects change
   useEffect(() => {
@@ -73,10 +69,33 @@ const ExchangeHub = () => {
     }
   }, [projects])
 
+  const getStatusByTab = (tab) => {
+    return tab === 'resale' ? PROJECT_STATUS.RUNNING : PROJECT_STATUS.UPCOMING
+  }
+
   const fetchProjects = async (pageNum = 1, reset = false) => {
     try {
       setLoading(true)
-      const response = await apiGet(`/api/projects?page=${pageNum}&limit=50&project_status_id=${PROJECT_STATUS.UPCOMING},${PROJECT_STATUS.RUNNING}`, { showLoader: false })
+      const params = new URLSearchParams()
+      params.append('page', String(pageNum))
+      params.append('limit', '50')
+      params.append('project_status_id', String(getStatusByTab(activeTab)))
+
+      const trimmedSearch = (searchQuery || '').trim()
+      if (trimmedSearch) {
+        params.append('search', trimmedSearch)
+      }
+
+      if (filters.minROI) params.append('min_roi', filters.minROI)
+      if (filters.maxROI) params.append('max_roi', filters.maxROI)
+      if (filters.minPrice) params.append('min_price', filters.minPrice)
+      if (filters.maxPrice) params.append('max_price', filters.maxPrice)
+      if (filters.minCapacity) params.append('min_capacity', filters.minCapacity)
+      if (filters.maxCapacity) params.append('max_capacity', filters.maxCapacity)
+
+      if (sortBy) params.append('sort_by', sortBy)
+
+      const response = await apiGet(`/api/projects?${params.toString()}`, { showLoader: false })
 
       if (response?.success) {
         // API now returns data in "data" (array) plus projectList/offtakerList helpers
@@ -90,8 +109,13 @@ const ExchangeHub = () => {
 
         if (reset) {
           setAllProjects(projectsPayload)
+          setProjects(projectsPayload)
         } else {
-          setAllProjects((prev) => [...prev, ...projectsPayload])
+          setAllProjects((prev) => {
+            const merged = [...prev, ...projectsPayload]
+            setProjects(merged)
+            return merged
+          })
         }
 
         const total = response?.data?.pagination?.total ?? response?.pagination?.total
@@ -102,9 +126,22 @@ const ExchangeHub = () => {
 
         setHasMore(computedHasMore)
         setPage(pageNum)
+      } else {
+        if (reset) {
+          setAllProjects([])
+          setProjects([])
+          setPage(1)
+        }
+        setHasMore(false)
       }
     } catch (error) {
       console.error('Error fetching projects:', error)
+      if (reset) {
+        setAllProjects([])
+        setProjects([])
+        setPage(1)
+      }
+      setHasMore(false)
     } finally {
       setLoading(false)
     }
@@ -119,62 +156,6 @@ const ExchangeHub = () => {
       console.error('Error fetching active investors count:', error)
       setActiveInvestorsCount(0)
     }
-  }
-
-  const applyFiltersAndSearch = () => {
-    let filtered = [...allProjects]
-
-    // Search filter
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase()
-      filtered = filtered.filter(project =>
-        project.project_name?.toLowerCase().includes(query) ||
-        project.project_code?.toLowerCase().includes(query) ||
-        project.city?.name?.toLowerCase().includes(query) ||
-        project.state?.name?.toLowerCase().includes(query) ||
-        project.offtaker?.company_name?.toLowerCase().includes(query)
-      )
-    }
-
-    // ROI filter
-    if (filters.minROI) {
-      filtered = filtered.filter(p => parseFloat(p.calculated_roi || 0) >= parseFloat(filters.minROI))
-    }
-    if (filters.maxROI) {
-      filtered = filtered.filter(p => parseFloat(p.calculated_roi || 0) <= parseFloat(filters.maxROI))
-    }
-
-    // Price filter
-    if (filters.minPrice) {
-      filtered = filtered.filter(p => parseFloat(p.asking_price || 0) >= parseFloat(filters.minPrice))
-    }
-    if (filters.maxPrice) {
-      filtered = filtered.filter(p => parseFloat(p.asking_price || 0) <= parseFloat(filters.maxPrice))
-    }
-
-    // Capacity filter
-    if (filters.minCapacity) {
-      filtered = filtered.filter(p => parseFloat(p.project_size || 0) >= parseFloat(filters.minCapacity))
-    }
-    if (filters.maxCapacity) {
-      filtered = filtered.filter(p => parseFloat(p.project_size || 0) <= parseFloat(filters.maxCapacity))
-    }
-    // Sorting
-    if (sortBy === 'roi-high') {
-      filtered.sort((a, b) => parseFloat(b.calculated_roi || 0) - parseFloat(a.calculated_roi || 0))
-    } else if (sortBy === 'roi-low') {
-      filtered.sort((a, b) => parseFloat(a.calculated_roi || 0) - parseFloat(b.calculated_roi || 0))
-    } else if (sortBy === 'price-low') {
-      filtered.sort((a, b) => parseFloat(a.asking_price || 0) - parseFloat(b.asking_price || 0))
-    } else if (sortBy === 'price-high') {
-      filtered.sort((a, b) => parseFloat(b.asking_price || 0) - parseFloat(a.asking_price || 0))
-    } else if (sortBy === 'capacity-high') {
-      filtered.sort((a, b) => parseFloat(b.project_size || 0) - parseFloat(a.project_size || 0))
-    } else if (sortBy === 'capacity-low') {
-      filtered.sort((a, b) => parseFloat(a.project_size || 0) - parseFloat(b.project_size || 0))
-    }
-
-    setProjects(filtered)
   }
 
   const handleFilterChange = (field, value) => {
@@ -192,6 +173,7 @@ const ExchangeHub = () => {
     })
     setSearchQuery('')
     setSortBy('roi-high')
+    setPage(1)
   }
 
   const loadMore = () => {
@@ -279,7 +261,7 @@ const ExchangeHub = () => {
                     </div>
                   </div>
                   <div className="col-md-4">
-                    <label className="form-label small fw-600">{lang('home.exchangeHub.capacityRange')}</label>
+                    <label className="form-label small fw-600">{lang('home.exchangeHub.installCapacity')} (kWp)</label>
                     <div className="d-flex gap-2">
                       <input type="number" className="form-control form-control-sm" placeholder={lang('home.exchangeHub.min')} value={filters.minCapacity} onChange={(e) => handleFilterChange('minCapacity', e.target.value)} />
                       <input type="number" className="form-control form-control-sm" placeholder={lang('home.exchangeHub.max')} value={filters.maxCapacity} onChange={(e) => handleFilterChange('maxCapacity', e.target.value)} />

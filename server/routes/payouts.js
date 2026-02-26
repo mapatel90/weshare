@@ -38,8 +38,21 @@ router.get('/', authenticateToken, async (req, res) => {
         // Build project condition
         const projectCondition = projectId ? { invoices: { project_id: parseInt(projectId) } } : {};
 
-        // Build status condition
-        const statusCondition = status !== '' ? { status: parseInt(status) } : {};
+        // Build status condition (DB stores string status)
+        let statusCondition = {};
+        if (status !== '') {
+            const normalizedStatus = String(status).trim().toLowerCase();
+            const statusMap = {
+                pending: PAYOUT_STATUS.PENDING,
+                payout: PAYOUT_STATUS.PAYOUT,
+                cancelled: PAYOUT_STATUS.CANCELLED,
+            };
+
+            const mappedStatus = statusMap[normalizedStatus];
+            if (mappedStatus) {
+                statusCondition = { status: mappedStatus };
+            }
+        }
 
         // Build investor condition
         const investorCondition = investorId !== "" ? { investor_id: parseInt(investorId) } : {};

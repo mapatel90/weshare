@@ -609,7 +609,7 @@ const ProjectDetail = ({ projectId }) => {
                   </div>
                   <div>
                     <p>
-                    {project.project_status_id === PROJECT_STATUS.UPCOMING ? lang("home.exchangeHub.askingPrice") : lang("home.exchangeHub.totalInvestedPrice") || "Asking Price"}:
+                      {project.project_status_id === PROJECT_STATUS.UPCOMING ? lang("home.exchangeHub.askingPrice") : lang("home.exchangeHub.totalInvestedPrice") || "Asking Price"}:
                     </p>
                     <h4>
                       {formatPrice(project.asking_price || "0")}

@@ -22,6 +22,7 @@ const InvoiceTable = () => {
   // Filter and pagination states
   const [projectFilter, setProjectFilter] = useState("");
   const [offtakerFilter, setOfftakerFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(10);
@@ -53,6 +54,10 @@ const InvoiceTable = () => {
 
       if (offtakerFilter) {
         params.append("offtaker_id", offtakerFilter);
+      }
+
+      if (statusFilter !== "") {
+        params.append("status", statusFilter);
       }
 
       if (searchTerm) {
@@ -142,11 +147,11 @@ const InvoiceTable = () => {
 
   useEffect(() => {
     fetchInvoices();
-  }, [projectFilter, offtakerFilter, searchTerm, pageIndex, pageSize]);
+  }, [projectFilter, offtakerFilter, statusFilter, searchTerm, pageIndex, pageSize]);
 
   useEffect(() => {
     setPageIndex(0);
-  }, [projectFilter, offtakerFilter, searchTerm]);
+  }, [projectFilter, offtakerFilter, statusFilter, searchTerm]);
 
   const handleSearchChange = (value) => {
     setPageIndex(0);
@@ -489,6 +494,36 @@ const InvoiceTable = () => {
               />
             )}
             sx={{ width: { xs: "100%", md: 260 } }}
+          />
+
+          <Autocomplete
+            size="small"
+            options={[
+              { value: "1", label: lang("invoice.paid", "Paid") },
+              { value: "0", label: lang("common.pending", "Pending") },
+            ]}
+            value={
+              statusFilter === ""
+                ? null
+                : statusFilter === "1"
+                  ? { value: "1", label: lang("invoice.paid", "Paid") }
+                  : { value: "0", label: lang("common.pending", "Pending") }
+            }
+            onChange={(e, newValue) => {
+              setPageIndex(0);
+              setStatusFilter(newValue?.value || "");
+            }}
+            getOptionLabel={(option) => option?.label || ""}
+            isOptionEqualToValue={(option, value) => option?.value === value?.value}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label={lang("payments.status", "Status")}
+                placeholder="Search status..."
+              />
+            )}
+            sx={{ width: { xs: "100%", md: 200 } }}
+            clearOnEscape
           />
         </div>
       </div>

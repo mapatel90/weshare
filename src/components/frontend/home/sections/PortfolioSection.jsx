@@ -121,7 +121,7 @@ const PortfolioSection = () => {
                 <div>
                   {loading ? (
                     <h3 className="mb-0 placeholder-glow">
-                      <span className="placeholder col-6"></span>
+                      0
                     </h3>
                   ) : (
                     <h3 className="mb-0">{stat.value}</h3>

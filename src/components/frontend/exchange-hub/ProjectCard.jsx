@@ -19,7 +19,7 @@ import { apiPost } from "@/lib/api";
 import { showSuccessToast } from "@/utils/topTost";
 import { ROLES } from "@/constants/roles";
 
-const ProjectCard = ({ project, activeTab }) => {
+const ProjectCard = ({ project, activeTab, isHome = false }) => {
   const { lang } = useLanguage();
   const router = useRouter();
   const { user, logout, loading: authLoading } = useAuth();
@@ -79,6 +79,12 @@ const ProjectCard = ({ project, activeTab }) => {
   };
 
   const badge = getReliabilityBadge();
+  const leaseColClass = isHome
+    ? "col-12 col-md-6 col-lg-4 mb-3"
+    : "col-12 col-md-12 col-lg-6 mb-3";
+  const resaleColClass = isHome
+    ? "col-12 col-md-6 col-lg-4 mb-4"
+    : "col-12 col-md-12 col-lg-6 mb-4";
 
   // Format numbers
   // const formatNumber = (num) => {
@@ -169,7 +175,7 @@ const ProjectCard = ({ project, activeTab }) => {
     // LEASE CARD - With Image (Figma Style)
     return (
       <div
-        className="col-12 col-md-12 col-lg-6 mb-3"
+        className={leaseColClass}
         data-aos="fade-up"
         data-aos-easing="linear"
         data-aos-duration="1000"
@@ -400,7 +406,7 @@ const ProjectCard = ({ project, activeTab }) => {
   // RESALE CARD - Without Image (Original Design)
   return (
     <div
-      className="col-12 col-md-12 col-lg-6 mb-4"
+      className={resaleColClass}
       data-aos="fade-up"
       data-aos-easing="linear"
       data-aos-duration="1000"
