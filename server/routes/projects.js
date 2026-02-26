@@ -1178,7 +1178,9 @@ router.put("/:id", authenticateToken, async (req, res) => {
       investor_profit = "0",
       weshare_profit = "0",
       project_size,
+      project_start_date,
       project_close_date,
+      project_expire_date,
       project_location,
       weshare_price_kwh,
       evn_price_kwh,
@@ -1259,10 +1261,16 @@ router.put("/:id", authenticateToken, async (req, res) => {
       ...(investor_profit !== undefined && { investor_profit }),
       ...(weshare_profit !== undefined && { weshare_profit }),
       ...(project_size !== undefined && { project_size: project_size || "" }),
+      ...(project_start_date !== undefined && {
+        project_start_date: project_start_date ? new Date(project_start_date) : null,
+      }),
       ...(project_close_date !== undefined && {
         project_close_date: project_close_date
           ? new Date(project_close_date)
           : null,
+      }),
+      ...(project_expire_date !== undefined && {
+        project_expire_date: project_expire_date ? new Date(project_expire_date) : null,
       }),
       ...(project_location !== undefined && {
         project_location: project_location || "",

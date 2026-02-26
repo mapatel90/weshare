@@ -603,7 +603,7 @@ const ProjectDetail = ({ projectId }) => {
                       :
                     </p>
                     <h4>
-                      {getDuration(project?.project_start_date, project?.project_close_date)}
+                      {project.project_status_id === PROJECT_STATUS.UPCOMING ? project.lease_term + " " + lang("home.exchangeHub.years") || "Years" : getDuration(project?.project_start_date, project?.project_close_date)}
                     </h4>
                   </div>
                   <div>
