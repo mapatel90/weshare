@@ -97,6 +97,7 @@ const ProjectViewContent = ({ projectId = "" }) => {
       try {
         setLoading(true);
         const res = await apiGet(`/api/projects/${projectId}`);
+        console.log("res.data::", res.data);
         if (res?.success) setProject(res.data);
       } finally {
         setLoading(false);
@@ -136,6 +137,9 @@ const ProjectViewContent = ({ projectId = "" }) => {
     };
     loadProjectInverters();
   }, [projectId]);
+  
+
+
 
   // ------------------- Load Latest Inverter Data for this project (default) -------------------
   useEffect(() => {

@@ -60,7 +60,7 @@ const CircularProgress = ({
   lang,
 }) => {
   const safePercentage = Number.isFinite(Number(percentage))
-    ? Math.max(0, Math.min(200, Number(percentage)))
+    ? Math.max(0, Math.min(100, Number(percentage)))
     : 0;
 
   const radius = (size - strokeWidth) / 2;

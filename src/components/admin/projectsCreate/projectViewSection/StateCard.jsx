@@ -268,16 +268,13 @@ const StatCardsGrid = ({
   const totalRevenue = calculateRevenue(totalEnergy, pricePerKwh)
 
   /* -------- CAPITAL RECOVERY -------- */
-  const projectTotalEnergy = project?.project_data?.[0]?.total_energy ?? null
-  const project_total_revenue = calculateRevenue(projectTotalEnergy, pricePerKwh)
-
-
+  const capitalRecovery = project?.capital_recovery ?? null
   let capitalRecoveredPercent = 0
-
-  if (askingPrice > 0 && project_total_revenue > 0) {
-    capitalRecoveredPercent = Math.min(
-      100,
-      Math.round((project_total_revenue  * 100) / askingPrice)
+  if (askingPrice > 0 && capitalRecovery > 0) {
+    capitalRecoveredPercent = Math.max(
+      0,
+      capitalRecovery
+      // Math.round(capitalRecovery)
     )
   }
   /* -------------------- RENDER -------------------- */
