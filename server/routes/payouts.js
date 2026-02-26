@@ -39,7 +39,7 @@ router.get('/', authenticateToken, async (req, res) => {
         const projectCondition = projectId ? { invoices: { project_id: parseInt(projectId) } } : {};
 
         // Build status condition
-        const statusCondition = status !== '' ? { status: parseInt(status) } : {};
+        const statusCondition = status !== '' ? { status } : {};
 
         // Build investor condition
         const investorCondition = investorId !== "" ? { investor_id: parseInt(investorId) } : {};

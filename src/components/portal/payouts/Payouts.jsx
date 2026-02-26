@@ -24,6 +24,7 @@ const PayoutsPage = () => {
     const { user } = useAuth();
     const [projectList, setProjectList] = useState([]);
     const [projectFilter, setProjectFilter] = useState("");
+    const [statusFilter, setStatusFilter] = useState("");
     const [documentPreview, setDocumentPreview] = useState(null);
     const [payouts, setPayouts] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -60,6 +61,10 @@ const PayoutsPage = () => {
 
             if (projectFilter) {
                 params.append("projectId", projectFilter);
+            }
+
+            if (statusFilter) {
+                params.append("status", statusFilter);
             }
 
             if (searchTerm) {
@@ -113,7 +118,7 @@ const PayoutsPage = () => {
 
     useEffect(() => {
         fetchPayouts();
-    }, [projectFilter, searchTerm, pageIndex, pageSize]);
+    }, [projectFilter, statusFilter, searchTerm, pageIndex, pageSize]);
 
 
     useEffect(() => {
@@ -360,7 +365,7 @@ const PayoutsPage = () => {
     return (
         <>
             <div className="p-6 bg-white rounded-3xl shadow-md">
-                <div className="d-flex items-center justify-content-between gap-2 mb-4 mt-4 w-full flex-wrap">
+                <div className="d-flex items-center justify-content-start gap-2 mb-4 mt-4 w-full flex-wrap">
                     <div style={{ display: "flex", gap: "2%" }}>
                         <Autocomplete
                             size="small"
@@ -391,6 +396,36 @@ const PayoutsPage = () => {
                             )}
                             sx={{ minWidth: 260 }}
                         />
+                    </div>
+                    <div style={{ minWidth: 220 }}>
+                        <TextField
+                            select
+                            fullWidth
+                            size="small"
+                            label={lang("invoice.status", "Status")}
+                            value={statusFilter}
+                            onChange={(e) => {
+                                setPageIndex(0);
+                                setStatusFilter(e.target.value);
+                            }}
+                            SelectProps={{
+                                native: true,
+                            }}
+                            InputLabelProps={{ shrink: true }}
+                        >
+                            <option value="">
+                                {lang("common.all", "All Status")}
+                            </option>
+                            <option value={PAYOUT_STATUS.PENDING}>
+                                {lang("common.pending", "Pending")}
+                            </option>
+                            <option value={PAYOUT_STATUS.PAYOUT}>
+                                {lang("payouts.payouts", "Paid")}
+                            </option>
+                            <option value={PAYOUT_STATUS.CANCELLED}>
+                                {lang("common.cancelled", "Cancelled")}
+                            </option>
+                        </TextField>
                     </div>
                 </div>
                 <div className="overflow-x-auto relative">
