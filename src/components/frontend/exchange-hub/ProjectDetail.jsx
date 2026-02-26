@@ -9,7 +9,7 @@ import ProjectOverviewChart from "../../admin/projectsCreate/projectViewSection/
 import AOS from "aos";
 import "aos/dist/aos.css";
 import "./styles/exchange-hub-custom.css";
-import { buildUploadUrl, convertEnergyToKwh, formatEnergyUnit, getDuration, getFullImageUrl } from "@/utils/common";
+import { buildUploadUrl, convertEnergyToKwh, formatEnergyUnit, getDuration, getFullImageUrl, getRemainingDuration, getTimeLeft } from "@/utils/common";
 import { getPrimaryProjectImage } from "@/utils/projectUtils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
@@ -603,7 +603,7 @@ const ProjectDetail = ({ projectId }) => {
                       :
                     </p>
                     <h4>
-                      {project.project_status_id === PROJECT_STATUS.UPCOMING ? project.lease_term + " " + lang("home.exchangeHub.years") || "Years" : getDuration(project?.project_start_date, project?.project_close_date)}
+                      {project.project_status_id === PROJECT_STATUS.UPCOMING ? project.lease_term + " " + lang("home.exchangeHub.years") || "Years" : getTimeLeft(project?.project_close_date)}
                     </h4>
                   </div>
                   <div>
