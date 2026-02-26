@@ -170,7 +170,7 @@ const StatCard = ({
   )
 }
 
-const CircularProgress = ({ percentage = 0, size = 100, strokeWidth = 12, isDark }) => {
+const CircularProgress = ({ percentage = 0, size = 120, strokeWidth = 12, isDark }) => {
   const radius = (size - strokeWidth) / 2
   const circumference = 2 * Math.PI * radius
   const offset = circumference - (percentage / 100) * circumference
@@ -210,11 +210,11 @@ const CircularProgress = ({ percentage = 0, size = 100, strokeWidth = 12, isDark
           {percentage}%
         </tspan>
 
-        <tspan x="50%" dy="25" fontSize="10" fontWeight="400">
+        <tspan x="50%" dy="25" fontSize="13" fontWeight="400">
           {lang('common.capital', 'Capital')}
         </tspan>
 
-        <tspan x="50%" dy="15" fontSize="10" fontWeight="400">
+        <tspan x="50%" dy="15" fontSize="13" fontWeight="400">
           {lang('common.Recovered', 'Recovered')}
         </tspan>
       </text>
