@@ -19,6 +19,7 @@ const ExchangeHub = () => {
   const [loading, setLoading] = useState(true)
   const [page, setPage] = useState(1)
   const [hasMore, setHasMore] = useState(true)
+  const [activeInvestorsCount, setActiveInvestorsCount] = useState(0)
   const [searchQuery, setSearchQuery] = useState('')
   const [showFilters, setShowFilters] = useState(false)
   const [sortBy, setSortBy] = useState('roi-high')
@@ -56,6 +57,10 @@ const ExchangeHub = () => {
   useEffect(() => {
     fetchProjects(1, true)
   }, [activeTab])
+
+  useEffect(() => {
+    fetchActiveInvestorsCount()
+  }, [])
 
   useEffect(() => {
     applyFiltersAndSearch()
@@ -102,6 +107,17 @@ const ExchangeHub = () => {
       console.error('Error fetching projects:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const fetchActiveInvestorsCount = async () => {
+    try {
+      const response = await apiGet(`/api/users?role=${ROLES.INVESTOR}&status=1`, { showLoader: false })
+      const total = response?.data?.pagination?.total ?? response?.data?.data?.pagination?.total ?? 0
+      setActiveInvestorsCount(Number(total) || 0)
+    } catch (error) {
+      console.error('Error fetching active investors count:', error)
+      setActiveInvestorsCount(0)
     }
   }
 
@@ -432,7 +448,7 @@ const ExchangeHub = () => {
                 </div>
                 <div className="row mb-3">
                   <div className="col-7"><p className="fw-300 text-black">{lang('home.exchangeHub.activeInvestors')}:</p></div>
-                  <div className="col-5"><p className="text-end text-black fw-600 fs-18">320+</p></div>
+                  <div className="col-5"><p className="text-end text-black fw-600 fs-18">{activeInvestorsCount}</p></div>
                 </div>
               </div>
 
