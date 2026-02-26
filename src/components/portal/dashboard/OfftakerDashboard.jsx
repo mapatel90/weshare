@@ -830,6 +830,8 @@ function DashboardView() {
             projectId={selectedProject?.id}
             inverters={inverters}
             selectedInverterId={selectedInverter?.inverterId}
+            isDark={isDark}
+            responsiveByContainer={true}
           />
 
           <ElectricityConsumption
@@ -844,20 +846,26 @@ function DashboardView() {
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(500px, 1fr))",
+              gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
               gap: "24px",
               marginBottom: "24px",
-              overflow: "auto"
+              overflow: "auto",
+              backgroundColor: colors.cardBg,
+              borderRadius: "12px",
+              boxShadow: isDark
+                ? "0 0 20px rgba(14, 32, 56, 0.3)"
+                : "0 1px 3px rgba(0,0,0,0.1)",
+              border: `1px solid ${colors.borderLight}`,
+              padding: "24px"
             }}
           >
             {/* PRODUCTION CHART */}
             <div
               style={{
-                backgroundColor: "#fff",
+                backgroundColor: colors.cardBg,
                 borderRadius: "12px",
-                boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-                border: "1px solid #f3f4f6",
-                padding: "24px",
+                border: "none",
+                padding: "0",
               }}
             >
               <div

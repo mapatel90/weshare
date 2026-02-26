@@ -139,6 +139,21 @@ router.post('/', async (req, res) => {
       }).catch((error) => {
         console.error('Failed to send contact us email:', error.message);
       });
+
+      sendEmailUsingTemplate({
+        to: newMessage.email,
+        templateSlug: 'contact_us_welcome_mail',
+        templateData,
+        language: 'vi'
+      }).then((result) => {
+        if (result.success) {
+          console.log(`Contact us welcome email sent to ${newMessage.email}`);
+        } else {
+          console.warn(`Could not send contact us welcome email: ${result.error}`);
+        }
+      }).catch((error) => {
+        console.error('Failed to send contact us welcome email:', error.message);
+      });
     }
 
     res.status(201).json({

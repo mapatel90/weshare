@@ -303,10 +303,10 @@ const Billings = () => {
   };
 
   return (
-    <div className="p-6 bg-white shadow-md rounded-xl">
-      <div className="flex flex-col gap-2 mb-4 md:flex-row md:items-center md:justify-between">
+    <div className="p-3 sm:p-4 md:p-6 bg-white shadow-md rounded-lg sm:rounded-xl">
+      <div className="flex flex-col gap-3 sm:gap-4 mb-4 md:flex-row md:items-center md:justify-between">
         {/* Project Dropdown Filter */}
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1 w-full sm:w-auto">
           <Autocomplete
             size="small"
             options={dropdownProjects}
@@ -322,7 +322,7 @@ const Billings = () => {
                 placeholder={lang("common.searchProject", "Select project...")}
               />
             )}
-            sx={{ minWidth: 260 }}
+            sx={{ minWidth: 200, width: { xs: "100%", sm: "auto" } }}
           />
           {projectsError && (
             <p className="text-xs text-red-600">{projectsError}</p>
@@ -331,13 +331,13 @@ const Billings = () => {
 
         <div className="relative"></div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col sm:flex-row w-full sm:w-auto items-center gap-2 md:gap-3">
           <input
             type="text"
             placeholder={lang("invoice.searchProjectOrInvoice", "Search project or invoice...")}
             value={search}
             onChange={(e) => handleSearchChange(e.target.value)}
-            className="px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-200"
+            className="w-full sm:flex-1 px-3 py-2 text-xs sm:text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-200"
           />
           <Autocomplete
             size="small"
@@ -361,13 +361,14 @@ const Billings = () => {
                 placeholder={lang("common.selectStatus", "Select status...")}
               />
             )}
-            sx={{ minWidth: 200 }}
+            sx={{ minWidth: 150, width: { xs: "100%", sm: "auto" } }}
           />
         </div>
       </div>
 
-      <div className="border">
-        <table className="min-w-full text-sm">
+      {/* Desktop Table View */}
+      <div className="hidden md:block border rounded-lg overflow-hidden">
+        <table className="w-full text-sm">
           <thead className="bg-gray-50">
             <tr>
               <th className="px-4 py-3 font-semibold text-left">
@@ -393,7 +394,7 @@ const Billings = () => {
           <tbody>
             {filteredInvoices.length === 0 ? (
               <tr>
-                <td className="px-4 py-6 text-center text-gray-500" colSpan={7}>
+                <td className="px-4 py-6 text-center text-gray-500" colSpan={10}>
                   No invoices found
                 </td>
               </tr>
@@ -496,9 +497,105 @@ const Billings = () => {
         </table>
       </div>
 
+      {/* Mobile Card View */}
+      <div className="block md:hidden space-y-3">
+        {filteredInvoices.length === 0 ? (
+          <div className="text-center text-sm text-gray-500 py-8">
+            No invoices found
+          </div>
+        ) : (
+          filteredInvoices.map((inv, idx) => (
+            <div
+              key={inv.id}
+              className="bg-white border border-gray-200 rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow"
+            >
+              {/* Card Header */}
+              <div className="flex items-start justify-between mb-3 pb-3 border-b border-gray-100">
+                <div>
+                  <h3 className="font-semibold text-slate-900 text-sm line-clamp-1">
+                    {inv.projectName}
+                  </h3>
+                  <Link
+                    href={`/offtaker/billings/invoice/${inv.id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      color: "#1976d2",
+                      textDecoration: "none",
+                      fontSize: "12px",
+                      fontWeight: 500,
+                    }}
+                    className="inline-block mt-0.5"
+                  >
+                    {inv.invoiceName}
+                  </Link>
+                </div>
+                <span
+                  className={`px-2 py-1 rounded-full text-xs font-semibold whitespace-nowrap ml-2 ${
+                    getStatusColorClass(inv.status)
+                  }`}
+                >
+                  {inv.status === 1 ? lang("invoice.paid", "Paid") : lang("common.pending", "Pending")}
+                </span>
+              </div>
+
+              {/* Card Body */}
+              <div className="space-y-2 mb-3">
+                <div className="flex justify-between text-xs">
+                  <span className="text-gray-600">{lang("invoice.invoiceDate", "Invoice Date")}:</span>
+                  <span className="font-medium text-gray-900">{inv.invoiceDate}</span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-gray-600">{lang("invoice.dueDate", "Due Date")}:</span>
+                  <span className="font-medium text-gray-900">{inv.dueDate}</span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-gray-600">{lang("invoice.tax", "Tax")}:</span>
+                  <span className="font-medium text-gray-900">{inv.tax}</span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-gray-600">{lang("invoice.subamount", "Sub Amount")}:</span>
+                  <span className="font-medium text-gray-900">{inv.subAmount}</span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-gray-600">{lang("invoice.taxAmount", "Tax Amount")}:</span>
+                  <span className="font-medium text-gray-900">{inv.taxAmount}</span>
+                </div>
+                <div className="flex justify-between text-xs pt-2 border-t border-gray-100">
+                  <span className="font-semibold text-gray-700">{lang("invoice.totalAmount", "Total Amount")}:</span>
+                  <span className="font-bold text-slate-900">{priceWithCurrency(inv.amount)}</span>
+                </div>
+              </div>
+
+              {/* Card Footer */}
+              <div className="flex gap-2 pt-3 border-t border-gray-100">
+                <button
+                  onClick={() => {
+                    handleView(inv.id);
+                  }}
+                  className="flex-1 px-3 py-1.5 text-xs font-semibold text-slate-900 border border-gray-300 rounded hover:bg-gray-50 transition-colors"
+                >
+                  {lang("common.view", "View")}
+                </button>
+                {inv.download && inv.invoicePdf && (
+                  <button
+                    onClick={() => {
+                      handleDownload(inv);
+                    }}
+                    className="flex-1 px-3 py-1.5 text-xs font-semibold text-blue-600 border border-blue-300 rounded hover:bg-blue-50 transition-colors"
+                  >
+                    {lang("common.download", "Download")}
+                  </button>
+                )}
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
       {/* Pagination */}
-      <div className="flex items-center justify-between mt-4">
-        <div className="text-sm text-gray-500">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 mt-4 sm:mt-6 pt-4 border-t border-gray-200 text-xs sm:text-sm">
+        <div className="text-gray-500 order-2 sm:order-1">
           {pagination.total === 0
             ? "No entries"
             : `${pageIndex * pageSize + 1} - ${Math.min(
@@ -506,12 +603,12 @@ const Billings = () => {
                 pagination.total
               )} of ${pagination.total} entries`}
         </div>
-        <div className="flex gap-1">
+        <div className="flex gap-1 flex-wrap justify-center order-1 sm:order-2">
           {Array.from({ length: pagination.pages }, (_, i) => (
             <button
               key={i}
               onClick={() => handlePageChange(i)}
-              className={`w-8 h-8 rounded font-bold ${
+              className={`w-8 h-8 sm:w-9 sm:h-9 rounded font-bold text-xs sm:text-sm ${
                 pageIndex === i
                   ? "bg-blue-600 text-white"
                   : "bg-gray-100 text-gray-700 hover:bg-gray-200"

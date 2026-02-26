@@ -412,7 +412,7 @@ const ExchangeHub = () => {
             <div className="summarySection">
               {/* Market Summary Box */}
               <div className="summaryBox">
-                <h3 className="fs-22 fw-600 text-black">{lang('home.exchangeHub.marketSummary') || 'MARKET SUMMARY'}</h3>
+                <h3 className="fs-22 fw-600 text-black">{lang('home.exchangeHub.summary') || 'Exchange Hub Summary'}</h3>
                 <div className="row mb-1">
                   <div className="col-7"><p className="fw-300 text-black">{lang('home.exchangeHub.totalProjects')}:</p></div>
                   <div className="col-5"><p className="text-end text-black fw-600 fs-18">{allProjects.length}</p></div>
@@ -424,9 +424,10 @@ const ExchangeHub = () => {
                 <div className="row mb-1">
                   <div className="col-7"><p className="fw-300 text-black">{lang('home.exchangeHub.averageROI')}:</p></div>
                   <div className="col-5"><p className="text-end text-black fw-600 fs-18">
-                    {allProjects.length > 0
+                    {/* {allProjects.length > 0
                       ? (allProjects.reduce((sum, p) => sum + parseFloat(p.investor_profit || 0), 0) / allProjects.length).toFixed(1)
-                      : '0.0'}%
+                      : '0.0'}% */}
+                      20%
                   </p></div>
                 </div>
                 <div className="row mb-3">
@@ -446,7 +447,7 @@ const ExchangeHub = () => {
                 </div>
                 <div className="row mb-3">
                   <div className="col-7"><p className="fw-300 text-black">{lang('home.exchangeHub.youCanEarn') || 'You can earn approx.'}</p></div>
-                  <div className="col-5"><p className="text-end text-black fw-600 fs-18">$900/year</p></div>
+                  <div className="col-5"><p className="text-end text-black fw-600 fs-18">$1100/year</p></div>
                 </div>
                 <div className="row mb-3">
                   <div className="col-12"><small className="text-black fw-300 w-100 d-block text-end">{lang('home.exchangeHub.basedOnROI') || '(based on 18% avg ROI)'}</small></div>

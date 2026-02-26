@@ -280,6 +280,14 @@ export const menuList = [
         permission_action: ["view"],
         subdropdownMenu: false,
       },
+      {
+        id: 6,
+        name: "Portfolio",
+        path: "/admin/settings/portfolio",
+        permission: "portfolio",
+        permission_action: ["view"],
+        subdropdownMenu: false,
+      },
     ],
   },
 ];

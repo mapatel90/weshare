@@ -471,6 +471,11 @@ const ProjectDetail = ({ projectId }) => {
   const accumulative =
     project.accumulative_generation ||
     (parseFloat(project.project_size || 0) * 1500).toFixed(0);
+  const showInvestNowButton =
+    project.project_status_id === PROJECT_STATUS.UPCOMING &&
+    !!user &&
+    user.role === ROLES.INVESTOR &&
+    !hasExpressedInterest;
 
   return (
     <main>
@@ -527,7 +532,7 @@ const ProjectDetail = ({ projectId }) => {
                     alt=""
                     onError={(e) => (e.target.style.display = "none")}
                   />
-                  {project.city?.name || project.location},{" "}
+                  {project.city?.name || project.location}{" "}
                   {project.state?.code || project.state_name}
                 </span>
               </div>
@@ -562,7 +567,7 @@ const ProjectDetail = ({ projectId }) => {
                     <h4>{formatNumber(project.project_size)} kWp</h4>
                   </div>
                   <div>
-                    <p>{lang("home.exchangeHub.estimatedROI") || "Monthly ROI"}:</p>
+                    <p>{project.project_status_id === PROJECT_STATUS.RUNNING ? lang("home.exchangeHub.realtimeMonthlyROI") : lang("home.exchangeHub.estimatedROI")}:</p>
                     <h4>
                       {roiLoading ? (
                         <span className="placeholder-glow">
@@ -585,7 +590,7 @@ const ProjectDetail = ({ projectId }) => {
                 <div className="rightStatsBox">
                   <div>
                     <p>
-                      {project.project_status_id === PROJECT_STATUS.UPCOMING ? lang("home.exchangeHub.estimatedAnnualGeneration") : lang("home.exchangeHub.totalGeneration") ||
+                      {project.project_status_id === PROJECT_STATUS.UPCOMING ? lang("home.exchangeHub.annualEstimatedGeneration") : lang("home.exchangeHub.accumulativeGeneration") ||
                         "Total Generation"}
                       :
                     </p>
@@ -604,7 +609,7 @@ const ProjectDetail = ({ projectId }) => {
                   </div>
                   <div>
                     <p>
-                      {lang("home.exchangeHub.askingPrice") || "Asking Price"}:
+                      {project.project_status_id === PROJECT_STATUS.UPCOMING ? lang("home.exchangeHub.askingPrice") : lang("home.exchangeHub.totalInvestedPrice") || "Asking Price"}:
                     </p>
                     <h4>
                       {formatPrice(project.asking_price || "0")}
@@ -780,13 +785,15 @@ const ProjectDetail = ({ projectId }) => {
             <div className="right-card border-0">
               {/* Investor Box */}
               <div className="investor-box">
-                <h3>
-                  {lang("home.exchangeHub.seekingInvestor") ||
-                    "Seeking Investor"}
-                </h3>
+                {showInvestNowButton && (
+                  <h3>
+                    {lang("home.exchangeHub.seekingInvestor") ||
+                      "Seeking Investor"}
+                  </h3>
+                )}
                 <div className="middileContend">
                   <p className="mb-0 text-secondary-color">
-                    {lang("home.exchangeHub.targetInvestment") ||
+                    {lang("home.exchangeHub.totalInvestedPrice") ||
                       "Target Investment"}
                   </p>
                   <h2>{formatPrice(project.asking_price || "-")}</h2>
@@ -803,22 +810,15 @@ const ProjectDetail = ({ projectId }) => {
                         "Sign In to Invest"}
                     </button>
                   ) : (
-                    (() => {
-                      const isInvestor = user && user.role === ROLES.INVESTOR;
-                      if (!isInvestor) return null;
-                      if (hasExpressedInterest) {
-                        return null;
-                      }
-                      return (
-                        <button
-                          className="btn btn-primary-custom"
-                          onClick={handleInvestClick}
-                          disabled={checkingInterest}
-                        >
-                          {lang("home.exchangeHub.investNow") || "Invest Now"}
-                        </button>
-                      );
-                    })()
+                    showInvestNowButton ? (
+                      <button
+                        className="btn btn-primary-custom"
+                        onClick={handleInvestClick}
+                        disabled={checkingInterest}
+                      >
+                        {lang("home.exchangeHub.investNow") || "Invest Now"}
+                      </button>
+                    ) : null
                   )
                 )}
 
