@@ -18,7 +18,7 @@ import { PROJECT_STATUS } from "@/constants/project_status";
 import ElectricityConsumption from "@/components/admin/projectsCreate/projectViewSection/ElectricityConsumption";
 import EnergyChart from "@/components/admin/projectsCreate/projectViewSection/MonthChart";
 import { FiZap } from "react-icons/fi";
-import { CloudSun, Compass, Droplets, SunriseIcon, Thermometer, Wind } from 'lucide-react';
+import { ArrowLeft, CloudSun, Compass, Droplets, SunriseIcon, Thermometer, Wind } from 'lucide-react';
 import { ROLES } from "@/constants/roles";
 import { useFormatPrice, usePriceWithCurrency } from "@/hooks/useFormatPrice";
 
@@ -58,6 +58,7 @@ const ProjectDetail = ({ projectId }) => {
   const [chartMonthData, setChartMonthData] = useState(null);
   const [selectedMonthYear, setSelectedMonthYear] = useState(new Date().toISOString().slice(0, 7));
   const [monthlyChartDataLoading, setMonthlyChartDataLoading] = useState(true);
+  const [isBackButtonHovered, setIsBackButtonHovered] = useState(false);
 
   // Calculated ROI
   const [calculatedRoi, setCalculatedRoi] = useState(null);
@@ -608,7 +609,7 @@ const ProjectDetail = ({ projectId }) => {
                   </div>
                   <div>
                     <p>
-                      {project.project_status_id === PROJECT_STATUS.UPCOMING ? lang("home.exchangeHub.askingPrice") : lang("home.exchangeHub.totalInvestedPrice") || "Asking Price"}:
+                    {project.project_status_id === PROJECT_STATUS.UPCOMING ? lang("home.exchangeHub.askingPrice") : lang("home.exchangeHub.totalInvestedPrice") || "Asking Price"}:
                     </p>
                     <h4>
                       {formatPrice(project.asking_price || "0")}
@@ -782,6 +783,31 @@ const ProjectDetail = ({ projectId }) => {
 
             {/* Right Section */}
             <div className="right-card border-0">
+              <div className="d-flex justify-content-end mb-3">
+                <button
+                  type="button"
+                  className="btn d-inline-flex align-items-center gap-2 p-2"
+                  onClick={() => router.push("/frontend/exchange-hub")}
+                  onMouseEnter={() => setIsBackButtonHovered(true)}
+                  onMouseLeave={() => setIsBackButtonHovered(false)}
+                  style={{
+                    backgroundColor: isBackButtonHovered ? "#e09615" : "#f6a623",
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: "8px",
+                    fontWeight: 600,
+                    boxShadow: isBackButtonHovered
+                      ? "0 6px 16px rgba(246, 166, 35, 0.4)"
+                      : "0 4px 12px rgba(246, 166, 35, 0.3)",
+                    transform: isBackButtonHovered ? "translateY(-2px)" : "translateY(0)",
+                    transition: "all 0.3s ease",
+                  }}
+                >
+                  <ArrowLeft size={18} />
+                  {lang("common.back", "Back")} {lang("home.exchangeHub.title", "Exchange Hub")}
+                </button>
+              </div>
+
               {/* Investor Box */}
               <div className="investor-box">
                 {showInvestNowButton && (
@@ -792,10 +818,9 @@ const ProjectDetail = ({ projectId }) => {
                 )}
                 <div className="middileContend">
                   <p className="mb-0 text-secondary-color">
-                    {lang("home.exchangeHub.totalInvestedPrice") ||
-                      "Target Investment"}
+                    {project.project_status_id === PROJECT_STATUS.UPCOMING ? lang("home.exchangeHub.askingPrice") : lang("home.exchangeHub.totalInvestedPrice") || "Target Investment"}
                   </p>
-                  <h2>{formatPrice(project.asking_price || "-")}</h2>
+                  <h2>{formatPrice(project.asking_price || "0")}</h2>
                 </div>
 
                 {/* Conditional invest button */}
