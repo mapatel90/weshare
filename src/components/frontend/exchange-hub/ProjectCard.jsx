@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "@/contexts/LanguageContext";
 import "./styles/exchange-hub-custom.css";
@@ -335,7 +336,7 @@ const ProjectCard = ({ project, activeTab }) => {
                   style={{ padding: "14px 0px" }}
                   onClick={handleInvestClick}
                 >
-                  {lang("home.exchangeHub.investEarly") || "Invest Early"}
+                  {lang("home.exchangeHub.investNow") || "Invest Now"}
                 </button>
               ) : null}
               {/* Invest Dialog */}
@@ -459,7 +460,7 @@ const ProjectCard = ({ project, activeTab }) => {
               {formatEnergyUnit(project.total_energy)}
             </h4>
             <p>
-              {lang("home.exchangeHub.totalGeneration") ||"Accumulative"}
+              {lang("home.exchangeHub.accumulativeGeneration") ||"Accumulative"}
             </p>
           </div>
           <div className="stat">
@@ -513,46 +514,11 @@ const ProjectCard = ({ project, activeTab }) => {
           </p>
         </div>
 
-        {/* Chart - Line Graph */}
-        <div className="chart">
-          <svg
-            width="100%"
-            height="80"
-            viewBox="0 0 350 80"
-            preserveAspectRatio="none"
-          >
-            <defs>
-              <linearGradient
-                id={`gradient-${project.id}`}
-                x1="0%"
-                y1="0%"
-                x2="0%"
-                y2="100%"
-              >
-                <stop offset="0%" stopColor="#FFB84D" stopOpacity="0.3" />
-                <stop offset="100%" stopColor="#FFB84D" stopOpacity="0.05" />
-              </linearGradient>
-            </defs>
-            {/* Line path */}
-            <path
-              d="M 0,60 Q 50,50 80,45 T 130,35 Q 160,30 190,25 T 250,20 Q 280,22 310,18 T 350,15"
-              fill="none"
-              stroke="#F6A623"
-              strokeWidth="2"
-            />
-            {/* Area under line */}
-            <path
-              d="M 0,60 Q 50,50 80,45 T 130,35 Q 160,30 190,25 T 250,20 Q 280,22 310,18 T 350,15 L 350,80 L 0,80 Z"
-              fill={`url(#gradient-${project.id})`}
-            />
-          </svg>
-        </div>
-
         {/* Action Buttons */}
         <div className="buttons">
-          <button className="btn btn-primary-custom">
+          <Link href="/frontend/contact_us" className="btn btn-primary-custom">
             {lang("home.exchangeHub.buyNow") || "Buy Now"}
-          </button>
+          </Link>
           <button
             className="btn btn-secondary-custom"
             style={{ background: "#fff", color: "#102c41" }}

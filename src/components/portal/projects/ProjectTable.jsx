@@ -567,7 +567,7 @@ const SolarProjectTable = () => {
                     </div>
                     {/* Card content */}
                     <div className="p-3 md:p-4 flex flex-col flex-1">
-                      <h2 className="text-lg font-bold text-slate-900 mb-1 w-[220px] h-10 leading-5 overflow-hidden break-words line-clamp-2">
+                      <h2 className="text-lg font-bold text-slate-900 mb-1 w-full md:w-[220px] h-10 leading-5 overflow-hidden break-words line-clamp-2">
                         {project.projectName}
                       </h2>
                       <div className="text-xs text-gray-500 mb-1">
@@ -590,7 +590,7 @@ const SolarProjectTable = () => {
                         </span>
                       </div> */}
                       {/* Stats boxes */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 mb-3" style={{ height: "95px" }}>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-3 md:h-[95px]">
                         <div className="bg-gray-50 rounded-lg p-2 text-center" style={{ wordWrap: "break-word" }}>
                           <div className="text-base font-bold text-slate-900">
                             {project.targetInvestment}

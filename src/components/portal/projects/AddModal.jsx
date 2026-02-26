@@ -395,10 +395,10 @@ export default function AddModal({ open, onClose }) {
   return (
     <>
       {!isControlled && (
-        <div className="flex justify-end w-full">
+        <div className="flex justify-start md:justify-end w-full">
           <button
             onClick={openModal}
-            className="inline-flex items-center gap-2 px-3 py-2 mb-3 text-sm text-white rounded-lg"
+            className="inline-flex items-center gap-2 px-3 py-2 me-6 mt-3 ml-6 text-sm text-white rounded-lg"
             style={{ backgroundColor: "#F6A623" }}
           >
             <span className="text-lg leading-none">+</span> {lang("modal.add", "Add")}

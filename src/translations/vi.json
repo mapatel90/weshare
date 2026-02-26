@@ -804,6 +804,8 @@
       "noProjects": "Không có dự án nào"
     },
     "exchangeHub": {
+      "totalInvestedPrice": "Tổng giá trị đầu tư",
+      "realtimeMonthlyROI": "ROI hàng tháng theo thời gian thực",
       "title": "Trung tâm trao đổi",
       "subtitle": "Duyệt và đầu tư vào các dự án năng lượng mặt trời",
       "searchPlaceholder": "Tìm kiếm ở đây...",
@@ -839,6 +841,7 @@
       "loading": "Đang tải...",
       "noProjects": "Không có dự án nào",
       "marketSummary": "TÓM TẮT THỊ TRƯỜNG",
+      "summary": "Tóm tắt trung tâm trao đổi",
       "totalProjects": "Tổng số dự án:",
       "totalCapacity": "Tổng công suất:",
       "averageROI": "ROI trung bình:",
@@ -847,7 +850,7 @@
       "ifYouInvest": "Nếu bạn đầu tư",
       "youCanEarn": "Bạn có thể kiếm khoảng",
       "perYear": "/năm",
-      "basedOnROI": "(dựa trên ROI trung bình 10%)",
+      "basedOnROI": "(Tỷ suất lợi nhuận đầu tư trung bình hơn 20%)",
       "signUpToInvest": "Đăng ký để đầu tư",
       "listYourProject": "Liệt kê dự án của bạn",
       "id": "Mã:",
@@ -885,6 +888,7 @@
       "interestSubmitted": "Bạn đã bày tỏ sự quan tâm tới dự án này.",
       "noTestimonials": "Không có đánh giá cho dự án này",
       "estimatedAnnualGeneration": "Tổng sản lượng phát điện dự kiến",
+      "annualEstimatedGeneration": "Sản lượng phát điện dự kiến hàng năm",
       "estimatedROI": "Lợi nhuận dự kiến (ROI)",
       "roi_monthly": "ROI (Tháng)",
       "totalGeneration":"Tổng thế hệ"

@@ -4,10 +4,11 @@ import React, { useEffect, useState } from 'react'
 import Image from 'next/image'
 import AOS from 'aos'
 import { useLanguage } from '@/contexts/LanguageContext'
-import { apiGet } from '@/lib/api'
+import useSettings from '@/hooks/useSettings'
 
 const PortfolioSection = () => {
   const { lang } = useLanguage()
+  const { settings, getSetting } = useSettings()
   const [portfolioData, setPortfolioData] = useState(null)
   const [loading, setLoading] = useState(true)
 
@@ -28,51 +29,66 @@ const PortfolioSection = () => {
 
   useEffect(() => {
     AOS.init({ duration: 1000, once: true })
-    fetchPortfolioStats()
   }, [])
 
-  const fetchPortfolioStats = async () => {
-    try {
-      setLoading(true)
-      const response = await apiGet('/api/dashboard/portfolio-stats', { showLoader: false })
-      if (response.success && response.data) {
-        setPortfolioData(response.data)
+  // Load portfolio data from settings
+  useEffect(() => {
+    if (settings && Object.keys(settings).length > 0) {
+      const data = {
+        totalKwh: {
+          value: parseFloat(getSetting("portfolio_kwh_generated_value", "0")) || 0,
+          growth: `+${getSetting("portfolio_kwh_generated_percentage", "0")}%`
+        },
+        totalIncome: {
+          value: parseFloat(getSetting("portfolio_income_value", "0")) || 0,
+          growth: `+${getSetting("portfolio_income_percentage", "0")}%`
+        },
+        totalSavings: {
+          value: parseFloat(getSetting("portfolio_saving_value", "0")) || 0,
+          growth: `+${getSetting("portfolio_saving_percentage", "0")}%`
+        },
+        averageROI: {
+          value: parseFloat(getSetting("portfolio_roi_value", "0")) || 0,
+          growth: `+${getSetting("portfolio_roi_percentage", "0")}%`
+        },
+        co2Avoided: {
+          value: parseFloat(getSetting("portfolio_co2_avoided_value", "0")) || 0,
+          growth: `+${getSetting("portfolio_co2_avoided_percentage", "0")}%`
+        }
       }
-    } catch (error) {
-      console.error('Error fetching portfolio stats:', error)
-    } finally {
+      setPortfolioData(data)
       setLoading(false)
     }
-  }
+  }, [settings, getSetting])
 
   const stats = [
     {
       icon: '/images/icons/port-icon1.svg',
-      value: portfolioData ? formatNumber(portfolioData.totalKwh?.value) : '0',
+      value: portfolioData ? formatNumber(portfolioData.totalKwh.value) : '0',
       label: lang('home.portfolio.totalKwh'),
       growth: portfolioData?.totalKwh?.growth || '+0%'
     },
     {
       icon: '/images/icons/port-icon2.svg',
-      value: portfolioData ? formatCurrency(portfolioData.totalIncome?.value) : '$0',
+      value: portfolioData ? formatCurrency(portfolioData.totalIncome.value) : '$0',
       label: lang('home.portfolio.totalIncome'),
       growth: portfolioData?.totalIncome?.growth || '+0%'
     },
     {
       icon: '/images/icons/port-icon3.svg',
-      value: portfolioData ? formatCurrency(portfolioData.totalSavings?.value) : '$0',
+      value: portfolioData ? formatCurrency(portfolioData.totalSavings.value) : '$0',
       label: lang('home.portfolio.totalSavings'),
       growth: portfolioData?.totalSavings?.growth || '+0%'
     },
     {
       icon: '/images/icons/port-icon4.svg',
-      value: portfolioData ? `${(portfolioData.averageROI?.value || 0).toFixed(1)}%` : '0%',
+      value: portfolioData ? `${(portfolioData.averageROI.value || 0).toFixed(1)}%` : '0%',
       label: lang('home.portfolio.averageROI'),
       growth: portfolioData?.averageROI?.growth || '+0%'
     },
     {
       icon: '/images/icons/port-icon5.svg',
-      value: portfolioData ? `${formatNumber(portfolioData.co2Avoided?.value)} tons` : '0 tons',
+      value: portfolioData ? `${formatNumber(portfolioData.co2Avoided.value)} tons` : '0 tons',
       label: lang('home.portfolio.co2Avoided'),
       growth: portfolioData?.co2Avoided?.growth || '+0%'
     }
@@ -85,11 +101,6 @@ const PortfolioSection = () => {
           <div className="col-12 col-md-6 d-flex">
             <Image src="/images/icons/port-icon.svg" alt="portfolio" width={40} height={40} />
             <h3 className="subTitle ms-3 mb-0">{lang('home.portfolio.title')}</h3>
-          </div>
-          <div className="col-12 col-md-6 text-end">
-            <div className="updateBox">
-              <span></span> {lang('home.portfolio.updated')}
-            </div>
           </div>
         </div>
         <div className="elementBlockGroup portfolio-grid">

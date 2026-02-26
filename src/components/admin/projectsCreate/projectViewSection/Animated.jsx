@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   FiSun,
   FiZap,
@@ -15,7 +15,9 @@ export default function SolarEnergyFlow({
   inverters = [],
   isDark = false,
   project = {},
+  responsiveByContainer = false,
 }) {
+  const containerRef = useRef(null);
   // Get first 6 inverters (regardless of status)
   const displayInverters = inverters.slice(0, 6);
 
@@ -45,13 +47,16 @@ export default function SolarEnergyFlow({
   const [isVerySmallScreen, setIsVerySmallScreen] = useState(false);
 
   useEffect(() => {
-    const checkScreenSize = () => {
-      const width = window.innerWidth;
-      if (width < 758) {
+    const updateScreenSize = (width) => {
+      const mobileBreakpoint = responsiveByContainer ? 700 : 758;
+      const tabletBreakpoint = responsiveByContainer ? 980 : 1030;
+      const pcBreakpoint = responsiveByContainer ? 1350 : 1800;
+
+      if (width < mobileBreakpoint) {
         setScreenSize("mobile");
-      } else if (width < 1030) {
+      } else if (width < tabletBreakpoint) {
         setScreenSize("tablet");
-      } else if (width < 1800) {
+      } else if (width < pcBreakpoint) {
         setScreenSize("laptop");
       } else {
         setScreenSize("pc");
@@ -61,10 +66,45 @@ export default function SolarEnergyFlow({
       setIsVerySmallScreen(width < 390);
     };
 
+    const getContainerWidth = () => {
+      const elementWidth = containerRef.current?.offsetWidth;
+      if (typeof elementWidth === "number" && elementWidth > 0) {
+        return elementWidth;
+      }
+      return window.innerWidth;
+    };
+
+    const checkScreenSize = () => {
+      const width = responsiveByContainer ? getContainerWidth() : window.innerWidth;
+      updateScreenSize(width);
+    };
+
     checkScreenSize();
+
+    let observer;
+    if (
+      responsiveByContainer &&
+      typeof ResizeObserver !== "undefined" &&
+      containerRef.current
+    ) {
+      observer = new ResizeObserver((entries) => {
+        const width = entries?.[0]?.contentRect?.width;
+        if (typeof width === "number" && width > 0) {
+          updateScreenSize(width);
+        }
+      });
+      observer.observe(containerRef.current);
+    }
+
     window.addEventListener("resize", checkScreenSize);
-    return () => window.removeEventListener("resize", checkScreenSize);
-  }, []);
+
+    return () => {
+      window.removeEventListener("resize", checkScreenSize);
+      if (observer) {
+        observer.disconnect();
+      }
+    };
+  }, [responsiveByContainer]);
 
   const isSmallScreen = screenSize === "mobile" || screenSize === "tablet";
 
@@ -169,7 +209,7 @@ export default function SolarEnergyFlow({
               <path
                 id="gridPath"
                 // d="M 543 105 L 525 105 Q 505 105 505 125 L 505 182"
-                d="M 593 105 L 525 105 Q 505 105 505 125 L 505 200"
+                d="M 625 105 L 525 105 Q 505 105 505 125 L 505 200"
                 stroke="#EF4444"
                 strokeWidth="2"
                 fill="none"
@@ -188,7 +228,7 @@ export default function SolarEnergyFlow({
             >
               <path
                 id="consumePath"
-                d="M 505 274 L 505 350 Q 505 380 535 380 L 594 380"
+                d="M 505 274 L 505 350 Q 505 380 535 380 L 614 380"
                 stroke="#FB923C"
                 strokeWidth="2"
                 fill="none"
@@ -584,6 +624,7 @@ export default function SolarEnergyFlow({
 
   return (
     <div
+      ref={containerRef}
       style={{
         display: "grid",
         gridTemplateColumns:

@@ -309,8 +309,8 @@ const ProjectOverviewChart = ({ projectId, readings = [], loading = false, selec
 
   const responsiveContainerStyle = {
     ...styles.containerStyle,
-    height: isMobile ? 'auto' : '60vh',
-    padding: isMobile ? '16px' : '24px',
+    height: isMobile || isTablet ? 'auto' : '60vh',
+    padding: isMobile ? '16px' : '0px',
     overflowX: isMobile || isTablet ? 'auto' : 'visible',
   };
 

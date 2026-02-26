@@ -766,6 +766,8 @@ function DashboardView() {
             project={selectedProject}
             projectId={selectedProject?.id}
             inverters={inverters}
+            isDark={isDark}
+            responsiveByContainer={true}
           />
 
           <ElectricityConsumption
@@ -783,7 +785,7 @@ function DashboardView() {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(500px, 1fr))",
+            gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
             gap: "24px",
             marginBottom: "24px",
           }}

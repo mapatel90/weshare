@@ -819,6 +819,7 @@
       "noProjects": "No projects available"
     },
     "exchangeHub": {
+      "realtimeMonthlyROI": "Real-time Monthly ROI",
       "title": "Exchange Hub",
       "subtitle": "Browse and invest in solar energy projects",
       "searchPlaceholder": "Search Here...",
@@ -856,6 +857,7 @@
       "loading": "Loading...",
       "noProjects": "No projects available",
       "marketSummary": "MARKET SUMMARY",
+      "summary": "Exchange Hub Summary",
       "totalProjects": "Total Projects:",
       "totalCapacity": "Total Capacity:",
       "averageROI": "Average ROI:",
@@ -864,7 +866,7 @@
       "ifYouInvest": "If you invest",
       "youCanEarn": "You can earn approx.",
       "perYear": "/year",
-      "basedOnROI": "(based on 10% avg ROI)",
+      "basedOnROI": "(more than 20% avg ROI)",
       "signUpToInvest": "Sign up to Invest",
       "listYourProject": "List Your Project",
       "id": "ID:",
@@ -876,6 +878,7 @@
       "sortCapacityHigh": "Capacity: High to Low",
       "sortCapacityLow": "Capacity: Low to High",
       "accumulativeGeneration": "Accumulative Generation",
+      "totalInvestedPrice": "Total Invested Price",
       "totalGeneration": "Total Generation",
       "highReliability": "High Reliability",
       "moderateReliability": "Moderate Reliability",
@@ -910,7 +913,8 @@
       "notes": "Notes",
       "interestSubmitted": "You have already expressed interest for this project.",
       "noTestimonials": "No testimonials for this project",
-      "estimatedAnnualGeneration": "Estimated total Generation"
+      "estimatedAnnualGeneration": "Estimated Annual Generation",
+      "annualEstimatedGeneration": "Annual Estimated Generation"
     },
     "solarLease": {
       "title": "Turn your Property Into a Solar Lease",
