@@ -839,18 +839,45 @@ router.get("/", async (req, res) => {
       downloadAll,
       solisStatus,
       start_date,
-      end_date
+      end_date,
+      min_roi,
+      max_roi,
+      min_price,
+      max_price,
+      min_capacity,
+      max_capacity,
     } = req.query;
-    const pageInt = parseInt(page);
+    const pageInt = parseInt(page) || 1;
     const offtakerIdInt = offtaker_id ? parseInt(offtaker_id) : null;
     const projectIdInt = project_id ? parseInt(project_id) : null;
     const investorIdInt = investor_id ? parseInt(investor_id) : null;
-    const limitInt = parseInt(limit);
-    const offset = (pageInt - 1) * limitInt;
 
     const parsedLimit = Number(limit);
     const limitNumber = !Number.isNaN(parsedLimit) && parsedLimit > 0 ? parsedLimit : null;
-    const fetchAll = downloadAll === "1" || downloadAll === "true" || !limitNumber;
+    const downloadAllFlag = downloadAll === "1" || downloadAll === "true";
+    const parseRangeValue = (value) => {
+      if (value === undefined || value === null || value === "") return null;
+      const parsed = parseFloat(value);
+      return Number.isNaN(parsed) ? null : parsed;
+    };
+
+    const minRoi = parseRangeValue(min_roi);
+    const maxRoi = parseRangeValue(max_roi);
+    const minPrice = parseRangeValue(min_price);
+    const maxPrice = parseRangeValue(max_price);
+    const minCapacity = parseRangeValue(min_capacity);
+    const maxCapacity = parseRangeValue(max_capacity);
+
+    const hasRangeFilters =
+      minRoi !== null ||
+      maxRoi !== null ||
+      minPrice !== null ||
+      maxPrice !== null ||
+      minCapacity !== null ||
+      maxCapacity !== null;
+
+    const useDbPagination = !downloadAllFlag && !!limitNumber && !hasRangeFilters;
+    const offset = useDbPagination ? (pageInt - 1) * limitNumber : 0;
 
     const where = { is_deleted: 0 };
 
@@ -934,8 +961,8 @@ router.get("/", async (req, res) => {
           interested_investors: { select: { id: true, user_id: true, full_name: true, email: true, phone_number: true } },
           project_inverters: true,
         },
-        skip: fetchAll ? 0 : offset,
-        take: fetchAll ? undefined : limitInt,
+        skip: useDbPagination ? offset : 0,
+        take: useDbPagination ? limitNumber : undefined,
         orderBy: { created_at: "desc" },
       }),
       Promise.resolve(null),
@@ -1018,6 +1045,51 @@ router.get("/", async (req, res) => {
       };
     });
 
+    const inRange = (value, min, max) => {
+      if (value === null || value === undefined || Number.isNaN(value)) return false;
+      if (min !== null && value < min) return false;
+      if (max !== null && value > max) return false;
+      return true;
+    };
+
+    let finalProjects = projectsWithRoi;
+    let effectiveTotal = totalCount;
+
+    if (hasRangeFilters) {
+      finalProjects = projectsWithRoi.filter((project) => {
+        const roiForFilter = project.project_status_id === PROJECT_STATUS.RUNNING
+          ? parseFloat(project.calculated_roi)
+          : parseFloat(project.estimated_roi);
+        const askingPrice = parseFloat(project.asking_price);
+        const projectSize = parseFloat(project.project_size);
+
+        if ((minRoi !== null || maxRoi !== null) && !inRange(roiForFilter, minRoi, maxRoi)) {
+          return false;
+        }
+        if ((minPrice !== null || maxPrice !== null) && !inRange(askingPrice, minPrice, maxPrice)) {
+          return false;
+        }
+        if ((minCapacity !== null || maxCapacity !== null) && !inRange(projectSize, minCapacity, maxCapacity)) {
+          return false;
+        }
+        return true;
+      });
+
+      effectiveTotal = finalProjects.length;
+
+      if (!downloadAllFlag && limitNumber) {
+        const rangeOffset = (pageInt - 1) * limitNumber;
+        finalProjects = finalProjects.slice(rangeOffset, rangeOffset + limitNumber);
+      }
+    } else if (!useDbPagination) {
+      effectiveTotal = projectsWithRoi.length;
+
+      if (!downloadAllFlag && limitNumber) {
+        const rangeOffset = (pageInt - 1) * limitNumber;
+        finalProjects = finalProjects.slice(rangeOffset, rangeOffset + limitNumber);
+      }
+    }
+
     // Fetch dropdown lists (all non-deleted)
     const offtakerList = await prisma.users.findMany({
       where: { is_deleted: 0, role_id: { in: [3] } },
@@ -1030,18 +1102,18 @@ router.get("/", async (req, res) => {
       orderBy: { project_name: "asc" },
     });
 
-    const effectiveLimit = limitNumber || totalCount;
-    const returnedCount = fetchAll ? totalCount : Math.min(totalCount, effectiveLimit);
-    const pageSize = 20;
+    const effectiveLimit = limitNumber || effectiveTotal || 1;
+    const returnedCount = effectiveTotal;
+    const pageSize = effectiveLimit;
 
     res.json({
       success: true,
-      data: projectsWithRoi,
+      data: finalProjects,
       offtakerList,
       projectList,
       pagination: {
         page: pageInt,
-        limit: fetchAll ? totalCount : effectiveLimit,
+        limit: effectiveLimit,
         total: returnedCount,
         pages: Math.max(1, Math.ceil(returnedCount / pageSize)),
       },

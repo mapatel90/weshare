@@ -1,29 +1,18 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import AOS from "aos";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { apiGet } from "@/lib/api";
-import { buildUploadUrl, formatCurrency, formatEnergyUnit, formatShort, getFullImageUrl } from "@/utils/common";
-import { useRouter } from "next/navigation";
-import { getPrimaryProjectImage } from "@/utils/projectUtils";
+import ProjectCard from "@/components/frontend/exchange-hub/ProjectCard";
 import { PROJECT_STATUS } from "@/constants/project_status";
-import { useFormatPrice } from "@/hooks/useFormatPrice";
 
 const ProjectsSection = () => {
   const [activeTab, setActiveTab] = useState("open");
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const { lang } = useLanguage();
-  const router = useRouter();
-  const formatPrice = useFormatPrice();
-
-  const formatNumber = (num) => {
-    if (!num) return "0";
-    return parseFloat(num).toLocaleString("en-US");
-  };
 
   useEffect(() => {
     AOS.init({ duration: 1000, once: true });
@@ -98,117 +87,13 @@ const ProjectsSection = () => {
           ) : (
             <div className="row">
               {projects.map((project, index) => {
-                const projectImage = buildUploadUrl(project.project_images?.[0]?.path);
-                const demo_image = 'http://weshare-energy.com/_next/image?url=http%3A%2F%2Flocalhost%3A5000%2Fuploads%2Fgeneral%2Fnoimage_2.png&w=1080&q=75';
-                const cityName = project.cities?.name || "";
-                const stateName = project.states?.code || "";
-                const location =
-                  [cityName, stateName].filter(Boolean).join(", ") ||
-                  "Location Not Available";
-
                 return (
-                  <div
+                  <ProjectCard
                     key={project.id}
-                    className="col-12 col-md-6 col-lg-4 mb-4 mb-lg-0"
-                    data-aos="fade-up"
-                    data-aos-duration={1000 + index * 200}
-                  >
-                    <div className="project-card shadow-sm overflow-hidden">
-                      <div className="project-items">
-                        <Image
-                          src={projectImage ? buildUploadUrl(projectImage) : demo_image}
-                          alt={project.project_name}
-                          className="img-fluid project-img"
-                          width={400}
-                          height={250}
-                        />
-                      </div>
-
-                      <div className="pt-3">
-                        <h5
-                          className="fw-600 mb-2 text-title"
-                          style={{
-                            overflow: "hidden",
-                            display: "-webkit-box",
-                            WebkitLineClamp: 2,
-                            WebkitBoxOrient: "vertical",
-                            textOverflow: "ellipsis",
-                            // maxWidth: '70%',
-                            height: "60px",
-                          }}
-                        >
-                          {project.project_name}
-                        </h5>
-                        <div className="d-flex align-items-center text-muted small mb-3 fw-300">
-                          <span className="me-1">
-                            <Image
-                              src="/images/icons/location.svg"
-                              alt="location"
-                              width={16}
-                              height={16}
-                            />
-                          </span>
-                          {location}
-                          <span className="mx-2"></span>
-                          <span className="me-1">
-                            <Image
-                              src="/images/icons/light.svg"
-                              alt="capacity"
-                              width={16}
-                              height={16}
-                            />
-                          </span>
-                          {project.project_size ? `${formatEnergyUnit(project.project_size)}`
-                            : "N/A"}
-                        </div>
-
-                        <div className="d-flex justify-content-between align-items-center gap-3 mb-3">
-                          <div className="w-45 caterogy-items">
-                            <h6 className="mb-0 fw-600 text-title">{formatShort(
-                              project.project_size ||
-                              0,
-                            ).toLocaleString()}</h6>
-                            <small className="text-muted">
-                              {lang("home.exchangeHub.targetInvestment") ||
-                                "Target Investment"}
-                            </small>
-                          </div>
-                          <div className="w-45 caterogy-items items-2">
-                            <h6 className="mb-0 fw-600 text-title secondaryTextColor">
-                              {activeTab === "open" ? project.estimated_roi : project.calculated_roi || "0"}%
-                            </h6>
-                            <small className="text-muted">
-                              {lang("home.projects.roi")}
-                            </small>
-                          </div>
-                        </div>
-
-                        <div className="d-flex justify-content-between align-items-center mb-1">
-                          <p className="fw-300 mb-0 text-black">
-                            {lang("home.projects.expectedRevenue")}
-                          </p>
-                          <span className="fw-600 text-secondary-color">
-                            {activeTab === "open" ? project.expected_revenue ? `${formatPrice(project.expected_revenue)}` : "0" : project.cumulative_revenue ? `${formatPrice(project.cumulative_revenue)}` : "0"}
-                          </span>
-                        </div>
-
-                        <button
-                          className="btn btn-primary-custom mt-4 w-100"
-                          style={{ display: "flex", backgroundColor: "#F6A623", borderColor: "#F6A623" }}
-                          onClick={() => router.push(`/frontend/exchange-hub/${project.id}`)}
-                        >
-                          <Image
-                            className="me-2"
-                            src="/images/icons/reports-icon.svg"
-                            alt="view"
-                            width={20}
-                            height={20}
-                          />
-                          {lang("home.projects.viewDetails")}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
+                    project={project}
+                    activeTab={activeTab === "open" ? "lease" : "resale"}
+                    isHome={true}
+                  />
                 );
               })}
             </div>

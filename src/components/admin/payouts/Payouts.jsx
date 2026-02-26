@@ -28,6 +28,7 @@ const PayoutsPage = () => {
     const { user } = useAuth();
     const [projectList, setProjectList] = useState([]);
     const [projectFilter, setProjectFilter] = useState("");
+    const [statusFilter, setStatusFilter] = useState("");
     const [payouts, setPayouts] = useState([]);
     const [pagination, setPagination] = useState({ page: 1, pageSize: pageSize, totalCount: 0, totalPages: 0 });
     const [searchTerm, setSearchTerm] = useState("");
@@ -101,6 +102,9 @@ const PayoutsPage = () => {
 
             if (searchTerm) {
                 params.append("search", searchTerm);
+            }
+            if (statusFilter !== "") {
+                params.append("status", statusFilter);
             }
             if (investorFilter?.id) {
                 params.append("investorId", investorFilter.id);
@@ -297,7 +301,7 @@ const PayoutsPage = () => {
     useEffect(() => {
         fetchInvestors();
         fetchPayouts();
-    }, [projectFilter, searchTerm, pageIndex, pageSize, investorFilter]);
+    }, [projectFilter, statusFilter, searchTerm, pageIndex, pageSize, investorFilter]);
 
 
     useEffect(() => {
@@ -696,6 +700,36 @@ const PayoutsPage = () => {
                                     placeholder="Search investor..."
                                 />
                             )}
+                        />
+
+                        <Autocomplete
+                            size="small"
+                            options={[
+                                { value: PAYOUT_STATUS.PAYOUT, label: lang("payouts.payouts", "Payout") },
+                                { value: PAYOUT_STATUS.PENDING, label: lang("common.pending", "Pending") },
+                            ]}
+                            value={
+                                statusFilter === ""
+                                    ? null
+                                    : statusFilter === PAYOUT_STATUS.PAYOUT
+                                        ? { value: PAYOUT_STATUS.PAYOUT, label: lang("payouts.payouts", "Payout") }
+                                        : { value: PAYOUT_STATUS.PENDING, label: lang("common.pending", "Pending") }
+                            }
+                            onChange={(e, newValue) => {
+                                setPageIndex(0);
+                                setStatusFilter(newValue?.value || "");
+                            }}
+                            getOptionLabel={(option) => option?.label || ""}
+                            isOptionEqualToValue={(option, value) => option?.value === value?.value}
+                            renderInput={(params) => (
+                                <TextField
+                                    {...params}
+                                    label={lang("payments.status", "Status")}
+                                    placeholder="Search status..."
+                                />
+                            )}
+                            sx={{ width: { xs: "100%", md: 200 } }}
+                            clearOnEscape
                         />
 
                     </div>
