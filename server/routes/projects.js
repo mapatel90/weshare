@@ -221,6 +221,7 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
       project_slug,
       project_type_id,
       estimated_roi,
+      expected_revenue,
       offtaker_id,
       address_1,
       address_2,
@@ -235,9 +236,10 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
       investor_profit = "0",
       weshare_profit = "0",
       project_size,
+      project_start_date,
       project_close_date,
+      project_expire_date,
       project_location,
-      start_date,
       evn_price_kwh,
       weshare_price_kwh,
       capex_per_kwp,
@@ -283,6 +285,12 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
             `${estimated_roi}` !== ""
             ? parseFloat(estimated_roi)
             : null,
+        expected_revenue:
+          expected_revenue !== undefined &&
+            expected_revenue !== null &&
+            `${expected_revenue}` !== ""
+            ? parseFloat(expected_revenue)
+            : null,
         lease_term:
           lease_term !== undefined &&
             lease_term !== null &&
@@ -295,7 +303,8 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
         weshare_profit,
         project_size: project_size || "",
         project_close_date: project_close_date ? new Date(project_close_date) : null,
-        project_start_date: start_date ? new Date(start_date) : null,
+        project_start_date: project_start_date ? new Date(project_start_date) : null,
+        project_expire_date: project_expire_date ? new Date(project_expire_date) : null,
         project_location: project_location || "",
         weshare_price_kwh: parseFloat(weshare_price_kwh) || null,
         evn_price_kwh: parseFloat(evn_price_kwh) || null,
@@ -1154,6 +1163,7 @@ router.put("/:id", authenticateToken, async (req, res) => {
       project_slug,
       project_type_id,
       estimated_roi,
+      expected_revenue,
       offtaker_id,
       address_1,
       address_2,
@@ -1228,6 +1238,12 @@ router.put("/:id", authenticateToken, async (req, res) => {
         estimated_roi:
           estimated_roi !== null && `${estimated_roi}` !== ""
             ? parseFloat(estimated_roi)
+            : null,
+      }),
+      ...(expected_revenue !== undefined && {
+        expected_revenue:
+          expected_revenue !== null && `${expected_revenue}` !== ""
+            ? parseFloat(expected_revenue)
             : null,
       }),
       ...(lease_term !== undefined && {
@@ -2801,11 +2817,11 @@ router.get("/report/capital-recovery", authenticateToken, async (req, res) => {
       investor_id: investorId,
       ...(trimmedSearch
         ? {
-            project_name: {
-              contains: trimmedSearch,
-              mode: "insensitive",
-            },
-          }
+          project_name: {
+            contains: trimmedSearch,
+            mode: "insensitive",
+          },
+        }
         : {}),
     };
 
@@ -2828,27 +2844,44 @@ router.get("/report/capital-recovery", authenticateToken, async (req, res) => {
     // Sum payouts per project (only status = PAYOUT)
     const payoutsByProject = projectIds.length
       ? await prisma.payouts.groupBy({
-          by: ["project_id"],
-          where: {
-            investor_id: investorId,
-            project_id: { in: projectIds },
-            status: PAYOUT_STATUS.PAYOUT,
-          },
-          _sum: {
-            payout_amount: true,
-          },
-        })
+        by: ["project_id"],
+        where: {
+          investor_id: investorId,
+          project_id: { in: projectIds },
+          status: PAYOUT_STATUS.PAYOUT,
+        },
+        _sum: {
+          payout_amount: true,
+        },
+      })
       : [];
 
     const payoutSumMap = new Map(
       payoutsByProject.map((g) => [g.project_id, Number(g._sum?.payout_amount || 0)])
     );
 
+    // invoice total amount by project
+    const invoiceTotalAmountByProject = await prisma.invoices.groupBy({
+      by: ["project_id"],
+      where: {
+        status: 1,
+        is_deleted: 0,
+        project_id: { in: projectIds },
+      },
+      _sum: {
+        total_amount: true,
+      },
+    });
+
+    const invoiceTotalAmountMap = new Map(
+      invoiceTotalAmountByProject.map((g) => [g.project_id, Number(g._sum?.total_amount || 0)])
+    );
+
     const data = projects.map((p) => {
       const askingPrice = parseFloat(p.asking_price || "0") || 0;
       const totalPayout = payoutSumMap.get(p.id) || 0;
-      const capitalRecovery =
-        askingPrice > 0 ? (totalPayout * 100) / askingPrice : 0;
+      const invoiceTotalAmount = invoiceTotalAmountMap.get(p.id) || 0;
+      const capitalRecovery = askingPrice > 0 ? (invoiceTotalAmount * 100) / askingPrice : 0;
 
       return {
         id: p.id,
@@ -2856,6 +2889,7 @@ router.get("/report/capital-recovery", authenticateToken, async (req, res) => {
         project_name: p.project_name,
         asking_price: askingPrice.toFixed(2),
         total_payout: totalPayout.toFixed(2),
+        invoice_total_amount: invoiceTotalAmount.toFixed(2),
         capital_recovery: capitalRecovery.toFixed(2),
       };
     });

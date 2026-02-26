@@ -6,10 +6,11 @@ import Link from "next/link";
 import AOS from "aos";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { apiGet } from "@/lib/api";
-import { buildUploadUrl, formatEnergyUnit, getFullImageUrl } from "@/utils/common";
+import { buildUploadUrl, formatCurrency, formatEnergyUnit, formatShort, getFullImageUrl } from "@/utils/common";
 import { useRouter } from "next/navigation";
 import { getPrimaryProjectImage } from "@/utils/projectUtils";
 import { PROJECT_STATUS } from "@/constants/project_status";
+import { useFormatPrice } from "@/hooks/useFormatPrice";
 
 const ProjectsSection = () => {
   const [activeTab, setActiveTab] = useState("open");
@@ -17,6 +18,7 @@ const ProjectsSection = () => {
   const [loading, setLoading] = useState(true);
   const { lang } = useLanguage();
   const router = useRouter();
+  const formatPrice = useFormatPrice();
 
   const formatNumber = (num) => {
     if (!num) return "0";
@@ -156,20 +158,24 @@ const ProjectsSection = () => {
                               height={16}
                             />
                           </span>
-                          {project.project_size? `${formatEnergyUnit(project.project_size)}`
+                          {project.project_size ? `${formatEnergyUnit(project.project_size)}`
                             : "N/A"}
                         </div>
 
                         <div className="d-flex justify-content-between align-items-center gap-3 mb-3">
                           <div className="w-45 caterogy-items">
-                            <h6 className="mb-0 fw-600 text-title">N/A</h6>
+                            <h6 className="mb-0 fw-600 text-title">{formatShort(
+                              project.project_size ||
+                              0,
+                            ).toLocaleString()}</h6>
                             <small className="text-muted">
-                              {lang("home.projects.kwhGenerated")}
+                              {lang("home.exchangeHub.targetInvestment") ||
+                                "Target Investment"}
                             </small>
                           </div>
                           <div className="w-45 caterogy-items items-2">
                             <h6 className="mb-0 fw-600 text-title secondaryTextColor">
-                              {project.investor_profit || "0"}%
+                              {activeTab === "open" ? project.estimated_roi : project.calculated_roi || "0"}%
                             </h6>
                             <small className="text-muted">
                               {lang("home.projects.roi")}
@@ -182,7 +188,7 @@ const ProjectsSection = () => {
                             {lang("home.projects.expectedRevenue")}
                           </p>
                           <span className="fw-600 text-secondary-color">
-                            {project.asking_price ? `${formatEnergyUnit(project.asking_price)}` : "0"}
+                            {activeTab === "open" ? project.expected_revenue ? `${formatPrice(project.expected_revenue)}` : "0" : project.cumulative_revenue ? `${formatPrice(project.cumulative_revenue)}` : "0"}
                           </span>
                         </div>
 

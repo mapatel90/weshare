@@ -309,7 +309,7 @@ const ProjectCard = ({ project, activeTab }) => {
                 </span>
                 <span className="time-left">
                   {lang("home.exchangeHub.timeLeft") || "Time left"}:{" "}
-                  {getTimeLeft(project?.project_close_date)}
+                  {getTimeLeft(project?.project_expire_date)}
                 </span>
               </div>
               <div className="progress-bar-container">

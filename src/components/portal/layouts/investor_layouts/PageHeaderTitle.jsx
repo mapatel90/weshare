@@ -1,13 +1,16 @@
 'use client';
 import React from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { ChevronRight } from 'lucide-react';
+import { Button } from '@mui/material';
 
 const PageHeaderTitle = () => {
     const pathName = usePathname();
     const { lang } = useLanguage();
+    const router = useRouter()
+
 
     const parts = pathName.split("/").filter(Boolean);
     const pageKey = parts[parts.length - 1] || lang("page_title.dashboard", "Dashboard");
@@ -99,7 +102,12 @@ const PageHeaderTitle = () => {
             </div>
 
             {/* RIGHT SIDE (Buttons placeholder) */}
-            <div className="header-right"></div>
+            <div className="header-right">
+                {/* here add one button is invest now  */}
+                <Button variant="contained" className="common-orange-color" size="small" aria-label={lang("home.projects.investNow", "Invest Now")} onClick={() => router.push("/frontend/exchange-hub")}>
+                    {lang("home.projects.investNow", "Invest Now")}
+                </Button>
+            </div>
         </div>
     );
 };

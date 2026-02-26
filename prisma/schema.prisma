@@ -387,6 +387,8 @@ model projects {
   meter_url            String?                @db.VarChar(255)
   sim_number           String?                @db.VarChar(255)
   estimated_roi        Float?
+  expected_revenue     Float?
+  project_expire_date  DateTime?
   sim_start_date       DateTime?
   sim_expire_date      DateTime?
   project_status_id    Int?                   @default(1)

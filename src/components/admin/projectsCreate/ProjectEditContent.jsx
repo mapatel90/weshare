@@ -55,11 +55,14 @@ const ProjectEditContent = ({ projectId }) => {
         product_code: '',
         project_description: '',
         estimated_roi: '',
+        expected_revenue: '',
         investorProfit: '',
         weshareprofite: '',
         project_image: '',
         project_size: '',
         project_close_date: '',
+        project_expire_date: '',
+        project_start_date: '',
         project_location: '',
         evn_price_kwh: '',
         weshare_price_kwh: '',
@@ -289,11 +292,14 @@ const ProjectEditContent = ({ projectId }) => {
                         product_code: p.product_code || '',
                         project_description: p.project_description || '',
                         estimated_roi: p.estimated_roi !== undefined && p.estimated_roi !== null ? String(p.estimated_roi) : '',
+                        expected_revenue: p.expected_revenue !== undefined && p.expected_revenue !== null ? String(p.expected_revenue) : '',
                         investorProfit: p.investor_profit || '',
                         weshareprofite: p.weshare_profit || '',
                         project_image: p.project_image || '',
                         project_size: p.project_size || '',
                         project_close_date: p.project_close_date ? new Date(p.project_close_date).toISOString().split('T')[0] : '',
+                        project_expire_date: p.project_expire_date ? new Date(p.project_expire_date).toISOString().split('T')[0] : '',
+                        project_start_date: p.project_start_date ? new Date(p.project_start_date).toISOString().split('T')[0] : '',
                         project_location: p.project_location || '',
                         evn_price_kwh: p.evn_price_kwh !== undefined && p.evn_price_kwh !== null ? String(p.evn_price_kwh) : '',
                         weshare_price_kwh: p.weshare_price_kwh !== undefined && p.weshare_price_kwh !== null ? String(p.weshare_price_kwh) : '',
@@ -374,7 +380,7 @@ const ProjectEditContent = ({ projectId }) => {
                 const numberRegex = /^[0-9]*\.?[0-9]*$/
                 const intRegex = /^\d+$/
                 let isValid = true
-                if (name === 'investorProfit' || name === 'weshareprofite' || name === 'asking_price' || name === 'project_size') {
+                if (name === 'investorProfit' || name === 'weshareprofite' || name === 'asking_price' || name === 'project_size' || name === 'expected_revenue') {
                     isValid = value === '' || numberRegex.test(value)
                 } else if (name === 'lease_term' || name === 'payback_period') {
                     isValid = value === '' || intRegex.test(value)
@@ -504,6 +510,9 @@ const ProjectEditContent = ({ projectId }) => {
         if (formData.estimated_roi && !numberRegex.test(formData.estimated_roi)) {
             errors.estimated_roi = lang('projects.onlynumbers', 'Only numbers are allowed (e.g. 1234.56)')
         }
+        if (formData.expected_revenue && !numberRegex.test(formData.expected_revenue)) {
+            errors.expected_revenue = lang('projects.onlynumbers', 'Only numbers are allowed (e.g. 1234.56)')
+        }
         if (formData.lease_term && !intRegex.test(String(formData.lease_term))) {
             errors.lease_term = lang('projects.onlynumbersWithoutdesimal', 'Only numbers are allowed (e.g. 123456)')
         }
@@ -547,11 +556,14 @@ const ProjectEditContent = ({ projectId }) => {
                 product_code: formData.product_code || '',
                 project_description: formData.project_description || '',
                 estimated_roi: formData.estimated_roi && formData.estimated_roi !== '' ? parseFloat(formData.estimated_roi) : null,
+                expected_revenue: formData.expected_revenue && formData.expected_revenue !== '' ? parseFloat(formData.expected_revenue) : null,
                 investor_profit: formData.investorProfit || '0',
                 weshare_profit: formData.weshareprofite || '0',
                 project_image: formData.project_image || '',
                 project_size: formData.project_size || '',
                 project_close_date: formData.project_close_date || null,
+                project_expire_date: formData.project_expire_date || null,
+                project_start_date: formData.project_start_date || null,
                 project_location: formData.project_location || '',
                 evn_price_kwh: formData.evn_price_kwh && formData.evn_price_kwh !== '' ? parseFloat(formData.evn_price_kwh) : null,
                 weshare_price_kwh: formData.weshare_price_kwh && formData.weshare_price_kwh !== '' ? parseFloat(formData.weshare_price_kwh) : null,

@@ -49,6 +49,7 @@ const CapitalRecoverReport = () => {
         projectName: item.project_name || `Project ${item.project_id ?? ""}`,
         askingPrice: item.asking_price || "0",
         totalPayout: item.total_payout || "0",
+        invoiceTotalAmount: item.invoice_total_amount || "0",
         capitalRecovery: item.capital_recovery || "0",
       }));
 
@@ -137,6 +138,7 @@ const CapitalRecoverReport = () => {
           item.project_name || `Project ${item.project_id ?? idx ?? ""}`,
         askingPrice: item.asking_price || "0",
         totalPayout: item.total_payout || "0",
+        invoiceTotalAmount: item.invoice_total_amount || "0",
         capitalRecovery: item.capital_recovery || "0",
       }));
 
@@ -144,7 +146,7 @@ const CapitalRecoverReport = () => {
       const headers = [
         lang("projects.projectName", "Project Name"),
         lang("projects.askingPrice", "Asking Price"),
-        lang("reports.totalPayout", "Total Payout"),
+        lang("reports.totalInvoiceAmount", "Total Invoice Amount"),
         lang("reports.capitalRecovery", "Capital Recovery"),
       ];
 
@@ -155,7 +157,7 @@ const CapitalRecoverReport = () => {
           const values = [
             `"${(row.projectName || "-").replace(/"/g, '""')}"`,
             row.askingPrice ?? "0",
-            row.totalPayout ?? "0",
+            row.invoiceTotalAmount ?? "0",
             `${parseFloat(row.capitalRecovery || 0).toFixed(2)}%`,
           ];
           return values.join(",");
@@ -215,9 +217,9 @@ const CapitalRecoverReport = () => {
         cell: ({ row }) => formatCurrency(row.original.askingPrice),
       },
       {
-        accessorKey: "totalPayout",
-        header: () => lang("reports.totalPayout", "Total Payout"),
-        cell: ({ row }) => formatCurrency(row.original.totalPayout),
+        accessorKey: "invoiceTotalAmount",
+        header: () => lang("reports.totalInvoiceAmount", "Total Invoice Amount"),
+        cell: ({ row }) => formatCurrency(row.original.invoiceTotalAmount),
       },
       {
         accessorKey: "capitalRecovery",
