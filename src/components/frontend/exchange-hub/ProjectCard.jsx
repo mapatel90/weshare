@@ -476,8 +476,7 @@ const ProjectCard = ({ project, activeTab }) => {
                 "Lease Term Remaining"}
             </span>
             <span className="fw-600 text-black">
-              {project?.lease_term || "7"}{" "}
-              {lang("home.exchangeHub.years") || "Years"}
+              {getTimeLeft(project?.project_close_date)}
             </span>
           </p>
           <p>
