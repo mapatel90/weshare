@@ -949,8 +949,6 @@ router.put('/profile/:id', authenticateToken, uploadAvatar.single('user_image'),
   }
 });
 
-
-
 router.post("/dropdown/users", authenticateToken, async (req, res) => {
   try {
     const { status, role_id, search } = req.body;
