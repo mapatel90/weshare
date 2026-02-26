@@ -7,11 +7,8 @@ import "./styles/exchange-hub-custom.css";
 import "./styles/responsive.css";
 import {
   buildUploadUrl,
-  convertEnergyToKwh,
   formatEnergyUnit,
   formatShort,
-  getDuration,
-  getFullImageUrl,
   getTimeLeft,
 } from "@/utils/common";
 import { getPrimaryProjectImage } from "@/utils/projectUtils";
@@ -292,7 +289,7 @@ const ProjectCard = ({ project, activeTab }) => {
                   {lang("home.exchangeHub.leaseTerm") + " " + lang("home.exchangeHub.extendable") || "Extendable"}
                 </span>
                 <span className="value">
-                  {project.project_status_id === PROJECT_STATUS.UPCOMING ? project.lease_term + " " + lang("home.exchangeHub.years") || "Years" : getDuration(project?.project_start_date, project?.project_close_date)}
+                  {project.project_status_id === PROJECT_STATUS.UPCOMING ? project.lease_term + " " + lang("home.exchangeHub.years") || "Years" : getTimeLeft(project?.project_close_date)}
                 </span>
               </div>
             </div>
