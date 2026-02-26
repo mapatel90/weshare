@@ -609,7 +609,7 @@ const ProjectDetail = ({ projectId }) => {
                   </div>
                   <div>
                     <p>
-                      {project.project_status_id === PROJECT_STATUS.UPCOMING ? lang("home.exchangeHub.askingPrice") : lang("home.exchangeHub.totalInvestedPrice") || "Asking Price"}:
+                    {project.project_status_id === PROJECT_STATUS.UPCOMING ? lang("home.exchangeHub.askingPrice") : lang("home.exchangeHub.totalInvestedPrice") || "Asking Price"}:
                     </p>
                     <h4>
                       {formatPrice(project.asking_price || "0")}
@@ -786,7 +786,7 @@ const ProjectDetail = ({ projectId }) => {
               <div className="d-flex justify-content-end mb-3">
                 <button
                   type="button"
-                  className="btn d-inline-flex align-items-center gap-2"
+                  className="btn d-inline-flex align-items-center gap-2 p-2"
                   onClick={() => router.push("/frontend/exchange-hub")}
                   onMouseEnter={() => setIsBackButtonHovered(true)}
                   onMouseLeave={() => setIsBackButtonHovered(false)}
@@ -818,8 +818,7 @@ const ProjectDetail = ({ projectId }) => {
                 )}
                 <div className="middileContend">
                   <p className="mb-0 text-secondary-color">
-                    {lang("home.exchangeHub.totalInvestedPrice") ||
-                      "Target Investment"}
+                    {project.project_status_id === PROJECT_STATUS.UPCOMING ? lang("home.exchangeHub.askingPrice") : lang("home.exchangeHub.totalInvestedPrice") || "Target Investment"}
                   </p>
                   <h2>{formatPrice(project.asking_price || "0")}</h2>
                 </div>
