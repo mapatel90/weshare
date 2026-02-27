@@ -1244,7 +1244,7 @@ const InvoiceCreateForm = ({ invoiceId = null }) => {
             </Grid> */}
 
             {/* Section 3: Line Items */}
-            <Grid item xs={4}>
+            <Grid item xs={12} sm={4}>
               <Box
                 sx={{
                   display: "flex",
@@ -1275,7 +1275,7 @@ const InvoiceCreateForm = ({ invoiceId = null }) => {
               </Box>
             </Grid>
 
-            <Grid item xs={8}>
+            <Grid item xs={12} sm={8}>
               <Box
                 sx={{
                   mb: 3,
@@ -1319,7 +1319,6 @@ const InvoiceCreateForm = ({ invoiceId = null }) => {
               >
                 <Box
                   sx={{
-                    display: "grid",
                     gridTemplateColumns: "1.2fr 1.2fr 0.5fr 0.6fr 0.4fr 0.3fr",
                     gap: 1,
                     p: 2,
@@ -1328,6 +1327,7 @@ const InvoiceCreateForm = ({ invoiceId = null }) => {
                     fontSize: "13px",
                     color: colors.textMuted,
                     borderBottom: `1px solid ${colors.border}`,
+                    display: { xs: "none", md: "grid" },
                   }}
                 >
                   <Box>{lang("invoice.items") || "Item"}</Box>
@@ -1359,7 +1359,12 @@ const InvoiceCreateForm = ({ invoiceId = null }) => {
                   mt: 3,
                 }}
               >
-                <Box sx={{ minWidth: 320, textAlign: "right" }}>
+                <Box
+                  sx={{
+                    minWidth: { xs: "100%", sm: 320 },
+                    textAlign: { xs: "left", sm: "right" },
+                  }}
+                >
                   <Box
                     sx={{
                       mb: 2,
@@ -1395,6 +1400,8 @@ const InvoiceCreateForm = ({ invoiceId = null }) => {
                       display: "flex",
                       justifyContent: "space-between",
                       alignItems: "center",
+                      flexDirection: "row",
+                      gap: 1,
                     }}
                   >
                     <span
@@ -1402,14 +1409,23 @@ const InvoiceCreateForm = ({ invoiceId = null }) => {
                     >
                       {lang("invoice.tax") || "Tax"}
                     </span>
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: { xs: 1, sm: 8 },
+                        width: "auto",
+                        justifyContent: "flex-start",
+                        ml: "auto",
+                      }}
+                    >
                       <Select
                         size="small"
                         value={selectedTax}
                         onChange={(e) => setSelectedTax(e.target.value)}
                         displayEmpty
                         sx={{
-                          minWidth: 140,
+                          minWidth: { xs: 100, sm: 140 },
                           backgroundColor: colors.cardBackground,
                           borderRadius: "8px",
                           color: colors.text,

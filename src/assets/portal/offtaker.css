@@ -1465,3 +1465,34 @@ td {
   font-size: 1.2rem;
   cursor: pointer;
 }
+
+@media (max-width: 600px) {
+  .header {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: center;
+    height: 60px;
+    padding: 8px 0;
+  }
+
+  .header-left,
+  .header-right,
+  .profile-icons {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+  }
+
+  .header-left,
+  .profile-icons {
+    gap: 8px;
+  }
+
+  .header-right {
+    width: auto;
+    margin-left: auto;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+}

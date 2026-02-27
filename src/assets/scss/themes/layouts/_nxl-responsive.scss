@@ -120,6 +120,53 @@
 
 /*
 <--!----------------------------------------------------------------!-->
+<--! @media (max-width: 399.98px) !-->
+<--!----------------------------------------------------------------!-->
+*/
+@media (max-width: 399.98px) {
+	.page-header {
+		padding: 0 10px !important;
+		gap: 8px;
+	}
+
+	.page-header .page-header-left {
+		min-width: 0;
+		flex: 1 1 0;
+	}
+
+	.page-header .page-header-title h5 {
+		max-width: 92px;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.page-header .breadcrumb {
+		max-width: 130px;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.page-header .page-header-right {
+		// max-width: 52%;
+		min-width: 0;
+		flex: 0 0 auto;
+	}
+
+	.page-header .page-header-right .btn {
+		max-width: 100%;
+		padding-left: 10px;
+		padding-right: 10px;
+		font-size: 13px;
+		line-height: 1.15;
+		white-space: normal;
+		word-break: break-word;
+	}
+}
+
+/*
+<--!----------------------------------------------------------------!-->
 <--! @media (max-width: 424.98px) !-->
 <--!----------------------------------------------------------------!-->
 */
