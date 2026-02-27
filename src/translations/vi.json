@@ -1666,8 +1666,8 @@
     "noInvestorsFound": "Không tìm thấy nhà đầu tư nào",
     "full_name_required": "Họ và tên là bắt buộc",
     "email_required": "Email là bắt buộc",
-    "phone_number_required": "Số điện thoại là bắt buộc"
-
+    "phone_number_required": "Số điện thoại là bắt buộc",
+    "markAsInvestor": "Gán nhà đầu tư"
   },
   "contract": {
     "signedDocument": "Tài liệu đã ký",
@@ -2039,5 +2039,19 @@
     "edit": "Sửa",
     "delete": "Xóa",
     "view_all_templates": "Xem tất cả mẫu"
+  },
+  "response_messages": {
+    "something_went_wrong": "Đã xảy ra lỗi. Vui lòng thử lại.",
+    "failed_to_update_permissions": "Không thể cập nhật quyền",
+    "failed_to_load_permissions": "Không thể tải quyền",
+    "projectId_is_required": "Mã dự án là bắt buộc",
+    "investor_not_found": "Không tìm thấy nhà đầu tư",
+    "project_not_found": "Không tìm thấy dự án",
+    "current_investor_has_active_contract": "Nhà đầu tư hiện tại đã có hợp đồng hoạt động, vui lòng hủy hợp đồng trước khi gán nhà đầu tư mới",
+    "investor_marked_successfully": "Nhà đầu tư đã được gán thành công",
+    "investor_deleted_successfully": "Nhà đầu tư đã được xóa thành công",
+    "not_found": "Không tìm thấy",
+    "access_denied_only_for_investors": "Quyền truy cập bị từ chối. Hành động này chỉ được phép cho nhà đầu tư.",
+    "fullName_and_email_are_required": "Họ và tên và email là bắt buộc"
   }
 }

@@ -1710,7 +1710,8 @@
     "noInvestorsFound": "No investors found",
     "full_name_required": "Full name is required",
     "email_required": "Email is required",
-    "phone_number_required": "Phone number is required"
+    "phone_number_required": "Phone number is required",
+    "markAsInvestor": "Mark as Investor"
   },
   "contract": {
     "signedDocument": "Signed Document",
@@ -2091,5 +2092,19 @@
     "create": "Create",
     "edit": "Edit",
     "delete": "Delete"
+  },
+  "response_messages": {
+    "something_went_wrong": "Something went wrong",
+    "failed_to_update_permissions": "Failed to update permissions",
+    "failed_to_load_permissions": "Failed to load permissions",
+    "projectId_is_required": "Project ID is required",
+    "investor_not_found": "Investor not found",
+    "project_not_found": "Project not found",
+    "current_investor_has_active_contract": "Current investor has an active contract, please cancel the contract first",
+    "investor_marked_successfully": "Investor marked successfully",
+    "investor_deleted_successfully": "Investor deleted successfully",
+    "not_found": "Not found",
+    "access_denied_only_for_investors": "Access denied. This action is allowed only for investors.",
+    "fullName_and_email_are_required": "Full name and email are required"
   }
 }

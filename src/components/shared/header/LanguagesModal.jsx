@@ -8,6 +8,7 @@ const LanguagesModal = () => {
   const [hovered, setHovered] = useState(null); // added hover state
   const wrapperRef = useRef(null);
 
+  console.log("currentLanguageInfo:::", currentLanguageInfo);
   const handleToggle = (e) => {
     e && e.preventDefault();
     setOpen(prev => !prev);

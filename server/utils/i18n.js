@@ -14,6 +14,10 @@ export const t = (lang, key, vars = {}) => {
   return text.replace(/{{(.*?)}}/g, (_, v) => vars[v.trim()] ?? '');
 };
 
+export const getCurrentLanguage = (req) => {
+  return req.headers['x-lang'] || 'en';
+};
+
 
 export const getUserLanguage = async (userId) => {
   if (!userId) return process.env.DEFAULT_LANGUAGE;
