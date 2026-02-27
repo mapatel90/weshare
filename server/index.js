@@ -5,6 +5,7 @@ import morgan from "morgan";
 import dotenv from "dotenv";
 import { fileURLToPath } from "url";
 import path, { dirname, join } from "path";
+import { getCurrentLanguage } from "./utils/i18n.js";
 
 // Import routes
 import authRoutes from "./routes/auth.js";
@@ -72,6 +73,12 @@ app.use(
 app.use(morgan("combined"));
 app.use(express.json({ limit: "100mb" }));
 app.use(express.urlencoded({ extended: true, limit: "100mb" }));
+
+// Language detection middleware
+app.use((req, res, next) => {
+  req.currentLanguage = getCurrentLanguage(req);
+  next();
+});
 
 // Serve uploaded assets (used by admin dropzones and public gallery previews)
 app.use("/public", express.static(publicDir));

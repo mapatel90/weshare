@@ -157,9 +157,7 @@ router.get("/", authenticateToken, async (req, res) => {
     if (search && search.trim() !== "") {
       const searchText = search.trim();
       const searchNumber = Number(searchText);
-      console.log("Searching invoices with term:", searchText);
-      console.log("Parsed search number:", searchNumber);
-
+     
       where.OR = [
         // project_name search (via project_id)
         {
@@ -253,6 +251,7 @@ router.get("/", authenticateToken, async (req, res) => {
 router.get("/:id", authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
+    const language = req.currentLanguage;
 
     const invoice = await prisma.invoices.findUnique({
       where: { id: parseInt(id) },
@@ -315,7 +314,7 @@ router.get("/:id", authenticateToken, async (req, res) => {
     if (!invoice) {
       return res.status(404).json({
         success: false,
-        message: "Invoice not found",
+        message: t(language, "response_messages.invoice_not_found"),
       });
     }
 
@@ -354,11 +353,12 @@ router.post("/", authenticateToken, async (req, res) => {
       created_by,
       status,
     } = req.body;
+    const language = req.currentLanguage;
 
     if (!project_id || !offtaker_id || status === undefined) {
       return res
         .status(400)
-        .json({ success: false, message: "Missing required fields" });
+        .json({ success: false, message: t(language, "response_messages.missing_required_fields") });
     }
 
     const incrementInvoiceNumber = (invNo) => {
@@ -563,7 +563,7 @@ router.post("/", authenticateToken, async (req, res) => {
 
     return res.status(201).json({
       success: true,
-      message: "Invoice created successfully",
+      message: t(language, "response_messages.invoice_created_successfully"),
       data: created,
     });
   } catch (error) {
@@ -599,11 +599,12 @@ router.put("/:id", authenticateToken, async (req, res) => {
       note,
       terms_and_conditions,
     } = req.body;
+    const language = req.currentLanguage;
 
     if (!project_id || !offtaker_id || status === undefined) {
       return res
         .status(400)
-        .json({ success: false, message: "Missing required fields" });
+        .json({ success: false, message: t(language, "response_messages.missing_required_fields") });
     }
 
     const parsedItems = Array.isArray(items)
@@ -722,7 +723,7 @@ router.put("/:id", authenticateToken, async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: "Invoice updated successfully",
+      message: t(language, "response_messages.invoice_updated_successfully"),
       data: updated,
     });
   } catch (error) {
@@ -735,20 +736,22 @@ router.put("/:id", authenticateToken, async (req, res) => {
 router.delete("/:id", authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
+    const language = req.currentLanguage;
     await prisma.invoices.update({
       where: { id: parseInt(id) },
       data: { is_deleted: 1 },
     });
     return res
       .status(200)
-      .json({ success: true, message: "Invoice deleted successfully" });
+      .json({ success: true, message: t(language, "response_messages.invoice_deleted_successfully") });
   } catch (error) {
     console.error("Error deleting invoice:", error);
-    return res.status(500).json({ success: false, message: "Server error" });
+    return res.status(500).json({ success: false, message: t(language, "response_messages.server_error") });
   }
 });
 
 router.post("/dropdown", authenticateToken, async (req, res) => {
+  const language = req.currentLanguage;
   try {
     const { project_id, offtaker_id, status } = req.body;
 
@@ -772,12 +775,12 @@ router.post("/dropdown", authenticateToken, async (req, res) => {
     });
     return res.status(200).json({
       success: true,
-      message: "Invoices fetched successfully",
+      message: t(language, "response_messages.invoices_fetched_successfully"),
       data: invoices,
     });
   } catch (error) {
     console.error("Error fetching invoices:", error);
-    return res.status(500).json({ success: false, message: "Server error" });
+    return res.status(500).json({ success: false, message: t(language, "response_messages.server_error") });
   }
 });
 

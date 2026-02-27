@@ -1,6 +1,7 @@
 import express from "express";
 import prisma from "../utils/prisma.js";
 import { authenticateToken } from "../middleware/auth.js";
+import { t } from "../utils/i18n.js";
 
 const router = express.Router();
 
@@ -8,9 +9,9 @@ const router = express.Router();
 router.post("/", authenticateToken, async (req, res) => {
   try {
     const { companyName, apiKey, apiUrl, secretKey, status, created_by } = req.body;
-
+    const language = req.currentLanguage;
     if (!companyName || !apiKey || !apiUrl || !secretKey || status === undefined) {
-      return res.status(400).json({ success: false, message: "All fields are required." });
+      return res.status(400).json({ success: false, message: t(language, "response_messages.all_fields_are_required") });
     }
 
     const newCompany = await prisma.inverter_company.create({
@@ -27,7 +28,7 @@ router.post("/", authenticateToken, async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: "Company added successfully",
+      message: t(language, "response_messages.company_added_successfully"),
       data: newCompany,
     });
   } catch (error) {
@@ -87,9 +88,10 @@ router.put("/:id", authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
     const { companyName, apiKey, apiUrl, secretKey, status } = req.body;
+    const language = req.currentLanguage;
 
     if (!companyName || !apiKey || !apiUrl || !secretKey || status === undefined) {
-      return res.status(400).json({ success: false, message: "All fields are required." });
+      return res.status(400).json({ success: false, message: t(language, "response_messages.all_fields_are_required") });
     }
 
     const updated = await prisma.inverter_company.update({
@@ -103,7 +105,7 @@ router.put("/:id", authenticateToken, async (req, res) => {
       },
     });
 
-    res.json({ success: true, message: "Company updated successfully", data: updated });
+    res.json({ success: true, message: t(language, "response_messages.company_updated_successfully"), data: updated });
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: "Internal server error" });
@@ -115,13 +117,14 @@ router.put("/:id", authenticateToken, async (req, res) => {
 router.delete("/:id", authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
+    const language = req.currentLanguage;
 
     await prisma.inverter_company.update({
       where: { id: Number(id) },
       data: { is_deleted: 1 },
     });
 
-    res.json({ success: true, message: "Company deleted successfully" });
+    res.json({ success: true, message: t(language, "response_messages.company_deleted_successfully") });
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: "Internal server error" });

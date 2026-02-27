@@ -1,18 +1,20 @@
 import express from 'express';
 import prisma from '../utils/prisma.js';
 import { authenticateToken } from '../middleware/auth.js';
+import { t } from '../utils/i18n.js';
 
 const router = express.Router();
 
 router.post("/", authenticateToken, async (req, res) => {
     try {
         const { company_id, title, inverter_type_id, status, created_by } = req.body;
+        const language = req.currentLanguage;
 
         // Basic validation
         if (!company_id || !title || !inverter_type_id || status === undefined) {
             return res.status(400).json({
                 success: false,
-                message: "All fields are required.",
+                message: t(language, "response_messages.all_fields_are_required"),
             });
         }
 
@@ -36,7 +38,7 @@ router.post("/", authenticateToken, async (req, res) => {
 
         return res.status(201).json({
             success: true,
-            message: "Inverter added successfully",
+            message: t(language, "response_messages.inverter_added_successfully"),
             data: newInverter,
         });
     } catch (error) {
@@ -129,13 +131,14 @@ router.get("/", authenticateToken, async (req, res) => {
 router.put("/:id", authenticateToken, async (req, res) => {
     try {
         const { id } = req.params;
+        const language = req.currentLanguage;
         const { company_id, title, inverter_type_id, status } = req.body;
 
         // Basic validation
         if (!company_id || !title || !inverter_type_id || status === undefined) {
             return res.status(400).json({
                 success: false,
-                message: "All fields are required.",
+                message: t(language, "response_messages.all_fields_are_required"),
             });
         }
 
@@ -152,7 +155,7 @@ router.put("/:id", authenticateToken, async (req, res) => {
 
         res.status(200).json({
             success: true,
-            message: "Inverter updated successfully",
+            message: t(language, "response_messages.inverter_updated_successfully"),
             data: updatedInverter,
         });
     } catch (error) {
@@ -168,6 +171,7 @@ router.put("/:id", authenticateToken, async (req, res) => {
 router.delete("/:id", authenticateToken, async (req, res) => {
     try {
         const { id } = req.params;
+        const language = req.currentLanguage;
         
         await prisma.inverters.update({
             where: { id: parseInt(id) },
@@ -176,7 +180,7 @@ router.delete("/:id", authenticateToken, async (req, res) => {
 
         res.status(200).json({
             success: true,
-            message: "Inverter deleted successfully",
+            message: t(language, "response_messages.inverter_deleted_successfully"),
         });
     } catch (error) {
         console.error("Error deleting inverter:", error);

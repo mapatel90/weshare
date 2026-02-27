@@ -4,11 +4,11 @@
  */
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+import { useLanguage } from "@/contexts/LanguageContext";
 import { startLoading, stopLoading } from "@/contexts/LoadingStore";
 
 // Request deduplication: track in-flight requests to prevent duplicate calls
 const pendingRequests = new Map();
-
 /**
  * Get authentication token from localStorage
  * @returns {string|null} JWT token
@@ -40,8 +40,14 @@ const getRequestKey = (url, options = {}) => {
  * @returns {Object} Headers object
  */
 const buildHeaders = (customHeaders = {}, includeAuth = true) => {
+  const currentLanguage =
+    typeof window !== 'undefined'
+      ? localStorage.getItem('selectedLanguage') || 'en'
+      : 'en';
+
   const headers = {
     'Content-Type': 'application/json',
+    'x-lang': currentLanguage,
     ...customHeaders,
   };
 

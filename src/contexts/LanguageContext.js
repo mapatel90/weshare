@@ -8,7 +8,7 @@ import viTranslations from '@/translations/vi.json';
 // Default context value for when provider is not mounted
 const defaultLanguageValue = {
   currentLanguage: 'en',
-  changeLanguage: () => {},
+  changeLanguage: () => { },
   lang: (key, def = key) => def ?? key,
   languages: {},
   currentLanguageInfo: null
@@ -24,7 +24,7 @@ export const LANGUAGES = {
     flag: '/images/flags/4x3/us.svg'
   },
   vi: {
-    code: 'vi', 
+    code: 'vi',
     name: 'Tiếng Việt',
     flag: '/images/flags/4x3/vn.svg'
   }
@@ -44,6 +44,10 @@ export const LanguageProvider = ({ children }) => {
     const savedLanguage = localStorage.getItem('selectedLanguage');
     if (savedLanguage && LANGUAGES[savedLanguage]) {
       setCurrentLanguage(savedLanguage);
+    } else {
+      // 👇 FIRST LOAD CASE
+      localStorage.setItem('selectedLanguage', 'en');
+      setCurrentLanguage('en');
     }
   }, []);
 
@@ -52,7 +56,7 @@ export const LanguageProvider = ({ children }) => {
     if (LANGUAGES[languageCode]) {
       setCurrentLanguage(languageCode);
       localStorage.setItem('selectedLanguage', languageCode);
-      
+
       // Update HTML lang attribute
       document.documentElement.lang = languageCode;
     }
@@ -62,7 +66,7 @@ export const LanguageProvider = ({ children }) => {
   const lang = (key, defaultValue = key) => {
     const keys = key.split('.');
     let translation = translations[currentLanguage];
-    
+
     for (const k of keys) {
       if (translation && translation[k]) {
         translation = translation[k];
@@ -79,7 +83,7 @@ export const LanguageProvider = ({ children }) => {
         break;
       }
     }
-    
+
     return typeof translation === 'string' ? translation : defaultValue;
   };
 
@@ -103,8 +107,8 @@ export const useLanguage = () => {
   if (!context) {
     // Fallback if provider is not mounted (prevents runtime crashes)
     return {
-      currentLanguage: 'en',
-      changeLanguage: () => {},
+      currentLanguage: localStorage.getItem('selectedLanguage') || 'en',
+      changeLanguage: () => { },
       lang: (key, def = key) => def ?? key,
       languages: LANGUAGES,
       currentLanguageInfo: LANGUAGES['en']

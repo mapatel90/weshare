@@ -1,6 +1,7 @@
 import express from 'express';
 import prisma from '../utils/prisma.js';
 import { authenticateToken } from '../middleware/auth.js';
+import { t } from '../utils/i18n.js';
 
 const router = express.Router();
 
@@ -21,8 +22,9 @@ router.get('/', authenticateToken, async (req, res) => {
 router.post('/', authenticateToken, async (req, res) => {
   try {
     const { name, status } = req.body;
+    const language = req.currentLanguage;
     if (!name || status === undefined) {
-      return res.status(400).json({ success: false, message: 'name and status are required' });
+      return res.status(400).json({ success: false, message: t(language, "response_messages.name_and_status_are_required") });
     }
     const createdBy = req.user?.id ? parseInt(req.user.id) : null;
     const created = await prisma.project_types.create({

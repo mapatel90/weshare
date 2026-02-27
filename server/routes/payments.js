@@ -40,10 +40,10 @@ const upload = multer({ storage });
 router.get('/', authenticateToken, async (req, res) => {
   try {
     const { search = '', paymentDate = '', projectId = '', status = '', offtakerId = '', page = 1, pageSize = 10 } = req.query;
-    console.log("Query params:", offtakerId);
     const pageNum = parseInt(page);
     const limit = parseInt(pageSize);
     const skip = (pageNum - 1) * limit;
+    const language = req.currentLanguage;
 
     // Build search condition
     const searchAmount = parseFloat(search);
@@ -118,12 +118,13 @@ router.get('/', authenticateToken, async (req, res) => {
 router.post('/offtaker/total', authenticateToken, async (req, res) => {
   try {
     const { offtakerId } = req.body;
+    const language = req.currentLanguage;
     // const offtakerId = offtakerId || req.user?.id;
 
     if (!offtakerId) {
       return res.status(400).json({
         success: false,
-        message: "User ID is required"
+        message: t(language, "response_messages.user_id_required")
       });
     }
 
@@ -160,13 +161,14 @@ router.post('/offtaker/total', authenticateToken, async (req, res) => {
 router.get('/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
+    const language = req.currentLanguage;
     const item = await prisma.payments.findFirst({
       where: { id: parseInt(id), is_deleted: 0 },
       include: { users: true, invoices: { include: { projects: true } } }
     });
 
     if (!item) {
-      return res.status(404).json({ success: false, message: 'Payment not found' });
+      return res.status(404).json({ success: false, message: t(language, "response_messages.payment_not_found") });
     }
 
     res.json({ success: true, data: item });
@@ -179,8 +181,9 @@ router.get('/:id', authenticateToken, async (req, res) => {
 router.post('/', authenticateToken, upload.single('file'), async (req, res) => {
   try {
     const { invoice_id, offtaker_id, amount, ss_url, status, created_by } = req.body;
+    const language = req.currentLanguage;
     if (!offtaker_id && invoice_id != "") {
-      return res.status(400).json({ success: false, message: 'offtaker_id is required' });
+      return res.status(400).json({ success: false, message: t(language, "response_messages.offtaker_id_required") });
     }
 
     // Handle screenshot upload - prefer uploaded file, upload to S3 if enabled
@@ -201,11 +204,11 @@ router.post('/', authenticateToken, upload.single('file'), async (req, res) => {
             uploadedPath = s3Result.data.fileKey;
           } else {
             console.error('S3 upload failed:', s3Result);
-            return res.status(500).json({ success: false, message: 'S3 upload failed' });
+            return res.status(500).json({ success: false, message: t(language, "response_messages.s3_upload_failed") });
           }
         } catch (err) {
           console.error('S3 upload error for payment screenshot:', err?.message || err);
-          return res.status(500).json({ success: false, message: 'S3 upload failed' });
+          return res.status(500).json({ success: false, message: t(language, "response_messages.s3_upload_failed") });
         }
       } else {
         // S3 is disabled, use local path
@@ -441,6 +444,7 @@ router.put('/:id/mark-as-paid', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
     const userId = req.user?.id;
+    const language = req.currentLanguage;
 
     // Get the payment to find associated invoice
     const payment = await prisma.payments.findFirst({
@@ -449,7 +453,7 @@ router.put('/:id/mark-as-paid', authenticateToken, async (req, res) => {
     });
 
     if (!payment) {
-      return res.status(404).json({ success: false, message: 'Payment not found' });
+      return res.status(404).json({ success: false, message: t(language, "response_messages.payment_not_found") });
     }
 
     // Update payment status to 1 (paid)

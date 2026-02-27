@@ -7,6 +7,7 @@ import fs from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { uploadToS3, isS3Enabled, deleteFromS3 } from '../services/s3Service.js';
+import { t } from '../utils/i18n.js';
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -222,6 +223,7 @@ router.get('/taxes', authenticateToken, async (req, res) => {
 router.get('/:key', async (req, res) => {
   try {
     const { key } = req.params;
+    const language = req.currentLanguage;
 
     const setting = await prisma.settings.findFirst({
       where: { key }
@@ -230,7 +232,7 @@ router.get('/:key', async (req, res) => {
     if (!setting) {
       return res.status(404).json({
         success: false,
-        message: 'Setting not found'
+        message: t(language, "response_messages.setting_not_found")
       });
     }
 
@@ -255,11 +257,12 @@ router.get('/:key', async (req, res) => {
 router.post('/bulk', authenticateToken, async (req, res) => {
   try {
     const settings = req.body;
+    const language = req.currentLanguage;
 
     if (!settings || typeof settings !== 'object') {
       return res.status(400).json({
         success: false,
-        message: 'Invalid settings data provided'
+        message: t(language, "response_messages.invalid_settings_data_provided")
       });
     }
 
@@ -300,7 +303,7 @@ router.post('/bulk', authenticateToken, async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Settings updated successfully',
+      message: t(language, "response_messages.settings_updated_successfully"),
       data: updatedSettings
     });
   } catch (error) {
@@ -317,11 +320,12 @@ router.post('/bulk', authenticateToken, async (req, res) => {
 router.post('/', authenticateToken, async (req, res) => {
   try {
     const { key, value } = req.body;
+    const language = req.currentLanguage;
 
     if (!key || value === undefined) {
       return res.status(400).json({
         success: false,
-        message: 'Key and value are required'
+        message: t(language, "response_messages.key_and_value_are_required")
       });
     }
 
@@ -346,7 +350,7 @@ router.post('/', authenticateToken, async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Setting updated successfully',
+      message: t(language, "response_messages.setting_updated_successfully"),
       data: setting
     });
   } catch (error) {
@@ -363,7 +367,7 @@ router.post('/', authenticateToken, async (req, res) => {
 router.delete('/:key', authenticateToken, async (req, res) => {
   try {
     const { key } = req.params;
-
+    const language = req.currentLanguage;
     const setting = await prisma.settings.findFirst({
       where: { key }
     });
@@ -371,7 +375,7 @@ router.delete('/:key', authenticateToken, async (req, res) => {
     if (!setting) {
       return res.status(404).json({
         success: false,
-        message: 'Setting not found'
+        message: t(language, "response_messages.setting_not_found")
       });
     }
 
@@ -381,7 +385,7 @@ router.delete('/:key', authenticateToken, async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Setting deleted successfully'
+      message: t(language, "response_messages.setting_deleted_successfully")
     });
   } catch (error) {
     console.error('Error deleting setting:', error);
@@ -397,11 +401,12 @@ router.delete('/:key', authenticateToken, async (req, res) => {
 router.post('/upload-logo', authenticateToken, async (req, res) => {
   try {
     const { dataUrl, oldImagePath } = req.body || {};
+    const language = req.currentLanguage;
 
     if (!dataUrl) {
       return res.status(400).json({
         success: false,
-        message: 'dataUrl is required'
+        message: t(language, "response_messages.data_url_is_required")
       });
     }
 
@@ -409,7 +414,7 @@ router.post('/upload-logo', authenticateToken, async (req, res) => {
     if (!s3Enabled) {
       return res.status(500).json({
         success: false,
-        message: 'S3 is disabled'
+        message: t(language, "response_messages.s3_disabled")
       });
     }
 
@@ -459,7 +464,7 @@ router.post('/upload-logo', authenticateToken, async (req, res) => {
 
     return res.json({
       success: true,
-      message: 'Logo uploaded',
+      message: t(language, "response_messages.logo_uploaded"),
       data: {
         path: s3Result.data.fileKey
       }
@@ -479,7 +484,7 @@ router.post('/upload-logo', authenticateToken, async (req, res) => {
 router.post('/delete-logo', authenticateToken, async (req, res) => {
   try {
     const { path } = req.body || {};
-
+    const language = req.currentLanguage;
     // Remove file from S3 or disk if safe
     await deleteOldLogoIfSafe(path);
 
@@ -496,7 +501,7 @@ router.post('/delete-logo', authenticateToken, async (req, res) => {
       });
     }
 
-    return res.json({ success: true, message: 'Logo deleted and setting cleared' });
+    return res.json({ success: true, message: t(language, "response_messages.logo_deleted_and_setting_cleared") });
   } catch (error) {
     console.error('Error deleting logo:', error);
     return res.status(500).json({ success: false, message: 'Error deleting logo', error: error.message });
@@ -507,13 +512,14 @@ router.post('/delete-logo', authenticateToken, async (req, res) => {
 router.post('/upload-favicon', authenticateToken, async (req, res) => {
   try {
     const { dataUrl, oldImagePath } = req.body || {};
+    const language = req.currentLanguage;
     if (!dataUrl) {
-      return res.status(400).json({ success: false, message: 'dataUrl is required' });
+      return res.status(400).json({ success: false, message: t(language, "response_messages.data_url_is_required") });
     }
 
     const s3Enabled = await isS3Enabled();
     if (!s3Enabled) {
-      return res.status(500).json({ success: false, message: 'S3 is disabled' });
+      return res.status(500).json({ success: false, message: t(language, "response_messages.s3_disabled") });
     }
 
     const { mimeType, base64Data } = parseDataUrl(dataUrl);
@@ -548,7 +554,7 @@ router.post('/upload-favicon', authenticateToken, async (req, res) => {
 
     if (!s3Result || !s3Result.success) {
       console.error('S3 upload failed:', s3Result);
-      return res.status(500).json({ success: false, message: 'S3 upload failed' });
+      return res.status(500).json({ success: false, message: t(language, "response_messages.s3_upload_failed") });
     }
 
     // Delete previous favicon if provided
@@ -565,6 +571,7 @@ router.post('/upload-favicon', authenticateToken, async (req, res) => {
 router.post('/delete-favicon', authenticateToken, async (req, res) => {
   try {
     const { path } = req.body || {};
+    const language = req.currentLanguage;
 
     // Remove file from S3 or disk if safe
     await deleteOldLogoIfSafe(path);
@@ -582,7 +589,7 @@ router.post('/delete-favicon', authenticateToken, async (req, res) => {
       });
     }
 
-    return res.json({ success: true, message: 'Favicon deleted and setting cleared' });
+    return res.json({ success: true, message: t(language, "response_messages.favicon_deleted_and_setting_cleared") });
   } catch (error) {
     console.error('Error deleting favicon:', error);
     return res.status(500).json({ success: false, message: 'Error deleting favicon', error: error.message });
@@ -594,9 +601,10 @@ router.post('/test-email', authenticateToken, async (req, res) => {
   try {
     console.log('Received test email request with body:', req.body);
     const { to } = req.body;
+    const language = req.currentLanguage;
 
     if (!to) {
-      return res.status(400).json({ success: false, message: 'Recipient email (to) is required' });
+      return res.status(400).json({ success: false, message: t(language, "response_messages.recipient_email_is_required") });
     }
 
     // Fetch relevant SMTP settings (prefer smtp_* then legacy email_*)
@@ -629,7 +637,7 @@ router.post('/test-email', authenticateToken, async (req, res) => {
     if (!fromAddress || !host || !user || !pass || !port) {
       return res.status(400).json({
         success: false,
-        message: 'Incomplete SMTP configuration. Please fill all required SMTP fields before testing.',
+        message: t(language, "response_messages.incomplete_smtp_configuration"),
       });
     }
 
@@ -643,7 +651,7 @@ router.post('/test-email', authenticateToken, async (req, res) => {
       text: 'This is a test email to verify your SMTP settings.',
     });
 
-    res.json({ success: true, message: 'Test email sent successfully', data: { messageId: info.messageId } });
+    res.json({ success: true, message: t(language, "response_messages.test_email_sent_successfully"), data: { messageId: info.messageId } });
   } catch (error) {
     console.error('Error sending test email:', error);
     res.status(500).json({ success: false, message: 'Failed to send test email', error: error.message });

@@ -7,6 +7,7 @@ import fs from 'fs';
 import { uploadToS3, isS3Enabled, deleteFromS3 } from '../services/s3Service.js';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import { t } from '../utils/i18n.js';
 
 const router = express.Router();
 
@@ -32,6 +33,7 @@ router.post("/", authenticateToken, upload.single('blog_image'), async (req, res
   try {
     const { blog_title, blog_date, blog_description, blog_slug } = req.body;
     const userId = req.user?.id; // Get user ID from authenticated token
+    const language = req.currentLanguage;
     
     // Prefer uploaded file (S3 or local) or provided URL
     let uploadedPath = req.body.blog_image || null;
@@ -50,14 +52,14 @@ router.post("/", authenticateToken, upload.single('blog_image'), async (req, res
             uploadedPath = s3Result.data.fileKey;
           } else {
             console.error('S3 upload failed:', s3Result);
-            return res.status(500).json({ success: false, message: 'S3 upload failed' });
+            return res.status(500).json({ success: false, message: t(language, "response_messages.s3_upload_failed") });
           }
         } catch (err) {
           console.error('S3 upload error:', err);
-          return res.status(500).json({ success: false, message: 'S3 upload failed' });
+          return res.status(500).json({ success: false, message: t(language, "response_messages.s3_upload_failed") });
         }
       } else {
-        return res.status(500).json({ success: false, message: 'S3 is disabled' });
+        return res.status(500).json({ success: false, message: t(language, "response_messages.s3_disabled") });
       }
     }
 
@@ -65,13 +67,13 @@ router.post("/", authenticateToken, upload.single('blog_image'), async (req, res
     if (!blog_title || !blog_date || !uploadedPath || !blog_description || !blog_slug) {
       return res.status(400).json({
         success: false,
-        message: "All fields are required.",
+        message: t(language, "response_messages.all_fields_are_required"),
       });
     }
 
     const formattedDate = new Date(blog_date);
     if (isNaN(formattedDate)) {
-      return res.status(400).json({ success: false, message: "Invalid date format." });
+      return res.status(400).json({ success: false, message: t(language, "response_messages.invalid_date_format") });
     }
 
     const blog = await prisma.blogs.create({
@@ -110,8 +112,9 @@ router.get("/", async (req, res) => {
 router.get("/check-slug", async (req, res) => {
   try {
     const { slug, excludeId } = req.query;
+    const language = req.currentLanguage;
     if (!slug || typeof slug !== 'string' || !slug.trim()) {
-      return res.status(400).json({ success: false, message: 'slug is required' });
+      return res.status(400).json({ success: false, message: t(language, "response_messages.slug_is_required") });
     }
 
     const parsedExcludeId = excludeId ? parseInt(excludeId) : null;
@@ -135,6 +138,7 @@ router.get("/check-slug", async (req, res) => {
 router.get("/:identifier", async (req, res) => {
   try {
     const { identifier } = req.params;
+    const language = req.currentLanguage;
     const isNumeric = /^\d+$/.test(identifier);
 
     let blog;
@@ -152,7 +156,7 @@ router.get("/:identifier", async (req, res) => {
     }
 
     if (!blog) {
-      return res.status(404).json({ success: false, message: "Blog not found." });
+      return res.status(404).json({ success: false, message: t(language, "response_messages.blog_not_found") });
     }
 
     return res.status(200).json({ success: true, data: blog });
@@ -166,10 +170,11 @@ router.delete("/:id", authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
     const parsedId = parseInt(id);
+    const language = req.currentLanguage;
     const existing = await prisma.blogs.findFirst({ where: { id: parsedId } });
 
     if (!existing) {
-      return res.status(404).json({ success: false, message: "Blog not found." });
+      return res.status(404).json({ success: false, message: t(language, "response_messages.blog_not_found") });
     }
 
     // Best-effort file cleanup on delete (S3 or local)
@@ -192,7 +197,7 @@ router.delete("/:id", authenticateToken, async (req, res) => {
     }
 
     await prisma.blogs.update({ where: { id: parsedId }, data: { is_deleted: 1 } });
-    return res.status(200).json({ success: true, message: "Blog deleted successfully." });
+    return res.status(200).json({ success: true, message: t(language, "response_messages.blog_deleted_successfully") });
   } catch (error) {
     console.error("Error deleting blog:", error);
     return res.status(500).json({ success: false, message: "Internal server error." });
@@ -203,10 +208,11 @@ router.put("/:id", authenticateToken, upload.single('blog_image'), async (req, r
   try {
     const { id } = req.params;
     const { blog_title, blog_date, blog_description, blog_slug } = req.body;
+    const language = req.currentLanguage;
 
     const formattedDate = new Date(blog_date);
     if (isNaN(formattedDate)) {
-      return res.status(400).json({ success: false, message: "Invalid date format." });
+      return res.status(400).json({ success: false, message: t(language, "response_messages.invalid_date_format") });
     }
 
     // Determine new image path if uploaded (S3 or local)
@@ -241,14 +247,14 @@ router.put("/:id", authenticateToken, upload.single('blog_image'), async (req, r
             }
           } else {
             console.error('S3 upload failed:', s3Result);
-            return res.status(500).json({ success: false, message: 'S3 upload failed' });
+            return res.status(500).json({ success: false, message: t(language, "response_messages.s3_upload_failed") });
           }
         } catch (err) {
           console.error('S3 upload error:', err);
-          return res.status(500).json({ success: false, message: 'S3 upload failed' });
+          return res.status(500).json({ success: false, message: t(language, "response_messages.s3_upload_failed") });
         }
       } else {
-        return res.status(500).json({ success: false, message: 'S3 is disabled' });
+        return res.status(500).json({ success: false, message: t(language, "response_messages.s3_disabled") });
       }
     }
 

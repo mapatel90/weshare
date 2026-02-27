@@ -233,7 +233,7 @@ const Investor = ({ projectId, onInvestorMarked, handleSaveAction }) => {
 
   const handleMarkInvestor = async (row) => {
     if (!projectId) {
-      showErrorToast(lang("common.error", "Project ID is required"));
+      showErrorToast(lang("response_messages.projectId_is_required", "Project ID is required"));
       return;
     }
 
@@ -242,7 +242,7 @@ const Investor = ({ projectId, onInvestorMarked, handleSaveAction }) => {
         projectId,
       });
       if (res?.success) {
-        showSuccessToast(lang("investor.markedSuccessfully", "Investor marked successfully"));
+        showSuccessToast(lang("response_messages.investor_marked_successfully", "Investor marked successfully"));
         // inform parent so edit form updates instantly without page refresh
         if (typeof onInvestorMarked === "function") {
           onInvestorMarked({ id: row.id, full_name: row.full_name || "" });

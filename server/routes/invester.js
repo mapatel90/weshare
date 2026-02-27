@@ -9,23 +9,17 @@ import { ROLES } from "../../src/constants/roles.js";
 import { sendEmailUsingTemplate } from "../utils/email.js";
 import { AsteriskIcon } from "lucide-react";
 
+
 const router = express.Router();
 
 router.post("/", async (req, res) => {
   try {
-    const {
-      projectId,
-      userId,
-      fullName,
-      email,
-      phoneNumber,
-      notes,
-      created_by,
-    } = req.body;
+    const { projectId, userId, fullName, email, phoneNumber, notes, created_by } = req.body;
+    const language = req.currentLanguage;
     if (!fullName || !email) {
       return res
         .status(400)
-        .json({ success: false, message: "fullName and email are required" });
+        .json({ success: false, message: t(language, "response_messages.fullName_and_email_are_required") });
     }
 
     // check user role is investor
@@ -35,10 +29,7 @@ router.post("/", async (req, res) => {
     });
 
     if (user?.role_id !== ROLES.INVESTOR) {
-      return res.status(400).json({
-        success: false,
-        message: "Access denied. This action is allowed only for investors.",
-      });
+      return res.status(400).json({ success: false, message: t(language, "response_messages.access_denied_only_for_investors") });
     }
 
     const created = await prisma.interested_investors.create({
@@ -154,13 +145,10 @@ router.get("/", async (req, res) => {
       start_date,
       end_date,
     } = req.query;
-
     const where = { is_deleted: 0 };
 
     if (projectId) where.project_id = Number(projectId);
     if (userId) where.user_id = Number(userId);
-
-    // Build project filter conditions for nested filtering
     const projectWhere = {};
 
     // Search functionality - search across project_name, product_code, offtaker name
@@ -265,8 +253,7 @@ router.get("/:id", authenticateToken, async (req, res) => {
         user: true,
       },
     });
-    if (!record)
-      return res.status(404).json({ success: false, message: "Not found" });
+    if (!record) return res.status(404).json({ success: false, message: t(language, "response_messages.not_found") });
     return res.json({ success: true, data: record });
   } catch (error) {
     console.error(error);
@@ -306,13 +293,13 @@ router.delete(
     try {
       const investor_user_id = Number(req.params.investorUserId);
       const projectId = Number(req.params.projectId);
-
+ 
       // Get project current assigned investor
       const project = await prisma.projects.findUnique({
         where: { id: projectId },
         select: { investor_id: true },
       });
-
+ 
       // Only remove from project IF this investor is the marked one
       if (project?.investor_id === investor_user_id) {
         await prisma.projects.update({
@@ -320,23 +307,23 @@ router.delete(
           data: { investor_id: null },
         });
       }
-
+ 
       // Find interested investor record
       const investorRecord = await prisma.interested_investors.findFirst({
         where: { user_id: investor_user_id, project_id: projectId },
       });
-
+ 
       if (!investorRecord) {
         return res
           .status(400)
           .json({ success: false, message: "Investor not found" });
       }
-
+ 
       // HARD DELETE only that record
       await prisma.interested_investors.delete({
         where: { id: investorRecord.id },
       });
-
+ 
       return res.json({
         success: true,
         message: "Investor deleted successfully",
@@ -353,21 +340,19 @@ router.post("/:id/mark-investor", authenticateToken, async (req, res) => {
   try {
     const investorId = Number(req.params.id);
     const { projectId } = req.body;
+    const language = req.currentLanguage;
 
     if (!projectId) {
-      return res
-        .status(400)
-        .json({ success: false, message: "projectId is required" });
+      return res.status(400).json({ success: false, message: t(language, "response_messages.projectId_is_required") });
     }
 
     //  investor exists and is not deleted
     const investor = await prisma.interested_investors.findFirst({
       where: { id: investorId, is_deleted: 0 },
     });
+    
     if (!investor) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Investor not found" });
+      return res.status(404).json({ success: false, message: t(language, "response_messages.investor_not_found") });
     }
 
     //  project exists
@@ -376,9 +361,7 @@ router.post("/:id/mark-investor", authenticateToken, async (req, res) => {
     });
 
     if (!project) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Project not found" });
+      return res.status(404).json({ success: false, message: t(language, "response_messages.project_not_found") });
     }
 
     // check old invester assign if yes check contrect status is 1 so fist cnacle after new assign
@@ -400,11 +383,7 @@ router.post("/:id/mark-investor", authenticateToken, async (req, res) => {
 
       if (existingContract) {
         if (existingContract?.status == 1) {
-          return res.status(400).json({
-            success: false,
-            message:
-              "Cuurent Invester has an active contract, please cancel the contract first",
-          });
+          return res.status(400).json({ success: false, message: t(language, "response_messages.current_investor_has_active_contract") });
         } else {
           const cancelledContract = await prisma.contracts.update({
             where: { id: existingContract.id },
@@ -564,11 +543,7 @@ router.post("/:id/mark-investor", authenticateToken, async (req, res) => {
       });
     }
 
-    return res.json({
-      success: true,
-      data: updated,
-      message: "Investor marked successfully",
-    });
+    return res.json({ success: true, data: updated, message: t(language, "response_messages.investor_marked_successfully") });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ success: false, message: error.message });
