@@ -10,6 +10,7 @@ import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import { uploadToS3, isS3Enabled, deleteFromS3 } from '../services/s3Service.js';
+import { t } from '../utils/i18n.js';
 
 const router = express.Router();
 
@@ -182,12 +183,12 @@ router.post('/', authenticateToken, upload.single('qrCode'), async (req, res) =>
     } = req.body;
 
     const createdBy = req.user?.id ? parseInt(req.user.id) : null;
-
+    const lang = req.currentLanguage;
     // Validate required fields
     if (!username || !fullName || !email || !password) {
       return res.status(400).json({
         success: false,
-        message: 'Full name, email, and password are required'
+        message: t(lang, "response_messages.full_name_email_password_required")
       });
     }
 
@@ -196,14 +197,14 @@ router.post('/', authenticateToken, upload.single('qrCode'), async (req, res) =>
     if (roleId === 4 && !req.file) {
       return res.status(400).json({
         success: false,
-        message: 'QR code is required for investor role'
+        message: t(lang, "response_messages.qr_code_required_for_investor_role")
       });
     }
 
     // Check if username already exists
     const existingByUsername = await prisma.users.findFirst({ where: { username } });
     if (existingByUsername) {
-      return res.status(409).json({ success: false, message: 'Username already in use' });
+      return res.status(409).json({ success: false, message: t(lang, "response_messages.username_already_in_use") });
     }
 
     // Check if email already exists
@@ -321,7 +322,7 @@ router.post('/', authenticateToken, upload.single('qrCode'), async (req, res) =>
 
     res.status(201).json({
       success: true,
-      message: 'User created successfully',
+      message: t(lang, "response_messages.user_created_successfully"),
       data: newUser
     });
 
@@ -338,8 +339,9 @@ router.post('/', authenticateToken, upload.single('qrCode'), async (req, res) =>
 router.get('/check-username', async (req, res) => {
   try {
     const { username, excludeId } = req.query;
+    const lang = req.currentLanguage;
     if (!username) {
-      return res.status(400).json({ success: false, message: 'Username query parameter is required' });
+      return res.status(400).json({ success: false, message: t(lang, "response_messages.username_query_parameter_required") });
     }
 
     const where = {
@@ -370,7 +372,7 @@ router.get('/check-username', async (req, res) => {
 router.get('/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
-
+    const lang = req.currentLanguage;
     // Attach role name for each user (Role is a separate table and User currently stores role id in `userRole`)
     const parsedId = parseInt(id);
     const roleIds = Number.isInteger(parsedId) ? [parsedId] : [];
@@ -428,7 +430,7 @@ router.get('/:id', authenticateToken, async (req, res) => {
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: 'User not found'
+        message: t(lang, "response_messages.user_not_found")
       });
     }
 
@@ -452,6 +454,7 @@ router.get('/:id', authenticateToken, async (req, res) => {
 router.put('/:id', authenticateToken, upload.single('qrCode'), async (req, res) => {
   try {
     const { id } = req.params;
+    const lang = req.currentLanguage;
     // Accept both snake_case (backend) and camelCase (frontend) keys
     const {
       fullName,
@@ -478,7 +481,7 @@ router.put('/:id', authenticateToken, upload.single('qrCode'), async (req, res) 
     if (!existingUser) {
       return res.status(404).json({
         success: false,
-        message: 'User not found'
+        message: t(lang, "response_messages.user_not_found")
       });
     }
 
@@ -624,7 +627,7 @@ router.put('/:id', authenticateToken, upload.single('qrCode'), async (req, res) 
 
     res.json({
       success: true,
-      message: 'User updated successfully',
+      message: t(lang, "response_messages.user_updated_successfully"),
       data: updatedUser
     });
 
@@ -641,6 +644,7 @@ router.put('/:id', authenticateToken, upload.single('qrCode'), async (req, res) 
 router.delete('/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
+    const lang = req.currentLanguage;
 
     // Check if user exists
     const existingUser = await prisma.users.findFirst({
@@ -650,7 +654,7 @@ router.delete('/:id', authenticateToken, async (req, res) => {
     if (!existingUser) {
       return res.status(404).json({
         success: false,
-        message: 'User not found'
+        message: t(lang, "response_messages.user_not_found")
       });
     }
 
@@ -674,7 +678,7 @@ router.delete('/:id', authenticateToken, async (req, res) => {
 
     res.json({
       success: true,
-      message: 'User deleted successfully'
+      message: t(lang, "response_messages.user_deleted_successfully")
     });
 
   } catch (error) {
@@ -691,11 +695,12 @@ router.patch('/:id/password', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
     const { currentPassword, newPassword } = req.body;
+    const lang = req.currentLanguage;
 
     if (!currentPassword || !newPassword) {
       return res.status(400).json({
         success: false,
-        message: 'Current password and new password are required'
+        message: t(lang, "response_messages.current_password_and_new_password_are_required")
       });
     }
 
@@ -707,7 +712,7 @@ router.patch('/:id/password', authenticateToken, async (req, res) => {
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: 'User not found'
+        message: t(lang, "response_messages.user_not_found")
       });
     }
 
@@ -716,7 +721,7 @@ router.patch('/:id/password', authenticateToken, async (req, res) => {
     if (!isCurrentPasswordValid) {
       return res.status(400).json({
         success: false,
-        message: 'Current password is incorrect'
+        message: t(lang, "response_messages.current_password_is_incorrect")
       });
     }
 
@@ -732,7 +737,7 @@ router.patch('/:id/password', authenticateToken, async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Password updated successfully'
+      message: t(lang, "response_messages.password_updated_successfully")
     });
 
   } catch (error) {
@@ -798,6 +803,7 @@ router.post('/GetUserByRole', authenticateToken, async (req, res) => {
 router.put('/profile/:id', authenticateToken, uploadAvatar.single('user_image'), async (req, res) => {
   try {
     const { id } = req.params;
+    const lang = req.currentLanguage;
     const {
       full_name,
       email,
@@ -819,7 +825,7 @@ router.put('/profile/:id', authenticateToken, uploadAvatar.single('user_image'),
     if (!existingUser) {
       return res.status(404).json({
         success: false,
-        message: 'User not found'
+        message: t(lang, "response_messages.user_not_found")
       });
     }
 
@@ -936,7 +942,7 @@ router.put('/profile/:id', authenticateToken, uploadAvatar.single('user_image'),
 
     res.json({
       success: true,
-      message: 'Profile updated successfully',
+      message: t(lang, "response_messages.profile_updated_successfully"),
       data: updatedUser
     });
 

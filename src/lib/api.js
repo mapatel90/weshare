@@ -44,8 +44,10 @@ const buildHeaders = (customHeaders = {}, includeAuth = true) => {
     typeof window !== 'undefined'
       ? localStorage.getItem('selectedLanguage') || 'en'
       : 'en';
+
   const headers = {
     'Content-Type': 'application/json',
+    'x-lang': currentLanguage,
     ...customHeaders,
   };
 
@@ -53,7 +55,6 @@ const buildHeaders = (customHeaders = {}, includeAuth = true) => {
     const token = getAuthToken();
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
-      headers['x-lang'] = currentLanguage;
     }
   }
 

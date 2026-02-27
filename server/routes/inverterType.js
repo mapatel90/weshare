@@ -1,6 +1,7 @@
 import express from 'express';
 import prisma from '../utils/prisma.js';
 import { authenticateToken } from '../middleware/auth.js';
+import { t } from '../utils/i18n.js';
 
 const router = express.Router();
 
@@ -21,20 +22,21 @@ router.get('/', authenticateToken, async (req, res) => {
 router.post('/', authenticateToken, async (req, res) => {
   try {
     const { type, status, created_by } = req.body;
+    const language = req.currentLanguage;
 
     if (!type || status === undefined) {
-      return res.status(400).json({ success: false, message: 'Type and status are required.' });
+      return res.status(400).json({ success: false, message: t(language, "response_messages.type_and_status_are_required") });
     }
 
     const created = await prisma.inverter_type.create({
       data: { type, status, created_by },
     });
 
-    return res.status(201).json({ success: true, message: 'Inverter type added successfully', data: created });
+    return res.status(201).json({ success: true, message: t(language, "response_messages.inverter_type_added_successfully"), data: created });
   } catch (error) {
     // Unique constraint for type
     if (error?.code === 'P2002') {
-      return res.status(409).json({ success: false, message: 'Inverter type already exists.' });
+      return res.status(409).json({ success: false, message: t(language, "response_messages.inverter_type_already_exists") });
     }
     console.error('Error creating inverter type:', error);
     return res.status(500).json({ success: false, message: 'Internal server error', error: error.message });
@@ -90,9 +92,10 @@ router.put('/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
     const { type, status } = req.body;
+    const language = req.currentLanguage;
 
     if (!type || status === undefined) {
-      return res.status(400).json({ success: false, message: 'Type and status are required.' });
+      return res.status(400).json({ success: false, message: t(language, "response_messages.type_and_status_are_required") });
     }
 
     const updated = await prisma.inverter_type.update({
@@ -100,10 +103,10 @@ router.put('/:id', authenticateToken, async (req, res) => {
       data: { type, status },
     });
 
-    return res.status(200).json({ success: true, message: 'Inverter type updated successfully', data: updated });
+    return res.status(200).json({ success: true, message: t(language, "response_messages.inverter_type_updated_successfully"), data: updated });
   } catch (error) {
     if (error?.code === 'P2002') {
-      return res.status(409).json({ success: false, message: 'Inverter type already exists.' });
+      return res.status(409).json({ success: false, message: t(language, "response_messages.inverter_type_already_exists") });
     }
     console.error('Error updating inverter type:', error);
     return res.status(500).json({ success: false, message: 'Internal server error', error: error.message });
@@ -114,14 +117,14 @@ router.put('/:id', authenticateToken, async (req, res) => {
 router.delete('/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
-
+    const language = req.currentLanguage;
     await prisma.inverter_type.update({ where: { id: parseInt(id) } , data: { is_deleted: 1 } });
 
-    return res.status(200).json({ success: true, message: 'Inverter type deleted successfully' });
+    return res.status(200).json({ success: true, message: t(language, "response_messages.inverter_type_deleted_successfully") });
   } catch (error) {
     // Handle FK constraint if any inverters reference this type
     if (error?.code === 'P2003') {
-      return res.status(409).json({ success: false, message: 'Cannot delete: inverter type in use.' });
+      return res.status(409).json({ success: false, message: t(language, "response_messages.cannot_delete_inverter_type_in_use") });
     }
     console.error('Error deleting inverter type:', error);
     return res.status(500).json({ success: false, message: 'Internal server error', error: error.message });

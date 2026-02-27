@@ -4,6 +4,7 @@ import { authenticateToken } from '../middleware/auth.js';
 import { PERMISSION_KEYS, extractModulesWithActions } from '../../src/utils/permissionUtils.js';
 import { menuList } from '../../src/utils/Data/menuList.js';
 import { ROLES } from '../../src/constants/roles.js';
+import { t } from '../utils/i18n.js';
 
 const router = express.Router();
 
@@ -64,6 +65,7 @@ router.get('/', authenticateToken, async (req, res) => {
 router.get('/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
+    const language = req.currentLanguage;
 
     const role = await prisma.roles.findFirst({
       where: { id: parseInt(id) }
@@ -72,7 +74,7 @@ router.get('/:id', authenticateToken, async (req, res) => {
     if (!role) {
       return res.status(404).json({
         success: false,
-        message: 'Role not found'
+        message: t(language, "response_messages.role_not_found")
       });
     }
 
@@ -94,11 +96,12 @@ router.get('/:id', authenticateToken, async (req, res) => {
 router.post('/', authenticateToken, async (req, res) => {
   try {
     const { name, status = 1 } = req.body;
+    const language = req.currentLanguage;
 
     if (!name) {
       return res.status(400).json({
         success: false,
-        message: 'Role name is required'
+        message: t(language, "response_messages.role_name_required")
       });
     }
 
@@ -110,7 +113,7 @@ router.post('/', authenticateToken, async (req, res) => {
     if (existingRole) {
       return res.status(409).json({
         success: false,
-        message: 'Role with this name already exists'
+        message: t(language, "response_messages.role_with_this_name_already_exists")
       });
     }
 
@@ -152,13 +155,13 @@ router.post('/', authenticateToken, async (req, res) => {
     if (permissions.count === 0) {
       return res.status(500).json({
         success: false,
-        message: 'Failed to create role permissions'
+        message: t(language, "response_messages.failed_to_create_role_permissions")
       });
     }
 
     res.status(201).json({
       success: true,
-      message: "Role and permissions created successfully",
+      message: t(language, "response_messages.role_and_permissions_created_successfully"),
       data: newRole,
       permissionsInserted: permissions.count,
     });
@@ -177,6 +180,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
     const { name, status } = req.body;
+    const language = req.currentLanguage;
 
     // Check if role exists
     const existingRole = await prisma.roles.findFirst({
@@ -186,7 +190,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
     if (!existingRole) {
       return res.status(404).json({
         success: false,
-        message: 'Role not found'
+        message: t(language, "response_messages.role_not_found")
       });
     }
 
@@ -199,7 +203,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
       if (nameExists) {
         return res.status(409).json({
           success: false,
-          message: 'Role name already in use'
+          message: t(language, "response_messages.role_name_already_in_use")
         });
       }
     }
@@ -251,7 +255,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Role updated successfully',
+      message: t(language, "response_messages.role_updated_successfully"),
       data: updatedRole
     });
 
@@ -268,6 +272,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
 router.delete('/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
+    const language = req.currentLanguage;
 
     // Check if role exists
     const existingRole = await prisma.roles.findFirst({
@@ -277,7 +282,7 @@ router.delete('/:id', authenticateToken, async (req, res) => {
     if (!existingRole) {
       return res.status(404).json({
         success: false,
-        message: 'Role not found'
+        message: t(language, "response_messages.role_not_found")
       });
     }
 
@@ -294,7 +299,7 @@ router.delete('/:id', authenticateToken, async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Role deleted successfully'
+      message: t(language, "response_messages.role_deleted_successfully")
     });
 
   } catch (error) {
@@ -310,6 +315,7 @@ router.delete('/:id', authenticateToken, async (req, res) => {
 router.get('/permissions/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
+    const language = req.currentLanguage;
 
     // Check if role exists
     const role = await prisma.roles.findFirst({
@@ -319,7 +325,7 @@ router.get('/permissions/:id', authenticateToken, async (req, res) => {
     if (!role) {
       return res.status(404).json({
         success: false,
-        message: 'Role not found'
+        message: t(language, "response_messages.role_not_found")
       });
     }
 
@@ -385,6 +391,7 @@ router.put('/permissions/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
     const { permissions } = req.body; // { module: { key: true/false } }
+    const language = req.currentLanguage;
 
     // Check if role exists
     const role = await prisma.roles.findFirst({
@@ -394,7 +401,7 @@ router.put('/permissions/:id', authenticateToken, async (req, res) => {
     if (!role) {
       return res.status(404).json({
         success: false,
-        message: 'Role not found'
+        message: t(language, "response_messages.role_not_found")
       });
     }
 
@@ -431,7 +438,7 @@ router.put('/permissions/:id', authenticateToken, async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Permissions updated successfully'
+      message: t(language, "response_messages.permissions_updated_successfully")
     });
 
   } catch (error) {

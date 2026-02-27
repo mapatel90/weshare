@@ -82,12 +82,13 @@ router.get('/', authenticateToken, async (req, res) => {
 router.post('/investor/total', authenticateToken, async (req, res) => {
     try {
         const { investorId } = req.body;
+        const language = req.currentLanguage;
         // const investorId = userId || req.user?.id;
 
         if (!investorId) {
             return res.status(400).json({
                 success: false,
-                message: "User ID is required"
+                message: t(language, "response_messages.user_id_required")
             });
         }
 
@@ -129,13 +130,14 @@ router.post('/investor/total', authenticateToken, async (req, res) => {
 router.get('/:id', authenticateToken, async (req, res) => {
     try {
         const payoutId = parseInt(req.params.id);
+        const language = req.currentLanguage;
         const payout = await prisma.payouts.findFirst({
             where: { id: payoutId },
             include: { users: true, projects: true, invoices: { include: { projects: true } } }
         });
 
         if (!payout) {
-            return res.status(404).json({ success: false, message: 'Payout not found' });
+            return res.status(404).json({ success: false, message: t(language, "response_messages.payout_not_found") });
         }
 
         res.json({ success: true, data: payout });
@@ -162,11 +164,12 @@ const uploadPayoutDoc = multer({
 router.post("/create", authenticateToken, uploadPayoutDoc.single('document'), async (req, res) => {
     try {
         const { project_id, invoice_id, transaction_id } = req.body;
+        const language = req.currentLanguage;
 
         if (!project_id || !invoice_id) {
             return res.status(400).json({
                 success: false,
-                message: "Project and Invoice are required",
+                message: t(language, "response_messages.project_and_invoice_are_required"),
             });
         }
 
@@ -193,7 +196,7 @@ router.post("/create", authenticateToken, uploadPayoutDoc.single('document'), as
         if (!invoice) {
             return res.status(404).json({
                 success: false,
-                message: "Valid invoice not found",
+                message: t(language, "response_messages.valid_invoice_not_found"),
             });
         }
 
@@ -204,7 +207,7 @@ router.post("/create", authenticateToken, uploadPayoutDoc.single('document'), as
         if (!investor_id || investor_percent <= 0) {
             return res.status(400).json({
                 success: false,
-                message: "Investor or profit % missing",
+                message: t(language, "response_messages.investor_or_profit_missing"),
             });
         }
 
@@ -220,7 +223,7 @@ router.post("/create", authenticateToken, uploadPayoutDoc.single('document'), as
         if (exists) {
             return res.status(400).json({
                 success: false,
-                message: "Payout already exists for this invoice",
+                message: t(language, "response_messages.payout_already_exists_for_this_invoice"),
             });
         }
 
@@ -384,7 +387,7 @@ router.post("/create", authenticateToken, uploadPayoutDoc.single('document'), as
 
         return res.json({
             success: true,
-            message: "Payout created successfully",
+            message: t(language, "response_messages.payout_created_successfully"),
             data: payout,
         });
     } catch (error) {
@@ -401,14 +404,15 @@ router.post("/create", authenticateToken, uploadPayoutDoc.single('document'), as
 router.post("/update", authenticateToken, uploadPayoutDoc.single('document'), async (req, res) => {
     try {
         const { id, transaction_id, mark_as_paid, status, reason } = req.body;
+        const language = req.currentLanguage;
         if (!id) {
-            return res.status(400).json({ success: false, message: "Payout ID is required" });
+            return res.status(400).json({ success: false, message: t(language, "response_messages.payout_id_required") });
         }
 
         // Find payout
         const payout = await prisma.payouts.findFirst({ where: { id: Number(id) } });
         if (!payout) {
-            return res.status(404).json({ success: false, message: "Payout not found" });
+            return res.status(404).json({ success: false, message: t(language, "response_messages.payout_not_found") });
         }
 
         // Handle document upload (image/pdf)
@@ -601,7 +605,7 @@ router.post("/update", authenticateToken, uploadPayoutDoc.single('document'), as
             }
         }
 
-        return res.json({ success: true, message: "Payout updated successfully", data: updatedPayout });
+        return res.json({ success: true, message: t(language, "response_messages.payout_updated_successfully"), data: updatedPayout });
     } catch (error) {
         console.error("Update payout error:", error);
         return res.status(500).json({ success: false, message: "Internal server error", error: error.message });
@@ -611,10 +615,11 @@ router.post("/update", authenticateToken, uploadPayoutDoc.single('document'), as
 router.delete("/delete/:id", authenticateToken, async (req, res) => {
     try {
         const { id } = req.params;
+        const language = req.currentLanguage;
 
         const payoutId = parseInt(id);
         if (!payoutId) {
-            return res.status(400).json({ success: false, message: "Invalid ID" });
+            return res.status(400).json({ success: false, message: t(language, "response_messages.invalid_id") });
         }
 
         // Check exists
@@ -627,7 +632,7 @@ router.delete("/delete/:id", authenticateToken, async (req, res) => {
         });
 
         if (!payout) {
-            return res.status(404).json({ success: false, message: "Payout not found" });
+            return res.status(404).json({ success: false, message: t(language, "response_messages.payout_not_found") });
         }
 
         if (payout.document) {
@@ -652,7 +657,7 @@ router.delete("/delete/:id", authenticateToken, async (req, res) => {
         });
 
         return res.status(200)
-            .json({ success: true, message: "Invoice deleted successfully" });
+            .json({ success: true, message: t(language, "response_messages.payout_deleted_successfully") });
     } catch (error) {
         console.error("Error deleting invoice:", error);
         return res.status(500).json({ success: false, message: "Server error" });

@@ -7,6 +7,7 @@ import fs from 'fs';
 import { uploadToS3, isS3Enabled, deleteFromS3 } from '../services/s3Service.js';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import { t } from '../utils/i18n.js';
 
 const router = express.Router();
 
@@ -35,9 +36,9 @@ router.post('/', authenticateToken, async (req, res) => {
     try {
         const { project, user, description, review_status } = req.body;
         const userId = req.user?.id; 
-
+        const language = req.currentLanguage;
         if (!project || !user || !description || !review_status) {
-            return res.status(400).json({ error: 'All fields are required' });
+            return res.status(400).json({ success: false, message: t(language, "response_messages.all_fields_are_required") });
         }
 
         const testimonial = await prisma.testimonials.create({
@@ -79,9 +80,10 @@ router.get('/user-review', authenticateToken, async (req, res) => {
     try {
         const { project_id } = req.query;
         const userId = req.user?.id;
+        const language = req.currentLanguage;
 
         if (!project_id || !userId) {
-            return res.status(400).json({ success: false, error: 'Project ID and User ID are required' });
+            return res.status(400).json({ success: false, message: t(language, "response_messages.project_id_and_user_id_are_required") });
         }
 
         const review = await prisma.testimonials.findFirst({
@@ -107,9 +109,10 @@ router.put('/:id', authenticateToken, async (req, res) => {
     try {
         const { id } = req.params;
         const { project, user, description, review_status } = req.body;
+        const language = req.currentLanguage;
 
         if (!project || !user || !description || !review_status) {
-            return res.status(400).json({ error: 'All fields are required' });
+            return res.status(400).json({ success: false, message: t(language, "response_messages.all_fields_are_required") });
         }
 
         const updatedTestimonial = await prisma.testimonials.update({
@@ -132,6 +135,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
 router.delete('/:id', authenticateToken, async (req, res) => {
     try {
         const { id } = req.params;
+        const language = req.currentLanguage;
         const existing = await prisma.testimonials.findFirst({ where: { id: Number(id) } });
 
         await prisma.testimonials.update({
@@ -139,7 +143,7 @@ router.delete('/:id', authenticateToken, async (req, res) => {
             data: { is_deleted: 1 }
         });
 
-        res.status(200).json({ message: 'Testimonial deleted successfully' });
+        res.status(200).json({ success: true, message: t(language, "response_messages.testimonial_deleted_successfully") });
     } catch (error) {
         console.error('Error deleting testimonial:', error);
         res.status(500).json({ error: 'Failed to delete testimonial' });

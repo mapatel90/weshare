@@ -52,6 +52,7 @@ router.post("/", authenticateToken, upload.single('document'), async (req, res) 
       status,
     } = req.body;
     const userId = req.user?.id; // Get user ID from authenticated token
+    const language = req.currentLanguage;
 
     // Handle document upload (image/pdf) with S3
     let uploadedPath = null;
@@ -85,12 +86,12 @@ router.post("/", authenticateToken, upload.single('document'), async (req, res) 
     }
 
     if (!contractTitle) {
-      return res.status(400).json({ success: false, message: 'contractTitle is required' });
+      return res.status(400).json({ success: false, message: t(language, "response_messages.contractTitle_is_required") });
     }
 
     const formattedDate = contractDate ? new Date(contractDate) : null;
     if (contractDate && isNaN(formattedDate)) {
-      return res.status(400).json({ success: false, message: 'Invalid date format' });
+      return res.status(400).json({ success: false, message: t(language, "response_messages.invalid_date_format") });
     }
 
     const created = await prisma.contracts.create({
@@ -292,6 +293,7 @@ router.post("/", authenticateToken, upload.single('document'), async (req, res) 
 router.post('/count', authenticateToken, async (req, res) => {
   try {
     const { investorId, offtakerId } = req.body;
+    const language = req.currentLanguage;
 
     let whereCondition = {
       is_deleted: 0
@@ -308,7 +310,7 @@ router.post('/count', authenticateToken, async (req, res) => {
     else {
       return res.status(400).json({
         success: false,
-        message: "InvestorId or OfftakerId is required"
+        message: t(language, "response_messages.investorId_or_offtakerId_is_required")
       });
     }
 
@@ -526,6 +528,7 @@ router.get("/", async (req, res) => {
 router.get("/:id", authenticateToken, async (req, res) => {
   try {
     const id = Number(req.params.id);
+    const language = req.currentLanguage;
     const contract = await prisma.contracts.findFirst({
       where: { id, is_deleted: 0 },
       include: {
@@ -534,7 +537,7 @@ router.get("/:id", authenticateToken, async (req, res) => {
         interested_investors: true,
       },
     });
-    if (!contract) return res.status(404).json({ success: false, message: 'Contract not found' });
+    if (!contract) return res.status(404).json({ success: false, message: t(language, "response_messages.contract_not_found") });
     return res.json({ success: true, data: contract });
   } catch (error) {
     console.error(error);
@@ -546,6 +549,7 @@ router.get("/:id", authenticateToken, async (req, res) => {
 router.put("/:id", authenticateToken, upload.single('document'), async (req, res) => {
   try {
     const id = Number(req.params.id);
+    const language = req.currentLanguage;
     const {
       projectId,
       offtakerId,
@@ -560,7 +564,7 @@ router.put("/:id", authenticateToken, upload.single('document'), async (req, res
 
     const existing = await prisma.contracts.findFirst({ where: { id } });
     if (!existing || existing.is_deleted) {
-      return res.status(404).json({ success: false, message: 'Contract not found' });
+      return res.status(404).json({ success: false, message: t(language, "response_messages.contract_not_found") });
     }
 
     // Handle document upload (image/pdf) with S3
@@ -605,13 +609,13 @@ router.put("/:id", authenticateToken, upload.single('document'), async (req, res
         }
       } else {
         // Local fallback
-        return res.status(500).json({ success: false, message: 'S3 is disabled' });
+        return res.status(500).json({ success: false, message: t(language, "response_messages.s3_disabled") });
       }
     }
 
     const formattedDate = contractDate ? new Date(contractDate) : null;
     if (contractDate && isNaN(formattedDate)) {
-      return res.status(400).json({ success: false, message: 'Invalid date format' });
+      return res.status(400).json({ success: false, message: t(language, "response_messages.invalid_date_format") });
     }
 
     const dataUpdate = {
@@ -648,12 +652,13 @@ router.put("/:id", authenticateToken, upload.single('document'), async (req, res
 router.put("/:id/status", authenticateToken, upload.single('file'), async (req, res) => {
   try {
     const id = Number(req.params.id);
+    const language = req.currentLanguage;
     const { status, reason } = req.body;
     console.log(`Updating contract ${id} status to ${status} with reason: ${reason || 'N/A'}`);
 
     const existing = await prisma.contracts.findFirst({ where: { id }, include: { projects: true, users: true, interested_investors: true } });
     if (!existing || existing.is_deleted) {
-      return res.status(404).json({ success: false, message: 'Contract not found' });
+      return res.status(404).json({ success: false, message: t(language, "response_messages.contract_not_found") });
     }
     // If rejected or cancelled, save the reason
     const updateData = { status: Number(status) };
@@ -702,7 +707,7 @@ router.put("/:id/status", authenticateToken, upload.single('file'), async (req, 
           console.error('S3 upload error:', err);
         }
       } else {
-        return res.status(500).json({ success: false, message: 'S3 is disabled' });
+        return res.status(500).json({ success: false, message: t(language, "response_messages.s3_disabled") });
       }
     }
 
@@ -926,7 +931,6 @@ router.put("/:id/status", authenticateToken, upload.single('file'), async (req, 
         const investor = await prisma.interested_investors.findFirst({
           where: { user_id: Number(existing.investor_id), project_id: Number(existing.project_id), is_deleted: 0 }, include: { users: true }
         });
-        console.log('existing', existing);
         if (investor?.email) {
           const templateData = {
             full_name: investor.full_name || 'Investor',
@@ -1100,9 +1104,10 @@ router.put("/:id/status", authenticateToken, upload.single('file'), async (req, 
 router.delete("/:id", authenticateToken, async (req, res) => {
   try {
     const id = Number(req.params.id);
+    const language = req.currentLanguage;
     const existing = await prisma.contracts.findFirst({ where: { id } });
     if (!existing || existing.is_deleted) {
-      return res.status(404).json({ success: false, message: 'Contract not found' });
+      return res.status(404).json({ success: false, message: t(language, "response_messages.contract_not_found") });
     }
 
     // Delete the uploaded document file if it exists
@@ -1140,7 +1145,7 @@ router.delete("/:id", authenticateToken, async (req, res) => {
       data: { is_deleted: 1 },
     });
 
-    return res.json({ success: true, message: 'Contract deleted' });
+    return res.json({ success: true, message: t(language, "response_messages.contract_deleted_successfully") });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ success: false, message: error.message });

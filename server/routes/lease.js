@@ -4,6 +4,7 @@ import { authenticateToken } from '../middleware/auth.js';
 import { sendEmailUsingTemplate } from '../utils/email.js';
 import { getUsersByRole } from '../utils/constants.js';
 import { ROLES } from '../../src/constants/roles.js';
+import { t } from '../utils/i18n.js';
 
 const router = express.Router();
 
@@ -21,12 +22,13 @@ router.post('/', async (req, res) => {
       message,
       created_by
     } = req.body || {}
+    const language = req.currentLanguage;
 
     // Basic validation
     if (!fullName || !email || !message) {
       return res.status(400).json({
         success: false,
-        message: 'fullName, email and message are required'
+        message: t(language, "response_messages.fullName_email_message_required")
       })
     }
 
@@ -111,6 +113,7 @@ router.post('/', async (req, res) => {
 router.put('/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params || {}
+    const language = req.currentLanguage;
     const {
       fullName,
       email,
@@ -126,7 +129,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
     if (!fullName || !email || !message) {
       return res.status(400).json({
         success: false,
-        message: 'fullName, email and message are required'
+        message: t(language, "response_messages.fullName_email_message_required")
       })
     }
 
@@ -190,14 +193,14 @@ router.get('/', async (req, res) => {
 router.delete('/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params || {}
-
+    const language = req.currentLanguage;
     const record = await prisma.lease_requests.findFirst({
       where: { id: Number(id) }
     })
     if (!record || record.is_deleted) {
       return res.status(404).json({
         success: false,
-        message: 'Lease request not found'
+        message: t(language, "response_messages.lease_request_not_found")
       })
     }
     await prisma.lease_requests.update({
@@ -206,7 +209,7 @@ router.delete('/:id', authenticateToken, async (req, res) => {
     })
     return res.status(200).json({
       success: true,
-      message: 'Lease request deleted successfully'
+      message: t(language, "response_messages.lease_request_deleted_successfully")
     })
   } catch (err) {
     console.error('LeaseRequest delete error:', err)

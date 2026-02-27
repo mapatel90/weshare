@@ -1604,13 +1604,13 @@ router.get("/report/capital-recovery", authenticateToken, async (req, res) => {
 router.put("/meter/:id", authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
+    const language = req.currentLanguage;
     const {
       meter_url,
       sim_number,
       sim_start_date,
       sim_expire_date,
     } = req.body;
-    console.log("Data::", req.body);
 
     const updated = await prisma.projects.update({
       where: { id: parseInt(id) },
@@ -1629,7 +1629,7 @@ router.put("/meter/:id", authenticateToken, async (req, res) => {
     res.json({ success: true, data: updated });
   } catch (error) {
     console.error("Update project error:", error);
-    res.status(500).json({ success: false, message: "Internal server error" });
+    res.status(500).json({ success: false, message: t(language, "response_messages.internal_server_error") });
   }
 });
 
@@ -1637,6 +1637,7 @@ router.put("/meter/:id", authenticateToken, async (req, res) => {
 router.get("/meter/:id", authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
+    const language = req.currentLanguage;
     const meter = await prisma.projects.findFirst({
       where: { id: parseInt(id) },
       select: {
@@ -1649,7 +1650,7 @@ router.get("/meter/:id", authenticateToken, async (req, res) => {
     if (!meter) {
       return res
         .status(404)
-        .json({ success: false, message: "Meter not found" });
+        .json({ success: false, message: t(language, "response_messages.meter_not_found") });
     }
     res.json({ success: true, data: meter });
   } catch (error) {
@@ -1662,11 +1663,12 @@ router.get("/meter/:id", authenticateToken, async (req, res) => {
 router.delete("/:id", authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
+    const language = req.currentLanguage;
     const projectId = parseInt(id, 10);
     if (Number.isNaN(projectId)) {
       return res
         .status(400)
-        .json({ success: false, message: "Invalid project id" });
+        .json({ success: false, message: t(language, "response_messages.invalid_project_id") });
     }
 
     // Fetch all images for project, remove physical files
@@ -1779,9 +1781,10 @@ router.post("/chart-data", async (req, res) => {
 router.post("/chart_month_data", async (req, res) => {
   try {
     const { projectId, year, month } = req.body;
+    const language = req.currentLanguage;
 
     if (!projectId) {
-      return res.status(400).json({ error: "Project Id required parameters" });
+      return res.status(400).json({ error: t(language, "response_messages.project_id_required_parameters") });
     }
 
     // Use provided year/month or default to current month
@@ -1827,9 +1830,10 @@ router.post("/chart_month_data", async (req, res) => {
 router.post("/chart_year_data", async (req, res) => {
   try {
     const { projectId, year } = req.body;
+    const language = req.currentLanguage;
 
     if (!projectId) {
-      return res.status(400).json({ error: "Project Id required parameters" });
+      return res.status(400).json({ error: t(language, "response_messages.project_id_required_parameters") });
     }
 
     const selectedYear = year || dayjs().format("YYYY");
@@ -1872,11 +1876,11 @@ router.post("/chart_year_data", async (req, res) => {
 router.post("/electricity/monthly-cost-chart", async (req, res) => {
   try {
     const { projectId, year } = req.body;
-
+    const language = req.currentLanguage;
     if (!projectId) {
       return res.status(400).json({
         success: false,
-        message: "Project Id is required",
+        message: t(language, "response_messages.projectId_is_required"),
       });
     }
 
@@ -1893,7 +1897,7 @@ router.post("/electricity/monthly-cost-chart", async (req, res) => {
     if (!project) {
       return res.status(404).json({
         success: false,
-        message: "Project not found",
+        message: t(language, "response_messages.project_not_found"),
       });
     }
 
@@ -2998,9 +3002,10 @@ router.get("/report/roi-data", authenticateToken, async (req, res) => {
 router.get("/:id/calculate-roi", async (req, res) => {
   try {
     const projectId = parseInt(req.params.id);
+    const language = req.currentLanguage;
 
     if (isNaN(projectId)) {
-      return res.status(400).json({ success: false, message: "Invalid project ID" });
+      return res.status(400).json({ success: false, message: t(language, "response_messages.invalid_project_id") });
     }
 
     // Get project details
@@ -3017,7 +3022,7 @@ router.get("/:id/calculate-roi", async (req, res) => {
     });
 
     if (!project) {
-      return res.status(404).json({ success: false, message: "Project not found" });
+      return res.status(404).json({ success: false, message: t(language, "response_messages.project_not_found") });
     }
 
     // Get previous month date range (UTC)
@@ -3098,6 +3103,7 @@ router.get('/status', async (req, res) => {
 router.get("/:identifier", async (req, res) => {
   try {
     const { identifier } = req.params;
+    const language = req.currentLanguage;
     // Check if identifier is numeric (ID) or string (slug)
     const isNumeric = /^\d+$/.test(identifier);
 
@@ -3145,7 +3151,7 @@ router.get("/:identifier", async (req, res) => {
     if (!project) {
       return res
         .status(404)
-        .json({ success: false, message: "Project not found" });
+        .json({ success: false, message: t(language, "response_messages.project_not_found") });
     }
 
     res.json({ success: true, data: project });

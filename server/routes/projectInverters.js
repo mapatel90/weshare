@@ -2,6 +2,7 @@ import express from 'express';
 import prisma from '../utils/prisma.js';
 import { authenticateToken } from '../middleware/auth.js';
 import { InventoryTableConfigurationUpdates$ } from '@aws-sdk/client-s3';
+import { t } from '../utils/i18n.js';
 
 const router = express.Router();
 // Get inverter counts (active/total) for all projects
@@ -34,8 +35,9 @@ router.get('/counts', authenticateToken, async (req, res) => {
 router.get('/', authenticateToken, async (req, res) => {
   try {
     const { project_id } = req.query;
+    const language = req.currentLanguage;
     if (!project_id) {
-      return res.status(400).json({ success: false, message: 'project_id is required' });
+      return res.status(400).json({ success: false, message: t(language, "response_messages.project_id_required") });
     }
     const inverters = await prisma.project_inverters.findMany({
       where: {
@@ -69,8 +71,9 @@ router.get('/', authenticateToken, async (req, res) => {
 router.post('/', authenticateToken, async (req, res) => {
   try {
     const { project_id, inverter_id, kilowatt, status, inverter_serial_number, inverter_name, model, version, warranty_expire_date, in_warranty, created_by } = req.body;
+    const language = req.currentLanguage;
     if (!project_id || !inverter_id || !kilowatt || status === undefined) {
-      return res.status(400).json({ success: false, message: 'All fields required' });
+      return res.status(400).json({ success: false, message: t(language, "response_messages.all_fields_are_required") });
     }
     const added = await prisma.project_inverters.create({
       data: {
@@ -97,9 +100,10 @@ router.post('/', authenticateToken, async (req, res) => {
 router.put('/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
+    const language = req.currentLanguage;
     const { inverter_id, kilowatt, status, inverter_serial_number, inverter_name, model, version, warranty_expire_date, in_warranty } = req.body;
     if (!inverter_id || !kilowatt || status === undefined) {
-      return res.status(400).json({ success: false, message: 'Fields missing' });
+      return res.status(400).json({ success: false, message: t(language, "response_messages.fields_missing") });
     }
     const updated = await prisma.project_inverters.update({
       where: { id: parseInt(id) },

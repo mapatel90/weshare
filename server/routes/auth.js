@@ -6,6 +6,7 @@ import prisma from '../utils/prisma.js';
 import redis from '../utils/redis.js';
 import { sendPasswordResetConfirmationEmail, sendEmailUsingTemplate } from '../utils/email.js';
 import { USER_ROLES } from '../utils/constants.js';
+import { t } from '../utils/i18n.js';
 
 
 const router = express.Router();
@@ -14,12 +15,13 @@ const router = express.Router();
 router.get('/check-username', async (req, res) => {
   try {
     const { username } = req.query;
+    const language = req.currentLanguage;
 
     if (!username) {
       return res.status(400).json({
         success: false,
         available: false,
-        message: 'Username is required'
+        message: t(language, "response_messages.username_is_required")
       });
     }
 
@@ -31,7 +33,7 @@ router.get('/check-username', async (req, res) => {
     res.json({
       success: true,
       available: !existingUser,
-      message: existingUser ? 'Username already taken' : 'Username available'
+      message: existingUser ? t(language, "response_messages.username_already_taken") : t(language, "response_messages.username_available")
     });
 
   } catch (error) {
@@ -64,11 +66,12 @@ router.post('/register', async (req, res) => {
       language
     } = req.body;
 
+    const lang = req.currentLanguage;
     // Validate required fields
     if (!full_name || !username || !password) {
       return res.status(400).json({
         success: false,
-        message: 'Full name, username, and password are required'
+        message: t(lang, "response_messages.full_name_username_password_required")
       });
     }
 
@@ -84,7 +87,7 @@ router.post('/register', async (req, res) => {
     if (existingUser) {
       return res.status(409).json({
         success: false,
-        message: 'User with this username already exists'
+        message: t(lang, "response_messages.user_with_this_username_already_exists")
       });
     }
 
@@ -161,7 +164,7 @@ router.post('/register', async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: 'User registered successfully. Please check your email to verify your account.',
+      message: t(lang, "response_messages.user_registered_successfully"),
       data: newUser
     });
 
@@ -177,11 +180,13 @@ router.post('/register', async (req, res) => {
 // Login user
 router.post('/login', async (req, res) => {
   try {
+    const language = req.currentLanguage;
+    console.log(language);
     // Check if body exists
     if (!req.body) {
       return res.status(400).json({
         success: false,
-        message: 'Request body is required'
+        message: t(language, "response_messages.request_body_is_required")
       });
     }
 
@@ -191,7 +196,7 @@ router.post('/login', async (req, res) => {
     if (!username || !password) {
       return res.status(400).json({
         success: false,
-        message: 'Username and password are required'
+        message: t(language, "response_messages.username_and_password_are_required")
       });
     }
 
@@ -203,7 +208,7 @@ router.post('/login', async (req, res) => {
     if (!user) {
       return res.status(401).json({
         success: false,
-        message: 'Invalid username or password'
+        message: t(language, "response_messages.invalid_username_or_password")
       });
     }
 
@@ -212,7 +217,7 @@ router.post('/login', async (req, res) => {
     if (!isPasswordValid) {
       return res.status(401).json({
         success: false,
-        message: 'Invalid user or password'
+        message: t(language, "response_messages.invalid_user_or_password")
       });
     }
 
@@ -220,7 +225,7 @@ router.post('/login', async (req, res) => {
     if (user.status === 0) {
       return res.status(403).json({
         success: false,
-        message: 'Account is not activated. Please contact administrator.'
+        message: t(language, "response_messages.account_not_activated")
       });
     }
 
@@ -228,7 +233,7 @@ router.post('/login', async (req, res) => {
     if ((user.role_id === 2 || user.role_id === 3) && user.email_verified === 0) {
       return res.status(403).json({
         success: false,
-        message: 'Please verify your email address before logging in. Check your inbox for the verification link.',
+        message: t(language, "response_messages.please_verify_your_email_address_before_logging_in"),
         emailNotVerified: true,
         email: user.email
       });
@@ -281,7 +286,7 @@ router.post('/login', async (req, res) => {
     const { password: _, ...userWithoutPassword } = user;
     res.json({
       success: true,
-      message: 'Login successful',
+      message: t(language, "response_messages.login_successful"),
       data: {
         user: {
           ...userWithoutPassword,
@@ -321,7 +326,7 @@ router.get('/me', async (req, res) => {
     if (!session) {
       return res.status(401).json({
         success: false,
-        message: 'Session expired'
+        message: t(language, "response_messages.session_expired")
       });
     }
 
@@ -353,7 +358,7 @@ router.get('/me', async (req, res) => {
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: 'User not found'
+        message: t(language, "response_messages.user_not_found")
       });
     }
 
@@ -409,12 +414,12 @@ router.post('/logout', async (req, res) => {
 router.post('/forgot-password', async (req, res) => {
   try {
     const { username } = req.body;
-
+    const language = req.currentLanguage;
     // Validate username
     if (!username) {
       return res.status(400).json({
         success: false,
-        message: 'Username is required'
+        message: t(language, "response_messages.username_is_required")
       });
     }
 
@@ -432,7 +437,7 @@ router.post('/forgot-password', async (req, res) => {
     if (!user) {
       return res.status(200).json({
         success: true,
-        message: 'If this username exists, a password reset link has been sent to the registered email address.'
+        message: t(language, "response_messages.if_this_username_exists_a_password_reset_link_has_been_sent_to_the_registered_email_address")
       });
     }
 
@@ -491,7 +496,7 @@ router.post('/forgot-password', async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Password reset link has been sent to your registered email address. Please check your inbox.'
+      message: t(language, "response_messages.password_reset_link_has_been_sent_to_your_registered_email_address_please_check_your_inbox")
     });
 
   } catch (error) {
@@ -507,12 +512,13 @@ router.post('/forgot-password', async (req, res) => {
 router.post('/reset-password', async (req, res) => {
   try {
     const { token, newPassword } = req.body;
+    const language = req.currentLanguage;
 
     // Validate input
     if (!token || !newPassword) {
       return res.status(400).json({
         success: false,
-        message: 'Token and new password are required'
+        message: t(language, "response_messages.token_and_new_password_are_required")
       });
     }
 
@@ -520,7 +526,7 @@ router.post('/reset-password', async (req, res) => {
     if (newPassword.length < 6) {
       return res.status(400).json({
         success: false,
-        message: 'Password must be at least 6 characters long'
+        message: t(language, "response_messages.password_must_be_at_least_6_characters_long")
       });
     }
 
@@ -544,7 +550,7 @@ router.post('/reset-password', async (req, res) => {
     if (!resetToken) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid or expired reset token. Please request a new password reset link.'
+        message: t(language, "response_messages.invalid_or_expired_reset_token_please_request_a_new_password_reset_link")
       });
     }
 
@@ -556,7 +562,7 @@ router.post('/reset-password', async (req, res) => {
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: 'User not found'
+        message: t(language, "response_messages.user_not_found")
       });
     }
 
@@ -581,7 +587,7 @@ router.post('/reset-password', async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Password has been reset successfully. You can now login with your new password.'
+      message: t(language, "response_messages.password_has_been_reset_successfully_you_can_now_login_with_your_new_password")
     });
 
   } catch (error) {
@@ -597,11 +603,12 @@ router.post('/reset-password', async (req, res) => {
 router.get('/verify-reset-token/:token', async (req, res) => {
   try {
     const { token } = req.params;
+    const language = req.currentLanguage;
 
     if (!token) {
       return res.status(400).json({
         success: false,
-        message: 'Token is required'
+        message: t(language, "response_messages.token_is_required")
       });
     }
 
@@ -625,7 +632,7 @@ router.get('/verify-reset-token/:token', async (req, res) => {
     if (!resetToken) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid or expired reset token'
+        message: t(language, "response_messages.invalid_or_expired_reset_token")
       });
     }
 
@@ -654,11 +661,12 @@ router.get('/verify-reset-token/:token', async (req, res) => {
 router.get('/verify-email/:token', async (req, res) => {
   try {
     const { token } = req.params;
+    const language = req.currentLanguage;
 
     if (!token) {
       return res.status(400).json({
         success: false,
-        message: 'Verification token is required'
+        message: t(language, "response_messages.verification_token_is_required")
       });
     }
 
@@ -673,7 +681,7 @@ router.get('/verify-email/:token', async (req, res) => {
     if (!user) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid or expired verification token'
+        message: t(language, "response_messages.invalid_or_expired_verification_token")
       });
     }
 
@@ -681,7 +689,7 @@ router.get('/verify-email/:token', async (req, res) => {
     if (user.email_verify_expires && new Date() > user.email_verify_expires) {
       return res.status(400).json({
         success: false,
-        message: 'Verification token has expired. Please request a new one.',
+        message: t(language, "response_messages.verification_token_has_expired_please_request_a_new_one"),
         language: user.language || 'en'
       });
     }
@@ -759,7 +767,7 @@ router.get('/verify-email/:token', async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Email verified successfully! You can now login.',
+      message: t(language, "response_messages.email_verified_successfully_you_can_now_login"),
       language: user.language || 'en'
     });
 
@@ -776,11 +784,12 @@ router.get('/verify-email/:token', async (req, res) => {
 router.post('/resend-verification', async (req, res) => {
   try {
     const { email } = req.body;
+    const language = req.currentLanguage;
 
     if (!email) {
       return res.status(400).json({
         success: false,
-        message: 'Email is required'
+        message: t(language, "response_messages.email_is_required")
       });
     }
 
@@ -792,7 +801,7 @@ router.post('/resend-verification', async (req, res) => {
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: 'User not found'
+        message: t(language, "response_messages.user_not_found")
       });
     }
 
@@ -800,7 +809,7 @@ router.post('/resend-verification', async (req, res) => {
     if (user.email_verified === 1) {
       return res.status(400).json({
         success: false,
-        message: 'Email is already verified'
+        message: t(language, "response_messages.email_is_already_verified")
       });
     }
 
@@ -846,7 +855,7 @@ router.post('/resend-verification', async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Verification email sent successfully. Please check your inbox.',
+      message: t(language, "response_messages.verification_email_sent_successfully_please_check_your_inbox"),
     });
 
   } catch (error) {

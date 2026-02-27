@@ -7,6 +7,7 @@ import fs from 'fs';
 import { uploadToS3, isS3Enabled, deleteFromS3 } from '../services/s3Service.js';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import { t } from '../utils/i18n.js';
 
 const router = express.Router();
 
@@ -35,7 +36,8 @@ router.post("/", authenticateToken, upload.single('news_image'), async (req, res
   try {
     const { news_title, news_date, news_description, news_slug } = req.body;
     const userId = req.user?.id; // Get user ID from authenticated token
-    
+
+    const language = req.currentLanguage;
     // Prefer uploaded file. If S3 enabled, try uploading file to S3 and use returned URL.
     let uploadedPath = req.body.news_image || null;
     if (req.file) {
@@ -51,14 +53,14 @@ router.post("/", authenticateToken, upload.single('news_image'), async (req, res
             uploadedPath = s3Result.data.fileKey;
           } else {
             console.error('S3 upload failed:', s3Result);
-            return res.status(500).json({ success: false, message: 'S3 upload failed' });
+            return res.status(500).json({ success: false, message: t(language, "response_messages.s3_upload_failed") });
           }
         } catch (err) {
           console.error('S3 upload error for news image:', err?.message || err);
-          return res.status(500).json({ success: false, message: 'S3 upload failed' });
+          return res.status(500).json({ success: false, message: t(language, "response_messages.s3_upload_failed") });
         }
       } else {
-        return res.status(500).json({ success: false, message: 'S3 is disabled' });
+        return res.status(500).json({ success: false, message: t(language, "response_messages.s3_disabled") });
       }
 
     }
@@ -67,7 +69,7 @@ router.post("/", authenticateToken, upload.single('news_image'), async (req, res
     if (!news_title || !news_date || !uploadedPath || !news_description || !news_slug) {
       return res.status(400).json({
         success: false,
-        message: "All fields are required.",
+        message: t(language, "response_messages.all_fields_are_required"),
       });
     }
 
@@ -76,7 +78,7 @@ router.post("/", authenticateToken, upload.single('news_image'), async (req, res
     if (isNaN(formattedDate)) {
       return res.status(400).json({
         success: false,
-        message: "Invalid date format.",
+        message: t(language, "response_messages.invalid_date_format"),
       });
     }
 
@@ -107,6 +109,7 @@ router.post("/", authenticateToken, upload.single('news_image'), async (req, res
 
 router.get("/", async (req, res) => {
   try {
+    const language = req.currentLanguage;
     const newsList = await prisma.news.findMany({
       where: { is_deleted: 0 }, 
       orderBy: { date: 'asc' },
@@ -128,9 +131,10 @@ router.get("/", async (req, res) => {
 // Check slug uniqueness
 router.get("/check-slug", async (req, res) => {
   try {
+    const language = req.currentLanguage;
     const { slug, excludeId } = req.query;
     if (!slug || typeof slug !== 'string' || !slug.trim()) {
-      return res.status(400).json({ success: false, message: 'slug is required' });
+      return res.status(400).json({ success: false, message: t(language, "response_messages.slug_is_required") });
     }
 
     const parsedExcludeId = excludeId ? parseInt(excludeId) : null;
@@ -157,6 +161,7 @@ router.get("/check-slug", async (req, res) => {
 router.get("/:identifier", async (req, res) => {
   try {
     const { identifier } = req.params;
+    const language = req.currentLanguage;
     
     // Check if identifier is a number (ID) or string (slug)
     const isNumeric = /^\d+$/.test(identifier);
@@ -183,7 +188,7 @@ router.get("/:identifier", async (req, res) => {
     if (!news) {
       return res.status(404).json({
         success: false,
-        message: "News not found.",
+        message: t(language, "response_messages.news_not_found"),
       });
     }
 
@@ -204,13 +209,13 @@ router.delete("/:id", authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
     const parsedId = parseInt(id);
-
+    const language = req.currentLanguage;
     const existing = await prisma.news.findFirst({ where: { id: parsedId } });
 
     if (!existing) {
       return res.status(404).json({
         success: false,
-        message: "News not found.",
+        message: t(language, "response_messages.news_not_found"),
       });
     }
 
@@ -240,7 +245,7 @@ router.delete("/:id", authenticateToken, async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: "News deleted successfully.",
+      message: t(language, "response_messages.news_deleted_successfully"),
     });
   } catch (error) {
     console.error("Error deleting news:", error);
@@ -254,13 +259,14 @@ router.delete("/:id", authenticateToken, async (req, res) => {
 router.put("/:id", authenticateToken, upload.single('news_image'), async (req, res) => {
   try {
     const { id } = req.params;
-    const { news_title, news_date, news_description, news_slug } = req.body;    
+    const { news_title, news_date, news_description, news_slug } = req.body;  
+    const language = req.currentLanguage;
 
     const formattedDate = new Date(news_date);
     if (isNaN(formattedDate)) {
       return res.status(400).json({
         success: false,
-        message: "Invalid date format.",
+        message: t(language, "response_messages.invalid_date_format"),
       });
     }
 
@@ -281,14 +287,14 @@ router.put("/:id", authenticateToken, upload.single('news_image'), async (req, r
             try { if (req.file && req.file.path && fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path); } catch(_){}
           } else {
             console.error('S3 upload failed:', s3Result);
-            return res.status(500).json({ success: false, message: 'S3 upload failed' });
+            return res.status(500).json({ success: false, message: t(language, "response_messages.s3_upload_failed") });
           }
         } catch (err) {
           console.error('S3 upload error for news image (update):', err?.message || err);
-          return res.status(500).json({ success: false, message: 'S3 upload failed' });
+          return res.status(500).json({ success: false, message: t(language, "response_messages.s3_upload_failed") });
         }
       } else {
-        return res.status(500).json({ success: false, message: 'S3 is disabled' });
+        return res.status(500).json({ success: false, message: t(language, "response_messages.s3_disabled") });
       }
       try {
         const existing = await prisma.news.findFirst({ where: { id: parseInt(id) } });

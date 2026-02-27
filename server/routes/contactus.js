@@ -3,6 +3,7 @@ import prisma from '../utils/prisma.js';
 import { authenticateToken } from '../middleware/auth.js';
 import { sendEmailUsingTemplate } from '../utils/email.js';
 import { ROLES } from '../../src/constants/roles.js';
+import { t } from '../utils/i18n.js';
 
 const router = express.Router();
 
@@ -75,12 +76,13 @@ router.post('/', async (req, res) => {
       message,
       created_by
     } = req.body;
+    const language = req.currentLanguage;
 
     // Validate required fields
     if (!fullName || !email || !subject || !message) {
       return res.status(400).json({
         success: false,
-        message: 'Full name, email, subject, and message are required'
+        message: t(language, "response_messages.full_name_email_subject_message_required")
       });
     }
 
@@ -89,7 +91,7 @@ router.post('/', async (req, res) => {
     if (!emailRegex.test(email)) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid email format'
+        message: t(language, "response_messages.invalid_email_format")
       });
     }
 
@@ -158,7 +160,7 @@ router.post('/', async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: 'Your message has been sent successfully. We will get back to you soon.',
+      message: t(language, "response_messages.message_sent_successfully"),
       data: newMessage
     });
 
@@ -175,7 +177,7 @@ router.post('/', async (req, res) => {
 router.get('/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
-
+    const language = req.currentLanguage;
     const message = await prisma.contact_us.findFirst({
       where: { 
         id: parseInt(id),
@@ -186,7 +188,7 @@ router.get('/:id', authenticateToken, async (req, res) => {
     if (!message) {
       return res.status(404).json({
         success: false,
-        message: 'Message not found'
+        message: t(language, "response_messages.message_not_found")
       });
     }
 
@@ -209,6 +211,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
     const { fullName, email, phoneNumber, subject, message } = req.body;
+    const language = req.currentLanguage;
 
     // Check if message exists
     const existingMessage = await prisma.contact_us.findFirst({
@@ -221,7 +224,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
     if (!existingMessage) {
       return res.status(404).json({
         success: false,
-        message: 'Message not found'
+        message: t(language, "response_messages.message_not_found")
       });
     }
 
@@ -239,7 +242,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Message updated successfully',
+      message: t(language, "response_messages.message_updated_successfully"),
       data: updatedMessage
     });
 
@@ -256,7 +259,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
 router.delete('/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
-
+    const language = req.currentLanguage;
     // Check if message exists
     const existingMessage = await prisma.contact_us.findFirst({
       where: { 
@@ -268,7 +271,7 @@ router.delete('/:id', authenticateToken, async (req, res) => {
     if (!existingMessage) {
       return res.status(404).json({
         success: false,
-        message: 'Message not found'
+        message: t(language, "response_messages.message_not_found")
       });
     }
 
@@ -280,7 +283,7 @@ router.delete('/:id', authenticateToken, async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Message deleted successfully'
+      message: t(language, "response_messages.message_deleted_successfully")
     });
 
   } catch (error) {

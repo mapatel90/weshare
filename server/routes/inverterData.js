@@ -2,6 +2,7 @@ import express from "express";
 import prisma from "../utils/prisma.js";
 import { authenticateToken } from "../middleware/auth.js";
 import { PROJECT_STATUS } from "../../src/constants/project_status.js";
+import { t } from "../utils/i18n.js";
 
 const router = express.Router();
 
@@ -271,18 +272,13 @@ router.post("/latest-record", authenticateToken, async (req, res) => {
 });
 
 // Investor-specific latest inverter data
-// Rules:
-// - If projectId + projectInverterId provided -> latest record for that inverter
-// - If only projectId provided -> latest record for all inverters in that project
-// - If none provided -> latest record for all inverters across the logged-in investor's projects
 router.post("/investor/latest-record", authenticateToken, async (req, res) => {
   try {
     const { projectId, projectInverterId } = req.body;
     const userId = req.user.id;
-
+    const language = req.currentLanguage;
     const project_id = projectId ? Number(projectId) : null;
     const inverter_id = projectInverterId ? Number(projectInverterId) : null;
-    console.log("Investor latest record request:", { project_id, inverter_id, userId });
 
     /* ----------------------------------------------------
        STEP 1: Find projects investor can access
@@ -312,7 +308,7 @@ router.post("/investor/latest-record", authenticateToken, async (req, res) => {
     if (project_id && !allowedProjectIds.includes(project_id)) {
       return res.status(403).json({
         success: false,
-        message: "Project not allowed",
+        message: t(language, "response_messages.project_not_allowed"),
       });
     }
 
@@ -584,6 +580,7 @@ router.post("/offtaker/summary/data", authenticateToken, async (req, res) => {
   try {
     const { projectId, projectInverterId } = req.body;
     const userId = req.user.id;
+    const language = req.currentLanguage;
 
     const project_id = projectId ? Number(projectId) : null;
     const inverter_id = projectInverterId ? Number(projectInverterId) : null;
@@ -598,7 +595,6 @@ router.post("/offtaker/summary/data", authenticateToken, async (req, res) => {
     });
 
     const allowedProjectIds = ownedProjects.map((p) => p.id);
-    console.log("allowedProjectIds::", allowedProjectIds);
 
     /* ----------------------------------------------------
        STEP 2: Security check
@@ -607,7 +603,7 @@ router.post("/offtaker/summary/data", authenticateToken, async (req, res) => {
     if (project_id && !allowedProjectIds.includes(project_id)) {
       return res.status(403).json({
         success: false,
-        message: "Project not allowed",
+        message: t(language, "response_messages.project_not_allowed"),
       });
     }
 

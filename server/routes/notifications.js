@@ -18,7 +18,7 @@ router.get('/', authenticateToken, async (req, res) => {
   try {
     const { page = 1, limit = 20, unreadOnly, moduleType, search, sortBy = 'created_at', sortOrder = 'desc' } = req.query;
     const userId = req.user.id; // From authenticateToken middleware
-    console.log("userId", userId);
+   
 
     const result = await getNotificationsByUser({
       userId,

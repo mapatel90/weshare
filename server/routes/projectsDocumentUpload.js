@@ -184,11 +184,11 @@ router.put("/:id", authenticateToken, upload.single('document'), async (req, res
             amount,
             created_by
         } = req.body;
-        
+        const language = req.currentLanguage;
         // Get existing document
         const existing = await prisma.project_documents.findFirst({ where: { id: Number(id) } });
         if (!existing) {
-            return res.status(404).json({ success: false, message: 'Document not found' });
+            return res.status(404).json({ success: false, message: t(language, "response_messages.document_not_found") });
         }
         
         let updateData = {
@@ -241,7 +241,7 @@ router.put("/:id", authenticateToken, upload.single('document'), async (req, res
                     console.error('S3 upload error:', err);
                 }
             } else {
-                return res.status(500).json({ success: false, message: 'S3 is disabled' });
+                return res.status(500).json({ success: false, message: t(language, "response_messages.s3_disabled") });
             }
         }
         const updated = await prisma.project_documents.update({
@@ -259,11 +259,12 @@ router.put("/:id", authenticateToken, upload.single('document'), async (req, res
 router.delete("/:id", authenticateToken, async (req, res) => {
     try {
         const { id } = req.params;
+        const language = req.currentLanguage;
         
         // Get existing document to delete file
         const existing = await prisma.project_documents.findFirst({ where: { id: Number(id) } });
         if (!existing) {
-            return res.status(404).json({ success: false, message: 'Document not found' });
+            return res.status(404).json({ success: false, message: t(language, "response_messages.document_not_found") });
         }
         
         // Delete the document file if it exists
@@ -282,7 +283,7 @@ router.delete("/:id", authenticateToken, async (req, res) => {
         }
         
         await prisma.project_documents.delete({ where: { id: Number(id) } });
-        return res.json({ success: true, message: "Document deleted successfully!" });
+        return res.json({ success: true, message: t(language, "response_messages.document_deleted_successfully") });
     } catch (error) {
         console.error(error);
         return res.status(500).json({ success: false, message: error.message });
