@@ -484,6 +484,30 @@ const ProjectDetail = ({ projectId }) => {
     <main>
       <section className="main-contentBox Exchange-page mb-80">
         <div className="container">
+          <div className="d-flex justify-content-end sticky-back-button">
+            <button
+              type="button"
+              className="btn d-inline-flex align-items-center gap-2 p-2"
+              onClick={() => router.push("/frontend/exchange-hub")}
+              onMouseEnter={() => setIsBackButtonHovered(true)}
+              onMouseLeave={() => setIsBackButtonHovered(false)}
+              style={{
+                backgroundColor: isBackButtonHovered ? "#e09615" : "#f6a623",
+                color: "#fff",
+                border: "none",
+                borderRadius: "8px",
+                fontWeight: 600,
+                boxShadow: isBackButtonHovered
+                  ? "0 6px 16px rgba(246, 166, 35, 0.4)"
+                  : "0 4px 12px rgba(246, 166, 35, 0.3)",
+                transform: isBackButtonHovered ? "translateY(-2px)" : "translateY(0)",
+                transition: "all 0.3s ease",
+              }}
+            >
+              <ArrowLeft size={18} />
+              {lang("common.back", "Back")} {lang("home.exchangeHub.title", "Exchange Hub")}
+            </button>
+          </div>
           <div className="sectionWraper">
             {/* Left Section */}
             <div className="left-card">
@@ -783,28 +807,6 @@ const ProjectDetail = ({ projectId }) => {
             {/* Right Section */}
             <div className="right-card border-0">
               <div className="d-flex justify-content-end mb-3">
-                <button
-                  type="button"
-                  className="btn d-inline-flex align-items-center gap-2 p-2"
-                  onClick={() => router.push("/frontend/exchange-hub")}
-                  onMouseEnter={() => setIsBackButtonHovered(true)}
-                  onMouseLeave={() => setIsBackButtonHovered(false)}
-                  style={{
-                    backgroundColor: isBackButtonHovered ? "#e09615" : "#f6a623",
-                    color: "#fff",
-                    border: "none",
-                    borderRadius: "8px",
-                    fontWeight: 600,
-                    boxShadow: isBackButtonHovered
-                      ? "0 6px 16px rgba(246, 166, 35, 0.4)"
-                      : "0 4px 12px rgba(246, 166, 35, 0.3)",
-                    transform: isBackButtonHovered ? "translateY(-2px)" : "translateY(0)",
-                    transition: "all 0.3s ease",
-                  }}
-                >
-                  <ArrowLeft size={18} />
-                  {lang("common.back", "Back")} {lang("home.exchangeHub.title", "Exchange Hub")}
-                </button>
               </div>
 
               {/* Investor Box */}
@@ -824,7 +826,7 @@ const ProjectDetail = ({ projectId }) => {
                   </p>
 
                   <h2 className="price-amount">
-                  {priceWithCurrency(project.asking_price || "0")}
+                    {priceWithCurrency(project.asking_price || "0")}
                   </h2>
                   {project.project_status_id === PROJECT_STATUS.UPCOMING ?
                     <p className="mb-0 price-caption">

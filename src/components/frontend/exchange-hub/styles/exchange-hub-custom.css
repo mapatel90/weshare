@@ -1723,10 +1723,18 @@ input:focus-visible {
 }
 
 /* Right Card - Sidebar */
-.right-card {
+/* .right-card {
   position: sticky;
   top: 100px;
   height: fit-content;
+} */
+
+/* Sticky back button on detail page */
+.sticky-back-button {
+  /* position: sticky; */
+  top: 100px;
+  z-index: 1100;
+  margin-bottom: 16px;
 }
 
 /* Investor Box */
