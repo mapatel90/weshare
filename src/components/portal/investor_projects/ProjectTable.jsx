@@ -14,10 +14,11 @@ import { apiGet } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import { getPrimaryProjectImage } from "@/utils/projectUtils";
-import { buildUploadUrl, formatEnergyUnit, getFullImageUrl } from "@/utils/common";
+import { buildUploadUrl, formatEnergyUnit, getFullImageUrl, getTimeLeft } from "@/utils/common";
 import { PROJECT_STATUS } from "@/constants/project_status";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { ROLES } from "@/constants/roles";
+import { useFormatPrice } from "@/hooks/useFormatPrice";
 
 
 const formatCurrency = (value) => {
@@ -119,6 +120,7 @@ const ProjectTable = () => {
   // pending values used inside dropdown inputs; only commit on Apply
   const [pendingDateStart, setPendingDateStart] = useState("");
   const [pendingDateEnd, setPendingDateEnd] = useState("");
+  const priceWithCurrency = useFormatPrice();
 
   // Debounce search term - wait 500ms after user stops typing
   useEffect(() => {
@@ -538,27 +540,28 @@ const ProjectTable = () => {
                       {/* Stats boxes */}
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-3 md:h-[95px]">
                         <div className="bg-gray-50 rounded-lg p-2 text-center" style={{ wordWrap: "break-word" }}>
-                          <div className="text-base font-bold text-slate-900">{project.asking_price}</div>
-                          <div className="text-xs text-gray-500">{lang("home.exchangeHub.targetInvestment", "Target Investment")}</div>
+                          <div className="text-base font-bold text-slate-900">{priceWithCurrency(project.asking_price)}</div>
+                          <div className="text-xs text-gray-500">{lang("home.exchangeHub.totalInvestedPrice", "Target Investment")}</div>
                         </div>
                         <div className="bg-gray-50 rounded-lg p-2 text-center">
                           <div className="text-base font-bold text-amber-600">{formatEnergyUnit(project.total_energy)}</div>
-                          <div className="text-xs text-gray-500">{lang("home.exchangeHub.totalGeneration", "Total Generation")}</div>
+                          <div className="text-xs text-gray-500">{lang("home.exchangeHub.accumulativeGeneration", "Total Generation")}</div>
                         </div>
                         <div className="bg-gray-50 rounded-lg p-2 text-center">
                           <div className="text-base font-bold text-orange-600">{formatPercent(project.calculated_roi)}</div>
-                          <div className="text-xs text-gray-500">{lang("home.exchangeHub.roi", "ROI")}</div>
+                          <div className="text-xs text-gray-500">{lang("home.exchangeHub.realtimeMonthlyROI", "ROI")}</div>
                         </div>
                       </div>
                       {/* Payback/Lease info */}
                       <div className="flex flex-col md:flex-row gap-2 bg-gray-100 rounded-lg p-2 mb-3 text-center text-xs font-medium text-gray-700">
                         <div className="flex-1 md:border-r border-gray-300">
                           <div>{lang("home.exchangeHub.paybackPeriod", "Payback Period")}</div>
+                          {console.log("project:", project)}
                           <div className="text-lg font-bold text-slate-900">{project?.payback_period}</div>
                         </div>
                         <div className="flex-1">
-                          <div>{lang("home.exchangeHub.leaseTerm", "Lease Term")}  {lang("home.exchangeHub.extendable", "Extendable")}</div>
-                          <div className="text-lg font-bold text-slate-900">{project?.lease_term} {lang("home.exchangeHub.years", "years")}</div>
+                          <div>{lang("home.exchangeHub.leaseTermRemaining", "Lease Term")}</div>
+                          <div className="text-lg font-bold text-slate-900">{getTimeLeft(project?.project_close_date)}</div>
                         </div>
                       </div>
                       {/* Action buttons */}

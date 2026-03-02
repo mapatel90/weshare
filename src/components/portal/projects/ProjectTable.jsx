@@ -11,13 +11,14 @@ import {
   MapPin,
   Filter,
 } from "lucide-react";
-import { buildUploadUrl, getFullImageUrl } from "@/utils/common";
+import { buildUploadUrl, getFullImageUrl, getTimeLeft } from "@/utils/common";
 import { getPrimaryProjectImage } from "@/utils/projectUtils";
 import { apiGet } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import { PROJECT_STATUS } from "@/constants/project_status";
 import { ROLES } from "@/constants/roles";
+import { useFormatPrice } from "@/hooks/useFormatPrice";
 
 const statusDictionary = {
   0: "Under Installation",
@@ -98,7 +99,6 @@ const normalizeApiProject = (project) => {
 
   const statusLabel = STATUS_LABELS[status_id] || "Unknown";
 
-
   return {
     projectId: project?.id ?? null,
     displayId: project?.id ? `#${project.id}` : project?.project_code ?? "—",
@@ -107,11 +107,13 @@ const normalizeApiProject = (project) => {
     project_status_id: status_id,
     status: statusLabel,
     statusCode: status_id,
-    expectedROI: formatPercent(project?.expected_roi ?? project?.roi),
-    targetInvestment: formatCompactAmount(project?.asking_price),
+    estimated_roi: project?.estimated_roi ? project?.estimated_roi : "0",
+    calculated_roi: project?.calculated_roi ? project?.calculated_roi : "0",
+    targetInvestment: project?.asking_price,
     paybackPeriod: project?.lease_term ? String(project.lease_term) : "—",
-    startDate: formatDateForDisplay(project?.createdAt),
-    endDate: formatDateForDisplay(project?.project_close_date),
+    leaseTerm: project?.lease_term ? String(project.lease_term) : "—",
+    lease_start_date: project?.project_start_date ? project?.project_start_date : "—",
+    lease_end_date: project?.project_close_date ? project?.project_close_date : "—",
     startDateTs: tsOrZero(project?.createdAt),
     endDateTs: tsOrZero(project?.project_close_date),
     expectedGeneration: formatNumber(project?.project_size),
@@ -144,6 +146,7 @@ const SolarProjectTable = () => {
   // pending values used inside dropdown inputs; only commit on Apply
   const [pendingDateStart, setPendingDateStart] = useState("");
   const [pendingDateEnd, setPendingDateEnd] = useState("");
+  const priceWithCurrency = useFormatPrice();
 
   // Debounce search term - wait 500ms after user stops typing
   useEffect(() => {
@@ -593,7 +596,7 @@ const SolarProjectTable = () => {
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-3 md:h-[95px]">
                         <div className="bg-gray-50 rounded-lg p-2 text-center" style={{ wordWrap: "break-word" }}>
                           <div className="text-base font-bold text-slate-900">
-                            {project.targetInvestment}
+                            {priceWithCurrency(project.targetInvestment)}
                           </div>
                           <div className="text-xs text-gray-500">
                             {lang("home.exchangeHub.targetInvestment", "Target Investment")}
@@ -601,18 +604,18 @@ const SolarProjectTable = () => {
                         </div>
                         <div className="bg-gray-50 rounded-lg p-2 text-center">
                           <div className="text-base font-bold text-amber-600">
-                            {project.expectedGeneration}
+                            {project.expectedGeneration} {lang("home.exchangeHub.kWh", "kWh")}
                           </div>
                           <div className="text-xs text-gray-500">
-                            {lang("home.exchangeHub.expectedGeneration", "Expected Generation (kWh)")}
+                            {lang("home.exchangeHub.accumulativeGeneration", "Expected Generation (kWh)")}
                           </div>
                         </div>
                         <div className="bg-gray-50 rounded-lg p-2 text-center">
                           <div className="text-base font-bold text-orange-600">
-                            {project.expectedROI}
+                            {project.project_status_id === PROJECT_STATUS.RUNNING ? project.calculated_roi : project.estimated_roi} %
                           </div>
                           <div className="text-xs text-gray-500">
-                            {lang("home.exchangeHub.expectedROI", "Expected ROI")}
+                            {project.project_status_id === PROJECT_STATUS.RUNNING ? lang("home.exchangeHub.realtimeMonthlyROI", "ROI") : lang("home.exchangeHub.estimatedROI", "Expected ROI")}
                           </div>
                         </div>
                       </div>
@@ -627,7 +630,7 @@ const SolarProjectTable = () => {
                         <div className="flex-1">
                           <div>{lang("home.exchangeHub.leaseTerm", "Lease Term")}</div>
                           <div className="text-lg font-bold text-slate-900">
-                            15 {lang("home.exchangeHub.years", "years")}
+                            {project.project_status_id === PROJECT_STATUS.UPCOMING ? project.leaseTerm + " " + lang("home.exchangeHub.years", "years") : getTimeLeft(project?.lease_end_date)}
                           </div>
                         </div>
                       </div>
@@ -715,8 +718,8 @@ const SolarProjectTable = () => {
                           <button
                             onClick={() => setCurrentPage(page)}
                             className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${currentPage === page
-                                ? "bg-slate-800 text-white"
-                                : "hover:bg-gray-100 text-gray-700"
+                              ? "bg-slate-800 text-white"
+                              : "hover:bg-gray-100 text-gray-700"
                               }`}
                           >
                             {page}
