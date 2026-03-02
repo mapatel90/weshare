@@ -171,7 +171,7 @@ const MyProfile = () => {
             // Validate file type
             const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp']
             if (!validTypes.includes(file.type)) {
-                setImageError('Please upload a valid image file (JPG, PNG, GIF, WEBP)')
+                setImageError(lang('response_messages.profile_image_format_error', 'Please upload a valid image file (JPG, PNG, GIF, WEBP)'))
                 e.target.value = '' // Reset input
                 return
             }
@@ -179,7 +179,7 @@ const MyProfile = () => {
             // Validate file size (max 5MB)
             const maxSize = 5 * 1024 * 1024 // 5MB in bytes
             if (file.size > maxSize) {
-                setImageError('File size must be less than 5MB')
+                setImageError(lang('response_messages.file_size_must_be_less_than_5_mb', 'File size must be less than 5MB'))
                 e.target.value = '' // Reset input
                 return
             }
@@ -210,13 +210,13 @@ const MyProfile = () => {
         e.preventDefault()
 
         if (!user?.id) {
-            showErrorToast('User not found')
+            showErrorToast(lang('response_messages.user_not_found', 'User not found'))
             return
         }
 
         // Check if there's an image error
         if (imageError) {
-            showErrorToast('Please fix image errors before submitting')
+            showErrorToast(lang('response_messages.please_fix_image_errors_before_submitting', 'Please fix image errors before submitting'))
             return
         }
 
@@ -247,7 +247,7 @@ const MyProfile = () => {
             const response = await apiUpload(`/api/users/profile/${user.id}`, formData, { method: 'PUT' })
 
             if (response.success) {
-                showSuccessToast(imageFile ? 'Profile and image updated successfully' : 'Profile updated successfully')
+                showSuccessToast(imageFile ? lang('response_messages.profile_and_image_updated_successfully', 'Profile and image updated successfully') : lang('response_messages.profile_updated_successfully', 'Profile updated successfully'))
                 setImageFile(null)
                 setImageError('')
 

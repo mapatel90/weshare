@@ -105,7 +105,7 @@ const ProjectEnvReport = () => {
                 }
                 setHasLoadedOnce(true);
             } else {
-                setError("Failed to load reports data");
+                setError(lang("response_messages.failed_to_load_reports_data", "Failed to load reports data"));
                 setProjectEnergyData([]);
             }
         } catch (err) {
@@ -119,7 +119,7 @@ const ProjectEnvReport = () => {
 
     const handleSubmit = () => {
         if (!projectFilter) {
-            alert("Please select Project");
+            alert(lang("response_messages.please_select_project", "Please select Project"));
             return;
         }
 

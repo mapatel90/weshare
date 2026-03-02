@@ -150,7 +150,7 @@ const RoiReports = () => {
   // 3) Handle submit to apply filters
   const handleSubmit = () => {
     if (!projectFilter) {
-      alert("Please select Project");
+      alert(lang("response_messages.please_select_project", "Please select Project"));
       return;
     }
 
