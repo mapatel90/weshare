@@ -548,7 +548,7 @@ const UserForm = ({ initialData = {}, onSubmit, includePassword = false, exclude
                             <div className="card-footer d-flex justify-content-end col-md-12" style={{ paddingBottom: '0' }}>
                                 <div className="d-flex gap-2">
                                     <Button type="submit" variant="contained" className="common-grey-color" disabled={loading} startIcon={loading ? <CircularProgress size={16} /> : null}>
-                                        {loading ? (includePassword ? 'Creating...' : 'Saving...') : (!isEditing ? lang('usersView.CreateUser') : 'Save')}
+                                        {loading ? (includePassword ? 'Creating...' : 'Saving...') : (!isEditing ? lang('usersView.CreateUser') : lang('common.save'))}
                                     </Button>
                                 </div>
                             </div>

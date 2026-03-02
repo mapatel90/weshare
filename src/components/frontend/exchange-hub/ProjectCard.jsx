@@ -491,7 +491,7 @@ const ProjectCard = ({ project, activeTab, isHome = false }) => {
                 "Cumulative Revenue"}
             </span>
             <span className="fw-500 text-black">
-              {formatShort(
+              ₫{formatShort(
                 project?.cumulative_revenue
                   ? parseFloat(project.cumulative_revenue)
                   : 0
@@ -503,7 +503,7 @@ const ProjectCard = ({ project, activeTab, isHome = false }) => {
               {lang("home.exchangeHub.totalInvestedPrice") || "Asking Price"}
             </span>
             <span className="fw-500 text-black">
-              {formatShort(project?.asking_price || "128000")}
+            ₫{formatShort(project?.asking_price || "128000")}
             </span>
           </p>
         </div>

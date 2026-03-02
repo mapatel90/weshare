@@ -418,7 +418,7 @@ const PaymentsPage = () => {
                     <TextField
                       {...params}
                       label={lang("reports.allprojects")}
-                      placeholder="Search project..."
+                      placeholder={lang("common.searchProject", "Search project...")}
                     />
                   )}
                   sx={{ width: { xs: "100%", md: 260 } }}
