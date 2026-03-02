@@ -186,6 +186,7 @@
   "common": {
     "file": "File",
     "investors": "Investors",
+    "searchInvestor": "Search investor...",
     "read": "Read",
     "unknown": "Unknown",
     "choose_profile_picture":"Choose Profile Picture",

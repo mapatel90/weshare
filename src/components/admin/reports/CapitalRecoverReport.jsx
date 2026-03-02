@@ -278,7 +278,7 @@ const CapitalRecoverReport = () => {
                 {...params}
                 label={lang("authentication.becomeInvestor") || "Investor"}
                 placeholder={
-                  lang("testimonial.searchInvestor") || "Search investor..."
+                  lang("common.searchInvestor") || "Search investor..."
                 }
               />
             )}
