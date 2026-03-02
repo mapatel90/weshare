@@ -2198,6 +2198,17 @@
     "user_not_logged_in": "Người dùng không đăng nhập",
     "please_select_both_project_and_inverter": "Vui lòng chọn cả dự án và biến tần",
     "please_select_both_project_and_inverter_to_download_csv": "Vui lòng chọn cả dự án và biến tần để tải xuống CSV",
-    "loading": "Đang tải..."
+    "loading": "Đang tải...",
+    "meter_updated_successfully": "Công tơ đã được cập nhật thành công",
+    "failed_to_info": "Không thể lấy thông tin công tơ",
+    "network_error": "Lỗi mạng",
+    "investor_saved_successfully": "Nhà đầu tư đã được lưu thành công",
+    "title_is_required": "Tiêu đề là bắt buộc",
+    "document_file_is_required": "Tệp tài liệu là bắt buộc",
+    "document_saved_successfully": "Tài liệu đã được lưu thành công",
+    "error_occurred": "Đã xảy ra lỗi. Vui lòng thử lại.",
+    "download": "Tải xuống",
+    "document_updated_successfully": "Tài liệu đã được cập nhật thành công",
+    "investor_updated_successfully": "Nhà đầu tư đã được cập nhật thành công"
   }
 }

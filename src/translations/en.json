@@ -2251,6 +2251,17 @@
     "user_not_logged_in": "User not logged in",
     "please_select_both_project_and_inverter": "Please select both Project and Inverter",
     "please_select_both_project_and_inverter_to_download_csv": "Please select both Project and Inverter to download CSV",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "meter_updated_successfully":"Meter updated successfully",
+    "failed_to_info":"Failed to info",
+    "network_error":"Network error",
+    "investor_saved_successfully":"Investor saved successfully",
+    "title_is_required":"Title is required",
+    "document_file_is_required":"Document file is required",
+    "document_saved_successfully":"Document saved successfully",
+    "error_occurred":"An error occurred. Please try again.",
+    "download":"Download",
+    "document_updated_successfully":"Document updated successfully",
+    "investor_updated_successfully":"Investor updated successfully"
   }
 }

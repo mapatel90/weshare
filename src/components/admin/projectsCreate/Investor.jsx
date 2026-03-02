@@ -190,7 +190,11 @@ const Investor = ({ projectId, onInvestorMarked, handleSaveAction }) => {
       }
 
       if (res?.success) {
-        showSuccessToast(lang("investor.saved", "Saved successfully"));
+        if(editId){
+          showSuccessToast(lang("response_messages.investor_updated_successfully", "Investor updated successfully"));
+        } else {
+          showSuccessToast(lang("response_messages.investor_saved_successfully", "Investor saved successfully"));
+        }
         closeModal();
         fetchInvestors();
       } else {
@@ -217,7 +221,7 @@ const Investor = ({ projectId, onInvestorMarked, handleSaveAction }) => {
     try {
       const res = await apiDelete(`/api/investors/${row.user_id}/${row.project_id}`);
       if (res?.success) {
-        showSuccessToast(lang("investor.deleted", "Investor deleted"));
+        showSuccessToast(lang("response_messages.investor_deleted_successfully", "Investor deleted successfully"));
         // Notify parent if this investor was marked for the project
         if (typeof onInvestorMarked === "function") {
           onInvestorMarked({ id: null, full_name: "" });
