@@ -8,7 +8,7 @@ import CompanyHeader from '@/components/admin/inverter/company/CompanyHeader'
 const page = () => {
     return (
         <>
-            <DynamicTitle titleKey="inverter.inverterlist" />
+            <DynamicTitle titleKey="page_title.company" />
             <PageHeader>
                 <CompanyHeader />
             </PageHeader>

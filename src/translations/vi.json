@@ -54,7 +54,10 @@
     "payouts": "khoản thanh toán",
     "email_templates": "Mẫu email",
     "company": "Công ty",
-    "myprofile": "Hồ sơ của tôi"
+    "myprofile": "Hồ sơ của tôi",
+    "inverter_type": "Loại biến tần",
+    "inverter_list": "Danh sách biến tần",
+    "inverter_company": "Công ty"
   },
   "header": {
     "dashboard": "Bảng điều khiển",
@@ -169,6 +172,8 @@
     "investors": "Nhà đầu tư",
     "read": "Đã đọc",
     "unknown": "Không xác định",
+    "choose_profile_picture":"Chọn ảnh đại diện",
+    "edit_profile":"Chỉnh sửa hồ sơ",
     "resendVerificationEmail": "Gửi lại email xác minh",
     "verificationFailed": "Xác minh thất bại (Mã thông báo có thể không hợp lệ hoặc đã hết hạn.)",
     "verificationMissingToken": "Thiếu mã xác minh. Vui lòng kiểm tra liên kết trong email của bạn.",
@@ -519,7 +524,8 @@
     "investmentsummaryreports": "Báo cáo tóm tắt đầu tư",
     "payouts": "khoản thanh toán",
     "company": "Công ty",
-    "capitalrecoveryreports": "Báo cáo khôi phục vốn"
+    "capitalrecoveryreports": "Báo cáo khôi phục vốn",
+    "profile": "Hồ sơ"
   },
   "dashboard": {
     "all_your_investments": "Tất cả khoản đầu tư của bạn",
@@ -2209,6 +2215,7 @@
     "error_occurred": "Đã xảy ra lỗi. Vui lòng thử lại.",
     "download": "Tải xuống",
     "document_updated_successfully": "Tài liệu đã được cập nhật thành công",
-    "investor_updated_successfully": "Nhà đầu tư đã được cập nhật thành công"
+    "investor_updated_successfully": "Nhà đầu tư đã được cập nhật thành công",
+    "allowed_jpg_png_jpeg_max_size_2mb": "Cho phép JPG, PNG hoặc JPEG. Kích thước tối đa 2MB"
   }
 }

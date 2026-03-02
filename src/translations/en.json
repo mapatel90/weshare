@@ -53,7 +53,10 @@
     "home": "Home",
     "payouts": "Payouts",
     "company": "Company",
-    "myprofile": "My Profile"
+    "myprofile": "My Profile",
+    "inverter_type": "Inverter Type",
+    "inverter_list": "Inverter List",
+    "inverter_company": "Company"
   },
   "header": {
     "dashboard": "Dashboard",
@@ -184,7 +187,9 @@
     "investors": "Investors",
     "read": "Read",
     "unknown": "Unknown",
+    "choose_profile_picture":"Choose Profile Picture",
     "resendVerificationEmail": "Resend Verification Email",
+    "edit_profile":"Edit Profile",
     "verificationFailed": "Verification Failed (Token may be invalid or expired)",
     "verificationMissingToken": "Verification token is missing. Please check your email link.",
     "verificationInvalidLink": "Invalid or expired verification link. Please request a new one.",
@@ -533,7 +538,8 @@
     "emailTemplates": "Email Templates",
     "payouts": "Payouts",
     "company": "Company",
-    "capitalrecoveryreports": "Capital Recovery Reports"
+    "capitalrecoveryreports": "Capital Recovery Reports",
+    "profile": "Profile"
   },
   "dashboard": {
     "all_your_investments": "All your investments",
@@ -2262,6 +2268,7 @@
     "error_occurred":"An error occurred. Please try again.",
     "download":"Download",
     "document_updated_successfully":"Document updated successfully",
-    "investor_updated_successfully":"Investor updated successfully"
+    "investor_updated_successfully":"Investor updated successfully",
+    "allowed_jpg_png_jpeg_max_size_2mb":"Allowed JPG, PNG or JPEG. Max size of 2MB"
   }
 }

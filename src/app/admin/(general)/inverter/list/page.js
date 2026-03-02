@@ -8,7 +8,7 @@ import DynamicTitle from '@/components/common/DynamicTitle'
 const page = () => {
     return (
         <>
-            <DynamicTitle titleKey="inverter.inverterlist" />
+            <DynamicTitle titleKey="page_title.inverter_list" />
             <PageHeader>
                 <InverterHeader />
             </PageHeader>

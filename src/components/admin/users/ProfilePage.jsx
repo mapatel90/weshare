@@ -187,7 +187,7 @@ const ProfilePage = () => {
         e.preventDefault()
 
         if (!user?.id) {
-            toast.error('User not found')
+            showErrorToast(lang('response_messages.user_not_found', 'User not found'))
             return
         }
 
@@ -212,7 +212,7 @@ const ProfilePage = () => {
             const response = await apiUpload(`/api/users/profile/${user.id}`, formData, { method: 'PUT' })
 
             if (response.success) {
-                showSuccessToast('Profile updated successfully')
+                showSuccessToast(lang('response_messages.profile_updated_successfully', 'Profile updated successfully'))
                 setImageFile(null)
 
                 // Update image preview with new image
@@ -262,7 +262,7 @@ const ProfilePage = () => {
                 }}
             >
                 <CardHeader
-                    title="Edit Profile"
+                    title={lang('common.edit_profile', 'Edit Profile')}
                     sx={{
                         backgroundColor: isDarkMode ? 'rgba(18,27,46,0.95)' : '#f8f9fa',
                         borderBottom: isDarkMode ? '1px solid #232a3b' : '1px solid #dee2e6',
@@ -292,7 +292,7 @@ const ProfilePage = () => {
                                         startIcon={<CloudUploadIcon />}
                                         size="small"
                                     >
-                                        Choose Profile Picture
+                                        {lang('common.choose_profile_picture', 'Choose Profile Picture')}
                                         <input
                                             type="file"
                                             id="user_image"
@@ -303,7 +303,7 @@ const ProfilePage = () => {
                                         />
                                     </Button>
                                     <Typography variant="caption" color={isDarkMode ? '#b1b4c0' : 'text.secondary'} sx={{ mt: 1 }}>
-                                        Allowed JPG, PNG or JPEG. Max size of 2MB
+                                        {lang('response_messages.allowed_jpg_png_jpeg_max_size_2mb', 'Allowed JPG, PNG or JPEG. Max size of 2MB')}
                                     </Typography>
                                 </Box>
                             </Grid>
@@ -313,11 +313,11 @@ const ProfilePage = () => {
                             <Grid item xs={12} md={6}>
                                 <TextField
                                     fullWidth
-                                    label="Full Name"
+                                    label={lang('usersView.fullName', 'Full Name')}
                                     name="full_name"
                                     value={profileData.full_name}
                                     onChange={handleInputChange}
-                                    placeholder="Enter full name"
+                                    placeholder={lang('placeholders.enterfullname', 'Enter full name')}
                                     required
                                     variant="outlined"
                                     InputLabelProps={{ style: { color: isDarkMode ? '#fff' : undefined } }}
@@ -328,12 +328,12 @@ const ProfilePage = () => {
                             <Grid item xs={12} md={6}>
                                 <TextField
                                     fullWidth
-                                    label="Email"
+                                    label={lang('authentication.email', 'Email')}
                                     name="email"
                                     type="email"
                                     value={profileData.email}
                                     onChange={handleInputChange}
-                                    placeholder="Enter email"
+                                    placeholder={lang('placeholders.enteremail', 'Enter email')}
                                     required
                                     variant="outlined"
                                     InputLabelProps={{ style: { color: isDarkMode ? '#fff' : undefined } }}
@@ -344,11 +344,11 @@ const ProfilePage = () => {
                             <Grid item xs={12} md={6}>
                                 <TextField
                                     fullWidth
-                                    label="Phone Number"
+                                    label={lang('usersView.phonenumber', 'Phone Number')}
                                     name="phone_number"
                                     value={profileData.phone_number}
                                     onChange={handleInputChange}
-                                    placeholder="Enter phone number"
+                                    placeholder={lang('placeholders.enterphonenumber', 'Enter phone number')}
                                     variant="outlined"
                                     InputLabelProps={{ style: { color: isDarkMode ? '#fff' : undefined } }}
                                     InputProps={{ style: { color: isDarkMode ? '#fff' : undefined } }}
@@ -359,7 +359,7 @@ const ProfilePage = () => {
                                 <TextField
                                     fullWidth
                                     select
-                                    label="Country"
+                                    label={lang('profile.country', 'Country')}
                                     name="country_id"
                                     value={profileData.country_id}
                                     onChange={handleCountrySelect}
@@ -368,7 +368,7 @@ const ProfilePage = () => {
                                     InputLabelProps={{ style: { color: isDarkMode ? '#fff' : undefined } }}
                                     InputProps={{ style: { color: isDarkMode ? '#fff' : undefined } }}
                                 >
-                                    <MenuItem value="">Select Country</MenuItem>
+                                    <MenuItem value="">{lang('profile.country_placeholder', 'Select Country')}</MenuItem>
                                     {countries.map((country) => (
                                         <MenuItem key={country.id} value={country.id}>
                                             {country.name}
@@ -381,7 +381,7 @@ const ProfilePage = () => {
                                 <TextField
                                     fullWidth
                                     select
-                                    label="State"
+                                    label={lang('profile.state', 'State')}
                                     name="state_id"
                                     value={profileData.state_id}
                                     onChange={handleStateSelect}
@@ -390,7 +390,7 @@ const ProfilePage = () => {
                                     InputLabelProps={{ style: { color: isDarkMode ? '#fff' : undefined } }}
                                     InputProps={{ style: { color: isDarkMode ? '#fff' : undefined } }}
                                 >
-                                    <MenuItem value="">Select State</MenuItem>
+                                    <MenuItem value="">{lang('profile.state_placeholder', 'Select State')}</MenuItem>
                                     {states.map((state) => (
                                         <MenuItem key={state.id} value={state.id}>
                                             {state.name}
@@ -403,7 +403,7 @@ const ProfilePage = () => {
                                 <TextField
                                     fullWidth
                                     select
-                                    label="City"
+                                    label={lang('common.city', 'City')}
                                     name="city_id"
                                     value={profileData.city_id}
                                     onChange={handleCitySelect}
@@ -412,7 +412,7 @@ const ProfilePage = () => {
                                     InputLabelProps={{ style: { color: isDarkMode ? '#fff' : undefined } }}
                                     InputProps={{ style: { color: isDarkMode ? '#fff' : undefined } }}
                                 >
-                                    <MenuItem value="">Select City</MenuItem>
+                                    <MenuItem value="">{lang('profile.city_placeholder', 'Select City')}</MenuItem>
                                     {cities.map((city) => (
                                         <MenuItem key={city.id} value={city.id}>
                                             {city.name}
@@ -447,7 +447,7 @@ const ProfilePage = () => {
                                         onClick={() => window.history.back()}
                                         sx={{ color: isDarkMode ? '#fff' : undefined, borderColor: isDarkMode ? '#fff' : undefined }}
                                     >
-                                        Cancel
+                                        {lang('common.cancel', 'Cancel')}
                                     </Button>
                                     <Button
                                         type="submit"
@@ -456,7 +456,7 @@ const ProfilePage = () => {
                                         disabled={loading}
                                         startIcon={loading && <CircularProgress size={20} />}
                                     >
-                                        {loading ? 'Saving...' : 'Save Changes'}
+                                        {loading ? lang('common.saving', 'Saving...') : lang('common.save_changes', 'Save Changes')}
                                     </Button>
                                 </Box>
                             </Grid>
