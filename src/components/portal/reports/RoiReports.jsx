@@ -395,7 +395,7 @@ const RoiReports = () => {
               <TextField
                 {...params}
                 label={lang("reports.allprojects")}
-                placeholder="Search project..."
+                placeholder={lang("common.searchProject", "Search project...")}
               />
             )}
             sx={{ minWidth: 260 }}

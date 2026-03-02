@@ -3099,6 +3099,31 @@ router.get('/status', async (req, res) => {
   }
 });
 
+// GET /api/projects/count/active - Get count of active projects (RUNNING + UPCOMING, not deleted)
+router.get('/count/active', async (req, res) => {
+  try {
+    const count = await prisma.projects.count({
+      where: {
+        is_deleted: 0,
+        project_status_id: {
+          in: [PROJECT_STATUS.RUNNING, PROJECT_STATUS.UPCOMING]
+        }
+      }
+    });
+    
+    res.status(200).json({ 
+      success: true, 
+      data: { count } 
+    });
+  } catch (error) {
+    console.error('Error fetching active projects count:', error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch active projects count",
+    });
+  }
+});
+
 // This /:identifier api set last in code  
 router.get("/:identifier", async (req, res) => {
   try {

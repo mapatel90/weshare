@@ -107,7 +107,7 @@ const AllProjects = ({ title }) => {
                               color: status === 1 ? "#15803d" : "#b91c1c",
                             }}
                           >
-                            {status === 1 ? "Active" : "Inactive"}
+                            {status === 1 ? lang('common.active') : lang('common.inactive')}
                           </span>
                         </td>
                       </tr>

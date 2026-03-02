@@ -11,6 +11,7 @@ import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import { uploadToS3, isS3Enabled, deleteFromS3 } from '../services/s3Service.js';
 import { t } from '../utils/i18n.js';
+import { USER_ROLES } from '../utils/constants.js';
 
 const router = express.Router();
 
@@ -991,5 +992,29 @@ router.post("/dropdown/users", authenticateToken, async (req, res) => {
     });
   }
 })
+
+// GET /api/users/count/active-investors - Get count of active investors (role_id=4, status=1, not deleted)
+router.get('/count/active-investors', async (req, res) => {
+  try {
+    const count = await prisma.users.count({
+      where: {
+        role_id: USER_ROLES.INVESTOR,
+        status: 1,
+        is_deleted: 0
+      }
+    });
+    
+    res.status(200).json({ 
+      success: true, 
+      data: { count } 
+    });
+  } catch (error) {
+    console.error('Error fetching active investors count:', error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch active investors count",
+    });
+  }
+});
 
 export default router;
