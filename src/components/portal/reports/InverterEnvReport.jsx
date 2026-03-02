@@ -94,7 +94,7 @@ const InverterEnvReport = () => {
       setError(null);
 
       if (!user?.id) {
-        setError("User not logged in");
+        setError(lang("response_messages.user_not_logged_in", "User not logged in"));
         setLoading(false);
         return;
       }
@@ -213,7 +213,7 @@ const InverterEnvReport = () => {
 
   const handleSubmit = () => {
     if (!projectFilter) {
-      alert("Please select both Project and Inverter");
+      alert(lang("response_messages.please_select_both_project_and_inverter", "Please select both Project and Inverter"));
       return;
     }
 
@@ -268,7 +268,7 @@ const InverterEnvReport = () => {
     try {
       setLoading(true);
       if (!projectFilter || !inverterFilter) {
-        alert("Please select both Project and Inverter to download CSV");
+        alert(lang("response_messages.please_select_both_project_and_inverter", "Please select both Project and Inverter to download CSV"));
         setLoading(false);
         return;
       }
@@ -413,7 +413,7 @@ const InverterEnvReport = () => {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 rounded-3xl">
           <div className="bg-white rounded-lg p-8 flex flex-col items-center gap-4 shadow-lg">
             <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
-            <p className="text-gray-700 font-medium">{lang("common.downloading", "Downloading...")}</p>
+            <p className="text-gray-700 font-medium">{lang("response_messages.loading", "Loading...")}</p>
           </div>
         </div>
       )}

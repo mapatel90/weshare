@@ -150,6 +150,7 @@ const ExchangeHub = () => {
   const fetchActiveInvestorsCount = async () => {
     try {
       const response = await apiGet(`/api/users?role=${ROLES.INVESTOR}&status=1`, { showLoader: false })
+      console.log("response", response)
       const total = response?.data?.pagination?.total ?? response?.data?.data?.pagination?.total ?? 0
       setActiveInvestorsCount(Number(total) || 0)
     } catch (error) {

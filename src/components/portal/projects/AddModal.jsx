@@ -122,7 +122,7 @@ export default function AddModal({ open, onClose }) {
     try {
       const exists = await checkProjectNameExists(project.name);
       if (exists) {
-        setFieldErrors((prev) => ({ ...prev, name: "Project name already exists" }));
+        setFieldErrors((prev) => ({ ...prev, name: lang("response_messages.project_name_already_exists", "Project name already exists") }));
       } else {
         setFieldErrors((prev) => {
           const newErrors = { ...prev };
@@ -232,11 +232,11 @@ export default function AddModal({ open, onClose }) {
 
     for (const file of newFiles) {
       if (!file.type.startsWith("image/")) {
-        showErrorToast(`${file.name} is not a valid image file`);
+        showErrorToast(lang("response_messages.file_is_not_a_valid_image_file", `${file.name} is not a valid image file`));
         continue;
       }
       if (file.size > 5 * 1024 * 1024) {
-        showErrorToast(`${file.name} must be less than 5MB`);
+        showErrorToast(lang("response_messages.file_size_must_be_less_than_5_mb", `${file.name} must be less than 5MB`));
         continue;
       }
 
@@ -346,16 +346,17 @@ export default function AddModal({ open, onClose }) {
             formData.append("images", file);
           });
           await apiUpload(`/api/projects/${res.data.id}/images`, formData);
+          showSuccessToast(lang("response_messages.project_image_uploaded_successfully", "Project image uploaded successfully"));
         } catch (uploadErr) {
           console.error("Project image upload error:", uploadErr);
           showErrorToast(
             uploadErr.message ||
-              "Project created but image upload failed. Please add images from the gallery."
+              lang("response_messages.project_image_upload_failed", "Project created but image upload failed. Please add images from the gallery.")
           );
         }
       }
 
-      showSuccessToast("Project created successfully");
+      showSuccessToast(lang("response_messages.project_created_successfully", "Project created successfully"));
       window.dispatchEvent(new Event("projectCreated"));
       
       closeModal();
