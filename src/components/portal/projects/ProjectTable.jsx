@@ -11,7 +11,7 @@ import {
   MapPin,
   Filter,
 } from "lucide-react";
-import { buildUploadUrl, getFullImageUrl, getTimeLeft } from "@/utils/common";
+import { buildUploadUrl, formatEnergyUnit, getFullImageUrl, getTimeLeft } from "@/utils/common";
 import { getPrimaryProjectImage } from "@/utils/projectUtils";
 import { apiGet } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
@@ -20,108 +20,10 @@ import { PROJECT_STATUS } from "@/constants/project_status";
 import { ROLES } from "@/constants/roles";
 import { useFormatPrice } from "@/hooks/useFormatPrice";
 
-const statusDictionary = {
-  0: "Under Installation",
-  1: "Upcoming",
-};
-
-const formatCurrency = (value) => {
-  if (value === null || value === undefined || value === "") return "—";
-  const number = Number(value);
-  if (Number.isNaN(number)) return value;
-  return new Intl.NumberFormat("vi-VN", {
-    style: "currency",
-    currency: "VND",
-    maximumFractionDigits: 0,
-  }).format(number);
-};
-
 const formatNumber = (value) => {
   if (!value && value !== 0) return "—";
   const number = Number(value);
   return Number.isNaN(number) ? value : number.toLocaleString("en-US");
-};
-
-const formatPercent = (value) => {
-  if (value === null || value === undefined || value === "") return "—";
-  const number = Number(value);
-  return Number.isNaN(number) ? `${value}` : `${number}%`;
-};
-
-const formatCompactAmount = (value) => {
-  if (value === null || value === undefined || value === "") return "—";
-
-  const numericValue =
-    typeof value === "number"
-      ? value
-      : Number(String(value).replace(/[^\d.-]/g, ""));
-
-  if (Number.isNaN(numericValue)) return value;
-
-  const abs = Math.abs(numericValue);
-  const formatWithUnit = (divisor, unit) => {
-    const compact = numericValue / divisor;
-    const hasDecimal = Math.abs(compact % 1) > 0;
-    return `${hasDecimal ? compact.toFixed(1).replace(/\.0$/, "") : compact}${unit}`;
-  };
-
-  if (abs >= 1_000_000_000) return formatWithUnit(1_000_000_000, "b");
-  if (abs >= 1_000_000) return formatWithUnit(1_000_000, "m");
-  if (abs >= 1_000) return formatWithUnit(1_000, "k");
-
-  return `${numericValue}`;
-};
-
-const normalizeApiProject = (project) => {
-  const formatDateForDisplay = (iso) => {
-    if (!iso) return "—";
-    const d = new Date(iso);
-    if (Number.isNaN(d.getTime())) return "—";
-    // show as DD/MM/YYYY
-    return d.toLocaleDateString("en-CA");
-  };
-
-  const tsOrZero = (iso) => {
-    if (!iso) return 0;
-    const t = Date.parse(iso);
-    return Number.isNaN(t) ? 0 : t;
-  };
-
-  const coverImage = getPrimaryProjectImage(project);
-  const normalizedCover = coverImage;
-
-  const status_id = project?.project_status_id ?? null;
-  const STATUS_LABELS = {
-    [PROJECT_STATUS.IN_PROGRESS]: "Pending",
-    [PROJECT_STATUS.UPCOMING]: "Upcoming",
-    [PROJECT_STATUS.RUNNING]: "Running",
-  };
-
-  const statusLabel = STATUS_LABELS[status_id] || "Unknown";
-
-  return {
-    projectId: project?.id ?? null,
-    displayId: project?.id ? `#${project.id}` : project?.project_code ?? "—",
-    project_image: normalizedCover,
-    projectName: project?.project_name ?? "—",
-    project_status_id: status_id,
-    status: statusLabel,
-    statusCode: status_id,
-    estimated_roi: project?.estimated_roi ? project?.estimated_roi : "0",
-    calculated_roi: project?.calculated_roi ? project?.calculated_roi : "0",
-    targetInvestment: project?.asking_price,
-    paybackPeriod: project?.lease_term ? String(project.lease_term) : "—",
-    leaseTerm: project?.lease_term ? String(project.lease_term) : "—",
-    lease_start_date: project?.project_start_date ? project?.project_start_date : "—",
-    lease_end_date: project?.project_close_date ? project?.project_close_date : "—",
-    startDateTs: tsOrZero(project?.createdAt),
-    endDateTs: tsOrZero(project?.project_close_date),
-    expectedGeneration: formatNumber(project?.project_size),
-    offtakerId: project?.offtaker_id ?? null,
-    product_code: project?.product_code ?? "-",
-    offtaker_name: project?.offtaker?.full_name ?? "-",
-    project_slug: project?.project_slug ?? "",
-  };
 };
 
 const SolarProjectTable = () => {
@@ -187,14 +89,7 @@ const SolarProjectTable = () => {
 
       // response.data is the projects array
       if (response?.success && Array.isArray(response?.data)) {
-        if (response.data.length > 0) {
-          const normalized = response.data.map(normalizeApiProject);
-          // const normalized = response.data;
-          setAllProjects(normalized);
-        } else {
-          // no records
-          setAllProjects([]);
-        }
+        setAllProjects(response.data);
       } else {
         setAllProjects([]);
       }
@@ -274,7 +169,7 @@ const SolarProjectTable = () => {
     return allProjects.filter((project) => {
       // If user is an offtaker (role 3), only show their projects
       if (user && user.role === ROLES.OFFTAKER) {
-        if (project.offtakerId !== user.id) {
+        if (project.offtaker_id !== user.id) {
           return false;
         }
       }
@@ -545,13 +440,13 @@ const SolarProjectTable = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-4 md:gap-6">
                 {currentProjects.map((project, idx) => (
                   <div
-                    key={project.projectId ?? project.id ?? idx}
+                    key={project.id ?? idx}
                     className="bg-white rounded-xl shadow border border-gray-200 p-0 flex flex-col hover:shadow-lg transition-shadow overflow-hidden md:p-1 sm:p-0"
                   >
                     {/* Image and status badge */}
                     <div className="relative w-full h-36 sm:h-44 md:h-40 lg:h-36 xl:h-40 overflow-hidden">
                       <img
-                        src={buildUploadUrl(project.project_image) || "/uploads/general/noimage.jpeg"}
+                        src={buildUploadUrl(getPrimaryProjectImage(project)) || "/uploads/general/noimage.jpeg"}
                         alt={project.project_name}
                         className="object-cover w-full h-full"
                         onError={(e) => {
@@ -562,16 +457,16 @@ const SolarProjectTable = () => {
                       />
                       <span
                         className={`absolute top-2 right-2 px-3 py-1 text-xs font-semibold rounded-full shadow ${getStatusColor(
-                          project.status
+                          project.project_status_id
                         )}`}
                       >
-                        {project.status}
+                        {project.project_status?.name}
                       </span>
                     </div>
                     {/* Card content */}
                     <div className="p-3 md:p-4 flex flex-col flex-1">
                       <h2 className="text-lg font-bold text-slate-900 mb-1 w-full md:w-[220px] h-10 leading-5 overflow-hidden break-words line-clamp-2">
-                        {project.projectName}
+                        {project.project_name}
                       </h2>
                       <div className="text-xs text-gray-500 mb-1">
                         {lang("home.exchangeHub.id", "ID")}: {project.product_code}
@@ -579,7 +474,7 @@ const SolarProjectTable = () => {
                       <div className="text-sm text-gray-600 mb-2">
                         {lang("home.exchangeHub.offtaker", "Offtaker")}:{" "}
                         <span className="font-medium">
-                          {project.offtaker_name}
+                          {project.offtaker?.full_name}
                         </span>
                       </div>
                       {/* Ratings */}
@@ -596,7 +491,7 @@ const SolarProjectTable = () => {
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-3 md:h-[95px]">
                         <div className="bg-gray-50 rounded-lg p-2 text-center" style={{ wordWrap: "break-word" }}>
                           <div className="text-base font-bold text-slate-900">
-                            {priceWithCurrency(project.targetInvestment)}
+                            {priceWithCurrency(project.asking_price)}
                           </div>
                           <div className="text-xs text-gray-500">
                             {lang("home.exchangeHub.targetInvestment", "Target Investment")}
@@ -604,15 +499,15 @@ const SolarProjectTable = () => {
                         </div>
                         <div className="bg-gray-50 rounded-lg p-2 text-center">
                           <div className="text-base font-bold text-amber-600">
-                            {project.expectedGeneration} {lang("home.exchangeHub.kWh", "kWh")}
+                            {formatEnergyUnit(project.total_energy)}
                           </div>
                           <div className="text-xs text-gray-500">
-                            {lang("home.exchangeHub.accumulativeGeneration", "Expected Generation (kWh)")}
+                            {lang("home.exchangeHub.accumulativeGeneration", "Total Generation")}
                           </div>
                         </div>
                         <div className="bg-gray-50 rounded-lg p-2 text-center">
                           <div className="text-base font-bold text-orange-600">
-                            {project.project_status_id === PROJECT_STATUS.RUNNING ? project.calculated_roi : project.estimated_roi} %
+                            {project.project_status_id === PROJECT_STATUS.RUNNING ? (project.calculated_roi ? parseFloat(project.calculated_roi) : 0) : (project.estimated_roi ? parseFloat(project.estimated_roi) : 0)} %
                           </div>
                           <div className="text-xs text-gray-500">
                             {project.project_status_id === PROJECT_STATUS.RUNNING ? lang("home.exchangeHub.realtimeMonthlyROI", "ROI") : lang("home.exchangeHub.estimatedROI", "Expected ROI")}
@@ -624,13 +519,13 @@ const SolarProjectTable = () => {
                         <div className="flex-1 md:border-r border-gray-300">
                           <div>{lang("home.exchangeHub.paybackPeriod", "Payback Period")}</div>
                           <div className="text-lg font-bold text-slate-900">
-                            {project.paybackPeriod}
+                            {project.payback_period}
                           </div>
                         </div>
                         <div className="flex-1">
                           <div>{lang("home.exchangeHub.leaseTerm", "Lease Term")}</div>
                           <div className="text-lg font-bold text-slate-900">
-                            {project.project_status_id === PROJECT_STATUS.UPCOMING ? project.leaseTerm + " " + lang("home.exchangeHub.years", "years") : getTimeLeft(project?.lease_end_date)}
+                            {project.project_status_id === PROJECT_STATUS.UPCOMING ? project.lease_term + " " + lang("home.exchangeHub.years", "years") : getTimeLeft(project?.project_close_date)}
                           </div>
                         </div>
                       </div>
@@ -639,7 +534,7 @@ const SolarProjectTable = () => {
                         {/* <button className="flex-1 px-4 py-2 bg-amber-500 text-white rounded-lg font-semibold hover:bg-amber-600 transition-colors text-sm">Invest Early</button> */}
                         <a
                           className="flex-1 px-4 py-2 border border-gray-300 text-slate-900 rounded-lg font-semibold hover:bg-gray-100 transition-colors text-sm flex items-center justify-center gap-1"
-                          href={`/offtaker/projects/details/${project.projectId ?? project.id ?? ""}`}
+                          href={`/offtaker/projects/details/${project.id ?? ""}`}
                           target="_blank"
                           rel="noopener noreferrer"
                         >
