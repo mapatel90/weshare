@@ -91,12 +91,12 @@ const DocumentTab = ({ projectId, handleCloseForm }) => {
         setFileError("");
 
         if (!title.trim()) {
-            setTitleError("Title is required");
+            setTitleError(lang("response_messages.title_is_required", "Title is required"));
             return;
         }
 
         if (modalType === "add" && !documentFile) {
-            setFileError("Document file is required");
+            setFileError(lang("response_messages.document_file_is_required", "Document file is required"));
             return;
         }
 
@@ -132,11 +132,11 @@ const DocumentTab = ({ projectId, handleCloseForm }) => {
                 }
             }
             if (res && res.success) {
-                showSuccessToast(res.message || lang("project_documents.saved", "Document saved successfully!"));
+                showSuccessToast(res.message || lang("response_messages.document_saved_successfully", "Document saved successfully!"));
                 getProjectDocuments();
                 closeModal();
             } else {
-                showErrorToast(res.message || lang("project_documents.error", "An error occurred. Please try again."));
+                showErrorToast(res.message || lang("response_messages.error_occurred", "An error occurred. Please try again."));
             }
         } finally {
             setLoading(false);
@@ -156,7 +156,7 @@ const DocumentTab = ({ projectId, handleCloseForm }) => {
         if (confirm.isConfirmed) {
             const res = await apiDelete(`/api/project-documents/${row.id}`);
             if (res && res.success) {
-                showSuccessToast(lang("project_documents.deleted", "Document deleted successfully!"));
+                showSuccessToast(lang("response_messages.document_deleted_successfully", "Document deleted successfully!"));
                 getProjectDocuments();
             } else {
                 showErrorToast(res.message || lang("project_documents.error", "An error occurred. Please try again."));
@@ -198,7 +198,7 @@ const DocumentTab = ({ projectId, handleCloseForm }) => {
                         rel="noopener noreferrer"
                         download
                     >
-                        {lang("project_documents.download", "Download")}
+                        {lang("response_messages.download", "Download")}
                     </a>
                 ) : "-";
             },
@@ -269,7 +269,12 @@ const DocumentTab = ({ projectId, handleCloseForm }) => {
                     <DialogContent>
                         <Box sx={{ display: "flex", flexDirection: "column", gap: 3, pt: 2 }}>
                             <TextField
-                                label={lang("project_documents.title", "Document Title")}
+                                label={
+                                    <>
+                                        {lang("project_documents.title", "Document Title")}
+                                        <span style={{ color: "red" }}>*</span>
+                                    </>
+                                }
                                 value={title}
                                 onChange={e => { setTitle(e.target.value); if (titleError) setTitleError(""); }}
                                 error={!!titleError}
@@ -295,7 +300,12 @@ const DocumentTab = ({ projectId, handleCloseForm }) => {
                                 fullWidth
                                 type="file"
                                 inputProps={{ accept: "image/*,application/pdf" }}
-                                label={lang("contract.uploadDocument") || "Upload Document"}
+                                label={
+                                    <>
+                                        {lang("contract.uploadDocument")}
+                                        <span style={{ color: "red" }}>*</span>
+                                    </>
+                                }
                                 InputLabelProps={{ shrink: true }}
                                 onChange={(e) => {
                                     const file = (e.target.files && e.target.files[0]) || null;

@@ -89,15 +89,15 @@ const MeterView = ({ projectId, handleSaveAction }) => {
             const res = await apiPut(`/api/projects/meter/${projectId}`, form);
             if (res.success) {
                 setSuccess(true);
-                showSuccessToast(lang('meter.meterUpdatedSuccessfully', 'Meter updated successfully'));
+                showSuccessToast(lang('response_messages.meter_updated_successfully', 'Meter updated successfully'));
                 setFieldErrors({});
                 return true;
             } else {
-                showErrorToast(res.message || 'Failed to save meter info');
+                showErrorToast(res.message || lang('response_messages.failed_to_info', 'Failed to info'));
                 return false;
             }
         } catch (err) {
-            setError('Network error');
+            setError(lang('response_messages.network_error', 'Network error'));
             return false;
         } finally {
             setLoading(false);
@@ -190,7 +190,7 @@ const MeterView = ({ projectId, handleSaveAction }) => {
                         >
                             {loading
                                 ? lang("common.saving", "Saving")
-                                : lang("projects.saveAndClose", "Save & Close")}
+                                : lang("projects.saveandclose", "Save & Close")}
                         </Button>
                         <Button
                             type="button"
