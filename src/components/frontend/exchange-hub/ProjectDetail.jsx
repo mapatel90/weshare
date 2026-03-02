@@ -611,7 +611,7 @@ const ProjectDetail = ({ projectId }) => {
                   </div>
                   <div>
                     <p>
-                      {project.project_status_id === PROJECT_STATUS.UPCOMING ? lang("home.exchangeHub.askingPrice") : lang("home.exchangeHub.totalInvestedPrice") || "Asking Price"}:
+                      {project.project_status_id === PROJECT_STATUS.UPCOMING ? lang("home.exchangeHub.targetInvestment") : lang("home.exchangeHub.totalInvestedPrice") || "Asking Price"}:
                     </p>
                     <h4>
                       {priceWithCurrency(project.asking_price || "0")}
@@ -819,7 +819,7 @@ const ProjectDetail = ({ projectId }) => {
                 <div className="middileContend">
                   <p className="mb-2 text-secondary-color price-label">
                     {project.project_status_id === PROJECT_STATUS.UPCOMING
-                      ? lang("home.exchangeHub.askingPrice")
+                      ? lang("home.exchangeHub.targetInvestment")
                       : lang("home.exchangeHub.totalInvestedPrice") || "Target Investment"}
                   </p>
 
