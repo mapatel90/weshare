@@ -1379,7 +1379,7 @@ router.put("/:id", authenticateToken, async (req, res) => {
         return res.status(400).json({ success: false, message: "Project must be assigned to an offtaker before status running" });
       }
     }
-    
+
 
     const updated = await prisma.projects.update({
       where: { id: projectId },
@@ -1478,9 +1478,14 @@ router.put("/:id", authenticateToken, async (req, res) => {
 // GET /api/projects/report/capital-recovery
 router.get("/report/capital-recovery", authenticateToken, async (req, res) => {
   try {
-    const { search, downloadAll, limit, page } = req.query;
+    const { search, downloadAll, limit, page, investor_id } = req.query;
+    let investorId = null;
 
-    const investorId = Number(req.user?.id);
+    if (investor_id) {
+      investorId = Number(investor_id);
+    } else {
+      investorId = Number(req.user?.id);
+    }
     if (!investorId) {
       return res.status(401).json({
         success: false,
@@ -3110,10 +3115,10 @@ router.get('/count/active', async (req, res) => {
         }
       }
     });
-    
-    res.status(200).json({ 
-      success: true, 
-      data: { count } 
+
+    res.status(200).json({
+      success: true,
+      data: { count }
     });
   } catch (error) {
     console.error('Error fetching active projects count:', error);
@@ -3168,7 +3173,7 @@ router.get("/:identifier", async (req, res) => {
       _sum: {
         total_amount: true,
       },
-    });    
+    });
     const invoiceTotalAmount = invoiceTotalAmountByProject?.[0]?._sum?.total_amount;
     const capitalRecovery = project.asking_price > 0 ? (invoiceTotalAmount * 100) / project.asking_price : 0;
     project.capital_recovery = capitalRecovery.toFixed(2);

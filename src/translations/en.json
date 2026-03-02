@@ -105,7 +105,8 @@
     "view": "View",
     "create": "Create",
     "edit": "Edit",
-    "UserManagement": "User Management"
+    "UserManagement": "User Management",
+    "capitalRecoveryReport": "Capital Recovery Report"
   },
   "authentication": {
     "createNewPassword": "Create New Password",

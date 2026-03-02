@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { showSuccessToast, showErrorToast } from '@/utils/topTost';
 import { apiGet, apiPost } from '@/lib/api';
 
@@ -142,10 +142,10 @@ const useSettings = () => {
     }
   };
 
-  // Get single setting value
-  const getSetting = (key, defaultValue = '') => {
+  // Get single setting value (stable reference for hooks deps)
+  const getSetting = useCallback((key, defaultValue = '') => {
     return settings[key] || defaultValue;
-  };
+  }, [settings]);
 
   // Load settings on component mount
   useEffect(() => {

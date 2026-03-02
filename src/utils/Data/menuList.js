@@ -210,7 +210,15 @@ export const menuList = [
         permission: "roi_report",
         permission_action: ["view"],
         subdropdownMenu: false,
-      }
+      },
+      {
+        id: 5,
+        name: "capital-recovery-reports",
+        path: "/admin/reports/capital-recovery",
+        permission: "capital_recovery_report",
+        permission_action: ["view"],
+        subdropdownMenu: false,
+      },
       // {
       //   id: 3,
       //   name: "roireports",
