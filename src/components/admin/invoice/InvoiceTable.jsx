@@ -468,7 +468,7 @@ const InvoiceTable = () => {
               <TextField
                 {...params}
                 label={lang("reports.allprojects")}
-                placeholder="Search project..."
+                placeholder={lang("common.searchProject", "Search project...")}
               />
             )}
             sx={{ width: { xs: "100%", md: 260 } }}
@@ -490,7 +490,7 @@ const InvoiceTable = () => {
               <TextField
                 {...params}
                 label={lang("invoice.allOfftaker") || "All Offtakers"}
-                placeholder="Search offtaker..."
+                placeholder={lang("common.selectOfftaker", "Search offtaker...")}
               />
             )}
             sx={{ width: { xs: "100%", md: 260 } }}
@@ -519,7 +519,7 @@ const InvoiceTable = () => {
               <TextField
                 {...params}
                 label={lang("payments.status", "Status")}
-                placeholder="Search status..."
+                placeholder={lang("common.selectStatus", "Search status...")}
               />
             )}
             sx={{ width: { xs: "100%", md: 200 } }}
@@ -530,7 +530,7 @@ const InvoiceTable = () => {
 
       <div className="relative overflow-x-auto">
         {!hasLoadedOnce && loading && (
-          <div className="py-6 text-center text-gray-600">Loading...</div>
+          <div className="py-6 text-center text-gray-600">{lang("common.loading", "Loading...")}</div>
         )}
 
         {hasLoadedOnce && (
@@ -548,7 +548,7 @@ const InvoiceTable = () => {
             />
             {loading && (
               <div className="absolute inset-0 flex items-center justify-center text-gray-600 bg-white/70">
-                Refreshing...
+                {lang("common.refreshing", "Refreshing...")}
               </div>
             )}
           </>

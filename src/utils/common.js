@@ -258,11 +258,11 @@ export const getTimeLeft = (closeDate) => {
   const years = Math.floor(days / 365)
 
   if (years >= 1) {
-    return `${years} year${years > 1 ? 's' : ''}`
+    return `${years} Year${years > 1 ? 's' : ''}`
   }
 
   if (months >= 1) {
-    return `${months} month${months > 1 ? 's' : ''}`
+    return `${months} Month${months > 1 ? 's' : ''}`
   }
 
   // UX Fix

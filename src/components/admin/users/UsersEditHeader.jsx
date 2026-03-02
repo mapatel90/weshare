@@ -2,8 +2,10 @@ import React from 'react'
 import Link from 'next/link'
 import { FiArrowLeft } from 'react-icons/fi'
 import { Button } from '@mui/material'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 const UsersEditHeader = () => {
+  const { lang } = useLanguage()
   return (
     <div className="page-header">
       {/* <div className="page-header-left d-flex align-items-center">
@@ -30,7 +32,7 @@ const UsersEditHeader = () => {
               className="common-orange-color"
               startIcon={<FiArrowLeft size={16} />}
             >
-              Back to Users
+              {lang('usersView.backToUser', 'Back to Users')}
             </Button>
           </div>
         </div>
