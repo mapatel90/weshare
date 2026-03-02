@@ -2278,6 +2278,14 @@
     "favicon_upload_failed":"Favicon upload failed",
     "s3_settings_saved_successfully":"S3 settings saved successfully",
     "credentials_validated_successfully":"Credentials validated successfully",
-    "startDateCannotBeAfterEndDate":"Start date cannot be after end date"
+    "startDateCannotBeAfterEndDate":"Start date cannot be after end date",
+    "fullNameRequired":"Full name is required",
+    "emailRequired":"Email is required",
+    "phoneNumberRequired":"Phone number is required",
+    "enterValidEmail":"Enter a valid email address",
+    "enterValidPhoneNumber":"Enter a valid phone number",
+    "messageRequired":"Message cannot be empty",
+    "messageSentSuccessfully":"Message sent successfully",
+    "failedToSendMessage":"Failed to send message"
   }
 }

@@ -2225,6 +2225,14 @@
     "favicon_upload_failed": "Tải lên favicon thất bại",
     "s3_settings_saved_successfully": "Cấu hình AWS S3 đã được lưu thành công",
     "credentials_validated_successfully": "Xác thực thành công",
-    "startDateCannotBeAfterEndDate": "Ngày bắt đầu không thể sau ngày kết thúc"
+    "startDateCannotBeAfterEndDate": "Ngày bắt đầu không thể sau ngày kết thúc",
+    "fullNameRequired": "Họ và tên là bắt buộc",
+    "emailRequired": "Email là bắt buộc",
+    "phoneNumberRequired": "Số điện thoại là bắt buộc",
+    "enterValidEmail": "Vui lòng nhập địa chỉ email hợp lệ",
+    "enterValidPhoneNumber": "Vui lòng nhập số điện thoại hợp lệ",
+    "messageRequired": "Tin nhắn không được để trống",
+    "messageSentSuccessfully": "Tin nhắn đã được gửi thành công",
+    "failedToSendMessage": "Không thể gửi tin nhắn"
   }
 }

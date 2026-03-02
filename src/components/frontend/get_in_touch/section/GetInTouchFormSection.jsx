@@ -38,25 +38,25 @@ export default function GetInTouchFormSection() {
   const validateForm = () => {
     const newErrors = {};
     if (!formData.fullName.trim()) {
-      newErrors.fullName = "Full name is required.";
+      newErrors.fullName = lang("response_messages.fullNameRequired") || "Full name is required.";
     }
     if (!formData.email.trim()) {
-      newErrors.email = "Email is required.";
+      newErrors.email = lang("response_messages.emailRequired") || "Email is required.";
     } else {
       // simple email check
       const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRe.test(formData.email))
-        newErrors.email = "Enter a valid email address.";
+        newErrors.email = lang("response_messages.enterValidEmail") || "Enter a valid email address.";
     }
     if (!formData.phoneNumber.trim()) {
-      newErrors.phoneNumber = "Phone number is required.";
+      newErrors.phoneNumber = lang("response_messages.phoneNumberRequired") || "Phone number is required.";
     } else {
       const digits = formData.phoneNumber.replace(/\D/g, "");
       if (digits.length < 7)
-        newErrors.phoneNumber = "Enter a valid phone number.";
+        newErrors.phoneNumber = lang("response_messages.enterValidPhoneNumber") || "Enter a valid phone number.";
     }
     if (!formData.message.trim()) {
-      newErrors.message = "Message cannot be empty.";
+      newErrors.message = lang("response_messages.messageRequired") || "Message cannot be empty.";
     }
     return newErrors;
   };
@@ -86,12 +86,12 @@ export default function GetInTouchFormSection() {
           message: "",
         });
         setErrors({});
-        showSuccessToast("Message sent successfully");
+        showSuccessToast(lang("response_messages.messageSentSuccessfully") || "Message sent successfully");
       } else {
-        showErrorToast(data.message || "Failed to send message.");
+        showErrorToast(data.message || lang("response_messages.failedToSendMessage") || "Failed to send message.");
       }
     } catch (err) {
-      showErrorToast("Failed to send message: " + (err.message || err));
+      showErrorToast(lang("response_messages.failedToSendMessage") + ": " + (err.message || err) || "Failed to send message: " + (err.message || err));
     }
   };
 
