@@ -349,9 +349,9 @@ const ContractsView = () => {
                 </div>
 
                 {/* Content Section */}
-                <div className="p-4 flex-1 flex flex-col">
+                <div className="p-4 max-[390px]:p-3 flex-1 flex flex-col">
                     {/* Offtaker & Investor Row */}
-                    <div className="grid grid-cols-2 gap-3 mb-3">
+                    <div className="grid grid-cols-2 max-[390px]:grid-cols-1 gap-3 max-[390px]:gap-2 mb-3">
                         <div>
                             <p className="text-[10px] sm:text-xs text-gray-700 uppercase tracking-wide mb-1">{lang("home.exchangeHub.offtaker") || "Offtaker"}</p>
                             <div className="flex items-center gap-1.5">
@@ -384,13 +384,13 @@ const ContractsView = () => {
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="flex items-center gap-2 pt-3 border-t border-gray-100">
+                    <div className="flex items-center gap-2 max-[390px]:gap-1.5 pt-3 border-t border-gray-100 max-[390px]:flex-col">
                         {isPending ? (
                             <>
                                 <button
                                     onClick={() => openApproveModal(contract)}
                                     disabled={actionLoading}
-                                    className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-emerald-500 text-white text-xs font-medium rounded-lg hover:bg-emerald-600 transition-colors shadow-sm disabled:opacity-50"
+                                    className="flex-1 max-[390px]:w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-emerald-500 text-white text-xs font-medium rounded-lg hover:bg-emerald-600 transition-colors shadow-sm disabled:opacity-50"
                                 >
                                     <Check className="w-3.5 h-3.5" />
                                     <span>{lang("common.approve") || "Approve"}</span>
@@ -398,7 +398,7 @@ const ContractsView = () => {
                                 <button
                                     onClick={() => openRejectModal(contract)}
                                     disabled={actionLoading}
-                                    className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-red-500 text-white text-xs font-medium rounded-lg hover:bg-red-600 transition-colors shadow-sm disabled:opacity-50"
+                                    className="flex-1 max-[390px]:w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-red-500 text-white text-xs font-medium rounded-lg hover:bg-red-600 transition-colors shadow-sm disabled:opacity-50"
                                 >
                                     <X className="w-3.5 h-3.5" />
                                     <span>{lang("common.reject") || "Reject"}</span>
@@ -407,10 +407,11 @@ const ContractsView = () => {
                                     href={viewUrl}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="inline-flex items-center justify-center p-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors"
+                                    className="inline-flex items-center justify-center p-2 max-[390px]:w-full max-[390px]:py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors"
                                     title={lang("navigation.view")}
                                 >
                                     <Eye className="w-4 h-4" />
+                                    <span className="hidden max-[390px]:inline text-xs font-medium">{lang("navigation.view")}</span>
                                 </a>
                             </>
                         ) : (

@@ -31,7 +31,8 @@ const PageHeader = ({ children }) => {
                 <div className="page-header-title">
                     <h5 className="m-b-10 text-capitalize">{folderName}</h5>
                 </div>
-                <ul className="breadcrumb">
+                <span className="text-muted text-capitalize d-inline d-sm-none">{fileName}</span>
+                <ul className="breadcrumb d-none d-sm-inline-flex">
                     <li className="breadcrumb-item">
                         <Link href="/">{lang('navigation.home', 'Home')}</Link>
                     </li>

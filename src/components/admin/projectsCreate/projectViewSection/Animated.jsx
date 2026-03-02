@@ -10,6 +10,8 @@ import {
 } from "react-icons/fi";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { sortByNameAsc } from "@/utils/common";
+import { useAuth } from "@/contexts/AuthContext";
+import { ROLES } from "@/constants/roles";
 
 export default function SolarEnergyFlow({
   inverters = [],
@@ -18,8 +20,12 @@ export default function SolarEnergyFlow({
   responsiveByContainer = false,
 }) {
   const containerRef = useRef(null);
-  // Get first 6 inverters (regardless of status)
-  const displayInverters = inverters.slice(0, 6);
+  const { user } = useAuth();
+  const isStaffAdmin =
+    Number(user?.role) === ROLES.SUPER_ADMIN ||
+    Number(user?.role) === ROLES.SUPER_ADMIN;
+    console.log("User Role:", user?.role, "User ID:", user?.id, "Is Staff Admin:", isStaffAdmin);
+  const displayInverters = isStaffAdmin ? inverters : inverters.slice(0, 6);
 
   const { lang } = useLanguage();
   const batteryPercentRaw = project?.project_data?.[0]?.battery_percent ?? 0;
@@ -36,7 +42,7 @@ export default function SolarEnergyFlow({
     project?.project_data?.[0]?.battery_power || 0
   );
 
-  // Calculate active inverters from displayed 6
+  // Calculate active inverters from displayed list
   const activeInverters = displayInverters.filter(
     (inv) => inv?.status === 1
   ).length;
@@ -209,7 +215,7 @@ export default function SolarEnergyFlow({
               <path
                 id="gridPath"
                 // d="M 543 105 L 525 105 Q 505 105 505 125 L 505 182"
-                d="M 625 105 L 525 105 Q 505 105 505 125 L 505 200"
+                d={ isStaffAdmin ? "M 625 105 L 525 105 Q 505 105 505 125 L 505 200" : "M 635 105 L 525 105 Q 505 105 505 125 L 505 200"}
                 stroke="#EF4444"
                 strokeWidth="2"
                 fill="none"
@@ -228,7 +234,7 @@ export default function SolarEnergyFlow({
             >
               <path
                 id="consumePath"
-                d="M 505 274 L 505 350 Q 505 380 535 380 L 614 380"
+                d={ isStaffAdmin ? "M 505 274 L 505 350 Q 505 380 535 380 L 614 380" : "M 505 274 L 505 350 Q 505 380 535 380 L 632 380" }
                 stroke="#FB923C"
                 strokeWidth="2"
                 fill="none"

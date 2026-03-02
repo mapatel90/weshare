@@ -564,7 +564,7 @@ const SettingsEmailTemplate = ({ Id }) => {
             <CardContent sx={{ backgroundColor: isDark ? "#121a2d" : "#fff" }}>
               <Grid container spacing={1} sx={{ backgroundColor: isDark ? "#121a2d" : "#fff" }}>
                 {EMAIL_PLACEHOLDERS.map((placeholder) => (
-                  <Grid item xs={6} sm={6} key={placeholder.key}>
+                  <Grid item xs={12} sm={6} key={placeholder.key}>
                     <Box
                       onClick={() => insertPlaceholder(placeholder.key)}
                       sx={{
