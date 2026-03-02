@@ -3104,27 +3104,38 @@ router.get('/status', async (req, res) => {
   }
 });
 
-// GET /api/projects/count/active - Get count of active projects (RUNNING + UPCOMING, not deleted)
-router.get('/count/active', async (req, res) => {
+// GET /api/projects/count/summary - Get count & total size of active projects (RUNNING + UPCOMING, not deleted)
+router.get('/count/summary', async (req, res) => {
   try {
-    const count = await prisma.projects.count({
+    const projects = await prisma.projects.findMany({
       where: {
         is_deleted: 0,
         project_status_id: {
-          in: [PROJECT_STATUS.RUNNING, PROJECT_STATUS.UPCOMING]
-        }
-      }
+          in: [PROJECT_STATUS.RUNNING, PROJECT_STATUS.UPCOMING],
+        },
+      },
+      select: {
+        project_size: true,
+      },
     });
+
+    const totalProjectSize = projects.reduce((sum, project) => {
+      const size = parseFloat(project.project_size ?? '0');
+      return sum + (Number.isNaN(size) ? 0 : size);
+    }, 0);
 
     res.status(200).json({
       success: true,
-      data: { count }
+      data: {
+        total_projects: projects.length,
+        total_project_size: totalProjectSize.toFixed(2),
+      },
     });
   } catch (error) {
-    console.error('Error fetching active projects count:', error);
+    console.error('Error fetching active projects summary:', error);
     res.status(500).json({
       success: false,
-      message: "Failed to fetch active projects count",
+      message: 'Failed to fetch active projects summary',
     });
   }
 });

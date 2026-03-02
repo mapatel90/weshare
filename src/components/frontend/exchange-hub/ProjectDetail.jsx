@@ -20,7 +20,8 @@ import EnergyChart from "@/components/admin/projectsCreate/projectViewSection/Mo
 import { FiZap } from "react-icons/fi";
 import { ArrowLeft, CloudSun, Compass, Droplets, SunriseIcon, Thermometer, Wind } from 'lucide-react';
 import { ROLES } from "@/constants/roles";
-import { useFormatPrice, usePriceWithCurrency } from "@/hooks/useFormatPrice";
+import { useFormatPrice } from "@/hooks/useFormatPrice";
+import { usePriceWithCurrency } from "@/hooks/usePriceWithCurrency";
 
 // Dynamically import ApexCharts to avoid SSR issues
 const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
@@ -63,6 +64,7 @@ const ProjectDetail = ({ projectId }) => {
   // Calculated ROI
   const [calculatedRoi, setCalculatedRoi] = useState(null);
   const [roiLoading, setRoiLoading] = useState(false);
+  const priceWithCurrency = useFormatPrice();
 
   const checkInterest = async () => {
     if (!user || !project) {
@@ -358,7 +360,7 @@ const ProjectDetail = ({ projectId }) => {
       const res = await apiPost("/api/investors", payload);
 
       if (res && res.success) {
-        showSuccessToast("Investment intent submitted successfully");
+        showSuccessToast(lang("response_messages.investment_intent_submitted_successfully", "Investment submitted successfully"));
         setShowInvestModal(false);
         // After submit, mark as expressed interest
         setHasExpressedInterest(true);
@@ -612,15 +614,12 @@ const ProjectDetail = ({ projectId }) => {
                       {project.project_status_id === PROJECT_STATUS.UPCOMING ? lang("home.exchangeHub.askingPrice") : lang("home.exchangeHub.totalInvestedPrice") || "Asking Price"}:
                     </p>
                     <h4>
-                      {formatPrice(project.asking_price || "0")}
-                      <span>
-                        {" "}
-                        (
-                        {project.price_type ||
-                          lang("home.exchangeHub.negotiable") ||
-                          "Negotiable"}
-                        )
-                      </span>
+                      {priceWithCurrency(project.asking_price || "0")}
+                      {project.project_status_id === PROJECT_STATUS.UPCOMING ? (
+                        <span>
+                          ({project.price_type || lang("home.exchangeHub.negotiable") || "Negotiable"})
+                        </span>
+                      ) : null}
                     </h4>
                   </div>
                 </div>
@@ -816,11 +815,24 @@ const ProjectDetail = ({ projectId }) => {
                       "Seeking Investor"}
                   </h3>
                 )}
+
                 <div className="middileContend">
-                  <p className="mb-0 text-secondary-color">
-                    {project.project_status_id === PROJECT_STATUS.UPCOMING ? lang("home.exchangeHub.askingPrice") : lang("home.exchangeHub.totalInvestedPrice") || "Target Investment"}
+                  <p className="mb-2 text-secondary-color price-label">
+                    {project.project_status_id === PROJECT_STATUS.UPCOMING
+                      ? lang("home.exchangeHub.askingPrice")
+                      : lang("home.exchangeHub.totalInvestedPrice") || "Target Investment"}
                   </p>
-                  <h2>{formatPrice(project.asking_price || "0")}</h2>
+
+                  <h2 className="price-amount">
+                  {priceWithCurrency(project.asking_price || "0")}
+                  </h2>
+                  {project.project_status_id === PROJECT_STATUS.UPCOMING ?
+                    <p className="mb-0 price-caption">
+                      {project.price_type ||
+                        lang("home.exchangeHub.negotiable") ||
+                        "Negotiable"}
+                    </p>
+                    : null}
                 </div>
 
                 {/* Conditional invest button */}
@@ -845,7 +857,6 @@ const ProjectDetail = ({ projectId }) => {
                     ) : null
                   )
                 )}
-
               </div>
 
               {/* Testimonials */}

@@ -18,6 +18,9 @@ import InvestDialog from "./InvestDialog";
 import { apiPost } from "@/lib/api";
 import { showSuccessToast } from "@/utils/topTost";
 import { ROLES } from "@/constants/roles";
+import useSettings from "@/hooks/useSettings";
+import { usePriceWithCurrency } from "@/hooks/usePriceWithCurrency";
+import { useFormatPrice } from "@/hooks/useFormatPrice";
 
 const ProjectCard = ({ project, activeTab, isHome = false }) => {
   const { lang } = useLanguage();
@@ -29,6 +32,9 @@ const ProjectCard = ({ project, activeTab, isHome = false }) => {
   const [investPhone, setInvestPhone] = useState("");
   const [investNotes, setInvestNotes] = useState("");
   const [submittingInvest, setSubmittingInvest] = useState(false);
+  const { settings } = useSettings();
+  const priceWithCurrency = useFormatPrice();
+  
 
   // Use calculated_roi from API response (already calculated in projects list endpoint)
   const calculatedRoi = project?.calculated_roi || "0";
@@ -256,11 +262,7 @@ const ProjectCard = ({ project, activeTab, isHome = false }) => {
             <div className="stats-image">
               <div className="stat-image">
                 <h4>
-                  {formatShort(
-                    project.asking_price ||
-                    project.target_investment ||
-                    1450000,
-                  ).toLocaleString()}
+                  {priceWithCurrency( project.asking_price)}
                 </h4>
                 <p>
                   {lang("home.exchangeHub.targetInvestment") ||
@@ -286,7 +288,7 @@ const ProjectCard = ({ project, activeTab, isHome = false }) => {
                 </span>
                 <span className="value">
                   {project?.payback_period || "8"}{" "}
-                  {lang("home.exchangeHub.years") || "years"}
+                  {lang("home.exchangeHub.years") || "Years"}
                 </span>
               </div>
               <div className="detail-divider"></div>
@@ -491,11 +493,7 @@ const ProjectCard = ({ project, activeTab, isHome = false }) => {
                 "Cumulative Revenue"}
             </span>
             <span className="fw-500 text-black">
-              ₫{formatShort(
-                project?.cumulative_revenue
-                  ? parseFloat(project.cumulative_revenue)
-                  : 0
-              )}
+              {priceWithCurrency(project?.cumulative_revenue ? parseFloat(project.cumulative_revenue) : 0)}
             </span>
           </p>
           <p>
@@ -503,7 +501,7 @@ const ProjectCard = ({ project, activeTab, isHome = false }) => {
               {lang("home.exchangeHub.totalInvestedPrice") || "Asking Price"}
             </span>
             <span className="fw-500 text-black">
-            ₫{formatShort(project?.asking_price || "128000")}
+              {priceWithCurrency(project?.asking_price || "128000")}
             </span>
           </p>
         </div>

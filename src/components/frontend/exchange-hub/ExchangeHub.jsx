@@ -11,6 +11,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { useRouter } from 'next/navigation'
 import { PROJECT_STATUS } from '@/constants/project_status'
 import { ROLES } from '@/constants/roles'
+import { useFormatPrice, usePriceWithCurrency } from '@/hooks/useFormatPrice'
 
 const ExchangeHub = () => {
   const [activeTab, setActiveTab] = useState('lease')
@@ -20,7 +21,7 @@ const ExchangeHub = () => {
   const [page, setPage] = useState(1)
   const [hasMore, setHasMore] = useState(true)
   const [activeInvestorsCount, setActiveInvestorsCount] = useState(0)
-  const [totalProjectsCount, setTotalProjectsCount] = useState(0)
+  const [projectCountSummary, setProjectCountSummary] = useState({})
   const [searchQuery, setSearchQuery] = useState('')
   const [showFilters, setShowFilters] = useState(false)
   const [sortBy, setSortBy] = useState('roi-high')
@@ -35,7 +36,8 @@ const ExchangeHub = () => {
   const { user, logout, loading: authLoading } = useAuth()
   const router = useRouter()
   const { lang } = useLanguage()
-
+  const priceWithCurrency = useFormatPrice();
+  
   // Initialize AOS
   useEffect(() => {
     AOS.init({
@@ -162,12 +164,11 @@ const ExchangeHub = () => {
 
   const fetchTotalProjectsCount = async () => {
     try {
-      const response = await apiGet('/api/projects/count/active', { showLoader: false })
-      const count = response?.data?.count ?? 0
-      setTotalProjectsCount(Number(count) || 0)
+      const response = await apiGet('/api/projects/count/summary', { showLoader: false })
+      setProjectCountSummary(response.data)
     } catch (error) {
       console.error('Error fetching total projects count:', error)
-      setTotalProjectsCount(0)
+      setProjectCountSummary({})
     }
   }
 
@@ -426,19 +427,16 @@ const ExchangeHub = () => {
                 <h3 className="fs-22 fw-600 text-black">{lang('home.exchangeHub.summary') || 'Exchange Hub Summary'}</h3>
                 <div className="row mb-1">
                   <div className="col-7"><p className="fw-300 text-black">{lang('home.exchangeHub.totalProjects')}:</p></div>
-                  <div className="col-5"><p className="text-end text-black fw-600 fs-18">{totalProjectsCount}</p></div>
+                  <div className="col-5"><p className="text-end text-black fw-600 fs-18">{projectCountSummary.total_projects}</p></div>
                 </div>
                 <div className="row mb-1">
                   <div className="col-7"><p className="fw-300 text-black">{lang('home.exchangeHub.totalCapacity')}:</p></div>
-                  <div className="col-5"><p className="text-end text-black fw-600 fs-18">{allProjects.reduce((sum, p) => sum + parseFloat(p.project_size || 0), 0).toLocaleString()} kWp</p></div>
+                  <div className="col-5"><p className="text-end text-black fw-600 fs-18">{projectCountSummary.total_project_size} kWp</p></div>
                 </div>
                 <div className="row mb-1">
                   <div className="col-7"><p className="fw-300 text-black">{lang('home.exchangeHub.averageROI')}:</p></div>
                   <div className="col-5"><p className="text-end text-black fw-600 fs-18">
-                    {/* {allProjects.length > 0
-                      ? (allProjects.reduce((sum, p) => sum + parseFloat(p.investor_profit || 0), 0) / allProjects.length).toFixed(1)
-                      : '0.0'}% */}
-                      20%
+                    20%
                   </p></div>
                 </div>
                 <div className="row mb-3">
@@ -458,7 +456,7 @@ const ExchangeHub = () => {
                 </div>
                 <div className="row mb-3">
                   <div className="col-7"><p className="fw-300 text-black">{lang('home.exchangeHub.youCanEarn') || 'You can earn approx.'}</p></div>
-                  <div className="col-5"><p className="text-end text-black fw-600 fs-18">$1100/year</p></div>
+                  <div className="col-5"><p className="text-end text-black fw-600 fs-18">$1100/Year</p></div>
                 </div>
                 <div className="row mb-3">
                   <div className="col-12"><small className="text-black fw-300 w-100 d-block text-end">{lang('home.exchangeHub.basedOnROI') || '(based on 18% avg ROI)'}</small></div>

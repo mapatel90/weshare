@@ -1731,12 +1731,13 @@ input:focus-visible {
 
 /* Investor Box */
 .investor-box {
-  background: var(--color-102C41);
-  border-radius: 16px;
-  padding: 30px;
+  background: radial-gradient(circle at top left, #183b5c 0%, #081727 55%, #020712 100%);
+  border-radius: 20px;
+  padding: 28px 24px 24px;
   text-align: center;
   margin-bottom: 24px;
-  box-shadow: 0 4px 16px rgba(16, 44, 65, 0.2);
+  box-shadow: 0 18px 45px rgba(7, 21, 35, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .investor-box h3 {
@@ -1747,20 +1748,42 @@ input:focus-visible {
 }
 
 .investor-box .middileContend {
-  margin: 24px 0;
+  margin: 12px 0 24px;
 }
 
 .investor-box .middileContend p {
-  font-size: 14px;
+  font-size: 18px;
   color: rgba(255, 255, 255, 0.7);
-  margin-bottom: 8px;
 }
 
 .investor-box .middileContend h2 {
-  font-size: 36px;
+  font-size: 42px;
   font-weight: 700;
   color: #fff;
-  margin: 0;
+  margin: 6px 0 4px;
+  letter-spacing: 0.03em;
+}
+
+.investor-box .price-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.investor-box .price-amount {
+  font-size: 40px;
+}
+
+.investor-box .price-caption {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.65);
 }
 
 .investor-box .btn-primary-custom {

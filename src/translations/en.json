@@ -858,7 +858,7 @@
       "cumulativeRevenue": "Cumulative Revenue",
       "askingPrice": "Asking Price",
       "negotiable": "Negotiable",
-      "years": "years",
+      "years": "Years",
       "buyNow": "Buy Now",
       "viewDetails": "View Details",
       "loadMore": "Load More Projects",
@@ -873,7 +873,7 @@
       "quickSimulation": "QUICK SIMULATION",
       "ifYouInvest": "If you invest",
       "youCanEarn": "You can earn approx.",
-      "perYear": "/year",
+      "perYear": "/Year",
       "basedOnROI": "(more than 20% avg ROI)",
       "signUpToInvest": "Sign up to Invest",
       "listYourProject": "List Your Project",
@@ -1138,7 +1138,7 @@
     "askingPriceRequired": "Asking price is required",
     "leaseTermRequired": "Lease term is required",
     "productCodeRequired": "Product code is required",
-    "year": "year",
+    "year": "Year",
     "onlynumbersWithoutdesimal": "Only numbers are allowed (e.g. 123456)",
     "projectImage": "Project Image",
     "projectImagePlaceholder": "Enter project image URL",
@@ -1334,7 +1334,7 @@
     "apiUrlNamePlaceholder": "API URL",
     "project_inverter": "Projects Inverter",
     "under_installation": "Under Installation",
-    "kWh/year": "kWh/year",
+    "kWh/year": "kWh/Year",
     "title_required": "Title is required"
   },
   "projectType": {
@@ -2271,6 +2271,7 @@
     "download":"Download",
     "document_updated_successfully":"Document updated successfully",
     "investor_updated_successfully":"Investor updated successfully",
-    "allowed_jpg_png_jpeg_max_size_2mb":"Allowed JPG, PNG or JPEG. Max size of 2MB"
+    "allowed_jpg_png_jpeg_max_size_2mb":"Allowed JPG, PNG or JPEG. Max size of 2MB",
+    "investment_intent_submitted_successfully":"Submitted successfully"
   }
 }

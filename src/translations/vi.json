@@ -2218,6 +2218,7 @@
     "download": "Tải xuống",
     "document_updated_successfully": "Tài liệu đã được cập nhật thành công",
     "investor_updated_successfully": "Nhà đầu tư đã được cập nhật thành công",
-    "allowed_jpg_png_jpeg_max_size_2mb": "Cho phép JPG, PNG hoặc JPEG. Kích thước tối đa 2MB"
+    "allowed_jpg_png_jpeg_max_size_2mb": "Cho phép JPG, PNG hoặc JPEG. Kích thước tối đa 2MB",
+    "investment_intent_submitted_successfully": "Đã gửi thành công"
   }
 }

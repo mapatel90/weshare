@@ -270,7 +270,7 @@ export const getTimeLeft = (closeDate) => {
     return 'Expires today'
   }
 
-  return `${days} days`
+  return `${days} Days`
 }
 
 export const getDuration = (startDate, endDate) => {
@@ -295,17 +295,17 @@ export const getDuration = (startDate, endDate) => {
   if (years > 0) {
     return months > 0
       ? `${years}y ${months}m`
-      : `${years} year${years > 1 ? 's' : ''}`
+      : `${years} Year${years > 1 ? 's' : ''}`
   }
 
   if (months > 0) {
-    return `${months} month${months > 1 ? 's' : ''}`
+    return `${months} Month${months > 1 ? 's' : ''}`
   }
 
-  if (days === 1) return '1 day'
+  if (days === 1) return '1 Day'
 
   console.log("days", days);
-  return `${days} days`
+  return `${days} Days`
 }
 
 const UPLOAD_URL = process.env.NEXT_PUBLIC_UPLOAD_URL;
