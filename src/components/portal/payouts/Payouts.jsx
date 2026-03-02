@@ -15,7 +15,6 @@ import { buildUploadUrl } from "@/utils/common";
 import { PAYOUT_STATUS } from "@/constants/payout_status";
 import Swal from "sweetalert2";
 
-
 const PayoutsPage = () => {
     const PAGE_SIZE = 50;
     const [pageSize, setPageSize] = useState(PAGE_SIZE);
@@ -391,7 +390,7 @@ const PayoutsPage = () => {
                                 <TextField
                                     {...params}
                                     label={lang("reports.allprojects")}
-                                    placeholder="Search project..."
+                                    placeholder={lang("common.searchProject", "Search project...")}
                                 />
                             )}
                             sx={{ minWidth: 260 }}

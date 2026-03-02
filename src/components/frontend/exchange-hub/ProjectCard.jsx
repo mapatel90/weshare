@@ -500,15 +500,7 @@ const ProjectCard = ({ project, activeTab, isHome = false }) => {
           </p>
           <p>
             <span>
-              {lang("home.exchangeHub.askingPrice") || "Asking Price"}
-              <span className="text-secondary-color fw-300">
-                {" "}
-                (
-                {project?.price_type ||
-                  lang("home.exchangeHub.negotiable") ||
-                  "negotiable"}
-                )
-              </span>
+              {lang("home.exchangeHub.totalInvestedPrice") || "Asking Price"}
             </span>
             <span className="fw-500 text-black">
               {formatShort(project?.asking_price || "128000")}

@@ -20,6 +20,7 @@ const ExchangeHub = () => {
   const [page, setPage] = useState(1)
   const [hasMore, setHasMore] = useState(true)
   const [activeInvestorsCount, setActiveInvestorsCount] = useState(0)
+  const [totalProjectsCount, setTotalProjectsCount] = useState(0)
   const [searchQuery, setSearchQuery] = useState('')
   const [showFilters, setShowFilters] = useState(false)
   const [sortBy, setSortBy] = useState('roi-high')
@@ -60,6 +61,7 @@ const ExchangeHub = () => {
 
   useEffect(() => {
     fetchActiveInvestorsCount()
+    fetchTotalProjectsCount()
   }, [])
 
   // Refresh AOS when projects change
@@ -149,13 +151,23 @@ const ExchangeHub = () => {
 
   const fetchActiveInvestorsCount = async () => {
     try {
-      const response = await apiGet(`/api/users?role=${ROLES.INVESTOR}&status=1`, { showLoader: false })
-      console.log("response", response)
-      const total = response?.data?.pagination?.total ?? response?.data?.data?.pagination?.total ?? 0
-      setActiveInvestorsCount(Number(total) || 0)
+      const response = await apiGet('/api/users/count/active-investors', { showLoader: false })
+      const count = response?.data?.count ?? 0
+      setActiveInvestorsCount(Number(count) || 0)
     } catch (error) {
       console.error('Error fetching active investors count:', error)
       setActiveInvestorsCount(0)
+    }
+  }
+
+  const fetchTotalProjectsCount = async () => {
+    try {
+      const response = await apiGet('/api/projects/count/active', { showLoader: false })
+      const count = response?.data?.count ?? 0
+      setTotalProjectsCount(Number(count) || 0)
+    } catch (error) {
+      console.error('Error fetching total projects count:', error)
+      setTotalProjectsCount(0)
     }
   }
 
@@ -414,7 +426,7 @@ const ExchangeHub = () => {
                 <h3 className="fs-22 fw-600 text-black">{lang('home.exchangeHub.summary') || 'Exchange Hub Summary'}</h3>
                 <div className="row mb-1">
                   <div className="col-7"><p className="fw-300 text-black">{lang('home.exchangeHub.totalProjects')}:</p></div>
-                  <div className="col-5"><p className="text-end text-black fw-600 fs-18">{allProjects.length}</p></div>
+                  <div className="col-5"><p className="text-end text-black fw-600 fs-18">{totalProjectsCount}</p></div>
                 </div>
                 <div className="row mb-1">
                   <div className="col-7"><p className="fw-300 text-black">{lang('home.exchangeHub.totalCapacity')}:</p></div>
