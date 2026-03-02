@@ -168,6 +168,7 @@
     "welcomeBack": "Chào mừng bạn trở lại Đăng nhập vào tài khoản quản trị của bạn"
   },
   "common": {
+    "viewFile": "Xem tệp",
     "file": "Tệp",
     "investors": "Nhà đầu tư",
     "searchInvestor": "Tìm kiếm nhà đầu tư...",
@@ -2219,6 +2220,11 @@
     "document_updated_successfully": "Tài liệu đã được cập nhật thành công",
     "investor_updated_successfully": "Nhà đầu tư đã được cập nhật thành công",
     "allowed_jpg_png_jpeg_max_size_2mb": "Cho phép JPG, PNG hoặc JPEG. Kích thước tối đa 2MB",
-    "investment_intent_submitted_successfully": "Đã gửi thành công"
+    "investment_intent_submitted_successfully": "Đã gửi thành công",
+    "logo_upload_failed": "Tải lên logo thất bại",
+    "favicon_upload_failed": "Tải lên favicon thất bại",
+    "s3_settings_saved_successfully": "Cấu hình AWS S3 đã được lưu thành công",
+    "credentials_validated_successfully": "Xác thực thành công",
+    "startDateCannotBeAfterEndDate": "Ngày bắt đầu không thể sau ngày kết thúc"
   }
 }

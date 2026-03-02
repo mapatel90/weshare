@@ -122,7 +122,7 @@ const ContractDetails = () => {
                       className="text-primary"
                       style={{ textDecoration: "none" }}
                     >
-                      View File
+                      {lang("common.viewFile", "View File")}
                     </a>
                   ) : (
                     <div>-</div>

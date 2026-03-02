@@ -94,7 +94,7 @@ const useSettings = () => {
         return merged;
       });
       
-      showSuccessToast('Settings updated successfully!');
+      showSuccessToast(lang("response_messages.settings_updated_successfully") || 'Settings updated successfully!');
       return data.data;
     } catch (err) {
       console.error('Error updating settings:', err);

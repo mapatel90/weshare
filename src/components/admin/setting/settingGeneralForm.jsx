@@ -329,7 +329,7 @@ const SettingGeneralForm = () => {
         if (resp?.success && resp?.data?.path) {
           newImagePath = resp.data.path;
         } else {
-          showErrorToast(resp?.message || "Logo upload failed");
+          showErrorToast(resp?.message || lang("response_messages.logo_upload_failed") || "Logo upload failed");
           setIsSubmitting(false);
           return;
         }
@@ -349,7 +349,7 @@ const SettingGeneralForm = () => {
         if (resp?.success && resp?.data?.path) {
           newFaviconPath = resp.data.path;
         } else {
-          showErrorToast(resp?.message || "Favicon upload failed");
+          showErrorToast(resp?.message || lang("response_messages.favicon_upload_failed") || "Favicon upload failed");
           setIsSubmitting(false);
           return;
         }

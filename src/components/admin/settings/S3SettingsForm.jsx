@@ -97,7 +97,7 @@ const S3SettingsForm = () => {
       if (response.data.success) {
         setMessage({
           type: 'success',
-          text: 'Credentials validated successfully!',
+          text: lang("response_messages.credentials_validated_successfully") || 'Credentials validated successfully!',
         });
       } else {
         setMessage({
@@ -133,7 +133,7 @@ const S3SettingsForm = () => {
       if (response.data.success) {
         setMessage({
           type: 'success',
-          text: 'S3 settings saved successfully!',
+          text: lang("response_messages.s3_settings_saved_successfully") || 'S3 settings saved successfully!',
         });
         // Refresh settings to get masked secret key
         setTimeout(() => fetchSettings(), 1000);

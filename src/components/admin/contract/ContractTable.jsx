@@ -497,7 +497,7 @@ const Contract = ({ projectId, handleCloseForm, handleSaveAction }) => {
         const v = info.getValue();
         return v ? (
           <a href={buildUploadUrl(v)} target="_blank" rel="noreferrer">
-            View
+             {lang("common.view", "View")}
           </a>
         ) : (
           "-"

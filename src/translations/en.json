@@ -185,6 +185,7 @@
   },
   "common": {
     "file": "File",
+    "viewFile": "View File",
     "investors": "Investors",
     "searchInvestor": "Search investor...",
     "read": "Read",
@@ -2272,6 +2273,11 @@
     "document_updated_successfully":"Document updated successfully",
     "investor_updated_successfully":"Investor updated successfully",
     "allowed_jpg_png_jpeg_max_size_2mb":"Allowed JPG, PNG or JPEG. Max size of 2MB",
-    "investment_intent_submitted_successfully":"Submitted successfully"
+    "investment_intent_submitted_successfully":"Submitted successfully",
+    "logo_upload_failed":"Logo upload failed",
+    "favicon_upload_failed":"Favicon upload failed",
+    "s3_settings_saved_successfully":"S3 settings saved successfully",
+    "credentials_validated_successfully":"Credentials validated successfully",
+    "startDateCannotBeAfterEndDate":"Start date cannot be after end date"
   }
 }

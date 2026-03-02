@@ -49,7 +49,7 @@ const ContractAdminTable = () => {
         const startTs = new Date(`${startDate}T00:00:00`);
         const endTs = new Date(`${endDate}T23:59:59`);
         if (startTs > endTs) {
-          setError("Start date cannot be after end date.");
+          setError(lang("response_messages.startDateCannotBeAfterEndDate") || "Start date cannot be after end date.");
           setLoading(false);
           setHasLoadedOnce(true);
           return;
