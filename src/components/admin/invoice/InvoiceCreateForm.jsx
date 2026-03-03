@@ -99,12 +99,13 @@ const InvoiceCreateForm = ({ invoiceId = null }) => {
   });
   const [pendingAddressData, setPendingAddressData] = useState(null);
   const [invoiceItems, setInvoiceItems] = useState([
-    { item: "", description: "", unit: 1, price: 0, tax: "no-tax" },
+    { item: "", description: "", unit: 1, price: 0, tax: "" },
   ]);
   const [itemsError, setItemsError] = useState("");
   const [taxes, setTaxes] = useState([]);
   const [selectedTax, setSelectedTax] = useState("");
   const [defaultTax, setDefaultTax] = useState("");
+  const [taxValue, setTaxValue] = useState("");
   const [invoiceDueAfterDays, setInvoiceDueAfterDays] = useState(0);
   const [invoiceNote, setInvoiceNote] = useState("");
   const [termsAndConditions, setTermsAndConditions] = useState("");
@@ -129,11 +130,9 @@ const InvoiceCreateForm = ({ invoiceId = null }) => {
   }, [invoiceItems]);
 
   const taxAmount = useMemo(() => {
-    if (!selectedTax || !itemsTotal) return 0;
-    const tax = taxes.find((t) => String(t.id) === String(selectedTax));
-    if (!tax) return 0;
-    return (itemsTotal * Number(tax.value)) / 100;
-  }, [itemsTotal, selectedTax, taxes]);
+    if (!taxValue || !itemsTotal) return 0;
+    return (itemsTotal * Number(taxValue)) / 100;
+  }, [itemsTotal, taxValue]);
 
   const finalTotal = useMemo(() => {
     return itemsTotal + taxAmount;
@@ -186,6 +185,7 @@ const InvoiceCreateForm = ({ invoiceId = null }) => {
       const prefixRaw = res?.data?.invoice_number_prefix ?? "";
       const numberPrefix = res?.data?.next_invoice_number || "";
       const defaultTaxSetting = res?.data?.finance_default_tax || "";
+      const taxValue = res?.data?.tax_value || "";
       const dueAfter = res?.data?.invoice_due_after_days;
       setInvoicePrefix(typeof prefixRaw === "string" ? prefixRaw : "");
       setSettingInvoiceNumberPrefix(
@@ -193,6 +193,7 @@ const InvoiceCreateForm = ({ invoiceId = null }) => {
       );
       setDefaultTax(defaultTaxSetting);
       setSelectedTax(defaultTaxSetting);
+      setTaxValue(taxValue);
       const parsedDueAfter =
         dueAfter !== undefined && dueAfter !== null && dueAfter !== ""
           ? parseInt(dueAfter, 10)
@@ -394,9 +395,9 @@ const InvoiceCreateForm = ({ invoiceId = null }) => {
         setSelectedProject(
           item.projects
             ? {
-                label: item.projects.project_name,
-                value: String(item.projects.id),
-              }
+              label: item.projects.project_name,
+              value: String(item.projects.id),
+            }
             : null
         );
 
@@ -489,14 +490,14 @@ const InvoiceCreateForm = ({ invoiceId = null }) => {
         // Set invoice items
         const mappedItems = Array.isArray(item.invoice_items)
           ? item.invoice_items.map((row) => ({
-              id: row.id,
-              item: row.item || "",
-              description: row.description || "",
-              unit: row.unit ?? 0,
-              price: row.price ?? 0,
-              tax: "no-tax",
-              item_total: row.item_total ?? 0,
-            }))
+            id: row.id,
+            item: row.item || "",
+            description: row.description || "",
+            unit: row.unit ?? 0,
+            price: row.price ?? 0,
+            tax: "no-tax",
+            item_total: row.item_total ?? 0,
+          }))
           : [];
         setInvoiceItems(
           mappedItems.length
@@ -531,6 +532,17 @@ const InvoiceCreateForm = ({ invoiceId = null }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [invoiceId]);
 
+  // Keep taxValue in sync with selectedTax and taxes list
+  useEffect(() => {
+    if (!selectedTax || !Array.isArray(taxes) || !taxes.length) return;
+    const found = taxes.find(
+      (t) => String(t.id) === String(selectedTax)
+    );
+    if (found && found.value !== undefined && found.value !== null) {
+      setTaxValue(found.value);
+    }
+  }, [selectedTax, taxes]);
+
   // Sync address form when location data is loaded
   useEffect(() => {
     if (pendingAddressData && !loadingStates && !loadingCities) {
@@ -558,13 +570,13 @@ const InvoiceCreateForm = ({ invoiceId = null }) => {
       amount: !amount
         ? "Amount is required"
         : isNaN(Number(amount))
-        ? "Amount must be a number"
-        : "",
+          ? "Amount must be a number"
+          : "",
       totalUnit: !totalUnit
         ? "Total unit is required"
         : isNaN(Number(totalUnit))
-        ? "Total unit must be a number"
-        : "",
+          ? "Total unit must be a number"
+          : "",
       // invoiceNumber: !invoiceNumberSuffix ? "Invoice number is required" : "",
       invoiceDate: !invoiceDate ? "Invoice date is required" : "",
       dueDate: !dueDate ? "Due date is required" : "",
@@ -1421,8 +1433,19 @@ const InvoiceCreateForm = ({ invoiceId = null }) => {
                     >
                       <Select
                         size="small"
-                        value={selectedTax}
-                        onChange={(e) => setSelectedTax(e.target.value)}
+                        value={selectedTax || ""}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          setSelectedTax(value);
+                          const found = taxes.find(
+                            (t) => String(t.id) === String(value)
+                          );
+                          if (found && found.value !== undefined && found.value !== null) {
+                            setTaxValue(found.value);
+                          } else {
+                            setTaxValue("");
+                          }
+                        }}
                         displayEmpty
                         sx={{
                           minWidth: { xs: 100, sm: 140 },
@@ -1440,16 +1463,16 @@ const InvoiceCreateForm = ({ invoiceId = null }) => {
                           },
                         }}
                       >
-                        <MenuItem
+                        {/* <MenuItem
                           value=""
                           sx={{
                             backgroundColor: colors.cardBackground,
                             color: colors.text,
                           }}
                         >
-                          {lang("finance.noTax") || "No Tax"}
-                        </MenuItem>
-                        {taxes.map((tax) => (
+                          {lang("invoice.selectTax") || "Select Tax"}
+                        </MenuItem> */}
+                        {taxes.sort((a, b) => a.id - b.id).map((tax) => (
                           <MenuItem
                             key={tax.id}
                             value={tax.id}

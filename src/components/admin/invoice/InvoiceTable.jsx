@@ -17,6 +17,7 @@ const InvoiceTable = () => {
   const { lang } = useLanguage();
   const { canEdit, canDelete } = usePermissions();
   const [invoicesData, setInvoicesData] = useState([]);
+  console.log("invoicesData", invoicesData);
   const priceWithCurrency = usePriceWithCurrency();
 
   // Filter and pagination states
@@ -223,9 +224,8 @@ const InvoiceTable = () => {
       const blob = await response.blob();
       const objectUrl = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
-      const baseName = `${invoice?.invoice_prefix || "INV"}-${
-        invoice?.invoice_number || "invoice"
-      }`;
+      const baseName = `${invoice?.invoice_prefix || "INV"}-${invoice?.invoice_number || "invoice"
+        }`;
       link.href = objectUrl;
       link.download = `${baseName}.pdf`;
       document.body.appendChild(link);
@@ -279,18 +279,18 @@ const InvoiceTable = () => {
       cell: ({ row }) => row.getValue("offtaker_name") || "-",
     },
     {
-      id: "tax_label",
+      id: "tax",
       accessorFn: (row) => {
         const taxName = row?.taxes?.name;
         const taxValue = row?.taxes?.value;
 
         if (!taxName) return "";
-        if (!taxValue) return "";
-
-        return `${taxName || ""} (${taxValue || 0}%)`;
+        if (taxValue === null || taxValue === undefined) return "";
+        if (taxValue === 0) return `${taxName}`;
+        return `${taxName} (${taxValue}%)`;
       },
       header: () => lang("invoice.tax"),
-      cell: ({ row }) => row.getValue("tax_label") || "-",
+      cell: ({ row }) => row.getValue("tax") || "-",
     },
     {
       accessorKey: "sub_amount",

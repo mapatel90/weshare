@@ -136,6 +136,13 @@ const ProjectCard = ({ project, activeTab, isHome = false }) => {
   }, [showInvestModal, user]);
 
   const handleInvestClick = () => {
+    // If user is not logged in, redirect to login page
+    if (!user) {
+      router.push("/login");
+      return;
+    }
+
+    // Logged-in users (investors) see the invest modal
     setShowInvestModal(true);
   };
 
@@ -333,17 +340,18 @@ const ProjectCard = ({ project, activeTab, isHome = false }) => {
 
             {/* Action Buttons */}
             <div className="buttons-image">
-              {project?.project_status_id === PROJECT_STATUS.UPCOMING && user?.role === ROLES.INVESTOR &&
+              {project?.project_status_id === PROJECT_STATUS.UPCOMING &&
+                (!user || user?.role === ROLES.INVESTOR) &&
                 !hasAlreadyInvested &&
                 getTimeLeft(project?.project_close_date) !== "Expired" ? (
-                <button
-                  className="btn btn-primary-custom"
-                  style={{ padding: "14px 0px" }}
-                  onClick={handleInvestClick}
-                >
-                  {lang("home.exchangeHub.investNow") || "Invest Now"}
-                </button>
-              ) : null}
+                  <button
+                    className="btn btn-primary-custom"
+                    style={{ padding: "14px 0px" }}
+                    onClick={handleInvestClick}
+                  >
+                    {lang("home.exchangeHub.investNow") || "Invest Now"}
+                  </button>
+                ) : null}
               {/* Invest Dialog */}
               <InvestDialog
                 open={!!showInvestModal}

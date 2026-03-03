@@ -112,6 +112,13 @@ router.get("/", async (req, res) => {
       if (row.site_city_name)
         settingsObj.site_city_name = row.site_city_name;
     });
+  
+    const taxes = await prisma.taxes.findMany({
+      where: { is_deleted: 0, id: parseInt(settingsObj.finance_default_tax) },
+      orderBy: { value: 'desc' },
+    });
+
+    settingsObj.tax_value = taxes[0].value;
 
     res.json({
       success: true,

@@ -157,7 +157,7 @@ router.get("/", authenticateToken, async (req, res) => {
     if (search && search.trim() !== "") {
       const searchText = search.trim();
       const searchNumber = Number(searchText);
-     
+
       where.OR = [
         // project_name search (via project_id)
         {
@@ -208,7 +208,7 @@ router.get("/", authenticateToken, async (req, res) => {
               project_name: true,
               weshare_profit: true,
               investor_profit: true,
-              project_status_id: true,
+              project_status_id: true
             },
           },
           users: {
