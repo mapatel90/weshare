@@ -598,6 +598,7 @@ const ProjectDetails = ({ project_id }) => {
                         projectId={selectedProject?.id}
                         inverters={inverters}
                         selectedInverterId={selectedInverter?.inverterId}
+                        responsiveByContainer={true}
                     />
 
                     {/* CHART SECTION */}
