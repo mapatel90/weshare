@@ -145,76 +145,76 @@ async function main() {
 
 
 
-  const sampleUsers = [
-    {
-      full_name: 'John Manager',
-      username: 'johnmanager',
-      email: 'manager@sunshare.com',
-      role_id: 2,
-      phone_number: "+1234567891",
-      country_id: indiaCountry?.id,
-      state_id: mumbaiCity?.state_id,
-      city_id: mumbaiCity?.id,
-      address_1: "456 Manager Avenue",
-      zipcode: "400001",
-    },
-    {
-      full_name: 'Test User',
-      username: 'testuser',
-      email: 'wrapcode.info@gmail.com',
-      role_id: 3,
-      phone_number: "+1234567892",
-      country_id: usaCountry?.id,
-      state_id: losAngelesCity?.state_id,
-      city_id: losAngelesCity?.id,
-      address_1: "789 Test Boulevard",
-      zipcode: "90210",
-    },
-    {
-      full_name: 'Nguyen Van Minh',
-      username: 'vietnamuser',
-      email: 'vietnam.user@sunshare.com',
-      role_id: 3,
-      phone_number: "+84901234567",
-      country_id: vietnamCountry?.id,
-      state_id: hoChiMinhCity?.state_id,
-      city_id: hoChiMinhCity?.id,
-      address_1: "123 Nguyen Hue Street",
-      zipcode: "700000",
-    },
-  ];
+  // const sampleUsers = [
+  //   {
+  //     full_name: 'John Manager',
+  //     username: 'johnmanager',
+  //     email: 'manager@sunshare.com',
+  //     role_id: 2,
+  //     phone_number: "+1234567891",
+  //     country_id: indiaCountry?.id,
+  //     state_id: mumbaiCity?.state_id,
+  //     city_id: mumbaiCity?.id,
+  //     address_1: "456 Manager Avenue",
+  //     zipcode: "400001",
+  //   },
+  //   {
+  //     full_name: 'Test User',
+  //     username: 'testuser',
+  //     email: 'wrapcode.info@gmail.com',
+  //     role_id: 3,
+  //     phone_number: "+1234567892",
+  //     country_id: usaCountry?.id,
+  //     state_id: losAngelesCity?.state_id,
+  //     city_id: losAngelesCity?.id,
+  //     address_1: "789 Test Boulevard",
+  //     zipcode: "90210",
+  //   },
+  //   {
+  //     full_name: 'Nguyen Van Minh',
+  //     username: 'vietnamuser',
+  //     email: 'vietnam.user@sunshare.com',
+  //     role_id: 3,
+  //     phone_number: "+84901234567",
+  //     country_id: vietnamCountry?.id,
+  //     state_id: hoChiMinhCity?.state_id,
+  //     city_id: hoChiMinhCity?.id,
+  //     address_1: "123 Nguyen Hue Street",
+  //     zipcode: "700000",
+  //   },
+  // ];
 
-  console.log("👥 Creating sample users...");
-  const defaultPassword = await bcrypt.hash("password123", 12);
-  const testPassword = await bcrypt.hash("123456", 12);
+  // console.log("👥 Creating sample users...");
+  // const defaultPassword = await bcrypt.hash("password123", 12);
+  // const testPassword = await bcrypt.hash("123456", 12);
 
-  for (const userData of sampleUsers) {
-    const password =
-      userData.email === "wrapcode.info@gmail.com"
-        ? testPassword
-        : defaultPassword;
+  // for (const userData of sampleUsers) {
+  //   const password =
+  //     userData.email === "wrapcode.info@gmail.com"
+  //       ? testPassword
+  //       : defaultPassword;
 
-    const existingUser = await prisma.users.findFirst({
-      where: { username: userData.username },
-    });
+  //   const existingUser = await prisma.users.findFirst({
+  //     where: { username: userData.username },
+  //   });
 
-    if (!existingUser) {
-      await prisma.users.create({
-        data: {
-          ...userData,
-          password: password,
-          status: 1, // Active
-        },
-      });
-      const passwordText =
-        userData.email === "wrapcode.info@gmail.com" ? "123456" : "password123";
-      console.log(
-        `✅ User created: ${userData.email} (password: ${passwordText})`
-      );
-    } else {
-      console.log(`ℹ️ User ${userData.username} already exists, skipping...`);
-    }
-  }
+  //   if (!existingUser) {
+  //     await prisma.users.create({
+  //       data: {
+  //         ...userData,
+  //         password: password,
+  //         status: 1, // Active
+  //       },
+  //     });
+  //     const passwordText =
+  //       userData.email === "wrapcode.info@gmail.com" ? "123456" : "password123";
+  //     console.log(
+  //       `✅ User created: ${userData.email} (password: ${passwordText})`
+  //     );
+  //   } else {
+  //     console.log(`ℹ️ User ${userData.username} already exists, skipping...`);
+  //   }
+  // }
 
   // -----------------------------
   // 🌞 Create Inverter Types
