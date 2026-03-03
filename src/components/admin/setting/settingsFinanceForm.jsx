@@ -48,9 +48,9 @@ const SettingsFinanceForm = () => {
     const options = [];
     taxes.sort((a, b) => a.id - b.id).forEach(tax => {  
       options.push({
-        value: String(tax?.value),
+        value: String(tax?.value), // percentage (e.g. "0", "8")
         label: tax?.name,
-        id: tax?.id,
+        id: tax?.id,               // tax ID to store in DB
         color: "#3454d1"
       });
     });
@@ -63,7 +63,8 @@ const SettingsFinanceForm = () => {
     // Finance General
     finance_decimal_separator: "dot",
     finance_thousand_separator: "clone",
-    finance_default_tax: 0,
+    // Store tax *ID* in this field
+    finance_default_tax: "",
 
     // Bank details
     bank_account_name: "",
@@ -106,18 +107,12 @@ const SettingsFinanceForm = () => {
       const invoicePrefix = getSetting("invoice_number_prefix", "")
       const payoutPrefix = getSetting("payout_number_prefix", "")
       
-      // Normalize default tax:
-      // - If setting missing/empty or legacy "no-tax", fall back to "0" (No Tax entry from taxes table)
-      let loadedDefaultTax = getSetting("finance_default_tax", "0")
-      if (!loadedDefaultTax || loadedDefaultTax === "no-tax") {
-        loadedDefaultTax = "0"
-      }
-
       const loaded = {
         finance_currency: getSetting("finance_currency", ""),
         finance_decimal_separator: getSetting("finance_decimal_separator", "dot"),
         finance_thousand_separator: getSetting("finance_thousand_separator", "clone"),
-        finance_default_tax: loadedDefaultTax,
+        // Expect tax *ID* stored in settings; fallback empty string
+        finance_default_tax: getSetting("finance_default_tax", ""),
         bank_account_name: getSetting("bank_account_name", ""),
         bank_account_number: getSetting("bank_account_number", ""),
         bank_acq_id: getSetting("bank_acq_id", ""),
@@ -138,7 +133,8 @@ const SettingsFinanceForm = () => {
       const thousandOpt = thousandSeparator.find(o => o.value === loaded.finance_thousand_separator) || thousandSeparator[1]
       opts.finance_thousand_separator = thousandOpt
 
-      const taxOpt = taxOptions.find(o => o.value === loaded.finance_default_tax) || taxOptions[0]
+      // Match by tax ID (stored in finance_default_tax)
+      const taxOpt = taxOptions.find(o => String(o.id) === String(loaded.finance_default_tax)) || taxOptions[0]
       opts.finance_default_tax = taxOpt
 
       // Initialize yes/no dropdowns
@@ -171,7 +167,8 @@ const SettingsFinanceForm = () => {
       const thousandOpt = thousandSeparator.find(o => o.value === formData.finance_thousand_separator) || thousandSeparator[1]
       opts.finance_thousand_separator = thousandOpt
 
-      const taxOpt = taxOptions.find(o => o.value === formData.finance_default_tax) || taxOptions[0]
+      // Match by tax ID (stored in finance_default_tax)
+      const taxOpt = taxOptions.find(o => String(o.id) === String(formData.finance_default_tax)) || taxOptions[0]
       opts.finance_default_tax = taxOpt
 
       // Update yes/no options for all yes/no fields
@@ -322,11 +319,12 @@ const SettingsFinanceForm = () => {
                     labelId="finance-default-tax-label"
                     value={formData.finance_default_tax}
                     label={lang("finance.defaultTax")}
+                    // Store the selected tax *ID* in finance_default_tax
                     onChange={(e) => handleDropdownChange('finance_default_tax', { value: e.target.value })}
                   >
                     {taxOptions.map(opt => (
-                      <MenuItem key={opt.value} value={opt.value}>
-                        {opt.value === 0 ? opt.label : `${opt.label} - ${opt.value}%`}
+                      <MenuItem key={opt.id} value={opt.id}>
+                        {Number(opt.value) === 1 ? opt.label : `${opt.label} - ${opt.value}%`}
                       </MenuItem>
                     ))}
                   </Select>
