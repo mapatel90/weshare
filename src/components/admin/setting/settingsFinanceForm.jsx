@@ -46,7 +46,7 @@ const SettingsFinanceForm = () => {
 
   const taxOptions = useMemo(() => {
     const options = [
-      { value: "", label: lang("finance.options.noTax") || "No Tax", color: "#283c50" }
+      { value: "no-tax", label: lang("finance.options.noTax") || "No Tax", color: "#283c50" }
     ];
     taxes.forEach(tax => {
       options.push({
@@ -320,7 +320,11 @@ const SettingsFinanceForm = () => {
                     onChange={(e) => handleDropdownChange('finance_default_tax', { value: e.target.value })}
                   >
                     {taxOptions.map(opt => (
-                      <MenuItem key={opt.id} value={opt.id}>{opt.value ? `${opt.label} - ${opt.value}%` : opt.label}</MenuItem>
+                        <MenuItem key={opt.id || opt.value} value={opt.value}>
+                        {opt.value && opt.value !== 'no-tax'
+                          ? `${opt.label} - ${opt.value}%`
+                          : opt.label}
+                      </MenuItem>
                     ))}
                   </Select>
                 </FormControl>

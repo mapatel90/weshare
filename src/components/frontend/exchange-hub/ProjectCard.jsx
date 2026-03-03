@@ -364,7 +364,7 @@ const ProjectCard = ({ project, activeTab, isHome = false }) => {
               <button
                 className="btn"
                 onClick={() =>
-                  router.push(`/frontend/exchange-hub/${project.project_slug}`)
+                  router.push(`/frontend/exchange-hub/${project.project_slug}?tab=${activeTab}`)
                 }
                 style={{
                   padding: "14px 0px",
@@ -515,7 +515,7 @@ const ProjectCard = ({ project, activeTab, isHome = false }) => {
             className="btn btn-secondary-custom"
             style={{ background: "#fff", color: "#102c41" }}
             onClick={() =>
-              router.push(`/frontend/exchange-hub/${project.project_slug}`)
+              router.push(`/frontend/exchange-hub/${project.project_slug}?tab=${activeTab}`)
             }
           >
             <svg

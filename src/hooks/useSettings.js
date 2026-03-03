@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { showSuccessToast, showErrorToast } from '@/utils/topTost';
 import { apiGet, apiPost } from '@/lib/api';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // Module-level shared store so all hook instances stay in sync without a page refresh
 let sharedSettings = {};
@@ -21,6 +22,7 @@ const setSharedSettings = (next) => {
 };
 
 const useSettings = () => {
+  const { lang } = useLanguage();
   const [settings, setSettings] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);

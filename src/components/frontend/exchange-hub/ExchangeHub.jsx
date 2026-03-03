@@ -8,13 +8,18 @@ import 'aos/dist/aos.css'
 import ProjectCard from './ProjectCard'
 import './styles/exchange-hub-custom.css'
 import { useAuth } from '@/contexts/AuthContext'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { PROJECT_STATUS } from '@/constants/project_status'
 import { ROLES } from '@/constants/roles'
 import { useFormatPrice, usePriceWithCurrency } from '@/hooks/useFormatPrice'
 
 const ExchangeHub = () => {
-  const [activeTab, setActiveTab] = useState('lease')
+  const searchParams = useSearchParams()
+  const pathname = usePathname()
+  const initialTabFromQuery = searchParams.get('tab')
+  const [activeTab, setActiveTab] = useState(
+    initialTabFromQuery === 'resale' ? 'resale' : 'lease'
+  )
   const [projects, setProjects] = useState([])
   const [allProjects, setAllProjects] = useState([])
   const [loading, setLoading] = useState(true)
@@ -37,6 +42,16 @@ const ExchangeHub = () => {
   const router = useRouter()
   const { lang } = useLanguage()
   const priceWithCurrency = useFormatPrice();
+
+  const handleTabChange = (tab) => {
+    setActiveTab(tab)
+
+    const params = new URLSearchParams(searchParams.toString())
+    params.set('tab', tab)
+
+    const queryString = params.toString()
+    router.push(queryString ? `${pathname}?${queryString}` : pathname)
+  }
   
   // Initialize AOS
   useEffect(() => {
@@ -294,7 +309,7 @@ const ExchangeHub = () => {
                       <button
                         className={`nav-link ${activeTab === 'lease' ? 'active' : ''} ms-0`}
                         id="pills-ProjectsOpen-tab"
-                        onClick={() => setActiveTab('lease')}
+                        onClick={() => handleTabChange('lease')}
                         type="button"
                         role="tab"
                         style={{ borderRadius: 0 }}
@@ -306,7 +321,7 @@ const ExchangeHub = () => {
                       <button
                         className={`nav-link ${activeTab === 'resale' ? 'active' : ''}`}
                         id="pills-projectResale-tab"
-                        onClick={() => setActiveTab('resale')}
+                        onClick={() => handleTabChange('resale')}
                         type="button"
                         role="tab"
                         style={{ borderRadius: 0 }}

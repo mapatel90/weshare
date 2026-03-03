@@ -12,7 +12,7 @@ import "./styles/exchange-hub-custom.css";
 import { buildUploadUrl, convertEnergyToKwh, formatEnergyUnit, getDuration, getFullImageUrl, getRemainingDuration, getTimeLeft } from "@/utils/common";
 import { getPrimaryProjectImage } from "@/utils/projectUtils";
 import { useAuth } from "@/contexts/AuthContext";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import InvestDialog from "./InvestDialog";
 import { PROJECT_STATUS } from "@/constants/project_status";
 import ElectricityConsumption from "@/components/admin/projectsCreate/projectViewSection/ElectricityConsumption";
@@ -28,6 +28,8 @@ const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
 const ProjectDetail = ({ projectId }) => {
   const { lang } = useLanguage();
+  const searchParams = useSearchParams();
+  const tabFromQuery = searchParams.get("tab");
   const [project, setProject] = useState(null);
   const formatPrice = useFormatPrice();
   const [loading, setLoading] = useState(true);
@@ -488,7 +490,11 @@ const ProjectDetail = ({ projectId }) => {
             <button
               type="button"
               className="btn d-inline-flex align-items-center gap-2 p-2"
-              onClick={() => router.push("/frontend/exchange-hub")}
+              onClick={() =>
+                tabFromQuery
+                  ? router.push(`/frontend/exchange-hub?tab=${tabFromQuery}`)
+                  : router.push("/frontend/exchange-hub")
+              }
               onMouseEnter={() => setIsBackButtonHovered(true)}
               onMouseLeave={() => setIsBackButtonHovered(false)}
               style={{
