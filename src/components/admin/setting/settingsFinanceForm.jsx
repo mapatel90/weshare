@@ -45,12 +45,10 @@ const SettingsFinanceForm = () => {
   ], [lang, currentLanguage])
 
   const taxOptions = useMemo(() => {
-    const options = [
-      { value: "no-tax", label: lang("finance.options.noTax") || "No Tax", color: "#283c50" }
-    ];
-    taxes.forEach(tax => {
+    const options = [];
+    taxes.sort((a, b) => a.id - b.id).forEach(tax => {  
       options.push({
-        value: tax?.value,
+        value: String(tax?.value),
         label: tax?.name,
         id: tax?.id,
         color: "#3454d1"
@@ -65,7 +63,7 @@ const SettingsFinanceForm = () => {
     // Finance General
     finance_decimal_separator: "dot",
     finance_thousand_separator: "clone",
-    finance_default_tax: "no-tax",
+    finance_default_tax: 0,
 
     // Bank details
     bank_account_name: "",
@@ -108,11 +106,18 @@ const SettingsFinanceForm = () => {
       const invoicePrefix = getSetting("invoice_number_prefix", "")
       const payoutPrefix = getSetting("payout_number_prefix", "")
       
+      // Normalize default tax:
+      // - If setting missing/empty or legacy "no-tax", fall back to "0" (No Tax entry from taxes table)
+      let loadedDefaultTax = getSetting("finance_default_tax", "0")
+      if (!loadedDefaultTax || loadedDefaultTax === "no-tax") {
+        loadedDefaultTax = "0"
+      }
+
       const loaded = {
         finance_currency: getSetting("finance_currency", ""),
         finance_decimal_separator: getSetting("finance_decimal_separator", "dot"),
         finance_thousand_separator: getSetting("finance_thousand_separator", "clone"),
-        finance_default_tax: getSetting("finance_default_tax", "no-tax"),
+        finance_default_tax: loadedDefaultTax,
         bank_account_name: getSetting("bank_account_name", ""),
         bank_account_number: getSetting("bank_account_number", ""),
         bank_acq_id: getSetting("bank_acq_id", ""),
@@ -320,10 +325,8 @@ const SettingsFinanceForm = () => {
                     onChange={(e) => handleDropdownChange('finance_default_tax', { value: e.target.value })}
                   >
                     {taxOptions.map(opt => (
-                        <MenuItem key={opt.id || opt.value} value={opt.value}>
-                        {opt.value && opt.value !== 'no-tax'
-                          ? `${opt.label} - ${opt.value}%`
-                          : opt.label}
+                      <MenuItem key={opt.value} value={opt.value}>
+                        {opt.value === 0 ? opt.label : `${opt.label} - ${opt.value}%`}
                       </MenuItem>
                     ))}
                   </Select>

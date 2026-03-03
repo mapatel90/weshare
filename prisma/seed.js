@@ -250,6 +250,7 @@ async function main() {
   console.log("💰 Creating taxes...");
 
   const taxes = [
+    { name: "No Tax", value: 0 },
     { name: "VAT", value: 8 },
     { name: "VAT", value: 10 },
   ];
