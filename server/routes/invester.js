@@ -110,6 +110,32 @@ router.post("/", async (req, res) => {
             },
           );
 
+          // send email to the admin
+          const templateData = {
+            full_name: fullName,
+            user_email: email,
+            user_phone: phoneNumber || "N/A",
+            project_name: project.project_name,
+            investor_note: notes || "N/A",
+            company_name: "WeShare Energy",
+          };
+          sendEmailUsingTemplate({
+            to: admin.email,
+            templateSlug: "invest_now_email_to_admin",
+            templateData,
+            language: adminLang,
+          })
+            .then((result) => {
+              if (result.success) {
+                console.log(`Investor email sent to ${admin.email}`);
+              } else {
+                console.warn(`Could not send investor email: ${result.error}`);
+              }
+            })
+            .catch((error) => {
+              console.error("Failed to send investor email:", error.message);
+            });
+
           await createNotification({
             userId: admin.id.toString(),
             title: adminTitle || `New investor interest: ${fullName}`,
@@ -122,6 +148,30 @@ router.post("/", async (req, res) => {
             created_by: userId || null,
           });
         }
+
+        const investorLang = await getUserLanguage(userId);
+        // also email to invester for thankyou email
+        const thankyouTemplateData = {
+          full_name: fullName,
+          project_name: project.project_name,
+          company_name: "WeShare Energy",
+        };
+        sendEmailUsingTemplate({
+          to: email,
+          templateSlug: "thankyou_email_to_investment_request",
+          templateData: thankyouTemplateData,
+          language: investorLang,
+        })
+          .then((result) => {
+            if (result.success) {
+              console.log(`Investor thankyou email sent to ${email}`);
+            } else {
+              console.warn(`Could not send investor thankyou email: ${result.error}`);
+            }
+          })
+          .catch((error) => {
+            console.error("Failed to send investor thankyou email:", error.message);
+          });
       }
     }
 
@@ -293,13 +343,13 @@ router.delete(
     try {
       const investor_user_id = Number(req.params.investorUserId);
       const projectId = Number(req.params.projectId);
- 
+
       // Get project current assigned investor
       const project = await prisma.projects.findUnique({
         where: { id: projectId },
         select: { investor_id: true },
       });
- 
+
       // Only remove from project IF this investor is the marked one
       if (project?.investor_id === investor_user_id) {
         await prisma.projects.update({
@@ -307,23 +357,23 @@ router.delete(
           data: { investor_id: null },
         });
       }
- 
+
       // Find interested investor record
       const investorRecord = await prisma.interested_investors.findFirst({
         where: { user_id: investor_user_id, project_id: projectId },
       });
- 
+
       if (!investorRecord) {
         return res
           .status(400)
           .json({ success: false, message: "Investor not found" });
       }
- 
+
       // HARD DELETE only that record
       await prisma.interested_investors.delete({
         where: { id: investorRecord.id },
       });
- 
+
       return res.json({
         success: true,
         message: "Investor deleted successfully",
@@ -350,7 +400,7 @@ router.post("/:id/mark-investor", authenticateToken, async (req, res) => {
     const investor = await prisma.interested_investors.findFirst({
       where: { id: investorId, is_deleted: 0 },
     });
-    
+
     if (!investor) {
       return res.status(404).json({ success: false, message: t(language, "response_messages.investor_not_found") });
     }

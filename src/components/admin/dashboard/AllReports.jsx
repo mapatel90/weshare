@@ -23,12 +23,13 @@ const AllReports = ({ title }) => {
       try {
         setLoading(true);
         setError(null);
-        // how to daynemmic randomproject id pass to the api
-        const projectId = 1;
-        const res = await apiGet(`/api/inverter-data?limit=5&projectId=${projectId}`);
-        // above projectId is the project id of the project that is running
+        // get all project id from the projects table
+        const projects = await apiGet(`/api/projects`);
+        const projectIds = projects?.data?.map((project) => project.id);
+        const randomProjectId = projectIds[Math.floor(Math.random() * projectIds.length)];
+        const res = await apiGet(`/api/inverter-data?limit=10&projectId=${randomProjectId}`);
         const list = res?.data || [];
-        setReports(list.slice(0, 5)); // Show first 5 reports
+        setReports(list.slice(0, 6));
       } catch (err) {
         setError("Failed to load reports");
       } finally {
