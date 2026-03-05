@@ -56,7 +56,8 @@
     "myprofile": "My Profile",
     "inverter_type": "Inverter Type",
     "inverter_list": "Inverter List",
-    "inverter_company": "Company"
+    "inverter_company": "Company",
+    "meterreadings": "Meter Readings"
   },
   "header": {
     "dashboard": "Dashboard",
@@ -371,7 +372,9 @@
     "totalPayouts": "Total Payouts",
     "totalInvoiceAmount": "Total Invoice Amount",
     "total_invoice_amount": "Total Invoice Amount",
-    "weshareTotalRevenue": "WeShare Total Revenue"
+    "weshareTotalRevenue": "WeShare Total Revenue",
+    "loadMore": "Load more",
+    "viewSignedFile": "View Signed File"
   },
   "messages": {
     "cannotUndoDelete": "You won't be able to revert this!",
@@ -454,8 +457,8 @@
     "crm": "CRM",
     "reports": "Reports",
     "payment": "Payments",
-    "inverter-env-reports": "Inverter ENV Reports",
-    "project-env-reports": "Project ENV Reports",
+    "inverter-env-reports": "Inverter Reports",
+    "project-env-reports": "Project Reports",
     "saving-reports": "Saving Reports",
     "capital-recovery-reports": "Capital Recovery Reports",
     "roi-reports": "ROI Reports",
@@ -542,7 +545,8 @@
     "payouts": "Payouts",
     "company": "Company",
     "capitalrecoveryreports": "Capital Recovery Reports",
-    "profile": "Profile"
+    "profile": "Profile",
+    "meterreadings": "Meter Readings"
   },
   "dashboard": {
     "all_your_investments": "All your investments",
@@ -1699,12 +1703,13 @@
       "payments": "Payments",
       "notifications": "Notifications",
       "reports": "Reports",
-      "inverter_report": "Inverter Env Report",
-      "project_env_report": "Project Env Report",
+      "inverter_report": "Inverter Report",
+      "project_env_report": "Project Report",
       "savingreports": "Saving Reports",
       "conjunctionreports": "Conjunction Reports",
       "contracts": "Contracts",
-      "payouts": "Payouts"
+      "payouts": "Payouts",
+      "meterreadings": "Meter Readings"
     }
   },
   "investor": {
@@ -1770,7 +1775,32 @@
     "createdSuccessfully": "Meter Created Successfully",
     "updatedSuccessfully": "Meter Updated Successfully",
     "deletedSuccessfully": "Meter Deleted Successfully",
-    "enterMeterUrl": "Enter Meter Url"
+    "enterMeterUrl": "Enter Meter Url",
+    "meterReading": "Meter Reading",
+    "meterReadings": "Meter Readings",
+    "subtitle": "View, add, edit and delete your project meter readings.",
+    "fetchError": "Unable to fetch meter readings. Please try again.",
+    "loading": "Loading meter readings...",
+    "noData": "No meter readings found.",
+    "searchByProject": "Search by project name...",
+    "addReading": "Add Reading",
+    "projectRequired": "Please select a project first",
+    "imageRequired": "Please upload meter screen image before saving",
+    "saveFailed": "Failed to save meter reading",
+    "updatedSuccessfullyReading": "Meter reading updated successfully",
+    "savedSuccessfullyReading": "Meter reading saved successfully",
+    "deleteConfirmTitle": "Delete meter reading?",
+    "deleteConfirm": "Are you sure you want to delete this meter reading?",
+    "deleteConfirmButton": "Yes, delete it",
+    "deletedSuccessfullyReading": "Meter reading deleted successfully",
+    "readingDate": "Meter Reading Date",
+    "screenImage": "Screen Image",
+    "viewImage": "View image",
+    "viewCurrentImage": "View current uploaded image",
+    "selectProjectPlaceholder": "Select project...",
+    "searchProject": "Search project...",
+    "loadingProjects": "Loading projects...",
+    "noProjectsFound": "No matching projects found."
   },
   "reports": {
     "capacityPrice": "Capacity Price",
@@ -1864,7 +1894,8 @@
     "actions": "Actions",
     "viewDetails": "View Details",
     "investNow": "Invest Now",
-    "noProjects": "No projects available"
+    "noProjects": "No projects available",
+    "project_documents": "Project Documents"
   },
   "animated": {
     "powerflow": "Power Flow",

@@ -6,6 +6,8 @@ import { useLanguage } from '@/contexts/LanguageContext'
 import PageTitleContext from '@/contexts/PageTitleContext'
 import PageHeader from '@/components/shared/pageHeader/PageHeader'
 import ProjectViewContent from '@/components/admin/projectsCreate/ProjectViewContent'
+import ProjectViewHeader from '@/components/admin/projectsCreate/ProjectViewHeader';
+import ProjectCreateHeader from '@/components/admin/projectsCreate/ProjectCreateHeader';
 
 const ProjectViewPage = ({ params }) => {
   const { id } = params
@@ -93,7 +95,7 @@ const ProjectViewPage = ({ params }) => {
   return (
     <>
       <PageHeader>
-        {/* You can add a header component later if needed */}
+        <ProjectCreateHeader />
       </PageHeader>
       <div className='main-content'>
         <div className='row'>

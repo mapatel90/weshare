@@ -1723,11 +1723,11 @@ input:focus-visible {
 }
 
 /* Right Card - Sidebar */
-/* .right-card {
+.right-card {
   position: sticky;
   top: 100px;
   height: fit-content;
-} */
+}
 
 /* Sticky back button on detail page */
 .sticky-back-button {

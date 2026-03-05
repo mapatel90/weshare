@@ -1032,7 +1032,7 @@ const ProjectForm = ({
           // Edit mode: Show Save & Close and Save & Next buttons
           <>
             <Button
-              type="submit"
+              type="button"
               variant="contained"
               onClick={() => handleSaveAction('saveproject')}
               disabled={loading.form}

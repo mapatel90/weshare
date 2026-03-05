@@ -143,7 +143,7 @@ const ContractsDetails = ({ contractId }) => {
                           rel="noopener noreferrer"
                           className="text-blue-600 font-medium hover:underline"
                         >
-                          View File
+                          {lang("common.viewFile", "View File")}
                         </a>
                       ) : (
                         <span className="text-gray-400">
@@ -159,7 +159,7 @@ const ContractsDetails = ({ contractId }) => {
                             rel="noopener noreferrer"
                             className="text-blue-600 font-medium hover:underline"
                           >
-                            View Signed File
+                            {lang("common.viewSignedFile", "View Signed File")}
                           </a>
                         </>
                       )}
@@ -337,7 +337,7 @@ const ContractsDetails = ({ contractId }) => {
                   {lang("common.approveContract", "Approve Contract")}
                 </h2>
                 <label className="block mb-2 font-medium text-gray-700">
-                  {lang("common.uploadDocument", "Upload Document (PDF only)")}{" "}
+                  {lang("common.uploadSignedDocument", "Upload Signed Document (PDF only)")}{" "}
                   <span className="text-red-500">*</span>
                 </label>
                 <div className="border-2 border-dashed rounded-lg p-4 mb-2 bg-gray-50 hover:bg-gray-100 transition">

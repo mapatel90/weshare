@@ -543,10 +543,6 @@ router.post(
         });
       }
 
-      const hasDefault = await prisma.project_images.findFirst({
-        where: { project_id: projectId, default: 1 },
-      });
-
       // allow client to specify which uploaded file should be default (0-based index)
       const defaultIndexRaw = req.body?.default_index;
       const defaultIndex =
@@ -555,6 +551,22 @@ router.post(
           defaultIndexRaw !== ""
           ? parseInt(defaultIndexRaw, 10)
           : null;
+
+      const clientExplicitlyChoseDefault =
+        defaultIndex !== null && !Number.isNaN(defaultIndex);
+
+      const hasDefault = await prisma.project_images.findFirst({
+        where: { project_id: projectId, default: 1 },
+      });
+
+      // If the client explicitly chose a default from the new uploads, clear the
+      // existing default first so the new selection takes precedence.
+      if (clientExplicitlyChoseDefault && hasDefault) {
+        await prisma.project_images.updateMany({
+          where: { project_id: projectId, default: 1 },
+          data: { default: 0 },
+        });
+      }
 
       // Upload images to S3 or local storage
       const s3Enabled = await isS3Enabled();
@@ -608,34 +620,24 @@ router.post(
         uploadedPaths.push(imagePath);
       }
 
+      const effectiveHasDefault = hasDefault && !clientExplicitlyChoseDefault;
+
       const insertPayload = uploadedPaths.map((imagePath, index) => ({
         project_id: projectId,
         path: imagePath,
-        // If a default already exists for the project, all new images are non-default.
-        // Otherwise, if client provided default_index use that index, else fall back to first file.
-        default: hasDefault
+        // If no existing default OR client explicitly picked one from this batch,
+        // honour default_index; otherwise fall back to first image; never override
+        // an existing default when no explicit choice was made.
+        default: effectiveHasDefault
           ? 0
-          : defaultIndex !== null && !Number.isNaN(defaultIndex)
-            ? index === defaultIndex
-              ? 1
-              : 0
-            : index === 0
-              ? 1
-              : 0,
+          : clientExplicitlyChoseDefault
+            ? index === defaultIndex ? 1 : 0
+            : index === 0 ? 1 : 0,
       }));
 
       await prisma.project_images.createMany({
         data: insertPayload,
       });
-
-      if (!hasDefault && insertPayload.length) {
-        const chosen =
-          insertPayload.find((p) => p.default === 1) || insertPayload[0];
-        // await prisma.projects.update({
-        //   where: { id: projectId },
-        //   data: { project_image: chosen.path },
-        // });
-      }
 
       const images = await prisma.project_images.findMany({
         where: { project_id: projectId },
@@ -693,23 +695,6 @@ router.put(
         where: { project_id: projectId },
         orderBy: { id: "asc" },
       });
-
-      // set target as default
-      await prisma.project_images.update({
-        where: { id: imageId },
-        data: { default: 1 },
-      });
-
-      // update project's main image path
-      // await prisma.projects.update({
-      //     where: { id: projectId },
-      //     data: { project_image: img.path }
-      // });
-
-      // const images = await prisma.project_images.findMany({
-      //     where: { projectId },
-      //     orderBy: { id: 'asc' }
-      // });
 
       return res.json({ success: true, data: images });
     } catch (err) {

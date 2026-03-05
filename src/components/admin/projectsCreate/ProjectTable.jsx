@@ -19,6 +19,7 @@ import { apiGet, apiPut, apiDelete, apiPost } from "@/lib/api";
 import { useLanguage } from "@/contexts/LanguageContext";
 import usePermissions from "@/hooks/usePermissions";
 import { PROJECT_STATUS } from "@/constants/project_status";
+import Link from "next/link";
 
 const StatusDropdown = memo(({ value, onChange, options, disabled }) => {
   const statusOptions = Array.isArray(options) ? options : [];
@@ -247,7 +248,62 @@ const ProjectTable = () => {
     {
       accessorKey: "project_name",
       header: () => lang("projecttablelabel.name", "Name"),
-      cell: (info) => info.getValue() || "-",
+      // here i need to add a link to the project view page
+      cell: (info) => (
+        <div className="d-flex flex-column">
+          <Link href={`/admin/projects/view/${info.row.original.id}`} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-700 fw-semibold">
+            {info.getValue() || "-"}
+          </Link>
+          <div className="d-flex gap-2 mt-1">
+            <Link href={`/admin/projects/edit/${info.row.original.id}`} rel="noopener noreferrer" className="text-blue-500 hover:text-blue-700 d-flex align-items-center gap-1 small" style={{ textDecoration: "none", color: "#17c666" }}>
+              <FiEdit3 size={13} /> {lang("common.edit", "Edit")}
+            </Link>
+            <span className="text-muted">|</span>
+            <button
+              type="button"
+              className="btn btn-link p-0 m-0 text-red-500 hover:text-red-700 d-flex align-items-center gap-1 small"
+              style={{ textDecoration: "none", color: "#dc3545" }}
+              onClick={async () => {
+                try {
+                  const confirm = await Swal.fire({
+                    icon: "warning",
+                    title: lang("common.areYouSure", "Are you sure?"),
+                    text: lang(
+                      "common.cannotBeUndone",
+                      "This action cannot be undone."
+                    ),
+                    showCancelButton: true,
+                    confirmButtonColor: "#d33",
+                    confirmButtonText: lang(
+                      "common.yesDelete",
+                      "Yes, delete it!"
+                    ),
+                  });
+
+                  if (confirm.isConfirmed) {
+                    setLoading(true);
+                    await apiDelete(`/api/projects/${info.row.original.id}`);
+                    showSuccessToast(
+                      lang(
+                        "projects.deleted",
+                        "Project has been deleted successfully"
+                      )
+                    );
+                    fetchProjects();
+                  }
+                } catch (e) {
+                  console.error("Delete project failed:", e);
+                  showErrorToast(e.message || "Failed to delete project");
+                } finally {
+                  setLoading(false);
+                }
+              }}
+            >
+              <FiTrash2 size={13} /> {lang("common.delete", "Delete")}
+            </button>
+          </div>
+        </div>
+      ),
     },
     {
       accessorKey: "projectType.type_name",

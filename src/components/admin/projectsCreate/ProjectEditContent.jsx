@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect, useState, useCallback, useMemo } from 'react'
+import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { apiGet, apiPut, apiUpload, apiDelete } from '@/lib/api'
 import useLocationData from '@/hooks/useLocationData'
@@ -79,14 +79,15 @@ const ProjectEditContent = ({ projectId }) => {
     const [removedImageIds, setRemovedImageIds] = useState([])
     const steps = [
         { name: lang('projects.projectInformation', 'Project Information'), key: 'info' },
-        { name: lang('meter.meter', 'Meter'), key: 'meter' },
-        { name: lang('inverter.inverter', 'Inverter'), key: 'inverter' },
         { name: lang('home.exchangeHub.investor', 'Investor'), key: 'investor' },
         { name: lang('contract.contract', 'Contract'), key: 'contract' },
-        { name: lang('contract.document', 'Document'), key: 'document' }
+        { name: lang('projecttablelabel.project_documents', 'Project Documents'), key: 'document' },
+        { name: lang('meter.meter', 'Meter'), key: 'meter' },
+        { name: lang('inverter.inverter', 'Inverter'), key: 'inverter' }
     ];
     const [activeTab, setActiveTab] = useState('info');
     const [previousStatusId, setPreviousStatusId] = useState(null)
+    const isSavingRef = useRef(false)
 
     const loadProjectGallery = useCallback(async (id) => {
         if (!id) return
@@ -170,16 +171,19 @@ const ProjectEditContent = ({ projectId }) => {
     // set default image handler (works for existing and queued)
     const handleSetDefaultImage = useCallback(async (id, source) => {
         if (source === 'queued') {
+            // Mark selected queued image as default, clear all others
             setQueuedImages(prev => prev.map(item => ({ ...item, isDefault: item.id === id ? 1 : 0 })))
+            // Also clear default flag on all existing gallery images (UI-only; server synced on save)
+            setGalleryImages(prev => prev.map(img => ({ ...img, default: 0 })))
             return
         }
 
         // existing image: optimistic update + API call
         const prevGallery = galleryImages
         setGalleryImages(prev => prev.map(img => ({ ...img, default: img.id === id ? 1 : 0 })))
+        // Also clear default flag on all queued images
+        setQueuedImages(prev => prev.map(item => ({ ...item, isDefault: 0 })))
         try {
-            // try to tell backend to mark this image default
-            // endpoint name may vary; server should ideally support an endpoint like below.
             const res = await apiPut(`/api/projects/${projectId}/images/${id}/set-default`, {})
             if (!res?.success) throw new Error(res?.message || 'Failed to set default image')
         } catch (err) {
@@ -472,6 +476,10 @@ const ProjectEditContent = ({ projectId }) => {
     }
 
     const saveProject = async () => {
+        // Prevent concurrent saves (e.g. onClick + onSubmit firing simultaneously)
+        if (isSavingRef.current) return false
+        isSavingRef.current = true
+
         const requiredFields = ['project_name', 'project_type_id', 'offtaker_id']
         const errors = {}
         requiredFields.forEach(field => { if (!formData[field]) { errors[field] = lang('validation.required', 'Required') } })
@@ -588,6 +596,7 @@ const ProjectEditContent = ({ projectId }) => {
             showErrorToast(e.message || 'Failed to update project')
             return false
         } finally {
+            isSavingRef.current = false
             setLoading(prev => ({ ...prev, form: false }))
         }
     }
@@ -685,11 +694,11 @@ const ProjectEditContent = ({ projectId }) => {
                                 lang={lang}
                             />
                         )}
-                        {activeTab === 'inverter' && (
-                            <InverterTab projectId={projectId} handleSaveAction={handleSaveAction} />
-                        )}
                         {activeTab === 'investor' && (
                             <Investor projectId={projectId} onInvestorMarked={handleInvestorMarked} handleSaveAction={handleSaveAction} />
+                        )}
+                        {activeTab === 'inverter' && (
+                            <InverterTab projectId={projectId} handleSaveAction={handleSaveAction} />
                         )}
                         {activeTab === 'contract' && (
                             <Contract projectId={projectId} handleCloseForm={handleCloseForm} handleSaveAction={handleSaveAction} />

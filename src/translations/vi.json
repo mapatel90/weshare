@@ -57,7 +57,8 @@
     "myprofile": "Hồ sơ của tôi",
     "inverter_type": "Loại biến tần",
     "inverter_list": "Danh sách biến tần",
-    "inverter_company": "Công ty"
+    "inverter_company": "Công ty",
+    "meterreadings": "Chỉ số công tơ"
   },
   "header": {
     "dashboard": "Bảng điều khiển",
@@ -350,7 +351,9 @@
     "totalPayouts": "Tổng thanh toán",
     "totalInvoiceAmount": "Tổng số tiền hóa đơn",
     "total_invoice_amount": "Tổng số tiền hóa đơn",
-    "weshareTotalRevenue": "Tổng doanh thu WeShare"
+    "weshareTotalRevenue": "Tổng doanh thu WeShare",
+    "loadMore": "Tải thêm",
+    "viewSignedFile": "Xem tài liệu đã ký"
   },
   "messages": {
     "cannotUndoDelete": "Bạn sẽ không thể hoàn tác điều này!",
@@ -435,8 +438,8 @@
     "crm": "CRM",
     "reports": "Báo cáo",
     "payments": "Thanh toán",
-    "inverter-env-reports": "báo cáo môi trường biến tần",
-    "project-env-reports": "báo cáo môi trường dự án",
+    "inverter-env-reports": "báo cáo biến tần",
+    "project-env-reports": "báo cáo dự án",
     "saving-reports": "báo cáo tiết kiệm",
     "capital-recovery-reports": "báo cáo khôi phục vốn",
     "roi-reports": "báo cáo ROI",
@@ -528,7 +531,8 @@
     "payouts": "khoản thanh toán",
     "company": "Công ty",
     "capitalrecoveryreports": "Báo cáo khôi phục vốn",
-    "profile": "Hồ sơ"
+    "profile": "Hồ sơ",
+    "meterreadings":"Chỉ số công tơ"
   },
   "dashboard": {
     "all_your_investments": "Tất cả khoản đầu tư của bạn",
@@ -1655,12 +1659,13 @@
       "payments": "Thanh toán",
       "notifications": "Thông báo",
       "reports": "Báo cáo",
-      "inverter_report": "Báo cáo Env biến tần",
-      "project_env_report": "Báo cáo môi trường dự án",
+      "inverter_report": "Báo cáo biến tần",
+      "project_env_report": "Báo cáo dự án",
       "savingreports": "Báo cáo tiết kiệm",
       "conjunctionreports": "Báo cáo kết hợp",
       "contracts": "Hợp đồng",
-      "payouts": "Thanh toán"
+      "payouts": "Thanh toán",
+      "meterreadings": "Đọc điện năng"
     }
   },
   "investor": {
@@ -1726,7 +1731,32 @@
     "createdSuccessfully": "Tạo Công tơ Thành công",
     "updatedSuccessfully": "Cập nhật Công tơ Thành công",
     "deletedSuccessfully": "Xóa Công tơ Thành công",
-    "enterMeterUrl": "Nhập Url đồng hồ đo"
+    "enterMeterUrl": "Nhập Url đồng hồ đo",
+    "meterReading": "Chỉ số công tơ",
+    "meterReadings": "Chỉ số công tơ",
+    "subtitle": "Xem, thêm, sửa và xóa chỉ số công tơ cho dự án của bạn.",
+    "fetchError": "Không thể tải danh sách chỉ số công tơ. Vui lòng thử lại.",
+    "loading": "Đang tải chỉ số công tơ...",
+    "noData": "Không có chỉ số công tơ nào.",
+    "searchByProject": "Tìm theo tên dự án...",
+    "addReading": "Thêm chỉ số",
+    "projectRequired": "Vui lòng chọn dự án trước",
+    "imageRequired": "Vui lòng tải ảnh màn hình công tơ trước khi lưu",
+    "saveFailed": "Lưu chỉ số công tơ không thành công",
+    "updatedSuccessfullyReading": "Cập nhật chỉ số công tơ thành công",
+    "savedSuccessfullyReading": "Lưu chỉ số công tơ thành công",
+    "deleteConfirmTitle": "Xóa chỉ số công tơ?",
+    "deleteConfirm": "Bạn có chắc chắn muốn xóa chỉ số công tơ này không?",
+    "deleteConfirmButton": "Vâng, xóa",
+    "deletedSuccessfullyReading": "Xóa chỉ số công tơ thành công",
+    "readingDate": "Ngày ghi chỉ số",
+    "screenImage": "Ảnh màn hình công tơ",
+    "viewImage": "Xem ảnh",
+    "viewCurrentImage": "Xem ảnh đã tải hiện tại",
+    "selectProjectPlaceholder": "Chọn dự án...",
+    "searchProject": "Tìm kiếm dự án...",
+    "loadingProjects": "Đang tải danh sách dự án...",
+    "noProjectsFound": "Không tìm thấy dự án phù hợp."
   },
   "reports": {
     "capacityPrice": "Giá công suất",
@@ -1821,7 +1851,8 @@
     "actions": "Các hành động",
     "viewDetails": "Xem chi tiết",
     "investNow": "Đầu tư ngay",
-    "noProjects": "Hiện không có dự án nào"
+    "noProjects": "Hiện không có dự án nào",
+    "project_documents": "Tài liệu dự án"
   },
   "animated": {
     "powerflow": "Dòng điện",
