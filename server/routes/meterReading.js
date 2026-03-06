@@ -145,6 +145,31 @@ router.post('/', authenticateToken, upload.single('file'), async (req, res) => {
       });
     }
 
+    // Check duplicate: same project_id and same date (day-level)
+    const readingDateForCheck = meter_reading_date ? new Date(meter_reading_date) : new Date();
+    const startOfDay = new Date(readingDateForCheck);
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date(readingDateForCheck);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    const existing = await prisma.meter_reading.findFirst({
+      where: {
+        project_id: parseInt(project_id),
+        is_deleted: 0,
+        meter_reading_date: {
+          gte: startOfDay,
+          lte: endOfDay,
+        },
+      },
+    });
+
+    if (existing) {
+      return res.status(409).json({
+        success: false,
+        message: t(language, 'response_messages.meter_reading_already_exists_for_this_date', 'A meter reading already exists for this project on the selected date'),
+      });
+    }
+
     // Upload image - prefer S3
     let imagePath = null;
     const s3Enabled = await isS3Enabled();

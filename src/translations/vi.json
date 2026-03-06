@@ -2286,6 +2286,7 @@
     "messageSentSuccessfully": "Tin nhắn đã được gửi thành công",
     "failedToSendMessage": "Không thể gửi tin nhắn",
     "paymentSubmittedSuccessfully": "Thanh toán đã được gửi thành công",
-    "invoicePDFNotAvailable": "Hóa đơn PDF không khả dụng"
+    "invoicePDFNotAvailable": "Hóa đơn PDF không khả dụng",
+    "meter_reading_already_exists_for_this_date": "Chỉ số công tơ điện cho ngày này đã có sẵn."
   }
 }

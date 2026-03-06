@@ -2338,6 +2338,7 @@
     "messageSentSuccessfully":"Message sent successfully",
     "failedToSendMessage":"Failed to send message",
     "paymentSubmittedSuccessfully":"Payment submitted successfully",
-    "invoicePDFNotAvailable":"Invoice PDF not available"
+    "invoicePDFNotAvailable":"Invoice PDF not available",
+    "meter_reading_already_exists_for_this_date":"Meter reading already exists for this date."
   }
 }
