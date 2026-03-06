@@ -805,8 +805,8 @@
       "subtitle": "Khám phá các dự án năng lượng mặt trời hàng đầu",
       "viewDetails": "Xem chi tiết",
       "investNow": "Đầu tư ngay",
-      "openForLease": "Dự án mở để cho thuê",
-      "forResale": "Dự án để bán lại",
+      "openForLease": "Một số dự án được chọn đang cho thuê.",
+      "forResale": "Các dự án được chọn để bán lại",
       "kwhGenerated": "kWh đã tạo",
       "roi": "ROI",
       "expectedRevenue": "Doanh thu hàng năm dự kiến",
@@ -835,8 +835,8 @@
       "projects": "dự án",
       "project": "dự án",
       "matching": "khớp",
-      "openForLease": "Dự án mở để cho thuê",
-      "forResale": "Dự án để bán lại",
+      "openForLease": "Một số dự án được chọn đang cho thuê.",
+      "forResale": "Các dự án được chọn để bán lại",
       "forLeaseBadge": "Cho thuê",
       "forResaleBadge": "Bán lại",
       "systemSize": "Kích thước hệ thống",
@@ -1384,6 +1384,10 @@
     "email_address": "Địa chỉ email"
   },
   "invoice": {
+    "invoiceCannotBeDeleted": "Bạn không thể xóa hóa đơn này vì nó đã được thanh toán.",
+    "invoicePDFNotAvailable": "Hóa đơn PDF không khả dụng",
+    "unableToDownloadInvoicePDF": "Không thể tải xuống hóa đơn PDF",
+    "downloadInvoicePDF": "Tải xuống hóa đơn PDF",
     "item": "Mục",
     "invoiceto": "Hóa đơn cho",
     "invoice": "HÓA ĐƠN",
@@ -1700,6 +1704,7 @@
     "markAsInvestor": "Gán nhà đầu tư"
   },
   "contract": {
+    "backToContract": "Quay lại hợp đồng",
     "signedDocument": "Tài liệu đã ký",
     "contract_summary": "Tóm tắt hợp đồng",
     "contract": "Hợp đồng",
@@ -2092,7 +2097,13 @@
     "email_templates": "Mẫu email",
     "finance_settings": "Cài đặt tài chính",
     "miscellaneous": "Linh tinh",
-    "roi_report": "Báo cáo ROI"
+    "roi_report": "Báo cáo ROI",
+    "inverter": "Biến tần",
+    "finance": "Tài chính",
+    "reports": "Báo cáo",
+    "capital_recovery_report": "Báo cáo khôi phục vốn",
+    "settings": "Cài đặt",
+    "portfolio": "Portfolio"
   },
   "roles_capabilities": {
     "view": "Xem",

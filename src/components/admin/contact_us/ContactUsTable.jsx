@@ -123,6 +123,43 @@ const ContactUsTable = () => {
       {
         accessorKey: "full_name",
         header: () => lang("contactUs.fullNameTable") || "Full Name",
+        cell: ({ row }) => (
+          <Box>
+            <Typography sx={{ fontWeight: 600, fontSize: "0.875rem" }}>
+              <button
+                type="button"
+                className="btn btn-link p-0 m-0 d-flex align-items-center gap-1 small"
+                style={{ textDecoration: "none", color: "#1976d2" }}
+                onClick={() => handleView(row.original)}
+              >
+                {row.original.full_name}
+              </button>
+            </Typography>
+
+            <Stack direction="row" spacing={1} mt={0.5} alignItems="center">
+                <button
+                  type="button"
+                  className="btn btn-link p-0 m-0 d-flex align-items-center gap-1 small"
+                  style={{ textDecoration: "none", color: "#17c666" }}
+                  onClick={() => handleEdit(row.original)}
+                >
+                  <FiEdit size={14} />
+                  {lang("common.edit", "Edit")}
+                </button>
+                <span className="text-muted">|</span>
+                <button
+                  type="button"
+                  className="btn btn-link p-0 m-0 d-flex align-items-center gap-1 small"
+                  style={{ textDecoration: "none", color: "#dc3545" }}
+                  onClick={() => handleDelete(row.original.id)}
+                >
+                  <FiTrash2 size={14} />
+                  {lang("common.delete", "Delete")}
+                </button>
+            </Stack>
+          </Box>
+        ),
+        meta: { disableSort: true },
       },
       {
         accessorKey: "email",

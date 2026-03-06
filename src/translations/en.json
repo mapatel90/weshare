@@ -819,8 +819,8 @@
       "subtitle": "Discover top solar projects",
       "viewDetails": "View Details",
       "investNow": "Invest Now",
-      "openForLease": "Projects Open for Lease",
-      "forResale": "Projects for Resale",
+      "openForLease": "Selected Projects Open For Lease",
+      "forResale": "Selected Projects For Resales",
       "kwhGenerated": "kWh Generated",
       "roi": "ROI",
       "expectedRevenue": "Expected Annual Revenue",
@@ -849,8 +849,8 @@
       "projects": "projects",
       "project": "Project",
       "matching": "matching",
-      "openForLease": "Projects Open for Lease",
-      "forResale": "Project For Resale",
+      "openForLease": "Selected Projects Open For Lease",
+      "forResale": "Selected Projects For Resales",
       "forLeaseBadge": "For Lease",
       "forResaleBadge": "For Resale",
       "systemSize": "System Size",
@@ -1423,6 +1423,10 @@
     "email_address": "Email Address"
   },
   "invoice": {
+    "invoiceCannotBeDeleted": "You can not delete this invoice because it is paid.",
+    "invoicePDFNotAvailable": "Invoice PDF not available",
+    "unableToDownloadInvoicePDF": "Unable to download invoice PDF",
+    "downloadInvoicePDF": "Download Invoice PDF",
     "item": "Item",
     "invoiceto": "Invoice To",
     "invoice": "INVOICE",
@@ -1743,6 +1747,7 @@
     "markAsInvestor": "Mark as Investor"
   },
   "contract": {
+    "backToContract": "Back to Contracts",
     "signedDocument": "Signed Document",
     "contract_summary": "Contract Summary",
     "contract": "Contract",
@@ -2145,7 +2150,13 @@
     "email_templates": "Email Templates",
     "finance_settings": "Finance Settings",
     "miscellaneous": "Miscellaneous",
-    "roi_report": "ROI Report"
+    "roi_report": "ROI Report",
+    "inverter": "Inverter",
+    "finance": "Finance",
+    "reports": "Reports",
+    "capital_recovery_report": "Capital Recovery Report",
+    "settings": "Settings",
+    "portfolio": "Portfolio"
   },
   "roles_capabilities": {
     "view": "View",

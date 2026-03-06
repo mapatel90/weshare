@@ -8,6 +8,18 @@ import { apiGet } from "@/lib/api";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { buildUploadUrl } from "@/utils/common";
 
+const getYouTubeEmbedId = (url) => {
+  if (!url) return null;
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+  ];
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match) return match[1];
+  }
+  return null;
+};
+
 const NewsSection = () => {
   const { lang } = useLanguage();
   const [newsData, setNewsData] = useState([]);
@@ -64,8 +76,16 @@ const NewsSection = () => {
                   data-aos-duration={1000 + index * 200}
                 >
                   <div className="newsBox">
-                    <span style={{ height: '200px' }}>
-                      {isDynamic ? (
+                    <span style={{ height: '200px', display: 'block', overflow: 'hidden' }}>
+                      {isDynamic && item?.url && getYouTubeEmbedId(item.url) ? (
+                        <iframe
+                          src={`https://www.youtube.com/embed/${getYouTubeEmbedId(item.url)}`}
+                          title={item.title || "news video"}
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                          style={{ width: '100%', height: '200px', border: 'none' }}
+                        />
+                      ) : isDynamic ? (
                         <img
                           src={buildUploadUrl(item?.image)}
                           alt={item.title || "news"}
@@ -76,7 +96,7 @@ const NewsSection = () => {
                         />
                       ) : (
                         <Image
-                          src={item?.image}
+                          src={buildUploadUrl(item?.image)}
                           alt="news"
                           className="img-thubnail"
                           width={400}

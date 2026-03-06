@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { FiTrash2, FiEdit3, FiPlus, FiShield } from "react-icons/fi";
 import Table from "@/components/shared/table/Table";
 import RoleHeaderSetting from "./RoleHeader";
-import { showSuccessToast } from "@/utils/topTost";
+import { showSuccessToast, showErrorToast } from "@/utils/topTost";
 import Swal from "sweetalert2";
 import {
   Dialog,
@@ -123,12 +123,7 @@ const RoleTable = () => {
       }
     } catch (err) {
       console.error("Role save error:", err.message);
-
-      if (err.message) {
-        showSuccessToast(err.message); // 👈 SAME SUCCESS TOAST
-      } else {
-        showSuccessToast("Something went wrong");
-      }
+      showErrorToast(err.message || "Something went wrong");
     }
   };
 

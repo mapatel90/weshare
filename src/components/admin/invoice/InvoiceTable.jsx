@@ -178,7 +178,7 @@ const InvoiceTable = () => {
   const handleDelete = async (invoice) => {
     if (Number(invoice?.status) === 1) {
       await Swal.fire({
-        title: "You can not delete this invoice.",
+        title: lang("invoice.invoiceCannotBeDeleted"),
         icon: "error",
       });
       return;
@@ -255,14 +255,33 @@ const InvoiceTable = () => {
         const display = row.getValue("invoice_display") || "";
         if (!display.trim()) return "-";
         return (
-          <Link
-            href={`/admin/finance/invoice/view/${row.original.id}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ color: '#1976d2', textDecoration: 'none', fontWeight: 500 }}
-          >
-            {display}
-          </Link>
+          <>
+            <div className="d-flex flex-column">
+              <Link
+                href={`/admin/finance/invoice/view/${row.original.id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-500 hover:text-blue-700 fw-semibold"
+              >
+                {display}
+              </Link>
+              <div className="d-flex flex-row align-items-center gap-1">
+                <Link href={`/admin/finance/invoice/edit/${row.original.id}`} rel="noopener noreferrer" className="d-flex align-items-center gap-1 small" style={{ textDecoration: "none", color: "#17c666" }}>
+                  <FiEdit3 />
+                  {lang("common.edit", "Edit")}
+                </Link>
+                <span className="text-muted">|</span>
+                <button
+                  type="button"
+                  className="btn btn-link p-0 m-0 d-flex align-items-center gap-1 small"
+                  style={{ textDecoration: "none", color: "#dc3545" }}
+                  onClick={() => handleDelete(row.original)}
+                >
+                  <FiTrash2 /> {lang("common.delete", "Delete")}
+                </button>
+              </div>
+            </div>
+          </>
         );
       },
     },

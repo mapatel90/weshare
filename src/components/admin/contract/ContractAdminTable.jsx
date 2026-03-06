@@ -148,7 +148,9 @@ const ContractAdminTable = () => {
               textOverflow: "ellipsis",
             }}
           >
-            {v}
+            <Link href={`/admin/contract/view/${info.row.original.id}`} rel="noopener noreferrer" className="text-blue-500 hover:text-blue-700 fw-semibold">
+              {v}
+            </Link>
           </div>
         );
       },

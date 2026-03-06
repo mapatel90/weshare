@@ -223,11 +223,18 @@ router.put('/:id', authenticateToken, async (req, res) => {
 
     if (!isOfftaker && !isInvestor) {
       const modulesWithActions = extractModulesWithActions(menuList);
+
+      // Extract settings sub-module names dynamically to default them to 0 for non-super-admin
+      const settingsMenu = menuList.find(m => m.permission === "settings" && Array.isArray(m.dropdownMenu));
+      const settingsModules = settingsMenu
+        ? extractModulesWithActions(settingsMenu.dropdownMenu).map(m => m.module)
+        : [];
+
       for (const { module, actions } of modulesWithActions) {
         for (const key of actions) {
           const value = isSuperAdmin
             ? 1
-            : module === "settings"
+            : settingsModules.includes(module)
               ? 0
               : key === "view"
                 ? 1

@@ -8,11 +8,9 @@ import { apiGet, apiDelete } from '@/lib/api'
 import { useRouter } from 'next/navigation'
 import Swal from 'sweetalert2'
 import { useLanguage } from '@/contexts/LanguageContext'
-import { Button } from '@mui/material'
+import { Button, Autocomplete, TextField } from '@mui/material'
 import { buildUploadUrl } from '@/utils/common'
 import usePermissions from '@/hooks/usePermissions'
-
-// Status mapping
 
 const UsersTable = () => {
   const { lang } = useLanguage();
@@ -35,12 +33,24 @@ const UsersTable = () => {
     role: '',
     status: ''
   })
+  const [roles, setRoles] = useState([])
   const [showQRModal, setShowQRModal] = useState(false)
   const [selectedQRCode, setSelectedQRCode] = useState(null)
   const router = useRouter()
   const { canDelete, canEdit } = usePermissions();
   const showActionColumn = canEdit("users") || canDelete("users");
 
+  // Fetch all roles for the filter dropdown
+  const fetchRoles = async () => {
+    try {
+      const res = await apiGet('/api/roles?limit=100')
+      if (res?.success && res?.data?.roles) {
+        setRoles(res.data.roles)
+      }
+    } catch (e) {
+      console.error('Error fetching roles:', e)
+    }
+  }
 
   // Fetch users
   const fetchUsers = async (page = 1, pageSize = PAGE_SIZE, search = '', role = '', status = '') => {
@@ -70,6 +80,13 @@ const UsersTable = () => {
     } finally {
       setLoading(false)
     }
+  }
+
+  // Search change from Table component
+  const handleSearchChange = (value) => {
+    const newFilters = { ...filters, search: value }
+    setFilters(newFilters)
+    fetchUsers(1, pageSize, value, newFilters.role, newFilters.status)
   }
 
   // Delete user
@@ -112,9 +129,10 @@ const UsersTable = () => {
     }
   }
 
-  // Load users on component mount
+  // Load users and roles on component mount
   useEffect(() => {
     fetchUsers(1, pageSize)
+    fetchRoles()
   }, [])
 
   // Pagination handler (for Table component)
@@ -149,15 +167,35 @@ const UsersTable = () => {
         const initials = `${user.full_name?.charAt(0) || ''}`
 
         return (
-          <div className="hstack gap-3">
-            <div className="text-white avatar-text user-avatar-text avatar-md">
-              {initials}
+          <>
+            <div className="hstack gap-3">
+              <div className="text-white avatar-text user-avatar-text avatar-md">
+                {initials}
+              </div>
+              <div>
+                <span className="text-truncate-1-line fw-bold">{fullName}</span>
+                <div className="fs-12 text-muted">{user.email}</div>
+              </div>
+              {/* <br /> */}
             </div>
-            <div>
-              <span className="text-truncate-1-line fw-bold">{fullName}</span>
-              <div className="fs-12 text-muted">{user.email}</div>
+            <div className="d-flex flex-column">
+              <div className="d-flex gap-2 mt-1">
+                <Link href={`/admin/users/edit?id=${user.id}`} rel="noopener noreferrer" className="text-blue-500 hover:text-blue-700 d-flex align-items-center gap-1 small" style={{ textDecoration: "none", color: "#17c666" }}>
+                  <FiEdit3 />
+                  {lang("common.edit", "Edit")}
+                </Link>
+                <span className="text-muted">|</span>
+                <button
+                  type="button"
+                  className="btn btn-link p-0 m-0 text-red-500 hover:text-red-700 d-flex align-items-center gap-1 small"
+                  style={{ textDecoration: "none", color: "#dc3545" }}
+                  onClick={() => handleDeleteUser(user.id, `${user?.full_name}`)}
+                >
+                  <FiTrash2 /> {lang("common.delete", "Delete")}
+                </button>
+              </div>
             </div>
-          </div>
+          </>
         )
       }
     },
@@ -296,16 +334,63 @@ const UsersTable = () => {
   ]
 
   return (
-    <div>
+
+    <div className="p-6 bg-white shadow-md rounded-3xl">
+      {/* Filters */}
+      <div className="flex-wrap items-center w-full gap-2 mt-4 mb-4 d-flex justify-content-between">
+        <div className="filter-button d-flex flex-column flex-md-row align-items-stretch align-items-md-center gap-2 gap-md-3 w-100">
+          <Autocomplete
+            size="small"
+            options={roles}
+            value={roles.find(r => String(r.id) === String(filters.role)) || null}
+            onChange={(e, newValue) => {
+              const newRole = newValue ? String(newValue.id) : ''
+              const newFilters = { ...filters, role: newRole, status: '' }
+              setFilters(newFilters)
+              fetchUsers(1, pageSize, newFilters.search, newRole, '')
+            }}
+            getOptionLabel={(option) => option.name ? option.name.charAt(0).toUpperCase() + option.name.slice(1) : ''}
+            isOptionEqualToValue={(option, value) => String(option.id) === String(value.id)}
+            renderInput={(params) => (
+              <TextField {...params} label={lang("common.all_roles", "All Roles")} placeholder={lang("common.all_roles", "All Roles")} />
+            )}
+            sx={{ width: { xs: '100%', md: 220 } }}
+          />
+          <Autocomplete
+            size="small"
+            options={[
+              { value: '1', label: lang("common.active", "Active") },
+              { value: '0', label: lang("common.inactive", "Inactive") },
+            ]}
+            value={
+              [{ value: '1', label: lang("common.active", "Active") }, { value: '0', label: lang("common.inactive", "Inactive") }]
+                .find(o => o.value === String(filters.status)) || null
+            }
+            onChange={(e, newValue) => {
+              const newStatus = newValue ? newValue.value : ''
+              const newFilters = { ...filters, status: newStatus }
+              setFilters(newFilters)
+              fetchUsers(1, pageSize, newFilters.search, newFilters.role, newStatus)
+            }}
+            getOptionLabel={(option) => option.label || ''}
+            renderInput={(params) => (
+              <TextField {...params} label={lang("common.all_status", "All Status")} placeholder={lang("common.all_status", "All Status")} />
+            )}
+            sx={{ width: { xs: '100%', md: 200 } }}
+          />
+        </div>
+      </div>
+
       {/* Table */}
       <div className="position-relative">
-        <Table 
-          data={users} 
+        <Table
+          data={users}
           columns={columns}
           serverSideTotal={pagination.total}
           pageIndex={pagination.page - 1}
           pageSize={pagination.limit}
           onPaginationChange={handlePaginationChange}
+          onSearchChange={handleSearchChange}
           initialPageSize={pagination.limit}
         />
       </div>
