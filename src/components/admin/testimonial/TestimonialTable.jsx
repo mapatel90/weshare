@@ -83,7 +83,7 @@ const TestimonialTable = () => {
 
     const fetchProjects = async () => {
         try {
-            const res = await apiPost("/api/projects/dropdown/project", { project_status_id: PROJECT_STATUS.RUNNING });
+            const res = await apiPost("/api/projects/dropdown/project");
             const items = Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : [];
             setProjectOptions(items);
         } catch (_) {

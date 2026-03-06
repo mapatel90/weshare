@@ -244,36 +244,44 @@ const InvoicePage = ({ invoiceId }) => {
   const handleModalSubmit = async (data) => {
     try {
       // Upload screenshot file to server
-      let uploadedImageUrl = "";
-      if (data.image) {
-        const formData = new FormData();
-        formData.append("file", data.image);
-        formData.append("folder", "payment");
+      // let uploadedImageUrl = "";
+      // if (data.image) {
+      //   const formData = new FormData();
+      //   formData.append("file", data.image);
+      //   formData.append("folder", "payment");
 
-        try {
-          const uploadResponse = await apiUpload("/api/upload", formData, { includeAuth: true });
-          if (uploadResponse?.success && uploadResponse?.data?.url) {
-            uploadedImageUrl = uploadResponse.data.url;
-          }
-        } catch (uploadError) {
-          console.error("Error uploading file:", uploadError);
-          alert("Failed to upload screenshot. Please try again.");
-          return;
-        }
-      }
+      //   try {
+      //     const uploadResponse = await apiUpload("/api/upload", formData, { includeAuth: true });
+      //     if (uploadResponse?.success && uploadResponse?.data?.url) {
+      //       uploadedImageUrl = uploadResponse.data.url;
+      //     }
+      //   } catch (uploadError) {
+      //     console.error("Error uploading file:", uploadError);
+      //     alert("Failed to upload screenshot. Please try again.");
+      //     return;
+      //   }
+      // }
 
       // Create payment record in database
       const amountString = summary?.total?.replace(/[^\d.]/g, "") || "0";
-      const paymentData = {
-        invoice_id: invoiceId,
-        offtaker_id: user?.id,
-        ss_url: uploadedImageUrl,
-        amount: Number(amountString),
-        status: 0, // Pending status
-        created_by: user?.id,
-      };
+      // const paymentData = {
+      //   invoice_id: invoiceId,
+      //   offtaker_id: user?.id,
+      //   ss_url: data.image,
+      //   amount: Number(amountString),
+      //   status: 0, // Pending status
+      //   created_by: user?.id,
+      // };
+      const formData = new FormData();
+      formData.append("file", data.image);
+      formData.append("folder", "payment");
+      formData.append("invoice_id", invoiceId);
+      formData.append("offtaker_id", user?.id);
+      formData.append("amount", Number(amountString));
+      formData.append("status", 0);
+      formData.append("created_by", user?.id);
 
-      const paymentResponse = await apiPost("/api/payments", paymentData, { includeAuth: true });
+      const paymentResponse = await apiUpload("/api/payments", formData, { includeAuth: true });
 
       if (paymentResponse?.success) {
         // alert("Payment submitted successfully!");

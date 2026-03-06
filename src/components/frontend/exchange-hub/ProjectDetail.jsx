@@ -868,7 +868,7 @@ const ProjectDetail = ({ projectId }) => {
               </div>
 
               {/* Testimonials */}
-              {project.project_status_id === PROJECT_STATUS.RUNNING && (
+              {/* {project.project_status_id === PROJECT_STATUS.RUNNING && ( */}
                 <div className="testimonial-rightBox">
                   {/* NEW: show up to 3 testimonials related to this project */}
                   {testimonials.length > 0 ? (
@@ -897,7 +897,7 @@ const ProjectDetail = ({ projectId }) => {
                     ))
                   ) : (null)}
                 </div>
-              )}
+              {/* )} */}
             </div>
           </div>
         </div>

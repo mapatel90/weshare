@@ -1551,8 +1551,19 @@
     "next": "Tiếp theo",
     "relatedPosts": "Bài viết liên quan",
     "noRelatedPosts": "Không có bài viết liên quan nào",
+    "backToBlogs": "Quay lại Blog",
     "noBlogAvailable": "Không có blog nào có sẵn",
-    "noNewsAvailable": "Không có tin tức nào có sẵn"
+    "noNewsAvailable": "Không có tin tức nào có sẵn",
+    "mediaType": "Loại media",
+    "youtube": "YouTube",
+    "youtubeUrl": "URL YouTube",
+    "youtubeLink": "URL Youtube",
+    "youtubeUrlPlaceholder": "https://www.youtube.com/watch?v=...",
+    "youtubeUrlRequired": "URL YouTube là bắt buộc",
+    "youtubeUrlInvalid": "URL YouTube không hợp lệ",
+    "youtubeUrlEmpty": "URL YouTube không được để trống",
+    "youtubeUrlTooLong": "URL YouTube quá dài",
+    "backToNews": "Quay lại Tin tức"
   },
   "testimonial": {
     "title": "Lời chứng thực",
@@ -1589,7 +1600,9 @@
     "blogUpdatedSuccessfully": "Blog được cập nhật thành công",
     "blogDeletedSuccessfully": "Blog đã xóa thành công",
     "latestBlogs": "Blog mới nhất",
-    "blog": "Blog"
+    "blog": "Blog",
+    "youtubeUrl": "URL Youtube",
+    "youtubeUrlPlaceholder": "https://www.youtube.com/watch?v=..."
   },
   "contactUs": {
     "contactus": "Liên hệ với chúng tôi",
@@ -2264,6 +2277,8 @@
     "enterValidPhoneNumber": "Vui lòng nhập số điện thoại hợp lệ",
     "messageRequired": "Tin nhắn không được để trống",
     "messageSentSuccessfully": "Tin nhắn đã được gửi thành công",
-    "failedToSendMessage": "Không thể gửi tin nhắn"
+    "failedToSendMessage": "Không thể gửi tin nhắn",
+    "paymentSubmittedSuccessfully": "Thanh toán đã được gửi thành công",
+    "invoicePDFNotAvailable": "Hóa đơn PDF không khả dụng"
   }
 }

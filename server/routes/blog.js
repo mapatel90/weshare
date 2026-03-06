@@ -31,40 +31,45 @@ const upload = multer({
 
 router.post("/", authenticateToken, upload.single('blog_image'), async (req, res) => {
   try {
-    const { blog_title, blog_date, blog_description, blog_slug } = req.body;
-    const userId = req.user?.id; // Get user ID from authenticated token
+    const { blog_title, blog_date, blog_description, blog_slug, image_type, youtube_url } = req.body;
+    const userId = req.user?.id;
     const language = req.currentLanguage;
     
-    // Prefer uploaded file (S3 or local) or provided URL
-    let uploadedPath = req.body.blog_image || null;
+    let uploadedPath = null;
+    let youtubeUrlValue = null;
 
-    if (req.file) {
-      const s3Enabled = await isS3Enabled();
-      if (s3Enabled) {
-        try {
-          const s3Result = await uploadToS3(
-            req.file.buffer,
-            req.file.originalname,
-            req.file.mimetype,
-            { folder: 'blog', metadata: { uploadType: 'blog_image' } }
-          );
-          if (s3Result && s3Result.success) {
-            uploadedPath = s3Result.data.fileKey;
-          } else {
-            console.error('S3 upload failed:', s3Result);
+    if (image_type === "youtube") {
+      youtubeUrlValue = youtube_url || null;
+    } else {
+      uploadedPath = req.body.blog_image || null;
+      if (req.file) {
+        const s3Enabled = await isS3Enabled();
+        if (s3Enabled) {
+          try {
+            const s3Result = await uploadToS3(
+              req.file.buffer,
+              req.file.originalname,
+              req.file.mimetype,
+              { folder: 'blog', metadata: { uploadType: 'blog_image' } }
+            );
+            if (s3Result && s3Result.success) {
+              uploadedPath = s3Result.data.fileKey;
+            } else {
+              console.error('S3 upload failed:', s3Result);
+              return res.status(500).json({ success: false, message: t(language, "response_messages.s3_upload_failed") });
+            }
+          } catch (err) {
+            console.error('S3 upload error:', err);
             return res.status(500).json({ success: false, message: t(language, "response_messages.s3_upload_failed") });
           }
-        } catch (err) {
-          console.error('S3 upload error:', err);
-          return res.status(500).json({ success: false, message: t(language, "response_messages.s3_upload_failed") });
+        } else {
+          return res.status(500).json({ success: false, message: t(language, "response_messages.s3_disabled") });
         }
-      } else {
-        return res.status(500).json({ success: false, message: t(language, "response_messages.s3_disabled") });
       }
     }
 
-    // Basic validation
-    if (!blog_title || !blog_date || !uploadedPath || !blog_description || !blog_slug) {
+    // Basic validation — require either an image path or a YouTube URL
+    if (!blog_title || !blog_date || (!uploadedPath && !youtubeUrlValue) || !blog_description || !blog_slug) {
       return res.status(400).json({
         success: false,
         message: t(language, "response_messages.all_fields_are_required"),
@@ -81,6 +86,7 @@ router.post("/", authenticateToken, upload.single('blog_image'), async (req, res
         title: blog_title,
         date: formattedDate,
         image: uploadedPath,
+        url: youtubeUrlValue,
         description: blog_description,
         slug: blog_slug,
         created_by: userId,
@@ -207,7 +213,7 @@ router.delete("/:id", authenticateToken, async (req, res) => {
 router.put("/:id", authenticateToken, upload.single('blog_image'), async (req, res) => {
   try {
     const { id } = req.params;
-    const { blog_title, blog_date, blog_description, blog_slug } = req.body;
+    const { blog_title, blog_date, blog_description, blog_slug, image_type, youtube_url } = req.body;
     const language = req.currentLanguage;
 
     const formattedDate = new Date(blog_date);
@@ -215,9 +221,19 @@ router.put("/:id", authenticateToken, upload.single('blog_image'), async (req, r
       return res.status(400).json({ success: false, message: t(language, "response_messages.invalid_date_format") });
     }
 
-    // Determine new image path if uploaded (S3 or local)
-    let newImagePath = null;
-    if (req.file) {
+    const updateData = {
+      title: blog_title,
+      date: formattedDate,
+      description: blog_description,
+      slug: blog_slug,
+    };
+
+    if (image_type === "youtube") {
+      // Store YouTube URL and clear any existing image
+      updateData.url = youtube_url || null;
+      updateData.image = null;
+    } else if (req.file) {
+      // New image uploaded — upload to S3, clear YouTube URL
       const s3Enabled = await isS3Enabled();
       if (s3Enabled) {
         try {
@@ -228,15 +244,16 @@ router.put("/:id", authenticateToken, upload.single('blog_image'), async (req, r
             { folder: 'blog', metadata: { uploadType: 'blog_image_update', blogId: String(id) } }
           );
           if (s3Result && s3Result.success) {
-            newImagePath = s3Result.data.fileKey;
+            updateData.image = s3Result.data.fileKey;
+            updateData.url = null;
 
-            // delete old S3 file if previous image was remote
+            // Delete old S3 file if previous image was remote
             try {
               const existing = await prisma.blogs.findFirst({ where: { id: parseInt(id) } });
               if (existing?.image && existing.image.startsWith('http')) {
                 try {
-                  const url = new URL(existing.image);
-                  const key = decodeURIComponent(url.pathname.substring(1));
+                  const oldUrl = new URL(existing.image);
+                  const key = decodeURIComponent(oldUrl.pathname.substring(1));
                   await deleteFromS3(key);
                 } catch (delErr) {
                   console.error('Failed deleting old S3 blog image:', delErr.message || delErr);
@@ -256,17 +273,14 @@ router.put("/:id", authenticateToken, upload.single('blog_image'), async (req, r
       } else {
         return res.status(500).json({ success: false, message: t(language, "response_messages.s3_disabled") });
       }
+    } else {
+      // No new file, image type — keep existing image, clear YouTube URL
+      updateData.url = null;
     }
 
     const updatedBlog = await prisma.blogs.update({
       where: { id: parseInt(id) },
-      data: {
-        title: blog_title,
-        date: formattedDate,
-        ...(newImagePath ? { image: newImagePath } : {}),
-        description: blog_description,
-        slug: blog_slug,
-      },
+      data: updateData,
     });
 
     return res.status(200).json({ success: true, data: updatedBlog });

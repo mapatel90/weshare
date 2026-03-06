@@ -8,6 +8,12 @@ import { faCalendar, faAnglesLeft, faAnglesRight } from '@fortawesome/free-solid
 import { useLanguage } from '@/contexts/LanguageContext';
 import { buildUploadUrl, getFullImageUrl } from '@/utils/common';
 
+const getYoutubeVideoId = (url) => {
+  if (!url) return null;
+  const match = url.match(/(?:youtube\.com\/(?:[^/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?/\s]{11})/);
+  return match ? match[1] : null;
+};
+
 const BlogDetailLeftSection = ({ blog, previousBlog, nextBlog }) => {
   const { lang } = useLanguage();
 
@@ -42,7 +48,25 @@ const BlogDetailLeftSection = ({ blog, previousBlog, nextBlog }) => {
         {formatDate(blog.date)}
       </span>
 
-      {blog.image && (
+      {blog.url ? (() => {
+        const videoId = getYoutubeVideoId(blog.url);
+        return videoId ? (
+          <div className="ratio ratio-16x9 mb-4 rounded overflow-hidden">
+            <iframe
+              src={`https://www.youtube.com/embed/${videoId}`}
+              title={blog.title || 'Blog Video'}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              style={{ border: 'none' }}
+            />
+          </div>
+        ) : (
+          <a href={blog.url} target="_blank" rel="noopener noreferrer" className="d-block mb-4 text-break">
+            {blog.url}
+          </a>
+        );
+      })() : blog.image ? (
+        console.log(blog.image),
         <Image
           src={buildUploadUrl(blog?.image)}
           alt={blog.title || 'Blog Image'}
@@ -51,7 +75,7 @@ const BlogDetailLeftSection = ({ blog, previousBlog, nextBlog }) => {
           height={400}
           style={{ objectFit: 'cover' }}
         />
-      )}
+      ) : null}
 
       <div className="article-section">
         <div dangerouslySetInnerHTML={createMarkup(blog.description)} />

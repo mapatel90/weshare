@@ -34,47 +34,57 @@ const upload = multer({ storage });
 
 router.post("/", authenticateToken, upload.single('news_image'), async (req, res) => {
   try {
-    const { news_title, news_date, news_description, news_slug } = req.body;
-    const userId = req.user?.id; // Get user ID from authenticated token
-
+    const { news_title, news_date, news_description, news_slug, media_type, youtube_url } = req.body;
+    const userId = req.user?.id;
     const language = req.currentLanguage;
-    // Prefer uploaded file. If S3 enabled, try uploading file to S3 and use returned URL.
-    let uploadedPath = req.body.news_image || null;
-    if (req.file) {
-      const s3Enabled = await isS3Enabled();
-      if (s3Enabled) {
-        try {
-          const buffer = fs.readFileSync(req.file.path);
-          const s3Result = await uploadToS3(buffer, req.file.originalname, req.file.mimetype, {
-            folder: 'news',
-            metadata: { uploadedBy: String(req.user?.id || '') },
-          });
-          if (s3Result && s3Result.success) {
-            uploadedPath = s3Result.data.fileKey;
-          } else {
-            console.error('S3 upload failed:', s3Result);
+    const isYoutube = media_type === 'youtube';
+
+    let uploadedPath = null;
+    let youtubeUrlValue = null;
+
+    if (isYoutube) {
+      if (!youtube_url || !youtube_url.trim()) {
+        return res.status(400).json({ success: false, message: 'YouTube URL is required.' });
+      }
+      youtubeUrlValue = youtube_url.trim();
+    } else {
+      uploadedPath = req.body.news_image || null;
+      if (req.file) {
+        const s3Enabled = await isS3Enabled();
+        if (s3Enabled) {
+          try {
+            const buffer = fs.readFileSync(req.file.path);
+            const s3Result = await uploadToS3(buffer, req.file.originalname, req.file.mimetype, {
+              folder: 'news',
+              metadata: { uploadedBy: String(req.user?.id || '') },
+            });
+            if (s3Result && s3Result.success) {
+              uploadedPath = s3Result.data.fileKey;
+            } else {
+              console.error('S3 upload failed:', s3Result);
+              return res.status(500).json({ success: false, message: t(language, "response_messages.s3_upload_failed") });
+            }
+          } catch (err) {
+            console.error('S3 upload error for news image:', err?.message || err);
             return res.status(500).json({ success: false, message: t(language, "response_messages.s3_upload_failed") });
           }
-        } catch (err) {
-          console.error('S3 upload error for news image:', err?.message || err);
-          return res.status(500).json({ success: false, message: t(language, "response_messages.s3_upload_failed") });
+        } else {
+          return res.status(500).json({ success: false, message: t(language, "response_messages.s3_disabled") });
         }
-      } else {
-        return res.status(500).json({ success: false, message: t(language, "response_messages.s3_disabled") });
       }
-
+      if (!uploadedPath) {
+        return res.status(400).json({ success: false, message: t(language, "response_messages.all_fields_are_required") });
+      }
     }
 
-    // Basic validation
-    if (!news_title || !news_date || !uploadedPath || !news_description || !news_slug) {
+    if (!news_title || !news_date || !news_description || !news_slug) {
       return res.status(400).json({
         success: false,
         message: t(language, "response_messages.all_fields_are_required"),
       });
     }
 
-     const formattedDate = new Date(news_date); // "2025-11-11" → Date object
-
+    const formattedDate = new Date(news_date);
     if (isNaN(formattedDate)) {
       return res.status(400).json({
         success: false,
@@ -86,7 +96,8 @@ router.post("/", authenticateToken, upload.single('news_image'), async (req, res
       data: {
         title: news_title,
         date: formattedDate,
-        image: uploadedPath,
+        image: isYoutube ? null : uploadedPath,
+        url: isYoutube ? youtubeUrlValue : null,
         description: news_description,
         slug: news_slug,
         created_by: userId,
@@ -259,8 +270,9 @@ router.delete("/:id", authenticateToken, async (req, res) => {
 router.put("/:id", authenticateToken, upload.single('news_image'), async (req, res) => {
   try {
     const { id } = req.params;
-    const { news_title, news_date, news_description, news_slug } = req.body;  
+    const { news_title, news_date, news_description, news_slug, media_type, youtube_url } = req.body;
     const language = req.currentLanguage;
+    const isYoutube = media_type === 'youtube';
 
     const formattedDate = new Date(news_date);
     if (isNaN(formattedDate)) {
@@ -270,9 +282,15 @@ router.put("/:id", authenticateToken, upload.single('news_image'), async (req, r
       });
     }
 
-    // Determine new image path if uploaded (attempt S3 then fallback local)
     let newImagePath = null;
-    if (req.file) {
+    let newYoutubeUrl = null;
+
+    if (isYoutube) {
+      if (!youtube_url || !youtube_url.trim()) {
+        return res.status(400).json({ success: false, message: 'YouTube URL is required.' });
+      }
+      newYoutubeUrl = youtube_url.trim();
+    } else if (req.file) {
       const s3Enabled = await isS3Enabled();
       if (s3Enabled) {
         try {
@@ -283,7 +301,6 @@ router.put("/:id", authenticateToken, upload.single('news_image'), async (req, r
           });
           if (s3Result && s3Result.success) {
             newImagePath = s3Result.data.fileKey;
-            // try to remove local temp
             try { if (req.file && req.file.path && fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path); } catch(_){}
           } else {
             console.error('S3 upload failed:', s3Result);
@@ -327,9 +344,13 @@ router.put("/:id", authenticateToken, upload.single('news_image'), async (req, r
       data: {
         title: news_title,
         date: formattedDate,
-        ...(newImagePath ? { image: newImagePath } : {}),
         description: news_description,
         slug: news_slug,
+        ...(isYoutube
+          ? { url: newYoutubeUrl, image: null }
+          : newImagePath
+          ? { image: newImagePath, url: null }
+          : { url: null }),
       },
     });
 

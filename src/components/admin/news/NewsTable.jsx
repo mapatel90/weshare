@@ -2,7 +2,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import Table from "@/components/shared/table/Table";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { apiGet, apiPost, apiPut, apiDelete, apiUpload } from "@/lib/api";
+import { useAuth } from "@/contexts/AuthContext";
+import { apiGet, apiUpload, apiDelete } from "@/lib/api";
 import { showSuccessToast } from "@/utils/topTost";
 import Swal from "sweetalert2";
 import { FiEdit3, FiTrash2 } from "react-icons/fi";
@@ -17,12 +18,16 @@ import {
   Typography,
   Stack,
   Box,
+  FormControl,
+  FormLabel,
+  RadioGroup,
+  FormControlLabel,
+  Radio,
 } from "@mui/material";
 import { Close as CloseIcon } from "@mui/icons-material";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
-import { buildUploadUrl, getFullImageUrl } from "@/utils/common";
-import { useAuth } from "@/contexts/AuthContext";
+import { buildUploadUrl } from "@/utils/common";
 import usePermissions from "@/hooks/usePermissions";
 
 const NewsTable = () => {
@@ -41,10 +46,11 @@ const NewsTable = () => {
   const [newsDescription, setNewsDescription] = useState("");
   const [newsSlug, setNewsSlug] = useState("");
   const [slugChecking, setSlugChecking] = useState(false);
+  const [imageType, setImageType] = useState("image"); // "image" | "youtube"
+  const [youtubeUrl, setYoutubeUrl] = useState("");
   const { canEdit, canDelete } = usePermissions();
   const showActionColumn = canEdit("news") || canDelete("news");
 
-  // ---------- simple helpers ----------
   const clearError = (key) =>
     setErrors((prev) => (prev[key] ? { ...prev, [key]: "" } : prev));
 
@@ -75,7 +81,7 @@ const NewsTable = () => {
       setImagePreviewUrl(url);
       setNewsImage("");
     } else {
-      setImagePreviewUrl(getFullImageUrl(newsImage) || "");
+      setImagePreviewUrl(newsImage || "");
     }
   };
 
@@ -85,9 +91,14 @@ const NewsTable = () => {
     form.append("news_date", newsDate);
     form.append("news_description", newsDescription);
     form.append("news_slug", newsSlug);
+    form.append("media_type", imageType);
     if (user?.id) form.append("created_by", user.id);
-    if (newsImageFile) form.append("news_image", newsImageFile);
-    else if (!editingId && newsImage) form.append("news_image", newsImage);
+    if (imageType === "youtube") {
+      form.append("youtube_url", youtubeUrl);
+    } else {
+      if (newsImageFile) form.append("news_image", newsImageFile);
+      else if (!editingId && newsImage) form.append("news_image", newsImage);
+    }
     return form;
   };
 
@@ -100,6 +111,8 @@ const NewsTable = () => {
     setImagePreviewUrl("");
     setNewsDescription("");
     setNewsSlug("");
+    setImageType("image");
+    setYoutubeUrl("");
     setErrors({});
   };
 
@@ -146,7 +159,6 @@ const NewsTable = () => {
     };
   }, []);
 
-  // Open modal listener (both add and edit)
   useEffect(() => {
     const openEdit = (e) => {
       const item = e?.detail?.item;
@@ -164,6 +176,9 @@ const NewsTable = () => {
       setImagePreviewUrl(buildUploadUrl(item?.image) || "");
       setNewsDescription(item?.description || "");
       setNewsSlug(item?.slug || "");
+      const hasYoutube = !!item?.url;
+      setImageType(hasYoutube ? "youtube" : "image");
+      setYoutubeUrl(item?.url || "");
       setErrors({});
     };
     if (typeof window !== "undefined") {
@@ -190,9 +205,7 @@ const NewsTable = () => {
     try {
       const res = await apiDelete(`/api/news/${id}`);
       if (res?.success) {
-        showSuccessToast(
-          lang("news.newsDeletedSuccessfully") || "Deleted successfully"
-        );
+        showSuccessToast(lang("news.newsDeletedSuccessfully") || "Deleted successfully");
         fetchNews();
       }
     } catch (e) {
@@ -202,27 +215,18 @@ const NewsTable = () => {
 
   const validate = () => {
     const required = (v, fallback) => (v ? "" : fallback);
+    let mediaError = "";
+    if (imageType === "youtube") {
+      mediaError = youtubeUrl ? "" : (lang("validation.youtubeUrlRequired") || "YouTube URL is required");
+    } else {
+      mediaError = !editingId && !(newsImageFile || newsImage) ? (lang("validation.newsImageRequired") || "Image is required") : "";
+    }
     const newErrors = {
-      newsTitle: required(
-        newsTitle,
-        lang("validation.newsTitleRequired") || "Title is required"
-      ),
-      newsDate: required(
-        newsDate,
-        lang("validation.newsDateRequired") || "Date is required"
-      ),
-      newsImage:
-        !editingId && !(newsImageFile || newsImage)
-          ? lang("validation.newsImageRequired") || "Image is required"
-          : "",
-      newsDescription: required(
-        newsDescription,
-        lang("validation.newsDescriptionRequired") || "Description is required"
-      ),
-      newsSlug: required(
-        newsSlug,
-        lang("validation.newsSlugRequired") || "Slug is required"
-      ),
+      newsTitle: required(newsTitle, lang("validation.newsTitleRequired") || "Title is required"),
+      newsDate: required(newsDate, lang("validation.newsDateRequired") || "Date is required"),
+      newsImage: mediaError,
+      newsDescription: required(newsDescription, lang("validation.newsDescriptionRequired") || "Description is required"),
+      newsSlug: required(newsSlug, lang("validation.newsSlugRequired") || "Slug is required"),
     };
     setErrors(newErrors);
     return !Object.values(newErrors).some(Boolean);
@@ -245,8 +249,8 @@ const NewsTable = () => {
       if (res?.success) {
         showSuccessToast(
           editingId
-            ? lang("news.newsUpdatedSuccessfully") || "Updated successfully"
-            : lang("news.newsCreatedSuccessfully") || "Created successfully"
+            ? (lang("news.newsUpdatedSuccessfully") || "Updated successfully")
+            : (lang("news.newsCreatedSuccessfully") || "Created successfully")
         );
         if (typeof window !== "undefined") {
           window.dispatchEvent(new CustomEvent("news:saved"));
@@ -267,49 +271,46 @@ const NewsTable = () => {
 
   const columns = useMemo(
     () => [
-      {
-        accessorKey: "title",
-        header: () => lang("news.title") || "Title",
-      },
+      { accessorKey: "title", header: () => lang("news.title") || "Title" },
       {
         accessorKey: "date",
         header: () => lang("news.enddate") || "Date",
         cell: ({ row }) => {
-          const d = row.original.date
-            ? new Date(row.original.date)
-            : null;
+          const d = row.original.date ? new Date(row.original.date) : null;
           return d ? d.toLocaleDateString() : "";
         },
       },
       {
         accessorKey: "image",
-        header: () => lang("news.image"),
+        header: () => lang("news.image") || "Image",
         cell: ({ row }) => {
           const src = row.original.image;
+          const ytUrl = row.original.url;
+          if (ytUrl) {
+            return (
+              <a
+                href={ytUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ display: "inline-flex", alignItems: "center", gap: 4, color: "#d32f2f", fontWeight: 500, fontSize: 13, textDecoration: "none" }}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+                </svg>
+                YouTube
+              </a>
+            );
+          }
           if (!src) return "";
           return (
             <img
               src={buildUploadUrl(src)}
               alt="news"
-              style={{
-                width: 48,
-                height: 32,
-                objectFit: "cover",
-                borderRadius: 4,
-              }}
+              style={{ width: 48, height: 32, objectFit: "cover", borderRadius: 4 }}
             />
           );
         },
       },
-      // { accessorKey: "news_slug", header: () => lang("news.slug") || "Slug" },
-      // {
-      //   accessorKey: "news_description",
-      //   header: () => lang("news.description") || "Description",
-      //   cell: ({ row }) => {
-      //     const t = row.original.news_description || "";
-      //     return t.length > 80 ? `${t.slice(0, 80)}…` : t;
-      //   },
-      // },
       ...(showActionColumn ? [
         {
           accessorKey: "actions",
@@ -323,18 +324,13 @@ const NewsTable = () => {
                   onClick={() => {
                     const item = row.original;
                     if (typeof window !== "undefined") {
-                      window.dispatchEvent(
-                        new CustomEvent("news:open-edit", { detail: { item } })
-                      );
+                      window.dispatchEvent(new CustomEvent("news:open-edit", { detail: { item } }));
                     }
                   }}
                   sx={{
                     color: "#1976d2",
                     transition: "transform 0.2s ease",
-                    "&:hover": {
-                      backgroundColor: "rgba(25, 118, 210, 0.08)",
-                      transform: "scale(1.1)",
-                    },
+                    "&:hover": { backgroundColor: "rgba(25, 118, 210, 0.08)", transform: "scale(1.1)" },
                   }}
                 >
                   <FiEdit3 size={18} />
@@ -347,10 +343,7 @@ const NewsTable = () => {
                   sx={{
                     color: "#d32f2f",
                     transition: "transform 0.2s ease",
-                    "&:hover": {
-                      backgroundColor: "rgba(211, 47, 47, 0.08)",
-                      transform: "scale(1.1)",
-                    },
+                    "&:hover": { backgroundColor: "rgba(211, 47, 47, 0.08)", transform: "scale(1.1)" },
                   }}
                 >
                   <FiTrash2 size={18} />
@@ -368,31 +361,12 @@ const NewsTable = () => {
     <>
       <Table data={newsData} columns={columns} />
 
-      <Dialog
-        open={!!modalMode}
-        onClose={handleCloseModal}
-        maxWidth="md"
-        fullWidth
-        PaperProps={{ sx: { borderRadius: 2 } }}
-      >
-        <DialogTitle
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            pb: 1,
-          }}
-        >
+      <Dialog open={!!modalMode} onClose={handleCloseModal} maxWidth="md" fullWidth PaperProps={{ sx: { borderRadius: 2 } }}>
+        <DialogTitle sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", pb: 1 }}>
           <Typography variant="h6" component="span">
-            {modalMode === "edit"
-              ? lang("news.editNews") || "Edit News"
-              : lang("news.addNews") || "Add News"}
+            {modalMode === "edit" ? (lang("news.editNews") || "Edit News") : (lang("news.addNews") || "Add News")}
           </Typography>
-          <IconButton
-            aria-label="close"
-            onClick={handleCloseModal}
-            sx={{ color: (theme) => theme.palette.grey[500] }}
-          >
+          <IconButton aria-label="close" onClick={handleCloseModal} sx={{ color: (theme) => theme.palette.grey[500] }}>
             <CloseIcon />
           </IconButton>
         </DialogTitle>
@@ -407,7 +381,6 @@ const NewsTable = () => {
                 setNewsTitle(val);
                 setNewsSlug(newSlug);
                 clearError("newsTitle");
-
                 setErrors((prev) => (prev && prev.newsSlug ? { ...prev, newsSlug: "" } : prev));
               }}
               onBlur={async () => {
@@ -423,7 +396,7 @@ const NewsTable = () => {
             />
 
             <TextField
-              label={lang("news.slug")}
+              label={lang("news.slug") || "Slug"}
               value={newsSlug}
               disabled
               error={!!errors.newsSlug}
@@ -436,10 +409,7 @@ const NewsTable = () => {
               type="date"
               InputLabelProps={{ shrink: true }}
               value={newsDate}
-              onChange={(e) => {
-                setNewsDate(e.target.value);
-                clearError("newsDate");
-              }}
+              onChange={(e) => { setNewsDate(e.target.value); clearError("newsDate"); }}
               onClick={(e) => e.target.showPicker && e.target.showPicker()}
               error={!!errors.newsDate}
               helperText={errors.newsDate}
@@ -447,120 +417,82 @@ const NewsTable = () => {
             />
 
             <Box>
-              {/* <Typography
-                variant="subtitle1"
-                sx={{ mb: 1, fontWeight: 500, color: "text.secondary" }}
-              >
-                {lang("news.image") || "Image"}
-              </Typography> */}
+              <FormControl component="fieldset">
+                <FormLabel component="legend" sx={{ mb: 0.5, fontSize: 14 }}>
+                  {lang("news.mediaType") || "Media Type"}
+                </FormLabel>
+                <RadioGroup
+                  row
+                  value={imageType}
+                  onChange={(e) => {
+                    setImageType(e.target.value);
+                    clearError("newsImage");
+                  }}
+                >
+                  <FormControlLabel value="image" control={<Radio size="small" />} label={lang("news.image") || "Image"} />
+                  <FormControlLabel value="youtube" control={<Radio size="small" />} label={lang("news.youtubeLink") || "YouTube Link"} />
+                </RadioGroup>
+              </FormControl>
 
-              <TextField
-                fullWidth
-                type="file"
-                inputProps={{ accept: "image/*" }}
-                label={lang("news.image") || "Upload Image"}
-                InputLabelProps={{ shrink: true }}
-                onChange={(e) => {
-                  const file = (e.target.files && e.target.files[0]) || null;
-                  applyImageSelection(file);
-                  clearError("newsImage");
-                }}
-                error={!!errors.newsImage}
-                helperText={errors.newsImage}
-              />
-
-              {(imagePreviewUrl || newsImage) && (
-                <Box sx={{ mt: 1 }}>
-                  <img
-                    src={imagePreviewUrl || newsImage}
-                    alt="preview"
-                    style={{
-                      width: 160,
-                      height: 100,
-                      objectFit: "cover",
-                      borderRadius: 6,
-                      border: "1px solid #eee",
+              {imageType === "image" ? (
+                <>
+                  <TextField
+                    fullWidth
+                    type="file"
+                    inputProps={{ accept: "image/*" }}
+                    label={lang("news.image") || "Upload Image"}
+                    InputLabelProps={{ shrink: true }}
+                    onChange={(e) => {
+                      const file = (e.target.files && e.target.files[0]) || null;
+                      applyImageSelection(file);
+                      clearError("newsImage");
                     }}
+                    error={!!errors.newsImage}
+                    helperText={errors.newsImage}
+                    sx={{ mt: 1 }}
                   />
-                </Box>
+                  {(imagePreviewUrl || newsImage) && (
+                    <Box sx={{ mt: 1 }}>
+                      <img
+                        src={imagePreviewUrl || newsImage}
+                        alt="preview"
+                        style={{ width: 160, height: 100, objectFit: "cover", borderRadius: 6, border: "1px solid #eee" }}
+                      />
+                    </Box>
+                  )}
+                </>
+              ) : (
+                <TextField
+                  fullWidth
+                  label={lang("news.youtubeLink") || "YouTube URL"}
+                  value={youtubeUrl}
+                  onChange={(e) => { setYoutubeUrl(e.target.value); clearError("newsImage"); }}
+                  placeholder={lang("news.youtubeUrlPlaceholder") || "https://www.youtube.com/watch?v=..."}
+                  error={!!errors.newsImage}
+                  helperText={errors.newsImage}
+                  sx={{ mt: 1 }}
+                />
               )}
             </Box>
 
-            {/* <TextField
-              label={lang("news.description") || "Description"}
-              value={newsDescription}
-              onChange={(e) => {
-                setNewsDescription(e.target.value);
-                if (errors.newsDescription) setErrors((p) => ({ ...p, newsDescription: "" }));
-              }}
-              error={!!errors.newsDescription}
-              helperText={errors.newsDescription}
-              fullWidth
-              multiline
-              minRows={3}
-            /> */}
-
             <Box
               sx={{
-                '& .ck-editor__editable_inline': {
-                  minHeight: 360,
-                },
-                '& .ck-editor__editable_inline:focus': {
-                  minHeight: 360,
-                },
+                '& .ck-editor__editable_inline': { minHeight: 360 },
+                '& .ck-editor__editable_inline:focus': { minHeight: 360 },
               }}
             >
-              <Typography
-                variant="subtitle1"
-                sx={{ mb: 1, fontWeight: 500, color: "text.secondary" }}
-              >
+              <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 500, color: "text.secondary" }}>
                 {lang("news.description") || "Description"}
               </Typography>
 
               <CKEditor
-                editor={
-                  typeof window !== "undefined" && window.ClassicEditor
-                    ? window.ClassicEditor
-                    : ClassicEditor
-                }
+                editor={typeof window !== "undefined" && window.ClassicEditor ? window.ClassicEditor : ClassicEditor}
                 data={newsDescription}
-                onChange={(event, editor) => {
-                  setNewsDescription(editor.getData());
-                  clearError("newsDescription");
-                }}
+                onChange={(event, editor) => { setNewsDescription(editor.getData()); clearError("newsDescription"); }}
                 config={{
                   toolbar: {
                     items: [
-                      "heading",
-                      "|",
-                      "bold",
-                      "italic",
-                      "underline",
-                      "strikethrough",
-                      "fontSize",
-                      "fontFamily",
-                      "fontColor",
-                      "fontBackgroundColor",
-                      "highlight",
-                      "removeFormat",
-                      "|",
-                      "link",
-                      "blockQuote",
-                      "code",
-                      "codeBlock",
-                      "insertTable",
-                      "imageUpload",
-                      "mediaEmbed",
-                      "horizontalLine",
-                      "|",
-                      "alignment",
-                      "bulletedList",
-                      "numberedList",
-                      "outdent",
-                      "indent",
-                      "|",
-                      "undo",
-                      "redo",
+                      "heading", "|", "bold", "italic", "underline", "strikethrough", "fontSize", "fontFamily", "fontColor", "fontBackgroundColor", "highlight", "removeFormat", "|", "link", "blockQuote", "code", "codeBlock", "insertTable", "imageUpload", "mediaEmbed", "horizontalLine", "|", "alignment", "bulletedList", "numberedList", "outdent", "indent", "|", "undo", "redo"
                     ],
                     shouldNotGroupWhenFull: true,
                   },
@@ -568,11 +500,7 @@ const NewsTable = () => {
               />
 
               {errors.newsDescription && (
-                <Typography
-                  color="error"
-                  variant="caption"
-                  sx={{ mt: 0.5, display: "block" }}
-                >
+                <Typography color="error" variant="caption" sx={{ mt: 0.5, display: "block" }}>
                   {errors.newsDescription}
                 </Typography>
               )}
@@ -580,20 +508,10 @@ const NewsTable = () => {
           </Box>
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2.5 }}>
-          <Button
-            onClick={handleCloseModal}
-            color="error"
-            variant="outlined"
-            className="custom-orange-outline"
-          >
+          <Button onClick={handleCloseModal} color="error" variant="outlined" className="custom-orange-outline">
             {lang("common.cancel")}
           </Button>
-          <Button
-            onClick={handleSave}
-            variant="contained"
-            disabled={submitting}
-            className="common-grey-color"
-          >
+          <Button onClick={handleSave} variant="contained" disabled={submitting} className="common-grey-color">
             {submitting ? lang("common.loading") : lang("common.save")}
           </Button>
         </DialogActions>

@@ -48,6 +48,13 @@ function PannelSidebar() {
             </div>
             <div className="menu-section">
                 <Link
+                    href="/offtaker/meter-readings"
+                    className={`menu-item${activeMenu === 'meter-readings' ? ' active' : ''}`}
+                    onClick={handleClose}
+                >{lang("offtaker_login.sidebar.meterreadings")}</Link>
+            </div>
+            <div className="menu-section">
+                <Link
                     href="/offtaker/billings"
                     className={`menu-item${activeMenu === 'billings' ? ' active' : ''}`}
                     onClick={handleClose}

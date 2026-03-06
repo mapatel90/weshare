@@ -6,7 +6,13 @@ import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendar, faAnglesLeft, faAnglesRight } from '@fortawesome/free-solid-svg-icons';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { buildUploadUrl, getFullImageUrl } from '@/utils/common';
+import { buildUploadUrl } from '@/utils/common';
+
+const getYoutubeVideoId = (url) => {
+  if (!url) return null;
+  const match = url.match(/(?:youtube\.com\/(?:[^/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?/\s]{11})/);
+  return match ? match[1] : null;
+};
 
 const NewsDetailLeftSection = ({ news, previousNews, nextNews }) => {
   const { lang } = useLanguage();
@@ -29,7 +35,6 @@ const NewsDetailLeftSection = ({ news, previousNews, nextNews }) => {
     });
   };
 
-  // Parse HTML description if it exists
   const createMarkup = (html) => {
     return { __html: html || '' };
   };
@@ -42,7 +47,24 @@ const NewsDetailLeftSection = ({ news, previousNews, nextNews }) => {
         {formatDate(news.date)}
       </span>
 
-      {news.image && (
+      {news.url ? (() => {
+        const videoId = getYoutubeVideoId(news.url);
+        return videoId ? (
+          <div className="ratio ratio-16x9 mb-4 rounded overflow-hidden">
+            <iframe
+              src={`https://www.youtube.com/embed/${videoId}`}
+              title={news.title || 'News Video'}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              style={{ border: 'none' }}
+            />
+          </div>
+        ) : (
+          <a href={news.url} target="_blank" rel="noopener noreferrer" className="d-block mb-4 text-break">
+            {news.url}
+          </a>
+        );
+      })() : news.image ? (
         <Image
           src={buildUploadUrl(news?.image)}
           alt={news.title || 'News'}
@@ -51,7 +73,7 @@ const NewsDetailLeftSection = ({ news, previousNews, nextNews }) => {
           height={400}
           style={{ objectFit: 'cover' }}
         />
-      )}
+      ) : null}
 
       <div className="article-section">
         <div dangerouslySetInnerHTML={createMarkup(news.description)} />

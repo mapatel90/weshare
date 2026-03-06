@@ -14,6 +14,7 @@ model blogs {
   title       String?   @db.VarChar(255)
   date        DateTime @default(now())
   image       String?  @db.VarChar(255)
+  url         String?   @db.VarChar(255) 
   description String?
   slug        String?   @db.VarChar(255)
   is_deleted       Int      @default(0)
@@ -199,6 +200,7 @@ model news {
   image       String?  @db.VarChar(255)
   description String?
   slug        String?   @db.VarChar(255)
+  url         String?   @db.VarChar(255) 
   is_deleted       Int      @default(0)
   created_at       DateTime @default(now())
   updated_at       DateTime @default(now())
@@ -416,6 +418,7 @@ model projects {
   project_energy_days_data project_energy_days_data[]
   payouts              payouts[]
   project_documents    project_documents[]
+  meter_reading        meter_reading[]
 }
 
 model settings {
@@ -496,6 +499,7 @@ model users {
   created_notifications notifications[]       @relation("NotificationCreator")
   payouts              payouts[]
   investor_projects     projects[] @relation("ProjectInvestor")
+  meter_reading         meter_reading[]
 }
 
 model taxes {
@@ -657,4 +661,17 @@ model roles_permissions {
   role      roles?    @relation(fields: [role_id], references: [id])
 
   @@unique([role_id, module, key], name: "role_id_module_key")
+}
+
+model meter_reading {
+  id                 Int       @id @default(autoincrement())
+  project_id         Int?
+  offtaker_id        Int?
+  image              String?   @db.VarChar(500)
+  meter_reading_date DateTime? @db.Date
+  is_deleted         Int       @default(0)
+  created_at         DateTime  @default(now())
+
+  projects projects? @relation(fields: [project_id], references: [id])
+  users    users?    @relation(fields: [offtaker_id], references: [id])
 }

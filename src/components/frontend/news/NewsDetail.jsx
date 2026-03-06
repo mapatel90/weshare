@@ -6,8 +6,13 @@ import NewsDetailHeroSection from './section/NewsDetailHeroSection';
 import NewsDetailLeftSection from './section/NewsDetailLeftSection';
 import NewsDetailRightSection from './section/NewsDetailRightSection';
 import '@/components/frontend/news/styles/newsDetails.css';
+import Link from 'next/link';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const NewsDetail = ({ newsSlug }) => {
+  const { lang } = useLanguage();
   const [news, setNews] = useState(null);
   const [allNews, setAllNews] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -94,6 +99,18 @@ const NewsDetail = ({ newsSlug }) => {
 
       {/* Main Content */}
       <div className="container py-5">
+        <div className="mb-4 d-flex justify-content-end">
+          <Link
+            href="/frontend/news"
+            className="d-inline-flex align-items-center gap-2 text-decoration-none fw-semibold px-3 py-2 rounded"
+            style={{ color: '#F6A623', border: '1.5px solid #F6A623', transition: 'all 0.2s' }}
+            onMouseEnter={e => { e.currentTarget.style.background = '#F6A623'; e.currentTarget.style.color = '#fff'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#F6A623'; }}
+          >
+            <FontAwesomeIcon icon={faArrowLeft} />
+            {lang('news.backToNews') || 'Back to News'}
+          </Link>
+        </div>
         <div className="row article-row g-4">
           {/* Main Article */}
           <NewsDetailLeftSection

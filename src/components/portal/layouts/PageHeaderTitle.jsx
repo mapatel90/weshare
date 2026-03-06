@@ -54,6 +54,17 @@ const PageHeaderTitle = () => {
     else if (
         parts.length >= 2 &&
         parts[0] === "offtaker" &&
+        parts[1] === "meter-readings" 
+    ) {
+        title = lang("page_title.meterreadings", "Meter Readings");
+        breadcrumb = [
+            { name: lang("page_title.dashboard", "Dashboard"), href: "/offtaker/dashboard" },
+            { name: lang("menu.meterreadings", "Meter Readings"), href: "/offtaker/meter-readings" },
+        ];
+    }
+    else if (
+        parts.length >= 2 &&
+        parts[0] === "offtaker" &&
         parts[1] === "myprofile"
     ) {
         title = lang("page_title.myprofile", "My Profile");

@@ -37,6 +37,7 @@ import emailTemplateRoutes from "./routes/emailTemplate.js";
 import payoutsRoutes from "./routes/payouts.js";
 import s3SettingsRoutes from "./routes/s3Settings.js";
 import s3UploadRoutes from "./routes/s3Upload.js";
+import meterReadingRoutes from "./routes/meterReading.js";
 import inverterCompanyRoutes from "./routes/inverterCompany.js";
 
 // Load environment variables
@@ -135,6 +136,7 @@ app.use("/api/email-templates", emailTemplateRoutes);
 app.use("/api/payouts", payoutsRoutes);
 app.use("/api/s3-settings", s3SettingsRoutes);
 app.use("/api/s3-upload", s3UploadRoutes);
+app.use("/api/meter-reading", meterReadingRoutes);
 
 // 404 handler
 app.use((req, res) => {

@@ -18,6 +18,11 @@ import {
   Typography,
   Stack,
   Box,
+  FormControl,
+  FormLabel,
+  RadioGroup,
+  FormControlLabel,
+  Radio,
 } from "@mui/material";
 import { Close as CloseIcon } from "@mui/icons-material";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
@@ -41,6 +46,8 @@ const BlogTable = () => {
   const [blogDescription, setBlogDescription] = useState("");
   const [blogSlug, setBlogSlug] = useState("");
   const [slugChecking, setSlugChecking] = useState(false);
+  const [imageType, setImageType] = useState("image"); // "image" | "youtube"
+  const [youtubeUrl, setYoutubeUrl] = useState("");
   const { canEdit, canDelete } = usePermissions();
   const showActionColumn = canEdit("blog") || canDelete("blog");
 
@@ -84,9 +91,14 @@ const BlogTable = () => {
     form.append("blog_date", blogDate);
     form.append("blog_description", blogDescription);
     form.append("blog_slug", blogSlug);
+    form.append("image_type", imageType);
     if (user?.id) form.append("created_by", user.id);
-    if (blogImageFile) form.append("blog_image", blogImageFile);
-    else if (!editingId && blogImage) form.append("blog_image", blogImage);
+    if (imageType === "youtube") {
+      form.append("youtube_url", youtubeUrl);
+    } else {
+      if (blogImageFile) form.append("blog_image", blogImageFile);
+      else if (!editingId && blogImage) form.append("blog_image", blogImage);
+    }
     return form;
   };
 
@@ -99,6 +111,8 @@ const BlogTable = () => {
     setImagePreviewUrl("");
     setBlogDescription("");
     setBlogSlug("");
+    setImageType("image");
+    setYoutubeUrl("");
     setErrors({});
   };
 
@@ -162,6 +176,9 @@ const BlogTable = () => {
       setImagePreviewUrl(buildUploadUrl(item?.image) || "");
       setBlogDescription(item?.description || "");
       setBlogSlug(item?.slug || "");
+      const hasYoutube = !!item?.url;
+      setImageType(hasYoutube ? "youtube" : "image");
+      setYoutubeUrl(item?.url || "");
       setErrors({});
     };
     if (typeof window !== "undefined") {
@@ -198,10 +215,16 @@ const BlogTable = () => {
 
   const validate = () => {
     const required = (v, fallback) => (v ? "" : fallback);
+    let mediaError = "";
+    if (imageType === "youtube") {
+      mediaError = youtubeUrl ? "" : (lang("validation.youtubeUrlRequired") || "YouTube URL is required");
+    } else {
+      mediaError = !editingId && !(blogImageFile || blogImage) ? (lang("validation.blogImageRequired") || "Image is required") : "";
+    }
     const newErrors = {
       blogTitle: required(blogTitle, lang("validation.blogTitleRequired") || "Title is required"),
       blogDate: required(blogDate, lang("validation.blogDateRequired") || "Date is required"),
-      blogImage: !editingId && !(blogImageFile || blogImage) ? (lang("validation.blogImageRequired") || "Image is required") : "",
+      blogImage: mediaError,
       blogDescription: required(blogDescription, lang("validation.blogDescriptionRequired") || "Description is required"),
       blogSlug: required(blogSlug, lang("validation.blogSlugRequired") || "Slug is required"),
     };
@@ -262,6 +285,15 @@ const BlogTable = () => {
         header: () => lang("blog.image") || "Image",
         cell: ({ row }) => {
           const src = row.original.image;
+          const ytUrl = row.original.url;
+          if (ytUrl) {
+            return (
+              <a href={ytUrl} target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 4, color: "#d32f2f", fontWeight: 500, fontSize: 13, textDecoration: "none" }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                YouTube
+              </a>
+            );
+          }
           if (!src) return "";
           return (
             <img
@@ -379,29 +411,61 @@ const BlogTable = () => {
             />
 
             <Box>
-              <TextField
-                fullWidth
-                type="file"
-                inputProps={{ accept: "image/*" }}
-                label={lang("blog.image") || "Upload Image"}
-                InputLabelProps={{ shrink: true }}
-                onChange={(e) => {
-                  const file = (e.target.files && e.target.files[0]) || null;
-                  applyImageSelection(file);
-                  clearError("blogImage");
-                }}
-                error={!!errors.blogImage}
-                helperText={errors.blogImage}
-              />
+              <FormControl component="fieldset">
+                <FormLabel component="legend" sx={{ mb: 0.5, fontSize: 14 }}>
+                  {lang("blog.mediaType") || "Media Type"}
+                </FormLabel>
+                <RadioGroup
+                  row
+                  value={imageType}
+                  onChange={(e) => {
+                    setImageType(e.target.value);
+                    clearError("blogImage");
+                  }}
+                >
+                  <FormControlLabel value="image" control={<Radio size="small" />} label={lang("blog.image") || "Image"} />
+                  <FormControlLabel value="youtube" control={<Radio size="small" />} label={lang("blog.youtubeLink") || "YouTube Link"} />
+                </RadioGroup>
+              </FormControl>
 
-              {(imagePreviewUrl || blogImage) && (
-                <Box sx={{ mt: 1 }}>
-                  <img
-                    src={imagePreviewUrl || blogImage}
-                    alt="preview"
-                    style={{ width: 160, height: 100, objectFit: "cover", borderRadius: 6, border: "1px solid #eee" }}
+              {imageType === "image" ? (
+                <>
+                  <TextField
+                    fullWidth
+                    type="file"
+                    inputProps={{ accept: "image/*" }}
+                    label={lang("blog.image") || "Upload Image"}
+                    InputLabelProps={{ shrink: true }}
+                    onChange={(e) => {
+                      const file = (e.target.files && e.target.files[0]) || null;
+                      applyImageSelection(file);
+                      clearError("blogImage");
+                    }}
+                    error={!!errors.blogImage}
+                    helperText={errors.blogImage}
+                    sx={{ mt: 1 }}
                   />
-                </Box>
+                  {(imagePreviewUrl || blogImage) && (
+                    <Box sx={{ mt: 1 }}>
+                      <img
+                        src={imagePreviewUrl || blogImage}
+                        alt="preview"
+                        style={{ width: 160, height: 100, objectFit: "cover", borderRadius: 6, border: "1px solid #eee" }}
+                      />
+                    </Box>
+                  )}
+                </>
+              ) : (
+                <TextField
+                  fullWidth
+                  label={lang("blog.youtubeLink") || "YouTube URL"}
+                  value={youtubeUrl}
+                  onChange={(e) => { setYoutubeUrl(e.target.value); clearError("blogImage"); }}
+                  placeholder={lang("blog.youtubeUrlPlaceholder") || "https://www.youtube.com/watch?v=..."}
+                  error={!!errors.blogImage}
+                  helperText={errors.blogImage}
+                  sx={{ mt: 1 }}
+                />
               )}
             </Box>
 

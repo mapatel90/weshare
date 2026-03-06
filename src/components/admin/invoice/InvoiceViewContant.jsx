@@ -234,37 +234,45 @@ const InvoiceViewContant = ({ invoiceId }) => {
 
       // Upload screenshot first
       let ss_url = "";
-      if (data.image) {
-        const formData = new FormData();
-        formData.append("file", data.image);
-        formData.append("folder", "payment");
+      // if (data.image) {
+      //   const formData = new FormData();
+      //   formData.append("file", data.image);
+      //   formData.append("folder", "payment");
 
-        const uploadResponse = await apiUpload("/api/upload", formData);
-        if (uploadResponse?.success && uploadResponse?.data?.url) {
-          ss_url = uploadResponse.data.url;
-        } else {
-          throw new Error("Failed to upload screenshot");
-        }
-      }
+      //   const uploadResponse = await apiUpload("/api/upload", formData);
+      //   if (uploadResponse?.success && uploadResponse?.data?.url) {
+      //     ss_url = uploadResponse.data.url;
+      //   } else {
+      //     throw new Error("Failed to upload screenshot");
+      //   }
+      // }
 
       // Create payment record
       const amountString = summary?.total?.replace(/[^\d.]/g, "") || "0";
-      const paymentData = {
-        invoice_id: invoiceId,
-        offtaker_id: user?.id,
-        amount: Number(amountString) || 0,
-        ss_url: ss_url,
-        status: 1, // Paid status
-        created_by: user?.id,
-      };
+      // const paymentData = {
+      //   invoice_id: invoiceId,
+      //   offtaker_id: user?.id,
+      //   amount: Number(amountString) || 0,
+      //   ss_url: ss_url,
+      //   status: 1, // Paid status
+      //   created_by: user?.id,
+      // };
+      const formData = new FormData();
+      formData.append("file", data.image);
+      formData.append("folder", "payment");
+      formData.append("invoice_id", invoiceId);
+      formData.append("offtaker_id", user?.id);
+      formData.append("amount", Number(amountString));
+      formData.append("status", 0);
+      formData.append("created_by", user?.id);
 
-      const response = await apiPost("/api/payments", paymentData);
+      const response = await apiUpload("/api/payments", formData);
       if (!response?.success) {
         throw new Error(response?.message || "Payment creation failed");
       }
 
       // Show success message
-      showSuccessToast("Payment submitted successfully!");
+      showSuccessToast(lang("payments.paymentSubmittedSuccessfully", "Payment submitted successfully!"));
       setHasPayment(true);
       setModalOpen(false);
       router.push("/admin/finance/invoice");
@@ -280,7 +288,7 @@ const InvoiceViewContant = ({ invoiceId }) => {
     const fileUrl = buildUploadUrl(invoice?.pdf);
     if (!fileUrl) {
       Swal.fire({
-        title: "Invoice PDF not available",
+        title: lang("invoice.invoicePDFNotAvailable", "Invoice PDF not available"),
         icon: "info",
       });
       return;

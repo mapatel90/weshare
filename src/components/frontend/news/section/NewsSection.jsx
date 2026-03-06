@@ -8,6 +8,12 @@ import { faCalendar, faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { buildUploadUrl } from "@/utils/common";
 
+const getYoutubeVideoId = (url) => {
+  if (!url) return null;
+  const match = url.match(/(?:youtube\.com\/(?:[^/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?/\s]{11})/);
+  return match ? match[1] : null;
+};
+
 const NewsSection = () => {
   const { lang } = useLanguage();
 
@@ -54,12 +60,30 @@ const NewsSection = () => {
                 data-aos="fade-up"
                 data-aos-delay={index * 150}
               >
-                <div className="card h-100 border-0 shadow-0">
-                  <img
-                    src={buildUploadUrl(news.image) || "https://via.placeholder.com/400x250"}
-                    className="card-img-top"
-                    alt={news.title || "News Image"}
-                  />
+                <div className="card h-100 border-0 shadow-0 position-relative">
+                  {(() => {
+                    const videoId = getYoutubeVideoId(news.url);
+                    const src = videoId
+                      ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`
+                      : buildUploadUrl(news?.image);
+                    return (
+                      <>
+                        <img
+                          src={src}
+                          className="card-img-top"
+                          alt={news.title || "News Image"}
+                        />
+                        {videoId && (
+                          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 255, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.22)", pointerEvents: "none", zIndex: 1 }}>
+                            <svg width="56" height="40" viewBox="0 0 68 48" fill="none">
+                              <rect width="68" height="48" rx="12" fill="#FF0000" fillOpacity="0.9" />
+                              <polygon points="27,14 27,34 47,24" fill="white" />
+                            </svg>
+                          </div>
+                        )}
+                      </>
+                    );
+                  })()}
                   <div className="card-body news-info">
                     <span className="date d-block mb-3">
                       <FontAwesomeIcon icon={faCalendar} className="me-1" />

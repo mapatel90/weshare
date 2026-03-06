@@ -10,6 +10,7 @@ import AutoGraphOutlinedIcon from '@mui/icons-material/AutoGraphOutlined';
 import NoteAltOutlinedIcon from '@mui/icons-material/NoteAltOutlined';
 import HomeWorkOutlinedIcon from '@mui/icons-material/HomeWorkOutlined';
 import { usePathname } from 'next/navigation';
+import { ElectricMeter } from '@mui/icons-material';
 
 // function MainSidebar() {
 function MainSidebar() {
@@ -38,6 +39,9 @@ function MainSidebar() {
                 </Link>
                 <Link href="/offtaker/projects">
                     <div className={`icon-item${activeMenu === 'projects' ? ' active' : ''}`} data-menu="projects" title="Projects" onClick={() => setActiveMenu('projects')}><HomeWorkOutlinedIcon sx={{ color: '#9c27b0' }} /></div>
+                </Link>
+                <Link href="/offtaker/meter-readings">
+                    <div className={`icon-item${activeMenu === 'meter-readings' ? ' active' : ''}`} data-menu="meter-readings" title="Meter Readings" onClick={() => setActiveMenu('meter-readings')}><ElectricMeter sx={{ color: '#9c27b0' }} /></div>
                 </Link>
                 <Link href="/offtaker/billings">
                     <div className={`icon-item${activeMenu === 'billings' ? ' active' : ''}`} data-menu="billings" title="Billings" onClick={() => setActiveMenu('billings')}><ReceiptIcon sx={{ color: '#fb8c00' }} /></div>

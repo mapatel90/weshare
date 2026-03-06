@@ -251,7 +251,7 @@ const ProjectCard = ({ project, activeTab, isHome = false }) => {
 
             {/* ID */}
             <p className="id-image">
-              ID:{" "}
+              {lang("home.exchangeHub.id") || "ID"}{" "}
               {project?.product_code ||
                 project?.project_code ||
                 `PJT-${project?.id || "238"}`}
@@ -259,7 +259,7 @@ const ProjectCard = ({ project, activeTab, isHome = false }) => {
 
             {/* Offtaker */}
             <p className="offtaker-image">
-              {lang("home.exchangeHub.offtaker") || "Offtaker"}:{" "}
+              {lang("home.exchangeHub.offtaker") || "Offtaker"}{" "}
               {project?.offtaker?.full_name ||
                 project?.offtaker?.company_name ||
                 "Greenfield Academy"}
@@ -316,7 +316,7 @@ const ProjectCard = ({ project, activeTab, isHome = false }) => {
                   {lang("home.exchangeHub.fundProgress") || "Fund Progress"}:{" "}
                   <strong className="text-secondary-color">
 
-                    {project?.fund_progress || "45"}%
+                    {project?.fund_progress || 0}%
                   </strong>
                 </span>
                 <span className="time-left">
@@ -327,7 +327,7 @@ const ProjectCard = ({ project, activeTab, isHome = false }) => {
               <div className="progress-bar-container">
                 <div
                   className="progress-bar-fill"
-                  style={{ width: `${project?.fund_progress || 45}%` }}
+                  style={{ width: `${project?.fund_progress || 0}%` }}
                 ></div>
               </div>
             </div>
@@ -448,7 +448,7 @@ const ProjectCard = ({ project, activeTab, isHome = false }) => {
 
         {/* ID */}
         <p className="id">
-          ID:{" "}
+          {lang("home.exchangeHub.id") || "ID"}{" "}
           {project?.product_code ||
             project?.project_code ||
             `SE-${project?.id}`}
@@ -456,7 +456,7 @@ const ProjectCard = ({ project, activeTab, isHome = false }) => {
 
         {/* Offtaker */}
         <p className="offtaker">
-          {lang("home.exchangeHub.offtaker") || "Offtaker"}:{" "}
+          {lang("home.exchangeHub.offtaker") || "Offtaker"}{" "}
           {project?.offtaker?.full_name ||
             project?.offtaker?.company_name ||
             "Greenfield Academy"}

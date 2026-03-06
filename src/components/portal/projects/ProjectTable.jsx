@@ -19,6 +19,7 @@ import { useRouter } from "next/navigation";
 import { PROJECT_STATUS } from "@/constants/project_status";
 import { ROLES } from "@/constants/roles";
 import { useFormatPrice } from "@/hooks/useFormatPrice";
+import MeterReading from "./sections/MeterReading";
 
 const formatNumber = (value) => {
   if (!value && value !== 0) return "—";
@@ -44,6 +45,7 @@ const SolarProjectTable = () => {
   const [allProjects, setAllProjects] = useState([]); // start empty; no static fallback
   const [isLoading, setIsLoading] = useState(false);
   const [fetchError, setFetchError] = useState(null);
+  const [selectedProjectForMeter, setSelectedProjectForMeter] = useState(null);
 
   // pending values used inside dropdown inputs; only commit on Apply
   const [pendingDateStart, setPendingDateStart] = useState("");
@@ -553,6 +555,16 @@ const SolarProjectTable = () => {
                           </svg>
                           {lang("home.exchangeHub.viewDetails", "View Details")}
                         </a>
+
+                        {project.project_status_id === PROJECT_STATUS.RUNNING && (
+                          <button
+                            type="button"
+                            className="flex-1 px-4 py-2 bg-slate-800 text-white rounded-lg font-semibold hover:bg-slate-700 transition-colors text-sm flex items-center justify-center gap-1"
+                            onClick={() => setSelectedProjectForMeter(project)}
+                          >
+                            {lang("meter.meterReading", "Meter Reading")}
+                          </button>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -636,6 +648,12 @@ const SolarProjectTable = () => {
           </div>
         </div>
       </div>
+
+      <MeterReading
+        isOpen={!!selectedProjectForMeter}
+        project={selectedProjectForMeter}
+        onClose={() => setSelectedProjectForMeter(null)}
+      />
     </div>
   );
 };
