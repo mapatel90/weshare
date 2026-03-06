@@ -45,6 +45,8 @@ const upload = multer({
 });
 
 // List meter readings (with search + pagination)
+// When project_id is provided (e.g. admin view), list all readings for that project.
+// Otherwise offtaker_id is required and list is filtered by offtaker.
 router.get('/', authenticateToken, async (req, res) => {
   try {
     const language = req.currentLanguage;
@@ -55,20 +57,20 @@ router.get('/', authenticateToken, async (req, res) => {
     const limitRaw = Number.parseInt(req.query.limit, 10);
     const limit = Number.isFinite(limitRaw) && limitRaw > 0 ? Math.min(limitRaw, 100) : 10;
 
-    if (!offtakerId) {
-      return res.status(400).json({
-        success: false,
-        message: t(language, 'response_messages.offtaker_id_required', 'Offtaker id is required'),
-      });
-    }
-
     const where = {
       is_deleted: 0,
-      offtaker_id: parseInt(offtakerId, 10),
     };
 
     if (projectId) {
       where.project_id = parseInt(projectId, 10);
+    } else {
+      if (!offtakerId) {
+        return res.status(400).json({
+          success: false,
+          message: t(language, 'response_messages.offtaker_id_required', 'Offtaker id is required'),
+        });
+      }
+      where.offtaker_id = parseInt(offtakerId, 10);
     }
 
     if (search) {

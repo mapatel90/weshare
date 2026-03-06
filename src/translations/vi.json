@@ -1766,12 +1766,17 @@
     "deletedSuccessfullyReading": "Xóa chỉ số công tơ thành công",
     "readingDate": "Ngày ghi chỉ số",
     "screenImage": "Ảnh màn hình công tơ",
+    "offtaker": "Bên nhận hàng",
     "viewImage": "Xem ảnh",
     "viewCurrentImage": "Xem ảnh đã tải hiện tại",
     "selectProjectPlaceholder": "Chọn dự án...",
     "searchProject": "Tìm kiếm dự án...",
     "loadingProjects": "Đang tải danh sách dự án...",
-    "noProjectsFound": "Không tìm thấy dự án phù hợp."
+    "noProjectsFound": "Không tìm thấy dự án phù hợp.",
+    "projectOfftakerRequired": "Dự án phải có bên nhận hàng để thêm chỉ số công tơ.",
+    "changeImage": "Thay đổi ảnh",
+    "chooseImage": "Chọn ảnh",
+    "editReading": "Sửa chỉ số công tơ"
   },
   "reports": {
     "capacityPrice": "Giá công suất",

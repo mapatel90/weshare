@@ -1809,12 +1809,17 @@
     "deletedSuccessfullyReading": "Meter reading deleted successfully",
     "readingDate": "Meter Reading Date",
     "screenImage": "Screen Image",
+    "offtaker": "Offtaker",
     "viewImage": "View image",
     "viewCurrentImage": "View current uploaded image",
     "selectProjectPlaceholder": "Select project...",
     "searchProject": "Search project...",
     "loadingProjects": "Loading projects...",
-    "noProjectsFound": "No matching projects found."
+    "noProjectsFound": "No matching projects found.",
+    "projectOfftakerRequired": "Project must have an offtaker to add meter readings.",
+    "changeImage": "Change image",
+    "chooseImage": "Choose image",
+    "editReading": "Edit Reading"
   },
   "reports": {
     "capacityPrice": "Capacity Price",

@@ -20,6 +20,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import usePermissions from "@/hooks/usePermissions";
 import { PROJECT_STATUS } from "@/constants/project_status";
 import Link from "next/link";
+import { ElectricMeter } from "@mui/icons-material";
 
 const StatusDropdown = memo(({ value, onChange, options, disabled }) => {
   const statusOptions = Array.isArray(options) ? options : [];
@@ -301,6 +302,11 @@ const ProjectTable = () => {
             >
               <FiTrash2 size={13} /> {lang("common.delete", "Delete")}
             </button>
+            <span className="text-muted">|</span>
+            {/* meter reading */}
+            <a href={`/admin/projects/meter-readings/${info.row.original.id}`} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-700 d-flex align-items-center gap-1 small" style={{ textDecoration: "none"}}>
+              <ElectricMeter /> {lang("common.meterReading", "Meter Reading")}
+            </a>
           </div>
         </div>
       ),
