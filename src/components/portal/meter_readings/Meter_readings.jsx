@@ -134,10 +134,10 @@ const MeterReadings = () => {
       console.error("Failed to fetch meter readings:", error);
       setFetchError(
         error?.message ||
-          lang(
-            "meter.fetchError",
-            "Unable to fetch meter readings. Please try again."
-          )
+        lang(
+          "meter.fetchError",
+          "Unable to fetch meter readings. Please try again."
+        )
       );
       setReadings([]);
       setTotalCount(0);
@@ -278,13 +278,13 @@ const MeterReadings = () => {
         showSuccessToast?.(
           isEdit
             ? lang(
-                "meter.updatedSuccessfully",
-                "Meter reading updated successfully"
-              )
+              "meter.updatedSuccessfully",
+              "Meter reading updated successfully"
+            )
             : lang(
-                "meter.savedSuccessfully",
-                "Meter reading saved successfully"
-              )
+              "meter.savedSuccessfully",
+              "Meter reading saved successfully"
+            )
         );
         closeModal();
         loadReadings({
@@ -295,14 +295,14 @@ const MeterReadings = () => {
       } else {
         showErrorToast?.(
           res?.message ||
-            lang("meter.saveFailed", "Failed to save meter reading")
+          lang("meter.saveFailed", "Failed to save meter reading")
         );
       }
     } catch (error) {
       console.error("Save meter reading error:", error);
       showErrorToast?.(
         error?.message ||
-          lang("meter.saveFailed", "Failed to save meter reading")
+        lang("meter.saveFailed", "Failed to save meter reading")
       );
     } finally {
       setIsSubmitting(false);
@@ -339,14 +339,14 @@ const MeterReadings = () => {
       } else {
         showErrorToast?.(
           res?.message ||
-            lang("meter.deleteFailed", "Failed to delete meter reading")
+          lang("meter.deleteFailed", "Failed to delete meter reading")
         );
       }
     } catch (error) {
       console.error("Delete meter reading error:", error);
       showErrorToast?.(
         error?.message ||
-          lang("meter.deleteFailed", "Failed to delete meter reading")
+        lang("meter.deleteFailed", "Failed to delete meter reading")
       );
     } finally {
       setIsLoading(false);
@@ -425,9 +425,6 @@ const MeterReadings = () => {
             <table className="min-w-full text-sm">
               <thead>
                 <tr className="bg-slate-50 text-left text-xs font-semibold text-gray-600">
-                  <th className="px-3 py-2 rounded-tl-lg">
-                    {lang("common.srNo", "#")}
-                  </th>
                   <th className="px-3 py-2">
                     {lang("projects.projectName", "Project Name")}
                   </th>
@@ -453,9 +450,6 @@ const MeterReadings = () => {
                       key={item.id}
                       className="border-b border-gray-100 last:border-b-0 hover:bg-slate-50/70 transition-colors"
                     >
-                      <td className="px-3 py-2 text-xs text-gray-500">
-                        {(currentPage - 1) * entriesPerPage + index + 1}
-                      </td>
                       <td className="px-3 py-2 text-sm font-medium text-slate-900">
                         {projectName}
                       </td>
@@ -686,11 +680,10 @@ const MeterReadings = () => {
                               setSelectedProject(p);
                               setProjectDropdownOpen(false);
                             }}
-                            className={`w-full px-3 py-1.5 text-left hover:bg-slate-50 ${
-                              selectedProject?.id === p.id
+                            className={`w-full px-3 py-1.5 text-left hover:bg-slate-50 ${selectedProject?.id === p.id
                                 ? "bg-slate-100 font-medium"
                                 : ""
-                            }`}
+                              }`}
                           >
                             {p.project_name}
                           </button>
@@ -740,15 +733,15 @@ const MeterReadings = () => {
                     {screenshotFile.name}
                   </p>
                 ) : existingImageUrl ? (
-                    <div className="w-full h-auto object-contain">
+                  <div className="w-full h-auto object-contain">
                     <img
                       src={existingImageUrl}
                       height={50}
                       width={100}
                       alt={lang("meter.viewCurrentImage", "View current uploaded image")}
-                        className="w-full h-auto object-contain"
-                      />
-                    </div>
+                      className="w-full h-auto object-contain"
+                    />
+                  </div>
                 ) : null}
               </div>
 
