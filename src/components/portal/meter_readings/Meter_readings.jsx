@@ -372,12 +372,12 @@ const MeterReadings = () => {
             <h2 className="text-lg font-semibold text-slate-900">
               {lang("meter.meterReadings", "Meter Readings")}
             </h2>
-            <p className="text-xs text-gray-500 mt-0.5">
+            {/* <p className="text-xs text-gray-500 mt-0.5">
               {lang(
                 "meter.subtitle",
                 "View, add, edit and delete your project meter readings."
               )}
-            </p>
+            </p> */}
           </div>
 
           <div className="flex items-center gap-3">
