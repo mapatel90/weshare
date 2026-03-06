@@ -1646,6 +1646,7 @@
     "blogDeletedSuccessfully": "Blog Deleted Successfully",
     "latestBlogs": "Latest Blogs",
     "blog": "Blog",
+    "mediaType": "Media Type",
     "youtubeLink": "Youtube URL",
     "youtubeUrlPlaceholder": "https://www.youtube.com/watch?v=..."
   },

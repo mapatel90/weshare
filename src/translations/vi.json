@@ -1603,6 +1603,7 @@
     "blogDeletedSuccessfully": "Blog đã xóa thành công",
     "latestBlogs": "Blog mới nhất",
     "blog": "Blog",
+    "mediaType": "Loại media",
     "youtubeUrl": "URL Youtube",
     "youtubeUrlPlaceholder": "https://www.youtube.com/watch?v=..."
   },
