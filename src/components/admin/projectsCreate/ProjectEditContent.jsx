@@ -69,7 +69,8 @@ const ProjectEditContent = ({ projectId }) => {
         capex_per_kwp: '',
         project_status_id: '',
         payback_period: '',
-        fund_progress: ''
+        fund_progress: '',
+        testimonial_url: ''
     })
     const [projectTypes, setProjectTypes] = useState([])
     const [projectStatuses, setProjectStatuses] = useState([])
@@ -311,7 +312,8 @@ const ProjectEditContent = ({ projectId }) => {
                         solis_plant_id: p.solis_plant_id || '', // ← add Solis Plant ID into form
                         project_status_id: p.project_status?.id || p.project_status_id || (statusRes?.data?.[0]?.id ?? ''),
                         payback_period: p.payback_period !== undefined && p.payback_period !== null ? String(p.payback_period) : '',
-                        fund_progress: p.fund_progress !== undefined && p.fund_progress !== null ? String(p.fund_progress) : ''
+                        fund_progress: p.fund_progress !== undefined && p.fund_progress !== null ? String(p.fund_progress) : '',
+                        testimonial_url: p.testimonial_url || ''
                     })
                     setPreviousStatusId(p.project_status?.id || p.project_status_id || null)
                     if (p.country_id) handleCountryChange(p.country_id)
@@ -583,7 +585,8 @@ const ProjectEditContent = ({ projectId }) => {
                 payback_period: formData.payback_period ? Number(formData.payback_period) : null,
                 fund_progress: formData.fund_progress !== '' && formData.fund_progress !== undefined && formData.fund_progress !== null
                     ? parseFloat(formData.fund_progress)
-                    : null
+                    : null,
+                testimonial_url: formData.testimonial_url || null
             }
             const res = await apiPut(`/api/projects/${projectId}`, payload)
             if (!res?.success) {

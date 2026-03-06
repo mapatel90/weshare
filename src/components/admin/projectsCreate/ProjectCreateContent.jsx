@@ -41,7 +41,8 @@ const ProjectCreateContent = () => {
         capex_per_kwp: '',
         project_status_id: '',
         payback_period: '',
-        fund_progress: ''
+        fund_progress: '',
+        testimonial_url: ''
     });
 
     return (

@@ -904,7 +904,9 @@
       "annualEstimatedGeneration": "Sản lượng phát điện dự kiến hàng năm",
       "estimatedROI": "Lợi nhuận dự kiến (ROI)",
       "roi_monthly": "ROI (Tháng)",
-      "totalGeneration":"Tổng thế hệ"
+      "totalGeneration":"Tổng thế hệ",
+      "watchOnYouTube": "Xem trên YouTube",
+      "testimonials": "Lời chứng thực từ khách hàng và nhà đầu tư"
     },
     "solarLease": {
       "title": "Biến bất động sản của bạn thành cho thuê năng lượng mặt trời",

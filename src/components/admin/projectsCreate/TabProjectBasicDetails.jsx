@@ -432,7 +432,8 @@ const TabProjectBasicDetails = ({ setFormData, formData, error, setError }) => {
                 payback_period: formData.payback_period ? Number(formData.payback_period) : null,
                 fund_progress: formData.fund_progress !== '' && formData.fund_progress !== undefined && formData.fund_progress !== null
                     ? parseFloat(formData.fund_progress)
-                    : null
+                    : null,
+                testimonial_url: formData.testimonial_url || null
             };
 
             // Submit to API

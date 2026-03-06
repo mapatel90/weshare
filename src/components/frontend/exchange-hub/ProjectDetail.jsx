@@ -897,6 +897,51 @@ const ProjectDetail = ({ projectId }) => {
                     ))
                   ) : (null)}
                 </div>
+                {/* Testimonial YouTube URL */}
+                {project.testimonial_url ? (() => {
+                  const rawUrl = project.testimonial_url;
+                  let videoId = null;
+                  try {
+                    const url = new URL(rawUrl);
+                    if (url.hostname.includes("youtube.com")) {
+                      videoId = url.searchParams.get("v");
+                    } else if (url.hostname === "youtu.be") {
+                      videoId = url.pathname.replace("/", "");
+                    } else if (url.pathname.includes("/embed/")) {
+                      videoId = url.pathname.split("/embed/")[1];
+                    }
+                  } catch {
+                    videoId = rawUrl;
+                  }
+                  return videoId ? (
+                    <div className="testimonial-video-section">
+                      {/* <div className="testimonial-video-header">
+                        <span className="testimonial-video-badge">
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-2.47 4.83 4.83 0 0 1-.36-1.17 12.2 12.2 0 0 0-2.46-.25 12.2 12.2 0 0 0-12.2 12.2 12.2 12.2 0 0 0 12.2 12.2 12.2 12.2 0 0 0 12.2-12.2 12.2 12.2 0 0 0-5.81-10.31Z"/>
+                          </svg>
+                        </span>
+                        <h3>Testimonial Video</h3>
+                      </div> */}
+                      <div className="testimonial-video-wrapper">
+                        <iframe
+                          src={`https://www.youtube.com/embed/${videoId}`}
+                          title="Testimonial Video"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                        />
+                      </div>
+                      <a
+                        href={rawUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="testimonial-video-link"
+                      >
+                        {lang("home.exchangeHub.watchOnYouTube", "Watch on YouTube")} ↗
+                      </a>
+                    </div>
+                  ) : null;
+                })() : null}
               {/* )} */}
             </div>
           </div>

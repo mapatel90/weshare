@@ -483,6 +483,39 @@ const ProjectForm = ({
         </div>
       </div>
 
+      {/* Testimonial YouTube URL */}
+      <div className="col-md-12 mt-3">
+        <div className="card">
+          <div className="card-header">
+            <h6 className="card-title mb-0">
+              {lang("projects.testimonial", "Testimonial")}
+            </h6>
+          </div>
+          <div className="card-body">
+            <div className="row">
+              <div className="col-md-12 mb-3">
+                <TextField
+                  fullWidth
+                  label={lang("projects.testimonialYoutubeUrl", "Testimonial YouTube URL")}
+                  name="testimonial_url"
+                  value={formData.testimonial_url || ""}
+                  onChange={handleInputChange}
+                  placeholder={lang(
+                    "projects.testimonialYoutubeUrlPlaceholder",
+                    "Enter YouTube URL (e.g. https://www.youtube.com/watch?v=...)"
+                  )}
+                  error={!!error.testimonial_url}
+                  helperText={
+                    error.testimonial_url ||
+                    lang("projects.testimonialYoutubeUrlHelp", "Enter a YouTube video URL for the testimonial")
+                  }
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Upcoming & Running Project Information */}
       <div className="col-md-12">
         <div className="card">

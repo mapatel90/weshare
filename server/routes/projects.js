@@ -247,6 +247,7 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
       project_status_id = 1,
       payback_period,
       fund_progress,
+      testimonial_url,
     } = req.body;
 
     if (!name || !project_type_id) {
@@ -324,6 +325,7 @@ router.post("/AddProject", authenticateToken, async (req, res) => {
             `${fund_progress}` !== ""
             ? parseFloat(fund_progress)
             : null,
+        testimonial_url: testimonial_url || null,
         updated_at: new Date()
       },
       include: {
@@ -1246,6 +1248,7 @@ router.put("/:id", authenticateToken, async (req, res) => {
       solis_plant_id,
       payback_period,
       fund_progress,
+      testimonial_url,
     } = req.body;
 
 
@@ -1349,6 +1352,7 @@ router.put("/:id", authenticateToken, async (req, res) => {
           ? parseFloat(fund_progress)
           : null,
       }),
+      ...(testimonial_url !== undefined && { testimonial_url: testimonial_url || null }),
     };
 
     if (project_slug !== undefined) {

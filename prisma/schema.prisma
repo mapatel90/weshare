@@ -388,6 +388,7 @@ model projects {
   weshare_profit       String?                @db.VarChar(255)
   meter_url            String?                @db.VarChar(255)
   sim_number           String?                @db.VarChar(255)
+  testimonial_url      String?                @db.VarChar(255)
   estimated_roi        Float?
   expected_revenue     Float?
   project_expire_date  DateTime?
