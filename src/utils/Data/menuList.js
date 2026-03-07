@@ -11,7 +11,7 @@ export const menuList = [
   {
     id: 1,
     name: "projects",
-    path: "#",
+    path: "/admin/projects/list",
     icon: "feather-briefcase",
     permission: "projects",
     permission_action: ["view", "create", "edit", "delete"],
@@ -46,7 +46,7 @@ export const menuList = [
   {
     id: 3,
     name: "inverter",
-    path: "#",
+    path: "/admin/inverter/list",
     icon: "feather-archive",
     permission: "inverter",
     dropdownMenu: [
@@ -79,7 +79,7 @@ export const menuList = [
   {
     id: 4,
     name: "finance",
-    path: "#",
+    path: "/admin/finance/invoice",
     icon: "feather-file-text",
     permission: "finance",
     dropdownMenu: [
@@ -236,7 +236,7 @@ export const menuList = [
   {
     id: 13,
     name: "settings",
-    path: "#",
+    path: "/admin/settings/general",
     icon: "feather-settings",
     permission: "settings",
     dropdownMenu: [
