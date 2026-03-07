@@ -214,24 +214,39 @@ function VerifyEmailContent() {
               </p>
 
               <form onSubmit={handleSubmit}>
-                {/* Email field */}
-                <div style={{ marginBottom: '20px' }}>
-                  <label style={{ display: 'block', marginBottom: '6px', fontSize: '13px', fontWeight: 600, color: '#444' }}>
-                    {lang('authentication.email', 'Email Address')}
-                  </label>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => { setEmail(e.target.value); setErrorMsg(''); }}
-                    placeholder="name@example.com"
-                    required
-                    style={{
-                      width: '100%', padding: '10px 12px', border: '1px solid #e0e0e0',
-                      borderRadius: '8px', fontSize: '15px', outline: 'none',
-                      boxSizing: 'border-box', background: '#fafafa'
-                    }}
-                  />
-                </div>
+                {/* Email — read-only display if pre-filled, editable if navigated directly */}
+                {email ? (
+                  <>
+                    <input type="hidden" value={email} />
+                    <div style={{
+                      marginBottom: '20px', padding: '10px 14px',
+                      background: '#f5f5f5', borderRadius: '8px',
+                      fontSize: '14px', color: '#555', display: 'flex',
+                      alignItems: 'center', gap: '8px', border: '1px solid #e8e8e8'
+                    }}>
+                      <span style={{ fontSize: '16px' }}>✉️</span>
+                      <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{email}</span>
+                    </div>
+                  </>
+                ) : (
+                  <div style={{ marginBottom: '20px' }}>
+                    <label style={{ display: 'block', marginBottom: '6px', fontSize: '13px', fontWeight: 600, color: '#444' }}>
+                      {lang('authentication.email', 'Email Address')}
+                    </label>
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => { setEmail(e.target.value); setErrorMsg(''); }}
+                      placeholder="name@example.com"
+                      required
+                      style={{
+                        width: '100%', padding: '10px 12px', border: '1px solid #e0e0e0',
+                        borderRadius: '8px', fontSize: '15px', outline: 'none',
+                        boxSizing: 'border-box', background: '#fff'
+                      }}
+                    />
+                  </div>
+                )}
 
                 {/* OTP boxes */}
                 <div style={{ marginBottom: '8px' }}>

@@ -679,13 +679,15 @@ router.post('/verify-email', async (req, res) => {
 
     console.log(`[verify-email] Received → email: "${trimmedEmail}", otp: "${trimmedOtp}"`);
 
-    // Find user by email first — try exact lowercase match, fallback to raw match
+    // Find the most recent UNVERIFIED user by email
+    // (multiple accounts can share an email — username is the unique field)
     const userByEmail = await prisma.users.findFirst({
       where: {
         OR: [
           { email: trimmedEmail },
           { email: email.trim() }
-        ]
+        ],
+        email_verified: 0
       },
       orderBy: { created_at: 'desc' }
     });
@@ -699,14 +701,6 @@ router.post('/verify-email', async (req, res) => {
       return res.status(400).json({
         success: false,
         message: t(language, "response_messages.invalid_or_expired_verification_token")
-      });
-    }
-
-    // Already verified?
-    if (userByEmail.email_verified == 1) {
-      return res.status(400).json({
-        success: false,
-        message: t(language, "response_messages.email_is_already_verified") || 'Email is already verified.'
       });
     }
 
@@ -929,28 +923,23 @@ router.post('/resend-verification', async (req, res) => {
 
     const normalizedEmail = email.trim().toLowerCase();
 
-    // Find user by email (try lowercase and original casing)
+    // Find the most recent UNVERIFIED user with this email
+    // (multiple accounts can share an email — username is the unique field)
     const user = await prisma.users.findFirst({
       where: {
         OR: [
           { email: normalizedEmail },
           { email: email.trim() }
-        ]
-      }
+        ],
+        email_verified: 0
+      },
+      orderBy: { created_at: 'desc' }
     });
 
     if (!user) {
       return res.status(404).json({
         success: false,
         message: t(language, "response_messages.user_not_found")
-      });
-    }
-
-    // Check if already verified
-    if (user.email_verified === 1) {
-      return res.status(400).json({
-        success: false,
-        message: t(language, "response_messages.email_is_already_verified")
       });
     }
 
