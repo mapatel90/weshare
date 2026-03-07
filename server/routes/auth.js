@@ -386,6 +386,12 @@ router.get('/me', async (req, res) => {
 
 
   } catch (error) {
+    if (error.name === 'TokenExpiredError' || error.name === 'JsonWebTokenError') {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid or expired token'
+      });
+    }
     console.error('Get profile error:', error);
     res.status(401).json({
       success: false,
