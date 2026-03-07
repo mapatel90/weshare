@@ -97,8 +97,7 @@ router.post('/register', async (req, res) => {
 
     // Generate email verification token
     const verificationToken = crypto.randomBytes(32).toString('hex');
-    const tokenExpiry = new Date();
-    tokenExpiry.setHours(tokenExpiry.getHours() + 24); // 24 hours expiry
+    const tokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours expiry (UTC-safe)
 
     // Create user (store username and email)
     const newUser = await prisma.users.create({
@@ -229,8 +228,8 @@ router.post('/login', async (req, res) => {
       });
     }
 
-    // Check if email is verified (only for offtakers and investors - role_id 2 or 3)
-    if ((user.role_id === 2 || user.role_id === 3) && user.email_verified === 0) {
+    // Check if email is verified (only for offtakers and investors - role_id 2, 3 or 4)
+    if ((user.role_id === USER_ROLES.OFFTAKER || user.role_id === USER_ROLES.INVESTOR) && user.email_verified === 0) {
       return res.status(403).json({
         success: false,
         message: t(language, "response_messages.please_verify_your_email_address_before_logging_in"),
@@ -686,8 +685,8 @@ router.get('/verify-email/:token', async (req, res) => {
       });
     }
 
-    // Check if token is expired
-    if (user.email_verify_expires && new Date() > user.email_verify_expires) {
+    // Check if token is expired (compare as UTC timestamps to avoid timezone issues on live servers)
+    if (user.email_verify_expires && Date.now() > new Date(user.email_verify_expires).getTime()) {
       return res.status(400).json({
         success: false,
         message: t(language, "response_messages.verification_token_has_expired_please_request_a_new_one"),
@@ -817,8 +816,7 @@ router.post('/resend-verification', async (req, res) => {
 
     // Generate new verification token
     const verificationToken = crypto.randomBytes(32).toString('hex');
-    const tokenExpiry = new Date();
-    tokenExpiry.setHours(tokenExpiry.getHours() + 24); // 24 hours expiry
+    const tokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours expiry (UTC-safe)
 
     // Update user with new token
     await prisma.users.update({

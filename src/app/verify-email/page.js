@@ -1,16 +1,16 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useEffect, useState, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { apiGet, apiPost } from '@/lib/api';
 import { useLanguage } from '@/contexts/LanguageContext';
 
-export default function VerifyEmailPage() {
+function VerifyEmailContent() {
   const router = useRouter();
   const { lang, changeLanguage } = useLanguage();
-  const params = useParams();
-  const token = params.token;
+  const searchParams = useSearchParams();
+  const token = searchParams.get('token');
 
   // Simple string state (no TypeScript types in this JS file)
   const [status, setStatus] = useState('verifying'); // 'verifying' | 'success' | 'error'
@@ -268,5 +268,13 @@ export default function VerifyEmailPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function VerifyEmailPage() {
+  return (
+    <Suspense fallback={<div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Loading...</div>}>
+      <VerifyEmailContent />
+    </Suspense>
   );
 }
