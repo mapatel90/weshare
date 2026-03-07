@@ -2,15 +2,15 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { apiGet, apiPost } from '@/lib/api';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function VerifyEmailPage() {
   const router = useRouter();
   const { lang, changeLanguage } = useLanguage();
-  const searchParams = useSearchParams();
-  const token = searchParams.get('token');
+  const params = useParams();
+  const token = params.token;
 
   // Simple string state (no TypeScript types in this JS file)
   const [status, setStatus] = useState('verifying'); // 'verifying' | 'success' | 'error'
@@ -51,10 +51,10 @@ export default function VerifyEmailPage() {
           setStatus('error');
           setMessage(
             (response && response.message) ||
-              lang(
-                'common.verificationInvalidLink',
-                'Invalid or expired verification link. Please request a new one.'
-              )
+            lang(
+              'common.verificationInvalidLink',
+              'Invalid or expired verification link. Please request a new one.'
+            )
           );
         }
       } catch (error) {
@@ -62,10 +62,10 @@ export default function VerifyEmailPage() {
         setStatus('error');
         setMessage(
           error?.message ||
-            lang(
-              'common.verifyEmailFailed',
-              'Failed to verify email. The link may be invalid or expired.'
-            )
+          lang(
+            'common.verifyEmailFailed',
+            'Failed to verify email. The link may be invalid or expired.'
+          )
         );
       }
     };
@@ -91,13 +91,13 @@ export default function VerifyEmailPage() {
       } else {
         window.alert(
           response?.message ||
-            lang('common.resendVerificationEmailFailed', 'Failed to resend verification email')
+          lang('common.resendVerificationEmailFailed', 'Failed to resend verification email')
         );
       }
     } catch (error) {
       window.alert(
         error?.message ||
-          lang('common.resendVerificationEmailFailed', 'Failed to resend verification email')
+        lang('common.resendVerificationEmailFailed', 'Failed to resend verification email')
       );
     } finally {
       setResending(false);
