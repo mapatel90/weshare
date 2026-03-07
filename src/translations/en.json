@@ -1215,7 +1215,13 @@
     "currency": "Currency",
     "saveSettings": "Save Settings",
     "settingsSaved": "Settings saved successfully",
-    "s3storage": "S3 Storage"
+    "s3storage": "S3 Storage",
+    "socialMediaSettings": "Social Media Settings",
+    "facebookUrl": "Facebook URL",
+    "instagramUrl": "Instagram URL",
+    "xUrl": "X (Twitter) URL",
+    "githubUrl": "GitHub URL",
+    "linkedinUrl": "LinkedIn URL"
   },
   "smtp": {
     "title": "SMTP Settings",
@@ -1275,7 +1281,12 @@
     "enterphonenumber": "Enter phone number",
     "your_company_mail": "Your company email address",
     "enterfullname": "Enter full name",
-    "your_company_map_url": "Your company map URL (e.g. https://www.google.com/maps/embed?pb=...)"
+    "your_company_map_url": "Your company map URL (e.g. https://www.google.com/maps/embed?pb=...)",
+    "facebook_url": "https://facebook.com/yourpage",
+    "instagram_url": "https://instagram.com/yourpage",
+    "x_url": "https://x.com/yourhandle",
+    "github_url": "https://github.com/yourorg",
+    "linkedin_url": "https://linkedin.com/company/yourcompany"
   },
   "roles": {
     "rolesManagement": "Roles Management",

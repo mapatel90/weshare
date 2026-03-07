@@ -662,12 +662,7 @@ const ProjectDetail = ({ projectId }) => {
                   <hr />
                   <div className="analytics">
                     {/* <div className="chart-container"> */}
-                    <ElectricityConsumption
-                      data={electricityConsumptionData}
-                      loading={electricityConsumptionDataLoading}
-                      selectedMonthYear={electricityConsumptionDate}
-                      onMonthYearChange={setElectricityConsumptionDate}
-                    />
+
                     {/* </div> */}
 
                     <div
@@ -715,7 +710,14 @@ const ProjectDetail = ({ projectId }) => {
                       onDateChange={setSelectedDate}
                     />
 
-                    <div
+                    <ElectricityConsumption
+                      data={electricityConsumptionData}
+                      loading={electricityConsumptionDataLoading}
+                      selectedMonthYear={electricityConsumptionDate}
+                      onMonthYearChange={setElectricityConsumptionDate}
+                    />
+
+                    {/* <div
                       style={{
                         display: "flex",
                         alignItems: "center",
@@ -750,14 +752,14 @@ const ProjectDetail = ({ projectId }) => {
                           "Daily Power Profile (Load, PV & Grid)"
                         )}
                       </div>
-                    </div>
+                    </div> */}
 
-                    <EnergyChart
+                    {/* <EnergyChart
                       chartMonthData={chartMonthData}
                       selectedMonthYear={selectedMonthYear}
                       onMonthYearChange={setSelectedMonthYear}
                       monthlyChartDataLoading={monthlyChartDataLoading}
-                    />
+                    /> */}
 
                   </div>
 
@@ -865,57 +867,64 @@ const ProjectDetail = ({ projectId }) => {
                     ) : null
                   )
                 )}
+                {project.project_status_id === PROJECT_STATUS.RUNNING && (
+                  <button
+                    className="btn btn-primary-custom"
+                    onClick={() => router.push("/frontend/contact_us")}
+                  >
+                    {lang("home.exchangeHub.buyNow") || "Buy Now"}
+                  </button>
+                )}
               </div>
 
               {/* Testimonials */}
-              {/* {project.project_status_id === PROJECT_STATUS.RUNNING && ( */}
-                <div className="testimonial-rightBox">
-                  {/* NEW: show up to 3 testimonials related to this project */}
-                  {testimonials.length > 0 ? (
-                    <h3>
-                      {lang("home.exchangeHub.testimonials") ||
-                        "Offtaker & Investor Testimonials"}
-                    </h3>
-                  ) : null}
-                  {testimonials.length > 0 ? (
-                    testimonials.map((t, idx) => (
-                      <div className="testi-card" key={t.id || idx}>
-                        <img
-                          src={buildUploadUrl(t?.users?.user_image) || "/images/avatar/profile_demo_img.jpg"}
-                          alt="testimonial"
-                          onError={(e) => {
-                            e.target.src = "/images/avatar/user-img.png";
-                          }}
-                        />
-                        <h4>{t.project?.project_name || project.project_name}</h4>
-                        <div className="designation">
-                          {t.users?.full_name || t.users?.fullName}
-                          {t.users?.role_id === ROLES.OFFTAKER ? " (Offtaker)" : " (Investor)"}
-                        </div>
-                        <p>{t.description}</p>
+              <div className="testimonial-rightBox">
+                {/* NEW: show up to 3 testimonials related to this project */}
+                {testimonials.length > 0 ? (
+                  <h3>
+                    {lang("home.exchangeHub.testimonials") ||
+                      "Offtaker & Investor Testimonials"}
+                  </h3>
+                ) : null}
+                {testimonials.length > 0 ? (
+                  testimonials.map((t, idx) => (
+                    <div className="testi-card" key={t.id || idx}>
+                      <img
+                        src={buildUploadUrl(t?.users?.user_image) || "/images/avatar/profile_demo_img.jpg"}
+                        alt="testimonial"
+                        onError={(e) => {
+                          e.target.src = "/images/avatar/user-img.png";
+                        }}
+                      />
+                      <h4>{t.project?.project_name || project.project_name}</h4>
+                      <div className="designation">
+                        {t.users?.full_name || t.users?.fullName}
+                        {t.users?.role_id === ROLES.OFFTAKER ? " (Offtaker)" : " (Investor)"}
                       </div>
-                    ))
-                  ) : (null)}
-                </div>
-                {/* Testimonial YouTube URL */}
-                {project.testimonial_url ? (() => {
-                  const rawUrl = project.testimonial_url;
-                  let videoId = null;
-                  try {
-                    const url = new URL(rawUrl);
-                    if (url.hostname.includes("youtube.com")) {
-                      videoId = url.searchParams.get("v");
-                    } else if (url.hostname === "youtu.be") {
-                      videoId = url.pathname.replace("/", "");
-                    } else if (url.pathname.includes("/embed/")) {
-                      videoId = url.pathname.split("/embed/")[1];
-                    }
-                  } catch {
-                    videoId = rawUrl;
+                      <p>{t.description}</p>
+                    </div>
+                  ))
+                ) : (null)}
+              </div>
+              {/* Testimonial YouTube URL */}
+              {project.testimonial_url ? (() => {
+                const rawUrl = project.testimonial_url;
+                let videoId = null;
+                try {
+                  const url = new URL(rawUrl);
+                  if (url.hostname.includes("youtube.com")) {
+                    videoId = url.searchParams.get("v");
+                  } else if (url.hostname === "youtu.be") {
+                    videoId = url.pathname.replace("/", "");
+                  } else if (url.pathname.includes("/embed/")) {
+                    videoId = url.pathname.split("/embed/")[1];
                   }
-                  return videoId ? (
-                    <div className="testimonial-video-section">
-                      {/* <div className="testimonial-video-header">
+                } catch {
+                  videoId = rawUrl;
+                }
+                return videoId ? (
+                  <div className="testimonial-video-section">
+                    {/* <div className="testimonial-video-header">
                         <span className="testimonial-video-badge">
                           <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-2.47 4.83 4.83 0 0 1-.36-1.17 12.2 12.2 0 0 0-2.46-.25 12.2 12.2 0 0 0-12.2 12.2 12.2 12.2 0 0 0 12.2 12.2 12.2 12.2 0 0 0 12.2-12.2 12.2 12.2 0 0 0-5.81-10.31Z"/>
@@ -923,26 +932,25 @@ const ProjectDetail = ({ projectId }) => {
                         </span>
                         <h3>Testimonial Video</h3>
                       </div> */}
-                      <div className="testimonial-video-wrapper">
-                        <iframe
-                          src={`https://www.youtube.com/embed/${videoId}`}
-                          title="Testimonial Video"
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                          allowFullScreen
-                        />
-                      </div>
-                      <a
-                        href={rawUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="testimonial-video-link"
-                      >
-                        {lang("home.exchangeHub.watchOnYouTube", "Watch on YouTube")} ↗
-                      </a>
+                    <div className="testimonial-video-wrapper">
+                      <iframe
+                        src={`https://www.youtube.com/embed/${videoId}`}
+                        title="Testimonial Video"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      />
                     </div>
-                  ) : null;
-                })() : null}
-              {/* )} */}
+                    <a
+                      href={rawUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="testimonial-video-link"
+                    >
+                      {lang("home.exchangeHub.watchOnYouTube", "Watch on YouTube")} ↗
+                    </a>
+                  </div>
+                ) : null;
+              })() : null}
             </div>
           </div>
         </div>

@@ -34,7 +34,7 @@ const ProjectCard = ({ project, activeTab, isHome = false }) => {
   const [submittingInvest, setSubmittingInvest] = useState(false);
   const { settings } = useSettings();
   const priceWithCurrency = useFormatPrice();
-  
+
 
   // Use calculated_roi from API response (already calculated in projects list endpoint)
   const calculatedRoi = project?.calculated_roi || "0";
@@ -269,7 +269,7 @@ const ProjectCard = ({ project, activeTab, isHome = false }) => {
             <div className="stats-image">
               <div className="stat-image">
                 <h4>
-                  {priceWithCurrency( project.asking_price)}
+                  {priceWithCurrency(project.asking_price)}
                 </h4>
                 <p>
                   {lang("home.exchangeHub.targetInvestment") ||
@@ -344,14 +344,14 @@ const ProjectCard = ({ project, activeTab, isHome = false }) => {
                 (!user || user?.role === ROLES.INVESTOR) &&
                 !hasAlreadyInvested &&
                 getTimeLeft(project?.project_close_date) !== "Expired" ? (
-                  <button
-                    className="btn btn-primary-custom"
-                    style={{ padding: "14px 0px" }}
-                    onClick={handleInvestClick}
-                  >
-                    {lang("home.exchangeHub.investNow") || "Invest Now"}
-                  </button>
-                ) : null}
+                <button
+                  className="btn btn-primary-custom"
+                  style={{ padding: "14px 0px" }}
+                  onClick={handleInvestClick}
+                >
+                  {lang("home.exchangeHub.investNow") || "Invest Now"}
+                </button>
+              ) : null}
               {/* Invest Dialog */}
               <InvestDialog
                 open={!!showInvestModal}

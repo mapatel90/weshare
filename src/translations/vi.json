@@ -1209,7 +1209,12 @@
     "enterphonenumber": "Nhập số điện thoại",
     "your_company_mail": "Địa chỉ email công ty của bạn",
     "enterfullname": "Nhập họ và tên đầy đủ",
-    "your_company_map_url": "URL bản đồ công ty của bạn (ví dụ: https://www.google.com/maps/embed?pb=...)"
+    "your_company_map_url": "URL bản đồ công ty của bạn (ví dụ: https://www.google.com/maps/embed?pb=...)",
+    "facebook_url": "https://facebook.com/trangcuaban",
+    "instagram_url": "https://instagram.com/trangcuaban",
+    "x_url": "https://x.com/taikhoanban",
+    "github_url": "https://github.com/tochucban",
+    "linkedin_url": "https://linkedin.com/company/congtyban"
   },
   "roles": {
     "rolesManagement": "Quản lý vai trò",
@@ -2304,5 +2309,13 @@
     "paymentSubmittedSuccessfully": "Thanh toán đã được gửi thành công",
     "invoicePDFNotAvailable": "Hóa đơn PDF không khả dụng",
     "meter_reading_already_exists_for_this_date": "Chỉ số công tơ điện cho ngày này đã có sẵn."
+  },
+  "settings": {
+    "socialMediaSettings": "Cài đặt mạng xã hội",
+    "facebookUrl": "Facebook URL",
+    "instagramUrl": "Instagram URL",
+    "xUrl": "X (Twitter) URL",
+    "githubUrl": "GitHub URL",
+    "linkedinUrl": "LinkedIn URL"
   }
 }

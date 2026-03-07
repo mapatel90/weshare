@@ -123,30 +123,56 @@ const HomeFooter = () => {
               {lang("home.footer.description")}
             </p>
             <div className="social-icons d-flex gap-4">
-              <Link href="https://x.com/" target="_blank" rel="noopener noreferrer">
-                <Image
-                  src="/images/icons/twitter.svg"
-                  alt="Twitter"
-                  width={24}
-                  height={24}
-                />
-              </Link>
-              <Link href="https://www.linkedin.com/" target="_blank" rel="noopener noreferrer">
-                <Image
-                  src="/images/icons/linkedin.svg"
-                  alt="LinkedIn"
-                  width={24}
-                  height={24}
-                />
-              </Link>
-              <Link href="https://github.com/" target="_blank" rel="noopener noreferrer">
-                <Image
-                  src="/images/icons/cat.svg"
-                  alt="Social"
-                  width={24}
-                  height={24}
-                />
-              </Link>
+              {footerData?.x_url && (
+                <Link href={footerData?.x_url} target="_blank" rel="noopener noreferrer">
+                  <Image
+                    src="/images/icons/twitter.svg"
+                    alt="Twitter"
+                    width={24}
+                    height={24}
+                  />
+                </Link>
+              )}
+              {footerData?.instagram_url && (
+                <Link href={footerData?.instagram_url} target="_blank" rel="noopener noreferrer">
+                  <Image
+                    src="/images/icons/instagram.svg"
+                    alt="Instagram"
+                    width={24}
+                    height={24}
+                  />
+                </Link>
+              )}
+              {footerData?.facebook_url && (
+                <Link href={footerData?.facebook_url} target="_blank" rel="noopener noreferrer">
+                  <Image
+                    src="/images/icons/facebook.svg"
+                    alt="Facebook"
+                    width={24}
+                    height={24}
+                  />
+                </Link>
+              )}
+              {footerData?.linkedin_url && (
+                <Link href={footerData?.linkedin_url} target="_blank" rel="noopener noreferrer">
+                  <Image
+                    src="/images/icons/linkedin.svg"
+                    alt="LinkedIn"
+                    width={24}
+                    height={24}
+                  />
+                </Link>
+              )}
+              {footerData?.github_url && (
+                <Link href={footerData?.github_url} target="_blank" rel="noopener noreferrer">
+                  <Image
+                    src="/images/icons/cat.svg"
+                    alt="Social"
+                    width={24}
+                    height={24}
+                  />
+                </Link>
+              )}
             </div>
           </div>
 

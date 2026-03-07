@@ -250,6 +250,14 @@ export const menuList = [
       },
       {
         id: 2,
+        name: "Social Media",
+        path: "/admin/settings/social-media",
+        permission: "social_media_settings",
+        permission_action: ["view"],
+        subdropdownMenu: false,
+      },      
+      {
+        id: 3,
         name: "Roles Management",
         path: "/admin/settings/role",
         permission: "roles_management",
@@ -257,7 +265,7 @@ export const menuList = [
         subdropdownMenu: false,
       },
       {
-        id: 3,
+        id: 4,
         name: "SMTP",
         path: "/admin/settings/smtp",
         permission: "smtp_settings",
@@ -265,7 +273,7 @@ export const menuList = [
         subdropdownMenu: false,
       },
       {
-        id: 4,
+        id: 5,
         name: "email_template",
         path: "/admin/email_template/list",
         permission: "email_templates",
@@ -273,7 +281,7 @@ export const menuList = [
         subdropdownMenu: false,
       },
       {
-        id: 5,
+        id: 6,
         name: "Finance",
         path: "/admin/settings/finance",
         permission: "finance_settings",
@@ -281,7 +289,7 @@ export const menuList = [
         subdropdownMenu: false,
       },
       {
-        id: 6,
+        id: 7,
         name: "Miscellaneous",
         path: "/admin/settings/miscellaneous",
         permission: "miscellaneous",
@@ -289,7 +297,7 @@ export const menuList = [
         subdropdownMenu: false,
       },
       {
-        id: 6,
+        id: 8,
         name: "Portfolio",
         path: "/admin/settings/portfolio",
         permission: "portfolio",
