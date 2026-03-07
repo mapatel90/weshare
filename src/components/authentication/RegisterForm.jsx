@@ -151,12 +151,8 @@ const RegisterForm = ({loginPath}) => {
                     setError(data.message || 'Registration failed')
                 }
             } else {
-                // Check role_id from data.data object
-                if (data.data && data.data.role_id == 3) {
-                    router.push('/offtaker/login')
-                } else {
-                    router.push('/investor/login')
-                }
+                // Redirect to verify-email page with email pre-filled
+                router.push(`/verify-email?email=${encodeURIComponent(email)}`)
             }
         } catch (err) {
             setError('An error occurred. Please try again.')

@@ -95,16 +95,20 @@ router.post('/register', async (req, res) => {
     const saltRounds = 12;
     const hashedPassword = await bcrypt.hash(trimmedPassword, saltRounds);
 
-    // Generate email verification token
-    const verificationToken = crypto.randomBytes(32).toString('hex');
+    // Generate 6-digit OTP (avoids URL token issues with email providers)
+    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
     const tokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours expiry (UTC-safe)
+    console.log(`[register] Generated OTP: "${otpCode}" for email: "${email}"`);
+
+    // Trim email for consistency
+    const trimmedEmail = email ? email.trim().toLowerCase() : email;
 
     // Create user (store username and email)
     const newUser = await prisma.users.create({
       data: {
         full_name,
         username: trimmedUsername,
-        email,
+        email: trimmedEmail,
         password: hashedPassword,
         phone_number,
         role_id,
@@ -115,7 +119,7 @@ router.post('/register', async (req, res) => {
         country_id,
         zipcode,
         email_verified: 0,
-        email_verify_token: verificationToken,
+        email_verify_token: otpCode,
         email_verify_expires: tokenExpiry,
         status: 0, // Inactive until email verified
         terms_accepted: termsAccepted || 0,
@@ -136,12 +140,13 @@ router.post('/register', async (req, res) => {
     });
 
     if(newUser.email) {
-      // Send verification email for all users (don't block registration if email fails)
+      const verifyPageUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/verify-email?email=${encodeURIComponent(newUser.email)}`;
       const templateData = {
         full_name: newUser.full_name,
         company_name: 'WeShare Energy',
-        verify_link: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/verify-email?token=${verificationToken}`,
-      }
+        otp_code: otpCode,
+        verify_link: verifyPageUrl,
+      };
 
       sendEmailUsingTemplate({
         to: newUser.email,
@@ -656,7 +661,135 @@ router.get('/verify-reset-token/:token', async (req, res) => {
   }
 });
 
-// Verify email with token
+// Verify email with OTP code (POST - primary method)
+router.post('/verify-email', async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+    const language = req.currentLanguage || 'en';
+
+    if (!email || !otp) {
+      return res.status(400).json({
+        success: false,
+        message: t(language, "response_messages.verification_token_is_required")
+      });
+    }
+
+    const trimmedOtp = String(otp).trim();
+    const trimmedEmail = email.trim().toLowerCase();
+
+    console.log(`[verify-email] Received → email: "${trimmedEmail}", otp: "${trimmedOtp}"`);
+
+    // Find user by email first — try exact lowercase match, fallback to raw match
+    const userByEmail = await prisma.users.findFirst({
+      where: {
+        OR: [
+          { email: trimmedEmail },
+          { email: email.trim() }
+        ]
+      },
+      orderBy: { created_at: 'desc' }
+    });
+
+    console.log(`[verify-email] User by email:`, userByEmail
+      ? { id: userByEmail.id, email: userByEmail.email, token: userByEmail.email_verify_token, verified: userByEmail.email_verified }
+      : 'NOT FOUND'
+    );
+
+    if (!userByEmail) {
+      return res.status(400).json({
+        success: false,
+        message: t(language, "response_messages.invalid_or_expired_verification_token")
+      });
+    }
+
+    // Already verified?
+    if (userByEmail.email_verified == 1) {
+      return res.status(400).json({
+        success: false,
+        message: t(language, "response_messages.email_is_already_verified") || 'Email is already verified.'
+      });
+    }
+
+    // Check OTP match
+    if (!userByEmail.email_verify_token || userByEmail.email_verify_token.trim() !== trimmedOtp) {
+      console.log(`[verify-email] OTP mismatch → stored: "${userByEmail.email_verify_token}", received: "${trimmedOtp}"`);
+      return res.status(400).json({
+        success: false,
+        message: t(language, "response_messages.invalid_or_expired_verification_token")
+      });
+    }
+
+    const user = userByEmail;
+
+    // Check if OTP is expired
+    if (user.email_verify_expires && Date.now() > new Date(user.email_verify_expires).getTime()) {
+      return res.status(400).json({
+        success: false,
+        message: t(language, "response_messages.verification_token_has_expired_please_request_a_new_one"),
+        expired: true
+      });
+    }
+
+    // Mark email as verified and activate account
+    await prisma.users.update({
+      where: { id: user.id },
+      data: {
+        status: 1,
+        email_verified: 1,
+        email_verified_at: new Date(),
+        email_verify_token: null,
+        email_verify_expires: null
+      }
+    });
+
+    // Send welcome email based on role
+    if (user.email) {
+      if (user.role_id === USER_ROLES.OFFTAKER) {
+        const loginUrl = `${process.env.FRONTEND_URL || ''}/offtaker/login`;
+        sendEmailUsingTemplate({
+          to: user.email,
+          templateSlug: 'email_to_offtaker_on_sign_up',
+          templateData: {
+            full_name: user.full_name,
+            user_email: user.email,
+            account_type: 'Offtaker',
+            current_date: new Date().toLocaleDateString(),
+            login_url: loginUrl,
+          },
+          language: user.language || 'en'
+        }).catch(() => {});
+      } else if (user.role_id === USER_ROLES.INVESTOR) {
+        const loginUrl = `${process.env.FRONTEND_URL || ''}/investor/login`;
+        sendEmailUsingTemplate({
+          to: user.email,
+          templateSlug: 'email_to_investor_on_sign_up',
+          templateData: {
+            full_name: user.full_name,
+            user_email: user.email,
+            current_date: new Date().toLocaleDateString(),
+            login_url: loginUrl,
+          },
+          language: user.language || 'en'
+        }).catch(() => {});
+      }
+    }
+
+    res.json({
+      success: true,
+      message: t(language, "response_messages.email_verified_successfully_you_can_now_login"),
+      language: user.language || 'en'
+    });
+
+  } catch (error) {
+    console.error('Email verification error (POST):', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error during email verification'
+    });
+  }
+});
+
+// Verify email with token — legacy GET route (kept for backward compatibility)
 router.get('/verify-email/:token', async (req, res) => {
   try {
     const { token } = req.params;
@@ -794,9 +927,16 @@ router.post('/resend-verification', async (req, res) => {
       });
     }
 
-    // Find user by email
+    const normalizedEmail = email.trim().toLowerCase();
+
+    // Find user by email (try lowercase and original casing)
     const user = await prisma.users.findFirst({
-      where: { email }
+      where: {
+        OR: [
+          { email: normalizedEmail },
+          { email: email.trim() }
+        ]
+      }
     });
 
     if (!user) {
@@ -814,26 +954,27 @@ router.post('/resend-verification', async (req, res) => {
       });
     }
 
-    // Generate new verification token
-    const verificationToken = crypto.randomBytes(32).toString('hex');
+    // Generate new 6-digit OTP
+    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
     const tokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours expiry (UTC-safe)
 
-    // Update user with new token
+    // Update user with new OTP
     await prisma.users.update({
       where: { id: user.id },
       data: {
-        email_verify_token: verificationToken,
+        email_verify_token: otpCode,
         email_verify_expires: tokenExpiry
       }
     });
 
     if(user.email) {
-      // Send verification email for all users (don't block registration if email fails)
+      const verifyPageUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/verify-email?email=${encodeURIComponent(user.email)}`;
       const templateData = {
         full_name: user.full_name,
         company_name: 'WeShare Energy',
-        verify_link: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/verify-email?token=${verificationToken}`,
-      }
+        otp_code: otpCode,
+        verify_link: verifyPageUrl,
+      };
 
       sendEmailUsingTemplate({
         to: user.email,

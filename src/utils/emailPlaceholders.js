@@ -53,6 +53,7 @@ export const EMAIL_PLACEHOLDERS = [
   { key: "[reset_password_url]", label: "Reset Password URL", description: "Password reset URL" },
   { key: "[subject]", label: "Subject", description: "lease request subject" },
   { key: "[message]", label: "Message", description: "lease request message" },
+  { key: "[otp_code]", label: "OTP Code", description: "OTP code" },
 ];
 
 // Test/Preview values for local testing
