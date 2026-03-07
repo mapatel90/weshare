@@ -386,12 +386,6 @@ router.get('/me', async (req, res) => {
 
 
   } catch (error) {
-    if (error.name === 'TokenExpiredError' || error.name === 'JsonWebTokenError') {
-      return res.status(401).json({
-        success: false,
-        message: 'Invalid or expired token'
-      });
-    }
     console.error('Get profile error:', error);
     res.status(401).json({
       success: false,
@@ -681,7 +675,7 @@ router.get('/verify-email/:token', async (req, res) => {
     const user = await prisma.users.findFirst({
       where: {
         email_verify_token: token,
-        // email_verified: 0
+        email_verified: 0
       }
     });
 
@@ -791,7 +785,8 @@ router.get('/verify-email/:token', async (req, res) => {
 router.post('/resend-verification', async (req, res) => {
   try {
     const { email } = req.body;
-    const language = req.currentLanguage;
+    // const language = req.currentLanguage;
+    const language = 'vi';
 
     if (!email) {
       return res.status(400).json({
