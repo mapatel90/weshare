@@ -674,7 +674,7 @@ router.get('/verify-email/:token', async (req, res) => {
     const user = await prisma.users.findFirst({
       where: {
         email_verify_token: token,
-        email_verified: 0
+        // email_verified: 0
       }
     });
 
