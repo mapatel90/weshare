@@ -60,6 +60,7 @@ const SettingGeneralForm = () => {
     site_image: "",
     site_favicon: "", 
     site_email: "",
+    site_map_url: "",
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -123,6 +124,7 @@ const SettingGeneralForm = () => {
         site_image: getSetting("site_image", "") || "",
         site_favicon: getSetting("site_favicon", "") || "",
         site_email: getSetting("site_email", "") || "",
+        site_map_url: getSetting("site_map_url", "") || "",
       };
 
       setFormData(newFormData);
@@ -762,6 +764,18 @@ const SettingGeneralForm = () => {
                     handleInputChange("site_email", e.target.value)
                   }
                   helperText={lang("placeholders.your_company_mail")}
+                />
+              </div>
+              <div className="mb-3">
+                <TextField
+                  fullWidth
+                  label={lang("common.map_url")}
+                  placeholder={lang("placeholders.your_company_map_url")}
+                  value={formData.site_map_url}
+                  onChange={(e) =>
+                    handleInputChange("site_map_url", e.target.value)
+                  }
+                  helperText={lang("placeholders.your_company_map_url")}
                 />
               </div>
             </div>

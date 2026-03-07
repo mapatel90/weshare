@@ -137,7 +137,41 @@ const ProjectTypePage = () => {
         {
             accessorKey: 'type_name',
             header: () => lang('projectType.name', 'Name'),
-            cell: info => info.getValue()
+            // cell: info => info.getValue()
+
+            // type name cell with edit and delete action
+            cell: info => {
+                return (
+                    <div className="d-flex flex-column gap-1">
+                        <span>{info.getValue()}</span>
+                        <div className="d-flex gap-1 align-items-center">
+                            {canEdit("project_type") && (
+                                <span
+                                    role="button"
+                                    className="text-blue-500 hover:text-blue-700 d-flex align-items-center gap-1 small"
+                                    style={{ cursor: 'pointer', fontSize: '0.8rem', textDecoration: 'none', color: '#17c666' }}
+                                    onClick={() => openEdit(info.row.original)}
+                                >
+                                    <FiEdit3 size={13} />   {lang('common.edit', 'Edit')}
+                                </span>
+                            )}
+                            {canEdit("project_type") && canDelete("project_type") && (
+                                <span style={{ color: '#aaa', fontSize: '0.8rem' }}>|</span>
+                            )}
+                            {canDelete("project_type") && (
+                                <span
+                                    role="button"
+                                    className="text-danger"
+                                    style={{ cursor: 'pointer', fontSize: '0.8rem' }}
+                                    onClick={() => handleDelete(info.row.original)}
+                                >
+                                    <FiTrash2 size={13} /> {lang('common.delete', 'Delete')}
+                                </span>
+                            )}
+                        </div>
+                    </div>
+                )
+            }
         },
         {
             accessorKey: 'status',

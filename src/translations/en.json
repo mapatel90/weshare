@@ -376,7 +376,8 @@
     "loadMore": "Load more",
     "viewSignedFile": "View Signed File",
     "all_roles": "All Roles",
-    "all_status": "All Status"
+    "all_status": "All Status",
+    "map_url": "Map URL"
   },
   "messages": {
     "cannotUndoDelete": "You won't be able to revert this!",
@@ -1273,7 +1274,8 @@
     "enterzipcode": "Enter zip code",
     "enterphonenumber": "Enter phone number",
     "your_company_mail": "Your company email address",
-    "enterfullname": "Enter full name"
+    "enterfullname": "Enter full name",
+    "your_company_map_url": "Your company map URL (e.g. https://www.google.com/maps/embed?pb=...)"
   },
   "roles": {
     "rolesManagement": "Roles Management",

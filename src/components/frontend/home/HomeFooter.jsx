@@ -17,6 +17,8 @@ const HomeFooter = () => {
     state: "",
     city: "",
   });
+  const [countries, setCountries] = useState([]);
+  const [selectedCountry, setSelectedCountry] = useState("");
 
   const fetchFooter = async () => {
     try {
@@ -45,6 +47,7 @@ const HomeFooter = () => {
             (c) => String(c.id) === String(countryId)
           );
           if (match?.name) names.country = match.name;
+          if (match?.code) setSelectedCountry(match.code);
         }
       }
 
@@ -81,8 +84,20 @@ const HomeFooter = () => {
     }
   };
 
+  const fetchCountries = async () => {
+    try {
+      const response = await apiGet("/api/locations/countries");
+      if (response?.success && Array.isArray(response.data)) {
+        setCountries(response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching countries:", error);
+    }
+  };
+
   useEffect(() => {
     fetchFooter();
+    fetchCountries();
   }, []);
 
   return (
@@ -92,13 +107,15 @@ const HomeFooter = () => {
           {/* Company Info */}
           <div className="col-lg-4 col-md-12">
             <div className="footer-logo mb-3">
-              <Image
-                src="/images/logo/Logo-White.svg"
-                alt="WeShare Logo"
-                width={150}
-                height={50}
-                className="mb-2"
-              />
+              <Link href="/">
+                <Image
+                  src="/images/logo/Logo-White.svg"
+                  alt="WeShare Logo"
+                  width={150}
+                  height={50}
+                  className="mb-2"
+                />
+              </Link>
             </div>
             <p className="text-white fw-300 fs-18 mb-4">
               {lang("home.footer.tagline")}
@@ -186,7 +203,9 @@ const HomeFooter = () => {
                             height={20}
                           />
                         </span>
-                        {footerData.site_email}
+                        <a href={`mailto:${footerData?.site_email}`} className="text-white" target="_blank" rel="noopener noreferrer">
+                          {footerData.site_email}
+                        </a>
                       </li>
                     )}
 
@@ -201,7 +220,9 @@ const HomeFooter = () => {
                             height={20}
                           />
                         </span>
-                        {footerData.site_phone}
+                        <a href={`tel:${footerData?.site_phone}`} className="text-white" target="_blank" rel="noopener noreferrer">
+                          {footerData.site_phone}
+                        </a>
                       </li>
                     )}
 
@@ -209,8 +230,8 @@ const HomeFooter = () => {
                     {(locationNames.city ||
                       locationNames.state ||
                       locationNames.country) && (
-                        <li className="fs-18 fw-300 text-white">
-                          <span className="me-3">
+                        <li className="fs-18 fw-300 text-white d-flex align-items-start">
+                          <span className="me-3 mt-1">
                             <Image
                               src="/images/icons/location-w.svg"
                               alt="location"
@@ -218,9 +239,22 @@ const HomeFooter = () => {
                               height={20}
                             />
                           </span>
-                          {`${locationNames.city || ""}${locationNames.state ? `${locationNames.city || locationNames.state ? "," : ""} ${locationNames.state}` : ""
-                            }${locationNames.country ? `${locationNames.city || locationNames.state ? "," : ""} ${locationNames.country}` : ""
-                            }`}
+                          <div>
+                            {footerData?.site_address && (
+                              <div className="mb-1">
+                                <span>{footerData?.site_address ? footerData?.site_address + "," : ""}</span>
+                              </div>
+                            )}
+                            <div>
+                              {[
+                                locationNames.city,
+                                locationNames.state,
+                                locationNames.country
+                              ]
+                                .filter(Boolean)
+                                .join(', ')}
+                            </div>
+                          </div>
                         </li>
                       )}
                   </ul>
@@ -265,6 +299,8 @@ const HomeFooter = () => {
                 </label>
                 <select
                   className="form-select form-select-sm"
+                  value={selectedCountry}
+                  onChange={(e) => setSelectedCountry(e.target.value)}
                   style={{
                     color: "#fff",
                     backgroundColor: "rgba(255, 255, 255, 0.1)",
@@ -273,18 +309,15 @@ const HomeFooter = () => {
                     padding: "8px 12px",
                   }}
                 >
-                  <option
-                    value="US"
-                    style={{ color: "#000", backgroundColor: "#fff" }}
-                  >
-                    US United States
-                  </option>
-                  <option
-                    value="CA"
-                    style={{ color: "#000", backgroundColor: "#fff" }}
-                  >
-                    CA Canada
-                  </option>
+                  {countries.map((country) => (
+                    <option
+                      key={country.id}
+                      value={country.code}
+                      style={{ color: "#000", backgroundColor: "#fff" }}
+                    >
+                      {country.name}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>

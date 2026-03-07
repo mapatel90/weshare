@@ -12,6 +12,7 @@ import "@/components/frontend/get_in_touch/styles/getInTouch.css";
 import "@/styles/css/home.css";
 import "@/styles/css/responsive.css";
 import DynamicTitle from "@/components/common/DynamicTitle";
+import GoogleMapLocation from "@/components/frontend/get_in_touch/section/GoogleMapLocation";
 
 const GetInTouchPage = () => {
   useEffect(() => {
@@ -30,25 +31,22 @@ const GetInTouchPage = () => {
       {/* Hero Section */}
       <GetInTouchHeroSection />
 
-    <section class="contact-section get-in-touch">
-    <div class="container">
-    <div class="row g-4">
+      <section class="contact-section get-in-touch">
+        <div class="container">
+          <div class="row g-4">
 
-      {/* Help Section */}
-      <GetInTouchHelpSection />
-      
-      {/* Form Section */}
-      <GetInTouchFormSection />
+            {/* Help Section */}
+            <GetInTouchHelpSection />
 
-         </div>
+            {/* Form Section */}
+            <GetInTouchFormSection />
 
-            <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3023.8586176909443!2d-74.00601508459495!3d40.71277577933133!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDDCsDQyJzQ2LjAiTiA3NMKwMDAnMTcuOSJX!5e0!3m2!1sen!2sus!4v1699452312312!5m2!1sen!2sus"
-                allowfullscreen="" loading="lazy">
-            </iframe>
+          </div>
+
+          <GoogleMapLocation />
 
         </div>
-    </section>
+      </section>
 
       {/* Footer */}
       <HomeFooter />

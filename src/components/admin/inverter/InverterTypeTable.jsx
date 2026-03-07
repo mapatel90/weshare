@@ -31,7 +31,7 @@ import usePermissions from "@/hooks/usePermissions";
 const InverterTypeTable = () => {
   const { lang } = useLanguage();
   const [types, setTypes] = useState([]);
-  const [modalMode, setModalMode] = useState(null); 
+  const [modalMode, setModalMode] = useState(null);
   const [editingId, setEditingId] = useState(null);
   const [typeName, setTypeName] = useState("");
   const [status, setStatus] = useState("");
@@ -148,7 +148,43 @@ const InverterTypeTable = () => {
   };
 
   const columns = [
-    { accessorKey: "type", header: () => lang("inverterType.typeName") },
+    {
+      accessorKey: "type",
+      header: () => lang("inverterType.typeName"),
+      cell: ({ row }) => (
+        <div className="d-flex flex-column gap-1">
+          <span>{row.original.type}</span>
+          <div className="d-flex gap-1 align-items-center">
+            {canEdit("inverter_type") && (
+              <span
+                role="button"
+                className="text-blue-500 hover:text-blue-700 d-flex align-items-center gap-1 small"
+                style={{ cursor: "pointer", fontSize: "0.8rem", textDecoration: 'none', color: '#17c666' }}
+                onClick={() => {
+                  const item = row.original;
+                  window.dispatchEvent(new CustomEvent("inverterType:open-edit", { detail: { item } }));
+                }}
+              >
+                <FiEdit3 size={13} /> {lang('common.edit', 'Edit')}
+              </span>
+            )}
+            {canEdit("inverter_type") && canDelete("inverter_type") && (
+              <span style={{ color: "#aaa", fontSize: "0.8rem" }}>|</span>
+            )}
+            {canDelete("inverter_type") && (
+              <span
+                role="button"
+                className="text-danger"
+                style={{ cursor: "pointer", fontSize: "0.8rem" }}
+                onClick={() => handleDelete(row.original.id)}
+              >
+                <FiTrash2 size={13} /> {lang('common.delete', 'Delete')}
+              </span>
+            )}
+          </div>
+        </div>
+      ),
+    },
     {
       accessorKey: "status",
       header: () => lang("inverterType.status"),
@@ -176,12 +212,12 @@ const InverterTypeTable = () => {
       },
     },
     ...(showActionColumn ? [
-    {
-      accessorKey: "actions",
-      header: () => lang("common.actions"),
-      cell: ({ row }) => {
-        return (
-          <>
+      {
+        accessorKey: "actions",
+        header: () => lang("common.actions"),
+        cell: ({ row }) => {
+          return (
+            <>
               <Stack direction="row" spacing={1} sx={{ flexWrap: "nowrap" }}>
                 {canEdit("inverter_type") && (
                   <IconButton
@@ -219,12 +255,12 @@ const InverterTypeTable = () => {
                   </IconButton>
                 )}
               </Stack>
-          </>
-        )
+            </>
+          )
+        },
+        meta: { disableSort: true }
       },
-      meta: { disableSort: true }
-    },
-  ] : [])
+    ] : [])
   ];
 
 

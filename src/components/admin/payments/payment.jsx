@@ -344,10 +344,10 @@ const PaymentsPage = () => {
               await handleDownload(paymentId);
             },
           },
-          { type: "divider" },
         ];
         if (canEdit("payments")) {
           if (paymentStatus !== "Paid") {
+            rowActions.push({ type: "divider" });
             rowActions.push({
               label: "Mark as Paid",
               icon: <span>✓</span>,

@@ -214,7 +214,45 @@ const CompanyTable = () => {
 
 
   const columns = [
-    { accessorKey: "company_name", header: () => lang("company.companyName") },
+    {
+      accessorKey: "company_name",
+      header: () => lang("company.companyName"),
+      cell: ({ row }) => (
+        <div className="d-flex flex-column gap-1">
+          <span>{row.original.company_name}</span>
+          <div className="d-flex gap-1 align-items-center">
+            {canEdit("inverter_company") && (
+              <span
+                role="button"
+                className="text-blue-500 hover:text-blue-700 d-flex align-items-center gap-1 small"
+                style={{ cursor: "pointer", fontSize: "0.8rem", textDecoration: 'none', color: '#17c666' }}
+                onClick={() => {
+                  const item = row.original;
+                  window.dispatchEvent(
+                    new CustomEvent("inverter:open-edit", { detail: { item } })
+                  );
+                }}
+              >
+                <FiEdit3 size={13} /> {lang('common.edit', 'Edit')}
+              </span>
+            )}
+            {canEdit("inverter_company") && canDelete("inverter_company") && (
+              <span style={{ color: "#aaa", fontSize: "0.8rem" }}>|</span>
+            )}
+            {canDelete("inverter_company") && (
+              <span
+                role="button"
+                className="text-danger"
+                style={{ cursor: "pointer", fontSize: "0.8rem" }}
+                onClick={() => handleDelete(row.original.id)}
+              >
+                <FiTrash2 size={13} /> {lang('common.delete', 'Delete')}
+              </span>
+            )}
+          </div>
+        </div>
+      ),
+    },
     { accessorKey: "api_key", header: () => lang("inverter.apiKey") },
     { accessorKey: "api_url", header: () => lang("inverter.apiUrlName") },
     { accessorKey: "secret_key", header: () => lang("inverter.secretKey") },
