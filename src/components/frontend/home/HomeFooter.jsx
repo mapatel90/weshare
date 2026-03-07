@@ -218,8 +218,8 @@ const HomeFooter = () => {
                               height={20}
                             />
                           </span>
-                          {`${locationNames.city || ""}${locationNames.state ? `, ${locationNames.state}` : ""
-                            }${locationNames.country ? `, ${locationNames.country}` : ""
+                          {`${locationNames.city || ""}${locationNames.state ? `${locationNames.city || locationNames.state ? "," : ""} ${locationNames.state}` : ""
+                            }${locationNames.country ? `${locationNames.city || locationNames.state ? "," : ""} ${locationNames.country}` : ""
                             }`}
                         </li>
                       )}
