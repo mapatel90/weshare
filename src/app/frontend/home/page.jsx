@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import Box from '@mui/material/Box'
 import HeroSection from '@/components/frontend/home/sections/HeroSection'
 import FeatureSection from '@/components/frontend/home/sections/FeatureSection'
 import MissionSection from '@/components/frontend/home/sections/MissionSection'
@@ -28,58 +29,61 @@ const HomePage = () => {
   return (
     <>
       <DynamicTitle titleKey="home.navbar.home" />
-      {/* Navbar */}
+      {/* Navbar - fixed position */}
       <HomeNavbar />
-      
+
+      {/* Offset for fixed navbar on mobile only */}
+      <Box sx={{ height: { xs: '64px', md: 0 } }} />
+
       {/* Hero Section */}
       <HeroSection />
-      
+
       {/* Feature Section */}
       <FeatureSection />
-      
+
       {/* Mission Section */}
       <section id="about-us">
         <MissionSection />
       </section>
-      
+
       {/* Vision Section */}
       <VisionSection />
-      
+
       {/* Solution Section */}
       <SolutionSection />
-      
+
       {/* How It Works Section */}
       <section id="how-it-works">
         <HowItWorksSection />
       </section>
-      
+
       {/* Portfolio Overview Section */}
       <PortfolioSection />
-      
+
       {/* Investment Marketplace */}
       <InvestmentMarketplace />
-      
+
       {/* Projects Section */}
       <ProjectsSection />
-      
+
       {/* Solar Lease Section */}
       <SolarLeaseSection />
-      
+
       {/* News Section */}
       <NewsSection />
-      
+
       {/* Energy Section */}
       <EnergySection />
-      
+
       {/* Testimonial Section */}
       <TestimonialSection />
-      
+
       {/* CTA Section */}
       <CTASection />
-      
+
       {/* Submit Section */}
       <SubmitSection />
-      
+
       {/* Footer */}
       <HomeFooter />
 

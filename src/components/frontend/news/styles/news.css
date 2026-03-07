@@ -119,14 +119,40 @@ footer.newsletter-footer {
     background-position: left;
   }
 }
-@media (max-width: 420px) {
-  .newsletter-sec .newsletter-form button {
-    font-size: 12px;
+@media (max-width: 768px) {
+  .newsletter.newsletter-sec {
+    margin-top: 40px;
+    margin-bottom: -60px;
   }
-  .newsletter-sec .newsletter-form input {
-    padding: 15px 10px;
+  .newsletter-sec .newsletter-title {
+    font-size: clamp(24px, 6vw, 36px) !important;
+  }
+  .newsletter-sec .text {
+    font-size: 15px;
   }
   .newsletter-sec .newsletter-form {
-    min-width: 300px;
+    min-width: unset;
+    width: 100%;
+  }
+  .newsletter-sec .newsletter-form button {
+    position: static;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .newsletter-sec .newsletter-form input {
+    padding: 12px 12px;
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 420px) {
+  .newsletter-sec .newsletter-form button {
+    font-size: 13px;
+    padding: 10px 10px;
+  }
+  .newsletter-sec .newsletter-form input {
+    padding: 10px 10px;
+    font-size: 13px;
   }
 }

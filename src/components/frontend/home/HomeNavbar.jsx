@@ -362,8 +362,11 @@ const HomeNavbar = () => {
   return (
     <>
       <AppBar
-        position="sticky"
+        position={isMobile ? 'fixed' : 'sticky'}
         sx={{
+          top: 0,
+          left: 0,
+          right: 0,
           backgroundColor: 'white',
           boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
           py: 1
@@ -549,9 +552,20 @@ const HomeNavbar = () => {
         </Container>
       </AppBar>
 
-      {/* Mobile Menu - Collapsed below navbar */}
+      {/* Mobile Menu - Fixed below navbar on mobile */}
       {isMobile && mobileMenuOpen && (
-        <Box sx={{ width: '100%' }}>
+        <Box
+          sx={{
+            position: 'fixed',
+            top: '69px',
+            left: 0,
+            right: 0,
+            zIndex: 999,
+            width: '100%',
+            maxHeight: 'calc(100vh - 64px)',
+            overflowY: 'auto',
+          }}
+        >
           {mobileMenu}
         </Box>
       )}
