@@ -5,12 +5,14 @@ import Image from 'next/image'
 import AOS from 'aos'
 import { useLanguage } from '@/contexts/LanguageContext'
 import useSettings from '@/hooks/useSettings'
+import { useFormatPrice } from '@/hooks/useFormatPrice'
 
 const PortfolioSection = () => {
   const { lang } = useLanguage()
   const { settings, getSetting } = useSettings()
   const [portfolioData, setPortfolioData] = useState(null)
   const [loading, setLoading] = useState(true)
+  const priceWithCurrency = useFormatPrice();
 
   // Format large numbers with K, M, B suffixes
   const formatNumber = (num, decimals = 1) => {
@@ -23,8 +25,8 @@ const PortfolioSection = () => {
 
   // Format currency
   const formatCurrency = (num) => {
-    if (!num || num === 0) return '$0'
-    return '$' + formatNumber(num)
+    if (!num || num === 0) return priceWithCurrency(0)
+    return priceWithCurrency(num)
   }
 
   useEffect(() => {
