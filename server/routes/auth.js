@@ -661,7 +661,8 @@ router.get('/verify-reset-token/:token', async (req, res) => {
 router.get('/verify-email/:token', async (req, res) => {
   try {
     const { token } = req.params;
-    const language = req.currentLanguage;
+    // const language = req.currentLanguage;
+    const language = 'vi';
 
     if (!token) {
       return res.status(400).json({
