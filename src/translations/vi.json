@@ -353,7 +353,9 @@
     "total_invoice_amount": "Tổng số tiền hóa đơn",
     "weshareTotalRevenue": "Tổng doanh thu WeShare",
     "loadMore": "Tải thêm",
-    "viewSignedFile": "Xem tài liệu đã ký"
+    "viewSignedFile": "Xem tài liệu đã ký",
+    "all_roles": "Tất cả vai trò",
+    "all_status": "Tất cả trạng thái"
   },
   "messages": {
     "cannotUndoDelete": "Bạn sẽ không thể hoàn tác điều này!",

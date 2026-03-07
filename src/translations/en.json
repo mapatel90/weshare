@@ -374,7 +374,9 @@
     "total_invoice_amount": "Total Invoice Amount",
     "weshareTotalRevenue": "WeShare Total Revenue",
     "loadMore": "Load more",
-    "viewSignedFile": "View Signed File"
+    "viewSignedFile": "View Signed File",
+    "all_roles": "All Roles",
+    "all_status": "All Status"
   },
   "messages": {
     "cannotUndoDelete": "You won't be able to revert this!",
