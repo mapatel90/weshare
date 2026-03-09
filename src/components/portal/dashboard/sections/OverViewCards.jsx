@@ -2,6 +2,7 @@ import React from "react";
 import { formatEnergyUnit } from "@/utils/common";
 import { useAuth } from "@/contexts/AuthContext";
 import { ROLES } from "@/constants/roles";
+import { useFormatPrice } from "@/hooks/useFormatPrice";
 
 // -------- HELPERS (similar to admin StatCards) ----------
 const formatNumber = (value) => {
@@ -24,6 +25,8 @@ const sumMetric = (source, key) => {
   }, 0);
   return total === 0 ? null : total;
 };
+
+
 
 const renderEnergyDisplay = (value) => {
   const formatted = formatEnergyUnit(value);
@@ -125,6 +128,7 @@ export default function OverViewCards({
   lang,
 }) {
   const { user } = useAuth();
+  const formatPrice = useFormatPrice();
   const isProjectSelected = !!selectedProject;
   const isInverterSelected = !!selectedInverter;
 
@@ -228,10 +232,10 @@ export default function OverViewCards({
             alt="Power Icon"
             className="w-8 h-6"
           />
-          <span className="text-gray-800 font-medium">{lang("dashboard.scope", "Scope")}</span>
+          <span className="text-gray-800 font-medium">{lang("dashboard.installedCapacity", "Installed Capacity")}</span>
         </div>
-        <div className="stat-value">{renderEnergyDisplay(projectSizeValue)}</div>
-        <div className="stat-label">{lang("dashboard.capacity", "Capacity")}</div>
+        <div className="stat-value">{`${formatNumber(projectSizeValue)} kwp`}</div>
+        {/* <div className="stat-label">{lang("dashboard.capacity", "Capacity")}</div> */}
 
         {/* NEW: show project_size (selected or aggregated total) */}
       </div>
@@ -269,7 +273,7 @@ export default function OverViewCards({
             alt="Total Yield Icon"
             className="w-8 h-6"
           />
-          <span className="text-gray-800 font-medium">{lang("reports.totalYield", "Total Yield")}</span>
+          <span className="text-gray-800 font-medium">{lang("home.exchangeHub.accumulativeGeneration", "Total Yield")}</span>
         </div>
         <div className="stat-value">{renderEnergyDisplay(totalYieldValue)}</div>
         <div className="stat-label">{totalYieldSubtitle}</div>

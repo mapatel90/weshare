@@ -536,7 +536,7 @@ function DashboardView() {
           />
 
           <div
-            className="d-flex justify-content-end gap-2 mb-3"
+            className="d-flex flex-column flex-sm-row justify-content-sm-end gap-2 mb-3"
             style={{ position: "relative" }}
           >
             <div
@@ -548,7 +548,7 @@ function DashboardView() {
             >
               <button
                 type="button"
-                className="btn bg-black text-white"
+                className="btn text-white w-100 common-orange-color"
                 id="projects-dropdown-btn"
                 aria-expanded={showProjectsDropdown}
                 onClick={() => {
@@ -650,7 +650,7 @@ function DashboardView() {
             >
               <button
                 type="button"
-                className="btn bg-black text-white"
+                className="btn text-white w-100 common-orange-color"
                 id="inverter-dropdown-btn"
                 aria-expanded={showInverterDropdown}
                 onClick={() => {

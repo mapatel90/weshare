@@ -697,6 +697,7 @@ const ProjectViewContent = ({ projectId = "" }) => {
         selectedInverterId={selectedInverterId}
         inverters={projectInverters}
         isDark={isDark}
+        inverter_details_view={true}
       />
 
       <ElectricityConsumption
@@ -787,7 +788,7 @@ const ProjectViewContent = ({ projectId = "" }) => {
         </div>
       </div>
 
-      {/* CHART SECTION */}
+      {/* Daily Power Profile CHART SECTION */}
       <div
         style={{
           display: "grid",

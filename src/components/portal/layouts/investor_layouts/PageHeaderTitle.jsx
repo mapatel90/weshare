@@ -65,6 +65,15 @@ const PageHeaderTitle = () => {
             { name: title, href: "/investor/myprofile" }
         ];
     }
+    else if (
+        parts[0] === "investor" &&
+        parts[1] === "dashboard"
+    ) {
+        title = lang("page_title.dashboard", "Dashboard");
+        breadcrumb = [
+            { name: null, href: null }
+        ];
+    }
     else {
         const pageKey = parts[parts.length - 1] || "dashboard";
         const pageName = lang(`menu.${pageKey}`, pageKey.replace(/-/g, " "));
@@ -81,11 +90,12 @@ const PageHeaderTitle = () => {
                 {/* Main title */}
                 <h3 className="header-title">{title}</h3>
 
-                {/* Vertical separator */}
-                <span className="divider">|</span>
-
+                {/* Vertical separator is not show in dashboard page*/}
+                {pathName !== "/investor/dashboard" && (
+                    <span className="divider d-none d-md-inline"> | </span>
+                )}
                 {/* Breadcrumb */}
-                <div className="breadcrumb-offtaker">
+                <div className="breadcrumb-offtaker d-none d-md-flex">
                     {breadcrumb.map((item, idx) => (
                         <React.Fragment key={idx}>
                             {idx > 0 && <ChevronRight className="w-4 h-4" />}

@@ -461,7 +461,7 @@ const ProjectDetails = ({ project_id }) => {
             <>
                 <div
                     className="d-flex justify-content-end gap-2 mb-3"
-                    style={{ position: "relative", marginTop:'1%' }}
+                    style={{ position: "relative", marginTop: '1%' }}
                 >
                     {/* Review Button */}
                     <button
@@ -493,7 +493,7 @@ const ProjectDetails = ({ project_id }) => {
                     >
                         <button
                             type="button"
-                            className="btn bg-black text-white"
+                            className="btn text-white common-orange-color"
                             id="inverter-dropdown-btn"
                             aria-expanded={showInverterDropdown}
                             onClick={() => {
@@ -648,6 +648,7 @@ const ProjectDetails = ({ project_id }) => {
                         inverters={inverters}
                         selectedInverterId={selectedInverter?.inverterId}
                         responsiveByContainer={true}
+                        inverter_details_view={true}
                     />
 
                     {/* CHART SECTION */}
@@ -769,7 +770,7 @@ const ProjectDetails = ({ project_id }) => {
             <div className="dashboard-row">
                 <div className="chart-card" style={{ overflow: 'auto' }}>
                     <div className="card-header" style={{ marginBottom: '10px' }}>
-                        <div className="card-title">Savings Tracker</div>
+                        <div className="card-title">{lang("dashboard.savingsTracker", "Savings Tracker")}</div>
                         <div className="tabs">
                             <button
                                 className={`tab ${savingsViewTab === "daily" ? "active" : ""}`}
@@ -778,7 +779,7 @@ const ProjectDetails = ({ project_id }) => {
                                     setElectricityOverviewViewMode("day");
                                 }}
                             >
-                                Daily
+                                {lang("dashboard.daily", "Daily")}
                             </button>
                             <button
                                 className={`tab ${savingsViewTab === "monthly" ? "active" : ""}`}
@@ -787,14 +788,14 @@ const ProjectDetails = ({ project_id }) => {
                                     // keep month-cost chart on currently selected year
                                 }}
                             >
-                                Monthly
+                                {lang("dashboard.monthly", "Monthly")}
                             </button>
                         </div>
                     </div>
                     <p
                         style={{ color: "#6b7280", fontSize: "13px", marginBottom: '10px' }}
                     >
-                        electricity cost comparison between EVN and WeShare with savings analysis
+                        {lang("dashboard.savingsTrackerDescription", "Track your electricity cost savings over time compared to traditional grid consumption. View daily savings, monthly summaries, and year-over-year comparisons to see the impact of your solar investment.")}
                     </p>
 
                     <div className="chart-container">
@@ -831,7 +832,7 @@ const ProjectDetails = ({ project_id }) => {
                 <div>
                     <div className="chart-card">
                         <div className="card-title" style={{ marginBottom: "20px" }}>
-                            🌱 Environmental Impact
+                            🌱 {lang("dashboard.environmentalImpact", "Environmental Impact")}
                         </div>
                         <div className="impact-grid">
                             <div className="impact-card">
@@ -841,21 +842,21 @@ const ProjectDetails = ({ project_id }) => {
                                         ? `${selectedProject.project_data[0].power_station_avoided_co2} kg`
                                         : '-'}
                                 </div>
-                                <div className="impact-label">CO₂ Avoided This Year</div>
+                                <div className="impact-label">{lang("dashboard.co2Avoided", "CO₂ Avoided This Year")}</div>
                             </div>
                             <div className="impact-card">
                                 <div style={{ fontSize: "35px" }}>💡</div>
                                 <div className="impact-value">{selectedProject?.project_data?.[0]?.power_station_avoided_tce
                                     ? `${selectedProject.project_data[0].power_station_avoided_tce} kWh`
                                     : '-'}</div>
-                                <div className="impact-label">Clean Energy Consumed</div>
+                                <div className="impact-label">{lang("dashboard.cleanEnergyConsumed", "Clean Energy Consumed")}</div>
                             </div>
                             <div className="impact-card" style={{ gridColumn: "1 / -1" }}>
                                 <div style={{ fontSize: "35px" }}>🌳</div>
                                 <div className="impact-value">{selectedProject?.project_data?.[0]?.power_station_num_tree
-                                    ? `${selectedProject.project_data[0].power_station_num_tree} trees`
+                                    ? `${selectedProject.project_data[0].power_station_num_tree} ${lang("dashboard.trees", "Trees")}`
                                     : '-'}</div>
-                                <div className="impact-label">Equivalent planted</div>
+                                <div className="impact-label">{lang("dashboard.equivalentPlanted", "Equivalent planted")}</div>
                             </div>
                         </div>
                     </div>

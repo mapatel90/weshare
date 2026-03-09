@@ -42,6 +42,7 @@ function DashboardView() {
   const [projectsError, setProjectsError] = useState(null);
   const [selectedProject, setSelectedProject] = useState(null);
   const [runningProjects, setRunningProjects] = useState(0);
+  const [upcomingProjects, setUpcomingProjects] = useState(0);
   const [payoutTotal, setPayoutTotal] = useState(0);
   const [totalContracts, setTotalContracts] = useState(0);
   const [contractStatuses, setContractStatuses] = useState({
@@ -98,7 +99,7 @@ function DashboardView() {
       setProjectsLoading(true);
       setProjectsError(null);
       try {
-        let apiUrl = `/api/projects?project_status_id=${PROJECT_STATUS.RUNNING}&page=1&limit=50`;
+        let apiUrl = `/api/projects?project_status_id=${PROJECT_STATUS.RUNNING},${PROJECT_STATUS.UPCOMING}&page=1&limit=50`;
         if (user?.id) {
           apiUrl += `&offtaker_id=${user.id}`;
         }
@@ -147,14 +148,25 @@ function DashboardView() {
               };
             });
             setProjects(normalized);
-            setRunningProjects(normalized.length);
+            setRunningProjects(
+              res.data.filter(
+                (p) => p.project_status_id === PROJECT_STATUS.RUNNING
+              ).length
+            );
+            setUpcomingProjects(
+              res.data.filter(
+                (p) => p.project_status_id === PROJECT_STATUS.UPCOMING
+              ).length
+            );
           } else {
             setProjects([]);
             setRunningProjects(0);
+            setUpcomingProjects(0);
           }
         } else {
           setProjects([]);
           setRunningProjects(0);
+          setUpcomingProjects(0);
         }
       } catch (err) {
         console.error("Failed to load projects for dropdown", err);
@@ -549,28 +561,29 @@ function DashboardView() {
             totalProjects={projects.length}
             runningProjects={runningProjects}
             payoutTotal={payoutTotal}
+            upcomingProjects={upcomingProjects}
             totalContracts={totalContracts}
             contractStatuses={contractStatuses}
             summaryLoading={summaryLoading}
             showRunningProjects={true}
+            showUpcomingProjects={true}
             projectsDescription={lang("dashboard.all_project", "All Projects") ?? "All Projects"}
             payoutLabel={lang("dashboard.payment_total", "Payment Total") ?? "Payment Total"}
             payoutDescription={lang("dashboard.total_payments_made", "Total payments made") ?? "Total payments made"}
           />
           <div
-            className="d-flex justify-content-end gap-2 mb-3"
+            className="d-flex flex-column flex-sm-row justify-content-sm-end gap-2 mb-3"
             style={{ position: "relative" }}
           >
             <div
               style={{
                 position: "relative",
-                display: "inline-block",
                 zIndex: showProjectsDropdown ? 30 : undefined,
               }}
             >
               <button
                 type="button"
-                className="btn bg-black text-white"
+                className="btn text-white w-100 common-orange-color"
                 id="projects-dropdown-btn"
                 aria-expanded={showProjectsDropdown}
                 onClick={() => {
@@ -586,6 +599,7 @@ function DashboardView() {
                   id="projects-dropdown-menu"
                   style={{
                     position: "absolute",
+                    left: 0,
                     right: 0,
                     top: "100%",
                     zIndex: 40,
@@ -668,13 +682,12 @@ function DashboardView() {
             <div
               style={{
                 position: "relative",
-                display: "inline-block",
                 zIndex: showInverterDropdown ? 30 : undefined,
               }}
             >
               <button
                 type="button"
-                className="btn bg-black text-white"
+                className="btn text-white w-100 common-orange-color"
                 id="inverter-dropdown-btn"
                 aria-expanded={showInverterDropdown}
                 onClick={() => {
@@ -697,6 +710,7 @@ function DashboardView() {
                   id="inverter-dropdown-menu"
                   style={{
                     position: "absolute",
+                    left: 0,
                     right: 0,
                     top: "100%",
                     zIndex: 40,
@@ -832,6 +846,7 @@ function DashboardView() {
             selectedInverterId={selectedInverter?.inverterId}
             isDark={isDark}
             responsiveByContainer={true}
+            inverter_details_view={false}
           />
 
           <ElectricityConsumption
@@ -1098,28 +1113,24 @@ function DashboardView() {
         </div>
       )}
 
-      <div className="row mt-3">
+      <div className="mt-3">
         <AllProjects />
-
-        {/* <AllReports /> */}
-
-        <AllContracts />
       </div>
 
       {/* Projects Table */}
       <ProjectsTable />
 
       {/* Bottom Row */}
-      <div className="bottom-row">
+      {/* <div className="bottom-row"> */}
         {/* Billing Card */}
-        <BillingCard
+        {/* <BillingCard
           lang={lang}
-        />
+        /> */}
         {/* Documents Card */}
-        <DocumentsCard
+        {/* <DocumentsCard
           lang={lang}
-        />
-      </div>
+        /> */}
+      {/* </div> */}
     </div>
   );
 }

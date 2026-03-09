@@ -369,9 +369,9 @@ const MeterReadings = () => {
       <div className="bg-white rounded-xl shadow-md overflow-hidden">
         <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 border-b border-gray-200">
           <div>
-            <h2 className="text-lg font-semibold text-slate-900">
+            {/* <h2 className="text-lg font-semibold text-slate-900">
               {lang("meter.meterReadings", "Meter Readings")}
-            </h2>
+            </h2> */}
             {/* <p className="text-xs text-gray-500 mt-0.5">
               {lang(
                 "meter.subtitle",
