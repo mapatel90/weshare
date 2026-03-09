@@ -22,7 +22,8 @@ const navItems = [
     { label: "menu.customers", path: "/admin/settings/customers", icon: "feather-users" },
     { label: "menu.localization", path: "/admin/settings/localization", icon: "feather-globe" },
     { label: "menu.recaptcha", path: "/admin/settings/recaptcha", icon: "feather-shield" },
-    { label: "menu.miscellaneous", path: "/admin/settings/miscellaneous", icon: "feather-cast" }
+    { label: "menu.miscellaneous", path: "/admin/settings/miscellaneous", icon: "feather-cast" },
+    { label: "menu.exchangeHub", path: "/admin/settings/exchange-hub-summary", icon: "feather-bar-chart-2" }
 ]
 
 const SettingSidebar = () => {

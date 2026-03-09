@@ -12,6 +12,8 @@ import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { PROJECT_STATUS } from '@/constants/project_status'
 import { ROLES } from '@/constants/roles'
 import { useFormatPrice, usePriceWithCurrency } from '@/hooks/useFormatPrice'
+import getSetting from '@/hooks/useSettings'
+import { useSettings } from '@/contexts/SettingsContext'
 
 const ExchangeHub = () => {
   const searchParams = useSearchParams()
@@ -42,6 +44,7 @@ const ExchangeHub = () => {
   const router = useRouter()
   const { lang } = useLanguage()
   const priceWithCurrency = useFormatPrice();
+  const { settings } = useSettings()
 
   const handleTabChange = (tab) => {
     setActiveTab(tab)
@@ -442,21 +445,21 @@ const ExchangeHub = () => {
                 <h3 className="fs-22 fw-600 text-black">{lang('home.exchangeHub.summary') || 'Exchange Hub Summary'}</h3>
                 <div className="row mb-1">
                   <div className="col-7"><p className="fw-300 text-black">{lang('home.exchangeHub.totalProjects')}:</p></div>
-                  <div className="col-5"><p className="text-end text-black fw-600 fs-18">{projectCountSummary.total_projects}</p></div>
+                  <div className="col-5"><p className="text-end text-black fw-600 fs-18">{settings?.exchange_hub_total_projects ? settings?.exchange_hub_total_projects : projectCountSummary.total_projects}</p></div>
                 </div>
                 <div className="row mb-1">
                   <div className="col-7"><p className="fw-300 text-black">{lang('home.exchangeHub.totalCapacity')}:</p></div>
-                  <div className="col-5"><p className="text-end text-black fw-600 fs-18">{projectCountSummary.total_project_size} kWp</p></div>
+                  <div className="col-5"><p className="text-end text-black fw-600 fs-18">{settings?.exchange_hub_total_capacity ? settings?.exchange_hub_total_capacity : projectCountSummary.total_project_size} kWp</p></div>
                 </div>
                 <div className="row mb-1">
                   <div className="col-7"><p className="fw-300 text-black">{lang('home.exchangeHub.averageROI')}:</p></div>
                   <div className="col-5"><p className="text-end text-black fw-600 fs-18">
-                    20%
+                    {settings?.exchange_hub_average_roi ? settings?.exchange_hub_average_roi + '%' : '20%'}
                   </p></div>
                 </div>
                 <div className="row mb-3">
                   <div className="col-7"><p className="fw-300 text-black">{lang('home.exchangeHub.activeInvestors')}:</p></div>
-                  <div className="col-5"><p className="text-end text-black fw-600 fs-18">{activeInvestorsCount}</p></div>
+                  <div className="col-5"><p className="text-end text-black fw-600 fs-18">{settings?.exchange_hub_active_investors ? settings?.exchange_hub_active_investors : activeInvestorsCount}</p></div>
                 </div>
               </div>
 
@@ -467,14 +470,14 @@ const ExchangeHub = () => {
                 <h3 className="fs-22 fw-600 text-black">{lang('home.exchangeHub.quickSimulation') || 'QUICK SIMULATION'}</h3>
                 <div className="row mb-3">
                   <div className="col-7"><p className="fw-300 text-black">{lang('home.exchangeHub.ifYouInvest') || 'If you invest'}</p></div>
-                  <div className="col-5"><p className="text-end text-black fw-600 fs-18">$5,000 →</p></div>
+                  <div className="col-5"><p className="text-end text-black fw-600 fs-18">${settings?.exchange_hub_if_you_invest ? settings?.exchange_hub_if_you_invest : '$5,000'} →</p></div>
                 </div>
                 <div className="row mb-3">
                   <div className="col-7"><p className="fw-300 text-black">{lang('home.exchangeHub.youCanEarn') || 'You can earn approx.'}</p></div>
-                  <div className="col-5"><p className="text-end text-black fw-600 fs-18">$1100/Year</p></div>
+                  <div className="col-5"><p className="text-end text-black fw-600 fs-18">${settings?.exchange_hub_you_can_earn ? settings?.exchange_hub_you_can_earn : '1100'} {lang('home.exchangeHub.perYear')}</p></div>
                 </div>
                 <div className="row mb-3">
-                  <div className="col-12"><small className="text-black fw-300 w-100 d-block text-end">{lang('home.exchangeHub.basedOnROI') || '(based on 18% avg ROI)'}</small></div>
+                  <div className="col-12"><small className="text-black fw-300 w-100 d-block text-end">{`(${lang('home.exchangeHub.basedOnROI')} ${settings?.exchange_hub_average_roi ? settings?.exchange_hub_average_roi + '%' : '20%'} ${lang('home.exchangeHub.avroi')})`}</small></div>
                 </div>
               </div>
 

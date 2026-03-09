@@ -304,6 +304,14 @@ export const menuList = [
         permission_action: ["view"],
         subdropdownMenu: false,
       },
+      {
+        id: 9,
+        name: "Exchange Hub Summary",
+        path: "/admin/settings/exchange-hub-summary",
+        permission: "exchange_hub_summary",
+        permission_action: ["view"],
+        subdropdownMenu: false,
+      },
     ],
   },
 ];

@@ -868,7 +868,8 @@
       "ifYouInvest": "Nếu bạn đầu tư",
       "youCanEarn": "Bạn có thể kiếm khoảng",
       "perYear": "/năm",
-      "basedOnROI": "(Tỷ suất lợi nhuận đầu tư trung bình hơn 20%)",
+      "basedOnROI": "hơn",
+      "avroi": "trung bình ROI",
       "signUpToInvest": "Đăng ký để đầu tư",
       "listYourProject": "Liệt kê dự án của bạn",
       "id": "Mã:",
@@ -2008,6 +2009,22 @@
     "cancel_reason_required": "Vui lòng nhập lý do hủy thanh toán.",
     "payout_cancelled_successfully": "Thanh toán đã được hủy thành công",
     "payout_cancel_failed": "Không thể hủy thanh toán. Vui lòng thử lại."
+  },
+  "exchangeHubSummary": {
+    "title": "Cài đặt tóm tắt Exchange Hub",
+    "subtitle": "Cấu hình các giá trị hiển thị trong phần tóm tắt thị trường và mô phỏng nhanh của Exchange Hub.",
+    "totalProjects": "Tổng số dự án",
+    "totalProjectsInfo": "Giá trị hiển thị cho Tổng số dự án trong tóm tắt Exchange Hub",
+    "totalCapacity": "Tổng công suất",
+    "totalCapacityInfo": "Giá trị hiển thị cho Tổng công suất trong tóm tắt Exchange Hub (ví dụ: 500 kWp)",
+    "averageROI": "ROI trung bình",
+    "averageROIInfo": "Giá trị hiển thị cho ROI trung bình trong tóm tắt Exchange Hub (ví dụ: 20%)",
+    "activeInvestors": "Nhà đầu tư đang hoạt động",
+    "activeInvestorsInfo": "Giá trị hiển thị cho số lượng nhà đầu tư đang hoạt động trong tóm tắt Exchange Hub",
+    "ifYouInvest": "Nếu bạn đầu tư",
+    "ifYouInvestInfo": "Số tiền đầu tư mẫu hiển thị trong mô phỏng nhanh (ví dụ: $10,000)",
+    "youCanEarn": "Bạn có thể kiếm được khoảng",
+    "youCanEarnInfo": "Thu nhập ước tính hiển thị trong mô phỏng nhanh (ví dụ: $2,000/năm)"
   },
   "company": {
     "companydetails": "Chi tiết công ty",

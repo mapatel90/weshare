@@ -884,7 +884,8 @@
       "ifYouInvest": "If you invest",
       "youCanEarn": "You can earn approx.",
       "perYear": "/Year",
-      "basedOnROI": "(more than 20% avg ROI)",
+      "basedOnROI": "more than",
+      "avroi": "avg ROI",
       "signUpToInvest": "Sign up to Invest",
       "listYourProject": "List Your Project",
       "id": "ID:",
@@ -2057,6 +2058,22 @@
     "cancel_reason_required": "Please enter a cancel reason.",
     "payout_cancelled_successfully": "Payout cancelled successfully",
     "payout_cancel_failed": "Failed to cancel payout. Please try again."
+  },
+  "exchangeHubSummary": {
+    "title": "Exchange Hub Summary Settings",
+    "subtitle": "Configure the values displayed in the Exchange Hub market summary and quick simulation sections.",
+    "totalProjects": "Total Projects",
+    "totalProjectsInfo": "Value shown for Total Projects in Exchange Hub Summary",
+    "totalCapacity": "Total Capacity",
+    "totalCapacityInfo": "Value shown for Total Capacity in Exchange Hub Summary (e.g. 500 kWp)",
+    "averageROI": "Average ROI",
+    "averageROIInfo": "Value shown for Average ROI in Exchange Hub Summary (e.g. 20%)",
+    "activeInvestors": "Active Investors",
+    "activeInvestorsInfo": "Value shown for Active Investors count in Exchange Hub Summary",
+    "ifYouInvest": "If You Invest",
+    "ifYouInvestInfo": "Example investment amount displayed in Quick Simulation (e.g. $10,000)",
+    "youCanEarn": "You Can Earn Approx.",
+    "youCanEarnInfo": "Approximate earnings shown in Quick Simulation (e.g. $2,000/year)"
   },
   "company": {
     "companydetails": "Company Details",
