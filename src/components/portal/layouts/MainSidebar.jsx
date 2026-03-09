@@ -23,13 +23,13 @@ function MainSidebar() {
     return (
         <div className="icon-sidebar" id="iconSidebar">
             <div className='icon-size'>
-                <Link href="/">
+                <a href="/">
                     <img
                         src="/images/logo/icon.png"
                         className="logo-icon"
                         alt="weshare logo"
                     />
-                </Link>
+                </a>
             </div>
             <div className="logo-separator" />
 
