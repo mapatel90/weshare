@@ -518,31 +518,33 @@ const PayoutsPage = () => {
                                     </div>
 
                                     {/* Card Footer */}
-                                    <div className={`grid gap-2 pt-3 border-t border-gray-100 ${payout.document ? "grid-cols-3" : "grid-cols-2"}`}>
+                                    <div className="flex flex-col gap-2 pt-3 border-t border-gray-100">
                                         {payout.document && (
                                             <button
                                                 onClick={() => handleViewDocument(payout.document)}
-                                                className="w-full whitespace-nowrap px-2 py-2 text-xs font-semibold text-slate-900 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-center"
+                                                className="w-full px-3 py-2 text-xs font-semibold text-slate-900 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-center"
                                             >
                                                 {lang("payouts.uploaded_image", "Document")}
                                             </button>
                                         )}
-                                        <Link
-                                            href={`/investor/payouts/view/${payout.id}`}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="block"
-                                        >
-                                            <button className="w-full whitespace-nowrap px-2 py-2 text-xs font-semibold text-blue-600 border border-blue-300 rounded-lg hover:bg-blue-50 transition-colors text-center">
-                                                {lang("navigation.view", "View")}
+                                        <div className="grid grid-cols-2 gap-2">
+                                            <Link
+                                                href={`/investor/payouts/view/${payout.id}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="block"
+                                            >
+                                                <button className="w-full px-3 py-2 text-xs font-semibold text-blue-600 border border-blue-300 rounded-lg hover:bg-blue-50 transition-colors text-center">
+                                                    {lang("navigation.view", "View")}
+                                                </button>
+                                            </Link>
+                                            <button
+                                                onClick={() => handlePayoutDownload(payout)}
+                                                className="w-full px-3 py-2 text-xs font-semibold text-green-700 border border-green-300 rounded-lg hover:bg-green-50 transition-colors text-center"
+                                            >
+                                                {lang("common.download", "Download")}
                                             </button>
-                                        </Link>
-                                        <button
-                                            onClick={() => handlePayoutDownload(payout)}
-                                            className="w-full whitespace-nowrap px-2 py-2 text-xs font-semibold text-green-700 border border-green-300 rounded-lg hover:bg-green-50 transition-colors text-center"
-                                        >
-                                            {lang("common.download", "Download")}
-                                        </button>
+                                        </div>
                                     </div>
                                 </div>
                             );
