@@ -76,7 +76,9 @@
     "changepassword": "Đổi mật khẩu",
     "statsOverview": "Tổng quan thống kê",
     "statsDescription": "Tổng quan về Thống kê",
-    "plantoverview": "Tổng quan về nhà máy năng lượng mặt trời"
+    "plantoverview": "Tổng quan về nhà máy năng lượng mặt trời",
+    "myProjects": "Dự án của tôi",
+    "myProfile": "Hồ sơ của tôi"
   },
   "navigation": {
     "navigation": "Điều hướng",

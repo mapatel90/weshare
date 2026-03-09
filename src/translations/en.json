@@ -78,7 +78,9 @@
     "plantoverview": "Solar Plant Overview",
     "payouts": "Payouts",
     "email_templates": "Email Templates",
-    "company": "Company"
+    "company": "Company",
+    "myProjects": "My Projects",
+    "myProfile": "My Profile"
   },
   "navigation": {
     "navigation": "Navigation",

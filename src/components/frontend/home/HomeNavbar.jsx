@@ -166,18 +166,18 @@ const HomeNavbar = () => {
         },
       }}
     >
-      <MenuItem onClick={handleProfile}>My Profile</MenuItem>
+      <MenuItem onClick={handleProfile}>{lang('header.myProfile')}</MenuItem>
 
       <MenuItem
         onClick={() => {
-          router.push('/my-projects')
+          router.push(user?.role === ROLES.OFFTAKER ? '/offtaker/projects' : '/investor/projects')
           handleUserClose()
         }}
       >
-        My Projects
+        {lang('header.myProjects')}
       </MenuItem>
 
-      <MenuItem onClick={handleLogout}>Logout</MenuItem>
+      <MenuItem onClick={handleLogout}>{lang('header.logout')}</MenuItem>
     </Menu>
   )
 
