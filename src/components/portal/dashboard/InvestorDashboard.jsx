@@ -896,14 +896,14 @@ function DashboardView() {
         </div>
       )}
 
-      <div className="row">
+      <div className="">
         <AllProjects />
-        <AllContracts />
+        {/* <AllContracts /> */}
       </div>
 
       <ProjectsTable />
 
-      <PayoutCard />
+      {/* <PayoutCard /> */}
       <div className="bottom-row">
         {/* <DocumentsCard /> */}
       </div>

@@ -15,6 +15,7 @@ import { sortByNameAsc } from "@/utils/common";
 import OverViewCards from "../../dashboard/sections/OverViewCards";
 import { useLanguage } from "@/contexts/LanguageContext";
 import ReviewModal from "./ReviewModal";
+import ElectricityConsumption from "@/components/admin/projectsCreate/projectViewSection/ElectricityConsumption";
 
 const ProjectDetails = ({ project_id }) => {
     const { user } = useAuth();
@@ -65,6 +66,11 @@ const ProjectDetails = ({ project_id }) => {
     const [electricityOverviewViewMode, setElectricityOverviewViewMode] = useState("day"); // day | month | year
     const [electricityOverviewDate, setElectricityOverviewDate] = useState(new Date().toISOString().slice(0, 7)); // YYYY-MM for day, YYYY for month
     const [savingsViewTab, setSavingsViewTab] = useState("daily"); // daily | monthly | comparison
+
+    const [electricityConsumptionData, setElectricityConsumptionData] = useState(null);
+    const [electricityConsumptionDataLoading, setElectricityConsumptionDataLoading] = useState(true);
+    const [electricityConsumptionDate, setElectricityConsumptionDate] = useState(new Date().toISOString().slice(0, 7));
+    const [electricityConsumptionViewMode, setElectricityConsumptionViewMode] = useState("day");
 
     // Review Modal State
     const [reviewModalOpen, setReviewModalOpen] = useState(false);
@@ -456,6 +462,39 @@ const ProjectDetails = ({ project_id }) => {
         }
     }, [selectedProject?.id, electricityOverviewViewMode, electricityOverviewDate]);
 
+    useEffect(() => {
+        const loadElectricityConsumptionData = async () => {
+          if (!selectedProject?.id) return;
+    
+          let dateValue;
+          if (electricityConsumptionViewMode === "day") {
+            dateValue = electricityConsumptionDate; // YYYY-MM format
+          } else if (electricityConsumptionViewMode === "month") {
+            dateValue = electricityConsumptionDate.slice(0, 4); // YYYY format
+          } else {
+            dateValue = new Date().getFullYear().toString(); // YYYY format (not used by API but required)
+          }
+    
+          const payload = {
+            projectId: selectedProject?.id ?? null,
+            type: electricityConsumptionViewMode,
+            date: dateValue,
+          };
+    
+          try {
+            setElectricityConsumptionDataLoading(true);
+            const res = await apiPost(`/api/projects/electricity/consumption-chart`, payload);
+            setElectricityConsumptionData(res?.success ? res.data : null);
+          } catch (error) {
+            console.error("Error loading electricity consumption data:", error);
+            setElectricityConsumptionData(null);
+          } finally {
+            setElectricityConsumptionDataLoading(false);
+          }
+        };
+        loadElectricityConsumptionData();
+      }, [selectedProject?.id, electricityConsumptionViewMode, electricityConsumptionDate]);
+
     return (
         <div>
             <>
@@ -763,6 +802,14 @@ const ProjectDetails = ({ project_id }) => {
                             )}
                         </div>
                     </div>
+
+                    <ElectricityConsumption
+                        data={electricityConsumptionData}
+                        loading={electricityConsumptionDataLoading}
+                        selectedMonthYear={electricityConsumptionDate}
+                        onMonthYearChange={setElectricityConsumptionDate}
+                        isDark={isDark}
+                    />
                 </>
             )}
 

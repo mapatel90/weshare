@@ -849,14 +849,6 @@ function DashboardView() {
             inverter_details_view={false}
           />
 
-          <ElectricityConsumption
-            data={electricityConsumptionData}
-            loading={electricityConsumptionDataLoading}
-            selectedMonthYear={electricityConsumptionDate}
-            onMonthYearChange={setElectricityConsumptionDate}
-            isDark={isDark}
-          />
-
           {/* CHART SECTION */}
           <div
             style={{
@@ -981,6 +973,14 @@ function DashboardView() {
               )}
             </div>
           </div>
+
+          <ElectricityConsumption
+            data={electricityConsumptionData}
+            loading={electricityConsumptionDataLoading}
+            selectedMonthYear={electricityConsumptionDate}
+            onMonthYearChange={setElectricityConsumptionDate}
+            isDark={isDark}
+          />
         </>
       )}
 
@@ -1122,12 +1122,12 @@ function DashboardView() {
 
       {/* Bottom Row */}
       {/* <div className="bottom-row"> */}
-        {/* Billing Card */}
-        {/* <BillingCard
+      {/* Billing Card */}
+      {/* <BillingCard
           lang={lang}
         /> */}
-        {/* Documents Card */}
-        {/* <DocumentsCard
+      {/* Documents Card */}
+      {/* <DocumentsCard
           lang={lang}
         /> */}
       {/* </div> */}
