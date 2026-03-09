@@ -470,7 +470,7 @@ const ExchangeHub = () => {
                 <h3 className="fs-22 fw-600 text-black">{lang('home.exchangeHub.quickSimulation') || 'QUICK SIMULATION'}</h3>
                 <div className="row mb-3">
                   <div className="col-7"><p className="fw-300 text-black">{lang('home.exchangeHub.ifYouInvest') || 'If you invest'}</p></div>
-                  <div className="col-5"><p className="text-end text-black fw-600 fs-18">${settings?.exchange_hub_if_you_invest ? settings?.exchange_hub_if_you_invest : '$5,000'} →</p></div>
+                  <div className="col-5"><p className="text-end text-black fw-600 fs-18">${settings?.exchange_hub_if_you_invest ? settings?.exchange_hub_if_you_invest : '5,000'} →</p></div>
                 </div>
                 <div className="row mb-3">
                   <div className="col-7"><p className="fw-300 text-black">{lang('home.exchangeHub.youCanEarn') || 'You can earn approx.'}</p></div>
