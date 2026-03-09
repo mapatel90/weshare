@@ -20,6 +20,7 @@ const SavingReports = () => {
   const [loading, setLoading] = useState(false);
   const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
   const [error, setError] = useState(null);
+  const [pageSize, setPageSize] = useState(PAGE_SIZE);
   const [pagination, setPagination] = useState({
     page: 1,
     limit: PAGE_SIZE,
@@ -81,7 +82,7 @@ const SavingReports = () => {
 
       const params = new URLSearchParams({
         page: String(pageIndex + 1),
-        limit: String(PAGE_SIZE),
+        limit: String(pageSize),
       });
 
       params.append("projectId", appliedProject);
@@ -134,7 +135,7 @@ const SavingReports = () => {
     } finally {
       setLoading(false);
     }
-  }, [pageIndex, appliedProject, appliedStartDate, appliedEndDate, appliedGroupBy, searchTerm, user?.id]);
+  }, [pageIndex, pageSize, appliedProject, appliedStartDate, appliedEndDate, appliedGroupBy, searchTerm, user?.id]);
 
   const handleSearchChange = (value) => {
     setPageIndex(0);
@@ -143,9 +144,13 @@ const SavingReports = () => {
 
   const handlePaginationChange = (nextPagination) => {
     const updated = typeof nextPagination === "function"
-      ? nextPagination({ pageIndex, pageSize: PAGE_SIZE })
+      ? nextPagination({ pageIndex, pageSize })
       : nextPagination;
-    setPageIndex(updated.pageIndex || 0);
+    setPageIndex(updated.pageIndex ?? 0);
+    if (updated.pageSize && updated.pageSize !== pageSize) {
+      setPageSize(updated.pageSize);
+      setPageIndex(0);
+    }
   };
 
   const handleSubmit = () => {
@@ -405,8 +410,7 @@ const SavingReports = () => {
           </div>
         </div>
       )}
-      <div className="d-flex items-center justify-content-between gap-2 mb-4 mt-4 w-full flex-wrap">
-        <div className="filter-button flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap gap-2 mb-4 mt-4 w-full">
 
           {/* Project */}
           <Autocomplete
@@ -425,7 +429,7 @@ const SavingReports = () => {
                 placeholder={lang("common.searchProject", "Search project...")}
               />
             )}
-            sx={{ minWidth: 260 }}
+            sx={{ width: { xs: "100%", sm: 260 } }}
           />
 
           {/* Group By */}
@@ -457,7 +461,7 @@ const SavingReports = () => {
                 placeholder={lang("common.select", "Select...")}
               />
             )}
-            sx={{ minWidth: 180 }}
+            sx={{ width: { xs: "100%", sm: 180 } }}
           />
 
           {/* Start Date */}
@@ -467,11 +471,9 @@ const SavingReports = () => {
             label={lang("projects.startDate", "Start Date")}
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
-            InputLabelProps={{
-              shrink: true,
-            }}
+            InputLabelProps={{ shrink: true }}
             sx={{
-              minWidth: 200,
+              width: { xs: "100%", sm: 200 },
               "& .MuiOutlinedInput-root": {
                 borderRadius: "8px",
                 backgroundColor: "#fff",
@@ -486,14 +488,10 @@ const SavingReports = () => {
             label={lang("projects.endDate", "End Date")}
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
-            inputProps={{
-              min: startDate || undefined,
-            }}
-            InputLabelProps={{
-              shrink: true,
-            }}
+            inputProps={{ min: startDate || undefined }}
+            InputLabelProps={{ shrink: true }}
             sx={{
-              minWidth: 200,
+              width: { xs: "100%", sm: 200 },
               "& .MuiOutlinedInput-root": {
                 borderRadius: "8px",
                 backgroundColor: "#fff",
@@ -505,24 +503,21 @@ const SavingReports = () => {
           <button
             onClick={handleSubmit}
             disabled={isSubmitDisabled}
-            className={`theme-btn-blue-color border rounded-md px-5 py-2 text-sm whitespace-nowrap
-    ${isSubmitDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
+            className={`theme-btn-blue-color border rounded-md px-5 py-2 text-sm whitespace-nowrap w-full sm:w-auto ${isSubmitDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
           >
             {lang("common.submit")}
           </button>
 
-        </div>
-
-
-        <button
-          onClick={downloadCSV}
-          className="common-grey-color border rounded-3 btn"
-        >
-          {lang("reports.downloadcsv")}
-        </button>
+          <button
+            onClick={downloadCSV}
+            className="common-grey-color border rounded-3 btn w-full sm:w-auto"
+          >
+            {lang("reports.downloadcsv")}
+          </button>
       </div>
 
-      <div className="overflow-x-auto relative">
+      {/* Desktop Table View */}
+      <div className="hidden md:block overflow-x-auto relative">
         {error && <div className="text-red-600">Error: {error}</div>}
         <>
           <Table
@@ -532,11 +527,148 @@ const SavingReports = () => {
             onSearchChange={handleSearchChange}
             onPaginationChange={handlePaginationChange}
             pageIndex={pageIndex}
-            pageSize={PAGE_SIZE}
+            pageSize={pageSize}
             serverSideTotal={pagination.total}
-            initialPageSize={PAGE_SIZE}
+            initialPageSize={pageSize}
           />
         </>
+      </div>
+
+      {/* Mobile Card View */}
+      <div className="block md:hidden space-y-3 mt-3">
+        {/* Top Page Size Selector */}
+        <div className="flex items-center justify-end gap-2 pb-2 border-b border-gray-100">
+          <span className="text-xs text-gray-500">{lang("common.rowsPerPage", "Rows per page")}:</span>
+          <select
+            value={pageSize}
+            onChange={(e) => { setPageSize(Number(e.target.value)); setPageIndex(0); }}
+            className="text-xs border border-gray-300 rounded-md px-2 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-blue-400"
+          >
+            {[10, 30, 50, 70, 100].map(s => (
+              <option key={s} value={s}>{s}</option>
+            ))}
+          </select>
+        </div>
+        {error && <div className="text-red-600 text-sm">Error: {error}</div>}
+        {reportsData.length === 0 ? (
+          <div className="text-center text-sm text-gray-500 py-8">
+            {lang("common.noData", "No data found")}
+          </div>
+        ) : (
+          reportsData.map((item, idx) => {
+            let dateDisplay = 'N/A';
+            if (item.date) {
+              try {
+                if (appliedGroupBy === "month") {
+                  if (typeof item.date === 'string' && /^\d{2}\/\d{4}$/.test(item.date)) {
+                    dateDisplay = item.date;
+                  } else {
+                    dateDisplay = new Date(item.date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+                  }
+                } else {
+                  dateDisplay = new Date(item.date).toLocaleDateString();
+                }
+              } catch (e) { dateDisplay = item.date; }
+            }
+            return (
+              <div
+                key={item.id ?? idx}
+                className="bg-white border border-gray-200 rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow"
+              >
+                <div className="flex items-start justify-between mb-3 pb-3 border-b border-gray-100">
+                  <h3 className="font-semibold text-slate-900 text-sm line-clamp-1">
+                    {item.projects?.project_name || 'N/A'}
+                  </h3>
+                  <span className="text-xs text-gray-500 ml-2 whitespace-nowrap">{dateDisplay}</span>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-xs">
+                    <span className="text-gray-600">{lang("reports.gridPurchased", "Grid Purchased")}:</span>
+                    <span className="font-medium text-gray-900">{formatShort(item.grid_purchased_energy) || 0}</span>
+                  </div>
+                  <div className="flex justify-between text-xs">
+                    <span className="text-gray-600">{lang("reports.consumeEnergy", "Consume Energy")}:</span>
+                    <span className="font-medium text-gray-900">{formatShort(item.consume_energy) || 0}</span>
+                  </div>
+                  <div className="flex justify-between text-xs">
+                    <span className="text-gray-600">{lang("reports.fullhour", "Full Hour")}:</span>
+                    <span className="font-medium text-gray-900">{formatShort(item.full_hour) || 0}</span>
+                  </div>
+                  <div className="flex justify-between text-xs">
+                    <span className="text-gray-600">{lang("reports.batteryCharge", "Battery Charge")}:</span>
+                    <span className="font-medium text-gray-900">{formatShort(item.battery_charge_energy) || 0}</span>
+                  </div>
+                  <div className="flex justify-between text-xs">
+                    <span className="text-gray-600">{lang("reports.batteryCharged", "Battery Discharge")}:</span>
+                    <span className="font-medium text-gray-900">{formatShort(item.battery_discharge_energy) || 0}</span>
+                  </div>
+                  <div className="flex justify-between text-xs">
+                    <span className="text-gray-600">{lang("reports.homeGrid", "Home Grid")}:</span>
+                    <span className="font-medium text-gray-900">{formatShort(item.home_grid_energy) || 0}</span>
+                  </div>
+                  <div className="flex justify-between text-xs">
+                    <span className="text-gray-600">{lang("reports.backupEnergy", "Backup Energy")}:</span>
+                    <span className="font-medium text-gray-900">{formatShort(item.back_up_energy) || 0}</span>
+                  </div>
+                  <div className="flex justify-between text-xs">
+                    <span className="text-gray-600">{lang("reports.energy", "Energy")}:</span>
+                    <span className="font-medium text-gray-900">{formatShort(item.energy) || 0}</span>
+                  </div>
+                  <div className="flex justify-between text-xs">
+                    <span className="text-gray-600">{lang("reports.evnCost", "EvN Cost")}:</span>
+                    <span className="font-medium text-gray-900">{formatShort(item.evn_amount) || 0}</span>
+                  </div>
+                  <div className="flex justify-between text-xs">
+                    <span className="text-gray-600">{lang("reports.weshareCost", "Weshare Cost")}:</span>
+                    <span className="font-medium text-gray-900">{formatShort(item.weshare_amount) || 0}</span>
+                  </div>
+                  <div className="flex justify-between text-xs border-t border-gray-100 pt-2">
+                    <span className="text-gray-700 font-semibold">{lang("reports.savingCost", "Saving Cost")}:</span>
+                    <span className="font-bold text-green-700">{formatShort(item.saving_cost) || 0}</span>
+                  </div>
+                </div>
+              </div>
+            );
+          })
+        )}
+        {/* Mobile Pagination */}
+        {pagination.total > 0 && (
+          <div className="space-y-2 pt-3 border-t border-gray-200 mt-1">
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-gray-500">
+                {pageIndex * pageSize + 1}–{Math.min((pageIndex + 1) * pageSize, pagination.total)} {lang("common.of", "of")} {pagination.total}
+              </span>
+              <div className="flex gap-2">
+                <button
+                  disabled={pageIndex === 0}
+                  onClick={() => setPageIndex(pageIndex - 1)}
+                  className="px-3 py-1 text-xs border border-gray-300 rounded-md disabled:opacity-40 hover:bg-gray-50 transition-colors"
+                >
+                  ← {lang("common.prev", "Prev")}
+                </button>
+                <button
+                  disabled={(pageIndex + 1) >= pagination.pages}
+                  onClick={() => setPageIndex(pageIndex + 1)}
+                  className="px-3 py-1 text-xs border border-gray-300 rounded-md disabled:opacity-40 hover:bg-gray-50 transition-colors"
+                >
+                  {lang("common.next", "Next")} →
+                </button>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-gray-500">{lang("common.rowsPerPage", "Rows per page")}:</span>
+              <select
+                value={pageSize}
+                onChange={(e) => { setPageSize(Number(e.target.value)); setPageIndex(0); }}
+                className="text-xs border border-gray-300 rounded-md px-2 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-blue-400"
+              >
+                {[10, 30, 50, 70, 100].map(s => (
+                  <option key={s} value={s}>{s}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

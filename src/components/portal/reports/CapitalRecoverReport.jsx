@@ -15,6 +15,7 @@ const CapitalRecoverReport = () => {
   const [loading, setLoading] = useState(true);
   const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
   const [error, setError] = useState(null);
+  const [pageSize, setPageSize] = useState(PAGE_SIZE);
   const [pagination, setPagination] = useState({
     page: 1,
     limit: PAGE_SIZE,
@@ -34,7 +35,7 @@ const CapitalRecoverReport = () => {
 
       const params = new URLSearchParams({
         page: String(pageIndex + 1),
-        limit: String(PAGE_SIZE),
+        limit: String(pageSize),
       });
 
       if (appliedSearchTerm) params.append("search", appliedSearchTerm);
@@ -89,7 +90,7 @@ const CapitalRecoverReport = () => {
     }, 120000);
 
     return () => clearInterval(interval);
-  }, [appliedSearchTerm, pageIndex]);
+  }, [appliedSearchTerm, pageIndex, pageSize]);
 
   // (no dropdown fetch)
 
@@ -103,8 +104,15 @@ const CapitalRecoverReport = () => {
   };
 
   const handlePaginationChange = (nextPagination) => {
-    setPageIndex(nextPagination.pageIndex);
-    setPagination(nextPagination);
+    const updated = typeof nextPagination === "function"
+      ? nextPagination({ pageIndex, pageSize })
+      : nextPagination;
+    setPageIndex(updated.pageIndex ?? 0);
+    if (updated.pageSize && updated.pageSize !== pageSize) {
+      setPageSize(updated.pageSize);
+      setPageIndex(0);
+    }
+    setPagination(updated);
   };
 
   // Format date helper
@@ -242,18 +250,17 @@ const CapitalRecoverReport = () => {
         </div>
       )}
       {/* Filter Section */}
-      <div className="d-flex items-center justify-content-between gap-2 mb-4 mt-4 w-full flex-wrap">
-        <div />
+      <div className="flex flex-wrap gap-2 mb-4 mt-4 w-full justify-end">
         <button
-          className="common-grey-color border rounded-3 btn"
+          className="common-grey-color border rounded-3 btn w-full sm:w-auto"
           onClick={handleDownloadCSV}
         >
           {lang("reports.downloadcsv")}
         </button>
       </div>
 
-      {/* Table Section */}
-      <div className="overflow-x-auto relative">
+      {/* Desktop Table View */}
+      <div className="hidden md:block overflow-x-auto relative">
         {!hasLoadedOnce && loading && (
           <div className="text-center py-6 text-gray-600">Loading...</div>
         )}
@@ -269,9 +276,9 @@ const CapitalRecoverReport = () => {
               onSearchChange={handleSearchChange}
               onPaginationChange={handlePaginationChange}
               pageIndex={pageIndex}
-              pageSize={PAGE_SIZE}
+              pageSize={pageSize}
               serverSideTotal={pagination.total}
-              initialPageSize={PAGE_SIZE}
+              initialPageSize={pageSize}
             />
             {loading && (
               <div className="absolute inset-0 bg-white/70 flex items-center justify-center text-gray-600">
@@ -279,6 +286,95 @@ const CapitalRecoverReport = () => {
               </div>
             )}
           </>
+        )}
+      </div>
+
+      {/* Mobile Card View */}
+      <div className="block md:hidden space-y-3 mt-3">
+        {/* Top Page Size Selector */}
+        <div className="flex items-center justify-end gap-2 pb-2 border-b border-gray-100">
+          <span className="text-xs text-gray-500">{lang("common.rowsPerPage", "Rows per page")}:</span>
+          <select
+            value={pageSize}
+            onChange={(e) => { setPageSize(Number(e.target.value)); setPageIndex(0); }}
+            className="text-xs border border-gray-300 rounded-md px-2 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-blue-400"
+          >
+            {[10, 30, 50, 70, 100].map(s => (
+              <option key={s} value={s}>{s}</option>
+            ))}
+          </select>
+        </div>
+        {!hasLoadedOnce && loading && (
+          <div className="text-center text-sm text-gray-500 py-8">Loading...</div>
+        )}
+        {error && <div className="text-red-600 text-sm">Error: {error}</div>}
+        {hasLoadedOnce && filteredData.length === 0 ? (
+          <div className="text-center text-sm text-gray-500 py-8">
+            {lang("common.noData", "No data found")}
+          </div>
+        ) : (
+          hasLoadedOnce && filteredData.map((item, idx) => (
+            <div
+              key={item.id ?? idx}
+              className="bg-white border border-gray-200 rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow"
+            >
+              <div className="mb-3 pb-3 border-b border-gray-100">
+                <h3 className="font-semibold text-slate-900 text-sm line-clamp-1">{item.projectName}</h3>
+              </div>
+              <div className="space-y-2">
+                <div className="flex justify-between text-xs">
+                  <span className="text-gray-600">{lang("projects.askingPrice", "Asking Price")}:</span>
+                  <span className="font-medium text-gray-900">{formatCurrency(item.askingPrice)}</span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-gray-600">{lang("reports.totalInvoiceAmount", "Total Invoice Amount")}:</span>
+                  <span className="font-medium text-gray-900">{formatCurrency(item.invoiceTotalAmount)}</span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-gray-600">{lang("reports.capitalRecovery", "Capital Recovery")}:</span>
+                  <span className="font-medium text-gray-900">{formatPercentage(item.capitalRecovery)}</span>
+                </div>
+              </div>
+            </div>
+          ))
+        )}
+        {/* Mobile Pagination */}
+        {pagination.total > 0 && (
+          <div className="space-y-2 pt-3 border-t border-gray-200 mt-1">
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-gray-500">
+                {pageIndex * pageSize + 1}–{Math.min((pageIndex + 1) * pageSize, pagination.total)} {lang("common.of", "of")} {pagination.total}
+              </span>
+              <div className="flex gap-2">
+                <button
+                  disabled={pageIndex === 0}
+                  onClick={() => setPageIndex(pageIndex - 1)}
+                  className="px-3 py-1 text-xs border border-gray-300 rounded-md disabled:opacity-40 hover:bg-gray-50 transition-colors"
+                >
+                  ← {lang("common.prev", "Prev")}
+                </button>
+                <button
+                  disabled={(pageIndex + 1) >= pagination.pages}
+                  onClick={() => setPageIndex(pageIndex + 1)}
+                  className="px-3 py-1 text-xs border border-gray-300 rounded-md disabled:opacity-40 hover:bg-gray-50 transition-colors"
+                >
+                  {lang("common.next", "Next")} →
+                </button>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-gray-500">{lang("common.rowsPerPage", "Rows per page")}:</span>
+              <select
+                value={pageSize}
+                onChange={(e) => { setPageSize(Number(e.target.value)); setPageIndex(0); }}
+                className="text-xs border border-gray-300 rounded-md px-2 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-blue-400"
+              >
+                {[10, 30, 50, 70, 100].map(s => (
+                  <option key={s} value={s}>{s}</option>
+                ))}
+              </select>
+            </div>
+          </div>
         )}
       </div>
     </div>

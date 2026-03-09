@@ -20,6 +20,7 @@ const RoiReports = () => {
   const [loading, setLoading] = useState(true);
   const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
   const [error, setError] = useState(null);
+  const [pageSize, setPageSize] = useState(PAGE_SIZE);
   const [pagination, setPagination] = useState({
     page: 1,
     limit: PAGE_SIZE,
@@ -76,7 +77,7 @@ const RoiReports = () => {
 
       const params = new URLSearchParams({
         page: String(pageIndex + 1),
-        limit: String(PAGE_SIZE),
+        limit: String(pageSize),
       });
 
       if (appliedProjectFilter) params.append("projectId", appliedProjectFilter);
@@ -138,7 +139,7 @@ const RoiReports = () => {
     }, 120000);
 
     return () => clearInterval(interval);
-  }, [appliedProjectFilter, appliedSearchTerm, pageIndex]);
+  }, [appliedProjectFilter, appliedSearchTerm, pageIndex, pageSize]);
 
   // Fetch project list on component mount
   useEffect(() => {
@@ -173,8 +174,15 @@ const RoiReports = () => {
   };
 
   const handlePaginationChange = (nextPagination) => {
-    setPageIndex(nextPagination.pageIndex);
-    setPagination(nextPagination);
+    const updated = typeof nextPagination === "function"
+      ? nextPagination({ pageIndex, pageSize })
+      : nextPagination;
+    setPageIndex(updated.pageIndex ?? 0);
+    if (updated.pageSize && updated.pageSize !== pageSize) {
+      setPageSize(updated.pageSize);
+      setPageIndex(0);
+    }
+    setPagination(updated);
   };
 
   // Format date helper
@@ -367,11 +375,8 @@ const RoiReports = () => {
         </div>
       )}
       {/* Filter Section */}
-      <div
-        className="d-flex items-center justify-content-between gap-2 mb-4 mt-4 w-full flex-wrap"
-        style={isAdminUser ? { display: "flex", alignItems: "center", justifyContent: "space-between", gap: "8px", marginTop: "16px", marginBottom: "16px", width: "100%", flexWrap: "wrap" } : undefined}
-      >
-        <div className="filter-button flex flex-wrap gap-2 d-flex" style={isAdminUser ? { display: "flex", flexWrap: "wrap", gap: "8px", alignItems: "center" } : undefined}>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4 mt-4 w-full flex-wrap">
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
           <Autocomplete
             size="small"
             options={projectList}
@@ -398,21 +403,18 @@ const RoiReports = () => {
                 placeholder={lang("common.searchProject", "Search project...")}
               />
             )}
-            sx={{ minWidth: 260 }}
+            sx={{ width: { xs: "100%", sm: 260 } }}
           />
-
           <button
             onClick={handleSubmit}
             disabled={isSubmitDisabled}
             className={`theme-btn-blue-color border rounded-md px-4 py-2 text-sm ${isSubmitDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
-            style={isAdminUser ? { padding: "8px 16px", fontSize: "14px", opacity: isSubmitDisabled ? 0.5 : 1, cursor: isSubmitDisabled ? "not-allowed" : "pointer" } : undefined}
           >
             {lang("common.submit", "Submit")}
           </button>
         </div>
-
         <button
-          className="common-grey-color border rounded-3 btn"
+          className="common-grey-color border rounded-3 btn w-full sm:w-auto"
           onClick={handleDownloadCSV}
         >
           {lang("reports.downloadcsv")}
@@ -420,34 +422,143 @@ const RoiReports = () => {
       </div>
 
       {/* Table Section */}
-      <div className="overflow-x-auto relative" style={isAdminUser ? { overflowX: "auto", position: "relative" } : undefined}>
+      <div className="relative">
         {!hasLoadedOnce && loading && (
-          <div className="text-center py-6 text-gray-600" style={isAdminUser ? { textAlign: "center", padding: "24px 0", color: "#4b5563" } : undefined}>Loading...</div>
+          <div className="text-center py-6 text-gray-600">Loading...</div>
         )}
 
-        {error && <div className="text-red-600" style={isAdminUser ? { color: "#dc2626" } : undefined}>Error: {error}</div>}
+        {error && <div className="text-red-600">Error: {error}</div>}
 
         {hasLoadedOnce && (
           <>
-            <Table
-              data={filteredData}
-              columns={columns}
-              disablePagination={false}
-              onSearchChange={handleSearchChange}
-              onPaginationChange={handlePaginationChange}
-              pageIndex={pageIndex}
-              pageSize={PAGE_SIZE}
-              serverSideTotal={pagination.total}
-              initialPageSize={PAGE_SIZE}
-            />
-            {loading && (
-              <div
-                className="absolute inset-0 bg-white/70 flex items-center justify-center text-gray-600"
-                style={isAdminUser ? { position: "absolute", top: 0, right: 0, bottom: 0, left: 0, backgroundColor: "rgba(255,255,255,0.7)", display: "flex", alignItems: "center", justifyContent: "center", color: "#4b5563" } : undefined}
-              >
-                Refreshing...
+            {/* Desktop Table View */}
+            <div className="hidden md:block overflow-x-auto relative">
+              <Table
+                data={filteredData}
+                columns={columns}
+                disablePagination={false}
+                onSearchChange={handleSearchChange}
+                onPaginationChange={handlePaginationChange}
+                pageIndex={pageIndex}
+                pageSize={pageSize}
+                serverSideTotal={pagination.total}
+                initialPageSize={pageSize}
+              />
+              {loading && (
+                <div className="absolute inset-0 bg-white/70 flex items-center justify-center text-gray-600">
+                  Refreshing...
+                </div>
+              )}
+            </div>
+
+            {/* Mobile Card View */}
+            <div className="block md:hidden space-y-3 mt-3">
+              {/* Top Page Size Selector */}
+              <div className="flex items-center justify-end gap-2 pb-2 border-b border-gray-100">
+                <span className="text-xs text-gray-500">{lang("common.rowsPerPage", "Rows per page")}:</span>
+                <select
+                  value={pageSize}
+                  onChange={(e) => { setPageSize(Number(e.target.value)); setPageIndex(0); }}
+                  className="text-xs border border-gray-300 rounded-md px-2 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-blue-400"
+                >
+                  {[10, 30, 50, 70, 100].map(s => (
+                    <option key={s} value={s}>{s}</option>
+                  ))}
+                </select>
               </div>
-            )}
+
+              {filteredData.length === 0 ? (
+                <div className="text-center text-sm text-gray-500 py-8">
+                  {lang("reports.noData", "No data found")}
+                </div>
+              ) : (
+                filteredData.map((row) => (
+                  <div
+                    key={row.id}
+                    className="bg-white border border-gray-200 rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow"
+                  >
+                    {/* Card Header */}
+                    <div className="mb-3 pb-3 border-b border-gray-100">
+                      <h3 className="font-semibold text-slate-900 text-sm">
+                        {row.projectName}
+                      </h3>
+                      {row.month && (
+                        <p className="text-xs text-gray-500 mt-0.5">{row.month}</p>
+                      )}
+                    </div>
+
+                    {/* Card Body */}
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-xs">
+                        <span className="text-gray-600">{lang("projects.askingPrice", "Asking Price")}:</span>
+                        <span className="font-medium text-gray-900">{formatCurrency(row.askingPrice)}</span>
+                      </div>
+                      <div className="flex justify-between text-xs">
+                        <span className="text-gray-600">{lang("projects.capexValue", "Capex Value")}:</span>
+                        <span className="font-medium text-gray-900">
+                          {isNaN(parseFloat(row.capexValue)) ? "0.00" : parseFloat(row.capexValue).toFixed(2)}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-xs">
+                        <span className="text-gray-600">{lang("reports.monthEnergy", "Energy")}:</span>
+                        <span className="font-medium text-gray-900">{formatShort(row.month_energy)}</span>
+                      </div>
+                      <div className="flex justify-between text-xs">
+                        <span className="text-gray-600">{lang("projects.wesharePrice", "Weshare Price (kWh)")}:</span>
+                        <span className="font-medium text-gray-900">{row.weshare_price}</span>
+                      </div>
+                      <div className="flex justify-between text-xs">
+                        <span className="text-gray-600">{lang("reports.monthRevenue", "Revenue")}:</span>
+                        <span className="font-medium text-gray-900">{row.monthRevenue}</span>
+                      </div>
+                      <div className="flex justify-between text-xs pt-2 border-t border-gray-100">
+                        <span className="font-semibold text-gray-700">{lang("reports.monthRoi", "ROI")}:</span>
+                        <span className="font-bold text-slate-900">{formatPercentage(row.monthRoi)}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+
+              {/* Mobile Pagination */}
+              {pagination.total > 0 && (
+                <div className="space-y-2 pt-3 border-t border-gray-200 mt-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-gray-500">
+                      {pageIndex * pageSize + 1}–{Math.min((pageIndex + 1) * pageSize, pagination.total)} {lang("common.of", "of")} {pagination.total}
+                    </span>
+                    <div className="flex gap-2">
+                      <button
+                        disabled={pageIndex === 0}
+                        onClick={() => setPageIndex(pageIndex - 1)}
+                        className="px-3 py-1 text-xs border border-gray-300 rounded-md disabled:opacity-40 hover:bg-gray-50 transition-colors"
+                      >
+                        ← {lang("common.prev", "Prev")}
+                      </button>
+                      <button
+                        disabled={(pageIndex + 1) >= pagination.pages}
+                        onClick={() => setPageIndex(pageIndex + 1)}
+                        className="px-3 py-1 text-xs border border-gray-300 rounded-md disabled:opacity-40 hover:bg-gray-50 transition-colors"
+                      >
+                        {lang("common.next", "Next")} →
+                      </button>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-gray-500">{lang("common.rowsPerPage", "Rows per page")}:</span>
+                    <select
+                      value={pageSize}
+                      onChange={(e) => { setPageSize(Number(e.target.value)); setPageIndex(0); }}
+                      className="text-xs border border-gray-300 rounded-md px-2 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-blue-400"
+                    >
+                      {[10, 30, 50, 70, 100].map(s => (
+                        <option key={s} value={s}>{s}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              )}
+            </div>
           </>
         )}
       </div>

@@ -15,6 +15,7 @@ const ProjectEnvReport = () => {
     const [loading, setLoading] = useState(true);
     const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
     const [search, setSearch] = useState('');
+    const [pageSize, setPageSize] = useState(PAGE_SIZE);
     const [pagination, setPagination] = useState({
         page: 1,
         limit: PAGE_SIZE,
@@ -74,7 +75,7 @@ const ProjectEnvReport = () => {
             }
             const params = new URLSearchParams({
                 page: String(pageIndex + 1),
-                limit: String(PAGE_SIZE),
+                limit: String(pageSize),
             });
             if (appliedProject) {
                 params.append("projectId", appliedProject);
@@ -137,7 +138,7 @@ const ProjectEnvReport = () => {
     useEffect(() => {
         if (!appliedProject) return;
         fetch_project_energy_data();
-    }, [appliedProject, appliedStartDate, appliedEndDate, search, pageIndex]);
+    }, [appliedProject, appliedStartDate, appliedEndDate, search, pageIndex, pageSize]);
 
     useEffect(() => {
         fetch_project_list();
@@ -149,8 +150,15 @@ const ProjectEnvReport = () => {
     };
 
     const handlePaginationChange = (nextPagination) => {
-        setPageIndex(nextPagination.pageIndex);
-        setPagination(nextPagination);
+        const updated = typeof nextPagination === "function"
+          ? nextPagination({ pageIndex, pageSize })
+          : nextPagination;
+        setPageIndex(updated.pageIndex ?? 0);
+        if (updated.pageSize && updated.pageSize !== pageSize) {
+          setPageSize(updated.pageSize);
+          setPageIndex(0);
+        }
+        setPagination(updated);
     };
 
     const columns = useMemo(() => [
@@ -294,84 +302,77 @@ const ProjectEnvReport = () => {
     return (
         <>
             <div className="p-6 bg-white rounded-3xl shadow-md">
-                <div className="d-flex items-center justify-content-between gap-2 mb-4 mt-4 w-full flex-wrap">
-                    <div className="filter-button flex items-center gap-2 flex-wrap">
-                        <Autocomplete
-                            size="small"
-                            options={projects}
-                            value={projects.find((p) => String(p?.id) === projectFilter) || null}
-                            onChange={(e, newValue) =>
-                                setProjectFilter(newValue ? String(newValue.id) : "")
-                            }
-                            getOptionLabel={(option) => option.project_name || ""}
-                            isOptionEqualToValue={(option, value) => String(option.id) === String(value.id)}
-                            renderInput={(params) => (
-                                <TextField
-                                    {...params}
-                                    label={lang("dashboard.all_project", "All Projects")}
-                                    placeholder={lang("common.searchProject", "Select project...")}
-                                />
-                            )}
-                            sx={{ minWidth: 260 }}
-                        />
+                <div className="flex flex-wrap gap-2 mb-4 mt-4 w-full">
+                    <Autocomplete
+                        size="small"
+                        options={projects}
+                        value={projects.find((p) => String(p?.id) === projectFilter) || null}
+                        onChange={(e, newValue) =>
+                            setProjectFilter(newValue ? String(newValue.id) : "")
+                        }
+                        getOptionLabel={(option) => option.project_name || ""}
+                        isOptionEqualToValue={(option, value) => String(option.id) === String(value.id)}
+                        renderInput={(params) => (
+                            <TextField
+                                {...params}
+                                label={lang("dashboard.all_project", "All Projects")}
+                                placeholder={lang("common.searchProject", "Select project...")}
+                            />
+                        )}
+                        sx={{ width: { xs: "100%", sm: 260 } }}
+                    />
 
-                        <TextField
-                            size="small"
-                            type="date"
-                            label={lang("projects.startDate", "Start Date")}
-                            value={startDate}
-                            onChange={(e) => setStartDate(e.target.value)}
-                            InputLabelProps={{
-                                shrink: true,
-                            }}
-                            sx={{
-                                minWidth: 200,
-                                "& .MuiOutlinedInput-root": {
-                                    borderRadius: "8px",
-                                    backgroundColor: "#fff",
-                                },
-                            }}
-                        />
+                    <TextField
+                        size="small"
+                        type="date"
+                        label={lang("projects.startDate", "Start Date")}
+                        value={startDate}
+                        onChange={(e) => setStartDate(e.target.value)}
+                        InputLabelProps={{ shrink: true }}
+                        sx={{
+                            width: { xs: "100%", sm: 200 },
+                            "& .MuiOutlinedInput-root": {
+                                borderRadius: "8px",
+                                backgroundColor: "#fff",
+                            },
+                        }}
+                    />
 
-                        <TextField
-                            size="small"
-                            type="date"
-                            label={lang("projects.endDate", "End Date")}
-                            value={endDate}
-                            onChange={(e) => setEndDate(e.target.value)}
-                            inputProps={{
-                                min: startDate || undefined,
-                            }}
-                            InputLabelProps={{
-                                shrink: true,
-                            }}
-                            sx={{
-                                minWidth: 200,
-                                "& .MuiOutlinedInput-root": {
-                                    borderRadius: "8px",
-                                    backgroundColor: "#fff",
-                                },
-                            }}
-                        />
+                    <TextField
+                        size="small"
+                        type="date"
+                        label={lang("projects.endDate", "End Date")}
+                        value={endDate}
+                        onChange={(e) => setEndDate(e.target.value)}
+                        inputProps={{ min: startDate || undefined }}
+                        InputLabelProps={{ shrink: true }}
+                        sx={{
+                            width: { xs: "100%", sm: 200 },
+                            "& .MuiOutlinedInput-root": {
+                                borderRadius: "8px",
+                                backgroundColor: "#fff",
+                            },
+                        }}
+                    />
 
-                        <button
-                            onClick={handleSubmit}
-                            disabled={isSubmitDisabled}
-                            className={`theme-btn-blue-color border rounded-md px-4 py-2 text-sm ${isSubmitDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
-                        >
-                            {lang("common.submit", "Submit")}
-                        </button>
-                    </div>
+                    <button
+                        onClick={handleSubmit}
+                        disabled={isSubmitDisabled}
+                        className={`theme-btn-blue-color border rounded-md px-4 py-2 text-sm w-full sm:w-auto ${isSubmitDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
+                    >
+                        {lang("common.submit", "Submit")}
+                    </button>
+
                     <button
                         onClick={downloadCSV}
                         disabled={loading || !hasLoadedOnce}
-                        className="theme-btn-blue-color border rounded-md px-3 me-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
-                        style={{ display: "inline", float: "right" }}
+                        className="theme-btn-blue-color border rounded-md px-3 py-2 text-sm w-full sm:w-auto focus:outline-none focus:ring-2 focus:ring-blue-200"
                     >
                         {lang("reports.downloadcsv")}
                     </button>
                 </div>
-                <div className="overflow-x-auto">
+                {/* Desktop Table View */}
+                <div className="hidden md:block overflow-x-auto">
                     {!hasLoadedOnce && loading && (
                         <div className="text-center py-6 text-gray-600">Loading...</div>
                     )}
@@ -385,9 +386,9 @@ const ProjectEnvReport = () => {
                             onSearchChange={handleSearchChange}
                             onPaginationChange={handlePaginationChange}
                             pageIndex={pageIndex}
-                            pageSize={PAGE_SIZE}
+                            pageSize={pageSize}
                             serverSideTotal={pagination.total}
-                            initialPageSize={PAGE_SIZE}
+                            initialPageSize={pageSize}
                         />
                         {loading && (
                             <div className="absolute inset-0 bg-white/70 flex items-center justify-center text-gray-600">
@@ -395,6 +396,104 @@ const ProjectEnvReport = () => {
                             </div>
                         )}
                     </>
+                </div>
+
+                {/* Mobile Card View */}
+                <div className="block md:hidden space-y-3 mt-3">
+                    {/* Top Page Size Selector */}
+                    <div className="flex items-center justify-end gap-2 pb-2 border-b border-gray-100">
+                        <span className="text-xs text-gray-500">{lang("common.rowsPerPage", "Rows per page")}:</span>
+                        <select
+                            value={pageSize}
+                            onChange={(e) => { setPageSize(Number(e.target.value)); setPageIndex(0); }}
+                            className="text-xs border border-gray-300 rounded-md px-2 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-blue-400"
+                        >
+                            {[10, 30, 50, 70, 100].map(s => (
+                                <option key={s} value={s}>{s}</option>
+                            ))}
+                        </select>
+                    </div>
+                    {!hasLoadedOnce && loading && (
+                        <div className="text-center text-sm text-gray-500 py-8">Loading...</div>
+                    )}
+                    {error && <div className="text-red-600 text-sm">Error: {error}</div>}
+                    {hasLoadedOnce && projectEnergyData.length === 0 ? (
+                        <div className="text-center text-sm text-gray-500 py-8">
+                            {lang("common.noData", "No data found")}
+                        </div>
+                    ) : (
+                        projectEnergyData.map((item, idx) => (
+                            <div
+                                key={item.id ?? idx}
+                                className="bg-white border border-gray-200 rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow"
+                            >
+                                <div className="flex items-start justify-between mb-3 pb-3 border-b border-gray-100">
+                                    <h3 className="font-semibold text-slate-900 text-sm line-clamp-1">
+                                        {item.projects?.project_name || 'N/A'}
+                                    </h3>
+                                    <span className="text-xs text-gray-500 ml-2 whitespace-nowrap">
+                                        {item.date ? new Date(item.date).toLocaleDateString() : 'N/A'}
+                                    </span>
+                                </div>
+                                <div className="space-y-2">
+                                    <div className="flex justify-between text-xs">
+                                        <span className="text-gray-600">{lang("common.time", "Time")}:</span>
+                                        <span className="font-medium text-gray-900">{item.time || 'N/A'}</span>
+                                    </div>
+                                    <div className="flex justify-between text-xs">
+                                        <span className="text-gray-600">PV:</span>
+                                        <span className="font-medium text-gray-900">{item.pv || '0'}</span>
+                                    </div>
+                                    <div className="flex justify-between text-xs">
+                                        <span className="text-gray-600">{lang("animated.grid", "Grid")}:</span>
+                                        <span className="font-medium text-gray-900">{item.grid || '0'}</span>
+                                    </div>
+                                    <div className="flex justify-between text-xs">
+                                        <span className="text-gray-600">{lang("animated.load", "Load")}:</span>
+                                        <span className="font-medium text-gray-900">{item.load || '0'}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        ))
+                    )}
+                    {/* Mobile Pagination */}
+                    {pagination.total > 0 && (
+                        <div className="space-y-2 pt-3 border-t border-gray-200 mt-1">
+                            <div className="flex items-center justify-between">
+                                <span className="text-xs text-gray-500">
+                                    {pageIndex * pageSize + 1}–{Math.min((pageIndex + 1) * pageSize, pagination.total)} {lang("common.of", "of")} {pagination.total}
+                                </span>
+                                <div className="flex gap-2">
+                                    <button
+                                        disabled={pageIndex === 0}
+                                        onClick={() => setPageIndex(pageIndex - 1)}
+                                        className="px-3 py-1 text-xs border border-gray-300 rounded-md disabled:opacity-40 hover:bg-gray-50 transition-colors"
+                                    >
+                                        ← {lang("common.prev", "Prev")}
+                                    </button>
+                                    <button
+                                        disabled={(pageIndex + 1) >= pagination.pages}
+                                        onClick={() => setPageIndex(pageIndex + 1)}
+                                        className="px-3 py-1 text-xs border border-gray-300 rounded-md disabled:opacity-40 hover:bg-gray-50 transition-colors"
+                                    >
+                                        {lang("common.next", "Next")} →
+                                    </button>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <span className="text-xs text-gray-500">{lang("common.rowsPerPage", "Rows per page")}:</span>
+                                <select
+                                    value={pageSize}
+                                    onChange={(e) => { setPageSize(Number(e.target.value)); setPageIndex(0); }}
+                                    className="text-xs border border-gray-300 rounded-md px-2 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-blue-400"
+                                >
+                                    {[10, 30, 50, 70, 100].map(s => (
+                                        <option key={s} value={s}>{s}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
         </>
