@@ -250,7 +250,7 @@ export default function OverViewCards({
           <span className="text-gray-800 font-medium">{lang("reports.dailyYield", "Daily Yield")}</span>
         </div>
         <div className="stat-value">{renderEnergyDisplay(dailyYieldValue)}</div>
-        <div className="stat-label">{dailyYieldSubtitle}</div>
+        {/* <div className="stat-label">{dailyYieldSubtitle}</div> */}
       </div>
 
       <div className="stat-card cyan ">
@@ -263,7 +263,7 @@ export default function OverViewCards({
           <span className="text-gray-800 font-medium">{lang("dashboard.monthly_yield", "Monthly Yield")}</span>
         </div>
         <div className="stat-value">{renderEnergyDisplay(monthlyYieldValue)}</div>
-        <div className="stat-label">{monthlyYieldSubtitle}</div>
+        {/* <div className="stat-label">{monthlyYieldSubtitle}</div> */}
       </div>
 
       <div className="stat-card green">
@@ -276,7 +276,7 @@ export default function OverViewCards({
           <span className="text-gray-800 font-medium">{lang("home.exchangeHub.accumulativeGeneration", "Total Yield")}</span>
         </div>
         <div className="stat-value">{renderEnergyDisplay(totalYieldValue)}</div>
-        <div className="stat-label">{totalYieldSubtitle}</div>
+        {/* <div className="stat-label">{totalYieldSubtitle}</div> */}
       </div>
 
       {/* Capital Recovery circular progress */}
