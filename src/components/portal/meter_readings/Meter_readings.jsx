@@ -367,43 +367,29 @@ const MeterReadings = () => {
   return (
     <div className="col-12">
       <div className="bg-white rounded-xl shadow-md overflow-hidden">
-        <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 border-b border-gray-200">
-          <div>
-            {/* <h2 className="text-lg font-semibold text-slate-900">
-              {lang("meter.meterReadings", "Meter Readings")}
-            </h2> */}
-            {/* <p className="text-xs text-gray-500 mt-0.5">
-              {lang(
-                "meter.subtitle",
-                "View, add, edit and delete your project meter readings."
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-4 py-3 border-b border-gray-200">
+          <div className="relative w-full sm:w-auto">
+            <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              className="w-full sm:w-64 pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent"
+              placeholder={lang(
+                "meter.searchByProject",
+                "Search by project name..."
               )}
-            </p> */}
+              value={listSearch}
+              onChange={(e) => setListSearch(e.target.value)}
+            />
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className="relative">
-              <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                className="pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent"
-                placeholder={lang(
-                  "meter.searchByProject",
-                  "Search by project name..."
-                )}
-                value={listSearch}
-                onChange={(e) => setListSearch(e.target.value)}
-              />
-            </div>
-
-            <button
-              type="button"
-              onClick={openAddModal}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-800 text-white text-sm font-semibold hover:bg-slate-700 transition-colors"
-            >
-              <Plus className="w-4 h-4" />
-              {lang("meter.addReading", "Add Reading")}
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={openAddModal}
+            className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-slate-800 text-white text-sm font-semibold hover:bg-slate-700 transition-colors w-full sm:w-auto"
+          >
+            <Plus className="w-4 h-4" />
+            {lang("meter.addReading", "Add Reading")}
+          </button>
         </div>
 
         {fetchError && (
@@ -412,7 +398,7 @@ const MeterReadings = () => {
           </div>
         )}
 
-        <div className="px-4 py-3 overflow-x-auto">
+        <div className="px-4 py-3">
           {isLoading ? (
             <div className="text-center text-sm text-gray-500 py-8">
               {lang("meter.loading", "Loading meter readings...")}
@@ -422,81 +408,160 @@ const MeterReadings = () => {
               {lang("meter.noData", "No meter readings found.")}
             </div>
           ) : (
-            <table className="min-w-full text-sm">
-              <thead>
-                <tr className="bg-slate-50 text-left text-xs font-semibold text-gray-600">
-                  <th className="px-3 py-2">
-                    {lang("projects.projectName", "Project Name")}
-                  </th>
-                  <th className="px-3 py-2">
-                    {lang("meter.readingDate", "Meter Reading Date")}
-                  </th>
-                  <th className="px-3 py-2">
-                    {lang("meter.screenImage", "Screen Image")}
-                  </th>
-                  <th className="px-3 py-2 text-right rounded-tr-lg">
-                    {lang("common.actions", "Actions")}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {readings.map((item, index) => {
+            <>
+              {/* Desktop Table View */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="min-w-full text-sm">
+                  <thead>
+                    <tr className="bg-slate-50 text-left text-xs font-semibold text-gray-600">
+                      <th className="px-3 py-2">
+                        {lang("projects.projectName", "Project Name")}
+                      </th>
+                      <th className="px-3 py-2">
+                        {lang("meter.readingDate", "Meter Reading Date")}
+                      </th>
+                      <th className="px-3 py-2">
+                        {lang("meter.screenImage", "Screen Image")}
+                      </th>
+                      <th className="px-3 py-2 text-right rounded-tr-lg">
+                        {lang("common.actions", "Actions")}
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {readings.map((item) => {
+                      const projectName =
+                        item?.projects?.project_name || lang("common.na", "N/A");
+                      const imageUrl = buildUploadUrl(item.image);
+
+                      return (
+                        <tr
+                          key={item.id}
+                          className="border-b border-gray-100 last:border-b-0 hover:bg-slate-50/70 transition-colors"
+                        >
+                          <td className="px-3 py-2 text-sm font-medium text-slate-900">
+                            {projectName}
+                          </td>
+                          <td className="px-3 py-2 text-sm text-gray-700">
+                            {formatDisplayDate(item.meter_reading_date)}
+                          </td>
+                          <td className="px-3 py-2">
+                            {imageUrl ? (
+                              <button
+                                type="button"
+                                onClick={() => openImagePreview(imageUrl)}
+                                className="inline-flex items-center gap-1 text-xs text-slate-700 hover:text-slate-900"
+                              >
+                                <ImageIcon className="w-4 h-4" />
+                                {lang("meter.viewImage", "View image")}
+                              </button>
+                            ) : (
+                              <span className="text-xs text-gray-400">
+                                {lang("common.na", "N/A")}
+                              </span>
+                            )}
+                          </td>
+                          <td className="px-3 py-2 text-right">
+                            <div className="inline-flex items-center gap-2">
+                              <button
+                                type="button"
+                                onClick={() => openEditModal(item)}
+                                className="p-1.5 rounded-full border border-gray-200 text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition-colors"
+                                title={lang("common.edit", "Edit")}
+                              >
+                                <Edit3 className="w-4 h-4" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleDelete(item)}
+                                className="p-1.5 rounded-full border border-gray-200 text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors"
+                                title={lang("common.delete", "Delete")}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile Card View */}
+              <div className="block md:hidden space-y-3">
+                {readings.map((item) => {
                   const projectName =
                     item?.projects?.project_name || lang("common.na", "N/A");
                   const imageUrl = buildUploadUrl(item.image);
 
                   return (
-                    <tr
+                    <div
                       key={item.id}
-                      className="border-b border-gray-100 last:border-b-0 hover:bg-slate-50/70 transition-colors"
+                      className="bg-white border border-gray-200 rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow"
                     >
-                      <td className="px-3 py-2 text-sm font-medium text-slate-900">
-                        {projectName}
-                      </td>
-                      <td className="px-3 py-2 text-sm text-gray-700">
-                        {formatDisplayDate(item.meter_reading_date)}
-                      </td>
-                      <td className="px-3 py-2">
-                        {imageUrl ? (
-                          <button
-                            type="button"
-                            onClick={() => openImagePreview(imageUrl)}
-                            className="inline-flex items-center gap-1 text-xs text-slate-700 hover:text-slate-900"
-                          >
-                            <ImageIcon className="w-4 h-4" />
-                            {lang("meter.viewImage", "View image")}
-                          </button>
-                        ) : (
-                          <span className="text-xs text-gray-400">
-                            {lang("common.na", "N/A")}
+                      {/* Card Header */}
+                      <div className="flex items-start justify-between mb-3 pb-3 border-b border-gray-100">
+                        <h3 className="font-semibold text-slate-900 text-sm line-clamp-2">
+                          {projectName}
+                        </h3>
+                      </div>
+
+                      {/* Card Body */}
+                      <div className="space-y-2 mb-3">
+                        <div className="flex justify-between text-xs">
+                          <span className="text-gray-600">
+                            {lang("meter.readingDate", "Meter Reading Date")}:
                           </span>
-                        )}
-                      </td>
-                      <td className="px-3 py-2 text-right">
-                        <div className="inline-flex items-center gap-2">
-                          <button
-                            type="button"
-                            onClick={() => openEditModal(item)}
-                            className="p-1.5 rounded-full border border-gray-200 text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition-colors"
-                            title={lang("common.edit", "Edit")}
-                          >
-                            <Edit3 className="w-4 h-4" />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleDelete(item)}
-                            className="p-1.5 rounded-full border border-gray-200 text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors"
-                            title={lang("common.delete", "Delete")}
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
+                          <span className="font-medium text-gray-900">
+                            {formatDisplayDate(item.meter_reading_date)}
+                          </span>
                         </div>
-                      </td>
-                    </tr>
+                        <div className="flex justify-between text-xs">
+                          <span className="text-gray-600">
+                            {lang("meter.screenImage", "Screen Image")}:
+                          </span>
+                          {imageUrl ? (
+                            <button
+                              type="button"
+                              onClick={() => openImagePreview(imageUrl)}
+                              className="inline-flex items-center gap-1 text-xs text-blue-600 font-medium hover:text-blue-800"
+                            >
+                              <ImageIcon className="w-3.5 h-3.5" />
+                              {lang("meter.viewImage", "View image")}
+                            </button>
+                          ) : (
+                            <span className="text-gray-400">
+                              {lang("common.na", "N/A")}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Card Footer */}
+                      <div className="grid grid-cols-2 gap-2 pt-3 border-t border-gray-100">
+                        <button
+                          type="button"
+                          onClick={() => openEditModal(item)}
+                          className="inline-flex items-center justify-center gap-1.5 w-full py-2 text-xs font-semibold text-slate-700 border border-gray-300 rounded-lg hover:bg-slate-50 transition-colors"
+                        >
+                          <Edit3 className="w-3.5 h-3.5" />
+                          {lang("common.edit", "Edit")}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(item)}
+                          className="inline-flex items-center justify-center gap-1.5 w-full py-2 text-xs font-semibold text-red-600 border border-red-200 rounded-lg hover:bg-red-50 transition-colors"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                          {lang("common.delete", "Delete")}
+                        </button>
+                      </div>
+                    </div>
                   );
                 })}
-              </tbody>
-            </table>
+              </div>
+            </>
           )}
         </div>
 

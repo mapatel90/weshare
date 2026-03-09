@@ -12,7 +12,7 @@ import { downloadPaymentPDF } from "./PaymentPdf";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { PROJECT_STATUS } from "@/constants/project_status";
 import { ROLES } from "@/constants/roles";
-import { Autocomplete, TextField } from "@mui/material";
+import { Autocomplete, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from "@mui/material";
 import { buildUploadUrl } from "@/utils/common";
 
 const Payments = () => {
@@ -26,6 +26,7 @@ const Payments = () => {
   const [selectedStatus, setSelectedStatus] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [screenshotPreview, setScreenshotPreview] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(10);
@@ -237,7 +238,7 @@ const Payments = () => {
 
   const openScreenshot = (url) => {
     if (!url) return;
-    window.open(buildUploadUrl(url), "_blank", "noopener,noreferrer");
+    setScreenshotPreview(buildUploadUrl(url));
   };
 
   const handlePaymentSubmit = async (data) => {
@@ -375,7 +376,8 @@ const Payments = () => {
             </button>
           </div>
 
-          <div className="overflow-x-auto border rounded-lg">
+          {/* Desktop Table View */}
+          <div className="hidden md:block overflow-x-auto border rounded-lg">
             <table className="min-w-full text-sm">
               <thead className="bg-gray-50">
                 <tr>
@@ -510,6 +512,81 @@ const Payments = () => {
             </table>
           </div>
 
+          {/* Mobile Card View */}
+          <div className="block md:hidden space-y-3">
+            {payments.length === 0 ? (
+              <div className="text-center text-sm text-gray-500 py-8">
+                {lang("payments.noPaymentsFound", "No payments found")}
+              </div>
+            ) : (
+              payments.map((payment, idx) => (
+                <div
+                  key={payment.id}
+                  className="bg-white border border-gray-200 rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow"
+                >
+                  {/* Card Header */}
+                  <div className="flex items-start justify-between mb-3 pb-3 border-b border-gray-100">
+                    <div>
+                      <h3 className="font-semibold text-slate-900 text-sm line-clamp-1">
+                        {payment.projectName}
+                      </h3>
+                      <p className="text-xs text-gray-500 mt-0.5 font-medium">
+                        {`${payment.invoicePrefix}-${payment.invoiceNumber}`}
+                      </p>
+                    </div>
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-semibold whitespace-nowrap ml-2 ${getStatusColorClass(payment.status)}`}
+                    >
+                      {payment.status === 1
+                        ? lang("invoice.paid", "Paid")
+                        : lang("common.pending_verification", "Pending")}
+                    </span>
+                  </div>
+
+                  {/* Card Body */}
+                  <div className="space-y-2 mb-3">
+                    <div className="flex justify-between text-xs">
+                      <span className="text-gray-600">{lang("invoice.invoiceDate", "Invoice Date")}:</span>
+                      <span className="font-medium text-gray-900">{payment.invoiceDate}</span>
+                    </div>
+                    <div className="flex justify-between text-xs">
+                      <span className="text-gray-600">{lang("invoice.dueDate", "Due Date")}:</span>
+                      <span className="font-medium text-gray-900">{payment.dueDate}</span>
+                    </div>
+                    <div className="flex justify-between text-xs">
+                      <span className="text-gray-600">{lang("payments.paymentDate", "Payment Date")}:</span>
+                      <span className="font-medium text-gray-900">{payment.paymentDate}</span>
+                    </div>
+                    <div className="flex justify-between text-xs pt-2 border-t border-gray-100">
+                      <span className="font-semibold text-gray-700">{lang("payments.amount", "Amount")}:</span>
+                      <span className="font-bold text-slate-900">{priceWithCurrency(payment.amount)}</span>
+                    </div>
+                  </div>
+
+                  {/* Card Footer */}
+                  <div className="flex gap-2 pt-3 border-t border-gray-100">
+                    {payment.ss_url && (
+                      <button
+                        onClick={() => openScreenshot(payment.ss_url)}
+                        className="flex-1 px-3 py-1.5 text-xs font-semibold text-slate-900 border border-gray-300 rounded hover:bg-gray-50 transition-colors"
+                      >
+                        {lang("payments.screenshot", "Screenshot")}
+                      </button>
+                    )}
+                    {payment.download && (
+                      <button
+                        onClick={() => handleDownload(payment.id)}
+                        className="flex-1 px-3 py-1.5 text-xs font-semibold text-blue-600 border border-blue-300 rounded hover:bg-blue-50 transition-colors"
+                      >
+                        {lang("common.download", "Download")}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+
           {/* Pagination */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mt-4 gap-3">
             <div className="text-sm text-gray-500 text-center sm:text-left">
@@ -557,6 +634,30 @@ const Payments = () => {
         payments={payments}
         roles={ROLES}
       />
+
+      {/* Screenshot Preview Modal */}
+      <Dialog
+        open={!!screenshotPreview}
+        onClose={() => setScreenshotPreview(null)}
+        // maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle>{lang("payments.screenshot", "Screenshot")}</DialogTitle>
+        <DialogContent dividers sx={{ textAlign: "center" }}>
+          {screenshotPreview && (
+            <img
+              src={screenshotPreview}
+              alt="Payment Screenshot"
+              style={{ maxWidth: "100%", borderRadius: 8 }}
+            />
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setScreenshotPreview(null)} color="primary">
+            {lang("common.close", "Close")}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };

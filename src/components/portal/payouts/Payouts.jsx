@@ -364,75 +364,68 @@ const PayoutsPage = () => {
     return (
         <>
             <div className="p-6 bg-white rounded-3xl shadow-md">
-                <div className="d-flex items-center justify-content-start gap-2 mb-4 mt-4 w-full flex-wrap">
-                    <div style={{ display: "flex", gap: "2%" }}>
-                        <Autocomplete
-                            size="small"
-                            options={projectList}
-                            value={
-                                projectList.find(
-                                    (p) => (p.id ?? p.project_id) === projectFilter
-                                ) || null
-                            }
-                            onChange={(e, newValue) => {
-                                setPageIndex(0);
-                                setProjectFilter(newValue ? (newValue.id ?? newValue.project_id) : "");
-                            }}
-                            getOptionLabel={(option) =>
-                                option.project_name ||
-                                option.projectName ||
-                                `Project ${option.id ?? option.project_id ?? ""}`
-                            }
-                            isOptionEqualToValue={(option, value) =>
-                                (option.id ?? option.project_id) === (value.id ?? value.project_id)
-                            }
-                            renderInput={(params) => (
-                                <TextField
-                                    {...params}
-                                    label={lang("reports.allprojects")}
-                                    placeholder={lang("common.searchProject", "Search project...")}
-                                />
-                            )}
-                            sx={{ minWidth: 260 }}
-                        />
-                    </div>
-                    <div style={{ minWidth: 220 }}>
-                        <TextField
-                            select
-                            fullWidth
-                            size="small"
-                            label={lang("invoice.status", "Status")}
-                            value={statusFilter}
-                            onChange={(e) => {
-                                setPageIndex(0);
-                                setStatusFilter(e.target.value);
-                            }}
-                            SelectProps={{
-                                native: true,
-                            }}
-                            InputLabelProps={{ shrink: true }}
-                        >
-                            <option value="">
-                                {lang("common.all", "All Status")}
-                            </option>
-                            <option value={PAYOUT_STATUS.PENDING}>
-                                {lang("common.pending", "Pending")}
-                            </option>
-                            <option value={PAYOUT_STATUS.PAYOUT}>
-                                {lang("payouts.payouts", "Paid")}
-                            </option>
-                            <option value={PAYOUT_STATUS.CANCELLED}>
-                                {lang("common.cancelled", "Cancelled")}
-                            </option>
-                        </TextField>
-                    </div>
+                <div className="flex flex-wrap items-center gap-2 mb-4 mt-4 w-full">
+                    <Autocomplete
+                        size="small"
+                        options={projectList}
+                        value={
+                            projectList.find(
+                                (p) => (p.id ?? p.project_id) === projectFilter
+                            ) || null
+                        }
+                        onChange={(e, newValue) => {
+                            setPageIndex(0);
+                            setProjectFilter(newValue ? (newValue.id ?? newValue.project_id) : "");
+                        }}
+                        getOptionLabel={(option) =>
+                            option.project_name ||
+                            option.projectName ||
+                            `Project ${option.id ?? option.project_id ?? ""}`
+                        }
+                        isOptionEqualToValue={(option, value) =>
+                            (option.id ?? option.project_id) === (value.id ?? value.project_id)
+                        }
+                        renderInput={(params) => (
+                            <TextField
+                                {...params}
+                                label={lang("reports.allprojects")}
+                                placeholder={lang("common.searchProject", "Search project...")}
+                            />
+                        )}
+                        sx={{ width: { xs: "100%", sm: 260 } }}
+                    />
+                    <TextField
+                        select
+                        fullWidth
+                        size="small"
+                        label={lang("invoice.status", "Status")}
+                        value={statusFilter}
+                        onChange={(e) => {
+                            setPageIndex(0);
+                            setStatusFilter(e.target.value);
+                        }}
+                        SelectProps={{
+                            native: true,
+                        }}
+                        InputLabelProps={{ shrink: true }}
+                        sx={{ width: { xs: "100%", sm: 220 } }}
+                    >
+                        <option value="">
+                            {lang("common.all", "All Status")}
+                        </option>
+                        <option value={PAYOUT_STATUS.PENDING}>
+                            {lang("common.pending", "Pending")}
+                        </option>
+                        <option value={PAYOUT_STATUS.PAYOUT}>
+                            {lang("payouts.payouts", "Paid")}
+                        </option>
+                        <option value={PAYOUT_STATUS.CANCELLED}>
+                            {lang("common.cancelled", "Cancelled")}
+                        </option>
+                    </TextField>
                 </div>
-                <div className="overflow-x-auto relative">
-                    {/* {!hasLoadedOnce && loading && (
-                        <div className="text-center py-6 text-gray-600">Loading...</div>
-                    )} */}
-
-                    {/* {error && <div className="text-red-600">Error: {error}</div>} */}
+                {/* Desktop Table View */}
+                <div className="hidden md:block overflow-x-auto relative">
                     <>
                         {/* Keep the table mounted so search input state is retained */}
                         <Table
@@ -447,6 +440,114 @@ const PayoutsPage = () => {
                             initialPageSize={PAGE_SIZE}
                         />
                     </>
+                </div>
+
+                {/* Mobile Card View */}
+                <div className="block md:hidden space-y-3 mt-3">
+                    {payouts.length === 0 ? (
+                        <div className="text-center text-sm text-gray-500 py-8">
+                            {lang("payouts.noPayoutsFound", "No payouts found")}
+                        </div>
+                    ) : (
+                        payouts.map((payout) => {
+                            const invoicePrefix = payout.invoices?.invoice_prefix || "";
+                            const invoiceNumber = payout.invoices?.invoice_number || "";
+                            const invoiceDisplay = invoicePrefix && invoiceNumber ? `${invoicePrefix}-${invoiceNumber}` : "N/A";
+                            const investorPercent = payout.investor_percent;
+
+                            const statusBadge = () => {
+                                if (payout.status === PAYOUT_STATUS.PAYOUT)
+                                    return <span className="badge bg-soft-success text-success">{lang("payouts.payouts", "Paid")}</span>;
+                                if (payout.status === PAYOUT_STATUS.PENDING)
+                                    return <span className="badge bg-soft-warning text-warning">{lang("common.pending", "Pending")}</span>;
+                                if (payout.status === PAYOUT_STATUS.CANCELLED)
+                                    return <span className="badge bg-soft-danger text-danger">{lang("common.cancelled", "Cancelled")}</span>;
+                                return null;
+                            };
+
+                            return (
+                                <div
+                                    key={payout.id}
+                                    className="bg-white border border-gray-200 rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow"
+                                >
+                                    {/* Card Header */}
+                                    <div className="flex items-start justify-between mb-3 pb-3 border-b border-gray-100">
+                                        <div>
+                                            <h3 className="font-semibold text-slate-900 text-sm line-clamp-1">
+                                                {payout.projects?.project_name || "N/A"}
+                                            </h3>
+                                            <p className="text-xs text-gray-500 mt-0.5 font-medium">
+                                                {payout.users?.full_name || "N/A"}
+                                            </p>
+                                        </div>
+                                        <div className="ml-2">{statusBadge()}</div>
+                                    </div>
+
+                                    {/* Card Body */}
+                                    <div className="space-y-2 mb-3">
+                                        <div className="flex justify-between text-xs">
+                                            <span className="text-gray-600">{lang("invoice.invoiceNumber", "Invoice Number")}:</span>
+                                            {payout.invoices?.id ? (
+                                                <span
+                                                    onClick={() => handleDownload(payout.invoices)}
+                                                    className="font-medium text-blue-600 cursor-pointer"
+                                                    title="Download invoice pdf"
+                                                >
+                                                    {invoiceDisplay}
+                                                </span>
+                                            ) : (
+                                                <span className="font-medium text-gray-900">N/A</span>
+                                            )}
+                                        </div>
+                                        <div className="flex justify-between text-xs">
+                                            <span className="text-gray-600">{lang("payouts.invoice_amount", "Invoice Amount")}:</span>
+                                            <span className="font-medium text-gray-900">{priceWithCurrency(payout.invoice_amount)}</span>
+                                        </div>
+                                        <div className="flex justify-between text-xs">
+                                            <span className="text-gray-600">{lang("payouts.payout_amount", "Payout Amount")}:</span>
+                                            <span className="font-medium text-gray-900">{priceWithCurrency(payout.payout_amount)}</span>
+                                        </div>
+                                        <div className="flex justify-between text-xs">
+                                            <span className="text-gray-600">{lang("payouts.investor_percentage", "Investor %")}:</span>
+                                            <span className="font-medium text-gray-900">
+                                                {investorPercent !== null && investorPercent !== undefined && investorPercent !== ""
+                                                    ? `${investorPercent}%`
+                                                    : "N/A"}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    {/* Card Footer */}
+                                    <div className={`grid gap-2 pt-3 border-t border-gray-100 ${payout.document ? "grid-cols-3" : "grid-cols-2"}`}>
+                                        {payout.document && (
+                                            <button
+                                                onClick={() => handleViewDocument(payout.document)}
+                                                className="w-full whitespace-nowrap px-2 py-2 text-xs font-semibold text-slate-900 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-center"
+                                            >
+                                                {lang("payouts.uploaded_image", "Document")}
+                                            </button>
+                                        )}
+                                        <Link
+                                            href={`/investor/payouts/view/${payout.id}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="block"
+                                        >
+                                            <button className="w-full whitespace-nowrap px-2 py-2 text-xs font-semibold text-blue-600 border border-blue-300 rounded-lg hover:bg-blue-50 transition-colors text-center">
+                                                {lang("navigation.view", "View")}
+                                            </button>
+                                        </Link>
+                                        <button
+                                            onClick={() => handlePayoutDownload(payout)}
+                                            className="w-full whitespace-nowrap px-2 py-2 text-xs font-semibold text-green-700 border border-green-300 rounded-lg hover:bg-green-50 transition-colors text-center"
+                                        >
+                                            {lang("common.download", "Download")}
+                                        </button>
+                                    </div>
+                                </div>
+                            );
+                        })
+                    )}
                 </div>
             </div>
             {/* Upload Image Preview Modal */}
