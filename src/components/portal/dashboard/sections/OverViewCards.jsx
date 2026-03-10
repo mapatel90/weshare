@@ -273,7 +273,7 @@ export default function OverViewCards({
             alt="Total Yield Icon"
             className="w-8 h-6"
           />
-          <span className="text-gray-800 font-medium">{lang("home.exchangeHub.accumulativeGeneration", "Total Yield")}</span>
+          <span className="text-gray-800 font-medium">{lang("home.exchangeHub.accumulativeGeneration", "Accumulative Generation")}</span>
         </div>
         <div className="stat-value">{renderEnergyDisplay(totalYieldValue)}</div>
         {/* <div className="stat-label">{totalYieldSubtitle}</div> */}

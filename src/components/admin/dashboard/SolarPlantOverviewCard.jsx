@@ -8,11 +8,19 @@ import { Battery0BarOutlined, Battery90Rounded, Battery90TwoTone } from '@mui/ic
 import { sumFieldFromObject, formatShort, convertEnergyToKwh, formatEnergyUnit, useDarkMode } from '@/utils/common';
 import { useFormatPrice } from '@/hooks/useFormatPrice';
 
+
+const formatNumber = (value) => {
+  if (value === null || value === undefined || value === "") return "-";
+  const num = Number(value);
+  return Number.isNaN(num) ? "-" : num.toLocaleString();
+};
+
 export default function SolarPlantOverviewCard() {
   const { lang } = useLanguage();
   const isDark = useDarkMode();
   const formatPrice = useFormatPrice();
   const [projects, setProjects] = useState([]);
+  console.log("projects", projects);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -265,10 +273,9 @@ export default function SolarPlantOverviewCard() {
               title={lang("common.power", "Power")}
               value={formatEnergyUnit(total_power)}
               subtitle={
-                lang("dashboard.capacity", "Capacity") +
-                ": " +
+                lang("dashboard.capacity", "Capacity") + ": " +
                 (total_capacity ? total_capacity.toFixed(2) : "0") +
-                " kWh"
+                "KWp"
               }
               color="linear-gradient(to bottom right, #fbbf24, #f97316)"
               trend={null}
@@ -297,7 +304,7 @@ export default function SolarPlantOverviewCard() {
             />
             <StatCard
               icon={CalendarCog}
-              title={lang("reports.totalYield", "Total Yield")}
+              title={lang("home.exchangeHub.accumulativeGeneration", "Accumulative Generation")}
               value={formatEnergyUnit(total_energy)}
               subtitle={
                 lang("common.totalearnings", "Total Earnings") + ": " + formatPrice(total_revenue)

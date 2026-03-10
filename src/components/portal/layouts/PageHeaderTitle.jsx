@@ -1,13 +1,16 @@
 'use client';
-import React from 'react';
-import { usePathname } from 'next/navigation';
+import React, { useContext } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, ArrowLeft } from 'lucide-react';
+import PageTitleContext from '@/contexts/PageTitleContext';
 
 const PageHeaderTitle = () => {
     const pathName = usePathname();
+    const router = useRouter();
     const { lang } = useLanguage();
+    const { displayTitle } = useContext(PageTitleContext);
 
     const parts = pathName.split("/").filter(Boolean);
     let title = lang("page_title.dashboard", "Dashboard");
@@ -20,7 +23,7 @@ const PageHeaderTitle = () => {
         parts[1] === "projects" &&
         parts[2] === "details"
     ) {
-        title = "Proect details";
+        title = displayTitle || lang("menu.details", "Details");
         breadcrumb = [
             { name: lang("menu.projects", "Project"), href: "/offtaker/projects" },
             { name: lang("menu.details", "Details"), href: null }
@@ -91,6 +94,17 @@ const PageHeaderTitle = () => {
         ];
     }
 
+    // Pick the first breadcrumb href that is different from current page as back destination
+    const backHref = breadcrumb.find(item => item.href && item.href !== pathName)?.href || null;
+
+    const handleBack = () => {
+        if (backHref) {
+            router.push(backHref);
+        } else {
+            router.back();
+        }
+    };
+
     return (
         <div className="header-wrapper">
             <div className="header-left">
@@ -118,8 +132,18 @@ const PageHeaderTitle = () => {
                 </div>
             </div>
 
-            {/* RIGHT SIDE (Buttons placeholder) */}
-            <div className="header-right"></div>
+            {/* RIGHT SIDE - Back Button */}
+            <div className="header-right">
+                {pathName !== "/offtaker/dashboard" && (
+                    <button
+                        onClick={handleBack}
+                        className="btn-back"
+                    >
+                        <ArrowLeft className="w-4 h-4" />
+                        <span>{lang("common.back", "Back")}</span>
+                    </button>
+                )}
+            </div>
         </div>
     );
 };

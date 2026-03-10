@@ -1110,17 +1110,17 @@ function DashboardView() {
       {/* Projects Table */}
       <ProjectsTable />
 
-      {/* Bottom Row */}
-      {/* <div className="bottom-row"> */}
+      {/* Bottom Row - hidden on mobile */}
+      <div className="bottom-row hidden-mobile">
       {/* Billing Card */}
-      {/* <BillingCard
+      <BillingCard
           lang={lang}
-        /> */}
+        />
       {/* Documents Card */}
-      {/* <DocumentsCard
+      <DocumentsCard
           lang={lang}
-        /> */}
-      {/* </div> */}
+        />
+      </div>
     </div>
   );
 }

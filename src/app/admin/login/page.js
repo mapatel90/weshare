@@ -1,5 +1,5 @@
 "use client"
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import LoginForm from '@/components/authentication/LoginForm'
 import { useLanguage } from '@/contexts/LanguageContext'
@@ -8,6 +8,16 @@ import { usePageTitle } from '@/contexts/PageTitleContext';
 const AdminLoginPage = () => {
     const { lang } = useLanguage();
     usePageTitle('page_title.adminLogin');
+
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+        const mediaQuery = window.matchMedia('(max-width: 900px)');
+        setIsMobile(mediaQuery.matches);
+        const handler = (e) => setIsMobile(e.matches);
+        mediaQuery.addEventListener('change', handler);
+        return () => mediaQuery.removeEventListener('change', handler);
+    }, []);
     
     return (
         <main
@@ -16,7 +26,7 @@ const AdminLoginPage = () => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                padding: '2rem',
+                padding: isMobile ? '1rem' : '2rem',
                 backgroundImage: `url(/images/SunShare-Login-Screen.jpg)`,
                 backgroundSize: '100% 100%, cover',
                 backgroundPosition: 'top center, bottom center',

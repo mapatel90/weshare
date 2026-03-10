@@ -1373,6 +1373,7 @@
   },
   "usersView": {
     "CreateUser": "Tạo người dùng",
+    "addReview": "Thêm nhận xét",
     "username": "Tên người dùng",
     "backToUser": "Quay lại người dùng",
     "ViewUser": "Xem người dùng",

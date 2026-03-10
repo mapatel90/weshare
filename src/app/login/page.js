@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Box, Card, CardContent, Button, Typography } from "@mui/material";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -11,6 +11,15 @@ export const dynamic = 'force-dynamic';
 
 const LoginPage = () => {
     const { lang, currentLanguage } = useLanguage();
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+        const mediaQuery = window.matchMedia('(max-width: 900px)');
+        setIsMobile(mediaQuery.matches);
+        const handler = (e) => setIsMobile(e.matches);
+        mediaQuery.addEventListener('change', handler);
+        return () => mediaQuery.removeEventListener('change', handler);
+    }, []);
     return (
         <>
             <DynamicTitle titleKey="page_title.login" />
@@ -72,7 +81,7 @@ const LoginPage = () => {
                                 mt: 2,
                             }}
                         >
-                            <Link href="/offtaker/login" passHref style={{ width: "70%", textDecoration: 'none' }}>
+                            <Link href="/offtaker/login" passHref style={{ width: isMobile ? "100%" : "70%", textDecoration: 'none' }}>
                                 <Button
                                     variant="contained"
                                     fullWidth
@@ -93,7 +102,7 @@ const LoginPage = () => {
                                 </Button>
                             </Link>
 
-                            <Link href="/investor/login" passHref style={{ width: "70%", textDecoration: 'none' }}>
+                            <Link href="/investor/login" passHref style={{ width: isMobile ? "100%" : "70%", textDecoration: 'none' }}>
                                 <Button
                                     variant="contained"
                                     fullWidth

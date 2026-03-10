@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useContext } from "react";
 import "../../../../assets/portal/offtaker.css";
 import ProjectOverviewChart from "@/components/admin/projectsCreate/projectViewSection/ProjectOverviewChart";
 import PowerConsumptionDashboard from "@/components/admin/projectsCreate/projectViewSection/inverterChart";
@@ -14,12 +14,14 @@ import ElectricityCostBarChart from "@/components/admin/projectsCreate/projectVi
 import { sortByNameAsc } from "@/utils/common";
 import OverViewCards from "../../dashboard/sections/OverViewCards";
 import { useLanguage } from "@/contexts/LanguageContext";
+import PageTitleContext from "@/contexts/PageTitleContext";
 import ReviewModal from "./ReviewModal";
 import ElectricityConsumption from "@/components/admin/projectsCreate/projectViewSection/ElectricityConsumption";
 
 const ProjectDetails = ({ project_id }) => {
     const { user } = useAuth();
     const { lang } = useLanguage();
+    const { setDisplayTitle } = useContext(PageTitleContext);
     const isDark = useDarkMode();
     const colors = getDarkModeColors(isDark);
     const [showProjectsDropdown, setShowProjectsDropdown] = useState(false);
@@ -113,6 +115,7 @@ const ProjectDetails = ({ project_id }) => {
                 if (res?.success && res?.data) {
                     setProjects(res.data);
                     setSelectedProject(res.data);
+                    setDisplayTitle(res.data?.project_name ?? null);
                 }
             } catch (err) {
                 console.error("Failed to load project", err);
@@ -120,6 +123,7 @@ const ProjectDetails = ({ project_id }) => {
         };
 
         fetchProjectById();
+        return () => setDisplayTitle(null);
     }, [project_id]);
 
     // Fetch existing review when project changes
@@ -464,43 +468,43 @@ const ProjectDetails = ({ project_id }) => {
 
     useEffect(() => {
         const loadElectricityConsumptionData = async () => {
-          if (!selectedProject?.id) return;
-    
-          let dateValue;
-          if (electricityConsumptionViewMode === "day") {
-            dateValue = electricityConsumptionDate; // YYYY-MM format
-          } else if (electricityConsumptionViewMode === "month") {
-            dateValue = electricityConsumptionDate.slice(0, 4); // YYYY format
-          } else {
-            dateValue = new Date().getFullYear().toString(); // YYYY format (not used by API but required)
-          }
-    
-          const payload = {
-            projectId: selectedProject?.id ?? null,
-            type: electricityConsumptionViewMode,
-            date: dateValue,
-          };
-    
-          try {
-            setElectricityConsumptionDataLoading(true);
-            const res = await apiPost(`/api/projects/electricity/consumption-chart`, payload);
-            setElectricityConsumptionData(res?.success ? res.data : null);
-          } catch (error) {
-            console.error("Error loading electricity consumption data:", error);
-            setElectricityConsumptionData(null);
-          } finally {
-            setElectricityConsumptionDataLoading(false);
-          }
+            if (!selectedProject?.id) return;
+
+            let dateValue;
+            if (electricityConsumptionViewMode === "day") {
+                dateValue = electricityConsumptionDate; // YYYY-MM format
+            } else if (electricityConsumptionViewMode === "month") {
+                dateValue = electricityConsumptionDate.slice(0, 4); // YYYY format
+            } else {
+                dateValue = new Date().getFullYear().toString(); // YYYY format (not used by API but required)
+            }
+
+            const payload = {
+                projectId: selectedProject?.id ?? null,
+                type: electricityConsumptionViewMode,
+                date: dateValue,
+            };
+
+            try {
+                setElectricityConsumptionDataLoading(true);
+                const res = await apiPost(`/api/projects/electricity/consumption-chart`, payload);
+                setElectricityConsumptionData(res?.success ? res.data : null);
+            } catch (error) {
+                console.error("Error loading electricity consumption data:", error);
+                setElectricityConsumptionData(null);
+            } finally {
+                setElectricityConsumptionDataLoading(false);
+            }
         };
         loadElectricityConsumptionData();
-      }, [selectedProject?.id, electricityConsumptionViewMode, electricityConsumptionDate]);
+    }, [selectedProject?.id, electricityConsumptionViewMode, electricityConsumptionDate]);
 
     return (
         <div>
             <>
                 <div
                     className="d-flex justify-content-end gap-2 mb-3"
-                    style={{ position: "relative", marginTop: '1%' }}
+                    style={{ position: "relative", marginTop: '2%' }}
                 >
                     {/* Review Button */}
                     <button
@@ -519,7 +523,7 @@ const ProjectDetails = ({ project_id }) => {
                             ? lang("common.loading", "Loading...")
                             : existingReview
                                 ? `${lang("portal.changeReview", "Change Review")} ✏️`
-                                : `${lang("portal.review", "Review")} ⭐`}
+                                : `${lang("usersView.addReview", "Review")} ⭐`}
                     </button>
 
                     {/* Inverter dropdown: disabled until a project is selected */}
@@ -548,7 +552,7 @@ const ProjectDetails = ({ project_id }) => {
                             }}
                             disabled={!selectedProject}
                         >
-                            {selectedInverter ? selectedInverter.name : "All Inverters ▼"}
+                            {selectedInverter ? selectedInverter.name : lang("dashboard.all_inverters", "All Inverters") + " ▼"}
                         </button>
                         {showInverterDropdown && selectedProject && (
                             <div
@@ -656,7 +660,7 @@ const ProjectDetails = ({ project_id }) => {
                         )}
                     </div>
                 </div>
-                {selectedProject && (
+                {/* {selectedProject && (
                     <div style={{ marginBottom: "12px", color: "#374151" }}>
                         Project: <strong>{selectedProject.project_name}</strong>
                         {selectedInverter && (
@@ -666,7 +670,7 @@ const ProjectDetails = ({ project_id }) => {
                             </span>
                         )}
                     </div>
-                )}
+                )} */}
             </>
             {selectedProject && (
                 <>

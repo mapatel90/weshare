@@ -6,6 +6,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import Table from "@/components/shared/table/Table";
 import { PROJECT_STATUS } from "@/constants/project_status";
 import { Autocomplete, TextField } from "@mui/material";
+import { showErrorToast } from "@/utils/topTost";
 
 const InverterEnvReport = () => {
   const PAGE_SIZE = 50; // show 50 rows per page
@@ -272,8 +273,8 @@ const InverterEnvReport = () => {
   const handleDownloadCSV = async () => {
     try {
       setLoading(true);
-      if (!projectFilter || !inverterFilter) {
-        alert(lang("response_messages.please_select_both_project_and_inverter", "Please select both Project and Inverter to download CSV"));
+      if (!projectFilter) {
+        showErrorToast(lang("response_messages.please_select_project", "Please select Project to download CSV"));
         setLoading(false);
         return;
       }
@@ -432,11 +433,44 @@ const InverterEnvReport = () => {
             }
             getOptionLabel={(option) => option.project_name ?? option.projectName ?? `Project ${option.id ?? ""}`}
             isOptionEqualToValue={(option, value) => String(option.id ?? option.project_id) === String(value.id ?? value.project_id)}
+            renderOption={(props, option, { selected }) => (
+              <li
+                {...props}
+                style={{
+                  padding: "10px 16px",
+                  cursor: "pointer",
+                  background: selected ? "#F6A623" : "#fff9f0",
+                  fontWeight: selected ? 600 : 400,
+                  color: selected ? "#fff" : "#b26800",
+                  borderLeft: selected ? "4px solid #e8920a" : "4px solid transparent",
+                  transition: "background 0.15s",
+                }}
+              >
+                {option.project_name ?? option.projectName ?? `Project ${option.id ?? ""}`}
+              </li>
+            )}
+            componentsProps={{
+              paper: {
+                sx: {
+                  border: "2px solid rgba(246,166,35,0.2)",
+                  borderRadius: "8px",
+                  boxShadow: "0 4px 16px rgba(246,166,35,0.2)",
+                  mt: 0.5,
+                },
+              },
+            }}
             renderInput={(params) => (
               <TextField
                 {...params}
                 label={lang("reports.allprojects", "All Projects")}
                 placeholder={lang("common.searchProject", "Search project...")}
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    "&:hover fieldset": { borderColor: "#F6A623" },
+                    "&.Mui-focused fieldset": { borderColor: "#F6A623" },
+                  },
+                  "& label.Mui-focused": { color: "#b26800" },
+                }}
               />
             )}
             sx={{ width: { xs: "100%", sm: 260 } }}
@@ -455,11 +489,44 @@ const InverterEnvReport = () => {
             }
             getOptionLabel={(option) => option.inverter_name ?? option.name ?? `Inverter ${option.id}`}
             isOptionEqualToValue={(option, value) => String(option.id) === String(value.id)}
+            renderOption={(props, option, { selected }) => (
+              <li
+                {...props}
+                style={{
+                  padding: "10px 16px",
+                  cursor: "pointer",
+                  background: selected ? "#F6A623" : "#fff9f0",
+                  fontWeight: selected ? 600 : 400,
+                  color: selected ? "#fff" : "#b26800",
+                  borderLeft: selected ? "4px solid #e8920a" : "4px solid transparent",
+                  transition: "background 0.15s",
+                }}
+              >
+                {option.inverter_name ?? option.name ?? `Inverter ${option.id}`}
+              </li>
+            )}
+            componentsProps={{
+              paper: {
+                sx: {
+                  border: "2px solid rgba(246,166,35,0.2)",
+                  borderRadius: "8px",
+                  boxShadow: "0 4px 16px rgba(246,166,35,0.2)",
+                  mt: 0.5,
+                },
+              },
+            }}
             renderInput={(params) => (
               <TextField
                 {...params}
                 label={lang("reports.allinverters", "All Inverters")}
                 placeholder={lang("common.searchInverter", "Search inverter...")}
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    "&:hover fieldset": { borderColor: "#F6A623" },
+                    "&.Mui-focused fieldset": { borderColor: "#F6A623" },
+                  },
+                  "& label.Mui-focused": { color: "#b26800" },
+                }}
               />
             )}
             sx={{ width: { xs: "100%", sm: 260 } }}

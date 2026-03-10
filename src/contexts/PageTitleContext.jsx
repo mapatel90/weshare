@@ -5,7 +5,9 @@ import { useLanguage } from '@/contexts/LanguageContext';
 
 const PageTitleContext = createContext({
   setPageTitle: () => {},
-  pageTitle: null
+  pageTitle: null,
+  displayTitle: null,
+  setDisplayTitle: () => {},
 });
 
 /**
@@ -16,6 +18,7 @@ const PageTitleContext = createContext({
  */
 export function PageTitleProvider({ children, defaultSuffix = 'WeShare' }) {
   const [pageTitle, setPageTitle] = useState(null);
+  const [displayTitle, setDisplayTitle] = useState(null);
   const { lang } = useLanguage();
 
   useEffect(() => {
@@ -29,7 +32,7 @@ export function PageTitleProvider({ children, defaultSuffix = 'WeShare' }) {
   }, [pageTitle, lang, defaultSuffix]);
 
   return (
-    <PageTitleContext.Provider value={{ setPageTitle, pageTitle }}>
+    <PageTitleContext.Provider value={{ setPageTitle, pageTitle, displayTitle, setDisplayTitle }}>
       {children}
     </PageTitleContext.Provider>
   );

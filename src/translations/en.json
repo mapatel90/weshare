@@ -1418,6 +1418,7 @@
   },
   "usersView": {
     "CreateUser": "Create User",
+    "addReview": "Add Review",
     "username": "Username",
     "backToUser": "Back to Users",
     "ViewUser": "View User",

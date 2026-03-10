@@ -422,11 +422,44 @@ const SavingReports = () => {
             }
             getOptionLabel={(option) => option.project_name ?? option.projectName ?? `Project ${option.id ?? ""}`}
             isOptionEqualToValue={(option, value) => String(option.id ?? option.project_id) === String(value.id ?? value.project_id)}
+            renderOption={(props, option, { selected }) => (
+              <li
+                {...props}
+                style={{
+                  padding: "10px 16px",
+                  cursor: "pointer",
+                  background: selected ? "#F6A623" : "#fff9f0",
+                  fontWeight: selected ? 600 : 400,
+                  color: selected ? "#fff" : "#b26800",
+                  borderLeft: selected ? "4px solid #e8920a" : "4px solid transparent",
+                  transition: "background 0.15s",
+                }}
+              >
+                {option.project_name ?? option.projectName ?? `Project ${option.id ?? ""}`}
+              </li>
+            )}
+            componentsProps={{
+              paper: {
+                sx: {
+                  border: "2px solid rgba(246,166,35,0.2)",
+                  borderRadius: "8px",
+                  boxShadow: "0 4px 16px rgba(246,166,35,0.2)",
+                  mt: 0.5,
+                },
+              },
+            }}
             renderInput={(params) => (
               <TextField
                 {...params}
                 label={lang("reports.allprojects", "All Projects")}
                 placeholder={lang("common.searchProject", "Search project...")}
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    "&:hover fieldset": { borderColor: "#F6A623" },
+                    "&.Mui-focused fieldset": { borderColor: "#F6A623" },
+                  },
+                  "& label.Mui-focused": { color: "#b26800" },
+                }}
               />
             )}
             sx={{ width: { xs: "100%", sm: 260 } }}
@@ -454,11 +487,44 @@ const SavingReports = () => {
             }}
             getOptionLabel={(option) => option.label || ""}
             isOptionEqualToValue={(option, value) => option.value === value.value}
+            renderOption={(props, option, { selected }) => (
+              <li
+                {...props}
+                style={{
+                  padding: "10px 16px",
+                  cursor: "pointer",
+                  background: selected ? "#F6A623" : "#fff9f0",
+                  fontWeight: selected ? 600 : 400,
+                  color: selected ? "#fff" : "#b26800",
+                  borderLeft: selected ? "4px solid #e8920a" : "4px solid transparent",
+                  transition: "background 0.15s",
+                }}
+              >
+                {option.label}
+              </li>
+            )}
+            componentsProps={{
+              paper: {
+                sx: {
+                  border: "2px solid rgba(246,166,35,0.2)",
+                  borderRadius: "8px",
+                  boxShadow: "0 4px 16px rgba(246,166,35,0.2)",
+                  mt: 0.5,
+                },
+              },
+            }}
             renderInput={(params) => (
               <TextField
                 {...params}
                 label={lang("common.groupBy", "Group By")}
                 placeholder={lang("common.select", "Select...")}
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    "&:hover fieldset": { borderColor: "#F6A623" },
+                    "&.Mui-focused fieldset": { borderColor: "#F6A623" },
+                  },
+                  "& label.Mui-focused": { color: "#b26800" },
+                }}
               />
             )}
             sx={{ width: { xs: "100%", sm: 180 } }}
@@ -477,7 +543,10 @@ const SavingReports = () => {
               "& .MuiOutlinedInput-root": {
                 borderRadius: "8px",
                 backgroundColor: "#fff",
+                "&:hover fieldset": { borderColor: "#F6A623" },
+                "&.Mui-focused fieldset": { borderColor: "#F6A623" },
               },
+              "& label.Mui-focused": { color: "#b26800" },
             }}
           />
 
@@ -495,7 +564,10 @@ const SavingReports = () => {
               "& .MuiOutlinedInput-root": {
                 borderRadius: "8px",
                 backgroundColor: "#fff",
+                "&:hover fieldset": { borderColor: "#F6A623" },
+                "&.Mui-focused fieldset": { borderColor: "#F6A623" },
               },
+              "& label.Mui-focused": { color: "#b26800" },
             }}
           />
 

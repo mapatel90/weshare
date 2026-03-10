@@ -305,11 +305,44 @@ const Payments = () => {
                 }
                 getOptionLabel={(option) => option.project_name || ""}
                 isOptionEqualToValue={(option, value) => option.id === value.id}
+                renderOption={(props, option, { selected }) => (
+                  <li
+                    {...props}
+                    style={{
+                      padding: "10px 16px",
+                      cursor: "pointer",
+                      background: selected ? "#F6A623" : "#fff9f0",
+                      fontWeight: selected ? 600 : 400,
+                      color: selected ? "#fff" : "#b26800",
+                      borderLeft: selected ? "4px solid #e8920a" : "4px solid transparent",
+                      transition: "background 0.15s",
+                    }}
+                  >
+                    {option.project_name}
+                  </li>
+                )}
+                componentsProps={{
+                  paper: {
+                    sx: {
+                      border: "2px solid rgba(246,166,35,0.2)",
+                      borderRadius: "8px",
+                      boxShadow: "0 4px 16px rgba(246,166,35,0.2)",
+                      mt: 0.5,
+                    },
+                  },
+                }}
                 renderInput={(params) => (
                   <TextField
                     {...params}
                     label={lang("reports.allprojects", "All Projects")}
                     placeholder={lang("common.searchProject", "Search project...")}
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        "&:hover fieldset": { borderColor: "#F6A623" },
+                        "&.Mui-focused fieldset": { borderColor: "#F6A623" },
+                      },
+                      "& label.Mui-focused": { color: "#b26800" },
+                    }}
                   />
                 )}
                 sx={{ width: { xs: "100%", sm: 260 } }}
@@ -333,11 +366,44 @@ const Payments = () => {
                 isOptionEqualToValue={(option, value) =>
                   option.value === value.value
                 }
+                renderOption={(props, option, { selected }) => (
+                  <li
+                    {...props}
+                    style={{
+                      padding: "10px 16px",
+                      cursor: "pointer",
+                      background: selected ? "#F6A623" : "#fff9f0",
+                      fontWeight: selected ? 600 : 400,
+                      color: selected ? "#fff" : "#b26800",
+                      borderLeft: selected ? "4px solid #e8920a" : "4px solid transparent",
+                      transition: "background 0.15s",
+                    }}
+                  >
+                    {option.label}
+                  </li>
+                )}
+                componentsProps={{
+                  paper: {
+                    sx: {
+                      border: "2px solid rgba(246,166,35,0.2)",
+                      borderRadius: "8px",
+                      boxShadow: "0 4px 16px rgba(246,166,35,0.2)",
+                      mt: 0.5,
+                    },
+                  },
+                }}
                 renderInput={(params) => (
                   <TextField
                     {...params}
                     label={lang("invoice.allStatus", "All Status")}
                     placeholder={lang("common.selectStatus", "Select status...")}
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        "&:hover fieldset": { borderColor: "#F6A623" },
+                        "&.Mui-focused fieldset": { borderColor: "#F6A623" },
+                      },
+                      "& label.Mui-focused": { color: "#b26800" },
+                    }}
                   />
                 )}
                 sx={{ width: { xs: "100%", sm: 200 } }}
@@ -363,17 +429,22 @@ const Payments = () => {
                   "& .MuiOutlinedInput-root": {
                     borderRadius: "8px",
                     backgroundColor: "#fff",
+                    "&:hover fieldset": { borderColor: "#F6A623" },
+                    "&.Mui-focused fieldset": { borderColor: "#F6A623" },
                   },
+                  "& label.Mui-focused": { color: "#b26800" },
                 }}
               />
             </div>
+            <div className="flex items-center gap-2 justify-end mt-2">
             <button
-              className="theme-btn-org-color text-white px-4 py-2 rounded shadow hover:bg-orange-500 w-full md:w-auto"
+              className="theme-btn-org-color text-white px-4 py-2 rounded shadow hover:bg-orange-500 w-[140px] sm:w-[200px] md:w-auto"
               onClick={() => setModalOpen(true)}
               disabled={submitting}
             >
               {lang("payments.addPayment", "Add Payment")}
             </button>
+            </div>
           </div>
 
           {/* Desktop Table View */}

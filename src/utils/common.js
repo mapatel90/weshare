@@ -97,6 +97,8 @@ export function getDateTimeInTZ(timeZone) {
 }
 
 export function sumFieldFromObject(data, field) {
+  console.log("data1", data);
+  console.log("field1", field);
   return data
     .reduce((sum, item) => {
       if (item?.project_data?.length > 0) {

@@ -10,13 +10,16 @@
 
 @media (max-width: 768px) {
   .header-wrapper {
-    flex-direction: column;
-    align-items: flex-start;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
     gap: 8px;
   }
 
   .header-left {
     flex-wrap: wrap;
+    flex: 1;
+    min-width: 0;
   }
 
   .header-title {
@@ -29,7 +32,8 @@
   }
 
   .header-right {
-    width: 100%;
+    width: auto;
+    flex-shrink: 0;
     justify-content: flex-end;
   }
 }
@@ -531,6 +535,43 @@ body {
   align-items: center;
 }
 
+/* Back button in page header */
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+  background: #ffffff;
+  border: 1.5px solid #d1d5db;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.btn-back:hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+  color: #111827;
+}
+
+.btn-back svg {
+  flex-shrink: 0;
+}
+
+@media (max-width: 480px) {
+  .btn-back span {
+    display: none;
+  }
+  .btn-back {
+    padding: 6px 8px;
+  }
+}
+
 .profile-icons {
   display: flex;
   gap: 10px;
@@ -954,6 +995,12 @@ td {
   margin-bottom: 30px;
 }
 
+@media (max-width: 768px) {
+  .hidden-mobile {
+    display: none !important;
+  }
+}
+
 @media (max-width: 1024px) {
   .bottom-row {
     grid-template-columns: 1fr;
@@ -1074,13 +1121,16 @@ td {
 /* Mobile adjustments for page header title and breadcrumb */
 @media (max-width: 768px) {
   .header-wrapper {
-    flex-direction: column;
-    align-items: flex-start;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
     gap: 8px;
   }
 
   .header-left {
     flex-wrap: wrap;
+    flex: 1;
+    min-width: 0;
   }
 
   .header-title {
@@ -1093,7 +1143,8 @@ td {
   }
 
   .header-right {
-    width: 100%;
+    width: auto;
+    flex-shrink: 0;
     justify-content: flex-end;
   }
 }
