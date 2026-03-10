@@ -175,41 +175,41 @@ const MeterView = ({ projectId, handleSaveAction }) => {
                         </div>
                     </div>
                     {/* Actions inside Address Information */}
-                    <div className="col-12 d-flex justify-content-end gap-2">
-                        <Button
-                            type="button"
-                            variant="contained"
-                            disabled={loading}
-                            startIcon={loading ? <CircularProgress size={16} /> : <FiSave />}
-                            onClick={() => handleSaveActionLocal('saveAndClose')}
-                            className="common-grey-color"
-                            style={{
-                                marginTop: "2px",
-                                marginBottom: "2px",
-                            }}
-                        >
-                            {loading
-                                ? lang("common.saving", "Saving")
-                                : lang("projects.saveandclose", "Save & Close")}
-                        </Button>
-                        <Button
-                            type="button"
-                            variant="outlined"
-                            disabled={loading}
-                            startIcon={loading ? <CircularProgress size={16} /> : <FiSave />}
-                            onClick={() => handleSaveActionLocal('saveNext')}
-                            style={{
-                                marginTop: "2px",
-                                marginBottom: "2px",
-                            }}
-                        >
-                            {loading
-                                ? lang("common.saving", "Saving")
-                                : lang("projects.saveNext", "Save & Next")}
-                            <FiArrowRight />
-                        </Button>
-                    </div>
                 </div>
+            </div>
+            <div className="col-12 d-flex justify-content-end gap-2">
+                <Button
+                    type="button"
+                    variant="contained"
+                    disabled={loading}
+                    startIcon={loading ? <CircularProgress size={16} /> : <FiSave />}
+                    onClick={() => handleSaveActionLocal('saveAndClose')}
+                    className="common-grey-color"
+                    style={{
+                        marginTop: "2px",
+                        marginBottom: "2px",
+                    }}
+                >
+                    {loading
+                        ? lang("common.saving", "Saving")
+                        : lang("projects.saveandclose", "Save & Close")}
+                </Button>
+                <Button
+                    type="button"
+                    variant="outlined"
+                    disabled={loading}
+                    startIcon={loading ? <CircularProgress size={16} /> : <FiSave />}
+                    onClick={() => handleSaveActionLocal('saveNext')}
+                    style={{
+                        marginTop: "2px",
+                        marginBottom: "2px",
+                    }}
+                >
+                    {loading
+                        ? lang("common.saving", "Saving")
+                        : lang("projects.saveNext", "Save & Next")}
+                    <FiArrowRight />
+                </Button>
             </div>
         </form>
     );

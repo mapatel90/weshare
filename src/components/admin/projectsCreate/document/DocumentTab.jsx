@@ -21,7 +21,7 @@ import { Close as CloseIcon } from "@mui/icons-material";
 import { useAuth } from "@/contexts/AuthContext";
 import { buildUploadUrl } from "@/utils/common";
 
-const DocumentTab = ({ projectId, handleCloseForm }) => {
+const DocumentTab = ({ projectId, handleSaveAction }) => {
     const { lang } = useLanguage();
     const { user } = useAuth();
 
@@ -329,7 +329,7 @@ const DocumentTab = ({ projectId, handleCloseForm }) => {
                 </form>
             </Dialog>
             <Table data={projectDocuments} columns={columns} />
-            <div className="gap-2 col-12 d-flex justify-content-end">
+            {/* <div className="gap-2 col-12 d-flex justify-content-end">
                 <Button
                     type="button"
                     variant="outlined"
@@ -345,6 +345,23 @@ const DocumentTab = ({ projectId, handleCloseForm }) => {
                     {loading.form
                         ? lang("common.saving", "Saving")
                         : lang("common.close", "close")}
+                </Button>
+            </div> */}
+            <div className="gap-2 col-12 d-flex justify-content-end">
+                <Button
+                    type="button"
+                    variant="outlined"
+                    disabled={loading.form}
+                    onClick={() => handleSaveAction('saveNext')}
+                    style={{
+                        marginTop: "2px",
+                        marginBottom: "2px",
+                    }}
+                >
+                    {loading.form
+                        ? lang("common.saving", "Saving")
+                        : lang("projects.saveNext", "Next")}
+                    <FiArrowRight />
                 </Button>
             </div>
         </div>

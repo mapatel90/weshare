@@ -701,7 +701,7 @@ const ProjectEditContent = ({ projectId }) => {
                             <Investor projectId={projectId} onInvestorMarked={handleInvestorMarked} handleSaveAction={handleSaveAction} />
                         )}
                         {activeTab === 'inverter' && (
-                            <InverterTab projectId={projectId} handleSaveAction={handleSaveAction} />
+                            <InverterTab projectId={projectId} handleCloseForm={handleCloseForm} handleSaveAction={handleSaveAction} />
                         )}
                         {activeTab === 'contract' && (
                             <Contract projectId={projectId} handleCloseForm={handleCloseForm} handleSaveAction={handleSaveAction} />

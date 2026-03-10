@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { apiGet, apiPost, apiPut, apiPatch } from "@/lib/api";
 import Table from "@/components/shared/table/Table";
-import { FiArrowRight, FiEdit3, FiSave, FiTrash2 } from "react-icons/fi";
+import { FiArrowRight, FiEdit3, FiSave, FiTrash2, FiX } from "react-icons/fi";
 import Swal from "sweetalert2";
 import { showSuccessToast, showErrorToast } from "@/utils/topTost";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -25,7 +25,7 @@ import {
 import { Close as CloseIcon } from "@mui/icons-material";
 import { useAuth } from "@/contexts/AuthContext";
 
-const InverterTab = ({ projectId, handleSaveAction }) => {
+const InverterTab = ({ projectId, handleSaveAction, handleCloseForm }) => {
   const { lang } = useLanguage();
   const { user } = useAuth();
 
@@ -698,7 +698,7 @@ const InverterTab = ({ projectId, handleSaveAction }) => {
       </Dialog>
       {/* Enhanced Table */}
       <Table data={projectInverters} columns={columns} />
-      <div className="gap-2 col-12 d-flex justify-content-end">
+      {/* <div className="gap-2 col-12 d-flex justify-content-end">
         <Button
           type="button"
           variant="outlined"
@@ -713,6 +713,24 @@ const InverterTab = ({ projectId, handleSaveAction }) => {
             ? lang("common.saving", "Saving")
             : lang("projects.saveNext", "Next")}
           <FiArrowRight />
+        </Button>
+      </div> */}
+      <div className="gap-2 col-12 d-flex justify-content-end">
+        <Button
+          type="button"
+          variant="outlined"
+          disabled={loading.form}
+          startIcon={<FiX />}
+          onClick={() => handleCloseForm('close')}
+          className="common-grey-color"
+          style={{
+            marginTop: "2px",
+            marginBottom: "2px",
+          }}
+        >
+          {loading.form
+            ? lang("common.saving", "Saving")
+            : lang("common.close", "close")}
         </Button>
       </div>
     </div>
