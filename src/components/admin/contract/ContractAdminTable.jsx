@@ -240,7 +240,7 @@ const ContractAdminTable = () => {
       cell: (info) => {
         const v = info.getValue();
         return v ? (
-          <a href={buildUploadUrl(v)} target="_blank" rel="noreferrer">
+          <a href={buildUploadUrl(v)} className="text-primary" target="_blank" rel="noreferrer">
             {lang("common.view", "View")}
           </a>
         ) : (
@@ -254,7 +254,7 @@ const ContractAdminTable = () => {
       cell: (info) => {
         const v = info.getValue();
         return v ? (
-          <a href={buildUploadUrl(v)} target="_blank" rel="noreferrer">
+          <a href={buildUploadUrl(v)} className="text-primary" target="_blank" rel="noreferrer">
             {lang("common.view", "View")}
           </a>
         ) : (

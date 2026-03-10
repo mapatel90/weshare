@@ -255,7 +255,7 @@ const CapitalRecoverReport = () => {
 
       {/* Filter Section */}
       <div className="d-flex items-center justify-content-between gap-2 mb-4 mt-4 w-full flex-wrap">
-        <div className="filter-button flex flex-wrap gap-2 d-flex">
+        <div className="filter-button flex flex-wrap gap-2 d-flex w-100 w-md-auto">
           <Autocomplete
             size="small"
             options={investorList}
@@ -282,16 +282,17 @@ const CapitalRecoverReport = () => {
                 }
               />
             )}
-            sx={{ minWidth: 260 }}
+            sx={{ width: { xs: "100%", sm: 260 } }}
           />
-        </div>
-
         <button
-          className="common-grey-color border rounded-3 btn"
+          className="common-grey-color border rounded-3 btn w-auto"
+          style={{ maxWidth: "100%" }}
           onClick={handleDownloadCSV}
         >
           {lang("reports.downloadcsv")}
         </button>
+        </div>
+
       </div>
 
       {/* Table Section */}

@@ -95,30 +95,37 @@ const CashFlowReports = () => {
     ], []);
 
     return (
-        <div className="p-6 bg-white rounded-xl shadow-md">
-            {/* show filters horizontally and wrap on small screens */}
-            <div className="flex flex-row flex-wrap items-center justify-start md:justify-end gap-2 mb-4 mt-4">
-                <select
-                    id="projectFilter"
-                    className="theme-btn-blue-color border rounded-md px-3 me-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
-                    value={projectFilter}
-                    onChange={(e) => setProjectFilter(e.target.value)}
-                >
-                    <option value="">All Projects</option>
-                    {projects.map(p => <option key={p} value={p}>{p}</option>)}
-                </select>
+        <div className="p-6 bg-white rounded-3xl shadow-md">
+            {/* Filters - fully responsive */}
+            <div className="d-flex items-center justify-content-between gap-2 mb-4 mt-4 w-full flex-wrap">
+                <div className="filter-button d-flex items-center gap-2 w-full flex-wrap">
+                    <select
+                        id="projectFilter"
+                        className="theme-btn-blue-color border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 w-100 w-sm-auto"
+                        style={{ minWidth: 160 }}
+                        value={projectFilter}
+                        onChange={(e) => setProjectFilter(e.target.value)}
+                    >
+                        <option value="">All Projects</option>
+                        {projects.map(p => <option key={p} value={p}>{p}</option>)}
+                    </select>
 
-                <select
-                    id="inverterFilter"
-                    className="theme-btn-blue-color border rounded-md px-3 me-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
-                    value={inverterFilter}
-                    onChange={(e) => setInverterFilter(e.target.value)}
-                >
-                    <option value="">All Inverter</option>
-                    {inverters.map(i => <option key={i} value={i}>{i}</option>)}
-                </select>
+                    <select
+                        id="inverterFilter"
+                        className="theme-btn-blue-color border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 w-100 w-sm-auto"
+                        style={{ minWidth: 160 }}
+                        value={inverterFilter}
+                        onChange={(e) => setInverterFilter(e.target.value)}
+                    >
+                        <option value="">All Inverter</option>
+                        {inverters.map(i => <option key={i} value={i}>{i}</option>)}
+                    </select>
+                </div>
 
-                <button className="theme-btn-blue-color border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200" onClick={handleDownloadCSV}>
+                <button
+                    className="common-grey-color border rounded-3 btn w-100 w-sm-auto"
+                    onClick={handleDownloadCSV}
+                >
                     Download CSV
                 </button>
             </div>

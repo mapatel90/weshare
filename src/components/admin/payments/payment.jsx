@@ -322,7 +322,7 @@ const PaymentsPage = () => {
             sx={{ color: "#1976d2" }}
             title="View Screenshot"
           >
-            <FiImage size={18} />
+           <FiImage size={18} />
           </IconButton>
         ) : (
           <span className="text-gray-400">No Screenshot</span>

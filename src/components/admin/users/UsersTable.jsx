@@ -167,27 +167,27 @@ const UsersTable = () => {
         const initials = `${user.full_name?.charAt(0) || ''}`
 
         return (
-          <>
-            <div className="hstack gap-3">
-              <div className="text-white avatar-text user-avatar-text avatar-md">
-                {initials}
-              </div>
-              <div>
-                <span className="text-truncate-1-line fw-bold">{fullName}</span>
-                <div className="fs-12 text-muted">{user.email}</div>
-              </div>
-              {/* <br /> */}
+          <div className="hstack gap-3 align-items-start">
+            <div className="text-white avatar-text user-avatar-text avatar-md flex-shrink-0">
+              {initials}
             </div>
-            <div className="d-flex flex-column">
+            <div>
+              <span className="text-truncate-1-line fw-bold">{fullName}</span>
+              <div className="fs-12 text-muted">{user.email}</div>
               <div className="d-flex gap-2 mt-1">
-                <Link href={`/admin/users/edit?id=${user.id}`} rel="noopener noreferrer" className="text-blue-500 hover:text-blue-700 d-flex align-items-center gap-1 small" style={{ textDecoration: "none", color: "#17c666" }}>
+                <Link
+                  href={`/admin/users/edit?id=${user.id}`}
+                  rel="noopener noreferrer"
+                  className="d-flex align-items-center gap-1 small"
+                  style={{ textDecoration: "none", color: "#17c666" }}
+                >
                   <FiEdit3 />
                   {lang("common.edit", "Edit")}
                 </Link>
                 <span className="text-muted">|</span>
                 <button
                   type="button"
-                  className="btn btn-link p-0 m-0 text-red-500 hover:text-red-700 d-flex align-items-center gap-1 small"
+                  className="btn btn-link p-0 m-0 d-flex align-items-center gap-1 small"
                   style={{ textDecoration: "none", color: "#dc3545" }}
                   onClick={() => handleDeleteUser(user.id, `${user?.full_name}`)}
                 >
@@ -195,7 +195,7 @@ const UsersTable = () => {
                 </button>
               </div>
             </div>
-          </>
+          </div>
         )
       }
     },
