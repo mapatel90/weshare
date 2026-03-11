@@ -305,7 +305,7 @@ const ProjectTable = () => {
             <span className="text-muted">|</span>
             {/* meter reading */}
             <a href={`/admin/projects/meter-readings/${info.row.original.id}`} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-700 d-flex align-items-center gap-1 small" style={{ textDecoration: "none" }}>
-              <ElectricMeter /> {lang("offtaker_login.sidebar.meterReadings", "Meter Reading")}
+              <ElectricMeter /> {lang("offtaker_login.sidebar.meterreadings", "Meter Reading")}
             </a>
           </div>
         </div>
