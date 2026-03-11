@@ -461,7 +461,7 @@ const SavingReports = () => {
             type="date"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
-            className="theme-btn-blue-color border rounded-md px-3 py-2 me-0 lg:me-2 text-sm w-full sm:w-auto"
+            className="border rounded-md px-3 py-2 me-0 lg:me-2 text-sm w-full sm:w-auto"
             style={{ minWidth: 170 }}
           />
 
@@ -479,7 +479,7 @@ const SavingReports = () => {
           <button
             onClick={handleSubmit}
             disabled={isSubmitDisabled}
-            className={`theme-btn-blue-color border rounded-md px-5 py-2 text-sm whitespace-nowrap w-full sm:w-auto
+            className={`border rounded-md px-5 py-2 text-sm whitespace-nowrap w-full sm:w-auto
     ${isSubmitDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
           >
             {lang("common.submit")}
