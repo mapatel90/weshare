@@ -7,6 +7,9 @@ import Table from "@/components/shared/table/Table";
 import { formatMonthYear, formatShort } from "@/utils/common";
 import { PROJECT_STATUS } from "@/constants/project_status";
 import { Autocomplete, TextField, CircularProgress, Box } from "@mui/material";
+import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import dayjs from "dayjs";
 
 const SavingReports = () => {
   const PAGE_SIZE = 50; // show 50 rows per page
@@ -27,8 +30,8 @@ const SavingReports = () => {
     pages: 0,
   });
   const [pageIndex, setPageIndex] = useState(0);
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
   const [projectList, setProjectList] = useState([]);
   const [appliedProject, setAppliedProject] = useState("");
   const [appliedStartDate, setAppliedStartDate] = useState("");
@@ -139,8 +142,8 @@ const SavingReports = () => {
   const handleSubmit = () => {
     // Apply the filters and reset to first page
     setAppliedProject(projectFilter);
-    setAppliedStartDate(startDate);
-    setAppliedEndDate(endDate);
+    setAppliedStartDate(startDate ? dayjs(startDate).format("YYYY-MM-DD") : "");
+    setAppliedEndDate(endDate ? dayjs(endDate).format("YYYY-MM-DD") : "");
     setAppliedGroupBy(groupBy);
     setPageIndex(0);
     setSearchTerm(""); // Reset search on submit
@@ -457,23 +460,37 @@ const SavingReports = () => {
           />
 
           {/* Start Date */}
-          <input
-            type="date"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-            className="border rounded-md px-3 py-2 me-0 lg:me-2 text-sm w-full sm:w-auto"
-            style={{ minWidth: 170 }}
-          />
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DatePicker
+              label={lang("common.startDate", "Start Date")}
+              value={startDate ? dayjs(startDate) : null}
+              onChange={(newValue) => setStartDate(newValue)}
+              format="DD/MM/YYYY"
+              slotProps={{
+                textField: {
+                  size: "small",
+                  sx: { width: { xs: "100%", sm: 170 } },
+                },
+              }}
+            />
+          </LocalizationProvider>
 
           {/* End Date */}
-          <input
-            type="date"
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
-            min={startDate || undefined}
-            className="theme-btn-blue-color border rounded-md px-3 py-2 me-0 lg:me-2 text-sm w-full sm:w-auto"
-            style={{ minWidth: 170 }}
-          />
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DatePicker
+              label={lang("common.endDate", "End Date")}
+              value={endDate ? dayjs(endDate) : null}
+              onChange={(newValue) => setEndDate(newValue)}
+              format="DD/MM/YYYY"
+              minDate={startDate ? dayjs(startDate) : undefined}
+              slotProps={{
+                textField: {
+                  size: "small",
+                  sx: { width: { xs: "100%", sm: 170 } },
+                },
+              }}
+            />
+          </LocalizationProvider>
 
           {/* Submit */}
           <button
