@@ -2,7 +2,7 @@ import React from 'react'
 import PageHeader from '@/components/shared/pageHeader/PageHeader'
 import Footer from '@/components/shared/Footer'
 import DynamicTitle from '@/components/common/DynamicTitle'
-import RoiReports from '@/components/portal/reports/RoiReports'
+import ROIReports from '@/components/admin/reports/ROIReport'
 
 const page = () => {
     return (
@@ -12,7 +12,7 @@ const page = () => {
             </PageHeader>
             <div className='main-content'>
                 <div className='row'>
-                    <RoiReports />
+                    <ROIReports />
                 </div>
             </div>
             <Footer />

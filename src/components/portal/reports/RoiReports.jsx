@@ -502,7 +502,7 @@ const RoiReports = () => {
 
               {filteredData.length === 0 ? (
                 <div className="text-center text-sm text-gray-500 py-8">
-                  {lang("reports.noData", "No data found")}
+                  {/* {lang("reports.noData", "No data found")} */}
                 </div>
               ) : (
                 filteredData.map((row) => (
