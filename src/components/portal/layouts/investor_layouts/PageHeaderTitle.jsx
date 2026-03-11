@@ -1,15 +1,17 @@
 'use client';
-import React from 'react';
+import React, { useContext } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, ArrowLeft } from 'lucide-react';
 import { Button } from '@mui/material';
+import PageTitleContext from '@/contexts/PageTitleContext';
 
 const PageHeaderTitle = () => {
     const pathName = usePathname();
     const { lang } = useLanguage();
-    const router = useRouter()
+    const router = useRouter();
+    const { displayTitle } = useContext(PageTitleContext);
 
 
     const parts = pathName.split("/").filter(Boolean);
@@ -27,7 +29,7 @@ const PageHeaderTitle = () => {
         parts[1] === "projects" &&
         parts[2] === "details"
     ) {
-        title = "Project details";
+        title = displayTitle || lang("menu.details", "Details");
         breadcrumb = [
             { name: lang("menu.projects", "Project"), href: "/investor/projects" },
             { name: lang("menu.details", "Details"), href: null }
@@ -84,9 +86,20 @@ const PageHeaderTitle = () => {
         ];
     }
 
+    // Pick the first breadcrumb href that is different from current page as back destination
+    const backHref = breadcrumb.find(item => item.href && item.href !== pathName)?.href || null;
+
+    const handleBack = () => {
+        if (backHref) {
+            router.push(backHref);
+        } else {
+            router.back();
+        }
+    };
+
     return (
         <div className="header-wrapper">
-            <div className="header-left">
+            <div className="header-left mb-4">
                 {/* Main title */}
                 <h3 className="header-title">{title}</h3>
 
@@ -111,12 +124,20 @@ const PageHeaderTitle = () => {
                 </div>
             </div>
 
-            {/* RIGHT SIDE (Buttons placeholder) */}
-            <div className="header-right">
-                {/* here add one button is invest now  */}
+            {/* RIGHT SIDE */}
+            <div className="header-right mb-4">
+                {/* Invest Now button - always visible */}
                 <Button variant="contained" className="common-orange-color" size="small" aria-label={lang("home.projects.investNow", "Invest Now")} onClick={() => router.push("/frontend/exchange-hub")}>
                     {lang("home.projects.investNow", "Invest Now")}
                 </Button>
+
+                {/* Back button - hidden on dashboard */}
+                {pathName !== "/investor/dashboard" && (
+                    <button onClick={handleBack} className="btn-back">
+                        <ArrowLeft className="w-4 h-4" />
+                        <span>{lang("common.back", "Back")}</span>
+                    </button>
+                )}
             </div>
         </div>
     );

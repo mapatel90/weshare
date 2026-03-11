@@ -20,6 +20,8 @@ const ContractsView = () => {
     const [searchInput, setSearchInput] = useState(""); // For debounced search
     const [sortOption, setSortOption] = useState("newest");
     const [statusFilter, setStatusFilter] = useState("all"); // Status filter
+    const [showStatusDropdown, setShowStatusDropdown] = useState(false);
+    const [showSortDropdown, setShowSortDropdown] = useState(false);
     const { lang } = useLanguage();
 
     // Pagination states
@@ -451,32 +453,134 @@ const ContractsView = () => {
                             </div>
 
                             {/* Status Filter Dropdown */}
-                            <div className="w-full sm:w-auto">
-                                <select
-                                    value={statusFilter}
-                                    onChange={e => handleFilterChange('status', e.target.value)}
-                                    className="w-full sm:w-auto px-4 py-2.5 bg-slate-800 text-white text-sm rounded-xl hover:bg-slate-700 transition-colors cursor-pointer outline-none"
-                                    style={{ minWidth: 140 }}
+                            <div
+                                className="w-full sm:w-auto"
+                                style={{ position: "relative", zIndex: showStatusDropdown ? 30 : undefined }}
+                            >
+                                <button
+                                    type="button"
+                                    className="btn bg-black text-white w-full sm:w-auto"
+                                    onClick={() => { setShowStatusDropdown((v) => !v); setShowSortDropdown(false); }}
+                                    style={{ minWidth: "140px" }}
                                 >
-                                    <option value="all">{lang("common.allStatus") || "All Status"}</option>
-                                    <option value="0">{lang("common.pending") || "Pending"}</option>
-                                    <option value="1">{lang("common.approved") || "Approved"}</option>
-                                    <option value="2">{lang("common.rejected") || "Rejected"}</option>
-                                    <option value="3">{lang("contract.cancel") || "Cancelled"}</option>
-                                </select>
+                                    <span style={{ verticalAlign: "middle" }}>
+                                        {statusFilter === "0" ? (lang("common.pending") || "Pending")
+                                            : statusFilter === "1" ? (lang("common.approved") || "Approved")
+                                            : statusFilter === "2" ? (lang("common.rejected") || "Rejected")
+                                            : statusFilter === "3" ? (lang("contract.cancel") || "Cancelled")
+                                            : (lang("common.allStatus") || "All Status")}
+                                    </span>
+                                    {" "}▼
+                                </button>
+                                {showStatusDropdown && (
+                                    <div style={{
+                                        position: "absolute",
+                                        left: 0,
+                                        top: "100%",
+                                        zIndex: 40,
+                                        background: "#fff",
+                                        border: "2px solid rgba(246,166,35,0.2)",
+                                        borderRadius: "8px",
+                                        boxShadow: "0 4px 16px rgba(246,166,35,0.2)",
+                                        minWidth: "160px",
+                                        overflow: "hidden",
+                                        marginTop: "4px",
+                                    }}>
+                                        <ul style={{ listStyle: "none", margin: 0, padding: "4px 0" }}>
+                                            {[
+                                                { value: "all", label: lang("common.allStatus") || "All Status" },
+                                                { value: "0", label: lang("common.pending") || "Pending" },
+                                                { value: "1", label: lang("common.approved") || "Approved" },
+                                                { value: "2", label: lang("common.rejected") || "Rejected" },
+                                                { value: "3", label: lang("contract.cancel") || "Cancelled" },
+                                            ].map(({ value, label }) => {
+                                                const isActive = statusFilter === value;
+                                                return (
+                                                    <li
+                                                        key={value}
+                                                        role="button"
+                                                        tabIndex={0}
+                                                        style={{
+                                                            padding: "10px 16px",
+                                                            cursor: "pointer",
+                                                            background: isActive ? "#F6A623" : "#fff9f0",
+                                                            fontWeight: isActive ? 600 : 400,
+                                                            color: isActive ? "#fff" : "#b26800",
+                                                            borderLeft: isActive ? "4px solid #e8920a" : "4px solid transparent",
+                                                            transition: "background 0.15s",
+                                                        }}
+                                                        onClick={() => { handleFilterChange('status', value); setShowStatusDropdown(false); }}
+                                                        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { handleFilterChange('status', value); setShowStatusDropdown(false); } }}
+                                                    >
+                                                        {label}
+                                                    </li>
+                                                );
+                                            })}
+                                        </ul>
+                                    </div>
+                                )}
                             </div>
 
                             {/* Sort Dropdown */}
-                            <div className="w-full sm:w-auto">
-                                <select
-                                    value={sortOption}
-                                    onChange={e => handleFilterChange('sort', e.target.value)}
-                                    className="w-full sm:w-auto px-4 py-2.5 bg-slate-800 text-white text-sm rounded-xl hover:bg-slate-700 transition-colors cursor-pointer outline-none"
-                                    style={{ minWidth: 140 }}
+                            <div
+                                className="w-full sm:w-auto"
+                                style={{ position: "relative", zIndex: showSortDropdown ? 30 : undefined }}
+                            >
+                                <button
+                                    type="button"
+                                    className="btn bg-black text-white w-full sm:w-auto"
+                                    onClick={() => { setShowSortDropdown((v) => !v); setShowStatusDropdown(false); }}
+                                    style={{ minWidth: "140px" }}
                                 >
-                                    <option value="newest">{lang("common.Newest") || "Newest"}</option>
-                                    <option value="oldest">{lang("common.Oldest") || "Oldest"}</option>
-                                </select>
+                                    <span style={{ verticalAlign: "middle" }}>
+                                        {sortOption === "oldest" ? (lang("common.Oldest") || "Oldest") : (lang("common.Newest") || "Newest")}
+                                    </span>
+                                    {" "}▼
+                                </button>
+                                {showSortDropdown && (
+                                    <div style={{
+                                        position: "absolute",
+                                        left: 0,
+                                        top: "100%",
+                                        zIndex: 40,
+                                        background: "#fff",
+                                        border: "2px solid rgba(246,166,35,0.2)",
+                                        borderRadius: "8px",
+                                        boxShadow: "0 4px 16px rgba(246,166,35,0.2)",
+                                        minWidth: "140px",
+                                        overflow: "hidden",
+                                        marginTop: "4px",
+                                    }}>
+                                        <ul style={{ listStyle: "none", margin: 0, padding: "4px 0" }}>
+                                            {[
+                                                { value: "newest", label: lang("common.Newest") || "Newest" },
+                                                { value: "oldest", label: lang("common.Oldest") || "Oldest" },
+                                            ].map(({ value, label }) => {
+                                                const isActive = sortOption === value;
+                                                return (
+                                                    <li
+                                                        key={value}
+                                                        role="button"
+                                                        tabIndex={0}
+                                                        style={{
+                                                            padding: "10px 16px",
+                                                            cursor: "pointer",
+                                                            background: isActive ? "#F6A623" : "#fff9f0",
+                                                            fontWeight: isActive ? 600 : 400,
+                                                            color: isActive ? "#fff" : "#b26800",
+                                                            borderLeft: isActive ? "4px solid #e8920a" : "4px solid transparent",
+                                                            transition: "background 0.15s",
+                                                        }}
+                                                        onClick={() => { handleFilterChange('sort', value); setShowSortDropdown(false); }}
+                                                        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { handleFilterChange('sort', value); setShowSortDropdown(false); } }}
+                                                    >
+                                                        {label}
+                                                    </li>
+                                                );
+                                            })}
+                                        </ul>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>

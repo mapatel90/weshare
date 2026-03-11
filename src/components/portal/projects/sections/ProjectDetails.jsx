@@ -503,7 +503,7 @@ const ProjectDetails = ({ project_id }) => {
         <div>
             <>
                 <div
-                    className="d-flex justify-content-end gap-2 mb-3"
+                    className="project-action-bar d-flex justify-content-end gap-2 mb-3"
                     style={{ position: "relative", marginTop: '2%' }}
                 >
                     {/* Review Button */}

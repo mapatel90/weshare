@@ -5,6 +5,7 @@ import { PAYOUT_STATUS } from '@/constants/payout_status';
 import Link from 'next/link';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { usePriceWithCurrency } from '@/hooks/usePriceWithCurrency';
+import CardHeader from '@/components/shared/CardHeader';
 
 export default function PayoutCard() {
     const { user } = useAuth();
@@ -74,11 +75,11 @@ export default function PayoutCard() {
         }
     };
 
+    const cardTitle = lang('payouts.payouts', 'Payouts');
+
     return (
         <div className="billing-card">
-            <div className="card-header">
-                <div className="card-title">{lang("payouts.payouts", "Payouts")}</div>
-            </div>
+            <CardHeader title={cardTitle} viewHref="/investor/payouts" />
 
             {loading && (
                 <div className="py-4 text-center text-gray-600 text-sm">

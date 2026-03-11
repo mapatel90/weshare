@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useContext } from "react";
 import "../../../../assets/portal/offtaker.css";
 import ProjectOverviewChart from "@/components/admin/projectsCreate/projectViewSection/ProjectOverviewChart";
 import PowerConsumptionDashboard from "@/components/admin/projectsCreate/projectViewSection/inverterChart";
@@ -15,10 +15,12 @@ import { sortByNameAsc } from "@/utils/common";
 import OverViewCards from "../../dashboard/sections/OverViewCards";
 import { useLanguage } from "@/contexts/LanguageContext";
 import ReviewModal from "./ReviewModal";
+import PageTitleContext from "@/contexts/PageTitleContext";
 
 const ProjectDetails = ({ project_id }) => {
     const { user } = useAuth();
     const { lang } = useLanguage();
+    const { setDisplayTitle } = useContext(PageTitleContext);
     const isDark = useDarkMode();
     const colors = getDarkModeColors(isDark);
     const [showProjectsDropdown, setShowProjectsDropdown] = useState(false);
@@ -103,6 +105,7 @@ const ProjectDetails = ({ project_id }) => {
                 if (res?.success && res?.data) {
                     setProjects(res.data);
                     setSelectedProject(res.data);
+                    setDisplayTitle(res.data?.project_name ?? null);
                 }
             } catch (err) {
                 console.error("Failed to load project", err);
@@ -110,6 +113,7 @@ const ProjectDetails = ({ project_id }) => {
         };
 
         fetchProjectById();
+        return () => setDisplayTitle(null);
     }, [project_id]);
 
     // Fetch existing review when project changes
@@ -413,7 +417,7 @@ const ProjectDetails = ({ project_id }) => {
         <div>
             <>
                 <div
-                    className="d-flex justify-content-end gap-2 mb-3"
+                    className="project-action-bar d-flex justify-content-end gap-2 mb-3"
                     style={{ position: "relative" }}
                 >
                     {/* Review Button */}
@@ -450,7 +454,6 @@ const ProjectDetails = ({ project_id }) => {
                             id="inverter-dropdown-btn"
                             aria-expanded={showInverterDropdown}
                             onClick={() => {
-                                // only allow opening inverter dropdown when a project is selected
                                 if (!selectedProject) return;
                                 setShowInverterDropdown((prev) => !prev);
                                 setShowProjectsDropdown(false);
@@ -462,7 +465,7 @@ const ProjectDetails = ({ project_id }) => {
                             }}
                             disabled={!selectedProject}
                         >
-                            {selectedInverter ? selectedInverter.name : "All Inverters ▼"}
+                            {selectedInverter ? selectedInverter.name : lang("dashboard.all_inverters", "All Inverters")} ▼
                         </button>
                         {showInverterDropdown && selectedProject && (
                             <div
@@ -473,27 +476,29 @@ const ProjectDetails = ({ project_id }) => {
                                     top: "100%",
                                     zIndex: 40,
                                     background: "#fff",
-                                    border: "1px solid #e5e7eb",
-                                    borderRadius: "6px",
-                                    boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+                                    border: "2px solid rgba(246,166,35,0.2)",
+                                    borderRadius: "8px",
+                                    boxShadow: "0 4px 16px rgba(246,166,35,0.2)",
                                     minWidth: "220px",
+                                    overflow: "hidden",
+                                    marginTop: "4px",
                                 }}
                             >
                                 <ul
                                     style={{
                                         listStyle: "none",
                                         margin: 0,
-                                        padding: "8px 0",
+                                        padding: "4px 0",
                                         maxHeight: "320px",
                                         overflowY: "auto",
                                     }}
                                 >
                                     {invertersLoading ? (
-                                        <li style={{ padding: "8px 16px", color: "#6b7280" }}>
+                                        <li style={{ padding: "10px 16px", color: "#b26800" }}>
                                             Loading...
                                         </li>
                                     ) : invertersError ? (
-                                        <li style={{ padding: "8px 16px", color: "#b45309" }}>
+                                        <li style={{ padding: "10px 16px", color: "#c0392b" }}>
                                             {invertersError}
                                         </li>
                                     ) : inverters.length ? (
@@ -503,30 +508,23 @@ const ProjectDetails = ({ project_id }) => {
                                                 role="button"
                                                 tabIndex={0}
                                                 style={{
-                                                    padding: "8px 16px",
+                                                    padding: "10px 16px",
                                                     cursor: "pointer",
                                                     display: "flex",
                                                     justifyContent: "space-between",
                                                     alignItems: "center",
-                                                    background: !selectedInverter ? "#eef2ff" : undefined,
+                                                    background: !selectedInverter ? "#F6A623" : "#fff9f0",
                                                     fontWeight: !selectedInverter ? 600 : 400,
-                                                    color: "#111827",
+                                                    color: !selectedInverter ? "#fff" : "#b26800",
+                                                    borderLeft: !selectedInverter ? "4px solid #e8920a" : "4px solid transparent",
+                                                    transition: "background 0.15s",
                                                 }}
                                                 onClick={() => {
                                                     setSelectedInverter(null);
                                                     setShowInverterDropdown(false);
                                                 }}
                                             >
-                                                <span>All Inverters</span>
-                                            </li>
-                                            <li style={{ padding: "4px 0" }}>
-                                                <hr
-                                                    style={{
-                                                        margin: 0,
-                                                        border: "none",
-                                                        borderTop: "1px solid #eef2ff",
-                                                    }}
-                                                />
+                                                <span>{lang("dashboard.all_inverters", "All Inverters")}</span>
                                             </li>
                                             {sortByNameAsc(inverters, "name").map((inv) => {
                                                 const isSelectedInv =
@@ -540,14 +538,16 @@ const ProjectDetails = ({ project_id }) => {
                                                         role="button"
                                                         tabIndex={0}
                                                         style={{
-                                                            padding: "8px 16px",
+                                                            padding: "10px 16px",
                                                             cursor: "pointer",
                                                             display: "flex",
                                                             justifyContent: "space-between",
                                                             alignItems: "center",
-                                                            background: isSelectedInv ? "#eef2ff" : undefined,
+                                                            background: isSelectedInv ? "#F6A623" : "#fff9f0",
                                                             fontWeight: isSelectedInv ? 600 : 400,
-                                                            color: "#111827",
+                                                            color: isSelectedInv ? "#fff" : "#b26800",
+                                                            borderLeft: isSelectedInv ? "4px solid #e8920a" : "4px solid transparent",
+                                                            transition: "background 0.15s",
                                                         }}
                                                         onClick={() => {
                                                             setSelectedInverter(inv);
@@ -558,10 +558,9 @@ const ProjectDetails = ({ project_id }) => {
                                                     </li>
                                                 );
                                             })}
-
                                         </>
                                     ) : (
-                                        <li style={{ padding: "8px 16px", color: "#6b7280" }}>
+                                        <li style={{ padding: "10px 16px", color: "#b26800" }}>
                                             No inverters for this project.
                                         </li>
                                     )}

@@ -7,7 +7,7 @@ import { PROJECT_STATUS } from "@/constants/project_status";
 import Table from "@/components/shared/table/Table";
 import { usePriceWithCurrency } from "@/hooks/usePriceWithCurrency";
 import { FiDownload, FiEye } from "react-icons/fi";
-import { Autocomplete, Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Stack, TextField } from "@mui/material";
+import { Autocomplete, Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, MenuItem, Stack, TextField } from "@mui/material";
 import Link from "next/link";
 import { ROLES } from "@/constants/roles";
 import { downloadPayoutPDF } from "./PayoutPdf";
@@ -207,6 +207,26 @@ const PayoutsPage = () => {
     const columns = useMemo(
         () => [
             {
+                id: "payout_number",
+                header: () => lang("payouts.payout_number", "Payout Number"),
+                cell: ({ row }) => {
+                    const prefix = row.original.payout_prefix || "";
+                    const number = row.original.payout_number || "";
+                    const display = prefix && number ? `${prefix}-${number}` : "N/A";
+                    // return display;
+                    // if (!row.original.id) return "N/A";
+                    return (
+                        <p
+                            onClick={() => handlePayoutDownload(row.original)}
+                            title="Download payout pdf"
+                            style={{ color: '#1976d2', textDecoration: 'none', fontWeight: 500, cursor: 'pointer' }}
+                        >
+                            {display}
+                        </p>
+                    );
+                },
+            },
+            {
                 accessorKey: "projects.project_name",
                 header: () => lang("projects.projectName", "Project Name"),
                 cell: (info) => info.getValue() || "N/A",
@@ -385,18 +405,50 @@ const PayoutsPage = () => {
                         isOptionEqualToValue={(option, value) =>
                             (option.id ?? option.project_id) === (value.id ?? value.project_id)
                         }
+                        renderOption={(props, option, { selected }) => (
+                            <li
+                                {...props}
+                                style={{
+                                    padding: "10px 16px",
+                                    cursor: "pointer",
+                                    background: selected ? "#F6A623" : "#fff9f0",
+                                    fontWeight: selected ? 600 : 400,
+                                    color: selected ? "#fff" : "#b26800",
+                                    borderLeft: selected ? "4px solid #e8920a" : "4px solid transparent",
+                                    transition: "background 0.15s",
+                                }}
+                            >
+                                {option.project_name || option.projectName || `Project ${option.id ?? option.project_id ?? ""}`}
+                            </li>
+                        )}
+                        componentsProps={{
+                            paper: {
+                                sx: {
+                                    border: "2px solid rgba(246,166,35,0.2)",
+                                    borderRadius: "8px",
+                                    boxShadow: "0 4px 16px rgba(246,166,35,0.2)",
+                                    mt: 0.5,
+                                },
+                            },
+                        }}
                         renderInput={(params) => (
                             <TextField
                                 {...params}
                                 label={lang("reports.allprojects")}
                                 placeholder={lang("common.searchProject", "Search project...")}
+                                sx={{
+                                    "& .MuiOutlinedInput-root": {
+                                        "&:hover fieldset": { borderColor: "#F6A623" },
+                                        "&.Mui-focused fieldset": { borderColor: "#F6A623" },
+                                    },
+                                    "& label.Mui-focused": { color: "#b26800" },
+                                }}
                             />
                         )}
                         sx={{ width: { xs: "100%", sm: 260 } }}
                     />
                     <TextField
                         select
-                        fullWidth
                         size="small"
                         label={lang("invoice.status", "Status")}
                         value={statusFilter}
@@ -404,24 +456,47 @@ const PayoutsPage = () => {
                             setPageIndex(0);
                             setStatusFilter(e.target.value);
                         }}
-                        SelectProps={{
-                            native: true,
+                        sx={{
+                            width: { xs: "100%", sm: 220 },
+                            "& .MuiOutlinedInput-root": {
+                                "&:hover fieldset": { borderColor: "#F6A623" },
+                                "&.Mui-focused fieldset": { borderColor: "#F6A623" },
+                            },
+                            "& label.Mui-focused": { color: "#b26800" },
                         }}
-                        InputLabelProps={{ shrink: true }}
-                        sx={{ width: { xs: "100%", sm: 220 } }}
+                        MenuProps={{
+                            PaperProps: {
+                                sx: {
+                                    border: "2px solid rgba(246,166,35,0.2)",
+                                    borderRadius: "8px",
+                                    boxShadow: "0 4px 16px rgba(246,166,35,0.2)",
+                                    mt: 0.5,
+                                    "& .MuiMenuItem-root": {
+                                        color: "#b26800",
+                                        background: "#fff9f0",
+                                        borderLeft: "4px solid transparent",
+                                        transition: "background 0.15s",
+                                        "&:hover": {
+                                            background: "#ffe5b0",
+                                        },
+                                        "&.Mui-selected": {
+                                            background: "#F6A623",
+                                            color: "#fff",
+                                            fontWeight: 600,
+                                            borderLeft: "4px solid #e8920a",
+                                            "&:hover": {
+                                                background: "#e8920a",
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        }}
                     >
-                        <option value="">
-                            {lang("common.all", "All Status")}
-                        </option>
-                        <option value={PAYOUT_STATUS.PENDING}>
-                            {lang("common.pending", "Pending")}
-                        </option>
-                        <option value={PAYOUT_STATUS.PAYOUT}>
-                            {lang("payouts.payouts", "Paid")}
-                        </option>
-                        <option value={PAYOUT_STATUS.CANCELLED}>
-                            {lang("common.cancelled", "Cancelled")}
-                        </option>
+                        <MenuItem value="" style={{ background: statusFilter === "" ? "#F6A623" : "#fff9f0", color: statusFilter === "" ? "#fff" : "#b26800", fontWeight: statusFilter === "" ? 600 : 400, borderLeft: statusFilter === "" ? "4px solid #e8920a" : "4px solid transparent", transition: "background 0.15s" }}>{lang("common.all", "All Status")}</MenuItem>
+                        <MenuItem value={String(PAYOUT_STATUS.PENDING)} style={{ background: statusFilter === PAYOUT_STATUS.PENDING ? "#F6A623" : "#fff9f0", color: statusFilter === PAYOUT_STATUS.PENDING ? "#fff" : "#b26800", fontWeight: statusFilter === PAYOUT_STATUS.PENDING ? 600 : 400, borderLeft: statusFilter === PAYOUT_STATUS.PENDING ? "4px solid #e8920a" : "4px solid transparent", transition: "background 0.15s" }}>{lang("common.pending", "Pending")}</MenuItem>
+                        <MenuItem value={String(PAYOUT_STATUS.PAYOUT)} style={{ background: statusFilter === PAYOUT_STATUS.PAYOUT ? "#F6A623" : "#fff9f0", color: statusFilter === PAYOUT_STATUS.PAYOUT ? "#fff" : "#b26800", fontWeight: statusFilter === PAYOUT_STATUS.PAYOUT ? 600 : 400, borderLeft: statusFilter === PAYOUT_STATUS.PAYOUT ? "4px solid #e8920a" : "4px solid transparent", transition: "background 0.15s" }}>{lang("payouts.payouts", "Paid")}</MenuItem>
+                        <MenuItem value={String(PAYOUT_STATUS.CANCELLED)} style={{ background: statusFilter === PAYOUT_STATUS.CANCELLED ? "#F6A623" : "#fff9f0", color: statusFilter === PAYOUT_STATUS.CANCELLED ? "#fff" : "#b26800", fontWeight: statusFilter === PAYOUT_STATUS.CANCELLED ? 600 : 400, borderLeft: statusFilter === PAYOUT_STATUS.CANCELLED ? "4px solid #e8920a" : "4px solid transparent", transition: "background 0.15s" }}>{lang("common.cancelled", "Cancelled")}</MenuItem>
                     </TextField>
                 </div>
                 {/* Desktop Table View */}
@@ -486,6 +561,12 @@ const PayoutsPage = () => {
                                     {/* Card Body */}
                                     <div className="space-y-2 mb-3">
                                         <div className="flex justify-between text-xs">
+                                            <span className="text-gray-600">{lang("payouts.payout_number", "Payout Number")}:</span>
+                                            <span className="font-medium text-gray-900">
+                                                <Link href={`/investor/payouts/view/${payout.id}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 cursor-pointer">{payout.payout_prefix}-{payout.payout_number || "N/A"}</Link>
+                                            </span>
+                                        </div>
+                                        <div className="flex justify-between text-xs">
                                             <span className="text-gray-600">{lang("invoice.invoiceNumber", "Invoice Number")}:</span>
                                             {payout.invoices?.id ? (
                                                 <span
@@ -527,8 +608,8 @@ const PayoutsPage = () => {
                                                 {lang("payouts.uploaded_image", "Document")}
                                             </button>
                                         )}
-                                        <div className="grid grid-cols-2 gap-2">
-                                            <Link
+                                        <div className="grid">
+                                            {/* <Link
                                                 href={`/investor/payouts/view/${payout.id}`}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
@@ -537,7 +618,7 @@ const PayoutsPage = () => {
                                                 <button className="w-full px-3 py-2 text-xs font-semibold text-blue-600 border border-blue-300 rounded-lg hover:bg-blue-50 transition-colors text-center">
                                                     {lang("navigation.view", "View")}
                                                 </button>
-                                            </Link>
+                                            </Link> */}
                                             <button
                                                 onClick={() => handlePayoutDownload(payout)}
                                                 className="w-full px-3 py-2 text-xs font-semibold text-green-700 border border-green-300 rounded-lg hover:bg-green-50 transition-colors text-center"

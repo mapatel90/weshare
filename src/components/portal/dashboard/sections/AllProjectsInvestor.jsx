@@ -59,7 +59,7 @@ const AllProjects = ({ title }) => {
   };
 
   return (
-    <div className="col-12">
+    <div className="col-12 col-md-6 col-lg-6">
       <div
         className={`card stretch shadow stretch-full ${isExpanded ? "card-expand" : ""} ${refreshKey ? "card-loading" : ""}`}
       >

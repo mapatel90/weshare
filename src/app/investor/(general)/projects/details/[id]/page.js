@@ -1,6 +1,6 @@
 import React from 'react';
 import DynamicTitle from '@/components/common/DynamicTitle';
-import ProjectDetails from '@/components/portal/projects/sections/ProjectDetails';
+import ProjectDetails from '@/components/portal/investor_projects/sections/ProjectDetails';
 
 const page = ({ params }) => {
   const { id } = params;

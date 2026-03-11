@@ -19,6 +19,7 @@ import { sortByNameAsc, useDarkMode } from "@/utils/common";
 import { useLanguage } from "@/contexts/LanguageContext";
 import ElectricityConsumption from "@/components/admin/projectsCreate/projectViewSection/ElectricityConsumption";
 import { PROJECT_STATUS } from "@/constants/project_status";
+import DocumentsCard from "./sections/DocumentsCard";
 
 function DashboardView() {
   const { user } = useAuth();
@@ -146,7 +147,7 @@ function DashboardView() {
       try {
         setSummaryLoading(true);
         const payload = user?.id ? { investorId: user.id } : {};
-        
+
         // Fetch payout data
         const payoutRes = await apiPost("/api/payouts/investor/total", payload);
         if (payoutRes?.success) {
@@ -918,16 +919,16 @@ function DashboardView() {
         </div>
       )}
 
-      <div className="">
+      <div className="row">
         <AllProjects />
-        {/* <AllContracts /> */}
+        <AllContracts />
       </div>
 
-      <ProjectsTable />
+      {/* <ProjectsTable /> */}
 
-      {/* <PayoutCard /> */}
-      <div className="bottom-row">
-        {/* <DocumentsCard /> */}
+      <div className="hidden-mobile">
+        <PayoutCard lang={lang} />
+        {/* <DocumentsCard lang={lang} /> */}
       </div>
     </div>
   );

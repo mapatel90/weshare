@@ -572,6 +572,36 @@ body {
   }
 }
 
+/* Project action bar (Review + Inverter dropdown) - full width on mobile */
+@media (max-width: 576px) {
+  .project-action-bar {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+
+  .project-action-bar > button {
+    width: 100%;
+  }
+
+  /* Inverter dropdown wrapper */
+  .project-action-bar > div {
+    width: 100%;
+    display: block !important;
+  }
+
+  /* Inverter trigger button */
+  .project-action-bar > div > button {
+    width: 100%;
+  }
+
+  /* Inverter dropdown menu - stretch full width */
+  .project-action-bar > div > div {
+    left: 0 !important;
+    right: 0 !important;
+    min-width: 100% !important;
+  }
+}
+
 .profile-icons {
   display: flex;
   gap: 10px;

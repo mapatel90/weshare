@@ -306,12 +306,16 @@ const ProjectTable = () => {
                 />
               </div>
 
-              <div className="relative date-filter-dropdown">
+              <div
+                className="date-filter-dropdown"
+                style={{ position: "relative", zIndex: dateDropdownOpen ? 30 : undefined }}
+              >
                 <button
+                  type="button"
+                  className="btn bg-black text-white"
                   onClick={() =>
                     setDateDropdownOpen((v) => {
                       const next = !v;
-                      // when opening, seed pending inputs with currently applied filters
                       if (!v) {
                         setPendingDateStart(dateFilterStart);
                         setPendingDateEnd(dateFilterEnd);
@@ -319,33 +323,57 @@ const ProjectTable = () => {
                       return next;
                     })
                   }
-                  className="flex items-center gap-2 px-4 py-2.5 bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition-colors"
                   aria-haspopup="true"
                   aria-expanded={dateDropdownOpen}
+                  style={{ minWidth: "130px" }}
                 >
-                  <Calendar className="w-4 h-4" />
-                  <span className="text-sm font-medium">
+                  <Calendar className="w-4 h-4" style={{ display: "inline", marginRight: "6px", verticalAlign: "middle" }} />
+                  <span style={{ verticalAlign: "middle" }}>
                     {lang("projects.startDate", "Start Date")} - {lang("projects.endDate", "End Date")}
                   </span>
-                  <ChevronDown className="w-4 h-4" />
+                  {" "}▼
                 </button>
 
                 {dateDropdownOpen && (
-                  <div className="absolute left-0 mt-2 w-80 bg-white border border-gray-200 rounded-md shadow-lg z-20 p-4">
-                    <div className="space-y-3">
+                  <div
+                    style={{
+                      position: "absolute",
+                      left: 0,
+                      top: "100%",
+                      zIndex: 40,
+                      background: "#fff",
+                      border: "2px solid rgba(246,166,35,0.2)",
+                      borderRadius: "8px",
+                      boxShadow: "0 4px 16px rgba(246,166,35,0.2)",
+                      minWidth: "280px",
+                      overflow: "hidden",
+                      marginTop: "4px",
+                      padding: "16px",
+                    }}
+                  >
+                    <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                        {lang("projects.startDate", "Start Date")}
+                        <label style={{ display: "block", fontSize: "13px", fontWeight: 500, color: "#b26800", marginBottom: "4px" }}>
+                          {lang("projects.startDate", "Start Date")}
                         </label>
                         <input
                           type="date"
                           value={pendingDateStart}
                           onChange={(e) => setPendingDateStart(e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent outline-none"
+                          style={{
+                            width: "100%",
+                            padding: "8px 12px",
+                            border: "1.5px solid rgba(246,166,35,0.35)",
+                            borderRadius: "6px",
+                            fontSize: "14px",
+                            outline: "none",
+                            color: "#333",
+                            boxSizing: "border-box",
+                          }}
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label style={{ display: "block", fontSize: "13px", fontWeight: 500, color: "#b26800", marginBottom: "4px" }}>
                           {lang("projects.endDate", "End Date")}
                         </label>
                         <input
@@ -353,13 +381,22 @@ const ProjectTable = () => {
                           value={pendingDateEnd}
                           onChange={(e) => setPendingDateEnd(e.target.value)}
                           min={pendingDateStart || undefined}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent outline-none"
+                          style={{
+                            width: "100%",
+                            padding: "8px 12px",
+                            border: "1.5px solid rgba(246,166,35,0.35)",
+                            borderRadius: "6px",
+                            fontSize: "14px",
+                            outline: "none",
+                            color: "#333",
+                            boxSizing: "border-box",
+                          }}
                         />
                       </div>
-                      <div className="flex gap-2 pt-2">
+                      <div style={{ display: "flex", gap: "8px", paddingTop: "4px" }}>
                         <button
+                          type="button"
                           onClick={() => {
-                            // clear both pending and applied filters
                             setPendingDateStart("");
                             setPendingDateEnd("");
                             setDateFilterStart("");
@@ -367,21 +404,43 @@ const ProjectTable = () => {
                             setDateDropdownOpen(false);
                             setCurrentPage(1);
                           }}
-                          className="flex-1 px-3 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                          style={{
+                            flex: 1,
+                            padding: "8px 12px",
+                            fontSize: "13px",
+                            background: "#fff9f0",
+                            color: "#b26800",
+                            border: "1.5px solid rgba(246,166,35,0.35)",
+                            borderRadius: "6px",
+                            cursor: "pointer",
+                            fontWeight: 500,
+                            transition: "background 0.15s",
+                          }}
                         >
-                          Clear
+                          {lang("projects.clear", "Clear")}
                         </button>
                         <button
+                          type="button"
                           onClick={() => {
-                            // commit pending -> applied filters
                             setDateFilterStart(pendingDateStart);
                             setDateFilterEnd(pendingDateEnd);
                             setDateDropdownOpen(false);
                             setCurrentPage(1);
                           }}
-                          className="flex-1 px-3 py-2 text-sm bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition-colors"
+                          style={{
+                            flex: 1,
+                            padding: "8px 12px",
+                            fontSize: "13px",
+                            background: "#F6A623",
+                            color: "#fff",
+                            border: "none",
+                            borderRadius: "6px",
+                            cursor: "pointer",
+                            fontWeight: 600,
+                            transition: "background 0.15s",
+                          }}
                         >
-                          Apply
+                          {lang("projects.apply", "Apply")}
                         </button>
                       </div>
                     </div>
@@ -389,100 +448,106 @@ const ProjectTable = () => {
                 )}
               </div>
 
-              <div className="relative date-filter-dropdown">
-                <button className="flex items-center gap-2 px-4 py-2.5 bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition-colors">
-                  {/* <div className="relative"> */}
-                  <MapPin className="w-4 h-4" />
-                  <span className="text-sm font-medium">{lang("leaseRequest.location", "Location")}</span>
-                  <ChevronDown className="w-4 h-4" />
-                  {/* </div> */}
+              <div className="date-filter-dropdown" style={{ position: "relative" }}>
+                <button
+                  type="button"
+                  className="btn bg-black text-white"
+                  style={{ minWidth: "120px" }}
+                >
+                  <MapPin className="w-4 h-4" style={{ display: "inline", marginRight: "6px", verticalAlign: "middle" }} />
+                  <span style={{ verticalAlign: "middle" }}>{lang("leaseRequest.location", "Location")}</span>
+                  {" "}▼
                 </button>
               </div>
 
-              <div className="relative status-filter-dropdown">
-                <div className="relative">
-                  <button
-                    onClick={() => setStatusDropdownOpen((v) => !v)}
-                    className="flex items-center gap-2 px-4 py-2.5 bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition-colors"
-                    aria-haspopup="true"
-                    aria-expanded={statusDropdownOpen}
+              <div
+                className="status-filter-dropdown"
+                style={{ position: "relative", zIndex: statusDropdownOpen ? 30 : undefined }}
+              >
+                <button
+                  type="button"
+                  className="btn bg-black text-white"
+                  onClick={() => setStatusDropdownOpen((v) => !v)}
+                  aria-haspopup="true"
+                  aria-expanded={statusDropdownOpen}
+                  style={{ minWidth: "130px" }}
+                >
+                  <Filter className="w-4 h-4" style={{ display: "inline", marginRight: "6px", verticalAlign: "middle" }} />
+                  <span style={{ verticalAlign: "middle" }}>
+                    {statusFilter === "All"
+                      ? lang("projects.status", "Status")
+                      : statusFilter === PROJECT_STATUS.IN_PROGRESS
+                        ? lang("project_status.in_progress", "In Progress")
+                        : statusFilter === PROJECT_STATUS.UPCOMING
+                          ? lang("project_status.upcoming", "Upcoming")
+                          : statusFilter === PROJECT_STATUS.RUNNING
+                            ? lang("project_status.running", "Running")
+                            : lang("projects.status", "Status")
+                    }
+                  </span>
+                  {" "}▼
+                </button>
+
+                {statusDropdownOpen && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      right: 0,
+                      top: "100%",
+                      zIndex: 40,
+                      background: "#fff",
+                      border: "2px solid rgba(246,166,35,0.2)",
+                      borderRadius: "8px",
+                      boxShadow: "0 4px 16px rgba(246,166,35,0.2)",
+                      minWidth: "160px",
+                      overflow: "hidden",
+                      marginTop: "4px",
+                    }}
                   >
-                    <Filter className="w-4 h-4" />
-                    <span className="text-sm font-medium">
-                      {statusFilter === "All"
-                        ? lang("projects.status", "Status")
-                        : statusFilter === PROJECT_STATUS.IN_PROGRESS
-                          ? lang("project_status.in_progress", "In Progress")
-                          : statusFilter === PROJECT_STATUS.UPCOMING
-                            ? lang("project_status.upcoming", "Upcoming")
-                            : statusFilter === PROJECT_STATUS.RUNNING
-                              ? lang("project_status.running", "Running")
-                              : lang("projects.status", "Status")
-                      }
-                    </span>
-                    <ChevronDown className="w-4 h-4" />
-                  </button>
-
-                  {statusDropdownOpen && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-20">
-                      <button
-                        onClick={() => {
-                          setStatusFilter("All");
-                          setStatusDropdownOpen(false);
-                          setCurrentPage(1);
-                        }}
-                        className={`w-full text-left px-3 py-2 text-sm ${statusFilter === "All"
-                          ? "bg-slate-100"
-                          : "hover:bg-gray-50"
-                          }`}
-                      >
-                        {lang("common.all", "All")}
-                      </button>
-                      <button
-                        onClick={() => {
-                          setStatusFilter(PROJECT_STATUS.UPCOMING);
-                          setStatusDropdownOpen(false);
-                          setCurrentPage(1);
-                        }}
-                        className={`w-full text-left px-3 py-2 text-sm ${statusFilter === PROJECT_STATUS.UPCOMING
-                          ? "bg-slate-100"
-                          : "hover:bg-gray-50"
-                          }`}
-                      >
-                        {lang("home.exchangeHub.upcoming", "Upcoming")}
-                      </button>
-
-                      <button
-                        onClick={() => {
-                          setStatusFilter(PROJECT_STATUS.IN_PROGRESS);
-                          setStatusDropdownOpen(false);
-                          setCurrentPage(1);
-                        }}
-                        className={`w-full text-left px-3 py-2 text-sm ${statusFilter === PROJECT_STATUS.IN_PROGRESS
-                          ? "bg-slate-100"
-                          : "hover:bg-gray-50"
-                          }`}
-                      >
-                        {lang("project_status.in_progress", "In Progress")}
-                      </button>
-
-                      <button
-                        onClick={() => {
-                          setStatusFilter(PROJECT_STATUS.RUNNING);
-                          setStatusDropdownOpen(false);
-                          setCurrentPage(1);
-                        }}
-                        className={`w-full text-left px-3 py-2 text-sm ${statusFilter === PROJECT_STATUS.RUNNING
-                          ? "bg-slate-100"
-                          : "hover:bg-gray-50"
-                          }`}
-                      >
-                        {lang("project_status.running", "Running")}
-                      </button>
-
-                    </div>
-                  )}
-                </div>
+                    <ul style={{ listStyle: "none", margin: 0, padding: "4px 0" }}>
+                      {[
+                        { value: "All", label: lang("common.all", "All") },
+                        { value: PROJECT_STATUS.UPCOMING, label: lang("home.exchangeHub.upcoming", "Upcoming") },
+                        { value: PROJECT_STATUS.IN_PROGRESS, label: lang("project_status.in_progress", "In Progress") },
+                        { value: PROJECT_STATUS.RUNNING, label: lang("project_status.running", "Running") },
+                      ].map(({ value, label }) => {
+                        const isActive = statusFilter === value;
+                        return (
+                          <li
+                            key={value}
+                            role="button"
+                            tabIndex={0}
+                            style={{
+                              padding: "10px 16px",
+                              cursor: "pointer",
+                              display: "flex",
+                              alignItems: "center",
+                              background: isActive ? "#F6A623" : "#fff9f0",
+                              fontWeight: isActive ? 600 : 400,
+                              color: isActive ? "#fff" : "#b26800",
+                              borderLeft: isActive ? "4px solid #e8920a" : "4px solid transparent",
+                              transition: "background 0.15s",
+                            }}
+                            onClick={() => {
+                              setStatusFilter(value);
+                              setStatusDropdownOpen(false);
+                              setCurrentPage(1);
+                            }}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter" || e.key === " ") {
+                                setStatusFilter(value);
+                                setStatusDropdownOpen(false);
+                                setCurrentPage(1);
+                              }
+                            }}
+                          >
+                            {label}
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                )}
               </div>
             </div>
           </div>
