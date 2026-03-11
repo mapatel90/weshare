@@ -236,13 +236,16 @@ const DocumentTab = ({ projectId, handleSaveAction }) => {
     return (
         <div className="project-document-management">
             <div className="mb-3 d-flex justify-content-between align-items-center">
-                <h6 className="mb-0 fw-bold">
+                <h6 className="mb-0 fw-bold" style={{ fontSize: "100%" }}>
                     {lang("projects.projectdocumentlist", "Project Document Lists")}
                 </h6>
                 <Button
                     variant="contained"
                     onClick={openAddModal}
                     className="common-grey-color"
+                    style={{
+                      fontSize: "77%",
+                    }}
                 >
                     + {lang("project_documents.addDocument", "Add Document")}
                 </Button>
