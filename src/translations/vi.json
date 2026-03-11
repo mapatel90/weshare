@@ -1236,6 +1236,7 @@
     "createdSuccessfully": "Vai trò đã được tạo thành công",
     "updatedSuccessfully": "Vai trò đã được cập nhật thành công",
     "deletedSuccessfully": "Đã xóa vai trò thành công",
+    "permissions": "Quyền hạn",
     "managePermissions": "Quản lý quyền hạn",
     "features": "Tính năng",
     "capabilities": "Quyền hạn",

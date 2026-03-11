@@ -5,11 +5,11 @@ import DynamicTitle from "@/components/common/DynamicTitle";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { apiGet, apiPost, apiUpload, apiPut } from "@/lib/api";
 import Table from "@/components/shared/table/Table";
-import { FiImage, FiDownload, FiMoreHorizontal } from "react-icons/fi";
+import { FiImage, FiDownload } from "react-icons/fi";
+import { MdCheckCircleOutline } from "react-icons/md";
 import { showSuccessToast, showErrorToast } from "@/utils/topTost";
 import PaymentModal from "@/components/portal/billings/PaymentModal";
 import { downloadPaymentPDF } from "@/components/portal/payments/PaymentPdf";
-import Dropdown from "@/components/shared/Dropdown";
 import {
   Autocomplete,
   Button,
@@ -336,35 +336,26 @@ const PaymentsPage = () => {
         const paymentId = row.original.id;
         const paymentStatus = row.original.status;
 
-        const rowActions = [
-          {
-            label: lang("common.download", "Download"),
-            icon: <FiDownload />,
-            onClick: async () => {
-              await handleDownload(paymentId);
-            },
-          },
-        ];
-        if (canEdit("payments")) {
-          if (paymentStatus !== "Paid") {
-            rowActions.push({ type: "divider" });
-            rowActions.push({
-              label: "Mark as Paid",
-              icon: <span>✓</span>,
-              onClick: async () => {
-                await handleMarkAsPaid(paymentId);
-              },
-            });
-          }
-        }
-
         return (
           <div className="hstack gap-2 justify-content-start">
-            <Dropdown
-              dropdownItems={rowActions}
-              triggerClass="avatar-md"
-              triggerIcon={<FiMoreHorizontal />}
-            />
+            <IconButton
+              size="small"
+              title={lang("common.download", "Download")}
+              onClick={async () => await handleDownload(paymentId)}
+              sx={{ color: "#1976d2" }}
+            >
+              <FiDownload size={18} />
+            </IconButton>
+            {canEdit("payments") && paymentStatus !== "Paid" && (
+              <IconButton
+                size="small"
+                title="Mark as Paid"
+                onClick={async () => await handleMarkAsPaid(paymentId)}
+                sx={{ color: "#2e7d32" }}
+              >
+                <MdCheckCircleOutline size={18} />
+              </IconButton>
+            )}
           </div>
         );
       },

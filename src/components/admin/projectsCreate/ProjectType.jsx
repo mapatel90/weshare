@@ -199,54 +199,54 @@ const ProjectTypePage = () => {
                 );
             }
         },
-        ...(showActionColumn ? [
-            {
-                accessorKey: 'actions',
-                header: () => lang('common.actions', 'Actions'),
-                cell: ({ row }) => {
-                    const item = row.original
-                    return (
-                        <Stack direction="row" spacing={1} sx={{ flexWrap: 'nowrap' }}>
-                            {canEdit("project_type") && (
-                                <IconButton
-                                    size="small"
-                                    onClick={() => openEdit(item)}
-                                    title={lang('common.edit', 'Edit')}
-                                    sx={{
-                                        color: '#1976d2',
-                                        transition: 'transform 0.2s ease',
-                                        '&:hover': {
-                                            backgroundColor: 'rgba(25, 118, 210, 0.08)',
-                                            transform: 'scale(1.1)',
-                                        },
-                                    }}
-                                >
-                                    <FiEdit3 size={18} />
-                                </IconButton>
-                            )}
-                            {canDelete("project_type") && (
-                                <IconButton
-                                    size="small"
-                                    onClick={() => handleDelete(item)}
-                                    title={lang('common.delete', 'Delete')}
-                                    sx={{
-                                        color: '#d32f2f',
-                                        transition: 'transform 0.2s ease',
-                                        '&:hover': {
-                                            backgroundColor: 'rgba(211, 47, 47, 0.08)',
-                                            transform: 'scale(1.1)',
-                                        },
-                                    }}
-                                >
-                                    <FiTrash2 size={18} />
-                                </IconButton>
-                            )}
-                        </Stack>
-                    )
-                },
-                meta: { disableSort: true }
-            }
-        ] : [])
+        // ...(showActionColumn ? [
+        //     {
+        //         accessorKey: 'actions',
+        //         header: () => lang('common.actions', 'Actions'),
+        //         cell: ({ row }) => {
+        //             const item = row.original
+        //             return (
+        //                 <Stack direction="row" spacing={1} sx={{ flexWrap: 'nowrap' }}>
+        //                     {canEdit("project_type") && (
+        //                         <IconButton
+        //                             size="small"
+        //                             onClick={() => openEdit(item)}
+        //                             title={lang('common.edit', 'Edit')}
+        //                             sx={{
+        //                                 color: '#1976d2',
+        //                                 transition: 'transform 0.2s ease',
+        //                                 '&:hover': {
+        //                                     backgroundColor: 'rgba(25, 118, 210, 0.08)',
+        //                                     transform: 'scale(1.1)',
+        //                                 },
+        //                             }}
+        //                         >
+        //                             <FiEdit3 size={18} />
+        //                         </IconButton>
+        //                     )}
+        //                     {canDelete("project_type") && (
+        //                         <IconButton
+        //                             size="small"
+        //                             onClick={() => handleDelete(item)}
+        //                             title={lang('common.delete', 'Delete')}
+        //                             sx={{
+        //                                 color: '#d32f2f',
+        //                                 transition: 'transform 0.2s ease',
+        //                                 '&:hover': {
+        //                                     backgroundColor: 'rgba(211, 47, 47, 0.08)',
+        //                                     transform: 'scale(1.1)',
+        //                                 },
+        //                             }}
+        //                         >
+        //                             <FiTrash2 size={18} />
+        //                         </IconButton>
+        //                     )}
+        //                 </Stack>
+        //             )
+        //         },
+        //         meta: { disableSort: true }
+        //     }
+        // ] : [])
     ]
 
     return (

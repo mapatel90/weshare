@@ -166,18 +166,62 @@ const RoleTable = () => {
     {
       accessorKey: "name",
       header: () => lang("roles.roleName"),
+      meta: { mobileFullWidth: true },
       cell: (info) => {
         const roleName = info.getValue();
         return (
-          <div className="hstack gap-3">
-            <div className="text-white avatar-text user-avatar-text avatar-md">
+          <div className="hstack gap-3 align-items-start">
+            <div className="text-white avatar-text user-avatar-text avatar-md flex-shrink-0">
               {roleName?.substring(0, 1)}
             </div>
             <div>
-              <span className="fw-semibold">{roleName}</span>
-              <small className="fs-12 text-muted d-block">
-                {lang("roles.roleManagement")}
-              </small>
+              <Typography sx={{ fontWeight: 600, fontSize: "0.875rem" }}>{roleName}</Typography>
+              <div className="d-flex gap-2 mt-1">
+                <Stack direction="row" spacing={0.5} mt={0.5}>
+                  {canEdit("roles_management") && (
+                    <button
+                      type="button"
+                      className="btn btn-link p-0 m-0 d-flex align-items-center gap-1 small"
+                      style={{ textDecoration: "none", color: "#17c666" }}
+                      onClick={() => handleEdit(info.row.original)}
+                    >
+                      <FiEdit3 size={14} />
+                      {lang("common.edit", "Edit")}
+                    </button>
+                  )}
+                </Stack>
+                <span className="text-muted">|</span>
+                <Stack direction="row" spacing={0.5} mt={0.5}>
+                  {canDelete("roles_management") && (
+                    <button
+                      type="button"
+                      className="btn btn-link p-0 m-0 d-flex align-items-center gap-1 small"
+                      style={{ textDecoration: "none", color: "#dc3545" }}
+                      onClick={() => handleDelete(info.row.original.id)}
+                    >
+                      <FiTrash2 size={14} />
+                      {lang("common.delete", "Delete")}
+                    </button>
+                  )}
+                </Stack>
+                <Stack direction="row" spacing={0.5} mt={0.5}>
+                  {user?.role === ROLES.SUPER_ADMIN &&
+                    ![ROLES.OFFTAKER, ROLES.INVESTOR, ROLES.SUPER_ADMIN].includes(info.row.original.id) && (
+                      <>
+                      <span className="text-muted">|</span>
+                      <button
+                        type="button"
+                        className="btn btn-link p-0 m-0 d-flex align-items-center gap-1 small"
+                        style={{ textDecoration: "none", color: "#2e7d32" }}
+                        onClick={() => handlePermission(info.row.original.id)}
+                      >
+                        <BsShieldFillExclamation size={14} />
+                        {lang("common.permissions", "Permissions")}
+                      </button>
+                      </>
+                    )}
+                </Stack>
+              </div>
             </div>
           </div>
         );
@@ -186,6 +230,7 @@ const RoleTable = () => {
     {
       accessorKey: "status",
       header: () => lang("common.status"),
+      meta: { mobileFullWidth: true },
       cell: (info) => {
         const status = info.getValue();
         const config = {
@@ -210,69 +255,69 @@ const RoleTable = () => {
         );
       },
     },
-    ...(showActionColumn ? [
-      {
-        accessorKey: "actions",
-        header: () => lang("table.actions"),
-        cell: (info) => {
-          const row = info.row.original;
-          return (
-            <Stack direction="row" spacing={1} sx={{ flexWrap: "nowrap" }}>
-              {canEdit("roles_management") && (
-                <IconButton
-                  size="small"
-                  onClick={() => handleEdit(row)}
-                  sx={{
-                    color: "#1976d2",
-                    transition: "transform 0.2s ease",
-                    "&:hover": {
-                      backgroundColor: "rgba(25, 118, 210, 0.08)",
-                      transform: "scale(1.1)",
-                    },
-                  }}
-                >
-                  <FiEdit3 size={18} />
-                </IconButton>
-              )}
-              {canDelete("roles_management") && (
-                <IconButton
-                  size="small"
-                  onClick={() => handleDelete(row.id)}
-                  sx={{
-                    color: "#d32f2f",
-                    transition: "transform 0.2s ease",
-                    "&:hover": {
-                      backgroundColor: "rgba(211, 47, 47, 0.08)",
-                      transform: "scale(1.1)",
-                    },
-                  }}
-                >
-                  <FiTrash2 size={18} />
-                </IconButton>
-              )}
-              {user?.role === ROLES.SUPER_ADMIN &&
-                ![ROLES.OFFTAKER, ROLES.INVESTOR, ROLES.SUPER_ADMIN].includes(row.id) && (
-                  <IconButton
-                    size="small"
-                    onClick={() => handlePermission(row.id)}
-                    sx={{
-                      color: "#2e7d32",
-                      "&:hover": {
-                        backgroundColor: "rgba(46, 125, 50, 0.08)",
-                        transform: "scale(1.1)",
-                      },
-                    }}
-                    title="Manage Permissions"
-                  >
-                    <BsShieldFillExclamation size={18} />
-                  </IconButton>
-                )}
-            </Stack>
-          );
-        },
-        meta: { disableSort: true },
-      },
-    ] : []),
+    // ...(showActionColumn ? [
+    //   {
+    //     accessorKey: "actions",
+    //     header: () => lang("table.actions"),
+    //     cell: (info) => {
+    //       const row = info.row.original;
+    //       return (
+    //         <Stack direction="row" spacing={1} sx={{ flexWrap: "nowrap" }}>
+    //           {canEdit("roles_management") && (
+    //             <IconButton
+    //               size="small"
+    //               onClick={() => handleEdit(row)}
+    //               sx={{
+    //                 color: "#1976d2",
+    //                 transition: "transform 0.2s ease",
+    //                 "&:hover": {
+    //                   backgroundColor: "rgba(25, 118, 210, 0.08)",
+    //                   transform: "scale(1.1)",
+    //                 },
+    //               }}
+    //             >
+    //               <FiEdit3 size={18} />
+    //             </IconButton>
+    //           )}
+    //           {canDelete("roles_management") && (
+    //             <IconButton
+    //               size="small"
+    //               onClick={() => handleDelete(row.id)}
+    //               sx={{
+    //                 color: "#d32f2f",
+    //                 transition: "transform 0.2s ease",
+    //                 "&:hover": {
+    //                   backgroundColor: "rgba(211, 47, 47, 0.08)",
+    //                   transform: "scale(1.1)",
+    //                 },
+    //               }}
+    //             >
+    //               <FiTrash2 size={18} />
+    //             </IconButton>
+    //           )}
+    //           {user?.role === ROLES.SUPER_ADMIN &&
+    //             ![ROLES.OFFTAKER, ROLES.INVESTOR, ROLES.SUPER_ADMIN].includes(row.id) && (
+    //               <IconButton
+    //                 size="small"
+    //                 onClick={() => handlePermission(row.id)}
+    //                 sx={{
+    //                   color: "#2e7d32",
+    //                   "&:hover": {
+    //                     backgroundColor: "rgba(46, 125, 50, 0.08)",
+    //                     transform: "scale(1.1)",
+    //                   },
+    //                 }}
+    //                 title="Manage Permissions"
+    //               >
+    //                 <BsShieldFillExclamation size={18} />
+    //               </IconButton>
+    //             )}
+    //         </Stack>
+    //       );
+    //     },
+    //     meta: { disableSort: true },
+    //   },
+    // ] : []),
   ];
 
   return (

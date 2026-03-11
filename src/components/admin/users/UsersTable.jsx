@@ -175,24 +175,28 @@ const UsersTable = () => {
               <span className="text-truncate-1-line fw-bold">{fullName}</span>
               <div className="fs-12 text-muted">{user.email}</div>
               <div className="d-flex gap-2 mt-1">
-                <Link
-                  href={`/admin/users/edit?id=${user.id}`}
-                  rel="noopener noreferrer"
-                  className="d-flex align-items-center gap-1 small"
-                  style={{ textDecoration: "none", color: "#17c666" }}
-                >
-                  <FiEdit3 />
-                  {lang("common.edit", "Edit")}
-                </Link>
+                {canEdit("users") && (
+                  <Link
+                    href={`/admin/users/edit?id=${user.id}`}
+                    rel="noopener noreferrer"
+                    className="d-flex align-items-center gap-1 small"
+                    style={{ textDecoration: "none", color: "#17c666" }}
+                  >
+                    <FiEdit3 />
+                    {lang("common.edit", "Edit")}
+                  </Link>
+                )}
                 <span className="text-muted">|</span>
-                <button
-                  type="button"
-                  className="btn btn-link p-0 m-0 d-flex align-items-center gap-1 small"
-                  style={{ textDecoration: "none", color: "#dc3545" }}
-                  onClick={() => handleDeleteUser(user.id, `${user?.full_name}`)}
-                >
-                  <FiTrash2 /> {lang("common.delete", "Delete")}
-                </button>
+                {canDelete("users") && (
+                  <button
+                    type="button"
+                    className="btn btn-link p-0 m-0 d-flex align-items-center gap-1 small"
+                    style={{ textDecoration: "none", color: "#dc3545" }}
+                    onClick={() => handleDeleteUser(user.id, `${user?.full_name}`)}
+                  >
+                    <FiTrash2 /> {lang("common.delete", "Delete")}
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -292,45 +296,46 @@ const UsersTable = () => {
         )
       },
       meta: {
+        disableSort: true,
         headerClassName: 'text-center'
       }
     },
-    ...(showActionColumn
-      ? [{
-        accessorKey: 'actions',
-        header: () => lang("table.actions"),
-        cell: ({ row }) => {
-          const user = row.original;
+    // ...(showActionColumn
+    //   ? [{
+    //     accessorKey: 'actions',
+    //     header: () => lang("table.actions"),
+    //     cell: ({ row }) => {
+    //       const user = row.original;
 
-          return (
-            <div className="hstack gap-2 justify-content-end">
-              {canEdit("users") && (
-                <Link
-                  href={`/admin/users/edit?id=${user.id}`}
-                  className="avatar-text avatar-md"
-                >
-                  <FiEdit3 />
-                </Link>
-              )}
+    //       return (
+    //         <div className="hstack gap-2 justify-content-end">
+    //           {canEdit("users") && (
+    //             <Link
+    //               href={`/admin/users/edit?id=${user.id}`}
+    //               className="avatar-text avatar-md"
+    //             >
+    //               <FiEdit3 />
+    //             </Link>
+    //           )}
 
-              {canDelete("users") && (
-                <a
-                  className="avatar-text avatar-md"
-                  onClick={() =>
-                    handleDeleteUser(user.id, `${user?.full_name}`)
-                  }
-                >
-                  <FiTrash2 />
-                </a>
-              )}
-            </div>
-          );
-        },
-        meta: {
-          headerClassName: 'text-center',
-        },
-      }]
-      : []),
+    //           {canDelete("users") && (
+    //             <a
+    //               className="avatar-text avatar-md"
+    //               onClick={() =>
+    //                 handleDeleteUser(user.id, `${user?.full_name}`)
+    //               }
+    //             >
+    //               <FiTrash2 />
+    //             </a>
+    //           )}
+    //         </div>
+    //       );
+    //     },
+    //     meta: {
+    //       headerClassName: 'text-center',
+    //     },
+    //   }]
+    //   : []),
   ]
 
   return (

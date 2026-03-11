@@ -314,37 +314,36 @@ const PayoutsPage = () => {
     const handleDownload = async (payout) => {
         const fileUrl = buildUploadUrl(payout?.payout_pdf);
         if (!fileUrl) {
-          Swal.fire({
-            title: "Payout PDF not available",
-            icon: "info",
-          });
-          return;
+            Swal.fire({
+                title: "Payout PDF not available",
+                icon: "info",
+            });
+            return;
         }
-    
+
         try {
-          const response = await fetch(fileUrl);
-          if (!response.ok) {
-            throw new Error("Download failed");
-          }
-    
-          const blob = await response.blob();
-          const objectUrl = window.URL.createObjectURL(blob);
-          const link = document.createElement("a");
-          const baseName = `${payout?.payout_prefix || "INV"}-${
-            payout?.payout_number || "Payout"
-          }`;
-          link.href = objectUrl;
-          link.download = `${baseName}.pdf`;
-          document.body.appendChild(link);
-          link.click();
-          link.remove();
-          window.URL.revokeObjectURL(objectUrl);
+            const response = await fetch(fileUrl);
+            if (!response.ok) {
+                throw new Error("Download failed");
+            }
+
+            const blob = await response.blob();
+            const objectUrl = window.URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            const baseName = `${payout?.payout_prefix || "INV"}-${payout?.payout_number || "Payout"
+                }`;
+            link.href = objectUrl;
+            link.download = `${baseName}.pdf`;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(objectUrl);
         } catch (error) {
-          console.error("Failed to download payout PDF:", error);
-          Swal.fire({
-            title: "Unable to download payout PDF",
-            icon: "error",
-          });
+            console.error("Failed to download payout PDF:", error);
+            Swal.fire({
+                title: "Unable to download payout PDF",
+                icon: "error",
+            });
         }
     };
     // -----------------------------
@@ -352,6 +351,45 @@ const PayoutsPage = () => {
     // -----------------------------
     const columns = useMemo(
         () => [
+            {
+                id: "payout_number",
+                header: () => lang("payouts.payout_number", "Payout Number"),
+                cell: ({ row }) => {
+                    const prefix = row.original.payout_prefix || "";
+                    const number = row.original.payout_number || "";
+                    const display = prefix && number ? `${prefix}-${number}` : "N/A";
+                    const isDisabled = row.original.status === PAYOUT_STATUS.CANCELLED || row.original.status === PAYOUT_STATUS.PAYOUT;
+                    // return display
+                    return (
+                        <div className="d-flex flex-column">
+                            <Link
+                                href={`/admin/finance/payouts/view/${row.original.id}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={{ color: '#1976d2', textDecoration: 'none', fontWeight: 500 }}
+                            >
+                                {display}
+                            </Link>
+                            <div className="d-flex gap-2 mt-1">
+                                {/* here add edit / deleted and cancel buttons */}
+                                {canEdit("payouts") && (
+                                    <button type="button" className="btn btn-link p-0 m-0 d-flex align-items-center gap-1 small" style={{ textDecoration: 'none', color: '#1976d2' }} onClick={() => window.dispatchEvent(new CustomEvent("payout:open-edit", { detail: row.original }))}>
+                                        <FiEdit size={15} /> {lang("common.edit", "Edit")}
+                                    </button>
+                                )}
+                                {canDelete("payouts") && (
+                                    <button type="button" className="btn btn-link p-0 m-0 d-flex align-items-center gap-1 small" style={{ textDecoration: 'none', color: '#dc3545' }} onClick={() => handleDelete(row.original.id)}>
+                                        <FiTrash2 size={15} /> {lang("common.delete", "Delete")}
+                                    </button>
+                                )}
+                                <button type="button" className="btn btn-link p-0 m-0 d-flex align-items-center gap-1 small" disabled={isDisabled} style={{ textDecoration: 'none', color: isDisabled ? "#ccc" : "#ffc107", }} onClick={() => handleOpenCancelDialog(row.original.id)}>
+                                    <FiX size={15} /> {lang("common.cancel", "Cancel")}
+                                </button>
+                            </div>
+                        </div>
+                    );
+                },
+            },
             {
                 accessorKey: "projects.project_name",
                 header: () => lang("projects.projectName", "Project Name"),
@@ -556,7 +594,7 @@ const PayoutsPage = () => {
 
                     return (
                         <Stack direction="row" spacing={1} sx={{ flexWrap: "nowrap", alignItems: "center" }}>
-                            <Link
+                            {/* <Link
                                 href={`/admin/finance/payouts/view/${data.id}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
@@ -574,7 +612,7 @@ const PayoutsPage = () => {
                                 >
                                     <FiEye size={18} />
                                 </IconButton>
-                            </Link>
+                            </Link> */}
                             <IconButton
                                 size="small"
                                 onClick={() => handleDownload(data)}
@@ -589,7 +627,7 @@ const PayoutsPage = () => {
                             >
                                 <FiDownload size={18} />
                             </IconButton>
-                            {data.status !== PAYOUT_STATUS.CANCELLED && (
+                            {/* {data.status !== PAYOUT_STATUS.CANCELLED && (
                                 <IconButton
                                     size="small"
                                     onClick={handleMenuOpen}
@@ -599,8 +637,8 @@ const PayoutsPage = () => {
                                 >
                                     <span style={{ fontSize: 18, lineHeight: 1 }}>⋯</span>
                                 </IconButton>
-                            )}
-                            <Menu
+                            )} */}
+                            {/* <Menu
                                 anchorEl={anchorEl}
                                 open={open}
                                 onClose={handleMenuClose}
@@ -629,7 +667,7 @@ const PayoutsPage = () => {
                                     </ListItemIcon>
                                     <ListItemText primary={lang("common.cancel", "Cancel Payout")} />
                                 </MenuItem>
-                            </Menu>
+                            </Menu> */}
                         </Stack>
                     );
                 },

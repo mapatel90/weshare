@@ -148,7 +148,7 @@ const ContractAdminTable = () => {
               textOverflow: "ellipsis",
             }}
           >
-            <Link href={`/admin/contract/view/${info.row.original.id}`} rel="noopener noreferrer" className="text-blue-500 hover:text-blue-700 fw-semibold">
+            <Link href={`/admin/contract/view/${info.row.original.id}`} rel="noopener noreferrer" className="text-primary hover:text-primary-dark fw-semibold">
               {v}
             </Link>
           </div>
@@ -298,30 +298,30 @@ const ContractAdminTable = () => {
           </span>
         ) : null,
     },
-    {
-      accessorKey: "actions",
-      header: () => lang("common.actions", "Actions"),
-      cell: ({ row }) => {
-        const item = row.original;
-        return (
-          <div className="hstack gap-2 justify-content-start">
-            {/* <a
-              href={`/admin/contract/view/${item.id}`}
-              className="avatar-text avatar-md"
-              target="_blank"
-            >
-              <FiEye />
-            </a> */}
-            <Link href={`/admin/contract/view/${item.id}`} target="_blank">
-              <span className="avatar-text avatar-md">
-                <FiEye />
-              </span>
-            </Link>
-          </div>
-        );
-      },
-      meta: { disableSort: true },
-    },
+    // {
+    //   accessorKey: "actions",
+    //   header: () => lang("common.actions", "Actions"),
+    //   cell: ({ row }) => {
+    //     const item = row.original;
+    //     return (
+    //       <div className="hstack gap-2 justify-content-start">
+    //         {/* <a
+    //           href={`/admin/contract/view/${item.id}`}
+    //           className="avatar-text avatar-md"
+    //           target="_blank"
+    //         >
+    //           <FiEye />
+    //         </a> */}
+    //         <Link href={`/admin/contract/view/${item.id}`} target="_blank">
+    //           <span className="avatar-text avatar-md">
+    //             <FiEye />
+    //           </span>
+    //         </Link>
+    //       </div>
+    //     );
+    //   },
+    //   meta: { disableSort: true },
+    // },
   ];
 
   return (

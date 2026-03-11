@@ -164,14 +164,17 @@ const ContactUsTable = () => {
       {
         accessorKey: "email",
         header: () => lang("contactUs.emailTable") || "Email",
+        meta: { disableSort: true },
       },
       {
         accessorKey: "phone_number",
         header: () => lang("contactUs.phoneTable") || "Phone",
+        meta: { disableSort: true },
       },
       {
         accessorKey: "subject",
         header: () => lang("contactUs.subject") || "Subject",
+        meta: { disableSort: true },
       },
       {
         accessorKey: "message",
@@ -180,39 +183,40 @@ const ContactUsTable = () => {
           const t = row.original.message || "";
           return t.length > 80 ? `${t.slice(0, 80)}…` : t;
         },
-      },
-      {
-        accessorKey: "actions",
-        header: () => lang("common.actions") || "Actions",
         meta: { disableSort: true },
-        cell: ({ row }) => (
-          <Stack direction="row" spacing={1}>
-            <IconButton
-              size="small"
-              onClick={() => handleView(row.original)}
-              sx={{ color: "#1976d2" }}
-            >
-              <FiEye size={16} />
-            </IconButton>
-
-            <IconButton
-              size="small"
-              onClick={() => handleEdit(row.original)}
-              sx={{ color: "#1976d2" }}
-            >
-              <FiEdit size={16} />
-            </IconButton>
-
-            <IconButton
-              size="small"
-              onClick={() => handleDelete(row.original.id)}
-              sx={{ color: "#d32f2f" }}
-            >
-              <FiTrash2 size={16} />
-            </IconButton>
-          </Stack>
-        ),
       },
+      // {
+      //   accessorKey: "actions",
+      //   header: () => lang("common.actions") || "Actions",
+      //   meta: { disableSort: true },
+      //   cell: ({ row }) => (
+      //     <Stack direction="row" spacing={1}>
+      //       <IconButton
+      //         size="small"
+      //         onClick={() => handleView(row.original)}
+      //         sx={{ color: "#1976d2" }}
+      //       >
+      //         <FiEye size={16} />
+      //       </IconButton>
+
+      //       <IconButton
+      //         size="small"
+      //         onClick={() => handleEdit(row.original)}
+      //         sx={{ color: "#1976d2" }}
+      //       >
+      //         <FiEdit size={16} />
+      //       </IconButton>
+
+      //       <IconButton
+      //         size="small"
+      //         onClick={() => handleDelete(row.original.id)}
+      //         sx={{ color: "#d32f2f" }}
+      //       >
+      //         <FiTrash2 size={16} />
+      //       </IconButton>
+      //     </Stack>
+      //   ),
+      // },
     ],
     [lang, submitting]
   );

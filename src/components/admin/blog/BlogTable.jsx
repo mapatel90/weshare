@@ -6,7 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { apiGet, apiUpload, apiDelete } from "@/lib/api";
 import { showSuccessToast } from "@/utils/topTost";
 import Swal from "sweetalert2";
-import { FiEdit3, FiTrash2 } from "react-icons/fi";
+import { FiEdit, FiEdit3, FiTrash2 } from "react-icons/fi";
 import {
   Dialog,
   DialogTitle,
@@ -271,7 +271,40 @@ const BlogTable = () => {
 
   const columns = useMemo(
     () => [
-      { accessorKey: "title", header: () => lang("blog.title") || "Title" },
+      { accessorKey: "title", header: () => lang("blog.title") || "Title",
+        cell: ({ row }) => (
+          <Box>
+            <Typography sx={{ fontWeight: 600, fontSize: "0.875rem" }}>
+                {row.original.title}
+            </Typography>
+            <Stack direction="row" spacing={0.5} mt={0.5}>
+              {canEdit("blog") && (
+                <button
+                  type="button"
+                  className="btn btn-link p-0 m-0 d-flex align-items-center gap-1 small"
+                  style={{ textDecoration: "none", color: "#17c666" }}
+                  onClick={() => window.dispatchEvent(new CustomEvent("blog:open-edit", { detail: { item: row.original } }))}
+                >
+                  <FiEdit size={14} />
+                  {lang("common.edit", "Edit")}
+                </button>
+              )}
+              <span className="text-muted">|</span>
+              {canDelete("blog") && (
+                <button
+                  type="button"
+                  className="btn btn-link p-0 m-0 d-flex align-items-center gap-1 small"
+                  style={{ textDecoration: "none", color: "#dc3545" }}
+                  onClick={() => handleDelete(row.original.id)}
+                >
+                  <FiTrash2 size={14} />
+                  {lang("common.delete", "Delete")}
+                </button>
+              )}
+            </Stack>
+          </Box>
+        ),
+       },
       {
         accessorKey: "date",
         header: () => lang("blog.enddate") || "Date",
@@ -304,48 +337,48 @@ const BlogTable = () => {
           );
         },
       },
-      ...(showActionColumn ? [
-        {
-          accessorKey: "actions",
-          header: () => lang("common.actions"),
-          meta: { disableSort: true },
-          cell: ({ row }) => (
-            <Stack direction="row" spacing={1} sx={{ flexWrap: "nowrap" }}>
-              {canEdit("blog") && (
-                <IconButton
-                  size="small"
-                  onClick={() => {
-                    const item = row.original;
-                    if (typeof window !== "undefined") {
-                      window.dispatchEvent(new CustomEvent("blog:open-edit", { detail: { item } }));
-                    }
-                  }}
-                  sx={{
-                    color: "#1976d2",
-                    transition: "transform 0.2s ease",
-                    "&:hover": { backgroundColor: "rgba(25, 118, 210, 0.08)", transform: "scale(1.1)" },
-                  }}
-                >
-                  <FiEdit3 size={18} />
-                </IconButton>
-              )}
-              {canDelete("blog") && (
-                <IconButton
-                  size="small"
-                  onClick={() => handleDelete(row.original.id)}
-                  sx={{
-                    color: "#d32f2f",
-                    transition: "transform 0.2s ease",
-                    "&:hover": { backgroundColor: "rgba(211, 47, 47, 0.08)", transform: "scale(1.1)" },
-                  }}
-                >
-                  <FiTrash2 size={18} />
-                </IconButton>
-              )}
-            </Stack>
-          ),
-        }
-      ] : [])
+      // ...(showActionColumn ? [
+      //   {
+      //     accessorKey: "actions",
+      //     header: () => lang("common.actions"),
+      //     meta: { disableSort: true },
+      //     cell: ({ row }) => (
+      //       <Stack direction="row" spacing={1} sx={{ flexWrap: "nowrap" }}>
+      //         {canEdit("blog") && (
+      //           <IconButton
+      //             size="small"
+      //             onClick={() => {
+      //               const item = row.original;
+      //               if (typeof window !== "undefined") {
+      //                 window.dispatchEvent(new CustomEvent("blog:open-edit", { detail: { item } }));
+      //               }
+      //             }}
+      //             sx={{
+      //               color: "#1976d2",
+      //               transition: "transform 0.2s ease",
+      //               "&:hover": { backgroundColor: "rgba(25, 118, 210, 0.08)", transform: "scale(1.1)" },
+      //             }}
+      //           >
+      //             <FiEdit3 size={18} />
+      //           </IconButton>
+      //         )}
+      //         {canDelete("blog") && (
+      //           <IconButton
+      //             size="small"
+      //             onClick={() => handleDelete(row.original.id)}
+      //             sx={{
+      //               color: "#d32f2f",
+      //               transition: "transform 0.2s ease",
+      //               "&:hover": { backgroundColor: "rgba(211, 47, 47, 0.08)", transform: "scale(1.1)" },
+      //             }}
+      //           >
+      //             <FiTrash2 size={18} />
+      //           </IconButton>
+      //         )}
+      //       </Stack>
+      //     ),
+      //   }
+      // ] : [])
     ],
     [lang]
   );

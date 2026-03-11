@@ -249,6 +249,7 @@ const LeaseTable = () => {
       {
         accessorKey: "phone_number",
         header: () => lang("leaseRequest.phoneTable") || "Phone",
+        meta: { disableSort: true },
       },
       {
         accessorKey: "address",
@@ -261,10 +262,12 @@ const LeaseTable = () => {
         //   if (row.original.countryId) parts.push(`Country:${row.original.countryId}`);
         //   return parts.filter(Boolean).join(" • ");
         // },
+        meta: { disableSort: true },
       },
       {
         accessorKey: "subject",
         header: () => lang("leaseRequest.subject") || "Subject",
+        meta: { disableSort: true },
       },
       {
         accessorKey: "message",
@@ -273,6 +276,7 @@ const LeaseTable = () => {
           const t = row.original.message || "";
           return t.length > 80 ? `${t.slice(0, 80)}…` : t;
         },
+        meta: { disableSort: true },
       },
       {
         accessorKey: "location",
@@ -284,42 +288,43 @@ const LeaseTable = () => {
           if (row.original.countries) parts.push(row.original.countries.name);
           return parts.length > 0 ? parts.join(", ") : "-";
         },
-      },
-      {
-        accessorKey: "actions",
-        header: () => lang("common.actions") || "Actions",
         meta: { disableSort: true },
-        cell: ({ row }) => (
-          <Stack direction="row" spacing={1}>
-            <IconButton
-              size="small"
-              onClick={() => handleView(row.original)}
-              sx={{ color: "#1976d2" }}
-            >
-              <FiEye size={16} />
-            </IconButton>
-            {canEdit("lease_requests") && (
-              <IconButton
-                size="small"
-                onClick={() => handleEdit(row.original)}
-                sx={{ color: "#1976d2" }}
-              >
-                <FiEdit size={16} />
-              </IconButton>
-            )}
-            {canDelete("lease_requests") && (
-              <IconButton
-                size="small"
-                onClick={() => handleDelete(row.original.id)}
-                sx={{ color: "#d32f2f" }}
-                disabled={deleting}
-              >
-                <FiTrash2 size={16} />
-              </IconButton>
-            )}
-          </Stack>
-        ),
       },
+      // {
+      //   accessorKey: "actions",
+      //   header: () => lang("common.actions") || "Actions",
+      //   meta: { disableSort: true },
+      //   cell: ({ row }) => (
+      //     <Stack direction="row" spacing={1}>
+      //       <IconButton
+      //         size="small"
+      //         onClick={() => handleView(row.original)}
+      //         sx={{ color: "#1976d2" }}
+      //       >
+      //         <FiEye size={16} />
+      //       </IconButton>
+      //       {canEdit("lease_requests") && (
+      //         <IconButton
+      //           size="small"
+      //           onClick={() => handleEdit(row.original)}
+      //           sx={{ color: "#1976d2" }}
+      //         >
+      //           <FiEdit size={16} />
+      //         </IconButton>
+      //       )}
+      //       {canDelete("lease_requests") && (
+      //         <IconButton
+      //           size="small"
+      //           onClick={() => handleDelete(row.original.id)}
+      //           sx={{ color: "#d32f2f" }}
+      //           disabled={deleting}
+      //         >
+      //           <FiTrash2 size={16} />
+      //         </IconButton>
+      //       )}
+      //     </Stack>
+      //   ),
+      // },
     ],
     [lang, deleting, canEdit, canDelete]
   );

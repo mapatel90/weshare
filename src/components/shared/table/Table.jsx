@@ -233,19 +233,22 @@ const Table = ({
                             cell.getContext()
                           );
 
+                          const isMobileFullWidth = cell.column.columnDef.meta?.mobileFullWidth;
+
                           return (
                             <div
                               key={cell.id}
                               style={{
                                 display: "flex",
-                                justifyContent: "space-between",
-                                alignItems: "flex-start",
+                                flexDirection: isMobileFullWidth ? "column" : "row",
+                                justifyContent: isMobileFullWidth ? "flex-start" : "space-between",
+                                alignItems: isMobileFullWidth ? "flex-start" : "flex-start",
                                 padding: "5px 0",
                                 borderBottom:
                                   idx < row.getVisibleCells().length - 1
                                     ? `1px solid ${dividerColor}`
                                     : "none",
-                                gap: "8px",
+                                gap: isMobileFullWidth ? "4px" : "8px",
                               }}
                             >
                               <span
@@ -257,7 +260,7 @@ const Table = ({
                                   letterSpacing: "0.04em",
                                   whiteSpace: "nowrap",
                                   flexShrink: 0,
-                                  maxWidth: "45%",
+                                  maxWidth: isMobileFullWidth ? "100%" : "45%",
                                 }}
                               >
                                 {headerContent}
@@ -267,7 +270,7 @@ const Table = ({
                                   fontSize: "13px",
                                   color: valueColor,
                                   fontWeight: 500,
-                                  textAlign: "right",
+                                  textAlign: "left",
                                   wordBreak: "break-word",
                                 }}
                               >

@@ -252,7 +252,7 @@ const ProjectTable = () => {
       // here i need to add a link to the project view page
       cell: (info) => (
         <div className="d-flex flex-column">
-          <Link href={`/admin/projects/view/${info.row.original.id}`} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-700 fw-semibold">
+          <Link href={`/admin/projects/view/${info.row.original.id}`} target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary-dark fw-semibold">
             {info.getValue() || "-"}
           </Link>
           <div className="d-flex gap-2 mt-1">
@@ -304,7 +304,7 @@ const ProjectTable = () => {
             </button>
             <span className="text-muted">|</span>
             {/* meter reading */}
-            <a href={`/admin/projects/meter-readings/${info.row.original.id}`} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-700 d-flex align-items-center gap-1 small" style={{ textDecoration: "none"}}>
+            <a href={`/admin/projects/meter-readings/${info.row.original.id}`} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-700 d-flex align-items-center gap-1 small" style={{ textDecoration: "none" }}>
               <ElectricMeter /> {lang("common.meterReading", "Meter Reading")}
             </a>
           </div>
@@ -452,93 +452,97 @@ const ProjectTable = () => {
           </div>
         );
       },
-    },
-    {
-      accessorKey: "actions",
-      header: () => lang("common.actions", "Actions"),
-      cell: (info) => {
-        const id = info.row.original.id;
-        const rowActions = [];
-        if (canEdit("projects")) {
-          rowActions.push(
-            {
-              label: lang("common.edit", "Edit"),
-              icon: <FiEdit3 />,
-              link: `/admin/projects/edit/${id}`,
-            },
-            { type: "divider" }
-          );
-        }
-        if (canDelete("projects")) {
-          rowActions.push({
-            label: lang("common.delete", "Delete"),
-            icon: <FiTrash2 />,
-            onClick: async () => {
-              try {
-                const confirm = await Swal.fire({
-                  icon: "warning",
-                  title: lang("common.areYouSure", "Are you sure?"),
-                  text: lang(
-                    "common.cannotBeUndone",
-                    "This action cannot be undone."
-                  ),
-                  showCancelButton: true,
-                  confirmButtonColor: "#d33",
-                  confirmButtonText: lang(
-                    "common.yesDelete",
-                    "Yes, delete it!"
-                  ),
-                });
-
-                if (confirm.isConfirmed) {
-                  setLoading(true);
-                  await apiDelete(`/api/projects/${id}`);
-                  showSuccessToast(
-                    lang(
-                      "projects.deleted",
-                      "Project has been deleted successfully"
-                    )
-                  );
-                  fetchProjects();
-                }
-              } catch (e) {
-                console.error("Delete project failed:", e);
-                showErrorToast(e.message || "Failed to delete project");
-              } finally {
-                setLoading(false);
-              }
-            },
-          });
-        }
-        // remove last divider if exists
-        if (rowActions.at(-1)?.type === "divider") {
-          rowActions.pop();
-        }
-        return (
-          <div className="gap-2 hstack justify-content-start">
-            <a
-              href={`/admin/projects/view/${id}`}
-              className="avatar-text avatar-md"
-              title={lang("common.view", "View")}
-            >
-              <FiEye />
-            </a>
-
-            {rowActions.length > 0 && (
-              <Dropdown
-                dropdownItems={rowActions}
-                triggerClass="avatar-md"
-                triggerIcon={<FiMoreHorizontal />}
-              />
-            )}
-          </div>
-        );
-      },
       meta: {
         disableSort: true,
-          headerClassName: 'text-center'
-        }
+        headerClassName: 'text-center'
+      }
     },
+    // {
+    //   accessorKey: "actions",
+    //   header: () => lang("common.actions", "Actions"),
+    //   cell: (info) => {
+    //     const id = info.row.original.id;
+    //     const rowActions = [];
+    //     if (canEdit("projects")) {
+    //       rowActions.push(
+    //         {
+    //           label: lang("common.edit", "Edit"),
+    //           icon: <FiEdit3 />,
+    //           link: `/admin/projects/edit/${id}`,
+    //         },
+    //         { type: "divider" }
+    //       );
+    //     }
+    //     if (canDelete("projects")) {
+    //       rowActions.push({
+    //         label: lang("common.delete", "Delete"),
+    //         icon: <FiTrash2 />,
+    //         onClick: async () => {
+    //           try {
+    //             const confirm = await Swal.fire({
+    //               icon: "warning",
+    //               title: lang("common.areYouSure", "Are you sure?"),
+    //               text: lang(
+    //                 "common.cannotBeUndone",
+    //                 "This action cannot be undone."
+    //               ),
+    //               showCancelButton: true,
+    //               confirmButtonColor: "#d33",
+    //               confirmButtonText: lang(
+    //                 "common.yesDelete",
+    //                 "Yes, delete it!"
+    //               ),
+    //             });
+
+    //             if (confirm.isConfirmed) {
+    //               setLoading(true);
+    //               await apiDelete(`/api/projects/${id}`);
+    //               showSuccessToast(
+    //                 lang(
+    //                   "projects.deleted",
+    //                   "Project has been deleted successfully"
+    //                 )
+    //               );
+    //               fetchProjects();
+    //             }
+    //           } catch (e) {
+    //             console.error("Delete project failed:", e);
+    //             showErrorToast(e.message || "Failed to delete project");
+    //           } finally {
+    //             setLoading(false);
+    //           }
+    //         },
+    //       });
+    //     }
+    //     // remove last divider if exists
+    //     if (rowActions.at(-1)?.type === "divider") {
+    //       rowActions.pop();
+    //     }
+    //     return (
+    //       <div className="gap-2 hstack justify-content-start">
+    //         <a
+    //           href={`/admin/projects/view/${id}`}
+    //           className="avatar-text avatar-md"
+    //           title={lang("common.view", "View")}
+    //         >
+    //           <FiEye />
+    //         </a>
+
+    //         {rowActions.length > 0 && (
+    //           <Dropdown
+    //             dropdownItems={rowActions}
+    //             triggerClass="avatar-md"
+    //             triggerIcon={<FiMoreHorizontal />}
+    //           />
+    //         )}
+    //       </div>
+    //     );
+    //   },
+    //   meta: {
+    //     disableSort: true,
+    //       headerClassName: 'text-center'
+    //     }
+    // },
   ];
 
   return (

@@ -218,7 +218,7 @@ const CompanyTable = () => {
       accessorKey: "company_name",
       header: () => lang("company.companyName"),
       cell: ({ row }) => (
-        <div className="d-flex flex-column gap-1">
+        <div className="d-flex flex-column gap-1 align-items-start">
           <span>{row.original.company_name}</span>
           <div className="d-flex gap-1 align-items-center">
             {canEdit("inverter_company") && (
@@ -285,57 +285,57 @@ const CompanyTable = () => {
         );
       },
     },
-    ...(showActionColumn ? [
-      {
-        accessorKey: "actions",
-        header: () => lang("common.actions"),
-        cell: ({ row }) => (
-          <Stack direction="row" spacing={1} sx={{ flexWrap: "nowrap" }}>
-            {canEdit("inverter_company") && (
-              <IconButton
-                size="small"
-                onClick={() => {
-                  // Open modal for edit with prefilled data via window event
-                  const item = row.original;
-                  window.dispatchEvent(
-                    new CustomEvent("inverter:open-edit", { detail: { item } })
-                  );
-                }}
-                sx={{
-                  color: "#1976d2",
-                  transition: "transform 0.2s ease",
-                  "&:hover": {
-                    backgroundColor: "rgba(25, 118, 210, 0.08)",
-                    transform: "scale(1.1)",
-                  },
-                }}
-              >
-                <FiEdit3 size={18} />
-              </IconButton>
-            )}
-            {canDelete("inverter_company") && (
-              <IconButton
-                size="small"
-                onClick={() => handleDelete(row.original.id)}
-                sx={{
-                  color: "#d32f2f",
-                  transition: "transform 0.2s ease",
-                  "&:hover": {
-                    backgroundColor: "rgba(211, 47, 47, 0.08)",
-                    transform: "scale(1.1)",
-                  },
-                }}
-              >
-                <FiTrash2 size={18} />
-              </IconButton>
-            )}
-          </Stack>
-        ),
-        meta: {
-          disableSort: true,
-        },
-      },
-    ] : [])
+    // ...(showActionColumn ? [
+    //   {
+    //     accessorKey: "actions",
+    //     header: () => lang("common.actions"),
+    //     cell: ({ row }) => (
+    //       <Stack direction="row" spacing={1} sx={{ flexWrap: "nowrap" }}>
+    //         {canEdit("inverter_company") && (
+    //           <IconButton
+    //             size="small"
+    //             onClick={() => {
+    //               // Open modal for edit with prefilled data via window event
+    //               const item = row.original;
+    //               window.dispatchEvent(
+    //                 new CustomEvent("inverter:open-edit", { detail: { item } })
+    //               );
+    //             }}
+    //             sx={{
+    //               color: "#1976d2",
+    //               transition: "transform 0.2s ease",
+    //               "&:hover": {
+    //                 backgroundColor: "rgba(25, 118, 210, 0.08)",
+    //                 transform: "scale(1.1)",
+    //               },
+    //             }}
+    //           >
+    //             <FiEdit3 size={18} />
+    //           </IconButton>
+    //         )}
+    //         {canDelete("inverter_company") && (
+    //           <IconButton
+    //             size="small"
+    //             onClick={() => handleDelete(row.original.id)}
+    //             sx={{
+    //               color: "#d32f2f",
+    //               transition: "transform 0.2s ease",
+    //               "&:hover": {
+    //                 backgroundColor: "rgba(211, 47, 47, 0.08)",
+    //                 transform: "scale(1.1)",
+    //               },
+    //             }}
+    //           >
+    //             <FiTrash2 size={18} />
+    //           </IconButton>
+    //         )}
+    //       </Stack>
+    //     ),
+    //     meta: {
+    //       disableSort: true,
+    //     },
+    //   },
+    // ] : [])
   ];
 
   // For closing modal:

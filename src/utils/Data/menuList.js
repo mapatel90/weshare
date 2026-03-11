@@ -236,7 +236,7 @@ export const menuList = [
   {
     id: 13,
     name: "settings",
-    path: "/admin/settings/general",
+    path: "#",
     icon: "feather-settings",
     permission: "settings",
     dropdownMenu: [

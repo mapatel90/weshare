@@ -266,19 +266,23 @@ const InvoiceTable = () => {
                 {display}
               </Link>
               <div className="d-flex flex-row align-items-center gap-1">
-                <Link href={`/admin/finance/invoice/edit/${row.original.id}`} rel="noopener noreferrer" className="d-flex align-items-center gap-1 small" style={{ textDecoration: "none", color: "#17c666" }}>
-                  <FiEdit3 />
-                  {lang("common.edit", "Edit")}
-                </Link>
+                {canEdit("invoices") && (
+                  <Link href={`/admin/finance/invoice/edit/${row.original.id}`} rel="noopener noreferrer" className="d-flex align-items-center gap-1 small" style={{ textDecoration: "none", color: "#17c666" }}>
+                    <FiEdit3 />
+                    {lang("common.edit", "Edit")}
+                  </Link>
+                )}
                 <span className="text-muted">|</span>
-                <button
-                  type="button"
-                  className="btn btn-link p-0 m-0 d-flex align-items-center gap-1 small"
-                  style={{ textDecoration: "none", color: "#dc3545" }}
-                  onClick={() => handleDelete(row.original)}
-                >
-                  <FiTrash2 /> {lang("common.delete", "Delete")}
-                </button>
+                {canDelete("invoices") && (
+                  <button
+                    type="button"
+                    className="btn btn-link p-0 m-0 d-flex align-items-center gap-1 small"
+                    style={{ textDecoration: "none", color: "#dc3545" }}
+                    onClick={() => handleDelete(row.original)}
+                  >
+                    <FiTrash2 /> {lang("common.delete", "Delete")}
+                  </button>
+                )}
               </div>
             </div>
           </>
@@ -379,65 +383,11 @@ const InvoiceTable = () => {
       header: () => lang("invoice.actions"),
       cell: ({ row }) => (
         <Stack direction="row" spacing={1} sx={{ flexWrap: "nowrap" }}>
-          {canEdit("invoices") && (
-            <Link
-              href={`/admin/finance/invoice/edit/${row.original.id}`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <IconButton
-                size="small"
-                sx={{
-                  color: "#1976d2",
-                  transition: "transform 0.2s ease",
-                  "&:hover": {
-                    backgroundColor: "rgba(25, 118, 210, 0.08)",
-                    transform: "scale(1.1)",
-                  },
-                }}
-              >
-                <FiEdit3 size={18} />
-              </IconButton>
-            </Link>
-          )}
-          {canDelete("invoices") && (
-            <IconButton
-              size="small"
-              onClick={() => handleDelete(row.original)}
-              sx={{
-                color: "#d32f2f",
-                transition: "transform 0.2s ease",
-                "&:hover": {
-                  backgroundColor: "rgba(211, 47, 47, 0.08)",
-                  transform: "scale(1.1)",
-                },
-              }}
-            >
-              <FiTrash2 size={18} />
-            </IconButton>
-          )}
-          <Link
-            href={`/admin/finance/invoice/view/${row.original.id}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <IconButton
-              size="small"
-              sx={{
-                color: "#1976d2",
-                transition: "transform 0.2s ease",
-                "&:hover": {
-                  backgroundColor: "rgba(25, 118, 210, 0.08)",
-                  transform: "scale(1.1)",
-                },
-              }}
-            >
-              <FiEye size={18} />
-            </IconButton>
-          </Link>
-          {row.original.invoice_pdf && (
-            <IconButton
-              size="small"
+          {row.original.invoice_pdf ? (
+            <button
+              type="button"
+              className="btn btn-link p-0 m-0 d-flex align-items-center gap-1 small"
+              style={{ textDecoration: "none", color: "#2e7d32" }}
               onClick={() => handleDownload(row.original)}
               sx={{
                 color: "#2e7d32",
@@ -448,9 +398,10 @@ const InvoiceTable = () => {
                 },
               }}
             >
-              <FiDownload size={18} />
-            </IconButton>
-          )}
+              <FiDownload size={15} /> <span className="small">{lang("common.download", "Download")}</span>
+            </button>
+          ) : 'N/A'}
+
         </Stack>
       ),
       meta: {
