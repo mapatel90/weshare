@@ -14,11 +14,11 @@ const RoleHeaderSetting = ({ onAddRole, isSubmitting = false }) => {
 
     return (
         <div className="content-area-header bg-white sticky-top">
-            <div className="page-header-left">
+            {/* <div className="page-header-left">
                 <a href="#" className="app-sidebar-open-trigger me-2" onClick={() => x.setSidebarOpen(true)}>
                     <FiAlignLeft className='fs-24' />
                 </a>
-            </div>
+            </div> */}
             <div className="page-header-right ms-auto">
                 <div className="d-flex align-items-center gap-3 page-header-right-items-wrapper">
                     {canCreate("roles_management") && (
