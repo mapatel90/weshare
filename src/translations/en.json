@@ -57,7 +57,9 @@
     "inverter_type": "Inverter Type",
     "inverter_list": "Inverter List",
     "inverter_company": "Company",
-    "meterreadings": "Meter Readings"
+    "meterreadings": "Meter Readings",
+    "portfolio": "Portfolio",
+    "exchange-hub-summary": "Exchange Hub Summary"
   },
   "header": {
     "dashboard": "Dashboard",
@@ -551,7 +553,9 @@
     "company": "Company",
     "capitalrecoveryreports": "Capital Recovery Reports",
     "profile": "Profile",
-    "meterreadings": "Meter Readings"
+    "meterreadings": "Meter Readings",
+    "portfolio": "Portfolio",
+    "exchange-hub-summary": "Exchange Hub Summary"
   },
   "dashboard": {
     "all_your_investments": "All your investments",
@@ -2390,5 +2394,39 @@
     "paymentSubmittedSuccessfully":"Payment submitted successfully",
     "invoicePDFNotAvailable":"Invoice PDF not available",
     "meter_reading_already_exists_for_this_date":"Meter reading already exists for this date."
+  },
+  "portfolio": {
+    "title": "Portfolio Settings",
+    "subtitle": "Configure portfolio settings",
+    "kwhGenerated": "KWH Generated",
+    "kwhGeneratedInfo": "Configure KWH generation metrics",
+    "kwhValue": "Value",
+    "kwhValueInfo": "Enter the KWH generated value",
+    "kwhPercentage": "Percentage",
+    "kwhPercentageInfo": "Enter the percentage value",
+    "income": "Income",
+    "incomeInfo": "Configure income metrics",
+    "incomeValue": "Value",
+    "incomeValueInfo": "Enter the income value",
+    "incomePercentage": "Percentage",
+    "incomePercentageInfo": "Enter the percentage value",
+    "saving": "Saving",
+    "savingInfo": "Configure saving metrics",
+    "savingValue": "Value",
+    "savingValueInfo": "Enter the saving value",
+    "savingPercentage": "Percentage",
+    "savingPercentageInfo": "Enter the percentage value",
+    "roi": "ROI",
+    "roiInfo": "Configure ROI metrics",
+    "roiValue": "Value",
+    "roiValueInfo": "Enter the ROI value",
+    "roiPercentage": "Percentage",
+    "roiPercentageInfo": "Enter the percentage value",
+    "co2Avoided": "CO2 Avoided",
+    "co2AvoidedInfo": "Configure CO2 avoided metrics",
+    "co2Value": "Value",
+    "co2ValueInfo": "Enter the CO2 avoided value",
+    "co2Percentage": "Percentage",
+    "co2PercentageInfo": "Enter the percentage value"
   }
 }

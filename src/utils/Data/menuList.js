@@ -306,7 +306,7 @@ export const menuList = [
       },
       {
         id: 9,
-        name: "Exchange Hub Summary",
+        name: "exchange-hub-summary",
         path: "/admin/settings/exchange-hub-summary",
         permission: "exchange_hub_summary",
         permission_action: ["view"],

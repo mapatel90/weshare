@@ -101,7 +101,7 @@ const ContractModal = (props) => {
                       setSelectedInvestor("");
                     }}
                   />
-                  <span>{lang("contract.offtaker", "Offtaker")}</span>
+                  <span>{lang("payments.offtaker", "Offtaker")}</span>
                 </label>
                 <label style={{ display: "flex", gap: 8 }}>
                   <input
@@ -118,7 +118,7 @@ const ContractModal = (props) => {
                       }
                     }}
                   />
-                  <span>{lang("contract.investor", "Investor")}</span>
+                  <span>{lang("authentication.becomeInvestor", "Investor")}</span>
                 </label>
               </Box>
             ) : modalType !== "edit" && !showPartySelection ? (
@@ -148,7 +148,7 @@ const ContractModal = (props) => {
                 ) : (
                   <TextField
                     select
-                    label={lang("contract.investor", "Investor")}
+                    label={lang("authentication.becomeInvestor", "Investor")}
                     value={selectedInvestor}
                     onChange={(e) => setSelectedInvestor(e.target.value)}
                     fullWidth
@@ -189,7 +189,7 @@ const ContractModal = (props) => {
                 ) : (
                   <TextField
                     select
-                    label={lang("contract.investor", "Investor")}
+                    label={lang("authentication.becomeInvestor", "Investor")}
                     value={selectedInvestor || ""}
                     onChange={(e) => setSelectedInvestor(e.target.value)}
                     fullWidth
@@ -225,7 +225,7 @@ const ContractModal = (props) => {
             {modalType !== "edit" && showPartySelection && partyType === "investor" && (
               <TextField
                 select
-                label={lang("contract.investor", "Investor")}
+                label={lang("authentication.becomeInvestor", "Investor")}
                 value={selectedInvestor}
                 onChange={(e) => setSelectedInvestor(e.target.value)}
                 fullWidth

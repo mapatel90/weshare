@@ -58,7 +58,9 @@
     "inverter_type": "Loại biến tần",
     "inverter_list": "Danh sách biến tần",
     "inverter_company": "Công ty",
-    "meterreadings": "Chỉ số công tơ"
+    "meterreadings": "Chỉ số công tơ",
+    "portfolio": "Danh mục đầu tư",
+    "exchange-hub-summary":"tóm tắt trung tâm trao đổi"
   },
   "header": {
     "dashboard": "Bảng điều khiển",
@@ -537,7 +539,10 @@
     "company": "Công ty",
     "capitalrecoveryreports": "Báo cáo khôi phục vốn",
     "profile": "Hồ sơ",
-    "meterreadings":"Chỉ số công tơ"
+    "meterreadings":"Chỉ số công tơ",
+    "portfolio":"Danh mục đầu tư",
+    "exchange-hub-summary":"tóm tắt trung tâm trao đổi"
+
   },
   "dashboard": {
     "all_your_investments": "Tất cả khoản đầu tư của bạn",
@@ -2340,5 +2345,39 @@
     "xUrl": "X (Twitter) URL",
     "githubUrl": "GitHub URL",
     "linkedinUrl": "LinkedIn URL"
+  },
+  "portfolio": {
+    "title": "Cài đặt danh mục đầu tư",
+    "subtitle": "Cấu hình cài đặt danh mục đầu tư",
+    "kwhGenerated": "KWH Đã tạo",
+    "kwhGeneratedInfo": "Cấu hình số liệu phát điện KWH",
+    "kwhValue": "Giá trị",
+    "kwhValueInfo": "Nhập giá trị KWH đã tạo",
+    "kwhPercentage": "Phần trăm",
+    "kwhPercentageInfo": "Nhập giá trị phần trăm",
+    "income": "Thu nhập",
+    "incomeInfo": "Cấu hình số liệu thu nhập",
+    "incomeValue": "Giá trị",
+    "incomeValueInfo": "Nhập giá trị thu nhập",
+    "incomePercentage": "Phần trăm",
+    "incomePercentageInfo": "Nhập giá trị phần trăm",
+    "saving": "Tiết kiệm",
+    "savingInfo": "Cấu hình số liệu tiết kiệm",
+    "savingValue": "Giá trị",
+    "savingValueInfo": "Nhập giá trị tiết kiệm",
+    "savingPercentage": "Phần trăm",
+    "savingPercentageInfo": "Nhập giá trị phần trăm",
+    "roi": "ROI",
+    "roiInfo": "Cấu hình số liệu ROI",
+    "roiValue": "Giá trị",
+    "roiValueInfo": "Nhập giá trị ROI",
+    "roiPercentage": "Phần trăm",
+    "roiPercentageInfo": "Nhập giá trị phần trăm",
+    "co2Avoided": "CO2 Tránh được",
+    "co2AvoidedInfo": "Cấu hình số liệu CO2 tránh được",
+    "co2Value": "Giá trị",
+    "co2ValueInfo": "Nhập giá trị CO2 tránh được",
+    "co2Percentage": "Phần trăm",
+    "co2PercentageInfo": "Nhập giá trị phần trăm"
   }
 }
