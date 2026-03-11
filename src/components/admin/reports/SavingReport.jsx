@@ -462,7 +462,7 @@ const SavingReports = () => {
           {/* Start Date */}
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DatePicker
-              label={lang("common.startDate", "Start Date")}
+              label={lang("projects.startDate", "Start Date")}
               value={startDate ? dayjs(startDate) : null}
               onChange={(newValue) => setStartDate(newValue)}
               format="DD/MM/YYYY"
@@ -478,7 +478,7 @@ const SavingReports = () => {
           {/* End Date */}
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DatePicker
-              label={lang("common.endDate", "End Date")}
+              label={lang("projects.endDate", "End Date")}
               value={endDate ? dayjs(endDate) : null}
               onChange={(newValue) => setEndDate(newValue)}
               format="DD/MM/YYYY"

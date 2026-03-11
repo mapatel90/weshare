@@ -6,6 +6,9 @@ import { apiGet } from "@/lib/api";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { formatEnergyUnit, sortByNameAsc } from "@/utils/common";
 import { Autocomplete, TextField, CircularProgress, Box } from "@mui/material";
+import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import dayjs from "dayjs";
 
 const InverterEvnReport = () => {
   const PAGE_SIZE = 50; // default rows per table page
@@ -14,8 +17,8 @@ const InverterEvnReport = () => {
   const [projectFilter, setProjectFilter] = useState(""); // store projectId (string)
   const [inverterFilter, setInverterFilter] = useState(""); // store inverterId (string)
   const [searchTerm, setSearchTerm] = useState(""); // global search value from Table
-  const [startDate, setStartDate] = useState(""); // YYYY-MM-DD
-  const [endDate, setEndDate] = useState(""); // YYYY-MM-DD
+  const [startDate, setStartDate] = useState(null); // dayjs or null
+  const [endDate, setEndDate] = useState(null); // dayjs or null
   const [reportsData, setReportsData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [csvLoading, setCsvLoading] = useState(false);
@@ -47,8 +50,8 @@ const InverterEvnReport = () => {
   const handleSubmit = () => {
     setAppliedProject(projectFilter);
     setAppliedInverter(inverterFilter);
-    setAppliedStartDate(startDate);
-    setAppliedEndDate(endDate);
+    setAppliedStartDate(startDate ? dayjs(startDate).format("YYYY-MM-DD") : "");
+    setAppliedEndDate(endDate ? dayjs(endDate).format("YYYY-MM-DD") : "");
     setPageIndex(0); // Reset to first page
   };
 
@@ -481,24 +484,36 @@ const InverterEvnReport = () => {
               disabled={!projectFilter}
             />
 
-            <input
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              className="theme-btn-blue-color border rounded-md px-3 py-2 me-0 lg:me-2 text-sm w-full sm:w-auto"
-              placeholder={lang("common.startDate") || "Start Date"}
-              style={{ minWidth: 170 }}
-            />
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DatePicker
+                label={lang("projects.startDate", "Start Date")}
+                value={startDate ? dayjs(startDate) : null}
+                onChange={(newValue) => setStartDate(newValue)}
+                format="DD/MM/YYYY"
+                slotProps={{
+                  textField: {
+                    size: "small",
+                    sx: { width: { xs: "100%", sm: 170 } },
+                  },
+                }}
+              />
+            </LocalizationProvider>
 
-            <input
-              type="date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              min={startDate || undefined}
-              className="theme-btn-blue-color border rounded-md px-3 py-2 me-0 lg:me-2 text-sm w-full sm:w-auto"
-              placeholder={lang("common.endDate") || "End Date"}
-              style={{ minWidth: 170 }}
-            />
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DatePicker
+                label={lang("projects.endDate", "End Date")}
+                value={endDate ? dayjs(endDate) : null}
+                onChange={(newValue) => setEndDate(newValue)}
+                format="DD/MM/YYYY"
+                minDate={startDate ? dayjs(startDate) : undefined}
+                slotProps={{
+                  textField: {
+                    size: "small",
+                    sx: { width: { xs: "100%", sm: 170 } },
+                  },
+                }}
+              />
+            </LocalizationProvider>
 
             <button
               onClick={handleSubmit}
