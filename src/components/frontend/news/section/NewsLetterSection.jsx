@@ -27,11 +27,17 @@ const NewsLetterSection = () => {
           </svg>
         </div>
 
-        <div className="col-md-5 w-100">
+        <div className="col-md-5 col-12">
           <div className="newsletter-form">
-            <input type="email" className="form-control" placeholder={lang("news.enterEmail")} />
-            <button className="btn btn-dark text-black">{lang("news.subscribe")}{" "}
-              <FontAwesomeIcon icon={faPaperPlane} className="ms-2" /></button>
+            <input
+              type="email"
+              className="form-control"
+              placeholder={lang("news.enterEmail")}
+            />
+            <button className="btn btn-dark">
+              {lang("news.subscribe")}{" "}
+              <FontAwesomeIcon icon={faPaperPlane} className="ms-2" />
+            </button>
           </div>
         </div>
       </div>
