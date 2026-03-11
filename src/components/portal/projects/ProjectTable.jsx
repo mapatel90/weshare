@@ -599,10 +599,10 @@ const SolarProjectTable = () => {
                         </div>
                       </div>
                       {/* Action buttons */}
-                      <div className="flex gap-2 mt-auto">
-                        {/* <button className="flex-1 px-4 py-2 bg-amber-500 text-white rounded-lg font-semibold hover:bg-amber-600 transition-colors text-sm">Invest Early</button> */}
+                      <div className="flex flex-col sm:flex-row gap-2 mt-auto">
+                        {/* <button className="w-full sm:flex-1 px-4 py-2 bg-amber-500 text-white rounded-lg font-semibold hover:bg-amber-600 transition-colors text-sm">Invest Early</button> */}
                         <a
-                          className="flex-1 px-4 py-2 border border-gray-300 text-slate-900 rounded-lg font-semibold hover:bg-gray-100 transition-colors text-sm flex items-center justify-center gap-1"
+                          className="w-full sm:flex-1 px-4 py-2 border border-gray-300 text-slate-900 rounded-lg font-semibold hover:bg-gray-100 transition-colors text-sm flex items-center justify-center gap-1"
                           href={`/offtaker/projects/details/${project.id ?? ""}`}
                           target="_blank"
                           rel="noopener noreferrer"
@@ -626,7 +626,7 @@ const SolarProjectTable = () => {
                         {project.project_status_id === PROJECT_STATUS.RUNNING && (
                           <button
                             type="button"
-                            className="flex-1 px-4 py-2 bg-slate-800 text-white rounded-lg font-semibold hover:bg-slate-700 transition-colors text-sm flex items-center justify-center gap-1"
+                            className="w-full sm:flex-1 px-4 py-2 bg-slate-800 text-white rounded-lg font-semibold hover:bg-slate-700 transition-colors text-sm flex items-center justify-center gap-1"
                             onClick={() => setSelectedProjectForMeter(project)}
                           >
                             {lang("meter.meterReading", "Meter Reading")}
