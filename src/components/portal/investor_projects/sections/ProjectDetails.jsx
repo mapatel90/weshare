@@ -450,7 +450,7 @@ const ProjectDetails = ({ project_id }) => {
                     >
                         <button
                             type="button"
-                            className="btn bg-black text-white"
+                            className="btn text-white common-orange-color"
                             id="inverter-dropdown-btn"
                             aria-expanded={showInverterDropdown}
                             onClick={() => {
@@ -465,7 +465,7 @@ const ProjectDetails = ({ project_id }) => {
                             }}
                             disabled={!selectedProject}
                         >
-                            {selectedInverter ? selectedInverter.name : lang("dashboard.all_inverters", "All Inverters")} ▼
+                            {selectedInverter ? selectedInverter.name : lang("dashboard.project_inverters", "All Inverters")} ▼
                         </button>
                         {showInverterDropdown && selectedProject && (
                             <div
@@ -476,12 +476,10 @@ const ProjectDetails = ({ project_id }) => {
                                     top: "100%",
                                     zIndex: 40,
                                     background: "#fff",
-                                    border: "2px solid rgba(246,166,35,0.2)",
-                                    borderRadius: "8px",
-                                    boxShadow: "0 4px 16px rgba(246,166,35,0.2)",
+                                    border: "1px solid #e5e7eb",
+                                    borderRadius: "6px",
+                                    boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
                                     minWidth: "220px",
-                                    overflow: "hidden",
-                                    marginTop: "4px",
                                 }}
                             >
                                 <ul
@@ -508,23 +506,21 @@ const ProjectDetails = ({ project_id }) => {
                                                 role="button"
                                                 tabIndex={0}
                                                 style={{
-                                                    padding: "10px 16px",
+                                                    padding: "8px 16px",
                                                     cursor: "pointer",
                                                     display: "flex",
                                                     justifyContent: "space-between",
                                                     alignItems: "center",
-                                                    background: !selectedInverter ? "#F6A623" : "#fff9f0",
+                                                    background: !selectedInverter ? "#eef2ff" : undefined,
                                                     fontWeight: !selectedInverter ? 600 : 400,
-                                                    color: !selectedInverter ? "#fff" : "#b26800",
-                                                    borderLeft: !selectedInverter ? "4px solid #e8920a" : "4px solid transparent",
-                                                    transition: "background 0.15s",
+                                                    color: "#111827",
                                                 }}
                                                 onClick={() => {
                                                     setSelectedInverter(null);
                                                     setShowInverterDropdown(false);
                                                 }}
                                             >
-                                                <span>{lang("dashboard.all_inverters", "All Inverters")}</span>
+                                                <span>{lang("dashboard.project_inverters", "All Inverters")}</span>
                                             </li>
                                             {sortByNameAsc(inverters, "name").map((inv) => {
                                                 const isSelectedInv =

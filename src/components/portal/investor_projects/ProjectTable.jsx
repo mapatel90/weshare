@@ -290,7 +290,7 @@ const ProjectTable = () => {
   return (
     <div className="min-h-full from-slate-50 to-slate-100">
       <div className="mx-auto">
-        <div className="bg-white rounded-xl shadow-md overflow-hidden">
+        <div className="bg-white rounded-xl shadow-md">
           {/* Filters */}
           <div className="p-6 border-b border-gray-200">
             <div className="flex flex-wrap gap-3">
@@ -312,7 +312,7 @@ const ProjectTable = () => {
               >
                 <button
                   type="button"
-                  className="btn bg-black text-white"
+                  className="btn common-orange-color text-white"
                   onClick={() =>
                     setDateDropdownOpen((v) => {
                       const next = !v;
@@ -353,7 +353,7 @@ const ProjectTable = () => {
                   >
                     <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                       <div>
-                        <label style={{ display: "block", fontSize: "13px", fontWeight: 500, color: "#b26800", marginBottom: "4px" }}>
+                        <label style={{ display: "block", fontSize: "13px", fontWeight: 500, marginBottom: "4px" }}>
                           {lang("projects.startDate", "Start Date")}
                         </label>
                         <input
@@ -373,7 +373,7 @@ const ProjectTable = () => {
                         />
                       </div>
                       <div>
-                        <label style={{ display: "block", fontSize: "13px", fontWeight: 500, color: "#b26800", marginBottom: "4px" }}>
+                        <label style={{ display: "block", fontSize: "13px", fontWeight: 500, marginBottom: "4px" }}>
                           {lang("projects.endDate", "End Date")}
                         </label>
                         <input
@@ -451,7 +451,7 @@ const ProjectTable = () => {
               <div className="date-filter-dropdown" style={{ position: "relative" }}>
                 <button
                   type="button"
-                  className="btn bg-black text-white"
+                  className="btn common-orange-color text-white"
                   style={{ minWidth: "120px" }}
                 >
                   <MapPin className="w-4 h-4" style={{ display: "inline", marginRight: "6px", verticalAlign: "middle" }} />
@@ -466,7 +466,7 @@ const ProjectTable = () => {
               >
                 <button
                   type="button"
-                  className="btn bg-black text-white"
+                  className="btn common-orange-color text-white"
                   onClick={() => setStatusDropdownOpen((v) => !v)}
                   aria-haspopup="true"
                   aria-expanded={statusDropdownOpen}
@@ -496,12 +496,10 @@ const ProjectTable = () => {
                       top: "100%",
                       zIndex: 40,
                       background: "#fff",
-                      border: "2px solid rgba(246,166,35,0.2)",
-                      borderRadius: "8px",
-                      boxShadow: "0 4px 16px rgba(246,166,35,0.2)",
-                      minWidth: "160px",
-                      overflow: "hidden",
-                      marginTop: "4px",
+                      border: "1px solid #e5e7eb",
+                      borderRadius: "6px",
+                      boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+                      minWidth: "220px",
                     }}
                   >
                     <ul style={{ listStyle: "none", margin: 0, padding: "4px 0" }}>
@@ -518,15 +516,14 @@ const ProjectTable = () => {
                             role="button"
                             tabIndex={0}
                             style={{
-                              padding: "10px 16px",
+                              padding: "8px 16px",
                               cursor: "pointer",
                               display: "flex",
+                              justifyContent: "space-between",
                               alignItems: "center",
-                              background: isActive ? "#F6A623" : "#fff9f0",
+                              background: isActive ? "#eef2ff" : undefined,
                               fontWeight: isActive ? 600 : 400,
-                              color: isActive ? "#fff" : "#b26800",
-                              borderLeft: isActive ? "4px solid #e8920a" : "4px solid transparent",
-                              transition: "background 0.15s",
+                              color: "#111827",
                             }}
                             onClick={() => {
                               setStatusFilter(value);

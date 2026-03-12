@@ -552,7 +552,7 @@ const ProjectDetails = ({ project_id }) => {
                             }}
                             disabled={!selectedProject}
                         >
-                            {selectedInverter ? selectedInverter.name : lang("dashboard.all_inverters", "All Inverters") + " ▼"}
+                            {selectedInverter ? selectedInverter.name : lang("dashboard.project_inverters", "All Inverters") + " ▼"}
                         </button>
                         {showInverterDropdown && selectedProject && (
                             <div
@@ -607,7 +607,7 @@ const ProjectDetails = ({ project_id }) => {
                                                     setShowInverterDropdown(false);
                                                 }}
                                             >
-                                                <span>All Inverters</span>
+                                                <span>{lang("dashboard.project_inverters", "All Inverters")}</span>
                                             </li>
                                             <li style={{ padding: "4px 0" }}>
                                                 <hr

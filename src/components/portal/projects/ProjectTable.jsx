@@ -19,6 +19,11 @@ import { useRouter } from "next/navigation";
 import { PROJECT_STATUS } from "@/constants/project_status";
 import { ROLES } from "@/constants/roles";
 import { useFormatPrice } from "@/hooks/useFormatPrice";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import dayjs from "dayjs";
+import "dayjs/locale/en";
+import "dayjs/locale/vi";
 import MeterReading from "./sections/MeterReading";
 
 const formatNumber = (value) => {
@@ -29,7 +34,7 @@ const formatNumber = (value) => {
 
 const SolarProjectTable = () => {
   const { user } = useAuth();
-  const { lang } = useLanguage();
+  const { lang, currentLanguage } = useLanguage();
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState(""); // debounced search for API calls
@@ -135,9 +140,6 @@ const SolarProjectTable = () => {
   // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (dateDropdownOpen && !event.target.closest(".date-filter-dropdown")) {
-        setDateDropdownOpen(false);
-      }
       if (
         statusDropdownOpen &&
         !event.target.closest(".status-filter-dropdown")
@@ -226,7 +228,7 @@ const SolarProjectTable = () => {
   return (
     <div className="min-h-full from-slate-50 to-slate-100">
       <div className="mx-auto">
-        <div className="bg-white rounded-xl shadow-md overflow-hidden">
+        <div className="bg-white rounded-xl shadow-md">
           {/* Header */}
           {/* <div className="bg-gradient-to-r from-slate-800 to-slate-700 px-6 py-4">
             <h1 className="text-2xl font-bold text-white">Solar Projects Dashboard</h1>
@@ -254,7 +256,7 @@ const SolarProjectTable = () => {
               >
                 <button
                   type="button"
-                  className="btn bg-black text-white"
+                  className="btn text-white common-orange-color"
                   onClick={() =>
                     setDateDropdownOpen((v) => {
                       const next = !v;
@@ -282,58 +284,59 @@ const SolarProjectTable = () => {
                       position: "absolute",
                       left: 0,
                       top: "100%",
-                      zIndex: 40,
-                      background: "#fff",
+                      zIndex: 9999,
+                      background: "white",
                       border: "2px solid rgba(246,166,35,0.2)",
                       borderRadius: "8px",
                       boxShadow: "0 4px 16px rgba(246,166,35,0.2)",
                       minWidth: "280px",
-                      overflow: "hidden",
                       marginTop: "4px",
                       padding: "16px",
                     }}
                   >
                     <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                       <div>
-                        <label style={{ display: "block", fontSize: "13px", fontWeight: 500, color: "#b26800", marginBottom: "4px" }}>
+                        <label style={{ display: "block", fontSize: "13px", fontWeight: 500, color: "#111827", marginBottom: "4px" }}>
                           {lang("projects.startDate", "Start Date")}
                         </label>
-                        <input
-                          type="date"
-                          value={pendingDateStart}
-                          onChange={(e) => setPendingDateStart(e.target.value)}
-                          style={{
-                            width: "100%",
-                            padding: "8px 12px",
-                            border: "1.5px solid rgba(246,166,35,0.35)",
-                            borderRadius: "6px",
-                            fontSize: "14px",
-                            outline: "none",
-                            color: "#333",
-                            boxSizing: "border-box",
-                          }}
-                        />
+                        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={currentLanguage}>
+                          <DatePicker
+                            format="DD-MM-YYYY"
+                            value={pendingDateStart ? dayjs(pendingDateStart) : null}
+                            onChange={(newValue) =>
+                              setPendingDateStart(newValue ? newValue.format("YYYY-MM-DD") : "")
+                            }
+                            slotProps={{
+                              textField: {
+                                size: "small",
+                                fullWidth: true,
+                              },
+                              actionBar: { actions: ["clear", "accept"] },
+                            }}
+                          />
+                        </LocalizationProvider>
                       </div>
                       <div>
-                        <label style={{ display: "block", fontSize: "13px", fontWeight: 500, color: "#b26800", marginBottom: "4px" }}>
+                        <label style={{ display: "block", fontSize: "13px", fontWeight: 500, color: "#111827", marginBottom: "4px" }}>
                           {lang("projects.endDate", "End Date")}
                         </label>
-                        <input
-                          type="date"
-                          value={pendingDateEnd}
-                          onChange={(e) => setPendingDateEnd(e.target.value)}
-                          min={pendingDateStart || undefined}
-                          style={{
-                            width: "100%",
-                            padding: "8px 12px",
-                            border: "1.5px solid rgba(246,166,35,0.35)",
-                            borderRadius: "6px",
-                            fontSize: "14px",
-                            outline: "none",
-                            color: "#333",
-                            boxSizing: "border-box",
-                          }}
-                        />
+                        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={currentLanguage}>
+                          <DatePicker
+                            format="DD-MM-YYYY"
+                            value={pendingDateEnd ? dayjs(pendingDateEnd) : null}
+                            onChange={(newValue) =>
+                              setPendingDateEnd(newValue ? newValue.format("YYYY-MM-DD") : "")
+                            }
+                            minDate={pendingDateStart ? dayjs(pendingDateStart) : undefined}
+                            slotProps={{
+                              textField: {
+                                size: "small",
+                                fullWidth: true,
+                              },
+                              actionBar: { actions: ["clear", "accept"] },
+                            }}
+                          />
+                        </LocalizationProvider>
                       </div>
                       <div style={{ display: "flex", gap: "8px", paddingTop: "4px" }}>
                         <button
@@ -393,7 +396,7 @@ const SolarProjectTable = () => {
               <div className="date-filter-dropdown" style={{ position: "relative" }}>
                 <button
                   type="button"
-                  className="btn bg-black text-white"
+                  className="btn text-white common-orange-color"
                   style={{ minWidth: "120px" }}
                 >
                   <MapPin className="w-4 h-4" style={{ display: "inline", marginRight: "6px", verticalAlign: "middle" }} />
@@ -408,7 +411,7 @@ const SolarProjectTable = () => {
               >
                 <button
                   type="button"
-                  className="btn bg-black text-white"
+                  className="btn text-white common-orange-color"
                   onClick={() => setStatusDropdownOpen((v) => !v)}
                   aria-haspopup="true"
                   aria-expanded={statusDropdownOpen}
@@ -438,12 +441,10 @@ const SolarProjectTable = () => {
                       top: "100%",
                       zIndex: 40,
                       background: "#fff",
-                      border: "2px solid rgba(246,166,35,0.2)",
-                      borderRadius: "8px",
-                      boxShadow: "0 4px 16px rgba(246,166,35,0.2)",
-                      minWidth: "160px",
-                      overflow: "hidden",
-                      marginTop: "4px",
+                      border: "1px solid #e5e7eb",
+                      borderRadius: "6px",
+                      boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+                      minWidth: "220px",
                     }}
                   >
                     <ul style={{ listStyle: "none", margin: 0, padding: "4px 0" }}>
@@ -460,15 +461,14 @@ const SolarProjectTable = () => {
                             role="button"
                             tabIndex={0}
                             style={{
-                              padding: "10px 16px",
+                              padding: "8px 16px",
                               cursor: "pointer",
                               display: "flex",
+                              justifyContent: "space-between",
                               alignItems: "center",
-                              background: isActive ? "#F6A623" : "#fff9f0",
+                              background: isActive ? "#eef2ff" : undefined,
                               fontWeight: isActive ? 600 : 400,
-                              color: isActive ? "#fff" : "#b26800",
-                              borderLeft: isActive ? "4px solid #e8920a" : "4px solid transparent",
-                              transition: "background 0.15s",
+                              color: "#111827",
                             }}
                             onClick={() => {
                               setStatusFilter(value);

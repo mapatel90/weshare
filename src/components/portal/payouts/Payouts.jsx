@@ -408,96 +408,93 @@ const PayoutsPage = () => {
                         renderOption={(props, option, { selected }) => (
                             <li
                                 {...props}
-                                style={{
-                                    padding: "10px 16px",
-                                    cursor: "pointer",
-                                    background: selected ? "#F6A623" : "#fff9f0",
-                                    fontWeight: selected ? 600 : 400,
-                                    color: selected ? "#fff" : "#b26800",
-                                    borderLeft: selected ? "4px solid #e8920a" : "4px solid transparent",
-                                    transition: "background 0.15s",
-                                }}
                             >
                                 {option.project_name || option.projectName || `Project ${option.id ?? option.project_id ?? ""}`}
                             </li>
                         )}
-                        componentsProps={{
-                            paper: {
-                                sx: {
-                                    border: "2px solid rgba(246,166,35,0.2)",
-                                    borderRadius: "8px",
-                                    boxShadow: "0 4px 16px rgba(246,166,35,0.2)",
-                                    mt: 0.5,
-                                },
-                            },
-                        }}
                         renderInput={(params) => (
                             <TextField
                                 {...params}
                                 label={lang("reports.allprojects")}
                                 placeholder={lang("common.searchProject", "Search project...")}
-                                sx={{
-                                    "& .MuiOutlinedInput-root": {
-                                        "&:hover fieldset": { borderColor: "#F6A623" },
-                                        "&.Mui-focused fieldset": { borderColor: "#F6A623" },
-                                    },
-                                    "& label.Mui-focused": { color: "#b26800" },
-                                }}
                             />
                         )}
                         sx={{ width: { xs: "100%", sm: 260 } }}
                     />
-                    <TextField
-                        select
+                    <Autocomplete
                         size="small"
-                        label={lang("invoice.status", "Status")}
-                        value={statusFilter}
-                        onChange={(e) => {
-                            setPageIndex(0);
-                            setStatusFilter(e.target.value);
-                        }}
-                        sx={{
-                            width: { xs: "100%", sm: 220 },
-                            "& .MuiOutlinedInput-root": {
-                                "&:hover fieldset": { borderColor: "#F6A623" },
-                                "&.Mui-focused fieldset": { borderColor: "#F6A623" },
+                        sx={{ width: { xs: "100%", sm: 220 } }}
+                        options={[
+                            {
+                                value: "",
+                                label: lang("common.all", "All Status"),
                             },
-                            "& label.Mui-focused": { color: "#b26800" },
-                        }}
-                        MenuProps={{
-                            PaperProps: {
-                                sx: {
-                                    border: "2px solid rgba(246,166,35,0.2)",
-                                    borderRadius: "8px",
-                                    boxShadow: "0 4px 16px rgba(246,166,35,0.2)",
-                                    mt: 0.5,
-                                    "& .MuiMenuItem-root": {
-                                        color: "#b26800",
-                                        background: "#fff9f0",
-                                        borderLeft: "4px solid transparent",
-                                        transition: "background 0.15s",
-                                        "&:hover": {
-                                            background: "#ffe5b0",
-                                        },
-                                        "&.Mui-selected": {
-                                            background: "#F6A623",
-                                            color: "#fff",
-                                            fontWeight: 600,
-                                            borderLeft: "4px solid #e8920a",
-                                            "&:hover": {
-                                                background: "#e8920a",
-                                            },
-                                        },
-                                    },
+                            {
+                                value: String(PAYOUT_STATUS.PENDING),
+                                label: lang("common.pending", "Pending"),
+                            },
+                            {
+                                value: String(PAYOUT_STATUS.PAYOUT),
+                                label: lang("payouts.payouts", "Paid"),
+                            },
+                            {
+                                value: String(PAYOUT_STATUS.CANCELLED),
+                                label: lang("common.cancelled", "Cancelled"),
+                            },
+                        ]}
+                        value={
+                            [
+                                {
+                                    value: "",
+                                    label: lang("common.all", "All Status"),
                                 },
-                            },
+                                {
+                                    value: String(PAYOUT_STATUS.PENDING),
+                                    label: lang("common.pending", "Pending"),
+                                },
+                                {
+                                    value: String(PAYOUT_STATUS.PAYOUT),
+                                    label: lang("payouts.payouts", "Paid"),
+                                },
+                                {
+                                    value: String(PAYOUT_STATUS.CANCELLED),
+                                    label: lang("common.cancelled", "Cancelled"),
+                                },
+                            ].find((opt) => opt.value === String(statusFilter ?? "")) || null
+                        }
+                        onChange={(e, newValue) => {
+                            setPageIndex(0);
+                            setStatusFilter(newValue ? newValue.value : "");
                         }}
-                    >
-                        <MenuItem value="" style={{ background: statusFilter === "" ? "#F6A623" : "#fff9f0", color: statusFilter === "" ? "#fff" : "#b26800", fontWeight: statusFilter === "" ? 600 : 400, borderLeft: statusFilter === "" ? "4px solid #e8920a" : "4px solid transparent", transition: "background 0.15s" }}>{lang("common.all", "All Status")}</MenuItem>
-                        <MenuItem value={String(PAYOUT_STATUS.PENDING)} style={{ background: statusFilter === PAYOUT_STATUS.PENDING ? "#F6A623" : "#fff9f0", color: statusFilter === PAYOUT_STATUS.PENDING ? "#fff" : "#b26800", fontWeight: statusFilter === PAYOUT_STATUS.PENDING ? 600 : 400, borderLeft: statusFilter === PAYOUT_STATUS.PENDING ? "4px solid #e8920a" : "4px solid transparent", transition: "background 0.15s" }}>{lang("common.pending", "Pending")}</MenuItem>
-                        <MenuItem value={String(PAYOUT_STATUS.PAYOUT)} style={{ background: statusFilter === PAYOUT_STATUS.PAYOUT ? "#F6A623" : "#fff9f0", color: statusFilter === PAYOUT_STATUS.PAYOUT ? "#fff" : "#b26800", fontWeight: statusFilter === PAYOUT_STATUS.PAYOUT ? 600 : 400, borderLeft: statusFilter === PAYOUT_STATUS.PAYOUT ? "4px solid #e8920a" : "4px solid transparent", transition: "background 0.15s" }}>{lang("payouts.payouts", "Paid")}</MenuItem>
-                        <MenuItem value={String(PAYOUT_STATUS.CANCELLED)} style={{ background: statusFilter === PAYOUT_STATUS.CANCELLED ? "#F6A623" : "#fff9f0", color: statusFilter === PAYOUT_STATUS.CANCELLED ? "#fff" : "#b26800", fontWeight: statusFilter === PAYOUT_STATUS.CANCELLED ? 600 : 400, borderLeft: statusFilter === PAYOUT_STATUS.CANCELLED ? "4px solid #e8920a" : "4px solid transparent", transition: "background 0.15s" }}>{lang("common.cancelled", "Cancelled")}</MenuItem>
-                    </TextField>
+                        getOptionLabel={(option) => option.label || ""}
+                        isOptionEqualToValue={(option, value) =>
+                            option.value === value.value
+                        }
+                        renderOption={(props, option) => (
+                            <li
+                                {...props}
+                                style={{
+                                    background:
+                                        option.value === String(statusFilter ?? "")
+                                            ? "#eef2ff"
+                                            : undefined,
+                                    color: "#111827",
+                                    fontWeight:
+                                        option.value === String(statusFilter ?? "")
+                                            ? 600
+                                            : 400,
+                                }}
+                            >
+                                {option.label}
+                            </li>
+                        )}
+                        renderInput={(params) => (
+                            <TextField
+                                {...params}
+                                label={lang("invoice.status", "Status")}
+                            />
+                        )}
+                    />
                 </div>
                 {/* Desktop Table View */}
                 <div className="hidden md:block overflow-x-auto relative">

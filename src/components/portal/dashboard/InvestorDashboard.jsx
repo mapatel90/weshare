@@ -549,7 +549,7 @@ function DashboardView() {
             >
               <button
                 type="button"
-                className="btn bg-black text-white w-100"
+                className="btn text-white w-100 common-orange-color"
                 id="projects-dropdown-btn"
                 aria-expanded={showProjectsDropdown}
                 onClick={() => {
@@ -569,11 +569,10 @@ function DashboardView() {
                     top: "100%",
                     zIndex: 40,
                     background: "#fff",
-                    border: "2px solid rgba(246,166,35,0.2)",
-                    borderRadius: "8px",
-                    boxShadow: "0 4px 16px rgba(246,166,35,0.2)",
+                    border: "1px solid #e5e7eb",
+                    borderRadius: "6px",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
                     minWidth: "220px",
-                    overflow: "hidden",
                   }}
                 >
                   <ul
@@ -605,16 +604,14 @@ function DashboardView() {
                             role="button"
                             tabIndex={0}
                             style={{
-                              padding: "10px 16px",
+                              padding: "8px 16px",
                               cursor: "pointer",
                               display: "flex",
                               justifyContent: "space-between",
                               alignItems: "center",
-                              background: isSelected ? "#F6A623" : "#fff9f0",
+                              background: isSelected ? "#eef2ff" : undefined,
                               fontWeight: isSelected ? 600 : 400,
-                              color: isSelected ? "#fff" : "#b26800",
-                              borderLeft: isSelected ? "4px solid #e8920a" : "4px solid transparent",
-                              transition: "background 0.15s",
+                              color: "#111827",
                             }}
                             onClick={() => {
                               setSelectedProject(proj);
@@ -629,132 +626,6 @@ function DashboardView() {
                     ) : (
                       <li style={{ padding: "10px 16px", color: "#b26800" }}>
                         No projects available.
-                      </li>
-                    )}
-                  </ul>
-                </div>
-              )}
-            </div>
-
-            <div
-              style={{
-                position: "relative",
-                display: "inline-block",
-                zIndex: showInverterDropdown ? 30 : undefined,
-              }}
-            >
-              <button
-                type="button"
-                className="btn bg-black text-white w-100"
-                id="inverter-dropdown-btn"
-                aria-expanded={showInverterDropdown}
-                onClick={() => {
-                  if (!selectedProject) return;
-                  setShowInverterDropdown((prev) => !prev);
-                  setShowProjectsDropdown(false);
-                }}
-                style={{
-                  minWidth: "110px",
-                  opacity: selectedProject ? 1 : 0.6,
-                  cursor: selectedProject ? "pointer" : "not-allowed",
-                }}
-                disabled={!selectedProject}
-              >
-                {selectedInverter ? selectedInverter.name : `${lang("dashboard.all_inverters", "All Inverters")} ▼`}
-              </button>
-              {showInverterDropdown && selectedProject && (
-                <div
-                  id="inverter-dropdown-menu"
-                  style={{
-                    position: "absolute",
-                    right: 0,
-                    top: "100%",
-                    zIndex: 40,
-                    background: "#fff",
-                    border: "2px solid rgba(246,166,35,0.2)",
-                    borderRadius: "8px",
-                    boxShadow: "0 4px 16px rgba(246,166,35,0.2)",
-                    minWidth: "220px",
-                    overflow: "hidden",
-                  }}
-                >
-                  <ul
-                    style={{
-                      listStyle: "none",
-                      margin: 0,
-                      padding: "4px 0",
-                      maxHeight: "320px",
-                      overflowY: "auto",
-                    }}
-                  >
-                    {invertersLoading ? (
-                      <li style={{ padding: "10px 16px", color: "#b26800" }}>
-                        Loading...
-                      </li>
-                    ) : invertersError ? (
-                      <li style={{ padding: "10px 16px", color: "#c0392b" }}>
-                        {invertersError}
-                      </li>
-                    ) : inverters.length ? (
-                      <>
-                        {/* All Inverters option */}
-                        <li
-                          role="button"
-                          tabIndex={0}
-                          style={{
-                            padding: "10px 16px",
-                            cursor: "pointer",
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "center",
-                            background: !selectedInverter ? "#F6A623" : "#fff9f0",
-                            fontWeight: !selectedInverter ? 600 : 400,
-                            color: !selectedInverter ? "#fff" : "#b26800",
-                            borderLeft: !selectedInverter ? "4px solid #e8920a" : "4px solid transparent",
-                            transition: "background 0.15s",
-                          }}
-                          onClick={() => {
-                            setSelectedInverter(null);
-                            setShowInverterDropdown(false);
-                          }}
-                        >
-                          <span>{lang("dashboard.all_inverters", "All Inverters")}</span>
-                        </li>
-                        {sortByNameAsc(inverters, "name").map((inv) => {
-                          const isSelectedInv =
-                            selectedInverter &&
-                            (selectedInverter.id === inv.id ||
-                              selectedInverter.inverterId === inv.inverterId);
-                          return (
-                            <li
-                              key={inv.id ?? inv.inverterId}
-                              role="button"
-                              tabIndex={0}
-                              style={{
-                                padding: "10px 16px",
-                                cursor: "pointer",
-                                display: "flex",
-                                justifyContent: "space-between",
-                                alignItems: "center",
-                                background: isSelectedInv ? "#F6A623" : "#fff9f0",
-                                fontWeight: isSelectedInv ? 600 : 400,
-                                color: isSelectedInv ? "#fff" : "#b26800",
-                                borderLeft: isSelectedInv ? "4px solid #e8920a" : "4px solid transparent",
-                                transition: "background 0.15s",
-                              }}
-                              onClick={() => {
-                                setSelectedInverter(inv);
-                                setShowInverterDropdown(false);
-                              }}
-                            >
-                              <span>{inv.name}</span>
-                            </li>
-                          );
-                        })}
-                      </>
-                    ) : (
-                      <li style={{ padding: "10px 16px", color: "#b26800" }}>
-                        No inverters for this project.
                       </li>
                     )}
                   </ul>

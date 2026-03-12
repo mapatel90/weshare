@@ -14,6 +14,11 @@ import { PROJECT_STATUS } from "@/constants/project_status";
 import { ROLES } from "@/constants/roles";
 import { Autocomplete, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from "@mui/material";
 import { buildUploadUrl } from "@/utils/common";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import dayjs from "dayjs";
+import "dayjs/locale/en";
+import "dayjs/locale/vi";
 
 const Payments = () => {
   const [payments, setPayments] = useState([]);
@@ -35,7 +40,7 @@ const Payments = () => {
   const router = useRouter();
   const priceWithCurrency = usePriceWithCurrency();
   const { user } = useAuth();
-  const { lang } = useLanguage();
+  const { lang, currentLanguage } = useLanguage();
   const isOfftaker = user?.role === ROLES.OFFTAKER;
 
   // Status color mapping function based on numeric status
@@ -308,41 +313,15 @@ const Payments = () => {
                 renderOption={(props, option, { selected }) => (
                   <li
                     {...props}
-                    style={{
-                      padding: "10px 16px",
-                      cursor: "pointer",
-                      background: selected ? "#F6A623" : "#fff9f0",
-                      fontWeight: selected ? 600 : 400,
-                      color: selected ? "#fff" : "#b26800",
-                      borderLeft: selected ? "4px solid #e8920a" : "4px solid transparent",
-                      transition: "background 0.15s",
-                    }}
                   >
                     {option.project_name}
                   </li>
                 )}
-                componentsProps={{
-                  paper: {
-                    sx: {
-                      border: "2px solid rgba(246,166,35,0.2)",
-                      borderRadius: "8px",
-                      boxShadow: "0 4px 16px rgba(246,166,35,0.2)",
-                      mt: 0.5,
-                    },
-                  },
-                }}
                 renderInput={(params) => (
                   <TextField
                     {...params}
                     label={lang("reports.allprojects", "All Projects")}
                     placeholder={lang("common.searchProject", "Search project...")}
-                    sx={{
-                      "& .MuiOutlinedInput-root": {
-                        "&:hover fieldset": { borderColor: "#F6A623" },
-                        "&.Mui-focused fieldset": { borderColor: "#F6A623" },
-                      },
-                      "& label.Mui-focused": { color: "#b26800" },
-                    }}
                   />
                 )}
                 sx={{ width: { xs: "100%", sm: 260 } }}
@@ -369,41 +348,15 @@ const Payments = () => {
                 renderOption={(props, option, { selected }) => (
                   <li
                     {...props}
-                    style={{
-                      padding: "10px 16px",
-                      cursor: "pointer",
-                      background: selected ? "#F6A623" : "#fff9f0",
-                      fontWeight: selected ? 600 : 400,
-                      color: selected ? "#fff" : "#b26800",
-                      borderLeft: selected ? "4px solid #e8920a" : "4px solid transparent",
-                      transition: "background 0.15s",
-                    }}
                   >
                     {option.label}
                   </li>
                 )}
-                componentsProps={{
-                  paper: {
-                    sx: {
-                      border: "2px solid rgba(246,166,35,0.2)",
-                      borderRadius: "8px",
-                      boxShadow: "0 4px 16px rgba(246,166,35,0.2)",
-                      mt: 0.5,
-                    },
-                  },
-                }}
                 renderInput={(params) => (
                   <TextField
                     {...params}
                     label={lang("invoice.allStatus", "All Status")}
                     placeholder={lang("common.selectStatus", "Select status...")}
-                    sx={{
-                      "& .MuiOutlinedInput-root": {
-                        "&:hover fieldset": { borderColor: "#F6A623" },
-                        "&.Mui-focused fieldset": { borderColor: "#F6A623" },
-                      },
-                      "& label.Mui-focused": { color: "#b26800" },
-                    }}
                   />
                 )}
                 sx={{ width: { xs: "100%", sm: 200 } }}
@@ -415,35 +368,29 @@ const Payments = () => {
                 className="border rounded-md px-3 py-2 text-sm text-balck focus:outline-none focus:ring-2 focus:ring-blue-200"
                 placeholder="Payment Date"
               /> */}
-              <TextField
-                size="small"
-                type="date"
-                label={lang("payments.paymentDate", "Payment Date")}
-                value={paymentDate}
-                onChange={(e) => setPaymentDate(e.target.value)}
-                InputLabelProps={{
-                  shrink: true,
-                }}
-                sx={{
-                  width: { xs: "100%", sm: 200 },
-                  "& .MuiOutlinedInput-root": {
-                    borderRadius: "8px",
-                    backgroundColor: "#fff",
-                    "&:hover fieldset": { borderColor: "#F6A623" },
-                    "&.Mui-focused fieldset": { borderColor: "#F6A623" },
-                  },
-                  "& label.Mui-focused": { color: "#b26800" },
-                }}
-              />
+              <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={currentLanguage}>
+                <DatePicker
+                  label={lang("payments.paymentDate", "Payment Date")}
+                  format="DD-MM-YYYY"
+                  value={paymentDate ? dayjs(paymentDate) : null}
+                  onChange={(newValue) =>
+                    setPaymentDate(newValue ? newValue.format("YYYY-MM-DD") : "")
+                  }
+                  slotProps={{
+                    textField: { size: "small" },
+                    actionBar: { actions: ["clear", "accept"] },
+                  }}
+                />
+              </LocalizationProvider>
             </div>
             <div className="flex items-center gap-2 justify-end mt-2">
-            <button
-              className="theme-btn-org-color text-white px-4 py-2 rounded shadow hover:bg-orange-500 w-[140px] sm:w-[200px] md:w-auto"
-              onClick={() => setModalOpen(true)}
-              disabled={submitting}
-            >
-              {lang("payments.addPayment", "Add Payment")}
-            </button>
+              <button
+                className="theme-btn-org-color text-white px-4 py-2 rounded shadow hover:bg-orange-500 w-[140px] sm:w-[200px] md:w-auto"
+                onClick={() => setModalOpen(true)}
+                disabled={submitting}
+              >
+                {lang("payments.addPayment", "Add Payment")}
+              </button>
             </div>
           </div>
 
@@ -506,9 +453,8 @@ const Payments = () => {
                       </td>
                       <td className="px-2 py-2 whitespace-nowrap">
                         <span
-                          className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                            getStatusColorClass(payment.status)
-                          }`}
+                          className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColorClass(payment.status)
+                            }`}
                         >
                           {payment.status === 1
                             ? lang("invoice.paid", "Paid")

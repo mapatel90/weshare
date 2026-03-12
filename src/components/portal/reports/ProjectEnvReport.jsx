@@ -7,10 +7,15 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { PROJECT_STATUS } from '@/constants/project_status';
 import { Autocomplete, TextField } from "@mui/material";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import dayjs from "dayjs";
+import "dayjs/locale/en";
+import "dayjs/locale/vi";
 
 const ProjectEnvReport = () => {
     const PAGE_SIZE = 50;
-    const { lang } = useLanguage();
+    const { lang, currentLanguage } = useLanguage();
     const { user } = useAuth();
     const [loading, setLoading] = useState(true);
     const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
@@ -151,12 +156,12 @@ const ProjectEnvReport = () => {
 
     const handlePaginationChange = (nextPagination) => {
         const updated = typeof nextPagination === "function"
-          ? nextPagination({ pageIndex, pageSize })
-          : nextPagination;
+            ? nextPagination({ pageIndex, pageSize })
+            : nextPagination;
         setPageIndex(updated.pageIndex ?? 0);
         if (updated.pageSize && updated.pageSize !== pageSize) {
-          setPageSize(updated.pageSize);
-          setPageIndex(0);
+            setPageSize(updated.pageSize);
+            setPageIndex(0);
         }
         setPagination(updated);
     };
@@ -193,11 +198,15 @@ const ProjectEnvReport = () => {
         {
             accessorKey: 'grid',
             header: lang("animated.grid"),
-            cell: ({ row }) => row.original.grid || '0',
+            cell: ({ row }) => {
+                const grid = row.original.grid;
+                if (!grid) return '0';
+                return Math.abs(grid);
+            },
         },
         {
             accessorKey: 'load',
-            header: lang("animated.load"),
+            header: lang("animated.usage"),
             cell: ({ row }) => row.original.load || '0',
         },
     ], []);
@@ -315,84 +324,55 @@ const ProjectEnvReport = () => {
                         renderOption={(props, option, { selected }) => (
                             <li
                                 {...props}
-                                style={{
-                                    padding: "10px 16px",
-                                    cursor: "pointer",
-                                    background: selected ? "#F6A623" : "#fff9f0",
-                                    fontWeight: selected ? 600 : 400,
-                                    color: selected ? "#fff" : "#b26800",
-                                    borderLeft: selected ? "4px solid #e8920a" : "4px solid transparent",
-                                    transition: "background 0.15s",
-                                }}
                             >
                                 {option.project_name}
                             </li>
                         )}
-                        componentsProps={{
-                            paper: {
-                                sx: {
-                                    border: "2px solid rgba(246,166,35,0.2)",
-                                    borderRadius: "8px",
-                                    boxShadow: "0 4px 16px rgba(246,166,35,0.2)",
-                                    mt: 0.5,
-                                },
-                            },
-                        }}
                         renderInput={(params) => (
                             <TextField
                                 {...params}
                                 label={lang("dashboard.all_project", "All Projects")}
                                 placeholder={lang("common.searchProject", "Select project...")}
-                                sx={{
-                                    "& .MuiOutlinedInput-root": {
-                                        "&:hover fieldset": { borderColor: "#F6A623" },
-                                        "&.Mui-focused fieldset": { borderColor: "#F6A623" },
-                                    },
-                                    "& label.Mui-focused": { color: "#b26800" },
-                                }}
                             />
                         )}
                         sx={{ width: { xs: "100%", sm: 260 } }}
                     />
 
-                    <TextField
+                    {/* <TextField
                         size="small"
                         type="date"
                         label={lang("projects.startDate", "Start Date")}
                         value={startDate}
                         onChange={(e) => setStartDate(e.target.value)}
                         InputLabelProps={{ shrink: true }}
-                        sx={{
-                            width: { xs: "100%", sm: 200 },
-                            "& .MuiOutlinedInput-root": {
-                                borderRadius: "8px",
-                                backgroundColor: "#fff",
-                                "&:hover fieldset": { borderColor: "#F6A623" },
-                                "&.Mui-focused fieldset": { borderColor: "#F6A623" },
-                            },
-                            "& label.Mui-focused": { color: "#b26800" },
-                        }}
-                    />
+                    /> */}
+                    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={currentLanguage}>
+                        <DatePicker
+                            label={lang("projects.startDate", "Start Date")}
+                            value={startDate ? dayjs(startDate) : null}
+                            onChange={(newValue) => setStartDate(newValue)}
+                            format="DD/MM/YYYY"
+                            slotProps={{
+                                textField: { size: "small" },
+                                actionBar: { actions: ["clear", "accept"] },
+                            }}
+                        />
+                    </LocalizationProvider>
+                    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={currentLanguage}>
+                        <DatePicker
+                            label={lang("projects.endDate", "End Date")}
+                            value={endDate ? dayjs(endDate) : null}
+                            onChange={(newValue) => setEndDate(newValue)}
+                            format="DD/MM/YYYY"
+                            minDate={startDate ? dayjs(startDate) : undefined}
+                            slotProps={{
+                                textField: { size: "small" },
+                                actionBar: { actions: ["clear", "accept"] },
+                            }}
+                        />
+                    </LocalizationProvider>
 
-                    <TextField
-                        size="small"
-                        type="date"
-                        label={lang("projects.endDate", "End Date")}
-                        value={endDate}
-                        onChange={(e) => setEndDate(e.target.value)}
-                        inputProps={{ min: startDate || undefined }}
-                        InputLabelProps={{ shrink: true }}
-                        sx={{
-                            width: { xs: "100%", sm: 200 },
-                            "& .MuiOutlinedInput-root": {
-                                borderRadius: "8px",
-                                backgroundColor: "#fff",
-                                "&:hover fieldset": { borderColor: "#F6A623" },
-                                "&.Mui-focused fieldset": { borderColor: "#F6A623" },
-                            },
-                            "& label.Mui-focused": { color: "#b26800" },
-                        }}
-                    />
+
 
                     <button
                         onClick={handleSubmit}
@@ -480,7 +460,7 @@ const ProjectEnvReport = () => {
                                         <span className="font-medium text-gray-900">{item.time || 'N/A'}</span>
                                     </div>
                                     <div className="flex justify-between text-xs">
-                                        <span className="text-gray-600">PV:</span>
+                                        <span className="text-gray-600">{lang("animated.pv", "PV")}:</span>
                                         <span className="font-medium text-gray-900">{item.pv || '0'}</span>
                                     </div>
                                     <div className="flex justify-between text-xs">
@@ -488,7 +468,7 @@ const ProjectEnvReport = () => {
                                         <span className="font-medium text-gray-900">{item.grid || '0'}</span>
                                     </div>
                                     <div className="flex justify-between text-xs">
-                                        <span className="text-gray-600">{lang("animated.load", "Load")}:</span>
+                                        <span className="text-gray-600">{lang("animated.usage", "Usage")}:</span>
                                         <span className="font-medium text-gray-900">{item.load || '0'}</span>
                                     </div>
                                 </div>

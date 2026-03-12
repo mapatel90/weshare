@@ -459,32 +459,30 @@ const ContractsView = () => {
                             >
                                 <button
                                     type="button"
-                                    className="btn bg-black text-white w-full sm:w-auto"
+                                    className="btn common-orange-color text-white w-full sm:w-auto"
                                     onClick={() => { setShowStatusDropdown((v) => !v); setShowSortDropdown(false); }}
                                     style={{ minWidth: "140px" }}
                                 >
                                     <span style={{ verticalAlign: "middle" }}>
                                         {statusFilter === "0" ? (lang("common.pending") || "Pending")
                                             : statusFilter === "1" ? (lang("common.approved") || "Approved")
-                                            : statusFilter === "2" ? (lang("common.rejected") || "Rejected")
-                                            : statusFilter === "3" ? (lang("contract.cancel") || "Cancelled")
-                                            : (lang("common.allStatus") || "All Status")}
+                                                : statusFilter === "2" ? (lang("common.rejected") || "Rejected")
+                                                    : statusFilter === "3" ? (lang("contract.cancel") || "Cancelled")
+                                                        : (lang("common.allStatus") || "All Status")}
                                     </span>
                                     {" "}▼
                                 </button>
                                 {showStatusDropdown && (
                                     <div style={{
                                         position: "absolute",
-                                        left: 0,
+                                        right: 0,
                                         top: "100%",
                                         zIndex: 40,
                                         background: "#fff",
-                                        border: "2px solid rgba(246,166,35,0.2)",
-                                        borderRadius: "8px",
-                                        boxShadow: "0 4px 16px rgba(246,166,35,0.2)",
-                                        minWidth: "160px",
-                                        overflow: "hidden",
-                                        marginTop: "4px",
+                                        border: "1px solid #e5e7eb",
+                                        borderRadius: "6px",
+                                        boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+                                        minWidth: "220px",
                                     }}>
                                         <ul style={{ listStyle: "none", margin: 0, padding: "4px 0" }}>
                                             {[
@@ -501,14 +499,15 @@ const ContractsView = () => {
                                                         role="button"
                                                         tabIndex={0}
                                                         style={{
-                                                            padding: "10px 16px",
+                                                            padding: "8px 16px",
                                                             cursor: "pointer",
-                                                            background: isActive ? "#F6A623" : "#fff9f0",
+                                                            display: "flex",
+                                                            justifyContent: "space-between",
+                                                            alignItems: "center",
+                                                            background: isActive ? "#eef2ff" : undefined,
                                                             fontWeight: isActive ? 600 : 400,
-                                                            color: isActive ? "#fff" : "#b26800",
-                                                            borderLeft: isActive ? "4px solid #e8920a" : "4px solid transparent",
-                                                            transition: "background 0.15s",
-                                                        }}
+                                                            color: "#111827",
+                                                          }}
                                                         onClick={() => { handleFilterChange('status', value); setShowStatusDropdown(false); }}
                                                         onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { handleFilterChange('status', value); setShowStatusDropdown(false); } }}
                                                     >
@@ -528,7 +527,7 @@ const ContractsView = () => {
                             >
                                 <button
                                     type="button"
-                                    className="btn bg-black text-white w-full sm:w-auto"
+                                    className="btn common-orange-color text-white w-full sm:w-auto"
                                     onClick={() => { setShowSortDropdown((v) => !v); setShowStatusDropdown(false); }}
                                     style={{ minWidth: "140px" }}
                                 >
@@ -540,16 +539,14 @@ const ContractsView = () => {
                                 {showSortDropdown && (
                                     <div style={{
                                         position: "absolute",
-                                        left: 0,
+                                        right: 0,
                                         top: "100%",
                                         zIndex: 40,
                                         background: "#fff",
-                                        border: "2px solid rgba(246,166,35,0.2)",
-                                        borderRadius: "8px",
-                                        boxShadow: "0 4px 16px rgba(246,166,35,0.2)",
-                                        minWidth: "140px",
-                                        overflow: "hidden",
-                                        marginTop: "4px",
+                                        border: "1px solid #e5e7eb",
+                                        borderRadius: "6px",
+                                        boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+                                        minWidth: "220px",
                                     }}>
                                         <ul style={{ listStyle: "none", margin: 0, padding: "4px 0" }}>
                                             {[
@@ -563,13 +560,14 @@ const ContractsView = () => {
                                                         role="button"
                                                         tabIndex={0}
                                                         style={{
-                                                            padding: "10px 16px",
+                                                            padding: "8px 16px",
                                                             cursor: "pointer",
-                                                            background: isActive ? "#F6A623" : "#fff9f0",
+                                                            display: "flex",
+                                                            justifyContent: "space-between",
+                                                            alignItems: "center",
+                                                            background: isActive ? "#eef2ff" : undefined,
                                                             fontWeight: isActive ? 600 : 400,
-                                                            color: isActive ? "#fff" : "#b26800",
-                                                            borderLeft: isActive ? "4px solid #e8920a" : "4px solid transparent",
-                                                            transition: "background 0.15s",
+                                                            color: "#111827",
                                                         }}
                                                         onClick={() => { handleFilterChange('sort', value); setShowSortDropdown(false); }}
                                                         onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { handleFilterChange('sort', value); setShowSortDropdown(false); } }}

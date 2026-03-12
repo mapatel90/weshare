@@ -567,6 +567,7 @@ body {
   .btn-back span {
     display: none;
   }
+
   .btn-back {
     padding: 6px 8px;
   }
@@ -579,23 +580,23 @@ body {
     align-items: stretch !important;
   }
 
-  .project-action-bar > button {
+  .project-action-bar>button {
     width: 100%;
   }
 
   /* Inverter dropdown wrapper */
-  .project-action-bar > div {
+  .project-action-bar>div {
     width: 100%;
     display: block !important;
   }
 
   /* Inverter trigger button */
-  .project-action-bar > div > button {
+  .project-action-bar>div>button {
     width: 100%;
   }
 
   /* Inverter dropdown menu - stretch full width */
-  .project-action-bar > div > div {
+  .project-action-bar>div>div {
     left: 0 !important;
     right: 0 !important;
     min-width: 100% !important;
@@ -1248,19 +1249,38 @@ td {
 
   /* Main content takes full width on mobile */
   .main-content {
-    margin-left: 0;
-    /* padding: 0 15px 15px 15px; */
+    margin-left: 0 !important;
+    padding-top: 70px !important;
+    /* push content below the fixed 60px header */
   }
 
   .main-content.expanded {
     margin-left: 0;
   }
 
-  /* Header adjustments */
+  /* Header fixed at top — works on ALL screen widths including 360px */
   .header {
-    height: auto;
-    padding: 15px 0;
-    flex-wrap: wrap;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100vw !important;
+    box-sizing: border-box !important;
+    height: 60px !important;
+    padding: 0 12px !important;
+    background: #ffffff !important;
+    z-index: 1100 !important;
+    border-bottom: 2px solid #e5e7eb;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    margin-bottom: 0 !important;
+    display: flex !important;
+  }
+
+  ::-webkit-scrollbar {
+    width: 1002px;   /* scrollbar width */
   }
 
   .header-title h1 {
@@ -1547,7 +1567,7 @@ td {
   cursor: pointer;
 }
 
-@media (max-width: 600px) {
+/* @media (max-width: 600px) {
   .header {
     display: flex;
     flex-wrap: nowrap;
@@ -1576,4 +1596,4 @@ td {
     justify-content: flex-end;
     gap: 8px;
   }
-}
+} */

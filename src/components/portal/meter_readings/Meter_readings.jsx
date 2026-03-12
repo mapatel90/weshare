@@ -17,6 +17,11 @@ import {
   Trash2,
   Image as ImageIcon,
 } from "lucide-react";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import dayjs from "dayjs";
+import "dayjs/locale/en";
+import "dayjs/locale/vi";
 
 const formatDateInput = (value) => {
   if (!value) return "";
@@ -33,7 +38,7 @@ const formatDisplayDate = (value) => {
 };
 
 const MeterReadings = () => {
-  const { lang } = useLanguage();
+  const { lang, currentLanguage } = useLanguage();
   const { user } = useAuth();
 
   const [readings, setReadings] = useState([]);
@@ -385,7 +390,7 @@ const MeterReadings = () => {
           <button
             type="button"
             onClick={openAddModal}
-            className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-slate-800 text-white text-sm font-semibold hover:bg-slate-700 transition-colors w-full sm:w-auto"
+            className="inline-flex common-orange-color items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-slate-800 text-white text-sm font-semibold hover:bg-slate-700 transition-colors w-full sm:w-auto"
           >
             <Plus className="w-4 h-4" />
             {lang("meter.addReading", "Add Reading")}
@@ -791,7 +796,7 @@ const MeterReadings = () => {
                   onChange={(e) =>
                     setScreenshotFile(e.target.files?.[0] ?? null)
                   }
-                  className="block w-full text-sm text-slate-700 file:mr-3 border border-gray-200 file:rounded-md file:border-0 file:bg-slate-800 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-white hover:file:bg-slate-700"
+                  className="block  w-full text-sm text-slate-700 file:mr-3 border border-gray-200 file:rounded-md file:border-0 file:bg-slate-800 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-white hover:file:bg-slate-700"
                 />
                 {screenshotFile ? (
                   <p className="text-xs text-slate-500 mt-1">
@@ -814,15 +819,22 @@ const MeterReadings = () => {
                 <label className="block text-sm font-medium text-slate-700">
                   {lang("meter.readingDate", "Meter Reading Date")}
                 </label>
-                <div className="relative">
-                  <Calendar className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                  <input
-                    type="date"
-                    value={readingDate}
-                    onChange={(e) => setReadingDate(e.target.value)}
-                    className="w-full rounded-md border border-gray-300 pl-9 pr-3 py-2 text-sm shadow-sm focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-500"
+                <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={currentLanguage}>
+                  <DatePicker
+                    format="DD-MM-YYYY"
+                    value={readingDate ? dayjs(readingDate) : null}
+                    onChange={(newValue) =>
+                      setReadingDate(newValue ? newValue.format("YYYY-MM-DD") : "")
+                    }
+                    slotProps={{
+                      textField: {
+                        size: "small",
+                        fullWidth: true,
+                      },
+                      actionBar: { actions: ["clear", "accept"] },
+                    }}
                   />
-                </div>
+                </LocalizationProvider>
               </div>
             </div>
 
@@ -839,7 +851,7 @@ const MeterReadings = () => {
                 type="button"
                 onClick={handleSave}
                 disabled={isSubmitting}
-                className="rounded-lg bg-slate-800 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700 disabled:opacity-60"
+                className="rounded-lg common-orange-color bg-slate-800 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700 disabled:opacity-60"
               >
                 {isSubmitting
                   ? lang("common.saving", "Saving...")

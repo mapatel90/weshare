@@ -318,41 +318,41 @@ const Billings = () => {
             renderOption={(props, option, { selected }) => (
               <li
                 {...props}
-                style={{
-                  padding: "10px 16px",
-                  cursor: "pointer",
-                  background: selected ? "#F6A623" : "#fff9f0",
-                  fontWeight: selected ? 600 : 400,
-                  color: selected ? "#fff" : "#b26800",
-                  borderLeft: selected ? "4px solid #e8920a" : "4px solid transparent",
-                  transition: "background 0.15s",
-                }}
+                // style={{
+                //   padding: "10px 16px",
+                //   cursor: "pointer",
+                //   background: selected ? "#F6A623" : "#fff9f0",
+                //   fontWeight: selected ? 600 : 400,
+                //   color: selected ? "#fff" : "#b26800",
+                //   borderLeft: selected ? "4px solid #e8920a" : "4px solid transparent",
+                //   transition: "background 0.15s",
+                // }}
               >
                 {option.name}
               </li>
             )}
-            componentsProps={{
-              paper: {
-                sx: {
-                  border: "2px solid rgba(246,166,35,0.2)",
-                  borderRadius: "8px",
-                  boxShadow: "0 4px 16px rgba(246,166,35,0.2)",
-                  mt: 0.5,
-                },
-              },
-            }}
+            // componentsProps={{
+            //   paper: {
+            //     sx: {
+            //       border: "2px solid rgba(246,166,35,0.2)",
+            //       borderRadius: "8px",
+            //       boxShadow: "0 4px 16px rgba(246,166,35,0.2)",
+            //       mt: 0.5,
+            //     },
+            //   },
+            // }}
             renderInput={(params) => (
               <TextField
                 {...params}
                 label={lang("dashboard.all_project", "All Projects")}
                 placeholder={lang("common.searchProject", "Select project...")}
-                sx={{
-                  "& .MuiOutlinedInput-root": {
-                    "&:hover fieldset": { borderColor: "#F6A623" },
-                    "&.Mui-focused fieldset": { borderColor: "#F6A623" },
-                  },
-                  "& label.Mui-focused": { color: "#b26800" },
-                }}
+                // sx={{
+                //   "& .MuiOutlinedInput-root": {
+                //     "&:hover fieldset": { borderColor: "#F6A623" },
+                //     "&.Mui-focused fieldset": { borderColor: "#F6A623" },
+                //   },
+                //   "& label.Mui-focused": { color: "#b26800" },
+                // }}
               />
             )}
             sx={{ minWidth: 200, width: { xs: "100%", sm: "auto" } }}
@@ -390,41 +390,41 @@ const Billings = () => {
             renderOption={(props, option, { selected }) => (
               <li
                 {...props}
-                style={{
-                  padding: "10px 16px",
-                  cursor: "pointer",
-                  background: selected ? "#F6A623" : "#fff9f0",
-                  fontWeight: selected ? 600 : 400,
-                  color: selected ? "#fff" : "#b26800",
-                  borderLeft: selected ? "4px solid #e8920a" : "4px solid transparent",
-                  transition: "background 0.15s",
-                }}
+                // style={{
+                //   padding: "10px 16px",
+                //   cursor: "pointer",
+                //   background: selected ? "#F6A623" : "#fff9f0",
+                //   fontWeight: selected ? 600 : 400,
+                //   color: selected ? "#fff" : "#b26800",
+                //   borderLeft: selected ? "4px solid #e8920a" : "4px solid transparent",
+                //   transition: "background 0.15s",
+                // }}
               >
                 {option.label}
               </li>
             )}
-            componentsProps={{
-              paper: {
-                sx: {
-                  border: "2px solid rgba(246,166,35,0.2)",
-                  borderRadius: "8px",
-                  boxShadow: "0 4px 16px rgba(246,166,35,0.2)",
-                  mt: 0.5,
-                },
-              },
-            }}
+            // componentsProps={{
+            //   paper: {
+            //     sx: {
+            //       border: "2px solid rgba(246,166,35,0.2)",
+            //       borderRadius: "8px",
+            //       boxShadow: "0 4px 16px rgba(246,166,35,0.2)",
+            //       mt: 0.5,
+            //     },
+            //   },
+            // }}
             renderInput={(params) => (
               <TextField
                 {...params}
                 label={lang("invoice.allStatus", "All Status")}
                 placeholder={lang("common.selectStatus", "Select status...")}
-                sx={{
-                  "& .MuiOutlinedInput-root": {
-                    "&:hover fieldset": { borderColor: "#F6A623" },
-                    "&.Mui-focused fieldset": { borderColor: "#F6A623" },
-                  },
-                  "& label.Mui-focused": { color: "#b26800" },
-                }}
+                // sx={{
+                //   "& .MuiOutlinedInput-root": {
+                //     "&:hover fieldset": { borderColor: "#F6A623" },
+                //     "&.Mui-focused fieldset": { borderColor: "#F6A623" },
+                //   },
+                //   "& label.Mui-focused": { color: "#b26800" },
+                // }}
               />
             )}
             sx={{ minWidth: 150, width: { xs: "100%", sm: "auto" } }}

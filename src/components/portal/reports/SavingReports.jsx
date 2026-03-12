@@ -8,11 +8,16 @@ import { formatMonthYear, formatShort } from "@/utils/common";
 import { PROJECT_STATUS } from "@/constants/project_status";
 import { Autocomplete, TextField } from "@mui/material";
 import { ROLES } from "@/constants/roles";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import dayjs from "dayjs";
+import "dayjs/locale/en";
+import "dayjs/locale/vi";
 
 const SavingReports = () => {
   const PAGE_SIZE = 50; // show 50 rows per page
   const { user } = useAuth();
-  const { lang } = useLanguage();
+  const { lang, currentLanguage } = useLanguage();
 
   const [reportsData, setReportsData] = useState([]);
   const [projectFilter, setProjectFilter] = useState("");
@@ -208,26 +213,26 @@ const SavingReports = () => {
       header: lang("reports.consumeEnergy"),
       cell: ({ row }) => (formatShort(row.original.consume_energy) || 0),
     },
-    {
-      accessorKey: 'full_hour',
-      header: lang("reports.fullhour"),
-      cell: ({ row }) => (formatShort(row.original.full_hour) || 0),
-    },
-    {
-      accessorKey: 'battery_charge_energy',
-      header: lang("reports.batteryCharge"),
-      cell: ({ row }) => (formatShort(row.original.battery_charge_energy) || 0),
-    },
-    {
-      accessorKey: 'battery_discharge_energy',
-      header: lang("reports.batteryCharged"),
-      cell: ({ row }) => (formatShort(row.original.battery_discharge_energy) || 0),
-    },
-    {
-      accessorKey: 'home_grid_energy',
-      header: lang("reports.homeGrid"),
-      cell: ({ row }) => (formatShort(row.original.home_grid_energy) || 0),
-    },
+    // {
+    //   accessorKey: 'full_hour',
+    //   header: lang("reports.fullhour"),
+    //   cell: ({ row }) => (formatShort(row.original.full_hour) || 0),
+    // },
+    // {
+    //   accessorKey: 'battery_charge_energy',
+    //   header: lang("reports.batteryCharge"),
+    //   cell: ({ row }) => (formatShort(row.original.battery_charge_energy) || 0),
+    // },
+    // {
+    //   accessorKey: 'battery_discharge_energy',
+    //   header: lang("reports.batteryCharged"),
+    //   cell: ({ row }) => (formatShort(row.original.battery_discharge_energy) || 0),
+    // },
+    // {
+    //   accessorKey: 'home_grid_energy',
+    //   header: lang("reports.homeGrid"),
+    //   cell: ({ row }) => (formatShort(row.original.home_grid_energy) || 0),
+    // },
     {
       accessorKey: 'back_up_energy',
       header: lang("reports.backupEnergy"),
@@ -235,7 +240,7 @@ const SavingReports = () => {
     },
     {
       accessorKey: 'energy',
-      header: lang("reports.energy"),
+      header: lang("reports.pv"),
       cell: ({ row }) => (formatShort(row.original.energy) || 0),
     },
     {
@@ -301,17 +306,13 @@ const SavingReports = () => {
         const headers = [
           'Project Name',
           appliedGroupBy === 'month' ? 'Month' : 'Date',
-          'Grid Purchased',
-          'Consume Energy',
-          'Full Hour',
-          'Battery Charge',
-          'Battery Discharge',
-          'Home Grid',
-          'Backup Energy',
-          'Energy',
-          'EvN Cost',
-          'Weshare Cost',
-          'Saving Cost'
+          lang("reports.gridPurchased", "Grid Purchased"),
+          lang("reports.consumeEnergy", "Consume Energy"),
+          lang("reports.backupEnergy", "Backup Energy"),
+          lang("reports.energy", "Energy"),
+          lang("reports.evnCost", "EvN Price"),
+          lang("reports.weshareCost", "Weshare Price"),
+          lang("reports.savingCost", "Savings")
         ];
 
         // Convert data to CSV rows
@@ -412,180 +413,115 @@ const SavingReports = () => {
       )}
       <div className="flex flex-wrap gap-2 mb-4 mt-4 w-full">
 
-          {/* Project */}
-          <Autocomplete
-            size="small"
-            options={projectList}
-            value={projectList.find((p) => String(p.id ?? p.project_id) === projectFilter) || null}
-            onChange={(e, newValue) =>
-              setProjectFilter(newValue ? String(newValue.id ?? newValue.project_id) : "")
-            }
-            getOptionLabel={(option) => option.project_name ?? option.projectName ?? `Project ${option.id ?? ""}`}
-            isOptionEqualToValue={(option, value) => String(option.id ?? option.project_id) === String(value.id ?? value.project_id)}
-            renderOption={(props, option, { selected }) => (
-              <li
-                {...props}
-                style={{
-                  padding: "10px 16px",
-                  cursor: "pointer",
-                  background: selected ? "#F6A623" : "#fff9f0",
-                  fontWeight: selected ? 600 : 400,
-                  color: selected ? "#fff" : "#b26800",
-                  borderLeft: selected ? "4px solid #e8920a" : "4px solid transparent",
-                  transition: "background 0.15s",
-                }}
-              >
-                {option.project_name ?? option.projectName ?? `Project ${option.id ?? ""}`}
-              </li>
-            )}
-            componentsProps={{
-              paper: {
-                sx: {
-                  border: "2px solid rgba(246,166,35,0.2)",
-                  borderRadius: "8px",
-                  boxShadow: "0 4px 16px rgba(246,166,35,0.2)",
-                  mt: 0.5,
-                },
-              },
-            }}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label={lang("reports.allprojects", "All Projects")}
-                placeholder={lang("common.searchProject", "Search project...")}
-                sx={{
-                  "& .MuiOutlinedInput-root": {
-                    "&:hover fieldset": { borderColor: "#F6A623" },
-                    "&.Mui-focused fieldset": { borderColor: "#F6A623" },
-                  },
-                  "& label.Mui-focused": { color: "#b26800" },
-                }}
-              />
-            )}
-            sx={{ width: { xs: "100%", sm: 260 } }}
-          />
+        {/* Project */}
+        <Autocomplete
+          size="small"
+          options={projectList}
+          value={projectList.find((p) => String(p.id ?? p.project_id) === projectFilter) || null}
+          onChange={(e, newValue) =>
+            setProjectFilter(newValue ? String(newValue.id ?? newValue.project_id) : "")
+          }
+          getOptionLabel={(option) => option.project_name ?? option.projectName ?? `Project ${option.id ?? ""}`}
+          isOptionEqualToValue={(option, value) => String(option.id ?? option.project_id) === String(value.id ?? value.project_id)}
+          renderOption={(props, option, { selected }) => (
+            <li
+              {...props}
+            >
+              {option.project_name ?? option.projectName ?? `Project ${option.id ?? ""}`}
+            </li>
+          )}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label={lang("reports.allprojects", "All Projects")}
+              placeholder={lang("common.searchProject", "Search project...")}
+            />
+          )}
+          sx={{ width: { xs: "100%", sm: 260 } }}
+        />
 
-          {/* Group By */}
-          <Autocomplete
-            size="small"
-            options={[
+        {/* Group By */}
+        <Autocomplete
+          size="small"
+          options={[
+            { value: "day", label: lang("common.day", "Day") },
+            { value: "month", label: lang("common.month", "Month") },
+          ]}
+          value={
+            [
               { value: "day", label: lang("common.day", "Day") },
               { value: "month", label: lang("common.month", "Month") },
-            ]}
-            value={
-              [
-                { value: "day", label: lang("common.day", "Day") },
-                { value: "month", label: lang("common.month", "Month") },
-              ].find((g) => g.value === groupBy) || null
+            ].find((g) => g.value === groupBy) || null
+          }
+          onChange={(e, newValue) => {
+            const newGroupBy = newValue ? newValue.value : "";
+            setGroupBy(newGroupBy);
+            if (appliedGroupBy !== newGroupBy && appliedProject) {
+              setSearchTerm("");
             }
-            onChange={(e, newValue) => {
-              const newGroupBy = newValue ? newValue.value : "";
-              setGroupBy(newGroupBy);
-              if (appliedGroupBy !== newGroupBy && appliedProject) {
-                setSearchTerm("");
-              }
-            }}
-            getOptionLabel={(option) => option.label || ""}
-            isOptionEqualToValue={(option, value) => option.value === value.value}
-            renderOption={(props, option, { selected }) => (
-              <li
-                {...props}
-                style={{
-                  padding: "10px 16px",
-                  cursor: "pointer",
-                  background: selected ? "#F6A623" : "#fff9f0",
-                  fontWeight: selected ? 600 : 400,
-                  color: selected ? "#fff" : "#b26800",
-                  borderLeft: selected ? "4px solid #e8920a" : "4px solid transparent",
-                  transition: "background 0.15s",
-                }}
-              >
-                {option.label}
-              </li>
-            )}
-            componentsProps={{
-              paper: {
-                sx: {
-                  border: "2px solid rgba(246,166,35,0.2)",
-                  borderRadius: "8px",
-                  boxShadow: "0 4px 16px rgba(246,166,35,0.2)",
-                  mt: 0.5,
-                },
-              },
-            }}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label={lang("common.groupBy", "Group By")}
-                placeholder={lang("common.select", "Select...")}
-                sx={{
-                  "& .MuiOutlinedInput-root": {
-                    "&:hover fieldset": { borderColor: "#F6A623" },
-                    "&.Mui-focused fieldset": { borderColor: "#F6A623" },
-                  },
-                  "& label.Mui-focused": { color: "#b26800" },
-                }}
-              />
-            )}
-            sx={{ width: { xs: "100%", sm: 180 } }}
-          />
+          }}
+          getOptionLabel={(option) => option.label || ""}
+          isOptionEqualToValue={(option, value) => option.value === value.value}
+          renderOption={(props, option, { selected }) => (
+            <li
+              {...props}
+            >
+              {option.label}
+            </li>
+          )}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label={lang("common.groupBy", "Group By")}
+              placeholder={lang("common.select", "Select...")}
+            />
+          )}
+          sx={{ width: { xs: "100%", sm: 180 } }}
+        />
 
-          {/* Start Date */}
-          <TextField
-            size="small"
-            type="date"
+        {/* Start Date */}
+        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={currentLanguage}>
+          <DatePicker
             label={lang("projects.startDate", "Start Date")}
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-            InputLabelProps={{ shrink: true }}
-            sx={{
-              width: { xs: "100%", sm: 200 },
-              "& .MuiOutlinedInput-root": {
-                borderRadius: "8px",
-                backgroundColor: "#fff",
-                "&:hover fieldset": { borderColor: "#F6A623" },
-                "&.Mui-focused fieldset": { borderColor: "#F6A623" },
-              },
-              "& label.Mui-focused": { color: "#b26800" },
+            value={startDate ? dayjs(startDate) : null}
+            onChange={(newValue) => setStartDate(newValue)}
+            format="DD/MM/YYYY"
+            slotProps={{
+              textField: { size: "small" },
+              actionBar: { actions: ["clear", "accept"] },
             }}
           />
+        </LocalizationProvider>
 
-          {/* End Date */}
-          <TextField
-            size="small"
-            type="date"
+        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={currentLanguage}>
+          <DatePicker
             label={lang("projects.endDate", "End Date")}
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
-            inputProps={{ min: startDate || undefined }}
-            InputLabelProps={{ shrink: true }}
-            sx={{
-              width: { xs: "100%", sm: 200 },
-              "& .MuiOutlinedInput-root": {
-                borderRadius: "8px",
-                backgroundColor: "#fff",
-                "&:hover fieldset": { borderColor: "#F6A623" },
-                "&.Mui-focused fieldset": { borderColor: "#F6A623" },
-              },
-              "& label.Mui-focused": { color: "#b26800" },
+            value={endDate ? dayjs(endDate) : null}
+            onChange={(newValue) => setEndDate(newValue)}
+            format="DD/MM/YYYY"
+            minDate={startDate ? dayjs(startDate) : undefined}
+            slotProps={{
+              textField: { size: "small" },
+              actionBar: { actions: ["clear", "accept"] },
             }}
           />
+        </LocalizationProvider>
 
-          {/* Submit */}
-          <button
-            onClick={handleSubmit}
-            disabled={isSubmitDisabled}
-            className={`theme-btn-blue-color border rounded-md px-5 py-2 text-sm whitespace-nowrap w-full sm:w-auto ${isSubmitDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
-          >
-            {lang("common.submit")}
-          </button>
+        {/* Submit */}
+        <button
+          onClick={handleSubmit}
+          disabled={isSubmitDisabled}
+          className={`theme-btn-blue-color border rounded-md px-5 py-2 text-sm whitespace-nowrap w-full sm:w-auto ${isSubmitDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
+        >
+          {lang("common.submit")}
+        </button>
 
-          <button
-            onClick={downloadCSV}
-            className="common-grey-color border rounded-3 btn w-full sm:w-auto"
-          >
-            {lang("reports.downloadcsv")}
-          </button>
+        <button
+          onClick={downloadCSV}
+          className="common-grey-color border rounded-3 btn w-full sm:w-auto"
+        >
+          {lang("reports.downloadcsv")}
+        </button>
       </div>
 
       {/* Desktop Table View */}
@@ -663,22 +599,6 @@ const SavingReports = () => {
                     <span className="font-medium text-gray-900">{formatShort(item.consume_energy) || 0}</span>
                   </div>
                   <div className="flex justify-between text-xs">
-                    <span className="text-gray-600">{lang("reports.fullhour", "Full Hour")}:</span>
-                    <span className="font-medium text-gray-900">{formatShort(item.full_hour) || 0}</span>
-                  </div>
-                  <div className="flex justify-between text-xs">
-                    <span className="text-gray-600">{lang("reports.batteryCharge", "Battery Charge")}:</span>
-                    <span className="font-medium text-gray-900">{formatShort(item.battery_charge_energy) || 0}</span>
-                  </div>
-                  <div className="flex justify-between text-xs">
-                    <span className="text-gray-600">{lang("reports.batteryCharged", "Battery Discharge")}:</span>
-                    <span className="font-medium text-gray-900">{formatShort(item.battery_discharge_energy) || 0}</span>
-                  </div>
-                  <div className="flex justify-between text-xs">
-                    <span className="text-gray-600">{lang("reports.homeGrid", "Home Grid")}:</span>
-                    <span className="font-medium text-gray-900">{formatShort(item.home_grid_energy) || 0}</span>
-                  </div>
-                  <div className="flex justify-between text-xs">
                     <span className="text-gray-600">{lang("reports.backupEnergy", "Backup Energy")}:</span>
                     <span className="font-medium text-gray-900">{formatShort(item.back_up_energy) || 0}</span>
                   </div>
@@ -687,15 +607,15 @@ const SavingReports = () => {
                     <span className="font-medium text-gray-900">{formatShort(item.energy) || 0}</span>
                   </div>
                   <div className="flex justify-between text-xs">
-                    <span className="text-gray-600">{lang("reports.evnCost", "EvN Cost")}:</span>
+                    <span className="text-gray-600">{lang("reports.evnCost", "EvN Price")}:</span>
                     <span className="font-medium text-gray-900">{formatShort(item.evn_amount) || 0}</span>
                   </div>
                   <div className="flex justify-between text-xs">
-                    <span className="text-gray-600">{lang("reports.weshareCost", "Weshare Cost")}:</span>
+                    <span className="text-gray-600">{lang("reports.weshareCost", "Weshare Price")}:</span>
                     <span className="font-medium text-gray-900">{formatShort(item.weshare_amount) || 0}</span>
                   </div>
                   <div className="flex justify-between text-xs border-t border-gray-100 pt-2">
-                    <span className="text-gray-700 font-semibold">{lang("reports.savingCost", "Saving Cost")}:</span>
+                    <span className="text-gray-700 font-semibold">{lang("reports.savingCost", "Savings")}:</span>
                     <span className="font-bold text-green-700">{formatShort(item.saving_cost) || 0}</span>
                   </div>
                 </div>
