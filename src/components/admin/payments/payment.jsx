@@ -27,9 +27,14 @@ import { useAuth } from "@/contexts/AuthContext";
 import { PROJECT_STATUS } from "@/constants/project_status";
 import { buildUploadUrl } from "@/utils/common";
 import usePermissions from "@/hooks/usePermissions";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import dayjs from "dayjs";
+import "dayjs/locale/en";
+import "dayjs/locale/vi";
 
 const PaymentsPage = () => {
-  const { lang } = useLanguage();
+  const { lang,currentLanguage } = useLanguage();
   const { user } = useAuth();
   const [items, setItems] = useState([]);
   const [showModal, setShowModal] = useState(false);
@@ -445,14 +450,20 @@ const PaymentsPage = () => {
                   clearOnEscape
                 />
 
-                <TextField
-                  type="date"
-                  value={paymentDateFilter}
-                  onChange={(e) => setPaymentDateFilter(e.target.value)}
-                  size="small"
-                  InputLabelProps={{ shrink: true }}
-                  sx={{ width: { xs: "100%", md: 180 } }}
+                <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={currentLanguage}>
+                <DatePicker
+                  label={lang("payments.paymentDate", "Payment Date")}
+                  format="DD-MM-YYYY"
+                  value={paymentDateFilter ? dayjs(paymentDateFilter) : null}
+                  onChange={(newValue) =>
+                    setPaymentDateFilter(newValue ? newValue.format("YYYY-MM-DD") : "")
+                  }
+                  slotProps={{
+                    textField: { size: "small" },
+                    actionBar: { actions: ["clear", "accept"] },
+                  }}
                 />
+                </LocalizationProvider>
               </div>
             </div>
 

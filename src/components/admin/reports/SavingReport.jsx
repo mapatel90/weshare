@@ -10,11 +10,13 @@ import { Autocomplete, TextField, CircularProgress, Box } from "@mui/material";
 import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
+import { useFormatPrice } from "@/hooks/useFormatPrice";
 
 const SavingReports = () => {
   const PAGE_SIZE = 50; // show 50 rows per page
   const { user } = useAuth();
   const { lang } = useLanguage();
+  const formatPrice = useFormatPrice();
 
   const [reportsData, setReportsData] = useState([]);
   const [projectFilter, setProjectFilter] = useState("");
@@ -195,49 +197,24 @@ const SavingReports = () => {
       cell: ({ row }) => (formatShort(row.original.consume_energy) || 0),
     },
     {
-      accessorKey: 'full_hour',
-      header: lang('reports.fullHour', 'Full Hour'),
-      cell: ({ row }) => (formatShort(row.original.full_hour) || 0),
-    },
-    {
-      accessorKey: 'battery_charge_energy',
-      header: lang('reports.batteryCharge', 'Battery Charge'),
-      cell: ({ row }) => (formatShort(row.original.battery_charge_energy) || 0),
-    },
-    {
-      accessorKey: 'battery_discharge_energy',
-      header: lang('reports.batteryDischarge', 'Battery Discharge'),
-      cell: ({ row }) => (formatShort(row.original.battery_discharge_energy) || 0),
-    },
-    {
-      accessorKey: 'home_grid_energy',
-      header: lang('reports.homeGrid', 'Home Grid'),
-      cell: ({ row }) => (formatShort(row.original.home_grid_energy) || 0),
-    },
-    {
-      accessorKey: 'back_up_energy',
-      header: lang('reports.backupEnergy', 'Backup Energy'),
-      cell: ({ row }) => (formatShort(row.original.back_up_energy) || 0),
-    },
-    {
       accessorKey: 'energy',
       header: lang('reports.energy', 'Energy'),
-      cell: ({ row }) => (formatShort(row.original.energy) || 0),
+      cell: ({ row }) => (formatPrice(row.original.energy) || 0),
     },
     {
       accessorKey: 'evn cost',
       header: lang('reports.evnCost', 'EvN Cost'),
-      cell: ({ row }) => (formatShort(row.original.evn_amount) || 0),
+      cell: ({ row }) => (formatPrice(row.original.evn_amount) || 0),
     },
     {
       accessorKey: 'weshare cost',
       header: lang('reports.weshareCost', 'Weshare Cost'),
-      cell: ({ row }) => (formatShort(row.original.weshare_amount) || 0),
+      cell: ({ row }) => (formatPrice(row.original.weshare_amount) || 0),
     },
     {
       accessorKey: 'saving_cost',
-      header: lang('reports.savingCost', 'Saving Cost'),
-      cell: ({ row }) => (formatShort(row.original.saving_cost) || 0),
+      header: lang('reports.savingCost', 'Savings'),
+      cell: ({ row }) => (formatPrice(row.original.saving_cost) || 0),
     },
   ], [appliedGroupBy]);
 
@@ -315,15 +292,10 @@ const SavingReports = () => {
               `"${dateValue}"`,
               formatShort(row.grid_purchased_energy) || 0,
               formatShort(row.consume_energy) || 0,
-              formatShort(row.full_hour) || 0,
-              formatShort(row.battery_charge_energy) || 0,
-              formatShort(row.battery_discharge_energy) || 0,
-              formatShort(row.home_grid_energy) || 0,
-              formatShort(row.back_up_energy) || 0,
-              formatShort(row.energy) || 0,
-              formatShort(row.evn_amount) || 0,
-              formatShort(row.weshare_amount) || 0,
-              formatShort(row.saving_cost) || 0,
+              formatPrice(row.energy) || 0,
+              formatPrice(row.evn_amount) || 0,
+              formatPrice(row.weshare_amount) || 0,
+              formatPrice(row.saving_cost) || 0,
             ];
             return values.join(',');
           })

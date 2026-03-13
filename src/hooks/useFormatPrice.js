@@ -13,13 +13,23 @@ export function useFormatPrice() {
     const decimals = options.decimals != null ? options.decimals : 3;
     const site_country = settings?.site_country != null ? settings.site_country : '';
 
-    const formatted = new Intl.NumberFormat('en-US', {
+    // Support both new style ('.' / ',') and old stored values ('dot' / 'clone')
+    let decimalSeparator = settings?.finance_decimal_separator || '.';
+    if (decimalSeparator === 'dot') decimalSeparator = '.';
+    if (decimalSeparator === 'clone') decimalSeparator = ',';
+
+    let formatted = new Intl.NumberFormat('en-US', {
         notation: 'compact',
         compactDisplay: 'short',
         style: 'currency',
         currency:currency,
         maximumFractionDigits: decimals,
     }).format(amount);
+
+    if (decimalSeparator !== '.') {
+      formatted = formatted.replace('.', decimalSeparator);
+    }
+
 
     return formatted;
   };

@@ -31,15 +31,17 @@ const SettingsFinanceForm = () => {
   ], [lang, currentLanguage])
 
   // Initialize options with translations - memoized to update when language changes
+  // Store the *actual* characters in DB ('.', ',') instead of the old "dot"/"clone" keys
   const decimalSeparator = useMemo(() => [
-    { value: "dot", label: lang("finance.options.dot") },
-    { value: "clone", label: lang("finance.options.comma") },
+    { value: ".", label: lang("finance.options.dot") },
+    { value: ",", label: lang("finance.options.comma") },
   ], [lang, currentLanguage])
 
+  // For thousands separator we also store actual characters where applicable
   const thousandSeparator = useMemo(() => [
-    { value: "dot", label: lang("finance.options.dot") },
-    { value: "clone", label: lang("finance.options.comma") },
-    { value: "apostrophe", label: lang("finance.options.apostrophe") },
+    { value: ".", label: lang("finance.options.dot") },
+    { value: ",", label: lang("finance.options.comma") },
+    { value: "'", label: lang("finance.options.apostrophe") },
     { value: "none", label: lang("finance.options.none") },
     { value: "space", label: lang("finance.options.space") },
   ], [lang, currentLanguage])
@@ -61,8 +63,9 @@ const SettingsFinanceForm = () => {
   const [formData, setFormData] = useState({
     finance_currency: '',
     // Finance General
-    finance_decimal_separator: "dot",
-    finance_thousand_separator: "clone",
+    // Default to actual characters so DB stores '.' or ','
+    finance_decimal_separator: ".",
+    finance_thousand_separator: ",",
     // Store tax *ID* in this field
     finance_default_tax: "",
 
@@ -107,10 +110,24 @@ const SettingsFinanceForm = () => {
       const invoicePrefix = getSetting("invoice_number_prefix", "")
       const payoutPrefix = getSetting("payout_number_prefix", "")
       
+      // Backwards compatibility: map old stored values ("dot"/"clone") to real characters
+      const mapDecimal = (val, fallback) => {
+        if (val === "dot") return "."
+        if (val === "clone") return ","
+        return val || fallback
+      }
+
+      const mapThousand = (val, fallback) => {
+        if (val === "dot") return "."
+        if (val === "clone") return ","
+        if (val === "apostrophe") return "'"
+        return val || fallback
+      }
+
       const loaded = {
         finance_currency: getSetting("finance_currency", ""),
-        finance_decimal_separator: getSetting("finance_decimal_separator", "dot"),
-        finance_thousand_separator: getSetting("finance_thousand_separator", "clone"),
+        finance_decimal_separator: mapDecimal(getSetting("finance_decimal_separator", "."), "."),
+        finance_thousand_separator: mapThousand(getSetting("finance_thousand_separator", ","), ","),
         // Expect tax *ID* stored in settings; fallback empty string
         finance_default_tax: getSetting("finance_default_tax", ""),
         bank_account_name: getSetting("bank_account_name", ""),
