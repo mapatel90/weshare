@@ -326,7 +326,7 @@ const ElectricityCostOverviewChart = ({
 
                             <Bar
                                 dataKey="evn"
-                                name= {lang('chart_label.evn', 'EVN')}
+                                name= {lang('chart_label.grid', 'Grid')}
                                 fill="#2563eb"
                                 barSize={12}
                             />

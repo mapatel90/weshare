@@ -232,11 +232,10 @@ const RoiReports = () => {
       const headers = [
         lang("projects.projectName", "Project Name"),
         lang("reports.month", "Month"),
-        lang("projects.askingPrice", "Asking Price"),
         lang("projects.capexValue", "Capex Value"),
-        lang("reports.monthEnergy", "Energy"),
+        lang("reports.monthPv", "PV"),
         lang("projects.wesharePrice", "Weshare Price (kWh)"),
-        lang("reports.monthRevenue", "Month Revenue"),
+        lang("reports.monthrecivable", "Month Revenue"),
         lang("reports.monthRoi", "ROI"),
       ];
 
@@ -247,7 +246,6 @@ const RoiReports = () => {
           const values = [
             `"${(row.projectName || "-").replace(/"/g, '""')}"`,
             `"${(row.month || "-").replace(/"/g, '""')}"`,
-            row.askingPrice ?? "0",
             row.capexValue ?? "0",
             row.monthEnergy ?? "0",
             row.wesharePrice ?? "0",
@@ -314,11 +312,6 @@ const RoiReports = () => {
         header: () => lang("reports.month", "Month"),
       },
       {
-        accessorKey: "askingPrice",
-        header: () => lang("projects.askingPrice", "Asking Price"),
-        cell: ({ row }) => formatCurrency(row.original.askingPrice),
-      },
-      {
         accessorKey: "capexValue",
         header: () => lang("projects.capexValue", "Capex Value"),
         cell: ({ row }) => {
@@ -328,7 +321,7 @@ const RoiReports = () => {
       },
       {
         accessorKey: "month_energy",
-        header: () => lang("reports.monthEnergy", "Energy"),
+        header: () => lang("reports.monthPv", "PV"),
         cell: ({ row }) => formatShort(row.original.month_energy),
       },
       {
@@ -339,12 +332,12 @@ const RoiReports = () => {
 
       {
         accessorKey: "monthRevenue",
-        header: () => lang("reports.monthRevenue", "Revenue"),
+        header: () => lang("reports.monthrecivable", "Revenue"),
         cell: ({ row }) => row.original.monthRevenue,
       },
       {
         accessorKey: "monthRoi",
-        header: () => lang("reports.monthRoi", "ROI"),
+        header: () => lang("reports.roi_monthly", "ROI"),
         cell: ({ row }) => (formatPercentage(row.original.monthRoi)),
       }
     ],
@@ -506,10 +499,6 @@ const RoiReports = () => {
                     {/* Card Body */}
                     <div className="space-y-2">
                       <div className="flex justify-between text-xs">
-                        <span className="text-gray-600">{lang("projects.askingPrice", "Asking Price")}:</span>
-                        <span className="font-medium text-gray-900">{formatCurrency(row.askingPrice)}</span>
-                      </div>
-                      <div className="flex justify-between text-xs">
                         <span className="text-gray-600">{lang("projects.capexValue", "Capex Value")}:</span>
                         <span className="font-medium text-gray-900">
                           {isNaN(parseFloat(row.capexValue)) ? "0.00" : parseFloat(row.capexValue).toFixed(2)}
@@ -524,11 +513,11 @@ const RoiReports = () => {
                         <span className="font-medium text-gray-900">{row.weshare_price}</span>
                       </div>
                       <div className="flex justify-between text-xs">
-                        <span className="text-gray-600">{lang("reports.monthRevenue", "Revenue")}:</span>
+                        <span className="text-gray-600">{lang("reports.monthrecivable", "Revenue")}:</span>
                         <span className="font-medium text-gray-900">{row.monthRevenue}</span>
                       </div>
                       <div className="flex justify-between text-xs pt-2 border-t border-gray-100">
-                        <span className="font-semibold text-gray-700">{lang("reports.monthRoi", "ROI")}:</span>
+                        <span className="font-semibold text-gray-700">{lang("reports.roi_monthly", "ROI")}:</span>
                         <span className="font-bold text-slate-900">{formatPercentage(row.monthRoi)}</span>
                       </div>
                     </div>

@@ -56,6 +56,13 @@ function PannelSidebar() {
                 </div>
                 <div className="menu-section">
                     <Link
+                        href="/investor/contracts"
+                        className={`menu-item${activeMenu === 'contracts' ? ' active' : ''}`}
+                        onClick={handleClose}
+                    >{lang("offtaker_login.sidebar.contracts")}</Link>
+                </div>
+                <div className="menu-section">
+                    <Link
                         href="/investor/notifications"
                         className={`menu-item${activeMenu === 'notifications' ? ' active' : ''}`}
                         onClick={handleClose}
@@ -73,15 +80,9 @@ function PannelSidebar() {
                     <div className={`submenu${reportsOpen ? ' show' : ''}`}>
                         <Link href="/investor/reports/roi-reports" className={`menu-item${activeMenu === 'roi-reports' ? ' active' : ''}`} onClick={handleClose}>{lang("menu.roireports")}</Link>
                         <Link href="/investor/reports/capital-recovery-reports" className={`menu-item${activeMenu === 'capital-recovery-reports' ? ' active' : ''}`} onClick={handleClose}>{lang("menu.capitalrecoveryreports")}</Link>
+                        <Link href="/investor/reports/project-env-reports" className={`menu-item${activeMenu === 'project-env-reports' ? ' active' : ''}`} onClick={handleClose}>{lang("offtaker_login.sidebar.project_env_report")}</Link>
                         <Link href="/investor/reports/saving-reports" className={`menu-item${activeMenu === 'saving-reports' ? ' active' : ''}`} onClick={handleClose}>{lang("menu.savingreports")}</Link>
                     </div>
-                </div>
-                <div className="menu-section">
-                    <Link
-                        href="/investor/contracts"
-                        className={`menu-item${activeMenu === 'contracts' ? ' active' : ''}`}
-                        onClick={handleClose}
-                    >{lang("offtaker_login.sidebar.contracts")}</Link>
                 </div>
             </div>
         </div>

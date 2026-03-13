@@ -17,6 +17,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import PageTitleContext from "@/contexts/PageTitleContext";
 import ReviewModal from "./ReviewModal";
 import ElectricityConsumption from "@/components/admin/projectsCreate/projectViewSection/ElectricityConsumption";
+import InverterDetailsPanel from "@/components/admin/projectsCreate/projectViewSection/InverterDetailsPanel";
 
 const ProjectDetails = ({ project_id }) => {
     const { user } = useAuth();
@@ -28,6 +29,7 @@ const ProjectDetails = ({ project_id }) => {
     const [showInverterDropdown, setShowInverterDropdown] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
     const [isTablet, setIsTablet] = useState(false);
+    const screenSize = isMobile ? "mobile" : isTablet ? "tablet" : "pc";
 
     // new: projects state for dropdown (remove static entries)
     const [projects, setProjects] = useState([]);
@@ -38,6 +40,25 @@ const ProjectDetails = ({ project_id }) => {
     const [invertersLoading, setInvertersLoading] = useState(false);
     const [invertersError, setInvertersError] = useState(null);
     const [selectedInverter, setSelectedInverter] = useState(null);
+    const activeInvertersCount = useMemo(
+        () => (Array.isArray(inverters) ? inverters.filter((inv) => inv?.status === 1).length : 0),
+        [inverters]
+    );
+    const totalInvertersCount = inverters?.length ?? 0;
+
+    // Simple responsive flags for mobile / tablet (used by charts + inverter panel)
+    useEffect(() => {
+        const handleResize = () => {
+            if (typeof window === "undefined") return;
+            const width = window.innerWidth;
+            setIsMobile(width <= 640);
+            setIsTablet(width > 640 && width <= 1024);
+        };
+
+        handleResize();
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
 
     // NEW: latest inverter data (for all projects / project / inverter)
     const [inverterLatest, setInverterLatest] = useState(null);
@@ -692,6 +713,7 @@ const ProjectDetails = ({ project_id }) => {
                         selectedInverterId={selectedInverter?.inverterId}
                         responsiveByContainer={true}
                         inverter_details_view={true}
+                        selectedProject={selectedProject}
                     />
 
                     {/* CHART SECTION */}
@@ -880,38 +902,19 @@ const ProjectDetails = ({ project_id }) => {
                         )}
                     </div>
                 </div>
-                <div>
-                    <div className="chart-card">
-                        <div className="card-title" style={{ marginBottom: "20px" }}>
-                            🌱 {lang("dashboard.environmentalImpact", "Environmental Impact")}
-                        </div>
-                        <div className="impact-grid">
-                            <div className="impact-card">
-                                <div style={{ fontSize: "35px" }}>🍃</div>
-                                <div className="impact-value">
-                                    {selectedProject?.project_data?.[0]?.power_station_avoided_co2
-                                        ? `${selectedProject.project_data[0].power_station_avoided_co2} kg`
-                                        : '-'}
-                                </div>
-                                <div className="impact-label">{lang("dashboard.co2Avoided", "CO₂ Avoided This Year")}</div>
-                            </div>
-                            <div className="impact-card">
-                                <div style={{ fontSize: "35px" }}>💡</div>
-                                <div className="impact-value">{selectedProject?.project_data?.[0]?.power_station_avoided_tce
-                                    ? `${selectedProject.project_data[0].power_station_avoided_tce} kWh`
-                                    : '-'}</div>
-                                <div className="impact-label">{lang("dashboard.cleanEnergyConsumed", "Clean Energy Consumed")}</div>
-                            </div>
-                            <div className="impact-card" style={{ gridColumn: "1 / -1" }}>
-                                <div style={{ fontSize: "35px" }}>🌳</div>
-                                <div className="impact-value">{selectedProject?.project_data?.[0]?.power_station_num_tree
-                                    ? `${selectedProject.project_data[0].power_station_num_tree} ${lang("dashboard.trees", "Trees")}`
-                                    : '-'}</div>
-                                <div className="impact-label">{lang("dashboard.equivalentPlanted", "Equivalent planted")}</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <InverterDetailsPanel
+                    show={!!selectedProject}
+                    colors={colors}
+                    screenSize={screenSize}
+                    isDark={isDark}
+                    lang={lang}
+                    inverters={inverters}
+                    activeInverters={activeInvertersCount}
+                    totalInverters={totalInvertersCount}
+                    onInverterClick={(inv) => {
+                        setSelectedInverter(inv);
+                    }}
+                />
             </div>
 
             {/* Review Modal */}

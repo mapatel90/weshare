@@ -164,7 +164,7 @@ const ElectricityConsumption = ({
     const rows = [
       {
         key: "energy",
-        title: lang("common.energy", "Energy"),
+        title: lang("common.weshare", "Weshare"),
         color: "#f97316",
       },
       {

@@ -567,68 +567,60 @@ const ProjectTable = () => {
                   >
                     {/* Image and status badge */}
                     <div className="relative w-full h-36 sm:h-44 md:h-40 lg:h-36 xl:h-40 overflow-hidden">
-                      <img
-                        src={buildUploadUrl(project.project_images?.[0]?.path) || "/uploads/general/noimage.jpeg"}
-                        alt={project.project_name}
-                        className="object-cover w-full h-full"
-                        onError={(e) => {
-                          // Handle AccessDenied (403), 404, or any image load error
-                          e.target.onerror = null;
-                          e.target.src = "/uploads/general/noimage.jpeg";
-                        }}
-                      />
+                      <a href={`/investor/projects/details/${project.projectId ?? project.id ?? ""}`}>
+                        <img
+                          src={buildUploadUrl(project.project_images?.[0]?.path) || "/uploads/general/noimage.jpeg"}
+                          alt={project.project_name}
+                          className="object-cover w-full h-full"
+                          onError={(e) => {
+                            // Handle AccessDenied (403), 404, or any image load error
+                            e.target.onerror = null;
+                            e.target.src = "/uploads/general/noimage.jpeg";
+                          }}
+                        />
+                      </a>
                       <span className={`absolute top-2 right-2 px-3 py-1 text-xs font-semibold rounded-full shadow ${getStatusColor(project.project_status_id)}`}>{project.project_status?.name}</span>
                     </div>
                     {/* Card content */}
                     <div className="p-3 md:p-4 flex flex-col flex-1">
                       <h2
-                        className="text-lg font-bold text-slate-900 mb-1 w-full md:w-[220px] h-10 leading-5 overflow-hidden break-words line-clamp-2"
+                        className="text-lg text-blue-500 font-bold text-slate-900 mb-1 w-full md:w-[220px] h-10 leading-5 overflow-hidden break-words line-clamp-2 hover:text-blue-500"
                         title={project.project_name}
                       >
-                        {project.project_name}
+                        <a href={`/investor/projects/details/${project.projectId ?? project.id ?? ""}`}>
+                          {project.project_name}
+                        </a>
                       </h2>
                       <div className="text-xs text-gray-500 mb-1">{lang("projecttablelabel.code", "ID")}: {project.product_code}</div>
                       <div className="text-sm text-gray-600 mb-2">{lang("projecttablelabel.offtaker", "Offtaker")}: <span className="font-medium">{project.offtaker.full_name}</span></div>
-                      {/* Ratings */}
-                      {/* <div className="flex items-center gap-2 mb-2">
-                        <span className="text-xs text-gray-500 font-semibold">Ratings:</span>
-                        <span className="flex gap-0.5">
-                          {[...Array(4)].map((_, i) => (
-                            <svg key={i} className="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><polygon points="10,1 12.59,7.36 19.51,7.36 13.96,11.64 16.55,18 10,13.72 3.45,18 6.04,11.64 0.49,7.36 7.41,7.36" /></svg>
-                          ))}
-                          <svg className="w-4 h-4 text-gray-300" fill="currentColor" viewBox="0 0 20 20"><polygon points="10,1 12.59,7.36 19.51,7.36 13.96,11.64 16.55,18 10,13.72 3.45,18 6.04,11.64 0.49,7.36 7.41,7.36" /></svg>
-                        </span>
-                      </div> */}
                       {/* Stats boxes */}
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-3 md:h-[95px]">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-3 md:h-[40%]">
                         <div className="bg-gray-50 rounded-lg p-2 text-center" style={{ wordWrap: "break-word" }}>
-                          <div className="text-base font-bold text-slate-900">{priceWithCurrency(project.asking_price)}</div>
-                          <div className="text-xs text-gray-500">{lang("home.exchangeHub.totalInvestedPrice", "Target Investment")}</div>
+                          <div className="text-base font-bold text-slate-900 break-words">{priceWithCurrency(project.asking_price)}</div>
+                          <div className="text-xs text-gray-500 break-words">{lang("home.exchangeHub.totalInvestedPrice", "Target Investment")}</div>
                         </div>
                         <div className="bg-gray-50 rounded-lg p-2 text-center">
-                          <div className="text-base font-bold text-amber-600">{formatEnergyUnit(project.total_energy)}</div>
-                          <div className="text-xs text-gray-500">{lang("home.exchangeHub.accumulativeGeneration", "Total Generation")}</div>
+                          <div className="text-base font-bold text-amber-600 break-words">{formatEnergyUnit(project.total_energy)}</div>
+                          <div className="text-xs text-gray-500 break-words">{lang("home.exchangeHub.accumulativeGeneration", "Total Generation")}</div>
                         </div>
                         <div className="bg-gray-50 rounded-lg p-2 text-center">
-                          <div className="text-base font-bold text-orange-600">{formatPercent(project.calculated_roi)}</div>
-                          <div className="text-xs text-gray-500">{lang("home.exchangeHub.realtimeMonthlyROI", "ROI")}</div>
+                          <div className="text-base font-bold text-orange-600 break-words">{formatPercent(project.calculated_roi)}</div>
+                          <div className="text-xs text-gray-500 break-words">{lang("home.exchangeHub.realtimeMonthlyROI", "ROI")}</div>
                         </div>
                       </div>
                       {/* Payback/Lease info */}
                       <div className="flex flex-col md:flex-row gap-2 bg-gray-100 rounded-lg p-2 mb-3 text-center text-xs font-medium text-gray-700">
                         <div className="flex-1 md:border-r border-gray-300">
                           <div>{lang("home.exchangeHub.paybackPeriod", "Payback Period")}</div>
-                          {console.log("project:", project)}
-                          <div className="text-lg font-bold text-slate-900">{project?.payback_period}</div>
+                          <div className="text-lg font-bold break-words text-slate-900">{project?.payback_period}</div>
                         </div>
                         <div className="flex-1">
                           <div>{lang("home.exchangeHub.leaseTermRemaining", "Lease Term")}</div>
-                          <div className="text-lg font-bold text-slate-900">{getTimeLeft(project?.project_close_date)}</div>
+                          <div className="text-lg font-bold break-words text-slate-900">{getTimeLeft(project?.project_close_date)}</div>
                         </div>
                       </div>
                       {/* Action buttons */}
-                      <div className="flex gap-2 mt-auto">
-                        {/* <button className="flex-1 px-4 py-2 bg-amber-500 text-white rounded-lg font-semibold hover:bg-amber-600 transition-colors text-sm">Invest Early</button> */}
+                      {/* <div className="flex gap-2 mt-auto">
                         <a
                           className="flex-1 px-4 py-2 border border-gray-300 text-slate-900 rounded-lg font-semibold hover:bg-gray-100 transition-colors text-sm flex items-center justify-center gap-1"
                           href={`/investor/projects/details/${project.projectId ?? project.id ?? ""}`}
@@ -650,7 +642,7 @@ const ProjectTable = () => {
                           </svg>
                           {lang("home.exchangeHub.viewDetails", "View Details")}
                         </a>
-                      </div>
+                      </div> */}
                     </div>
                   </div>
                 ))}

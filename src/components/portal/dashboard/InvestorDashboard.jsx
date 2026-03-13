@@ -789,18 +789,6 @@ function DashboardView() {
           </div>
         </div>
       )}
-
-      <div className="row">
-        <AllProjects />
-        <AllContracts />
-      </div>
-
-      {/* <ProjectsTable /> */}
-
-      <div className="hidden-mobile">
-        <PayoutCard lang={lang} />
-        {/* <DocumentsCard lang={lang} /> */}
-      </div>
     </div>
   );
 }

@@ -48,6 +48,7 @@ const CapitalRecoverReport = () => {
         id: item.id ?? item.project_id ?? idx,
         projectId: item.project_id ?? item.id ?? null,
         projectName: item.project_name || `Project ${item.project_id ?? ""}`,
+        capexPerKwp: item.capex_per_kwp || "0",
         askingPrice: item.asking_price || "0",
         totalPayout: item.total_payout || "0",
         invoiceTotalAmount: item.invoice_total_amount || "0",
@@ -144,7 +145,7 @@ const CapitalRecoverReport = () => {
       const csvData = items.map((item, idx) => ({
         projectName:
           item.project_name || `Project ${item.project_id ?? idx ?? ""}`,
-        askingPrice: item.asking_price || "0",
+        capexPerKwp: item.capex_per_kwp || "0",
         totalPayout: item.total_payout || "0",
         invoiceTotalAmount: item.invoice_total_amount || "0",
         capitalRecovery: item.capital_recovery || "0",
@@ -153,7 +154,7 @@ const CapitalRecoverReport = () => {
       // Define CSV headers
       const headers = [
         lang("projects.projectName", "Project Name"),
-        lang("projects.askingPrice", "Asking Price"),
+        lang("projects.capex_per_kwp", "Asking Price"),
         lang("reports.totalInvoiceAmount", "Total Invoice Amount"),
         lang("reports.capitalRecovery", "Capital Recovery"),
       ];
@@ -164,7 +165,7 @@ const CapitalRecoverReport = () => {
         ...csvData.map((row) => {
           const values = [
             `"${(row.projectName || "-").replace(/"/g, '""')}"`,
-            row.askingPrice ?? "0",
+            row.capexPerKwp ?? "0",
             row.invoiceTotalAmount ?? "0",
             `${parseFloat(row.capitalRecovery || 0).toFixed(2)}%`,
           ];
@@ -220,13 +221,13 @@ const CapitalRecoverReport = () => {
         header: () => lang("projects.projectName", "Project Name"),
       },
       {
-        accessorKey: "askingPrice",
-        header: () => lang("projects.askingPrice", "Asking Price"),
-        cell: ({ row }) => formatCurrency(row.original.askingPrice),
+        accessorKey: "capexPerKwp",
+        header: () => lang("projects.capex_per_kwp", "Asking Price"),
+        cell: ({ row }) => formatCurrency(row.original.capexPerKwp),
       },
       {
         accessorKey: "invoiceTotalAmount",
-        header: () => lang("reports.totalInvoiceAmount", "Total Invoice Amount"),
+        header: () => lang("reports.acumulativerevenue", "Acumulative Revenue"),
         cell: ({ row }) => formatCurrency(row.original.invoiceTotalAmount),
       },
       {
@@ -327,7 +328,7 @@ const CapitalRecoverReport = () => {
                   <span className="font-medium text-gray-900">{formatCurrency(item.askingPrice)}</span>
                 </div>
                 <div className="flex justify-between text-xs">
-                  <span className="text-gray-600">{lang("reports.totalInvoiceAmount", "Total Invoice Amount")}:</span>
+                  <span className="text-gray-600">{lang("reports.acumulativerevenue", "Acumulative Revenue")}:</span>
                   <span className="font-medium text-gray-900">{formatCurrency(item.invoiceTotalAmount)}</span>
                 </div>
                 <div className="flex justify-between text-xs">

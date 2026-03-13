@@ -703,6 +703,8 @@ function DashboardView() {
             isDark={isDark}
             responsiveByContainer={true}
             inverter_details_view={false}
+            environmental={false}
+            selectedProject={selectedProject}
           />
 
           {/* CHART SECTION */}
@@ -842,7 +844,7 @@ function DashboardView() {
 
       {/* Dashboard */}
       {selectedProject && (
-        <div className="dashboard-row">
+        <div className="dashboard-row" style={{ display: 'contents' }}>
           <div className="chart-card" style={{ overflow: 'auto' }}>
             <div className="card-header" style={{ marginBottom: '10px' }}>
               <div className="card-title">{lang("dashboard.savingsTracker", "Savings Tracker")}</div>
@@ -934,59 +936,8 @@ function DashboardView() {
               </div>
             </div> */}
           </div>
-          <div>
-            <div className="chart-card">
-              <div className="card-title" style={{ marginBottom: "20px" }}>
-                🌱 {lang("dashboard.environmentalImpact", "Environmental Impact")}
-              </div>
-              <div className="impact-grid">
-                <div className="impact-card">
-                  <div style={{ fontSize: "35px" }}>🍃</div>
-                  <div className="impact-value">
-                    {selectedProject?.project_data?.[0]?.power_station_avoided_co2
-                      ? `${selectedProject.project_data[0].power_station_avoided_co2} kg`
-                      : '-'}
-                  </div>
-                  <div className="impact-label">{lang("dashboard.co2Avoided", "CO₂ Avoided This Year")}</div>
-                </div>
-                <div className="impact-card">
-                  <div style={{ fontSize: "35px" }}>💡</div>
-                  <div className="impact-value">{selectedProject?.project_data?.[0]?.power_station_avoided_tce
-                    ? `${selectedProject.project_data[0].power_station_avoided_tce} kWh`
-                    : '-'}</div>
-                  <div className="impact-label">{lang("dashboard.cleanEnergyConsumed", "Clean Energy Consumed")}</div>
-                </div>
-                <div className="impact-card" style={{ gridColumn: "1 / -1" }}>
-                  <div style={{ fontSize: "35px" }}>🌳</div>
-                  <div className="impact-value">{selectedProject?.project_data?.[0]?.power_station_num_tree
-                    ? `${selectedProject.project_data[0].power_station_num_tree} ${lang("dashboard.trees", "Trees")}`
-                    : '-'}</div>
-                  <div className="impact-label">{lang("dashboard.equivalentPlanted", "Equivalent planted")}</div>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
       )}
-
-      <div className="mt-3">
-        <AllProjects />
-      </div>
-
-      {/* Projects Table */}
-      <ProjectsTable />
-
-      {/* Bottom Row - hidden on mobile */}
-      <div className="bottom-row hidden-mobile">
-        {/* Billing Card */}
-        <BillingCard
-          lang={lang}
-        />
-        {/* Documents Card */}
-        <DocumentsCard
-          lang={lang}
-        />
-      </div>
     </div>
   );
 }

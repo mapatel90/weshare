@@ -1513,6 +1513,7 @@ router.get("/report/capital-recovery", authenticateToken, async (req, res) => {
         id: true,
         project_name: true,
         asking_price: true,
+        capex_per_kwp: true,
       },
       orderBy: { project_name: "asc" },
       skip: fetchAll ? 0 : (pageNumber - 1) * limitNumber,
@@ -1559,9 +1560,10 @@ router.get("/report/capital-recovery", authenticateToken, async (req, res) => {
 
     const data = projects.map((p) => {
       const askingPrice = parseFloat(p.asking_price || "0") || 0;
+      const capexPerKwp = parseFloat(p.capex_per_kwp || "0") || 0;
       const totalPayout = payoutSumMap.get(p.id) || 0;
       const invoiceTotalAmount = invoiceTotalAmountMap.get(p.id) || 0;
-      const capitalRecovery = askingPrice > 0 ? (invoiceTotalAmount * 100) / askingPrice : 0;
+      const capitalRecovery = capexPerKwp > 0 ? (invoiceTotalAmount * 100) / capexPerKwp : 0;
 
       return {
         id: p.id,
@@ -1569,6 +1571,7 @@ router.get("/report/capital-recovery", authenticateToken, async (req, res) => {
         project_name: p.project_name,
         asking_price: askingPrice.toFixed(2),
         total_payout: totalPayout.toFixed(2),
+        capex_per_kwp: capexPerKwp.toFixed(2),
         invoice_total_amount: invoiceTotalAmount.toFixed(2),
         capital_recovery: capitalRecovery.toFixed(2),
       };

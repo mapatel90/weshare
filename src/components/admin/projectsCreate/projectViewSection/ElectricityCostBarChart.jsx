@@ -200,7 +200,7 @@ const ElectricityCostBarChart = ({
                         {/* EVN bar */}
                         <Bar
                             dataKey="evn"
-                            name={lang('chart_label.evn', 'EVN')}
+                            name={lang('chart_label.grid', 'Grid')}
                             fill={isDark ? '#2563eb' : '#2563eb'}
                             barSize={isMobile ? 8 : isTablet ? 10 : 12}
                         />

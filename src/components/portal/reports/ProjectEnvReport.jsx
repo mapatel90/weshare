@@ -12,6 +12,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import "dayjs/locale/en";
 import "dayjs/locale/vi";
+import { ROLES } from '@/constants/roles';
 
 const ProjectEnvReport = () => {
     const PAGE_SIZE = 50;
@@ -43,8 +44,16 @@ const ProjectEnvReport = () => {
         try {
             setLoading(true);
             setError(null);
-
-            const res = await apiPost("/api/projects/dropdown/project", { offtaker_id: user?.id, project_status_id: PROJECT_STATUS.RUNNING });
+            let res = null;
+            
+            if (user.role === ROLES.OFFTAKER) {
+                res = await apiPost("/api/projects/dropdown/project", { offtaker_id: user?.id, project_status_id: PROJECT_STATUS.RUNNING });
+            } else if (user.role === ROLES.INVESTOR) {
+                res = await apiPost("/api/projects/dropdown/project", { investor_id: user?.id, project_status_id: PROJECT_STATUS.RUNNING });
+            } else {
+                res = await apiPost("/api/projects/dropdown/project", { project_status_id: PROJECT_STATUS.RUNNING });
+            }
+            // const res = await apiPost("/api/projects/dropdown/project", { offtaker_id: user?.id, project_status_id: PROJECT_STATUS.RUNNING });
 
             if (res && res.data) {
                 setProjects(res.data);

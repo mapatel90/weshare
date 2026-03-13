@@ -36,14 +36,14 @@ function MainSidebar() {
                 <Link href="/investor/payouts">
                     <div className={`icon-item${activeMenu === 'payouts' ? ' active' : ''}`} data-menu="payouts" title="Payouts" onClick={() => setActiveMenu('payouts')}><PaymentIcon sx={{ color: '#43a047' }} /></div>
                 </Link>
+                <Link href="/investor/contracts">
+                    <div className={`icon-item${activeMenu === 'contracts' ? ' active' : ''}`} data-menu="contract" title="Contracts" onClick={() => setActiveMenu('contracts')}><NoteAltOutlinedIcon sx={{ color: '#00838f' }} /></div>
+                </Link>
                 <Link href="/investor/notifications">
                     <div className={`icon-item${activeMenu === 'notifications' ? ' active' : ''}`} data-menu="notifications" title="Notifications" onClick={() => setActiveMenu('notifications')}><NotificationsActiveIcon sx={{ color: '#e53935' }} /></div>
                 </Link>
                 <Link href="/investor/reports/roi-reports">
                     <div className={`icon-item${activeMenu == 'roi-reports' || activeMenu == 'investment-summary-reports' ? ' active' : ''}`} data-menu="reports" title="Reports" onClick={() => setActiveMenu('reports')}><AutoGraphOutlinedIcon sx={{ color: '#00838f' }} /></div>
-                </Link>
-                <Link href="/investor/contracts">
-                    <div className={`icon-item${activeMenu === 'contracts' ? ' active' : ''}`} data-menu="contract" title="Contracts" onClick={() => setActiveMenu('contracts')}><NoteAltOutlinedIcon sx={{ color: '#00838f' }} /></div>
                 </Link>
             </div>
         </div>
