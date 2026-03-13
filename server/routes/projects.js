@@ -1040,7 +1040,12 @@ router.get("/", async (req, res) => {
     };
 
     let finalProjects = projectsWithRoi;
+    let totalCapex = 0;
+    projectsWithRoi.forEach(project => {
+      totalCapex += parseFloat(project.capex_per_kwp) || 0;
+    });
     let effectiveTotal = totalCount;
+    totalCapex = totalCapex.toFixed(2);
 
     if (hasRangeFilters) {
       finalProjects = projectsWithRoi.filter((project) => {
@@ -1096,6 +1101,7 @@ router.get("/", async (req, res) => {
     res.json({
       success: true,
       data: finalProjects,
+      totalCapex: totalCapex,
       offtakerList,
       projectList,
       pagination: {

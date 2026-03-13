@@ -111,16 +111,16 @@ function Summary({
 			hoverShadow: "rgba(217, 119, 6, 0.12)",
 			emoji: "💰",
 		},
-		{
-			key: "total-contracts",
-			label: lang?.("dashboard.total_contracts", "Total Contracts") ?? "Total Contracts",
-			value: summaryLoading ? "—" : formatNumber(totalContracts),
-			description: summaryLoading ? "Agreement documents" : `${lang?.("common.approved", "Accepted") ?? "Accepted"}: ${formatNumber(contractStatuses?.accepted ?? 0)} • ${lang?.("common.rejected", "Rejected") ?? "Rejected"}: ${formatNumber(contractStatuses?.rejected ?? 0)} • ${lang?.("common.cancelled", "Cancelled") ?? "Cancelled"}: ${formatNumber(contractStatuses?.cancelled ?? 0)}`,
-			color: "#a855f7",
-			textColor: "#1f2937",
-			hoverShadow: "rgba(168, 85, 247, 0.12)",
-			emoji: "📜",
-		},
+		// {
+		// 	key: "total-contracts",
+		// 	label: lang?.("dashboard.total_contracts", "Total Contracts") ?? "Total Contracts",
+		// 	value: summaryLoading ? "—" : formatNumber(totalContracts),
+		// 	description: summaryLoading ? "Agreement documents" : `${lang?.("common.approved", "Accepted") ?? "Accepted"}: ${formatNumber(contractStatuses?.accepted ?? 0)} • ${lang?.("common.rejected", "Rejected") ?? "Rejected"}: ${formatNumber(contractStatuses?.rejected ?? 0)} • ${lang?.("common.cancelled", "Cancelled") ?? "Cancelled"}: ${formatNumber(contractStatuses?.cancelled ?? 0)}`,
+		// 	color: "#a855f7",
+		// 	textColor: "#1f2937",
+		// 	hoverShadow: "rgba(168, 85, 247, 0.12)",
+		// 	emoji: "📜",
+		// },
 	].filter(Boolean);
 
 	return (

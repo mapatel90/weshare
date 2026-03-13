@@ -81,6 +81,8 @@ function DashboardView() {
   const [electricityConsumptionDate, setElectricityConsumptionDate] = useState(new Date().toISOString().slice(0, 7));
   const [electricityConsumptionViewMode, setElectricityConsumptionViewMode] = useState("day");
 
+  const [totalCapex, setTotalCapex] = useState(0);
+
   const normalizeInvestorProject = (entry) => {
     const source = entry.projects || entry;
     const rawSize =
@@ -529,7 +531,9 @@ function DashboardView() {
             payoutTotal={payoutTotal}
             totalContracts={totalContracts}
             contractStatuses={contractStatuses}
-            summaryLoading={summaryLoading}
+            summaryLoading={summaryLoading} 
+            showtotalcapex={true}
+            totalcapex={totalCapex}
             showRunningProjects={false}
             projectsDescription={lang("dashboard.all_your_investments", "All your investments") ?? "All your investments"}
             payoutLabel={lang("dashboard.payout_total", "Payout Total") ?? "Payout Total"}
