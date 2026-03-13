@@ -15,19 +15,19 @@ function PannelSidebar() {
     const [activeMenu, setActiveMenu] = useState('');
     const [reportsOpen, setReportsOpen] = useState(false);
     const pathname = usePathname();
-    
+
     useEffect(() => {
         // Remove trailing slash and get last segment
         const cleanPath = pathname.replace(/\/$/, '');
         const lastSegment = cleanPath.split('/').pop() || '';
         setActiveMenu(lastSegment);
-        
+
         // Auto-open reports submenu if on a reports page
         if (lastSegment === 'roi-reports' || lastSegment === 'capital-recovery-reports' || lastSegment === 'saving-reports') {
             setReportsOpen(true);
         }
     }, [pathname]);
-    
+
     return (
         <div className="text-sidebar" id="textSidebar">
             <button className="close-sidebar-btn" onClick={handleClose}>✕</button>
@@ -83,6 +83,13 @@ function PannelSidebar() {
                         <Link href="/investor/reports/project-env-reports" className={`menu-item${activeMenu === 'project-env-reports' ? ' active' : ''}`} onClick={handleClose}>{lang("offtaker_login.sidebar.project_env_report")}</Link>
                         <Link href="/investor/reports/saving-reports" className={`menu-item${activeMenu === 'saving-reports' ? ' active' : ''}`} onClick={handleClose}>{lang("menu.savingreports")}</Link>
                     </div>
+                </div>
+                <div className="menu-section">
+                    <Link
+                        href="/frontend/contact_us"
+                        className={`menu-item${activeMenu === 'connectWithUs' ? ' active' : ''}`}
+                        onClick={handleClose}
+                    >{lang("offtaker_login.sidebar.connectWithUs")}</Link>
                 </div>
             </div>
         </div>

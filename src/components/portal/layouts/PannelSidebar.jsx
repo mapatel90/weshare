@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { closeSidebars } from '@/assets/portal/offtaker.js';
 import Link from 'next/link';
-import { ChevronDown } from 'lucide-react';
+import { ArrowUpRight, ChevronDown } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { usePathname } from 'next/navigation';
 
@@ -96,6 +96,13 @@ function PannelSidebar() {
                     <Link href="/offtaker/reports/project-env-reports" className={`menu-item${activeMenu === 'project-env-reports' ? ' active' : ''}`} onClick={handleClose}>{lang("offtaker_login.sidebar.project_env_report")}</Link>
                     <Link href="/offtaker/reports/saving-reports" className={`menu-item${activeMenu === 'saving-reports' ? ' active' : ''}`} onClick={handleClose}>{lang("offtaker_login.sidebar.savingreports")}</Link>
                 </div>
+            </div>
+            <div className="menu-section">
+                <Link
+                    href="/frontend/contact_us"
+                    className={`menu-item${activeMenu === 'connectWithUs' ? ' active' : ''}`}
+                    onClick={handleClose}
+                >{lang("offtaker_login.sidebar.connectWithUs")}</Link>
             </div>
         </div>
     );

@@ -556,7 +556,8 @@
     "profile": "Profile",
     "meterreadings": "Meter Readings",
     "portfolio": "Portfolio",
-    "exchange-hub-summary": "Exchange Hub Summary"
+    "exchange-hub-summary": "Exchange Hub Summary",
+    "connectWithUs": "Connect with Us"
   },
   "dashboard": {
     "all_your_investments": "All your investments",
@@ -1756,7 +1757,8 @@
       "conjunctionreports": "Conjunction Reports",
       "contracts": "Contracts",
       "payouts": "Recivable",
-      "meterreadings": "Meter Readings"
+      "meterreadings": "Meter Readings",
+      "connectWithUs": "Connect with Us"
     }
   },
   "investor": {

@@ -60,7 +60,8 @@
     "inverter_company": "Công ty",
     "meterreadings": "Chỉ số công tơ",
     "portfolio": "Danh mục đầu tư",
-    "exchange-hub-summary":"tóm tắt trung tâm trao đổi"
+    "exchange-hub-summary":"tóm tắt trung tâm trao đổi",
+    "connectWithUs": "Kết nối với chúng tôi"
   },
   "header": {
     "dashboard": "Bảng điều khiển",
@@ -541,8 +542,8 @@
     "profile": "Hồ sơ",
     "meterreadings":"Chỉ số công tơ",
     "portfolio":"Danh mục đầu tư",
-    "exchange-hub-summary":"tóm tắt trung tâm trao đổi"
-
+    "exchange-hub-summary":"tóm tắt trung tâm trao đổi",
+    "connectWithUs": "Kết nối với chúng tôi"
   },
   "dashboard": {
     "all_your_investments": "Tất cả khoản đầu tư của bạn",
@@ -1707,7 +1708,8 @@
       "conjunctionreports": "Báo cáo kết hợp",
       "contracts": "Hợp đồng",
       "payouts": "Thanh toán",
-      "meterreadings": "Đọc điện năng"
+      "meterreadings": "Đọc điện năng",
+      "connectWithUs": "Kết nối với chúng tôi"
     }
   },
   "investor": {
