@@ -475,7 +475,8 @@ body {
   margin-left: 320px;
   flex: 1;
   /* padding: 20px 30px; */
-  padding: 0px 30px 20px 30px;
+  padding: 80px 30px 20px 30px;
+  /* padding-top pushes content below the fixed header on larger screens */
   transition: margin-left 0.3s ease;
   background: white;
 }
@@ -485,13 +486,21 @@ body {
 }
 
 .header {
+  position: fixed;
+  top: 0;
+  left: 90px; /* leave room for the fixed icon sidebar on larger screens */
+  right: 0;
+  height: 60px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 30px;
-  /* padding-bottom: 20px; */
+  padding: 0 24px;
+  margin-bottom: 0;
   border-bottom: 2px solid #e5e7eb;
-  height: 60px;
+  background: #ffffff;
+  z-index: 1100;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  box-sizing: border-box;
 }
 
 .header-left {
